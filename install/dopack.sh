@@ -1,8 +1,8 @@
 #!/bin/bash
-# 修正版：保留完整映射功能 + 相对路径支持 + 软链接生成
-
+# 使用./dopack.sh <架构>
+# 架构可以设置x86_64或arm_64,如果不设置会按照当前环境默认打包
 # ====================== 配置区域 ======================
-OUTPUT_NAME="tinyPiXApp.run"	# 生成的安装包的名字
+OUTPUT_NAME="tinyPiXCore.run"	# 生成的安装包的名字
 TMP_ROOT_DIR="package_build"	# 生成的临时文件的名字
 KEEP_TMP_DIR=false		# 是否保留中间生成的打包源文件
 
@@ -17,8 +17,20 @@ declare -A PATH_MAPPINGS=(
     # 相对路径会自动转换为绝对路径
     # 格式: [源目录]="模式:目标路径"
 	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新)
-    ["./{ARCH}/app"]="update:/System/app"
-	["./{ARCH}/conf"]="update:/System/conf"
+    ["./{ARCH}/lib"]="overwrite:/usr/lib/tinyPiX"
+	["./{ARCH}/bin"]="overwrite:/usr/bin/tinyPiX"
+
+	["../src/depend_lib/dynamic/{ARCH}"]="update:/usr/lib/tinyPiX"
+#	["../src/depend_lib/static/{ARCH}"]="update:/usr/lib/tinyPiX"
+    
+    # 示例 2: 数据目录重定位
+    ["./{ARCH}/data"]="update:/usr/data/tinyPiX"  # 源目录安装到新位置
+    
+    # 示例 3: 头文件
+    ["./{ARCH}/include"]="overwrite:/usr/include/tinyPiX"
+    
+    # 示例 4: 资源文件到自定义位置
+	["./{ARCH}/res"]="update:/usr/res/tinyPiX"
 )
 # =====================================================
 
@@ -279,6 +291,10 @@ echo "映射文件: $MAPPING_FILE"
 # 检查系统依赖包 ----------------------------------------
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
+	libsdl2-image-dev libsdl2-gfx-dev
+    libcairo2-dev libpango1.0-dev libglib2.0-dev
+    libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev
+    libgbm-dev libgles2 libegl-dev 
 	librsvg2-dev libssl-dev libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev
 	bluez-obexd bluez-alsa-utils libasound2-plugin-bluez
 	libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
@@ -421,6 +437,92 @@ while IFS= read -r mapping; do
     
 done < "$MAPPING_FILE"
 
+# ====================== 安全软链接替换函数 ======================
+safe_create_link() {
+    local link_path="$1"
+    local target_path="$2"
+    
+    # 1. 删除任何已存在的链接或文件
+    if [ -e "$link_path" ] || [ -L "$link_path" ]; then
+        if ! rm -f "$link_path"; then
+            echo "❌ 错误: 无法删除旧链接 - $link_path" >&2
+            return 1
+        fi
+        echo "    🗑️  已移除旧链接: $link_path"
+    fi
+    
+    # 2. 创建新链接
+    if ! ln -s "$target_path" "$link_path"; then
+        echo "❌ 错误: 无法创建链接 - $link_path" >&2
+        return 2
+    fi
+    
+    return 0
+}
+
+# ====================== 合并软链接处理 ======================
+create_symlinks() {
+    echo "▸ 创建绝对路径符号链接 (安全替换)"
+    
+    # 1. 库文件链接
+	LIB_DIR="${TARGET_DIR}/usr/lib/tinyPiX"
+	if [ -d "$LIB_DIR" ]; then
+		echo "  → 处理库文件目录: $LIB_DIR"
+		find "$LIB_DIR" -maxdepth 1 -type f \( -name "*.so" -o -name "*.so.*" \) | while read -r lib; do
+			lib_name=$(basename "$lib")
+			target_path="$LIB_DIR/${lib_name}"
+			
+			# 处理版本化共享库
+			if [[ "$lib_name" =~ \.so\.[0-9] ]]; then
+				# 提取基础库名和版本信息
+				base_name="${lib_name%%.so.*}.so"
+				version="${lib_name#*.so.}"
+				major_version="${version%%.*}"
+				
+				# 创建两个链接
+				echo "    ▸ 版本化库: $lib_name"
+				
+				# 1. 创建基础链接 (libname.so)
+				link1_path="${TARGET_DIR}/usr/lib/${base_name}"
+				if safe_create_link "$link1_path" "$target_path"; then
+					echo "      ✓ $link1_path → $target_path"
+				fi
+				
+				# 2. 创建主版本链接 (libname.so.major)
+				link2_path="${TARGET_DIR}/usr/lib/${base_name}.${major_version}"
+				if safe_create_link "$link2_path" "$target_path"; then
+					echo "      ✓ $link2_path → $target_path"
+				fi
+			else
+				# 非版本化库，只创建一个链接
+				link_path="${TARGET_DIR}/usr/lib/${lib_name}"
+				if safe_create_link "$link_path" "$target_path"; then
+					echo "    ✓ $link_path → $target_path"
+				fi
+			fi
+		done
+	else
+		echo "  ⚠️  库目录不存在: $LIB_DIR"
+	fi
+    
+    # 2. 二进制文件链接
+    BIN_DIR="${TARGET_DIR}/usr/bin/tinyPiX"
+    if [ -d "$BIN_DIR" ]; then
+        echo "  → 处理二进制目录: $BIN_DIR"
+        find "$BIN_DIR" -maxdepth 1 -type f -executable | while read -r bin; do
+            bin_name=$(basename "$bin")
+            link_path="${TARGET_DIR}/usr/bin/${bin_name}"
+            target_path="$BIN_DIR/${bin_name}"
+            
+            # 安全创建链接
+            if safe_create_link "$link_path" "$target_path"; then
+                echo "    ✓ $link_path → $target_path"
+            fi
+        done
+    else
+        echo "  ⚠️  二进制目录不存在: $BIN_DIR"
+    fi
+}
 
 # 在文件复制后调用
 create_symlinks
