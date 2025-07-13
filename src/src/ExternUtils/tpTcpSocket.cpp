@@ -14,11 +14,14 @@ struct tpTcpSocketData{
 	tpSocket *sock;		//本地的sock
 //	tpSocket sock_r;	//远程的sock连接
 	tpSocket::tpSocketStatus status;	//当前的socket状态
-	tpSocketNotifier *notifier;
+	tpSocketNotifier *notifier_read;
+	tpSocketNotifier *notifier_write;
 	tpTcpSocketData()
 	{
 		sock=nullptr;
 		status=tpSocket::TP_SOCK_DISCONNECT;
+		notifier_read=nullptr;
+		notifier_write=nullptr;
 	}
 };
 
@@ -40,7 +43,7 @@ tpTcpSocket::tpTcpSocket(tpSocket *sock)
 
 	tcp->status=tpSocket::TP_SOCK_CONNECT;
 
-	tcp->notifier = new tpSocketNotifier(tcp->sock->getSocket(), tpSocketNotifier::Read, 
+	tcp->notifier_read = new tpSocketNotifier(tcp->sock->getSocket(), tpSocketNotifier::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleDisconnected(); }
 	);
@@ -78,7 +81,8 @@ tpInt32 tpTcpSocket::connectToHost(const tpString &addr, tpUInt16 port)
 {
 	tpTcpSocketData *tcp=static_cast<tpTcpSocketData *>(data_);
 	tpSocket *ret=nullptr;
-	ret = tcp->sock->connectToHost(addr,port);	
+	ret = tcp->sock->connectToHost(addr,port,TP_FALSE);	
+
 	if(ret!=nullptr)
 	{
 		//tcp->sock_r=*ret;
@@ -91,9 +95,9 @@ tpInt32 tpTcpSocket::connectToHost(const tpString &addr, tpUInt16 port)
 tpInt32 tpTcpSocket::close()
 {
 	tpTcpSocketData *tcp=static_cast<tpTcpSocketData *>(data_);
-	if (tcp->notifier) {
-        delete tcp->notifier; 
-		tcp->notifier = nullptr;
+	if (tcp->notifier_read) {
+        delete tcp->notifier_read; 
+		tcp->notifier_read = nullptr;
     }
 	tcp->sock->close();
 	tcp->status=tpSocket::TP_SOCK_DISCONNECT;
@@ -148,7 +152,7 @@ void tpTcpSocket::handleRead()
 {
 //	if(checkDisconnected())
 //		return ;
-    // 有可读事件，但不读出数据，只发信号
+    printf("debug:有可读事件，但不读出数据，只发信号\n");
     readyRead.emit(this);	
 }
 
@@ -170,6 +174,6 @@ void tpTcpSocket::handleDisconnected()
 {	
 	tpTcpSocketData* tcp = static_cast<tpTcpSocketData*>(data_);
     tcp->status = tpSocket::TP_SOCK_DISCONNECT;
-	printf("断开连接");
+	printf("断开连接\n");
 	disconnected.emit(this);
 }
