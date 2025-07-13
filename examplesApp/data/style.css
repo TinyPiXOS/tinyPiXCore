@@ -1,0 +1,21 @@
+@charset "UTF-8";
+
+diskDeviceCheckBox{
+  min-height: 60dp;
+  max-height: 60dp;
+  width: 400dp;
+  padding-top: 13dp;
+  padding-bottom: 13dp;
+  padding-left: 19dp;
+  padding-right: 19dp;
+  gap: 12dp;
+  color: rgb(38, 38, 38);
+  background-color: rgb(241, 241, 241);
+  font-size: 12;
+  border-radius: 20;
+} 
+
+diskDeviceCheckBox:checked{
+  background-color: rgb(243, 230, 255);
+  color: rgb(140, 29, 235);
+}

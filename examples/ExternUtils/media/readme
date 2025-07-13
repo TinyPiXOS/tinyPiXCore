@@ -1,0 +1,47 @@
+G++ = g++
+#源码路径
+#SRC=../src
+#头文件路径
+#INC = -I../inc
+INC = -I/usr/include \
+        -I/usr/include/SDL2 \
+        -I/usr/include/tinyPiX \
+        -I/usr/include/tinyPiX/ExternUtils \
+        -I/usr/include/tinyPiX/Utils \
+        -I/usr/include/tinyPiX/SingleGUI \
+        -I/usr/include/tinyPiX/SingleGUI/core \
+        -I/usr/include/tinyPiX/SingleGUI/screen \
+        -I/usr/include/tinyPiX/SingleGUI/widgets \
+        -I.  \
+        -I/usr/include/freetype2 \
+        -I/usr/include/cairo \
+        -I/usr/include/pango-1.0 \
+        -I/usr/include/harfbuzz \
+        -I/usr/include/glib-2.0 \
+        -I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
+        -I/usr/include/tinyPiX/SingleGUI/app \
+        -I/usr/include/PiXWM
+
+#引用的库
+#LIB = -lpthread -lpcap -ltparchive
+LIB = -L/usr/lib \
+        -ldl -lpthread -lSDL2 -lSDL2_image -lSDL2_gfx -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lPiXUtils -lPiXSingleGUI -lPiXApi -lPiXExternUtils
+#伪目标：需要依赖的目标
+.PHONY:Audio Video Hard Record#即使该目标存在也重新生成
+all:Audio Video Hard Record clean#
+
+Audio:
+	$(G++) -c audio.cpp $(INC)
+	$(G++) -o Audio audio.o $(LIB) $(INC)
+Video:
+	$(G++) -c video.cpp $(INC)
+	$(G++) -o Video video.o $(LIB) $(INC)
+Hard:
+	$(G++) -c hard.cpp $(INC)
+	$(G++) -o Hard hard.o $(LIB) $(INC)
+Record:
+	$(G++) -c record.cpp $(INC)
+	$(G++) -o Record record.o $(LIB) $(INC)
+clean:
+	rm *.o
+

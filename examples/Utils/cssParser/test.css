@@ -1,0 +1,682 @@
+* {
+    --testColor: #FFAAFF;
+    font-family: 'Microsoft YaHei';
+    font-size: 13px;
+}
+
+tpComBox#test {
+    /* color: #000000; */
+    color: var(--testColor);
+    border-color: #000000
+}
+
+tpComBox#test:hover {
+    /* color: #000000; */
+    color: var(--testColor);
+    border-color: #000000
+}
+
+tpComBox:hover[type=test] {
+    /* color: #000000; */
+    color: var(--testColor);
+    border-color: #000000
+}
+
+tpComBox#test1 {
+    /* color: #000000; */
+    color: var(--testColor);
+    border-color: #000000
+}
+
+tpComBox#test2 {
+    /* color: #000000; */
+    color: var(--testColor);
+    border-color: #000000
+}
+
+QFrame#title_bar {
+    background: rgba(45, 62, 80, 100%);
+}
+
+QFrame#title_bar {
+    background: rgba(45, 62, 80, 100%);
+}
+
+QLabel#title_bar {
+    color: white;
+    font: bold;
+    font-size: 20px;
+}
+
+QLabel#standard_title_bar {
+    color: rgb(52, 167, 255);
+    font: bold;
+    font-size: 18px;
+}
+
+QLabel#select_label {
+    color: black;
+    font-size: 18px;
+}
+
+QLabel {
+    color: black;
+}
+
+QLabel#left_arrow {
+    background-color: aqua;
+    background-image: url(:/res/BaseInfoManager2023Blue/Icon/left.png);
+    border-image: url(:/res/BaseInfoManager2023Blue/Icon/left.png);
+}
+
+/* QToolTip */
+
+QToolTip {
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(212, 212, 212);
+    color: black;
+}
+
+
+/* QToolButton 关闭按钮风格 */
+
+QToolButton[ButtonType="close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_close_button_normal.png);
+}
+
+QToolButton:hover[ButtonType="close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_close_button_hover.png);
+}
+
+QToolButton:pressed[ButtonType="close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_close_button_pressed.png);
+}
+
+
+/* QToolButton 返回按钮风格 */
+
+QToolButton[ButtonType="logout"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_logout_normal.png);
+}
+
+QToolButton:hover[ButtonType="logout"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_logout_hover.png);
+}
+
+QToolButton:pressed[ButtonType="logout"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_logout_pressed.png);
+}
+
+
+/* QToolButton 最小化按钮风格 */
+
+QToolButton[ButtonType="minimize"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_min_button_normal.png);
+}
+
+QToolButton:hover[ButtonType="minimize"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_min_button_hover.png);
+}
+
+QToolButton:pressed[ButtonType="minimize"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_min_button_pressed.png);
+}
+
+/* QToolButton 最大化按钮风格 */
+QToolButton[ButtonType="maximize"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_max_button_normal.png);
+}
+
+QToolButton:hover[ButtonType="maximize"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_max_button_hover.png);
+}
+
+QToolButton:pressed[ButtonType="maximize"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/titlebar_max_button_pressed.png);
+}
+
+
+/* 对话框关闭按钮风格 */
+QPushButton[ButtonType="dialog_close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/dialog_close_normal.png);
+}
+
+QPushButton:hover[ButtonType="dialog_close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/dialog_close_hover.png);
+}
+
+QPushButton:pressed[ButtonType="dialog_close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/TitleBar/dialog_close_pressed.png);
+}
+
+/* 登录界面关闭按钮风格 */
+QPushButton[ButtonType="login_close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/loginclose/close_normal.png);
+}
+
+QPushButton:hover[ButtonType="login_close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/loginclose/close_hover.png);
+}
+
+QPushButton:pressed[ButtonType="login_close"] {
+    border-image: url(:/res/BaseInfoManager2023Blue/loginclose/close_pressed.png);
+}
+
+/* 登录界面登录按钮风格 */
+QToolButton[ButtonType="login_login"] {
+    border: none;
+    border-radius: 4px;
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    font-family: Microsoft YaHei;
+    background-color: rgb(86, 146, 245);
+}
+
+QToolButton:pressed[ButtonType="login_login"] {
+    color: rgb(255, 255, 255);
+    background-color: rgb(119, 157, 209);
+}
+
+QToolButton:disabled[ButtonType="login_login"] {
+    color: rgb(255, 255, 255);
+    background-color: rgb(119, 157, 209);
+}
+
+/* 普通按钮*/
+QPushButton[ButtonType="normal_button"] {
+    border: none;
+    border-radius: 4px;
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    font-family: Microsoft YaHei;
+    background-color: rgb(86, 146, 245);
+}
+
+QPushButton:hover[ButtonType="normal_button"] {
+    color: rgb(255, 255, 255);
+    background-color: rgb(175, 203, 250);
+}
+
+QPushButton:pressed[ButtonType="normal_button"] {
+    color: rgb(255, 255, 255);
+    background-color: rgb(119, 157, 209);
+}
+
+QPushButton:disabled[ButtonType="normal_button"] {
+    color: rgb(255, 255, 255);
+    background-color: rgb(180, 180, 180);
+}
+
+/* 登录界面QLineEdit风格 */
+QLineEdit[LineEditType="user_name_lineedit"] {
+    font-size: 16px;
+    font-family: Microsoft YaHei;
+    border-color: rgba(233, 233, 233, 0.986);
+    border-color: #FFAAFF0A;
+    background-color: rgb(255, 255, 255);
+    border-radius: 4px;
+}
+
+QLineEdit:hover[LineEditType="user_name_lineedit"] {
+    border: 1px solid rgb(81, 167, 255);
+}
+
+QLineEdit:pressed[LineEditType="user_name_lineedit"] {
+    border: 1px solid rgb(81, 167, 255);
+}
+
+/*密码：右侧按钮*/
+QPushButton[ButtonType="password_down_pushbutton"] {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border: none;
+    background-color: transparent;
+    image: url(:/res/BaseInfoManager2023Blue/hide_nomal.png);
+}
+
+QPushButton:pressed[ButtonType="password_down_pushbutton"] {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border: none;
+    background-color: transparent;
+    image: url(:/res/BaseInfoManager2023Blue/hide_pressed.png);
+}
+
+QPushButton:hover[ButtonType="password_down_pushbutton"] {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border: none;
+    background-color: transparent;
+    image: url(:/res/BaseInfoManager2023Blue/hide_hover.png);
+}
+
+QPushButton:checked[ButtonType="password_down_pushbutton"] {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border: none;
+    background-color: transparent;
+    image: url(:/res/BaseInfoManager2023Blue/display_nomal.png);
+}
+
+QPushButton:checked:pressed[ButtonType="password_down_pushbutton"] {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border: none;
+    background-color: transparent;
+    image: url(:/res/BaseInfoManager2023Blue/display_pressed.png);
+}
+
+QPushButton:checked:hover[ButtonType="password_down_pushbutton"] {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border: none;
+    background-color: transparent;
+    image: url(:/res/BaseInfoManager2023Blue/display_hover.png);
+}
+
+/* 登录界面角色combobox风格 */
+QComboBox[ComboboxType="combobox_role_"] {
+    background-color: rgb(240, 240, 240);
+    border-style: solid;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: Microsoft YaHei;
+    border: none;
+    padding-left: 10px;
+    outline: none;
+}
+
+QAbstractItemView[ComboboxListview="combobox_listview"] {
+    outline: none;
+    margin: 0px;
+    padding: 3px;
+    border: 1px solid rgb(211, 211, 211);
+    color: rgb(0, 0, 0);
+    background-color: rgb(244, 244, 244);
+    selection-background-color: rgb(240, 240, 240);
+}
+
+QAbstractItemView::item[ComboboxListview="combobox_listview"] {
+    outline: none;
+    height: 45px;
+}
+
+QAbstractItemView::item:hover[ComboboxListview="combobox_listview"] {
+    outline: none;
+    color: rgb(0, 0, 0);
+    background-color: rgb(215, 225, 240);
+}
+
+/* QComboBox QAbstractItemView[ComboboxType="combobox_role_"]{
+    outline: none;
+    margin: 0px;
+    padding: 3px;
+    border: 1px solid rgb(211, 211, 211);
+    color:rgb(166,166,166);
+    background-color: rgb(255,255,255);
+    selection-background-color:rgb(240,240,240);
+}
+QComboBox QAbstractItemView::item[ComboboxType="combobox_role_"]{
+    outline: none;
+    height: 45px;
+}
+QComboBox QAbstractItemView::item:hover[ComboboxType="combobox_role_"]{
+    outline: none;
+    color:rgb(0, 0, 0);
+    background-color: rgb(240,240,240);
+} */
+/* 下拉箭头框样式 */
+QComboBox:drop-down[ComboboxType="combobox_role_"] {
+    border-color: rgb(211, 211, 211);
+    width: 30px;
+    outline: none;
+}
+
+QComboBox:drop-down:hover[ComboboxType="combobox_role_"] {
+    /*image: url(:/res/BaseInfoManager2023Blue/arrow_down_pressed.png);*/
+    width: 30px;
+    outline: none;
+}
+
+/*下拉箭头样式*/
+QComboBox::down-arrow[ComboboxType="combobox_role_"] {
+    /*qproperty-alignment: AlignTop;*/
+    image: url(:/res/BaseInfoManager2023Blue/arrow_down_normal.png);
+    width: 30px;
+}
+
+QComboBox::down-arrow:hover[ComboboxType="combobox_role_"] {
+    /*qproperty-alignment: AlignTop;*/
+    image: url(:/res/BaseInfoManager2023Blue/arrow_down_pressed.png);
+    width: 30px;
+}
+
+QComboBox::down-arrow:on[ComboboxType="combobox_role_"] {
+    width: 30px;
+    image: url(:/res/BaseInfoManager2023Blue/arrow_up_normal.png);
+}
+
+QComboBox::down-arrow:on:hover[ComboboxType="combobox_role_"] {
+    width: 30px;
+    image: url(:/res/BaseInfoManager2023Blue/arrow_up_pressed.png);
+}
+
+/* QMenu */
+QMenu {
+    padding: 5px;
+    /*padding-left:10px;*/
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(212, 212, 212);
+    color: black;
+}
+
+QMenu::item {
+    /*spacing: 3px;*/
+    width: 72px;
+}
+
+QMenu::item:selected {
+    color: white;
+    background: rgb(156, 185, 229);
+}
+
+QMenu::item:disabled {
+    /*spacing: 3px;*/
+    color: gray;
+    width: 72px;
+}
+
+
+/* ComboBox */
+
+QComboBox {
+    /*font-size:12px;*/
+    color: black;
+    background-color: rgba(255, 255, 255);
+    border: 1px solid rgb(221, 221, 221);
+    /*border-radius: 6px;*/
+    outline: none;
+}
+
+
+QComboBox:disabled {
+    /*font-size:12px;*/
+    color: rgb(133, 133, 133);
+    background-color: rgba(233, 233, 233);
+    border: 1px solid rgba(211, 211, 211);
+    outline: none;
+}
+
+
+QComboBox QAbstractItemView {
+    border: none;
+    margin: 0px;
+    padding: 3px;
+    color: black;
+    selection-background-color: rgb(216, 225, 240);
+    background-color: rgba(255, 255, 255);
+}
+
+QComboBox QAbstractItemView::item {
+    outline: none;
+    min-height: 40px;
+}
+
+QComboBox::drop-down {
+    border: none;
+    /*border-left: 1px solid rgba(31,30,31,155);*/
+}
+
+QComboBox::down-arrow {
+    qproperty-alignment: AlignTop;
+    image: url(:/res/BaseInfoManager2023Blue/arrow_down_normal.png);
+}
+
+
+/* 垂直滚动条 */
+
+QScrollBar:vertical {
+    background: rgb(240, 240, 240);
+    border: none;
+    width: 10px;
+    margin: 6px 0 6px 0;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(178, 178, 178);
+    min-height: 25px;
+}
+
+/*设置下箭头*/
+QScrollBar::add-line:vertical {
+    /*margin: 1px 1px 1px 1px;*/
+    height: 4px;
+    width: 8px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_down_normal.png);
+    /* subcontrol-position:bottom; */
+}
+
+QScrollBar::add-line:vertical:hover {
+    height: 4px;
+    width: 8px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_down_hover.png);
+}
+
+QScrollBar::add-line:vertical:pressed {
+    height: 4px;
+    width: 8px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_down_pressed.png);
+}
+
+/*设置上箭头*/
+QScrollBar::sub-line:vertical {
+    /*margin: 1px 1px 1px 1px;*/
+    height: 4px;
+    width: 8px;
+
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_up_normal.png);
+
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical:hover {
+    height: 4px;
+    width: 8px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_up_hover.png);
+}
+
+QScrollBar::sub-line:vertical:pressed {
+    height: 4px;
+    width: 8px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_up_pressed.png);
+}
+
+/* 水平滚动条 */
+
+
+QScrollBar:horizontal {
+    background: rgba(240, 240, 240);
+    border: none;
+    height: 10px;
+    margin: 0 6 0 6;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(178, 178, 178);
+    min-width: 25px;
+}
+
+QScrollBar::add-line:horizontal {
+    height: 8px;
+    width: 4px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_right_arrow_normal.png);
+}
+
+QScrollBar::add-line:horizontal:hover {
+    height: 8px;
+    width: 4px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_right_arrow_hover.png);
+}
+
+QScrollBar::add-line:horizontal:pressed {
+    height: 8px;
+    width: 4px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_right_arrow_pressed.png);
+}
+
+
+QScrollBar::sub-line:horizontal {
+    height: 8px;
+    width: 4px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_left_arrow_normal.png);
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal:hover {
+    height: 8px;
+    width: 4px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_left_arrow_hover.png);
+}
+
+QScrollBar::sub-line:horizontal:pressed {
+    height: 8px;
+    width: 4px;
+    border-image: url(:/res/BaseInfoManager2023Blue/scrollbar/scrollbar_left_arrow_pressed.png);
+}
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    /* border: none;*/
+    background: none;
+    color: none;
+}
+
+QScrollBar::left-arrow:horizontal,
+QScrollBar::right-arrow:horizontal,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    /* border: none;*/
+    background: none;
+    color: none;
+}
+
+/*
+    嵌入版界面新样式
+*/
+
+
+/*QMenuBar {
+	font-family: "Microsoft YaHei";
+	font-size:13px;
+    padding-top:5px;
+    spacing:15px;
+    background-color: rgb(0, 0, 0);
+    border-bottom:  1px solid rgb(0, 0, 0);
+}
+QMenuBar::indicator {
+    padding-right:10px;
+}
+QMenuBar::item {
+    color: rgb(192, 192, 192);
+}
+QMenuBar QToolButton{
+    background-color: transparent;
+}
+
+QMenuBar QToolButton:hover {
+    background-color: transparent;
+}
+
+QMenuBar QToolButton:pressed {
+    background-color: transparent;
+}
+
+QMenuBar::item:selected {
+		color: rgb(76, 198, 171);
+    background:transparent;
+}*/
+
+QTabWidget::pane {
+    border: 1px solid rgb(211, 211, 211);
+    /*selection-background-color: #646464;
+	selection-color:#DCDCDC;
+	alternate-background-color:#525252;
+	gridline-color:#242424;*/
+}
+
+QTabBar::tab {
+    height: 30px;
+    min-width: 128px;
+    color: black;
+    border: 1px solid rgb(211, 211, 211);
+    background: rgb(240, 240, 240);
+    border-bottom: 4px solid rgb(138, 176, 232);
+}
+
+QTabBar::tab:hover {
+    background: rgb(215, 225, 240);
+}
+
+QTabBar::tab:selected,
+QtabBar::tab::hover {
+    background: rgb(138, 176, 232);
+}
+
+QLCDNumber {
+    background: rgb(10, 10, 10);
+    color: white;
+    border: 2px solid rgb(23, 23, 23);
+}
+
+
+QDateTimeEdit,
+QDateEdit {
+
+    border: 1px solid rgb(211, 211, 211);
+}
+
+QDateEdit::drop-down,
+QDateTimeEdit::drop-down {
+    border: none;
+    /*border-left: 1px solid rgba(31,30,31,155);*/
+}
+
+QDateEdit::down-arrow,
+QDateTimeEdit::down-arrow {
+    border: none;
+    qproperty-alignment: AlignTop;
+    image: url(:/res/BaseInfoManager2023Blue/arrow_down_normal.png);
+}
+
+QProgressBar {
+    border: 1px solid rgb(200, 200, 200);
+    background-color: rgb(222, 222, 222);
+    /*text-align: center;*/
+}
+
+QProgressBar::chunk {
+    background-color: rgb(47, 204, 76);
+    /*width: 20px;*/
+}
+
+QListWidget {
+    font-size: 16px;
+}
+
+QLabel {
+    font-size: 16px;
+}
+
+QCheckBox {
+    font-size: 16px;
+}
+
+/******************End******************/
