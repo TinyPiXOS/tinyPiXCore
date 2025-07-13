@@ -1,0 +1,347 @@
+@charset "UTF-8";
+
+tpButton {
+  gap: 5dp;
+  font-size: 15dp;
+  color: rgb(38, 38, 38);
+  background-color: rgb(255, 255, 255);
+}
+
+tpButton:hover {
+  background-color: rgb(239, 239, 239);
+}
+
+tpButton[type="ControlPanelPowerButton"] {
+  height: 64dp;
+  width: 305dp;
+  font-size: 18dp;
+  color: rgb(38, 38, 38);
+  background-color: rgb(255, 255, 255);
+  border-radius: 32;
+}
+
+tpButton[type="ControlPanelPowerButton"]:hover {
+  background-color: rgb(239, 239, 239);
+}
+
+tpButton[type="VirtualKeyboardButton"] {
+  font-size: 16dp;
+  color: rgb(38, 38, 38);
+  background-color: rgb(255, 255, 255);
+  border-radius: 13;
+}
+
+tpButton[type="VirtualKeyboardButton"]:active {
+  background-color: rgb(208, 215, 221);
+}
+
+tpButton[type="VirtualKeyboardButton"]:checked {
+  background-color: rgb(208, 215, 221);
+}
+
+tpButton[type="VirtualKeyboardApplyButton"] {
+  font-size: 13dp;
+  color: rgb(255, 255, 255);
+  background-color: rgb(20, 71, 255);
+  border-radius: 13;
+}
+
+tpButton[type="VirtualKeyboardApplyButton"]:active {
+  background-color: rgb(100, 135, 255);
+}
+
+tpButton[type="ControlPanelPowerCloseButton"] {
+  height: 60dp;
+  width: 60dp;
+  background-color: rgb(255, 255, 255);
+  border-radius: 32;
+}
+
+tpButton[type="FunctionButton"] {
+  min-height: 56;
+  min-width: 211;
+  height: 56;
+  width: 211;
+  font-size: 12;
+  color: rgb(140, 29, 235);
+  background-color: rgb(243, 232, 253);
+  border-radius: 28;
+}
+
+tpButton[type="FunctionButton"]:hover {
+  background-color: rgb(224, 197, 250);
+}
+
+tpBattery {
+  border-color: rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
+  border-width: 1dp;
+}
+
+tpSlideProgressBar {
+  height: 64dp;
+  width: 305dp;
+  icon-size: 33dp;
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 1);
+  border-radius: 16;
+}
+
+tpLabel[type=controlPanelDateTimeLabel] {
+  color: rgb(255, 255, 255);
+  font-size: 25dp;
+  height: 53;
+}
+
+tpLabel[type=notifyLabel] {
+  color: rgb(255, 255, 255);
+  font-size: 18dp;
+  height: 35;
+}
+
+tpPanelSwitchButton {
+  color: rgb(255, 255, 255);
+  height: 153dp;
+  width: 153dp;
+  font-size: 13dp;
+  padding-top: 25dp;
+  padding-bottom: 25dp;
+  gap: 31dp;
+  icon-size: 50dp;
+  icon-background: rgba(240, 240, 240, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 29;
+}
+
+tpPanelSwitchButton:checked {
+  background-color: rgb(140, 29, 235);
+}
+
+tpNotificationItem {
+  width: 508dp;
+  height: 103dp;
+  padding: 19dp;
+  font-size: 16dp;
+  color: rgb(38, 38, 38);
+  sub-color: rgb(89, 89, 89);
+}
+
+tpTabBar {
+  height: 80dp;
+  padding-top: 16dp;
+  padding-bottom: 16dp;
+  gap: 4dp;
+  color: rgb(89, 89, 89);
+  background-color: rgb(248, 248, 248);
+  font-size: 12;
+}
+
+tpTabBar:checked {
+  color: rgb(162, 53, 255);
+}
+
+tpIconTopButton {
+  icon-size: 80dp;
+  font-size: 12dp;
+  color: rgb(255, 255, 255);
+}
+
+tpLineEdit {
+  gap: 10dp;
+  font-size: 13;
+  padding-top: 5dp;
+  padding-bottom: 5dp;
+  padding-left: 5;
+  padding-right: 5;
+  background-color: rgb(255, 255, 255);
+  color: rgb(38, 38, 38);
+}
+
+tpLineEdit[type="fileManageEdit"] {
+  gap: 10dp;
+  font-size: 13;
+  padding-top: 16dp;
+  padding-bottom: 16dp;
+  border-radius: 28;
+  padding-left: 25;
+  padding-right: 25;
+  min-height: 56dp;
+  max-height: 56dp;
+  background-color: rgb(236, 236, 236);
+  color: rgb(38, 38, 38);
+}
+
+tpCollapsibleFileWidget {
+  min-height: 60;
+  height: 60;
+  /* max-height: 60dp; */
+  border-radius: 20;
+  padding-top: 13dp;
+  padding-bottom: 13dp;
+  padding-left: 19dp;
+  padding-right: 19dp;
+  font-size: 13;
+  color: rgb(38, 38, 38);
+  background-color: rgb(255, 255, 255);
+}
+
+tpCollapsibleFileItem {
+  color: rgb(38, 38, 38);
+  font-size: 9dp;
+  icon-size: 75dp;
+  gap: 20dp;
+  min-width: 131dp;
+  min-height: 130;
+}
+
+tpMediaTileButton {
+  icon-size: 34dp;
+  min-width: 88dp;
+  min-height: 88dp;
+  max-width: 88dp;
+  max-height: 88dp;
+  font-size: 10dp;
+  gap: 5dp;
+  color: rgb(38, 38, 38);
+  background-color: rgb(255, 255, 255);
+  border-radius: 20; 
+}
+
+tpMediaTileButton:checked {
+  background-color: rgb(243, 230, 255);
+}
+
+tpMenuPanelWidget{
+  background-color: rgb(255, 255, 255);
+  border-radius: 20;
+}
+
+tpMenuPanelItem {
+  min-height: 65dp;
+  max-height: 65dp;
+  border-radius: 20;
+  background-color: rgb(255, 255, 255);
+  color: rgb(38, 38, 38);
+  font-size: 13;
+  gap: 12;
+  padding-top: 15dp;
+  padding-bottom: 15dp;
+  padding-left: 20dp;
+  padding-right: 20dp;
+  icon-size: 35dp;
+}
+
+tpMenuPanelItem:checked {
+  background-color: rgb(247, 237, 255);
+}
+
+tpFilePathWidget {
+  min-height: 31dp;
+  background-color: rgb(255, 255, 255);
+  gap: 5dp;
+}
+
+tpFilePathWidgetItem {
+  font-size: 12dp;
+  background-color: rgb(241, 241, 241);
+  color: rgb(140, 140, 140);
+  padding-left: 12dp;
+  padding-right: 12dp;
+  padding-top: 4dp;
+  padding-bottom: 4dp;
+  border-radius: 17;
+  min-width: 20;
+}
+
+tpFilePathWidgetItem:checked {
+  background-color: rgb(243, 230, 255);
+  color: rgb(140, 29, 235);
+}
+
+tpMenu {
+  background-color: rgb(255, 255, 255);
+  color: rgb(38, 38, 38);
+  font-size: 13;
+  padding-top: 14;
+  padding-bottom: 14;
+  padding-left: 16;
+  padding-right: 16;
+  border-radius: 15;
+  gap: 8;
+}
+
+tpComBox {
+  width: 399;
+  min-width: 120;
+  min-height: 65;
+  height: 65;
+  border-radius: 20;
+  background-color: rgb(255, 255, 255);
+  color: rgb(38, 38, 38);
+  padding-left: 20;
+  padding-right: 20;
+  font-size: 13;
+  gap: 8;
+}
+
+tpListCheckBoxGroup {
+  width: 399;
+  /* min-width: 120; */
+  border-radius: 20;
+  background-color: rgb(255, 255, 255);
+  color: rgb(38, 38, 38);
+  padding-left: 20;
+  padding-right: 20;
+}
+
+tpListCheckBoxGroupItem {
+  min-height: 65;
+  height: 65;
+  background-color: rgb(255, 255, 255);
+  color: rgb(38, 38, 38);
+  font-size: 13;
+  border-radius: 20;
+}
+
+tpListCheckBoxGroupItem:checked {
+  color: rgb(140, 29, 235);
+}
+
+tpPercentProgressBar {
+  min-height: 60;
+  min-width: 60;
+  border-radius: 20;
+  background-color: rgb(255, 255, 255);
+  sub-color: rgb(248, 248, 248);
+  font-size: 10;
+  color: rgb(38, 38, 38);
+  gap: 18;
+}
+
+tpCheckBox {
+  min-height: 25;
+  min-width: 25;
+  /* max-height: 25; */
+  height: 25;
+  width: 25;
+  border-radius: 8;
+  border-color: rgb(191, 191, 191);
+  border-width: 2;
+  background-color: rgb(216, 216, 216);
+  color: rgb(38, 38, 38);
+  font-size: 11;
+  gap: 15;
+}
+
+tpCheckBox:checked {
+  border-color: rgb(140, 29, 235);
+  background-color: rgb(140, 29, 235);
+}
+
+tpSlider {
+  min-height: 32;
+  min-width: 32;
+  border-radius: 5;
+  background-color: rgba(255, 255, 255, 0.5);
+  sub-color: rgb(140, 29, 235);
+}

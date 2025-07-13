@@ -1,0 +1,42 @@
+说明：
+	本工程为多媒体服务
+	在Ubuntu22虚拟机下运行视频播放的时候需要禁用硬件加速，命令：export SDL_RENDER_DRIVER=software
+	音频文件已支持WAV,MP3,FLAC（其它未测试）
+	视频文件已支持MP4,WEBM（其它未测试）
+程序版本：V2.3.8
+开发环境：ubuntu18.04,Ubuntu22.04
+创建日期：2025/2/26
+依赖库：
+	alsa:		alsa库，音频播放
+	SDL2:		sdl库，视频显示
+	ffmpeg:		ffmpeg以及相关的编解码库
+
+示例说明：
+
+源码说明：
+	audio:	音频服务和接口(录音和播放)
+	video:	视频服务和接口
+	media:  多媒体通用接口
+	server:	多媒体服务的通信交互管理(当前版本为接口形式)
+	example:测试程序
+	include:外部调用所需的函数接口和结构体
+	app:	主程序
+
+安装和编译：
+	执行make编译会生成.so库，同时也会在example中生成测试程序。
+	1.安装依赖库：sudo apt install libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev libavdevice-dev libsdl2-dev
+	2.编译：make		
+	3.清除编译：make clean	清除编译信息
+	4.生成共享库：make libso
+
+运行：
+
+更新计划：
+	新增userset.c和.h文件，把用户配置和公用的一些结构体和枚举放进去
+	增加支持的文件类型，如：WAV，MP3，WMA，FLAC，AAC，MIDI，APE，CDA
+其他：
+	video_play_codec_file函数中固定使用了RGB888接口
+
+	
+	
+

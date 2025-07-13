@@ -1,0 +1,36 @@
+{
+	"appID": "f03c8f8c-dd9b-453f-b2d4-d049c073e252",
+	"appName": "MyApp",
+	"organization": "MyCompany",
+	"version": "1.0.0",
+	"appexecName": "/home/pix/AppManage/mytestapp/mytestapp",
+	"architecture": "amd64",
+	"section": "free",
+	"priority": "optional",
+	"essential": "no",
+	"diskspace": "102400",
+	"description": "this is tinyPiXOS test APP",
+	"signature": "",
+	"icon": "/home/pix/AppManage/mytestapp/icon.jpeg",
+	"author": {
+		"name": "Chingan",
+		"email": "123456789"
+	},
+	"fileExtension": [
+	],
+	"startupParameters": [
+		"--fullscreen",
+		"--server"
+	],
+	"libraries": [
+	],
+	"dependencies": [
+	],
+	"assertFiles": [
+	],
+	"binFiles": [
+	],
+	"otherFiles": [
+	]
+	
+}

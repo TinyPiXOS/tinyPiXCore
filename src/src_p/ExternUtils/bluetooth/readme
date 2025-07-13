@@ -1,0 +1,41 @@
+说明：
+	蓝牙服务&底层接口
+程序版本：V1.1.6
+开发环境：Ubuntu22.04
+创建日期：2025/5/26
+作者：Chingan
+依赖库：
+	bluez-alsa:用于蓝牙音频播放设备和alsa的连接，可以生成一个虚拟的pcm设备，直接使用alsa库写入，包含bluez-alsa-utils和libasound2-plugin-bluez
+		bluez-alsa-utils：包含 bluealsa 守护进程，用于在用户空间处理 A2DP/SCO 流（安装时候会同时安装libldacbt-abr2 和 libldacbt-enc2，他们用于提供对 LDAC 编解码的支持）
+		libasound2-plugin-bluez：提供一个名为 bluealsa 的虚拟 PCM，使得任何 ALSA 程序（aplay、我们的 C 程序等）都能直接打开 bluealsa:DEV=…,PROFILE=a2dp 并播放到蓝牙耳机
+	bluez:蓝牙核心库
+	libbluetooth-dev:bluez提供的用于 C 语言开发库头文件和链接库，用于编译依赖蓝牙 API 的应用程序
+	libdbus-1-dev:DBUS接口
+	libglib2.0-dev:GLib/GIO接口
+其他辅助开发的库
+	bluez-tools:命令行工具
+	bluetooth:可以一键安装所所有蓝牙开发相关的共话剧或库，apt-get install bluetooth
+示例说明：
+
+源码说明：
+
+环境准备：(以下步骤视情况而定)
+	1.对于USB蓝牙适配器，需要确保btusb模块存在：find /lib/modules/$(uname -r) -name "btusb.ko"
+	如果没有输出需要安装相关驱动：sudo apt install --reinstall linux-modules-extra-$(uname -r)
+	2.对于USB蓝牙适配器,需要检查是否启动了USB休眠省电：cat /sys/module/usbcore/parameters/autosuspend
+	如果值大于0可能启动了自动休眠，需要关闭：echo -1 | sudo tee /sys/module/usbcore/parameters/autosuspend
+	3.重启蓝牙服务
+	systemctl restart bluetooth
+	4.音频服务安装
+	音频测试不能使用系统的连接，需要使用测试程序中的连接，连接到蓝牙耳机后使用aplay命令测试
+
+编译：
+	1.安装依赖库：apt-get install bluez libbluetooth-dev libdbus-1-dev libglib2.0-dev bluez-alsa-utils libasound2-plugin-bluez
+	2.编译：make		
+	3.清除编译：make clean	清除编译信息
+	4.生成共享库：make libso
+
+运行：
+
+	
+

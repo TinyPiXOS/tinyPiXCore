@@ -1,0 +1,553 @@
+@charset "UTF-8";
+
+tpButton[type=common-elevated] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  padding-left: 24dp;
+  padding-right: 24dp;
+  background: #f7f2fa;
+  color: #6750a4;
+}
+tpButton[type=common-elevated]:enabled {
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-elevated]:hovered {
+  background: rgba(103, 80, 164, 0.08);
+  box-shadow: 0px 1px 2px #000000, 0px 2px 6px 2px #000000;
+}
+tpButton[type=common-elevated]:focused {
+  background: rgba(103, 80, 164, 0.1);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-elevated]:pressed {
+  background: rgba(103, 80, 164, 0.1);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-elevated]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-elevated-with-icon] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  background: #f7f2fa;
+  icon-size: 18dp;
+  padding-left: 16dp;
+  padding-right: 24dp;
+  color: #6750a4;
+}
+tpButton[type=common-elevated-with-icon]:enabled {
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-elevated-with-icon]:hovered {
+  background: rgba(103, 80, 164, 0.08);
+  box-shadow: 0px 1px 2px #000000, 0px 2px 6px 2px #000000;
+}
+tpButton[type=common-elevated-with-icon]:focused {
+  background: rgba(103, 80, 164, 0.1);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-elevated-with-icon]:pressed {
+  background: rgba(103, 80, 164, 0.1);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-elevated-with-icon]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-filled] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  padding-left: 24dp;
+  padding-right: 24dp;
+  background: #6750a4;
+  color: #ffffff;
+}
+tpButton[type=common-filled]:hovered {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-filled]:focused {
+  background: rgba(255, 255, 255, 0.1);
+}
+tpButton[type=common-filled]:pressed {
+  background: rgba(255, 255, 255, 0.1);
+}
+tpButton[type=common-filled]:dragged {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0px 4px 8px 3px #000000, 0px 1px 3px #000000;
+}
+tpButton[type=common-filled]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-filled-with-icon] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  background: #6750a4;
+  icon-size: 18dp;
+  padding-left: 16dp;
+  padding-right: 24dp;
+  color: #ffffff;
+}
+tpButton[type=common-filled-with-icon]:hovered {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-filled-with-icon]:focused {
+  background: rgba(255, 255, 255, 0.1);
+}
+tpButton[type=common-filled-with-icon]:pressed {
+  background: rgba(255, 255, 255, 0.1);
+}
+tpButton[type=common-filled-with-icon]:dragged {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0px 4px 8px 3px #000000, 0px 1px 3px #000000;
+}
+tpButton[type=common-filled-with-icon]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-text] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  padding-left: 24dp;
+  padding-right: 24dp;
+  color: #6750a4;
+}
+tpButton[type=common-text]:hovered {
+  background: rgba(103, 80, 164, 0.08);
+}
+tpButton[type=common-text]:focused {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-text]:pressed {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-text]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-text-with-icon] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  icon-size: 18dp;
+  padding-left: 12dp;
+  padding-right: 16dp;
+  color: #6750a4;
+}
+tpButton[type=common-text-with-icon]:hovered {
+  background: rgba(103, 80, 164, 0.08);
+}
+tpButton[type=common-text-with-icon]:focused {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-text-with-icon]:pressed {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-text-with-icon]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-outlined] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  padding-left: 24dp;
+  padding-right: 24dp;
+  border-color: #797677;
+  border-width: 1dp;
+  color: #6750a4;
+}
+tpButton[type=common-outlined]:hovered {
+  background: rgba(103, 80, 164, 0.08);
+}
+tpButton[type=common-outlined]:focused {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-outlined]:pressed {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-outlined]:disabled {
+  border-color: rgba(28, 27, 27, 0.12);
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-outlined-with-icon] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  border-color: #797677;
+  border-width: 1dp;
+  icon-size: 18dp;
+  padding-left: 16dp;
+  padding-right: 24dp;
+  color: #6750a4;
+}
+tpButton[type=common-outlined-with-icon]:hovered {
+  background: rgba(103, 80, 164, 0.08);
+}
+tpButton[type=common-outlined-with-icon]:focused {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-outlined-with-icon]:pressed {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=common-outlined-with-icon]:disabled {
+  border-color: rgba(28, 27, 27, 0.12);
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-filledtonal] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  padding-left: 24dp;
+  padding-right: 24dp;
+  background: #e8def8;
+  color: #4a4458;
+}
+tpButton[type=common-filledtonal]:hovered {
+  background: rgba(74, 68, 88, 0.08);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-filledtonal]:focused {
+  background: rgba(74, 68, 88, 0.1);
+}
+tpButton[type=common-filledtonal]:pressed {
+  background: rgba(74, 68, 88, 0.1);
+}
+tpButton[type=common-filledtonal]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=common-filledtonal-with-icon] {
+  font-size: 14dp;
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20dp;
+  letter-spacing: 0.1dp;
+  height: 40dp;
+  gap: 8dp;
+  border-radius: circle;
+  background: #e8def8;
+  icon-size: 18dp;
+  padding-left: 16dp;
+  padding-right: 24dp;
+  color: #4a4458;
+}
+tpButton[type=common-filledtonal-with-icon]:hovered {
+  background: rgba(74, 68, 88, 0.08);
+  box-shadow: 0px 1px 2px #000000, 0px 1px 3px 1px #000000;
+}
+tpButton[type=common-filledtonal-with-icon]:focused {
+  background: rgba(74, 68, 88, 0.1);
+}
+tpButton[type=common-filledtonal-with-icon]:pressed {
+  background: rgba(74, 68, 88, 0.1);
+}
+tpButton[type=common-filledtonal-with-icon]:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-filled].selected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  background: #e6e1e1;
+  color: #6750a4;
+}
+tpButton[type=icon-filled].selected:hovered {
+  background: rgba(103, 80, 164, 0.08);
+}
+tpButton[type=icon-filled].selected:focused {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=icon-filled].selected:pressed {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=icon-filled].selected:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-outlined].selected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  background-color: #313030;
+  border-width: 1dp;
+  border-color: #797677;
+  color: #484647;
+}
+tpButton[type=icon-outlined].selected:hovered {
+  background: rgba(72, 70, 71, 0.08);
+}
+tpButton[type=icon-outlined].selected:focused {
+  background: rgba(72, 70, 71, 0.1);
+}
+tpButton[type=icon-outlined].selected:pressed {
+  background: rgba(72, 70, 71, 0.1);
+}
+tpButton[type=icon-outlined].selected:disabled {
+  border-color: rgba(28, 27, 27, 0.12);
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-filledtonal].selected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  background: #e6e1e1;
+  color: #4a4458;
+}
+tpButton[type=icon-filledtonal].selected:hovered {
+  background: rgba(74, 68, 88, 0.08);
+}
+tpButton[type=icon-filledtonal].selected:focused {
+  background: rgba(74, 68, 88, 0.1);
+}
+tpButton[type=icon-filledtonal].selected:pressed {
+  background: rgba(74, 68, 88, 0.1);
+}
+tpButton[type=icon-filledtonal].selected:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-standard].selected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  color: #6750a4;
+}
+tpButton[type=icon-standard].selected:hovered {
+  background: rgba(103, 80, 164, 0.08);
+}
+tpButton[type=icon-standard].selected:focused {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=icon-standard].selected:pressed {
+  background: rgba(103, 80, 164, 0.1);
+}
+tpButton[type=icon-standard].selected:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-filled].unselected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  background: #6750a4;
+  color: #ffffff;
+}
+tpButton[type=icon-filled].unselected:hovered {
+  background: rgba(255, 255, 255, 0.08);
+}
+tpButton[type=icon-filled].unselected:focused {
+  background: rgba(255, 255, 255, 0.1);
+}
+tpButton[type=icon-filled].unselected:pressed {
+  background: rgba(255, 255, 255, 0.1);
+}
+tpButton[type=icon-filled].unselected:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-outlined].unselected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  background-color: #6750a4;
+  border-width: 1dp;
+  border-color: #797677;
+  color: #f4f0ef;
+}
+tpButton[type=icon-outlined].unselected:hovered {
+  background: rgba(244, 240, 239, 0.08);
+}
+tpButton[type=icon-outlined].unselected:focused {
+  background: rgba(244, 240, 239, 0.1);
+}
+tpButton[type=icon-outlined].unselected:pressed {
+  background: rgba(244, 240, 239, 0.1);
+}
+tpButton[type=icon-outlined].unselected:disabled {
+  border-color: rgba(28, 27, 27, 0.12);
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-filledtonal].unselected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  background: #e8def8;
+  color: #484647;
+}
+tpButton[type=icon-filledtonal].unselected:hovered {
+  background: rgba(72, 70, 71, 0.08);
+}
+tpButton[type=icon-filledtonal].unselected:focused {
+  background: rgba(72, 70, 71, 0.1);
+}
+tpButton[type=icon-filledtonal].unselected:pressed {
+  background: rgba(72, 70, 71, 0.1);
+}
+tpButton[type=icon-filledtonal].unselected:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpButton[type=icon-standard].unselected {
+  height: 40dp;
+  border-radius: circle;
+  icon-size: 24dp;
+  padding: 8dp;
+  color: #484647;
+}
+tpButton[type=icon-standard].unselected:hovered {
+  background: rgba(72, 70, 71, 0.08);
+}
+tpButton[type=icon-standard].unselected:focused {
+  background: rgba(72, 70, 71, 0.1);
+}
+tpButton[type=icon-standard].unselected:pressed {
+  background: rgba(72, 70, 71, 0.1);
+}
+tpButton[type=icon-standard].unselected:disabled {
+  background-color: rgba(28, 27, 27, 0.12);
+  color: rgba(28, 27, 27, 0.38);
+}
+
+tpBattery
+{
+  color: rgba(255, 255, 255, 1);
+  border-width: 1dp;
+  border-radius: 20%;
+}
+
+tpSlideProgressBar
+{
+  height: 64dp;
+  width:305dp;
+  icon-size:33dp;
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 1);
+  border-radius: 29%;
+}
+
+tpLabel[type=controlPanelDateTimeLabel]
+{
+  color: rgb(255, 255, 255);
+  font-size: 25dp;
+  height:53;
+}
+
+tpLabel[type=notifyLabel]
+{
+  color: rgb(255, 255, 255);
+  font-size: 18dp;
+  height:35;
+}
+
+tpPanelSwitchButton
+{
+  color: rgb(255, 255, 255);
+  height: 153dp;
+  width: 153dp;
+  font-size: 17dp;
+  padding-top: 25dp;
+  padding-bottom: 25dp;
+  gap: 31dp;
+  icon-size:50dp;
+  icon-background: rgba(240, 240, 240, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 29%;
+}
+
+tpPanelSwitchButton:focused
+{
+  background-color: rgb(140, 29, 235);
+}

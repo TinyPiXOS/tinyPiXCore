@@ -1,0 +1,7 @@
+#ifndef _DESKTOP_GUI_GLOBAL_H
+#define _DESKTOP_GUI_GLOBAL_H
+
+#define DESKTOP_GUI_NAMESPACE_BEGIN namespace desktopGUI {
+#define DESKTOP_GUI_NAMESPACE_END }
+
+#endif
