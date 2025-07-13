@@ -72,8 +72,9 @@ void tpSocketNotifierManager::eventLoop() {
         }*/
 
 		for (int i = 0; i < nfds; i++) {
-			auto* notifier = static_cast<tpSocketNotifier*>(events[i].data.ptr);
-			if (!notifier || !notifier->isEnabled()) continue;
+			tpSocketNotifier* notifier = static_cast<tpSocketNotifier*>(events[i].data.ptr);
+			if (!notifier || !notifier->isEnabled()) 
+				continue;
 
 			uint32_t evs = events[i].events;
 			// 对端挂断

@@ -12,6 +12,8 @@
     : fd_(fd), type_(type), callback_(callback), enabled_(true) {
     tpSocketNotifierManager::instance().registerNotifier(this);
 }*/
+//callback_(std::move(callback)),
+//      hangupCallback_(std::move(hangupCb)) , // 默认空
 tpSocketNotifier::tpSocketNotifier(int fd, Type type, std::function<void()> callback,std::function<void()> hangupCb)
     : fd_(fd), type_(type),
       callback_(std::move(callback)),

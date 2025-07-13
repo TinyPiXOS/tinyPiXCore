@@ -61,8 +61,9 @@ public:
 	/// @brief 连接到目标地址和端口
 	/// @param addr 地址
 	/// @param port 端口
+	/// @param block 阻塞标志
 	/// @return 
-	tpSocket *connectToHost(const tpString &addr ,tpUInt16 port);
+	tpSocket *connectToHost(const tpString &addr ,tpUInt16 port, tpBool block=TP_TRUE);
 	/// @brief 监听连接
 	/// @param size 
 	/// @return 
