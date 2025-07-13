@@ -48,6 +48,7 @@ public:
 
 public
 signals:
+	declare_signal(connected);
 	declare_signal(disconnected,tpTcpSocket *);
 	declare_signal(readyRead,tpTcpSocket *);
 
