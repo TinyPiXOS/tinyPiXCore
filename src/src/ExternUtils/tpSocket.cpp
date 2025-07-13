@@ -186,9 +186,14 @@ tpInt64 tpSocket::recvFrom(tpUInt8 *data,tpUInt64 size, tpString &addr,tpUInt16 
 	return length;
 }
 
-tpSocket *tpSocket::connectToHost(const tpString &addr ,tpUInt16 port)
+tpSocket *tpSocket::connectToHost(const tpString &addr ,tpUInt16 port, tpBool block)
 {
 	tpSocketData *sock=static_cast<tpSocketData *>(data_);
+	if(!block)
+	{
+		int flags = fcntl(sock->sockfd, F_GETFL, 0);
+		fcntl(sock->sockfd, F_SETFL, flags | O_NONBLOCK);
+	}
 	char *c_addr = new char[addr.length() + 1];
 	std::strcpy(c_addr, addr.c_str());
 	int ret=-1;
@@ -198,10 +203,10 @@ tpSocket *tpSocket::connectToHost(const tpString &addr ,tpUInt16 port)
 	servaddr.sin_family=AF_INET;
 	servaddr.sin_addr=_addr;
 	servaddr.sin_port=htons(port);
-	std::cerr << "connect to "<< addr<<":"<<port<<"\n";
 	if((ret=::connect(sock->sockfd,(struct sockaddr*)(&servaddr),sizeof(struct sockaddr)))<0)
 	{
-		std::cerr << "connect to "<< addr<<":"<<port<<"error\n";
+		if(block)
+			std::cerr << "connect to "<< addr<<":"<<port<<"error\n";
 		return nullptr;
 	}
 	else
