@@ -201,9 +201,7 @@ sudo apt install libsdl2-image-dev libsdl2-gfx-dev \
 - ​**构建 tinyPiXCore**
 
 ```bash
-mkdir build
-cd build
-cmake ../
+cmake .
 make
 make install
 ```
