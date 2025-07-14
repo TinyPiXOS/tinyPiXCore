@@ -2,9 +2,10 @@
 # 使用./dopack.sh <架构>
 # 架构可以设置x86_64或arm_64,如果不设置会按照当前环境默认打包
 # ====================== 配置区域 ======================
-OUTPUT_NAME="tinyPiXCore.run"	# 生成的安装包的名字
+BASE_NAME="tinyPiXCore" 	# 生成的安装包的名字,会自动拼接架构和后缀
 TMP_ROOT_DIR="package_build"	# 生成的临时文件的名字
 KEEP_TMP_DIR=false		# 是否保留中间生成的打包源文件
+SCRIPTS_DIR="config"	# 禁止修改，如果需要修改，需要同步修“改智能安装器“部分的SCRIPTS_DIR
 
 if [ $# -ge 1 ]; then
     ARCH="$1"
@@ -139,11 +140,31 @@ intelligent_copy() {
 
 # ---------------------- 主流程 ----------------------
 echo "===== 开始灵活路径打包 ====="
+#解析架构
 ACTUAL_ARCH=$(resolve_architecture)
+#拼接输出文件名
+OUTPUT_NAME="${BASE_NAME}_${ACTUAL_ARCH}.run"
 # 1. 创建临时根目录
 echo "▸ 创建临时工作区: $TMP_ROOT_DIR"
 rm -rf "$TMP_ROOT_DIR"
 safe_mkdir "$TMP_ROOT_DIR"
+
+
+#需要打包的脚本文件
+echo "▸ 添加安装脚本目录: $SCRIPTS_DIR"
+if [ -d "$SCRIPTS_DIR" ]; then
+    # 复制整个脚本目录
+    cp -r "$SCRIPTS_DIR" "$TMP_ROOT_DIR/"
+    echo "    ✓ 已添加脚本目录"
+    
+    # 列出所有脚本
+    echo "    ▸ 包含的脚本:"
+    find "$SCRIPTS_DIR" -type f -name "*.sh" | while read -r script; do
+        echo "      - $(basename "$script")"
+    done
+else
+    echo "  ⚠️  警告: 找不到安装脚本目录: $SCRIPTS_DIR"
+fi
 
 # 2. 创建路径映射表
 MAPPING_FILE="$TMP_ROOT_DIR/path_mappings"
@@ -227,7 +248,7 @@ done
 cat > "$TMP_ROOT_DIR/installer.sh" <<'EOF'
 #!/bin/bash
 # TinyPiXOS 智能安装器 (完整覆盖版)
-
+SCRIPTS_DIR="config"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 show_help() {
@@ -236,6 +257,70 @@ show_help() {
     echo "  -t, --target DIR     指定安装目标目录 (默认: /)"
     echo "  -d, --dry-run        模拟运行不实际修改"
     echo "  -h, --help           显示帮助信息"
+}
+
+# ====================== 通用脚本执行框架 ======================
+run_install_scripts() {
+    local phase="$1"  # "pre" 或 "post"
+    local scripts_dir="${SCRIPT_DIR}/$SCRIPTS_DIR"
+    
+    echo "▸ 执行 $phase 阶段脚本"
+    
+    if [ ! -d "$scripts_dir" ]; then
+        echo "  ℹ️  未找到脚本目录"
+        return 0
+    fi
+    
+    # 获取所有脚本并按文件名排序
+    local script_files=()
+    while IFS= read -r -d $'\0' file; do
+        script_files+=("$file")
+    done < <(find "$scripts_dir" -type f -name "*.sh" -print0 | sort -z)
+    
+    if [ ${#script_files[@]} -eq 0 ]; then
+        echo "  ℹ️  未找到脚本"
+        return 0
+    fi
+    
+    # 执行所有脚本
+    local script_count=0
+    for script_path in "${script_files[@]}"; do
+        script_name=$(basename "$script_path")
+        script_count=$((script_count + 1))
+        
+        echo "  → [$script_count] 执行: $script_name"
+        echo "     路径: $script_path"
+        echo "     参数: $TARGET_DIR"
+        
+        # 设置执行权限
+        chmod +x "$script_path"
+        
+        if $DRY_RUN; then
+            echo "    [模拟] 跳过执行"
+            continue
+        fi
+        
+        # 执行脚本
+        if /bin/bash "$script_path" "$TARGET_DIR"; then
+            echo "    ✅ 脚本执行成功"
+        else
+            local exit_code=$?
+            echo "    ❌ 脚本执行失败 (退出码: $exit_code)" >&2
+            return $exit_code
+        fi
+    done
+    
+    echo "    ✓ 所有脚本执行完成 ($script_count 个)"
+    return 0   
+}
+
+# ====================== 安装阶段定义 ======================
+run_pre_install_scripts() {
+    run_install_scripts "pre" "$TARGET_DIR"
+}
+
+run_post_install_scripts() {
+    run_install_scripts "post" "$TARGET_DIR"
 }
 
 # 参数解析
@@ -523,6 +608,9 @@ create_symlinks() {
         echo "  ⚠️  二进制目录不存在: $BIN_DIR"
     fi
 }
+
+#调用脚本执行
+run_post_install_scripts
 
 # 在文件复制后调用
 create_symlinks
