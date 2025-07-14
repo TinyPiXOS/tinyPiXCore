@@ -132,6 +132,7 @@ int tpSound::setAudio(tpAudioInterface *audio)
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
 
 	data->audio=audio;
+	return 0;
 }
 
 tpAudioInterface *tpSound::getAudio()
@@ -146,7 +147,7 @@ int tpSound::setVolume(tpUInt8 volume)
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
 	if(!data || !data->audio)
 		return -1;
-	data->audio->setVolume(volume);
+	return data->audio->setVolume(volume);
 }
 
 int tpSound::getVolume()

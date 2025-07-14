@@ -130,10 +130,18 @@ static int montage_config_key_value(char *key_prefix, int size, uint8_t type, co
 // 从安装包的路径或名字中去掉后缀提取名字
 static int get_pikname_from_path(const char *path_pik, char *pikname, int len)
 {
-	char *pik = strrchr(path_pik, '/');
-	if (pik == NULL)
-		pik=path_pik;
-	snprintf(pikname, len, "%s", pik + 1);
+	const char *pik = strrchr(path_pik, '/');
+    const char *filename_start; // 指向文件名起始位置
+
+    if (pik == NULL) {
+        // 没有斜杠，整个路径就是文件名
+        filename_start = path_pik;
+    } else {
+        // 有斜杠，文件名在斜杠后
+        filename_start = pik + 1;
+    }
+
+	snprintf(pikname, len, "%s", filename_start);
 	char *dest = strstr(pikname, PACKAGE_FILE_SUFFIX);
 	if (dest == NULL) // 目录不对，文件后缀名不对
 		return -1;
