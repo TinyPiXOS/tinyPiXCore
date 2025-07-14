@@ -676,13 +676,12 @@ int tpNetworkInterface::threadScan(tpUInt16 time)
 	while(device->scan_is_runing)
 	{
 		tpList<tpWirelessInfo> list_n=getScan();
-	printf("扫描\n");
 		for(const tpWirelessInfo &wlan_l:list_l)
 		{
 			auto it=find_if(list_n.begin(),list_n.end(),[wlan_l](const tpWirelessInfo &wlan_n){return (wlan_n.getSsid()==wlan_l.getSsid());});
 			if(it==list_n.end())		//已经弹出
 			{
-				printf("%s已减少\n",wlan_l.getSsid().c_str());
+				//printf("%s已减少\n",wlan_l.getSsid().c_str());
 				wirelessRemove.emit(wlan_l.getSsid());
 			}
 		}
@@ -692,7 +691,7 @@ int tpNetworkInterface::threadScan(tpUInt16 time)
 			auto it=find_if(list_l.begin(),list_l.end(),[wlan_n](const tpWirelessInfo &wlan_l){return (wlan_l.getSsid()==wlan_n.getSsid());});
 			if(it==list_l.end())		//新设备
 			{
-				printf("新网络\n",wlan_n.getSsid().c_str());
+				//printf("新网络\n",wlan_n.getSsid().c_str());
 				tpWirelessInfo wlan=wlan_n;
 				wirelessAdd.emit(wlan);
 			}
@@ -709,12 +708,14 @@ int tpNetworkInterface::threadScan(tpUInt16 time)
 
 		usleep(1000*time);
 	}
+	return 0;
 }
 
 int tpNetworkInterface::stopScan()
 {
 	tpNetworkData *device=static_cast<tpNetworkData *>(data_);
 	device->scan_is_runing=false;
+	return 0;
 }
 
 

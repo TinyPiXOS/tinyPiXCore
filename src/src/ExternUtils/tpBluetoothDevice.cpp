@@ -163,10 +163,12 @@ tpUInt32 tpBluetoothDevice::getDeviceType()
 tpUInt8 tpBluetoothDevice::getMajorDeviceClass()
 {
 	tpBluetoothDeviceData *data = static_cast<tpBluetoothDeviceData *>(data_);
+	return 0;
 }
 
 tpUInt8 tpBluetoothDevice::getMinorDeviceClass()
 {
 	tpBluetoothDeviceData *data = static_cast<tpBluetoothDeviceData *>(data_);
+	return 0;
 }
 

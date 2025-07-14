@@ -55,16 +55,16 @@ tpBluetoothTransferAgent::~tpBluetoothTransferAgent()
 
 int tpBluetoothTransferAgent::startServer()
 {
-	
+	return 0;
 }
 
 int tpBluetoothTransferAgent::stopServer()
 {
-
+	return 0;
 }
 
 void tpBluetoothTransferAgent::setSaveDirectory(const tpString &directory)
 {
-	
+	return ;
 }
 

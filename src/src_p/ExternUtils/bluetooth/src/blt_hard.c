@@ -369,8 +369,11 @@ static int bluet_attr_analysis(DBusMessageIter *props_iter,struct BluetoothRemot
 		{
 		
 			value=analysis_message_iter_get_value(&prop_entry_iter,DBUS_TYPE_INT16);
-			remote->rssi=((int8_t )value);		//此处必须强制转换
-			//printf("rssi=%d\n",remote->rssi);
+			if(value) 
+    		{
+				int16_t rssi_value = *(int16_t*)value;
+        		remote->rssi = (int8_t)rssi_value; 
+    		}
 		}
 		else
 		{

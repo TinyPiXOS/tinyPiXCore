@@ -45,7 +45,7 @@ struct MediaFilterParam *audio_filter_creat_init(float speed,uint32_t rate,int16
 		goto ERROR;
     }
 	char args[256];
-	snprintf(args, sizeof(args),"sample_rate=44100:sample_fmt=fltp:channel_layout=0x%llx\n",channel_layout);
+	snprintf(args, sizeof(args),"sample_rate=44100:sample_fmt=fltp:channel_layout=0x%lx\n",(uint64_t)channel_layout);
 	//"sample_rate=44100:channel_layout=3:sample_fmt=fltp"
     // 创建输入过滤器（先随便传进去点空参数，要不然会报错）
     if (avfilter_graph_create_filter(&buffersrc_ctx, buffersrc, "in",args , NULL, filter_graph) < 0) {
@@ -61,7 +61,7 @@ struct MediaFilterParam *audio_filter_creat_init(float speed,uint32_t rate,int16
 		fprintf(stderr, "Error setting channels\n");
 		goto ERROR;
 	}
-	snprintf(args, sizeof(args),"0x%llx\n",channel_layout);
+	snprintf(args, sizeof(args),"0x%lx\n",(uint64_t)channel_layout);
 	if (av_opt_set(buffersrc_ctx, "channel_layout", args, AV_OPT_SEARCH_CHILDREN) < 0) {
 		printf("channel_layout:%ld\n",channel_layout);
 		fprintf(stderr, "Error setting channel_layout\n");
