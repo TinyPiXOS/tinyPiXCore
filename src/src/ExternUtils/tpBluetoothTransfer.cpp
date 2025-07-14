@@ -54,7 +54,7 @@ tpBluetoothTransfer::~tpBluetoothTransfer()
 
 int tpBluetoothTransfer::sendFile(tpBluetoothAddress address,const tpString &file)
 {
-	sendFile(address,file.c_str());
+	return sendFile(address,file.c_str());
 }
 
 int tpBluetoothTransfer::sendFile(tpBluetoothAddress address,const char *file)
@@ -69,15 +69,16 @@ int tpBluetoothTransfer::sendFile(tpBluetoothAddress address,const char *file)
 	data->sig_obj=bluet_obex_push_signal_subscribe_objext_manager(data->obex_push,NULL);
 
 	bluet_obex_send_file(data->obex_push,file);
+	return 0;
 }
 
 
 int tpBluetoothTransfer::getStatus()
 {
-
+	return 0;
 }
 
 int tpBluetoothTransfer::getProgress()
 {
-
+	return 0;
 }

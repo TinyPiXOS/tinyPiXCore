@@ -97,7 +97,7 @@ int tpAppInstall::setPath(const tpString &path)
 		return -1;
 	appData->pack_path_c=(char*)malloc(path.size() +1);
 	std::strcpy(appData->pack_path_c, path.c_str());
-	appm_get_package_info(appData->pack_path_c,&appData->conf);		//获取安装包信息
+	return appm_get_package_info(appData->pack_path_c,&appData->conf);		//获取安装包信息
 }
 
 
@@ -295,6 +295,7 @@ int tpAppInstall::threadInstall()
 	tpAppInstallData *appData = static_cast<tpAppInstallData *>(data_);
 	if(appm_install_package(appData->pack_path_c,&appData->conf,&appData->user)<0)
 		return -1;
+	return 0;
 }
 
 
@@ -325,6 +326,7 @@ int tpAppInstall::threadInstallTest()
 	sleep(5);
 	if(appm_install_package(appData->pack_path_c,&appData->conf,&appData->user)<0)
 		return -1;
+	return 0;
 }
 
 

@@ -62,20 +62,7 @@ struct tpDiskInfoData
 	//	std::thread thread_disk;
 
 	tpDiskInfoData() {}
-	tpDiskInfoData *deepCopy() const
-	{
-		// return std::make_unique<tpDiskInfoData>();
-		return new tpDiskInfoData();
-	}
 
-	tpDiskInfoData operator=(const tpDiskInfoData &other)
-	{
-		this->fileInfoWR = other.fileInfoWR;
-		this->disk_stat = other.disk_stat;
-		this->param = other.param;
-
-		//return this;
-	}
 };
 
 void del_num_from_end(std::string &str)
