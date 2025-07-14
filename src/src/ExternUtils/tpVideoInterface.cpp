@@ -356,6 +356,7 @@ int tpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, 
 		bridge,								 // 传递函数指针的地址（符合int(**)(...)类型）
 		(CallbackContext *)vidData->context_ // 用户数据
 	);
+	return 0;
 }
 
 int tpVideoInterface::setDecode(tpVideoDecodeType format)
@@ -390,5 +391,5 @@ int tpVideoInterface::setDecode(tpVideoDecodeType format)
 		break;
 	}
 
-	Audio_Set_Video_Decode_Format(vidData->user, format_video);
+	return Audio_Set_Video_Decode_Format(vidData->user, format_video);
 }

@@ -19,7 +19,7 @@ extern "C" {				//告诉编译器下列代码要以C链接约定的模式进行�
 
 #define MAX_LEN_PATH   1024
 #define MAX_LEN_CONFIG	1024
-
+struct ScriptInfo;
 
 int appm_creat_package_path(const char * path, const char * archive_name);
 int appm_creat_libpackage_config(const char *archive_name,struct LibPackageConfig *conf);

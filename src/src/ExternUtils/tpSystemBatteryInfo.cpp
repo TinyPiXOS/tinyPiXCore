@@ -134,6 +134,7 @@ tpBool tpSystemBatteryInfo::isCharging()
 		return TP_TRUE;
 	else
 		TP_FALSE;
+	return TP_FALSE;
 }
 
 int tpSystemBatteryInfo::getType(void *prop)
