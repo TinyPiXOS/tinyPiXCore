@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <thread>
+#include <queue>
 
 #define PROCESS_MAX_NAME_LENGTH 1024
 
@@ -44,6 +46,9 @@ struct ItpProcessInfo
 
 struct ItpAppSet
 {
+	// 主线程ID
+	std::thread::id mainThreadId;
+
 	tpList<tpObject *> objectList;
 	std::map<tpObject *, bool> vReserveMap;
 	// 所有floatscreen列表，用于更新主题样式
@@ -72,6 +77,9 @@ struct ItpAppSet
 	// 全局唯一单例虚拟键盘
 	tpVirtualKeyboard *virtualKeyboard = nullptr;
 	tpChildWidget *curInputObj = nullptr;
+
+	std::mutex queueSlotMutex_;
+	std::queue<std::function<void()>> tasks_;
 };
 
 class appExe : public tpThread
@@ -476,6 +484,8 @@ tpApp::tpApp(int32_t argc, char *argv[])
 		std::exit(0);
 	}
 
+	set->mainThreadId = std::this_thread::get_id();
+
 	set->clipboard = tpClipboard::Inst();
 	set->vScreen = nullptr;
 	set->message = new tpMessage();
@@ -592,6 +602,19 @@ bool tpApp::run()
 		if (set->vScreen == nullptr)
 		{
 			return false;
+		}
+
+		{
+			// std::unique_lock<std::mutex> lock(set->queueSlotMutex_);
+			
+			while (!set->tasks_.empty())
+			{
+				auto task = set->tasks_.front();
+				set->tasks_.pop();
+				// lock.unlock();
+				task();
+				// lock.lock();
+			}
 		}
 
 		while (set->running)
@@ -716,6 +739,25 @@ bool tpApp::isExistObject(tpObject *object, bool autoRemove)
 	}
 
 	return ret;
+}
+
+bool tpApp::isMainThread()
+{
+	ItpAppSet *set = (ItpAppSet *)this->appSet;
+	return std::this_thread::get_id() == set->mainThreadId;
+}
+
+void tpApp::postEvent(std::function<void()> task)
+{
+	ItpAppSet *set = (ItpAppSet *)this->appSet;
+
+	if (!set->running)
+		return;
+
+	{
+		std::unique_lock<std::mutex> lock(set->queueSlotMutex_);
+		set->tasks_.push(task);
+	}
 }
 
 bool tpApp::sendRegister(tpObject *object)
@@ -852,7 +894,7 @@ void tpApp::setDisableEventType(int32_t type)
 	}
 }
 
-IPitpApp *tpApp::appObjectSet()
+ItpAppData *tpApp::appObjectSet()
 {
 	return (ItpAppSet *)this->appSet;
 }

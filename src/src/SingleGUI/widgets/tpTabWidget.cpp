@@ -31,7 +31,7 @@ tpTabWidget::tpTabWidget(tpChildWidget *parent)
     data_ = widgetData;
 
     // 按钮切换调整显示窗口
-    connect(widgetData->tabBar, indexChanged, this, tpTabWidget::slotTabBarIndexChanged);
+    connect(widgetData->tabBar, indexChanged, this, &tpTabWidget::slotTabBarIndexChanged);
 }
 
 tpTabWidget::~tpTabWidget()

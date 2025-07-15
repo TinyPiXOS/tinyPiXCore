@@ -7,6 +7,9 @@
 #include <list>
 #include <mutex>
 #include <algorithm>
+#include <tuple>
+#include "tpGlobal.h"
+#include "SingleGUI/core/tpApp.h"
 
 #ifndef signals
 #define signals
@@ -35,23 +38,17 @@ public:
 		tpFunction = func;
 	}
 
-	tpSlot(T *obj, FuncPtr func(_ArgTypes... args))
-	{
-		tpReceiver = obj;
-		tpFunction = func;
-	}
-
 	void exec(_ArgTypes... args)
 	{
 		(tpReceiver->*tpFunction)(args...);
 	}
 
-	T *receiver()
+	T *receiver() const
 	{
 		return tpReceiver;
 	}
 
-	FuncPtr function()
+	FuncPtr function() const
 	{
 		return tpFunction;
 	}
@@ -65,7 +62,6 @@ template <typename... _ArgTypes>
 class tpLamdaSlot : public tpSlotBase<_ArgTypes...>
 {
 	typedef std::function<void(_ArgTypes...)> FuncPtr;
-	// typedef void *(*FuncPtr)(_ArgTypes...);
 
 public:
 	tpLamdaSlot(FuncPtr _func)
@@ -87,137 +83,266 @@ private:
 	FuncPtr tpFunction_;
 };
 
-// can not be inherited
+// 类型萃取：判断是否为成员函数指针
+template <typename>
+struct is_member_function_pointer : std::false_type
+{
+};
+
+template <typename T, typename U>
+struct is_member_function_pointer<T U::*> : std::integral_constant<
+												bool, std::is_member_function_pointer<T U::*>::value>
+{
+};
+
+class LambdaConnectionManager
+{
+public:
+	using ConnectionID = uint64_t;
+
+	static ConnectionID nextID()
+	{
+		static std::atomic<ConnectionID> id(0);
+		return ++id;
+	}
+};
+
 template <typename... _ArgTypes>
 class tpSignal
 {
+private:
+	struct Connection
+	{
+		tinyPiX::ConnectionType type;
+		tpSlotBase<_ArgTypes...> *slot;
+		LambdaConnectionManager::ConnectionID lambdaID = 0;
+	};
+
 public:
 	~tpSignal()
 	{
-		gMutex.lock();
-
-		for (auto iter = tpSlotBasePtr.begin(); iter != tpSlotBasePtr.end(); iter++)
+		std::lock_guard<std::mutex> lock(gMutex_);
+		for (auto &conn : connections_)
 		{
-			delete (*iter);
+			delete conn.slot;
 		}
+		connections_.clear();
+	}
 
-		tpSlotBasePtr.clear();
-
-		gMutex.unlock();
+	// 成员函数连接
+	template <class T>
+	void connect(T *obj, void (T::*func)(_ArgTypes...))
+	{
+		do_connect(obj, func, tinyPiX::AutoConnection);
 	}
 
 	template <class T>
-	void connect(T *obj, void (T::*func)(_ArgTypes... args))
+	void connect(T *obj, void (T::*func)(_ArgTypes...), tinyPiX::ConnectionType type)
 	{
-		gMutex.lock();
-
-		tpSlot<T, _ArgTypes...> *tpSB = new tpSlot<T, _ArgTypes...>(obj, func);
-		auto iter = std::find_if(tpSlotBasePtr.begin(), tpSlotBasePtr.end(), [tpSB](const tpSlotBase<_ArgTypes...> *value)
-								 {
-			tpSlot<T,_ArgTypes...> *tmp = (tpSlot<T,_ArgTypes...>*)value;
-			return ((tpSB->receiver() == tmp->receiver()) && (tpSB->function() == tmp->function())); });
-
-		if (iter != tpSlotBasePtr.end())
-		{
-			delete tpSB;
-		}
-		else
-		{
-			tpSlotBasePtr.push_back(tpSB);
-		}
-
-		gMutex.unlock();
+		do_connect(obj, func, type);
 	}
 
-	void connect(std::function<void(_ArgTypes... args)> func)
+	// 通用lambda连接
+	LambdaConnectionManager::ConnectionID connect(typename std::function<void(_ArgTypes...)> func)
 	{
-		gMutex.lock();
+		return do_connect(func, tinyPiX::AutoConnection);
+	}
 
-		tpLamdaSlot<_ArgTypes...> *tpSB = new tpLamdaSlot<_ArgTypes...>(func);
-		// auto iter = std::find_if(tpSlotBasePtr.begin(), tpSlotBasePtr.end(), [tpSB](const tpSlotBase<_ArgTypes...> *value)
-		// 						 {
-		// 	tpLamdaSlot<_ArgTypes...> *tmp = (tpLamdaSlot<_ArgTypes...>*)value;
+	LambdaConnectionManager::ConnectionID connect(typename std::function<void(_ArgTypes...)> func, tinyPiX::ConnectionType type)
+	{
+		return do_connect(func, type);
+	}
 
-		// 	std::function<void(_ArgTypes...)> tmpFunc = tmp->function();
-		// 	std::function<void(_ArgTypes...)> tpSBFunc = tpSB->function();
+	template <typename Func>
+	typename std::enable_if<
+		!is_member_function_pointer<decltype(&Func::operator())>::value,
+		LambdaConnectionManager::ConnectionID>::type
+		connect(Func func)
+	{
+		return do_connect(std::function<void(_ArgTypes...)>(func), tinyPiX::AutoConnection);
+	}
 
-		// 	// 获取两个函数的目标类型
-		// 	// const void* target1 = tmpFunc.target<void(_ArgTypes...)>();
-		// 	// const void* target2 = tpSBFunc.target<void(_ArgTypes...)>();
-
-		// 	// auto tmpFuncPtr = tmpFunc.target<void(*)(_ArgTypes... args)>();
-
-		// 	// bool eq = tmp->function().target<void(_ArgTypes...)>() == tpSB->function().target<void(_ArgTypes...)>();
-		// 	bool eq = true;
-		// 	return eq; });
-
-		// if (iter != tpSlotBasePtr.end())
-		// {
-		// 	delete tpSB;
-		// }
-		// else
-		// {
-		// 	tpSlotBasePtr.push_back(tpSB);
-		// }
-		tpSlotBasePtr.push_back(tpSB);
-
-		gMutex.unlock();
+	template <typename Func>
+	typename std::enable_if<
+		!is_member_function_pointer<decltype(&Func::operator())>::value,
+		LambdaConnectionManager::ConnectionID>::type
+		connect(Func func, tinyPiX::ConnectionType type)
+	{
+		return do_connect(std::function<void(_ArgTypes...)>(func), type);
 	}
 
 	template <class T>
-	void disconnect(T *obj, void (T::*func)(_ArgTypes... args))
+	void disconnect(T *obj, void (T::*func)(_ArgTypes...))
 	{
-		gMutex.lock();
-
-		tpSlot<T, _ArgTypes...> *tpSB = new tpSlot<T, _ArgTypes...>(obj, func);
-		auto iter = std::find_if(tpSlotBasePtr.begin(), tpSlotBasePtr.end(), [tpSB](const tpSlotBase<_ArgTypes...> *value)
-								 {
-			tpSlot<T,_ArgTypes...> *tmp = (tpSlot<T,_ArgTypes...>*)value;
-			return ((tpSB->receiver() == tmp->receiver()) && (tpSB->function() == tmp->function())); });
-
-		if (iter != tpSlotBasePtr.end())
+		std::lock_guard<std::mutex> lock(gMutex_);
+		auto it = connections_.begin();
+		while (it != connections_.end())
 		{
-			tpSlotBasePtr.erase(iter);
+			auto *slot = dynamic_cast<tpSlot<T, _ArgTypes...> *>(it->slot);
+			if (slot && slot->receiver() == obj && slot->function() == func)
+			{
+				delete it->slot;
+				it = connections_.erase(it);
+			}
+			else
+			{
+				++it;
+			}
 		}
+	}
 
-		delete tpSB;
-
-		gMutex.unlock();
+	void disconnect(LambdaConnectionManager::ConnectionID id)
+	{
+		std::lock_guard<std::mutex> lock(gMutex_);
+		auto it = connections_.begin();
+		while (it != connections_.end())
+		{
+			if (it->lambdaID == id)
+			{
+				delete it->slot;
+				it = connections_.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
 	}
 
 	void emit(_ArgTypes... args)
 	{
-		gMutex.lock();
-
-		for (auto &slot : tpSlotBasePtr)
+		// 复制当前连接以避免死锁
+		std::list<Connection> current_connections;
 		{
-			(*slot).exec(args...);
+			std::lock_guard<std::mutex> lock(gMutex_);
+			current_connections = connections_;
 		}
 
-		gMutex.unlock();
+		for (const auto &conn : current_connections)
+		{
+			if (conn.type == tinyPiX::AutoConnection)
+			{
+				if (tpApp::Inst()->isMainThread())
+				{
+					conn.slot->exec(args...);
+				}
+				else
+				{
+					std::shared_ptr<tpSlotBase<_ArgTypes...>> slotRef(
+						conn.slot,
+						[](tpSlotBase<_ArgTypes...> *) {});
+
+					// 使用std::bind创建任务
+					auto task = std::bind(
+						[](std::shared_ptr<tpSlotBase<_ArgTypes...>> slot, _ArgTypes... args)
+						{
+							slot->exec(args...);
+						},
+						slotRef,
+						args...);
+
+					// 提交到事件循环
+					tpApp::Inst()->postEvent(task);
+				}
+			}
+			else if (conn.type == tinyPiX::DirectConnection)
+			{
+				conn.slot->exec(args...);
+			}
+			else if (conn.type == tinyPiX::QueuedConnection)
+			{
+				// 队列连接 - 提交到事件循环
+				std::shared_ptr<tpSlotBase<_ArgTypes...>> slotRef(
+					conn.slot,
+					[](tpSlotBase<_ArgTypes...> *) {});
+
+				// 使用std::bind创建任务
+				auto task = std::bind(
+					[](std::shared_ptr<tpSlotBase<_ArgTypes...>> slot, _ArgTypes... args)
+					{
+						slot->exec(args...);
+					},
+					slotRef,
+					args...);
+
+				// 提交到事件循环
+				tpApp::Inst()->postEvent(task);
+			}
+			else
+			{
+			}
+		}
 	}
 
 	void operator()(_ArgTypes... args)
 	{
-		this->emit(args...);
+		emit(args...);
 	}
 
 private:
-	std::mutex gMutex;
-	std::list<tpSlotBase<_ArgTypes...> *> tpSlotBasePtr;
+	template <class T>
+	void do_connect(T *obj, void (T::*func)(_ArgTypes...), tinyPiX::ConnectionType type)
+	{
+		std::lock_guard<std::mutex> lock(gMutex_);
+
+		// 是否已存在相同连接
+		for (const auto &conn : connections_)
+		{
+			auto *slot = dynamic_cast<tpSlot<T, _ArgTypes...> *>(conn.slot);
+			if (slot && slot->receiver() == obj && slot->function() == func)
+			{
+				return;
+			}
+		}
+
+		// 创建新连接对象
+		Connection newConn;
+		newConn.type = type;
+		newConn.slot = new tpSlot<T, _ArgTypes...>(obj, func);
+		newConn.lambdaID = 0;
+
+		connections_.emplace_back(newConn);
+	}
+
+	LambdaConnectionManager::ConnectionID do_connect(typename std::function<void(_ArgTypes...)> func, tinyPiX::ConnectionType type)
+	{
+		std::lock_guard<std::mutex> lock(gMutex_);
+
+		auto id = LambdaConnectionManager::nextID();
+
+		// 创建新连接对象
+		Connection newConn;
+		newConn.type = type;
+		newConn.slot = new tpLamdaSlot<_ArgTypes...>(func);
+		newConn.lambdaID = id;
+
+		// 添加到连接列表
+		connections_.emplace_back(newConn);
+
+		return id;
+	}
+
+private:
+	std::mutex gMutex_;
+	std::list<Connection> connections_;
 };
 
 #define declare_signal(signal, ...) tpSignal<__VA_ARGS__> signal
 
-#define SIGNALS(type, signal, ...) signal
-#define SLOTS(type, slot, ...) type::slot
+#define connect_1(sender, signal, func) (sender)->signal.connect(func)
+#define connect_2(sender, signal, arg1, arg2) (sender)->signal.connect(arg1, arg2)
+#define connect_3(sender, signal, arg1, arg2, arg3) (sender)->signal.connect(arg1, arg2, arg3)
 
-#define connect_sig_slot_1(sender, signal, target, slot) ((sender)->signal.connect(target, &slot))
-#define connect_sig_slot_2(sender, signal, slot) ((sender)->signal.connect(slot))
+#define GET_MACRO(_1, _2, _3, _4, _5, NAME, ...) NAME
+#define connect(...) GET_MACRO(__VA_ARGS__, connect_3, connect_2, connect_1)(__VA_ARGS__)
 
-#define get_macro(_1, _2, _3, _4, NAME, ...) NAME
-#define connect(...) get_macro(__VA_ARGS__, connect_sig_slot_1, connect_sig_slot_2)(__VA_ARGS__)
+#define disconnect_member(sender, signal, obj, func) \
+	(sender)->signal.disconnect(obj, &std::remove_reference<decltype(*(obj))>::type::func)
 
-#define disconnect(sender, signal, target, slot) ((sender)->signal.disconnect(target, &slot))
+#define disconnect_lambda(sender, signal, id) \
+	(sender)->signal.disconnect(id)
+
+#define GET_DISCONNECT_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define disconnect(...) GET_DISCONNECT_MACRO(__VA_ARGS__, disconnect_member, disconnect_lambda)(__VA_ARGS__)
 
 #endif
