@@ -55,6 +55,16 @@
 
 namespace tinyPiX
 {
+    enum ConnectionType
+    {
+        /// @brief 自动连接，如果信号在主线程则为 DirectConnection，否则为 QueuedConnection
+        AutoConnection,
+        /// @brief 直接连接，槽函数会在信号发送线程被执行
+        DirectConnection,
+        /// @brief 队列连接，槽函数会在主线程执行
+        QueuedConnection
+    };
+
     enum SortOrder
     {
         AscendingOrder, // 升序

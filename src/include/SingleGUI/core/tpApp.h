@@ -4,8 +4,9 @@
 
 #include <tpUtils.h>
 #include <string>
+#include <functional>
 
-TP_DEF_VOID_TYPE_VAR(IPitpApp);
+TP_DEF_VOID_TYPE_VAR(ItpAppData);
 
 class tpObject;
 class tpClipboard;
@@ -82,10 +83,17 @@ public:
 
 	/// @brief 唤醒虚拟键盘
 	/// @return object 唤醒对象；虚拟键盘的输入将会给入该对象
-	void wakeUpVirtualKeyboard(tpChildWidget* object);
+	void wakeUpVirtualKeyboard(tpChildWidget *object);
 
 	/// @brief 休眠虚拟键盘
 	void dormantVirtualKeyboard();
+
+	/// @brief 获取当前线程是否是主线程
+	/// @return 主线程返回true，否则返回false
+	bool isMainThread();
+
+	/// @brief 队列类型信号槽处理；用户无需调用
+	void postEvent(std::function<void()> task);
 
 public:
 	virtual bool isExistObject(tpObject *object, bool autoRemove = false);
@@ -100,10 +108,10 @@ public:
 public:
 	virtual void setDisableEventType(int32_t type);
 	virtual int32_t disableEventType();
-	virtual IPitpApp *appObjectSet();
+	virtual ItpAppData *appObjectSet();
 
 public:
-	IPitpApp *appSet;
+	ItpAppData *appSet;
 };
 
 #endif

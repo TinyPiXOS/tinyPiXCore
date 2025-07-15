@@ -168,9 +168,13 @@ tpScrollBar::tpScrollBar(tpChildWidget *parent, bool horizontal) : tpChildWidget
 		set->rectButton[0]->font()->setFontSize(8);
 		set->rectButton[1]->font()->setFontSize(8);
 
-		connect(set->rectButton[0], SIGNALS(tpRectPanel, onClicked, int32_t), this, SLOTS(tpScrollBar, pageScroll, int32_t));
-		connect(set->rectButton[1], SIGNALS(tpRectPanel, onClicked, int32_t), this, SLOTS(tpScrollBar, pageScroll, int32_t));
-		connect(set->scroll, SIGNALS(tpScroll, onScroll, tpScroll *, int32_t, int32_t, int32_t, double), this, SLOTS(tpScrollBar, mapSignal, tpScroll *, int32_t, int32_t, int32_t, double));
+		connect(set->rectButton[0], onClicked, this, &tpScrollBar::pageScroll);
+		connect(set->rectButton[1], onClicked, this, &tpScrollBar::pageScroll);
+		connect(set->scroll, onScroll, this, &tpScrollBar::mapSignal);
+
+		// connect(set->rectButton[0], SIGNALS(tpRectPanel, onClicked, int32_t), this, SLOTS(tpScrollBar, pageScroll, int32_t));
+		// connect(set->rectButton[1], SIGNALS(tpRectPanel, onClicked, int32_t), this, SLOTS(tpScrollBar, pageScroll, int32_t));
+		// connect(set->scroll, SIGNALS(tpScroll, onScroll, tpScroll *, int32_t, int32_t, int32_t, double), this, SLOTS(tpScrollBar, mapSignal, tpScroll *, int32_t, int32_t, int32_t, double));
 
 		this->setEnabledBorderColor(false);
 		this->scrollBarSet = set;

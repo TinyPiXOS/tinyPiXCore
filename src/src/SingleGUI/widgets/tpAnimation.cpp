@@ -53,7 +53,7 @@ tpAnimation::tpAnimation(tpChildWidget *target, const AnimationType &propertyTyp
 
     animationData->animationTimer.setInterval(globalTimerInterval);
 
-    connect(&animationData->animationTimer, timeout, this, tpAnimation::AnimationRun);
+    connect(&animationData->animationTimer, timeout, this, &tpAnimation::AnimationRun);
 }
 
 tpAnimation::~tpAnimation()
