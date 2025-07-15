@@ -203,17 +203,15 @@ tpSocket *tpSocket::connectToHost(const tpString &addr ,tpUInt16 port, tpBool bl
 	servaddr.sin_family=AF_INET;
 	servaddr.sin_addr=_addr;
 	servaddr.sin_port=htons(port);
-	if((ret=::connect(sock->sockfd,(struct sockaddr*)(&servaddr),sizeof(struct sockaddr)))<0)
+	if((ret=::connect(sock->sockfd,(struct sockaddr*)(&servaddr),sizeof(struct sockaddr)))==0)
 	{
-		if(block)
-			std::cerr << "connect to "<< addr<<":"<<port<<"error\n";
-		return nullptr;
+		return this;
 	}
-	else
-	{
-		printf("connect ok %d\n",ret);
-	}
-	return this;
+	if (!block && errno == EINPROGRESS) {
+        return this;
+    }
+	
+	return nullptr;
 }
 
 //监听(默认以非阻塞的模式接受连接)
@@ -241,11 +239,11 @@ tpInt64 tpSocket::send(const tpUInt8 *data,tpUInt64 size)
 	tpSocketData *sock=static_cast<tpSocketData *>(data_);
 	int length=0;
 	if(sock->sockfd<0)
+	
 		return -1;
-	printf("send to  %d\n",sock->sockfd);
 	if((length=::send(sock->sockfd,data,size,0))<0)
 	{
-		std::cerr << "send data error\n";
+		;
 	}
 	return length;
 }

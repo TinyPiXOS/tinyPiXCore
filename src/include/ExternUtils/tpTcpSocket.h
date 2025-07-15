@@ -56,6 +56,8 @@ private:
 	tpBool checkDisconnected();
 	void handleRead();
 	void handleDisconnected();
+	void handleWrite();
+	void handleConnectError();
 	friend class tpTcpServer;
 private:
 	ItpTcpSocketData *data_;
