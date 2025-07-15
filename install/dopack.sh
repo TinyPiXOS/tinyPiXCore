@@ -386,7 +386,37 @@ packages=(
 	libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 )
 
+#网络检查函数
+check_network() {
+    local servers=("google.com" "8.8.8.8" "1.1.1.1")
+    local connected=0
+    
+    echo "▸ 检查网络连接..."
+    
+    for server in "${servers[@]}"; do
+        echo "  测试连接到: $server"
+        if ping -c 1 -W 1 "$server" &> /dev/null; then
+            echo "  ✓ 可以连接到 $server"
+            connected=1
+            break
+        fi
+    done
+    
+    if [ $connected -eq 0 ]; then
+        echo " 错误: 无法连接到任何网络服务器" >&2
+        echo "  • 请检查您的网络连接" >&2
+        echo "  • 或者使用离线安装包" >&2
+        return 1  # 改为返回错误码而不是退出
+    fi
+    
+    echo "✓ 网络连接正常"
+    return 0
+}
+
 check_and_install_packages() {
+	local has_network=$1  # 接收网络状态参数
+    shift  # 移除第一个参数，剩余参数为包列表
+
     if ! command -v apt-get >/dev/null; then
         echo "[错误] 只支持基于Debian的系统（如Ubuntu）自动安装依赖包" >&2
         echo "请手动安装以下包：${packages[*]}" >&2
@@ -394,24 +424,47 @@ check_and_install_packages() {
     fi
 
     # 更新包索引
-    echo "  更新包列表..."
-    apt-get update >/dev/null
+	 if [ $has_network -eq 0 ]; then
+        echo "▸ 更新包列表..."
+        if ! apt-get update >/dev/null; then
+            echo "❌ 更新包列表失败" >&2
+            return 1
+        fi
+    fi
 
     for pkg in "$@"; do
         # 方法1：使用 dpkg-query 精确检查（推荐）
         if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
             echo "  ✓ $pkg 已安装"
         else
+            # 如果没有网络连接，无法安装新包
+            if [ $has_network -ne 0 ]; then
+                echo "❌ 错误: $pkg 未安装且无网络连接" >&2
+                echo "  • 请手动安装此包或检查网络连接" >&2
+                return 1
+            fi
+            
             echo "  ▸ 正在安装 $pkg ..."
             if ! apt-get install -y "$pkg" >/dev/null; then
-                echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
-                exit 1
+                echo "❌ 安装 $pkg 失败，请检查软件源配置" >&2
+                return 1
             fi
+            echo "  ✓ $pkg 安装成功"
         fi
     done
 }
 
-check_and_install_packages "${packages[@]}"
+if check_network; then
+    has_network=0  # 有网络
+else
+    has_network=1  # 无网络
+fi
+
+# 安装依赖包，传递网络状态和包列表
+if ! check_and_install_packages $has_network "${packages[@]}"; then
+    echo "❌ 依赖包检查/安装失败" >&2
+    exit 1
+fi
 
 # ====================== 文件复制逻辑 ======================
 # 处理映射表
@@ -641,7 +694,7 @@ tail -n +$ARCHIVE_START "$0" | base64 -d | tar -xzf - -C "$EXTRACT_DIR"
 
 # 增加调试：检查解压内容
 echo "▸ 解压目录内容:"
-ls -lR "$EXTRACT_DIR"
+#ls -lR "$EXTRACT_DIR"
 
 # 执行安装器
 if [ -n "$INSTALL_DIR" ]; then
@@ -654,7 +707,7 @@ fi
 
 # 清理
 rm -rf "$EXTRACT_DIR"
-echo "✅ 安装流程完成!"
+echo "安装流程完成!"
 exit 0
 
 __ARCHIVE_BELOW__
