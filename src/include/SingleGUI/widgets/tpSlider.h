@@ -49,6 +49,7 @@ signals:
 
 protected:
 	virtual bool onMousePressEvent(tpMouseEvent *event) override;
+	virtual bool onMouseRleaseEvent(tpMouseEvent *event) override;
 	virtual bool onMouseMoveEvent(tpMouseEvent *event) override;
 	virtual bool onLeaveEvent(tpObjectLeaveEvent *event) override;
 	virtual bool onPaintEvent(tpObjectPaintEvent *event) override;

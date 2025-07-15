@@ -128,6 +128,16 @@ bool tpSlider::onMousePressEvent(tpMouseEvent *event)
 	return true;
 }
 
+bool tpSlider::onMouseRleaseEvent(tpMouseEvent *event)
+{
+	tpSliderData *sliderData = static_cast<tpSliderData *>(data_);
+
+	sliderData->isPressVertex = false;
+	sliderData->isDrag = false;
+
+	return true;
+}
+
 bool tpSlider::onMouseMoveEvent(tpMouseEvent *event)
 {
 	tpSliderData *sliderData = static_cast<tpSliderData *>(data_);
