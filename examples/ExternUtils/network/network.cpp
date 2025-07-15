@@ -134,11 +134,12 @@ int32_t example_tcp_client()
 {
     tpTcpSocket tcp_c;
     tpString addr_s="192.168.1.32";
-    uint16_t port_c;
-    tpUInt8 recv_buf[1024];
     tpUInt8 send_buf[20]="client data";
-   // tcp_c.bind(8000);    //open+connect
-	tcp_c.connectToHost(addr_s,8001);
+	tcp_c.connectToHost(addr_s,8000);
+	connect(&tcp_c,tpTcpSocket::connected,[](){
+		std::cout << "Client connected ok" << std::endl;
+	});
+	
     while(1)
     {
         if(tcp_c.send(send_buf,11)<0)
@@ -235,10 +236,10 @@ int32_t main(int32_t argc, char *argv[])
 //	example_printf_device();
 //	example_dhcp();
 //    example_printf_device();
-//	example_wireless();
-//    example_udp();
-    example_tcp_server();
-//    example_tcp_client();
+//	example_wireless();//
+ //   example_udp();
+//    example_tcp_server();
+    example_tcp_client();
     return 0;
 }
 

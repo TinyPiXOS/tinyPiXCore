@@ -92,12 +92,18 @@ CMakeFiles/create_symlinks:
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libPiXSingleGUI.so /usr/lib/libPiXSingleGUI.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libPiXUtils.so /usr/lib/libPiXUtils.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libasound.so /usr/lib/libasound.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libasound.so.2 /usr/lib/libasound.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libasound.so.2 /usr/lib/libasound.so.2
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libasound.so.2.0.0 /usr/lib/libasound.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libasound.so.2.0.0 /usr/lib/libasound.so.2
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libbluetooth.so /usr/lib/libbluetooth.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libbluetooth.so.3 /usr/lib/libbluetooth.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libbluetooth.so.3 /usr/lib/libbluetooth.so.3
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libbluetooth.so.3.19.6 /usr/lib/libbluetooth.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libbluetooth.so.3.19.6 /usr/lib/libbluetooth.so.3
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libdbus-1.so /usr/lib/libdbus-1.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libdbus-1.so.3 /usr/lib/libdbus-1.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libdbus-1.so.3 /usr/lib/libdbus-1.so.3
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libdbus-1.so.3.19.13 /usr/lib/libdbus-1.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libdbus-1.so.3.19.13 /usr/lib/libdbus-1.so.3
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libexampleGUI.so /usr/lib/libexampleGUI.so
@@ -105,15 +111,23 @@ CMakeFiles/create_symlinks:
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libjson-c.so.5 /usr/lib/libjson-c.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libjson-c.so.5 /usr/lib/libjson-c.so.5
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librime.so /usr/lib/librime.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librime.so.1 /usr/lib/librime.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librime.so.1 /usr/lib/librime.so.1
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librime.so.1.5.3 /usr/lib/librime.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librime.so.1.5.3 /usr/lib/librime.so.1
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librsvg-2.so /usr/lib/librsvg-2.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librsvg-2.so.2 /usr/lib/librsvg-2.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librsvg-2.so.2 /usr/lib/librsvg-2.so.2
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librsvg-2.so.2.48.0 /usr/lib/librsvg-2.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/librsvg-2.so.2.48.0 /usr/lib/librsvg-2.so.2
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libssl.so /usr/lib/libssl.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libssl.so.1.1 /usr/lib/libssl.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libssl.so.1.1 /usr/lib/libssl.so.1
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libssl.so.3 /usr/lib/libssl.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libssl.so.3 /usr/lib/libssl.so.3
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libusb-1.0.so /usr/lib/libusb-1.0.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libusb-1.0.so.0 /usr/lib/libusb-1.0.so
+	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libusb-1.0.so.0 /usr/lib/libusb-1.0.so.0
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libusb-1.0.so.0.3.0 /usr/lib/libusb-1.0.so
 	/usr/bin/cmake -E create_symlink /usr/lib/tinyPiX/libusb-1.0.so.0.3.0 /usr/lib/libusb-1.0.so.0
 
