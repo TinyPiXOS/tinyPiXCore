@@ -39,9 +39,10 @@ tpTcpSocket::tpTcpSocket(tpSocket *sock)
 		tcp->sock->socket(tpSocket::TP_SOCK_STREAM);
 	}
 	else
+	{
 		tcp->sock=sock;
-
-	tcp->status=tpSocket::TP_SOCK_CONNECT;
+		tcp->status=tpSocket::TP_SOCK_CONNECT;
+	}
 
 	tcp->notifier_read = new tpSocketNotifier(tcp->sock->getSocket(), tpSocketNotifier::Read, 
 		[this]() { handleRead(); },
@@ -63,6 +64,7 @@ tpTcpSocket::~tpTcpSocket()
 	}
 	delete(tcp);
 	tcp=nullptr;
+	printf("析构\n");
 }
 
 tpInt32 tpTcpSocket::bind(const tpString &addr, tpUInt16 port)
@@ -81,20 +83,26 @@ tpInt32 tpTcpSocket::connectToHost(const tpString &addr, tpUInt16 port)
 {
 	tpTcpSocketData *tcp=static_cast<tpTcpSocketData *>(data_);
 	tpSocket *ret=nullptr;
-	ret = tcp->sock->connectToHost(addr,port,TP_FALSE);	
-
+	ret = tcp->sock->connectToHost(addr,port,TP_FALSE);		//非阻塞模式
 	if(ret!=nullptr)
 	{
 		//tcp->sock_r=*ret;
+		printf("立即连接成功\n");
 		tcp->status=tpSocket::TP_SOCK_CONNECT;
+		connected.emit();
 		return 0;
 	}
-	return -1;
+	tcp->notifier_write = new tpSocketNotifier(
+			tcp->sock->getSocket(), tpSocketNotifier::Write,
+			[this](){ handleWrite(); }
+		);
+	return 0;
 }
 
 tpInt32 tpTcpSocket::close()
 {
 	tpTcpSocketData *tcp=static_cast<tpTcpSocketData *>(data_);
+
 	if (tcp->notifier_read) {
         delete tcp->notifier_read; 
 		tcp->notifier_read = nullptr;
@@ -116,13 +124,14 @@ tpInt64 tpTcpSocket::send(const tpUInt8 *buff, tpUInt64 size)
 {
 	tpTcpSocketData *tcp=static_cast<tpTcpSocketData *>(data_);
 	if(tcp->status!=tpSocket::TP_SOCK_CONNECT)
+	{
 		return -1;
+	}
 	tpInt32 ret = tcp->sock->send(buff,size);
 	if(ret==0)
 	{
 		tcp->status=tpSocket::TP_SOCK_DISCONNECT;
 	}
-	printf("send return %d\n",ret);
 	return ret;
 }
 
@@ -152,7 +161,7 @@ void tpTcpSocket::handleRead()
 {
 //	if(checkDisconnected())
 //		return ;
-    printf("debug:有可读事件，但不读出数据，只发信号\n");
+//    printf("debug:有可读事件，但不读出数据，只发信号\n");
     readyRead.emit(this);	
 }
 
@@ -174,6 +183,39 @@ void tpTcpSocket::handleDisconnected()
 {	
 	tpTcpSocketData* tcp = static_cast<tpTcpSocketData*>(data_);
     tcp->status = tpSocket::TP_SOCK_DISCONNECT;
-	printf("断开连接\n");
 	disconnected.emit(this);
+}
+
+void tpTcpSocket::handleWrite() {
+    tpTcpSocketData *tcp = static_cast<tpTcpSocketData*>(data_);
+	printf("handlewrite触发\n");
+    // 检查连接结果
+    int err = 0;
+    socklen_t len = sizeof(err);
+    getsockopt(tcp->sock->getSocket(), SOL_SOCKET, SO_ERROR, &err, &len);
+
+    if (err == 0) 
+	{
+		// 停掉写事件监听
+		if (tcp->notifier_write) {
+			delete tcp->notifier_write;
+			tcp->notifier_write = nullptr;
+		}
+        tcp->status = tpSocket::TP_SOCK_CONNECT;
+        connected.emit();
+    }
+	else
+	{
+		printf("debug 未知错误\n");
+	}
+    // 之后就继续依赖 notifier_read 处理数据和断开
+}
+
+void tpTcpSocket::handleConnectError() {
+	 tpTcpSocketData *tcp = static_cast<tpTcpSocketData*>(data_);
+        		// 走到这里说明 connect 被拒绝或有底层错误
+				int err = 0;
+				socklen_t len = sizeof(err);
+				getsockopt(tcp->sock->getSocket(), SOL_SOCKET, SO_ERROR, &err, &len);
+//printf("error 未知错误\n");
 }
