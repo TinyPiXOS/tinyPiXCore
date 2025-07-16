@@ -3,6 +3,8 @@
 #include "tpCanvas.h"
 #include "tpDisplay.h"
 
+static int32_t BtnFontColor = _RGB(38, 38, 38);
+
 struct tpMessageBoxData
 {
     tpMessageBox::MessageType type = tpMessageBox::Information;
@@ -37,7 +39,7 @@ tpMessageBox::tpMessageBox(const char *type)
     messageData->font->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
 
     messageData->btnFont->setFontSize(17);
-    messageData->btnFont->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
+    messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
 
     data_ = messageData;
 
@@ -215,59 +217,49 @@ bool tpMessageBox::onPaintEvent(tpObjectPaintEvent *event)
         paintCanvas->renderText(*messageData->font, msgX + curLineX, msgY + titleStartY + i * (messageData->font->pixelHeight() + textGap));
     }
 
-    // 绘制按钮
-    uint32_t btnGap = 80;
-    uint32_t btnWidth = 0;
-    for (int i = 0; i < messageData->btnList.size(); ++i)
-    {
-        messageData->btnFont->setText(messageData->btnList.at(i));
-        btnWidth += messageData->btnFont->pixelWidth() + btnGap;
-    }
-    if (messageData->btnList.size() > 0)
-        btnWidth -= btnGap;
+    if (messageData->btnList.size() == 0)
+        return true;
+
+    // 按钮均分窗口宽度
+    uint32_t btnWidth = msgWidth / messageData->btnList.size();
 
     // 清空按钮rect
     messageData->btnRect.clear();
 
-    int32_t btnStartX = (msgWidth - btnWidth) / 2.0;
-    int32_t btnStartY = (btnHeight - messageData->btnFont->pixelHeight()) / 2.0;
+    messageData->btnFont->setText("确定");
+    int32_t btnTextY = msgY + titleHeight + (btnHeight - messageData->btnFont->pixelHeight()) / 2.0;
 
-    int32_t curBtnX = msgX + btnStartX;
     for (int i = 0; i < messageData->btnList.size(); ++i)
     {
         messageData->btnFont->setText(messageData->btnList.at(i));
 
+        int32_t btnTextX = msgX + btnWidth * i + (btnWidth - messageData->btnFont->pixelWidth()) / 2.0;
+
         // 绘制按钮文本
         if ((i == (messageData->btnList.size() - 1)) && messageData->type == tpMessageBox::Question)
         {
-            tpFont tmpFont = *messageData->btnFont;
-            tmpFont.setFontColor(_RGB(255, 77, 79), _RGB(255, 77, 79));
-            paintCanvas->renderText(tmpFont, curBtnX, msgY + titleHeight + btnStartY);
+            messageData->btnFont->setFontColor(_RGB(255, 77, 79), _RGB(255, 77, 79));
         }
         else
         {
-
-            paintCanvas->renderText(*messageData->btnFont, curBtnX, msgY + titleHeight + btnStartY);
+            messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
         }
+        paintCanvas->renderText(*messageData->btnFont, btnTextX, btnTextY);
 
         // 记录按钮rect
         ItpRect btnRect;
-        btnRect.x = curBtnX - btnGap;
+        btnRect.x = btnTextX;
         btnRect.y = msgY + titleHeight;
-        btnRect.w = messageData->btnFont->pixelWidth() + btnGap * 2;
+        btnRect.w = btnWidth;
         btnRect.h = btnHeight;
 
         messageData->btnRect.emplace_back(btnRect);
 
-        curBtnX += messageData->btnFont->pixelWidth() + btnGap;
-
         if (i != (messageData->btnList.size() - 1))
         {
             // 绘制分割线
-            paintCanvas->vline(curBtnX, msgY + titleHeight + btnStartY, msgY + titleHeight + btnStartY + messageData->btnFont->pixelHeight(), _RGB(190, 196, 202));
+            paintCanvas->vline(msgX + btnWidth * (i + 1), btnTextY, btnTextY + messageData->btnFont->pixelHeight(), _RGB(190, 196, 202));
         }
-
-        curBtnX += btnGap;
     }
 
     return true;

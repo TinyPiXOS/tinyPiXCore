@@ -140,6 +140,9 @@ public:
 	// 	/// @param uint32_t 字体大小
 	// 	declare_signal(onFontSizeChanged, uint32_t);
 
+public:
+	tpFont& operator=(const tpFont &others);
+
 private:
 	ItpFontData *data_;
 };
