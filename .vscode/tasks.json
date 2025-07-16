@@ -1,0 +1,79 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc 生成活动文件",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-I/usr/include",
+                "-I/usr/include/PiXWM",
+                "-I/usr/include/SDL2", 
+                "-I/usr/include/tinyPiX", 
+                "-I/usr/include/tinyPiX/Utils", 
+                "-I/usr/include/tinyPiX/ExternUtils", 
+                "-I/usr/include/tinyPiX/SingleGUI", 
+                "-I/usr/include/tinyPiX/SingleGUI/core", 
+                "-I/usr/include/tinyPiX/SingleGUI/screen", 
+                "-I/usr/include/tinyPiX/SingleGUI/widgets", 
+                "-I/usr/include/tinyPiX/SingleGUI/core", 
+                "-I.",  
+                "-I/usr/include/freetype2", 
+                "-I/usr/include/cairo", 
+                "-I/usr/include/pango-1.0", 
+                "-I/usr/include/harfbuzz", 
+                "-I/usr/include/glib-2.0", 
+                "-I/usr/lib/x86_64-linux-gnu/glib-2.0/include", 
+                "-I/usr/include/SDL2", 
+                "-I../tinyPiXCore/src/include/Utils/base", 
+                "-I../tinyPiXCore/src/include/Utils", 
+                "-I../tinyPiXCore/src/include_p/Api", 
+                "-I../tinyPiXCore/src/include_p/Api/base", 
+                "-I./engine", 
+                "-I./", 
+                "-L/usr/lib", 
+                "-lSDL2", 
+                "-lpthread", 
+                "-DTP_USE_SDL2", 
+                "-DENABLE_LOGO", 
+                "-L/usr/lib/tinyPiX", 
+                "-ldl", 
+                "-lpthread",
+                "-lSDL2",
+                "-lSDL2_image",
+                "-lSDL2_gfx", 
+                "-lcairo", 
+                "-lpango-1.0", 
+                "-lgobject-2.0", 
+                "-lglib-2.0", 
+                "-lpangocairo-1.0",  
+                "-lfontconfig", 
+                "-lfreetype", 
+                "-lgbm", 
+                "-lGLESv2",
+                "-lEGL", 
+                "-lPiXUtils",
+                "-lrime", 
+                "-lPiXSingleGUI", 
+                "-lPiXApi",
+                "-lPiXExternUtils"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务。"
+        }
+    ],
+    "version": "2.0.0"
+}

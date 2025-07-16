@@ -604,21 +604,25 @@ bool tpApp::run()
 			return false;
 		}
 
+		while (set->running)
 		{
-			// std::unique_lock<std::mutex> lock(set->queueSlotMutex_);
-			
-			while (!set->tasks_.empty())
+			std::queue<std::function<void()>> cacheTaskList;
+
 			{
-				auto task = set->tasks_.front();
-				set->tasks_.pop();
+				std::unique_lock<std::mutex> lock(set->queueSlotMutex_);
+				cacheTaskList = set->tasks_;
+				set->tasks_ = std::queue<std::function<void()>>();
+			}
+
+			while (!cacheTaskList.empty())
+			{
+				auto task = cacheTaskList.front();
+				cacheTaskList.pop();
 				// lock.unlock();
 				task();
 				// lock.lock();
 			}
-		}
 
-		while (set->running)
-		{
 			tpTimer::sleep(20);
 		}
 	}
