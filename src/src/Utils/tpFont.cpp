@@ -729,6 +729,20 @@ tpFontFamily *tpFont::getSysFamilyFont()
 	return (new tpFontFamily());
 }
 
+tpFont &tpFont::operator=(const tpFont &others)
+{
+    // tpFontData* thisData = static_cast<tpFontData*>(this->data_);
+    // tpFontData* otherData = static_cast<tpFontData*>(others.data_);
+
+	// // 先直接 = 赋值拿到基础数据
+	// *thisData = *otherData;
+
+	// // 再创建新指针，覆盖指针成员数据
+	// this->data_ = _createContext(family, defaultPtSize);
+
+	return *this;
+}
+
 tpFont::tpFont(const char *family, int32_t defaultPtSize)
 {
 	this->data_ = _createContext(family, defaultPtSize);
