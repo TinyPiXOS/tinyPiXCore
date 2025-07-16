@@ -90,8 +90,7 @@ struct is_member_function_pointer : std::false_type
 };
 
 template <typename T, typename U>
-struct is_member_function_pointer<T U::*> : std::integral_constant<
-												bool, std::is_member_function_pointer<T U::*>::value>
+struct is_member_function_pointer<T U::*> : std::integral_constant<bool, std::is_member_function_pointer<T U::*>::value>
 {
 };
 
