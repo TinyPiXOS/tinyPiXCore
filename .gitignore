@@ -64,3 +64,4 @@ examples/Utils/tpInputMethod/inputMethod
 examples/Utils/tpProcess/process
 examples/Utils/tpString/tpString
 examples/Utils/variant/variant
+examples/SingleGUI/tpButton/button

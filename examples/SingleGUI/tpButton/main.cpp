@@ -15,6 +15,8 @@ int32_t main(int32_t argc, char *argv[])
 	button1->setProperty("type", "ControlPanelPowerButton");
 	button1->setSize(300, 64);
 	button1->move(150, 150);
+	connect(button1, onClicked, [=](bool checked)
+			{ std::cout << "按钮被点击" << std::endl; });
 
 	tpButton *buttonEnable = new tpButton("河北省", vScreen);
 	buttonEnable->setProperty("type", "VirtualKeyboardButton");
