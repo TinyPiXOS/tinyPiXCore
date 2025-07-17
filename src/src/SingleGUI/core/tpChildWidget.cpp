@@ -1211,6 +1211,9 @@ bool tpChildWidget::onMouseRleaseEvent(tpMouseEvent *event)
 	if (event->button() != BUTTON_LEFT)
 		return true;
 
+	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
+	set->isPress = false;
+
 	ItpPoint mouseGlobalPos = event->globalPos();
 	if (toScreen().contains(mouseGlobalPos))
 	{
