@@ -24,6 +24,7 @@
 #include <string>
 #include <atomic>
 #include <queue>
+#include "tpThreadPool.h"
 
 #define DEFAULT_SERVER "tcp://127.0.0.1"
 
@@ -233,6 +234,8 @@ private:
         }
     };
 
+    tpThreadPool threadPool;
+
     int pubSocket = -1;
     int subSocket = -1;
     std::atomic<bool> running{false};
@@ -254,21 +257,30 @@ private:
 
             if (bytes > 0)
             {
-                // 消息格式: [主题长度(4字节)][主题][数据]
-                if (bytes > 4)
-                {
-                    uint32_t topic_len = *reinterpret_cast<uint32_t *>(msg);
-                    if (topic_len > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topic_len)
+                // 将消息处理任务提交给线程池
+                threadPool.enqueue([this, msg, bytes]
                     {
-                        const char *topic = msg + sizeof(uint32_t);
-                        const void *data = topic + topic_len;
-                        uint32_t data_size = bytes - sizeof(uint32_t) - topic_len;
+                    processMessage(msg, bytes);
+                    nn_freemsg(msg); 
+                });
+            }
+        }
+    }
 
-                        // 通知订阅者
-                        notifySubscribers(topic, data, data_size);
-                    }
-                }
-                nn_freemsg(msg);
+    void processMessage(char *msg, int bytes)
+    {
+        // 消息格式: [主题长度(4字节)][主题][数据]
+        if (bytes > 4)
+        {
+            uint32_t topic_len = *reinterpret_cast<uint32_t *>(msg);
+            if (topic_len > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topic_len)
+            {
+                const char *topic = msg + sizeof(uint32_t);
+                const void *data = topic + topic_len;
+                uint32_t data_size = bytes - sizeof(uint32_t) - topic_len;
+
+                // 通知订阅者
+                notifySubscribers(topic, data, data_size);
             }
         }
     }

@@ -51,3 +51,16 @@ PiXGUIFramework/desktopGUI/CMakeFiles/
 PiXGUIFramework/exampleGUI/cmake_install.cmake
 PiXGUIFramework/exampleGUI/Makefile
 PiXGUIFramework/exampleGUI/CMakeFiles/
+
+examples/Utils/tpThreadPool/threadPool
+examples/Utils/cssParser/cssParser
+examples/Utils/cssParser/main
+examples/Utils/fileDirTest/fileTest
+examples/Utils/jsonParser/jsonParser
+examples/Utils/tpGateway/client1
+examples/Utils/tpGateway/client1Main
+examples/Utils/tpGateway/client2
+examples/Utils/tpInputMethod/inputMethod
+examples/Utils/tpProcess/process
+examples/Utils/tpString/tpString
+examples/Utils/variant/variant

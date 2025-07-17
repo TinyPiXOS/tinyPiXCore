@@ -141,7 +141,7 @@ public:
 	// 	declare_signal(onFontSizeChanged, uint32_t);
 
 public:
-	tpFont& operator=(const tpFont &others) = delete;
+	// tpFont& operator=(const tpFont &others) = delete;
 
 private:
 	ItpFontData *data_;
