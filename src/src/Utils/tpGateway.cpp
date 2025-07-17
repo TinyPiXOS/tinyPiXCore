@@ -23,6 +23,7 @@
 #include <memory>
 #include <string>
 #include <atomic>
+#include <queue>
 
 #define DEFAULT_SERVER "tcp://127.0.0.1"
 
