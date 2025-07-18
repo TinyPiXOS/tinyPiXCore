@@ -526,37 +526,6 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
 	return true;
 }
 
-static inline int32_t transferRotate(int32_t id, int32_t rotate, uint32_t rw, uint32_t rh, void *args)
-{
-	tpChildWidget *object = (tpChildWidget *)args;
-	tpObjectRotateEvent event;
-	ItpObjectRotateSet input;
-	input.object = object;
-	input.rotate = (ItpRotateType)rotate;
-	event.construct(&input);
-
-#if 1
-	if (object->objectType() == TP_TOP_OBJECT)
-	{
-		ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
-
-		set->absoluteRect.x = 0;
-		set->absoluteRect.y = 0;
-		set->absoluteRect.w = rw;
-		set->absoluteRect.h = rh;
-
-		set->logicalRect.x = 0;
-		set->logicalRect.y = 0;
-		set->logicalRect.w = rw;
-		set->logicalRect.h = rh;
-	}
-#endif
-	object->onRotateEvent(&event);
-	doTransUpdate(object);
-
-	return true;
-}
-
 static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32_t question, void *args) // only for resolution
 {
 	tpChildWidget *object = (tpChildWidget *)args;
@@ -679,10 +648,10 @@ static inline int32_t transferReturn(int32_t id, void *args)
 	return ((tpScreen *)object)->returns();
 }
 
-static inline int32_t transferAppState(int32_t id, int32_t pid, int32_t rotate, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require, void *args)
+static inline int32_t transferAppState(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require, void *args)
 {
 	tpChildWidget *object = (tpChildWidget *)args;
-	return object->appChange(id, pid, rotate, visible, active, color, alpha, require);
+	return object->appChange(id, pid, visible, active, color, alpha, require);
 }
 
 tpScreen::tpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t h)
@@ -705,7 +674,6 @@ tpScreen::tpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
 		tinyPiX_wf_event_assign(set->agent, transferEvent);
 		tinyPiX_wf_focus_assign(set->agent, transferFocus);
 		tinyPiX_wf_leave_assign(set->agent, transferLeave);
-		tinyPiX_wf_rotate_assign(set->agent, transferRotate);
 		tinyPiX_wf_resize_assign(set->agent, transferResize);
 		tinyPiX_wf_visible_assign(set->agent, transferVisible);
 		tinyPiX_wf_moved_assign(set->agent, transferMoved);
@@ -813,59 +781,6 @@ void tpScreen::setText(const tpString &text)
 	this->setText(text.c_str());
 }
 
-void tpScreen::setRotateEnable(bool enabled)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		tinyPiX_wf_set_rotate_enable(set->agent, enabled);
-		set->enableRotate = enabled;
-	}
-}
-
-bool tpScreen::rotateEnable()
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-	bool enable = false;
-
-	if (set)
-	{
-		enable = set->enableRotate;
-	}
-
-	return enable;
-}
-
-void tpScreen::setRotate(ItpRotateType type)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		if (set->enableRotate)
-		{
-			if (set->visible &&
-				this->actived())
-			{
-				tinyPiX_wf_set_rotate(set->agent, type);
-			}
-		}
-	}
-}
-
-ItpRotateType tpScreen::rotate()
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-	ItpRotateType rotate = TP_ROT_0;
-
-	if (set)
-	{
-		rotate = (ItpRotateType)tinyPiX_wf_get_rotate(set->agent);
-	}
-
-	return rotate;
-}
 
 void tpScreen::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
 {
@@ -982,29 +897,6 @@ void tpScreen::setAlpha(const uint8_t &alpha)
 	{
 		tinyPiX_wf_set_alpha(set->agent, alpha);
 		set->alpha = alpha;
-	}
-}
-
-void tpScreen::setColorKey(bool enable, uint32_t colorKey)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		tinyPiX_wf_set_colorkey(set->agent, colorKey, enable);
-		set->colorKey = colorKey;
-		set->enableColorKey = enable;
-	}
-}
-
-void tpScreen::setColorKeyEnable(bool enable)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		tinyPiX_wf_set_colorkey(set->agent, set->colorKey, enable);
-		set->enableColorKey = enable;
 	}
 }
 

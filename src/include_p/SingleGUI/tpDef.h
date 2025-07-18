@@ -84,7 +84,6 @@ struct ItpObjectSet
 	bool enable = true;
 
 	char text[OBJECT_MAX_TEXT_LENGTH];
-	bool enableRotate;
 
 	std::mutex layoutMutex;
 	tpLayout *layout = nullptr;

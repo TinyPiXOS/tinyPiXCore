@@ -1,27 +1,3 @@
-/* liucy has been here，but nothing to see and nothing left ^_^!*/
-
-/*
-** Copyright (c) 2007-2021 By Alexander.King.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and/or associated documentation files (the
-** "Materials"), to deal in the Materials without restriction, including
-** without limitation the rights to use, copy, modify, merge, publish,
-** distribute, sublicense, and/or sell copies of the Materials, and to
-** permit persons to whom the Materials are furnished to do so, subject to
-** the following conditions:
-**
-** The above copyright notice and this permission notice shall be included
-** in all copies or substantial portions of the Materials.
-**
-** THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
-*/
 #include "tpRadioButton.h"
 #include "tpEvent.h"
 #include "tpColors.h"
@@ -34,7 +10,6 @@
 
 struct tpRadioButtonData
 {
-	bool checked;
 	bool enableFit;
 	bool mouseActive;
 
@@ -54,23 +29,22 @@ tpRadioButton::tpRadioButton(tpChildWidget *parent) : tpChildWidget(parent)
 {
 	tpRadioButtonData *set = new tpRadioButtonData();
 
-	if (set)
-	{
-		set->checked = false;
-		set->enableFit = false;
-		set->mouseActive = false;
-		set->space = 1;
-		set->boxColor = tpColors::Black;
-		set->checkColor = tpColors::Black;
-		set->font = new tpFont();
-		set->group = nullptr;
+	if (!set)
+		return;
 
-		this->setEnableBackGroundImage(false);
-		this->setEnableBackGroundColor(false);
-		this->radioButtonSet = set;
+	set->enableFit = false;
+	set->mouseActive = false;
+	set->space = 1;
+	set->boxColor = tpColors::Black;
+	set->checkColor = tpColors::Black;
+	set->font = new tpFont();
+	set->group = nullptr;
 
-		setVisible(true);
-	}
+	this->setEnableBackGroundImage(false);
+	this->setEnableBackGroundColor(false);
+	this->data_ = set;
+
+	setCheckable(true);
 }
 
 tpRadioButton::tpRadioButton(const tpString &text, tpChildWidget *parent)
@@ -78,29 +52,28 @@ tpRadioButton::tpRadioButton(const tpString &text, tpChildWidget *parent)
 {
 	tpRadioButtonData *set = new tpRadioButtonData();
 
-	if (set)
-	{
-		set->checked = false;
-		set->enableFit = false;
-		set->mouseActive = false;
-		set->space = 1;
-		set->boxColor = tpColors::Black;
-		set->checkColor = tpColors::Black;
-		set->font = new tpFont();
-		set->group = nullptr;
+	if (!set)
+		return;
 
-		this->setEnableBackGroundImage(false);
-		this->setEnableBackGroundColor(false);
-		this->radioButtonSet = set;
-	}
+	set->enableFit = false;
+	set->mouseActive = false;
+	set->space = 1;
+	set->boxColor = tpColors::Black;
+	set->checkColor = tpColors::Black;
+	set->font = new tpFont();
+	set->group = nullptr;
+
+	this->setEnableBackGroundImage(false);
+	this->setEnableBackGroundColor(false);
+	this->data_ = set;
 
 	setText(text);
-	setVisible(true);
+	setCheckable(true);
 }
 
 tpRadioButton::~tpRadioButton()
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
 	if (set)
 	{
@@ -126,27 +99,28 @@ tpRadioButton::~tpRadioButton()
 		}
 
 		delete set;
+		set = nullptr;
 	}
 }
 
 void tpRadioButton::setAutoFit(bool enable)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
-	if (set)
+	if (!set)
+		return;
+
+	set->enableFit = enable;
+	if (enable)
 	{
-		set->enableFit = enable;
-		if (enable)
-		{
-			ItpSize size = set->font->pixelSize();
-			this->setRect(this->rect().x, this->rect().y, size.w + size.h / 2 + set->space, size.h);
-		}
+		ItpSize size = set->font->pixelSize();
+		this->setRect(this->rect().x, this->rect().y, size.w + size.h / 2 + set->space, size.h);
 	}
 }
 
-void tpRadioButton::setSpace(uint32_t space)
+void tpRadioButton::setSpacing(uint32_t space)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
 	if (set)
 	{
@@ -156,7 +130,7 @@ void tpRadioButton::setSpace(uint32_t space)
 
 void tpRadioButton::setBoxColor(uint32_t color)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
 	if (set)
 	{
@@ -171,7 +145,7 @@ void tpRadioButton::setBoxColor(tpColors &color)
 
 void tpRadioButton::setCheckColor(uint32_t color)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
 	if (set)
 	{
@@ -197,53 +171,37 @@ static inline void broadCastChecked(tpRadioButtonData *set, tpRadioButton *self,
 	}
 }
 
-void tpRadioButton::setChecked(bool checked)
+void tpRadioButton::setChecked(const bool &_isChecked)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
-	if (set)
+	if (!set)
+		return;
+
+	tpChildWidget::setChecked(_isChecked);
+
+	onClicked.emit(checked());
+
+	if (checked() && set->mouseActive)
 	{
-		if (set->checked != checked)
+		if (set->group)
 		{
-			set->checked = checked;
-			onClicked.emit(set->checked);
-
-			if (set->checked &&
-				set->mouseActive)
-			{
-				if (set->group)
-				{
-					set->group->setChecked(false);
-					tpRadioButtonData *group_set = (tpRadioButtonData *)set->group->radioSet();
-					broadCastChecked(group_set, this, false);
-				}
-				else
-				{
-					broadCastChecked(set, this, false);
-				}
-			}
-
-			this->update();
+			set->group->setChecked(false);
+			tpRadioButtonData *group_set = (tpRadioButtonData *)set->group->data_;
+			broadCastChecked(group_set, this, false);
+		}
+		else
+		{
+			broadCastChecked(set, this, false);
 		}
 	}
-}
 
-bool tpRadioButton::checked()
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
-	bool ret = false;
-
-	if (set)
-	{
-		ret = set->checked;
-	}
-
-	return ret;
+	update();
 }
 
 bool tpRadioButton::addToGroup(tpRadioButton *group)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 	bool ret = false;
 
 	if (set)
@@ -279,7 +237,7 @@ bool tpRadioButton::addToGroup(tpRadioButton *group)
 			}
 		}
 
-		tpRadioButtonData *group_set = (tpRadioButtonData *)group->radioSet();
+		tpRadioButtonData *group_set = (tpRadioButtonData *)group->data_;
 
 		if (group_set)
 		{
@@ -301,7 +259,7 @@ bool tpRadioButton::addToGroup(tpRadioButton *group)
 
 bool tpRadioButton::delFromGroup(tpRadioButton *group)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 	bool ret = false;
 
 	if (set)
@@ -317,7 +275,7 @@ bool tpRadioButton::delFromGroup(tpRadioButton *group)
 			return false;
 		}
 
-		tpRadioButtonData *group_set = (tpRadioButtonData *)group->radioSet();
+		tpRadioButtonData *group_set = (tpRadioButtonData *)group->data_;
 
 		if (group_set)
 		{
@@ -337,52 +295,21 @@ bool tpRadioButton::delFromGroup(tpRadioButton *group)
 	return ret;
 }
 
-ItpRadioButtonData *tpRadioButton::radioSet()
+void tpRadioButton::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
 {
-	return this->radioButtonSet;
-}
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
-void tpRadioButton::setRect(tpRect &rect)
-{
-	this->setRect(rect.X0(), rect.Y0(), rect.width(), rect.height());
-}
+	if (!set)
+		return;
 
-void tpRadioButton::setRect(tpRect *rect)
-{
-	if (rect)
+	if (set->enableFit)
 	{
-		this->setRect(rect->X0(), rect->Y0(), rect->width(), rect->height());
+		ItpSize size = set->font->pixelSize();
+		tpChildWidget::setRect(x, y, size.w + size.h / 2 + set->space, size.h);
+		return;
 	}
-}
 
-void tpRadioButton::setRect(ItpRect &rect)
-{
-	this->setRect(rect.x, rect.y, rect.w, rect.h);
-}
-
-void tpRadioButton::setRect(ItpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->x, rect->y, rect->w, rect->h);
-	}
-}
-
-void tpRadioButton::setRect(int32_t x, int32_t y, uint32_t w, uint32_t h)
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
-
-	if (set)
-	{
-		if (set->enableFit)
-		{
-			ItpSize size = set->font->pixelSize();
-			tpChildWidget::setRect(x, y, size.w + size.h / 2 + set->space, size.h);
-			return;
-		}
-
-		tpChildWidget::setRect(x, y, w, h);
-	}
+	tpChildWidget::setRect(x, y, w, h);
 }
 
 void tpRadioButton::setText(const tpString &text)
@@ -391,7 +318,7 @@ void tpRadioButton::setText(const tpString &text)
 		return;
 
 	tpChildWidget::setText(text);
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
 	if (!set)
 		return;
@@ -406,7 +333,7 @@ void tpRadioButton::setText(const tpString &text)
 
 tpFont *tpRadioButton::font()
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 	tpFont *font = nullptr;
 
 	if (set)
@@ -417,8 +344,10 @@ tpFont *tpRadioButton::font()
 	return font;
 }
 
-typedef struct
+struct drawArgs
 {
+	bool checked;
+
 	int32_t bcolor;
 	int32_t ccolor;
 
@@ -426,7 +355,7 @@ typedef struct
 
 	tpObjectPaintEvent *event;
 	tpRadioButtonData *set;
-} drawArgs;
+};
 
 static inline void draw(tpCanvas *canvas, cairo_t *cr, cairo_surface_t *cairo_surface, int32_t offsetX, int32_t offsetY, void *args)
 {
@@ -443,7 +372,7 @@ static inline void draw(tpCanvas *canvas, cairo_t *cr, cairo_surface_t *cairo_su
 	cairo_arc(cr, cx + offsetX, cy + offsetY + 9 * size.h / 16.0, arg->rad, 0, 2 * M_PI);
 	cairo_stroke(cr);
 
-	if (arg->set->checked)
+	if (arg->checked)
 	{
 		r = _R(arg->ccolor) / 255.0;
 		g = _G(arg->ccolor) / 255.0;
@@ -461,7 +390,7 @@ static inline void draw(tpCanvas *canvas, cairo_t *cr, cairo_surface_t *cairo_su
 
 bool tpRadioButton::onMousePressEvent(tpMouseEvent *event)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 
 	int32_t x = event->pos().x;
 	int32_t y = event->pos().y;
@@ -474,13 +403,12 @@ bool tpRadioButton::onMousePressEvent(tpMouseEvent *event)
 	if (!ret)
 		return true;
 
-	set->checked = !set->checked;
 	set->mouseActive = true;
 
 	if (set->group)
 	{
 		set->group->setChecked(false);
-		tpRadioButtonData *group_set = (tpRadioButtonData *)set->group->radioSet();
+		tpRadioButtonData *group_set = (tpRadioButtonData *)set->group->data_;
 		broadCastChecked(group_set, this, false);
 	}
 	else
@@ -495,7 +423,7 @@ bool tpRadioButton::onMousePressEvent(tpMouseEvent *event)
 
 bool tpRadioButton::onMouseRleaseEvent(tpMouseEvent *event)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
 	int32_t x = event->pos().x;
 	int32_t y = event->pos().y;
 
@@ -514,46 +442,31 @@ bool tpRadioButton::onMouseRleaseEvent(tpMouseEvent *event)
 
 bool tpRadioButton::onPaintEvent(tpObjectPaintEvent *event)
 {
-	tpRadioButtonData *set = (tpRadioButtonData *)this->radioButtonSet;
-	bool ret = false;
+	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
+	if (!set)
+		return true;
 
-	if (set)
-	{
-		ret = tpChildWidget::onPaintEvent(event);
+	tpChildWidget::onPaintEvent(event);
 
-		if (ret)
-		{
-			tpCanvas *canvas = event->canvas();
-			ItpSize size = set->font->pixelSize();
-			uint8_t alpha1 = mapAlpha((uint8_t)(set->boxColor & 0x000000ff), this->alpha());
-			uint8_t alpha2 = mapAlpha((uint8_t)(set->checkColor & 0x000000ff), this->alpha());
-			int32_t cx = (int32_t)(event->rect().w - size.w) / 2, cy = (int32_t)(event->rect().h - size.h) / 2 + size.h / 8;
+	tpCanvas *canvas = event->canvas();
+	ItpSize size = set->font->pixelSize();
+	uint8_t alpha1 = mapAlpha((uint8_t)(set->boxColor & 0x000000ff), this->alpha());
+	uint8_t alpha2 = mapAlpha((uint8_t)(set->checkColor & 0x000000ff), this->alpha());
+	int32_t cx = (int32_t)(event->rect().w - size.w) / 2, cy = (int32_t)(event->rect().h - size.h) / 2 + size.h / 8;
 
-			drawArgs args;
+	drawArgs args;
 
-			args.bcolor = set->boxColor & 0xffffff00 | alpha1;
-			args.ccolor = set->checkColor & 0xffffff00 | alpha2;
+	args.checked = checked();
 
-			args.event = event;
-			args.set = set;
+	args.bcolor = set->boxColor & 0xffffff00 | alpha1;
+	args.ccolor = set->checkColor & 0xffffff00 | alpha2;
 
-			args.rad = size.h / 4.0;
+	args.event = event;
+	args.set = set;
 
-			event->canvas()->customizedCarioMethod(draw, &args);
-#if 0
-			//draw checked box
-			int32_t radius = size.h/4;
-			cx = TP_MAX(cx, radius);
-			canvas->antiAliasCircle(cx, cy + size.h/2, radius, set->boxColor & 0xffffff00 | alpha1);
-			
-			if(set->checked){
-				canvas->filledCircle(cx, cy + size.h/2, radius/2, set->checkColor & 0xffffff00 | alpha2);
-			}
-			//render text
-			canvas->renderText(*set->font, cx + radius + set->space, cy);
-#endif
-		}
-	}
+	args.rad = size.h / 4.0;
 
-	return ret;
+	event->canvas()->customizedCarioMethod(draw, &args);
+
+	return true;
 }
