@@ -34,19 +34,6 @@ public:
 	virtual void setCheckColor(tpColors &color);
 
 public:
-	virtual void setChecked(const bool &_isChecked) override;
-
-public:
-	/// @brief 添加按钮组，同组内单选按钮只能有一个选中
-	/// @param group 另一个单选按钮
-	/// @return 添加结果
-	virtual bool addToGroup(tpRadioButton *group);
-	/// @brief 从按钮组移除一个单选按钮
-	/// @param group 单选按钮
-	/// @return 移除结果
-	virtual bool delFromGroup(tpRadioButton *group);
-
-public:
 	virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h) override;
 
 public:

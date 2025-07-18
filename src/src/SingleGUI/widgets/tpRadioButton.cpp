@@ -17,8 +17,6 @@ struct tpRadioButtonData
 	tpFont *font;
 	int32_t boxColor;
 	int32_t checkColor;
-	tpRadioButton *group;
-	std::list<tpRadioButton *> radioList;
 
 	tpRadioButtonData()
 	{
@@ -38,7 +36,6 @@ tpRadioButton::tpRadioButton(tpChildWidget *parent) : tpChildWidget(parent)
 	set->boxColor = tpColors::Black;
 	set->checkColor = tpColors::Black;
 	set->font = new tpFont();
-	set->group = nullptr;
 
 	this->setEnableBackGroundImage(false);
 	this->setEnableBackGroundColor(false);
@@ -61,7 +58,6 @@ tpRadioButton::tpRadioButton(const tpString &text, tpChildWidget *parent)
 	set->boxColor = tpColors::Black;
 	set->checkColor = tpColors::Black;
 	set->font = new tpFont();
-	set->group = nullptr;
 
 	this->setEnableBackGroundImage(false);
 	this->setEnableBackGroundColor(false);
@@ -80,22 +76,6 @@ tpRadioButton::~tpRadioButton()
 		if (set->font)
 		{
 			delete set->font;
-		}
-
-		if (set->group)
-		{
-			set->group->delFromGroup(this);
-		}
-		else
-		{
-			std::list<tpRadioButton *>::iterator iter = set->radioList.begin();
-
-			for (; iter != set->radioList.end(); iter++)
-			{
-				(*iter)->delFromGroup(this);
-			}
-
-			set->radioList.clear();
 		}
 
 		delete set;
@@ -156,143 +136,6 @@ void tpRadioButton::setCheckColor(uint32_t color)
 void tpRadioButton::setCheckColor(tpColors &color)
 {
 	this->setCheckColor(color.rgba());
-}
-
-static inline void broadCastChecked(tpRadioButtonData *set, tpRadioButton *self, bool checked)
-{
-	std::list<tpRadioButton *>::iterator iter = set->radioList.begin();
-
-	for (; iter != set->radioList.end(); iter++)
-	{
-		if (*iter != self)
-		{
-			(*iter)->setChecked(checked);
-		}
-	}
-}
-
-void tpRadioButton::setChecked(const bool &_isChecked)
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-
-	if (!set)
-		return;
-
-	tpChildWidget::setChecked(_isChecked);
-
-	onClicked.emit(checked());
-
-	if (checked() && set->mouseActive)
-	{
-		if (set->group)
-		{
-			set->group->setChecked(false);
-			tpRadioButtonData *group_set = (tpRadioButtonData *)set->group->data_;
-			broadCastChecked(group_set, this, false);
-		}
-		else
-		{
-			broadCastChecked(set, this, false);
-		}
-	}
-
-	update();
-}
-
-bool tpRadioButton::addToGroup(tpRadioButton *group)
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-	bool ret = false;
-
-	if (set)
-	{
-		if (group == this ||
-			set->radioList.size() > 0)
-		{
-			return false;
-		}
-
-		if (group)
-		{
-			if (set->group == group)
-			{
-				return false;
-			}
-			else
-			{
-				if (set->group)
-				{
-					set->group->delFromGroup(group);
-				}
-			}
-		}
-		else
-		{
-			if (set->group)
-			{
-				this->setChecked(false);
-				set->group->delFromGroup(group);
-				set->group = nullptr;
-				return false;
-			}
-		}
-
-		tpRadioButtonData *group_set = (tpRadioButtonData *)group->data_;
-
-		if (group_set)
-		{
-			auto iter = std::find_if(group_set->radioList.begin(), group_set->radioList.end(), [this](tpRadioButton *value)
-									 { return (this == value); });
-
-			if (iter == group_set->radioList.end())
-			{
-				this->setChecked(false);
-				group_set->radioList.push_back(this);
-				set->group = group;
-				ret = true;
-			}
-		}
-	}
-
-	return ret;
-}
-
-bool tpRadioButton::delFromGroup(tpRadioButton *group)
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-	bool ret = false;
-
-	if (set)
-	{
-		if (group == nullptr ||
-			set->group == nullptr)
-		{
-			return false;
-		}
-
-		if (set->group != group)
-		{
-			return false;
-		}
-
-		tpRadioButtonData *group_set = (tpRadioButtonData *)group->data_;
-
-		if (group_set)
-		{
-			auto iter = std::find_if(group_set->radioList.begin(), group_set->radioList.end(), [this](tpRadioButton *value)
-									 { return (this == value); });
-
-			if (iter != group_set->radioList.end())
-			{
-				this->setChecked(false);
-				group_set->radioList.remove(this);
-				set->group = nullptr;
-				ret = true;
-			}
-		}
-	}
-
-	return ret;
 }
 
 void tpRadioButton::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
@@ -390,54 +233,32 @@ static inline void draw(tpCanvas *canvas, cairo_t *cr, cairo_surface_t *cairo_su
 
 bool tpRadioButton::onMousePressEvent(tpMouseEvent *event)
 {
+	tpChildWidget::onMousePressEvent(event);
+
 	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-
-	int32_t x = event->pos().x;
-	int32_t y = event->pos().y;
-
-	ItpSize size = set->font->pixelSize();
-	int32_t cx = 0, cy = (int32_t)(this->height() - size.h) / 2;
-	tpRect actRect(cx, cy, 3 * size.h / 4, 3 * size.h / 4);
-	bool ret = actRect.in(x, y);
-
-	if (!ret)
+	if (!set)
 		return true;
 
 	set->mouseActive = true;
 
-	if (set->group)
-	{
-		set->group->setChecked(false);
-		tpRadioButtonData *group_set = (tpRadioButtonData *)set->group->data_;
-		broadCastChecked(group_set, this, false);
-	}
-	else
-	{
-		broadCastChecked(set, this, false);
-	}
+	update();
 
-	this->update();
-
-	return false;
+	return true;
 }
 
 bool tpRadioButton::onMouseRleaseEvent(tpMouseEvent *event)
 {
+	tpChildWidget::onMouseRleaseEvent(event);
+
 	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-	int32_t x = event->pos().x;
-	int32_t y = event->pos().y;
-
-	ItpSize size = set->font->pixelSize();
-	int32_t cx = 0, cy = (int32_t)(this->height() - size.h) / 2;
-	tpRect actRect(cx, cy, 3 * size.h / 4, 3 * size.h / 4);
-	bool ret = actRect.in(x, y);
-
-	if (!ret)
+	if (!set)
 		return true;
 
 	set->mouseActive = false;
 
-	return false;
+	onClicked.emit(checked());
+
+	return true;
 }
 
 bool tpRadioButton::onPaintEvent(tpObjectPaintEvent *event)
