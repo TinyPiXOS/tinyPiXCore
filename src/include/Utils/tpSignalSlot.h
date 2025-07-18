@@ -336,7 +336,8 @@ private:
 #define connect(...) GET_MACRO(__VA_ARGS__, connect_3, connect_2, connect_1)(__VA_ARGS__)
 
 #define disconnect_member(sender, signal, obj, func) \
-	(sender)->signal.disconnect(obj, &std::remove_reference<decltype(*(obj))>::type::func)
+	(sender)->signal.disconnect(obj, func)
+// (sender)->signal.disconnect(obj, &std::remove_reference<decltype(*(obj))>::type::func)
 
 #define disconnect_lambda(sender, signal, id) \
 	(sender)->signal.disconnect(id)
