@@ -232,10 +232,10 @@ public:
 
 	/// @brief 设置选中状态
 	/// @param _isChecked 选中状态，true为选中
-	void setChecked(const bool &_isChecked);
+	virtual void setChecked(const bool &_isChecked);
 	/// @brief 获取当前选中状态
 	/// @return true为已选中
-	bool checked();
+	virtual bool checked();
 
 	/// @brief 设置边框圆角 单位px
 	/// @param round
@@ -337,18 +337,18 @@ public:
 	// virtual bool onShowEvent(tpShowEvent *event) { return true; }
 
 	/// @brief 键盘按下事件
-	/// @param event 
-	virtual bool onKeyPressEvent(tpKeyboardEvent *event){ return true; }
-    /// @brief 键盘释放事件
-    /// @param event 
-    virtual bool onKeyReleaseEvent(tpKeyboardEvent *event){ return true; }
+	/// @param event
+	virtual bool onKeyPressEvent(tpKeyboardEvent *event) { return true; }
+	/// @brief 键盘释放事件
+	/// @param event
+	virtual bool onKeyReleaseEvent(tpKeyboardEvent *event) { return true; }
 
 	virtual bool onMousePressEvent(tpMouseEvent *event);
 	virtual bool onMouseRleaseEvent(tpMouseEvent *event);
 	virtual bool onMouseDoubleClickEvent(tpMouseEvent *event) { return true; }
 	virtual bool onMouseLongPressEvent(tpMouseEvent *event) { return true; }
 	virtual bool onMouseMoveEvent(tpMouseEvent *event) { return true; }
-    virtual bool onWheelEvent(tpWheelEvent *event) { return true; }
+	virtual bool onWheelEvent(tpWheelEvent *event) { return true; }
 
 	virtual bool onFingerEvent(tpFingerEvent *event) { return true; }
 	virtual bool onDollAREvent(tpDollAREvent *event) { return true; }
@@ -372,7 +372,7 @@ public:
 	/// @return 对象类型
 	virtual ItpObjectType objectType() /*final*/;
 
-	virtual bool appChange(int32_t id, int32_t pid, int32_t rotate, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require);
+	virtual bool appChange(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require) { return true; }
 
 	virtual tpChildWidget *find(tpPoint &point);
 	virtual tpChildWidget *find(ItpPoint *point);

@@ -71,6 +71,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/SingleGUI/widgets/tpAnimation.cpp
     ${SOURCE_PATH}/src/SingleGUI/widgets/tpVirtualKeyboard.cpp
     ${SOURCE_PATH}/src/SingleGUI/widgets/tpImageWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/widgets/tpRadioButtonGroup.cpp
     ${SOURCE_PATH}/src_p/SingleGUI/core/tpObjectStack.cpp
 )
 

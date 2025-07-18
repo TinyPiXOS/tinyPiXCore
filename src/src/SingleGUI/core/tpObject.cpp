@@ -55,7 +55,6 @@ tpObject::tpObject(tpObject *parent)
 	set->layout = nullptr;
 
 	set->visible = false;
-	set->enableRotate = false;
 
 	memset(set->text, 0, OBJECT_MAX_TEXT_LENGTH);
 	memset(&set->absoluteRect, 0, sizeof(ItpRect));
