@@ -34,7 +34,6 @@ public:
 	tpDisplay();
 	tpDisplay(tpInt32 screen); // 屏幕编号
 	tpDisplay(tpString &name); // 屏幕名称
-	tpDisplay(void *display,void *resources,void *output_info,unsigned long output);
 	~tpDisplay();
 
 public:
@@ -81,32 +80,11 @@ public:
 	/// @brief 获取PiXWM的分辨率的宽度
 	/// @return 成功返回宽度，失败返回-1；
 	static tpInt32 getPiXWMResolutionHeight();
-	/// @brief 获取当前显示器刷新率
-	/// @return 刷新率
-	double getRefreshRate();
-	/// @brief 获取旋转角度
-	/// @return 旋转角度
-	tpUInt16 getRotation();
-	/// @brief 获取屏幕当前显示参数
-	/// @param width 分辨率像素宽度
-	/// @param height 分辨率像素高度
-	/// @param rota 旋转角度
-	/// @param refresh 刷新率
-	/// @return 获取成功返回0,失败返回-1
-	tpInt32 getParamNow(tpUInt32 *width, tpUInt32 *height, tpUInt16 *rota,double *refresh);
 	/// @brief 设置分辨率(只能设置支持的分辨率，否则会失败)
 	/// @param width 像素宽度
 	/// @param height 像素高度
 	/// @return 成功返回0，失败返回-1
 	tpInt32 setResolution(tpUInt32 width, tpUInt32 height);
-	/// @brief 设置刷新率(只能设置当前分辨率下支持的刷新率，否则会失败)
-	/// @param rate 刷新率
-	/// @return 成功返回0，失败返回-1
-	tpInt32 setRefreshRate(double rate);
-	/// @brief 设置旋转角度
-	/// @param rotation 
-	/// @return 
-	tpInt32 setRotation(tpRotate rotation);
 
 	/// @brief 设置亮度(暂不支持)
 	/// @param light 
@@ -119,8 +97,6 @@ public:
 
 private:
 	friend class tpDisplayManage;
-	tpInt32 getNumber();
-	void *getOutPutInfo();
 
 private:
 	ItpDisplayInfoData *data_;
