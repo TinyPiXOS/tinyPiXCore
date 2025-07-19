@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(tinyPiXCore VERSION 1.0.0 LANGUAGES C CXX)
 
 # 设置构建生成的根目录
