@@ -224,13 +224,39 @@ make install
 
 - ​**交叉编译构建 tinyPiXCore Arm Debug版本**
 
+-使用默认编译器：
+
+```bash
+/usr/bin/arm-linux-gnueabihf-gcc
+/usr/bin/arm-linux-gnueabihf-g++
+```
+
 ```bash
 cmake --preset=arm-debug
 make
 make install
 ```
 
+手动指定编译器（配置时覆盖编译器路径）
+
+```bash
+cmake --preset=arm-debug \
+  -DCMAKE_C_COMPILER=/your/custom/path/arm-linux-gnueabihf-gcc \
+  -DCMAKE_CXX_COMPILER=/your/custom/path/arm-linux-gnueabihf-g++
+make
+make install
+```
+
+根据/usr下安装目录，或者 tinyPiXCore/install/arm 目录，移植对应文件至ARM即可。
+
 - ​**交叉编译构建 tinyPiXCore Arm Release版本**
+
+使用默认编译器：
+
+```bash
+/usr/bin/arm-linux-gnueabihf-gcc
+/usr/bin/arm-linux-gnueabihf-g++
+```
 
 ```bash
 cmake --preset=arm-release
@@ -238,10 +264,24 @@ make
 make install
 ```
 
+手动指定编译器（配置时覆盖编译器路径）
+
+```bash
+cmake --preset=arm-release \
+  -DCMAKE_C_COMPILER=/your/custom/path/arm-linux-gnueabihf-gcc \
+  -DCMAKE_CXX_COMPILER=/your/custom/path/arm-linux-gnueabihf-g++
+make
+make install
+```
+
+根据/usr下安装目录，或者 tinyPiXCore/install/arm 目录，移植对应文件至ARM即可。
+
 ### 使用说明
 
 #### 目录结构
 
+- ​**可执行程序安装路径**​  
+  `/usr/bin/tinyPiX`
 - ​**头文件安装路径**​  
   `/usr/include/tinyPiX`
 - ​**动态库安装路径**​  

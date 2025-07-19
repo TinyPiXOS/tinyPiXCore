@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 8,
     "configurePresets": [
         {
             "name": "base-debug",
@@ -28,6 +28,7 @@
             "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
             "inherits": "base-debug",
             "cacheVariables": {
+                "TARGET_ARCH": "x86_64",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -38,6 +39,7 @@
             "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
             "inherits": "base-release",
             "cacheVariables": {
+                "TARGET_ARCH": "x86_64",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -64,8 +66,9 @@
                 "base-debug",
                 "arm-toolchain-base"
             ],
-            "binaryDir": "./arm-build-debug",
+            "binaryDir": ".",
             "cacheVariables": {
+                "TARGET_ARCH": "arm64",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/arm-debug/install",
                 "CMAKE_C_FLAGS": "-march=armv7-a -mfpu=neon -mfloat-abi=hard",
                 "CMAKE_CXX_FLAGS": "-march=armv7-a -mfpu=neon -mfloat-abi=hard"
@@ -79,8 +82,9 @@
                 "base-release",
                 "arm-toolchain-base"
             ],
-            "binaryDir": "./arm-build-release",
+            "binaryDir": ".",
             "cacheVariables": {
+                "TARGET_ARCH": "arm64",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/arm-release/install",
                 "CMAKE_C_FLAGS": "-O3 -march=armv7-a -mfpu=neon -mfloat-abi=hard -DNDEBUG -fno-stack-protector",
                 "CMAKE_CXX_FLAGS": "-O3 -march=armv7-a -mfpu=neon -mfloat-abi=hard -DNDEBUG -fno-stack-protector"
