@@ -15,8 +15,6 @@ struct tpRadioButtonData
 
 	int32_t space;
 	tpFont *font;
-	int32_t boxColor;
-	int32_t checkColor;
 
 	tpRadioButtonData()
 	{
@@ -33,15 +31,17 @@ tpRadioButton::tpRadioButton(tpChildWidget *parent) : tpChildWidget(parent)
 	set->enableFit = false;
 	set->mouseActive = false;
 	set->space = 1;
-	set->boxColor = tpColors::Black;
-	set->checkColor = tpColors::Black;
 	set->font = new tpFont();
 
-	this->setEnableBackGroundImage(false);
-	this->setEnableBackGroundColor(false);
-	this->data_ = set;
+	setEnableBackGroundImage(false);
+	setEnableBackGroundColor(false);
+	setEnabledBorderColor(false);
+
+	data_ = set;
 
 	setCheckable(true);
+
+	refreshBaseCss();
 }
 
 tpRadioButton::tpRadioButton(const tpString &text, tpChildWidget *parent)
@@ -55,16 +55,18 @@ tpRadioButton::tpRadioButton(const tpString &text, tpChildWidget *parent)
 	set->enableFit = false;
 	set->mouseActive = false;
 	set->space = 1;
-	set->boxColor = tpColors::Black;
-	set->checkColor = tpColors::Black;
 	set->font = new tpFont();
 
-	this->setEnableBackGroundImage(false);
-	this->setEnableBackGroundColor(false);
-	this->data_ = set;
+	setEnableBackGroundImage(false);
+	setEnableBackGroundColor(false);
+	setEnabledBorderColor(false);
+
+	data_ = set;
 
 	setText(text);
 	setCheckable(true);
+
+	refreshBaseCss();
 }
 
 tpRadioButton::~tpRadioButton()
@@ -106,36 +108,6 @@ void tpRadioButton::setSpacing(uint32_t space)
 	{
 		set->space = space;
 	}
-}
-
-void tpRadioButton::setBoxColor(uint32_t color)
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-
-	if (set)
-	{
-		set->boxColor = color;
-	}
-}
-
-void tpRadioButton::setBoxColor(tpColors &color)
-{
-	this->setBoxColor(color.rgba());
-}
-
-void tpRadioButton::setCheckColor(uint32_t color)
-{
-	tpRadioButtonData *set = (tpRadioButtonData *)this->data_;
-
-	if (set)
-	{
-		set->checkColor = color;
-	}
-}
-
-void tpRadioButton::setCheckColor(tpColors &color)
-{
-	this->setCheckColor(color.rgba());
 }
 
 void tpRadioButton::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
@@ -269,18 +241,21 @@ bool tpRadioButton::onPaintEvent(tpObjectPaintEvent *event)
 
 	tpChildWidget::onPaintEvent(event);
 
+	tpShared<tpCssData> curCssData = currentStatusCss();
+
 	tpCanvas *canvas = event->canvas();
 	ItpSize size = set->font->pixelSize();
-	uint8_t alpha1 = mapAlpha((uint8_t)(set->boxColor & 0x000000ff), this->alpha());
-	uint8_t alpha2 = mapAlpha((uint8_t)(set->checkColor & 0x000000ff), this->alpha());
-	int32_t cx = (int32_t)(event->rect().w - size.w) / 2, cy = (int32_t)(event->rect().h - size.h) / 2 + size.h / 8;
+	// ItpRect eventRect = event->rect();
+	// double cx = (event->rect().w - size.w) / 2.0, cy = (event->rect().h - size.h) / 2.0;
 
 	drawArgs args;
 
 	args.checked = checked();
 
-	args.bcolor = set->boxColor & 0xffffff00 | alpha1;
-	args.ccolor = set->checkColor & 0xffffff00 | alpha2;
+	args.bcolor = curCssData->borderColor();
+	args.ccolor = curCssData->backgroundColor();
+
+	set->font->setFontColor(curCssData->color(), curCssData->color());
 
 	args.event = event;
 	args.set = set;

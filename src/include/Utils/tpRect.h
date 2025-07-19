@@ -65,7 +65,7 @@ public:
 
 public:
 	virtual ItpRect get() const;
-	virtual void get(int32_t *x, int32_t *y, uint32_t *w, uint32_t *h) const;
+	virtual void get(int32_t *x, int32_t *y, int32_t *w, int32_t *h) const;
 	virtual void get(tpRect &);
 	virtual void get(tpRect *);
 	virtual void get(ItpRect *) const;
