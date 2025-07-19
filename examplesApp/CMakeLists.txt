@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(examplesApp VERSION 1.0.0 LANGUAGES C CXX)
 
 # 指定C++标准

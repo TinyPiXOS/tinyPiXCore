@@ -3,6 +3,7 @@ out/
 install/x86_64
 install/arm_64
 CMakeFiles/
+.cmake/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
@@ -65,3 +66,10 @@ examples/Utils/tpProcess/process
 examples/Utils/tpString/tpString
 examples/Utils/variant/variant
 examples/SingleGUI/tpButton/button
+PiXExternUtils/PiXExternUtils_symlink.cmake
+install_manifest.txt
+PiXGUIFramework/desktopGUI/PiXDesktopGUI_symlink.cmake
+PiXGUIFramework/exampleGUI/exampleGUI_symlink.cmake
+PiXService/PiXService_symlink.cmake
+PiXSingleGUI/PiXSingleGUI_symlink.cmake
+PiXUtils/PiXUtils_symlink.cmake

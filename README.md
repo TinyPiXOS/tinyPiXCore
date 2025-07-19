@@ -198,10 +198,42 @@ sudo apt install libsdl2-image-dev libsdl2-gfx-dev \
   libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 ```
 
-- ​**构建 tinyPiXCore**
+- ​**构建 tinyPiXCore Debug版本**
 
 ```bash
 cmake .
+make
+make install
+```
+
+或者显示指定构建版本
+
+```bash
+cmake --preset=debug
+make
+make install
+```
+
+- ​**构建 tinyPiXCore Release版本**
+
+```bash
+cmake --preset=release
+make
+make install
+```
+
+- ​**交叉编译构建 tinyPiXCore Arm Debug版本**
+
+```bash
+cmake --preset=arm-debug
+make
+make install
+```
+
+- ​**交叉编译构建 tinyPiXCore Arm Release版本**
+
+```bash
+cmake --preset=arm-release
 make
 make install
 ```

@@ -1,31 +1,89 @@
 {
-    "version": 8,
+    "version": 3,
     "configurePresets": [
         {
-            "name": "linux-debug",
-            "displayName": "Debug",
-            "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
-            "binaryDir": "${sourceDir}/out/build/debug/${presetName}",
+            "name": "base-debug",
+            "hidden": true,
+            "binaryDir": ".",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/debug/install/${presetName}",
-                "CMAKE_C_COMPILER": "/usr/bin/gcc",
-                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "linux-release",
-            "displayName": "Release",
-            "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
-            "binaryDir": "${sourceDir}/out/build/release/${presetName}",
+            "name": "base-release",
+            "hidden": true,
+            "binaryDir": ".",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/release/install/${presetName}",
-                "CMAKE_C_COMPILER": "/usr/bin/gcc",
-                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_FLAGS": "-O3 -march=native -flto -DNDEBUG -fno-stack-protector",
                 "CMAKE_EXE_LINKER_FLAGS": "-flto -fuse-linker-plugin -Wl,--strip-debug",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug ",
+            "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "inherits": "base-debug",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release ",
+            "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "inherits": "base-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "arm-toolchain-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Linux",
+                "CMAKE_SYSTEM_PROCESSOR": "arm",
+                "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++",
+                "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
+                "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "ONLY"
+            }
+        },
+        {
+            "name": "arm-debug",
+            "displayName": "ARM Debug",
+            "description": "ARM 交叉编译调试模式",
+            "inherits": [
+                "base-debug",
+                "arm-toolchain-base"
+            ],
+            "binaryDir": "./arm-build-debug",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/arm-debug/install",
+                "CMAKE_C_FLAGS": "-march=armv7-a -mfpu=neon -mfloat-abi=hard",
+                "CMAKE_CXX_FLAGS": "-march=armv7-a -mfpu=neon -mfloat-abi=hard"
+            }
+        },
+        {
+            "name": "arm-release",
+            "displayName": "ARM Release",
+            "description": "ARM 交叉编译发布模式",
+            "inherits": [
+                "base-release",
+                "arm-toolchain-base"
+            ],
+            "binaryDir": "./arm-build-release",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/arm-release/install",
+                "CMAKE_C_FLAGS": "-O3 -march=armv7-a -mfpu=neon -mfloat-abi=hard -DNDEBUG -fno-stack-protector",
+                "CMAKE_CXX_FLAGS": "-O3 -march=armv7-a -mfpu=neon -mfloat-abi=hard -DNDEBUG -fno-stack-protector"
             }
         }
     ]
