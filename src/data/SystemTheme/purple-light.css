@@ -345,3 +345,9 @@ tpSlider {
   background-color: rgba(255, 255, 255, 0.5);
   sub-color: rgb(140, 29, 235);
 }
+
+tpRadioButton {
+  color: rgb(38, 38, 38);
+  border-color: rgb(38, 38, 38);
+  background-color: rgb(38, 38, 38);
+}

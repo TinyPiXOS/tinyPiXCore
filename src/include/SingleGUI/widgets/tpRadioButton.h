@@ -27,13 +27,6 @@ public:
 	/// @param space 间距
 	virtual void setSpacing(uint32_t space = 1);
 
-public:
-	virtual void setBoxColor(uint32_t color);
-	virtual void setBoxColor(tpColors &color);
-	virtual void setCheckColor(uint32_t color);
-	virtual void setCheckColor(tpColors &color);
-
-public:
 	virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h) override;
 
 public:
@@ -41,14 +34,15 @@ public:
 	/// @param text 
 	virtual void setText(const tpString &text);
 
-public:
 	virtual tpFont *font();
+
+    virtual tpString pluginType() override { return TO_STRING(tpRadioButton); }
 
 public
 signals:
 	declare_signal(onClicked, bool);
 
-public:
+protected:
 	virtual bool onMousePressEvent(tpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(tpMouseEvent *event) override;
 	virtual bool onPaintEvent(tpObjectPaintEvent *event);
