@@ -11,13 +11,19 @@
 
 #include <fstream>
 #include <sstream>
-#include <X11/Xlib.h>
-#include <X11/extensions/Xrandr.h>
-#include <X11/extensions/XInput2.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <drm/drm.h>           // 定义了 DRM_CAP_* 宏
+#include <drm/drm_mode.h>      // 定义了 DRM_IOCTL_* 常量
+#include <sys/ioctl.h>         // 用于 ioctl 调用
+//#include <xf86drm.h>
+//#include <xf86drmMode.h>
+#include <sys/ioctl.h>
 #include <math.h>
 #include "tpConfig.h"
 #include "tpDisplay.h"
 
+#define DRM_DEVICE_PATH "/dev/dri/card0"
 #define TINYPIX_CONF_PATH	"/System/conf/tinyPiX.conf"
 
 /*typedef struct {
@@ -51,28 +57,127 @@
 } XRROutputInfo;*/
 struct tpDisplayInfoParam
 {
-	tpInt32 screen; // 屏幕编号
-	tpString name;	// 屏幕名称
-	tpList<tpDisplay::tpDisplayModeParam> mode;
-	Display *display;			   // X11服务器链接(通过该服务器管理输出设备，所有输出设备共用同一个display)
-	XRRScreenResources *resources; // 获取X11服务器中的所有输出设备信息
-	RROutput output;			   // 对应的输出设备
-	XRROutputInfo *output_info;
+/*    int fd;                         // DRM 设备文件描述符
+    drmModeRes *resources;          // DRM 资源
+    drmModeConnector *connector;    // 当前连接的显示器
+    drmModeCrtc *crtc;              // 当前CRTC
+    uint32_t connector_id;          // 连接器ID
 
-	tpDisplayInfoParam()
-	{
-	}
+    tpDisplayInfoParam() : fd(-1), resources(nullptr), 
+                          connector(nullptr), crtc(nullptr),
+                          connector_id(0) {}  */  
 };
 
-// 计算刷新率
-static double calculate_refresh_rate(const XRRModeInfo *mode)
-{
-	if (mode->hTotal > 0 && mode->vTotal > 0)
-	{
-		return (double)mode->dotClock / (mode->hTotal * mode->vTotal);
-	}
-	return 0.0;
+// 打开DRM设备
+/*
+static int open_drm_device() {
+    int fd = open(DRM_DEVICE_PATH, O_RDWR | O_CLOEXEC);
+    if (fd < 0) {
+        perror("Failed to open DRM device");
+        return -1;
+    }
+    
+    // 检查是否支持KMS
+    uint64_t has_dumb;
+    if (drmGetCap(fd, DRM_CAP_DUMB_BUFFER, &has_dumb) < 0 || !has_dumb) {
+        fprintf(stderr, "DRM device does not support dumb buffers\n");
+        close(fd);
+        return -1;
+    }
+    
+    return fd;
 }
+
+// 获取当前活动的连接器
+static drmModeConnector* find_active_connector(int fd, drmModeRes *res) {
+    for (int i = 0; i < res->count_connectors; i++) {
+        drmModeConnector *conn = drmModeGetConnector(fd, res->connectors[i]);
+        if (!conn) continue;
+        
+        if (conn->connection == DRM_MODE_CONNECTED && 
+            conn->count_modes > 0) {
+            return conn;
+        }
+        drmModeFreeConnector(conn);
+    }
+    return nullptr;
+}
+
+
+// 初始化DRM显示参数
+static int init_drm_display(tpDisplayInfoParam *drm) {
+    drm->fd = open_drm_device();
+    if (drm->fd < 0) return -1;
+    
+    drm->resources = drmModeGetResources(drm->fd);
+    if (!drm->resources) {
+        perror("Failed to get DRM resources");
+        close(drm->fd);
+        return -1;
+    }
+    
+    drm->connector = find_active_connector(drm->fd, drm->resources);
+    if (!drm->connector) {
+        fprintf(stderr, "No active connector found\n");
+        drmModeFreeResources(drm->resources);
+        close(drm->fd);
+        return -1;
+    }
+    
+    drm->connector_id = drm->connector->connector_id;
+    
+    // 获取当前活动的CRTC
+    if (drm->connector->encoder_id) {
+        drmModeEncoder *encoder = drmModeGetEncoder(drm->fd, drm->connector->encoder_id);
+        if (encoder) {
+            drm->crtc = drmModeGetCrtc(drm->fd, encoder->crtc_id);
+            drmModeFreeEncoder(encoder);
+        }
+    }
+    
+    if (!drm->crtc) {
+        fprintf(stderr, "Warning: Failed to get current CRTC\n");
+    }
+    
+    return 0;
+}
+// 初始化DRM显示参数
+static int init_drm_display(tpDisplayInfoParam *drm) {
+    drm->fd = open_drm_device();
+    if (drm->fd < 0) return -1;
+    
+    drm->resources = drmModeGetResources(drm->fd);
+    if (!drm->resources) {
+        perror("Failed to get DRM resources");
+        close(drm->fd);
+        return -1;
+    }
+    
+    drm->connector = find_active_connector(drm->fd, drm->resources);
+    if (!drm->connector) {
+        fprintf(stderr, "No active connector found\n");
+        drmModeFreeResources(drm->resources);
+        close(drm->fd);
+        return -1;
+    }
+    
+    drm->connector_id = drm->connector->connector_id;
+    
+    // 获取当前活动的CRTC
+    if (drm->connector->encoder_id) {
+        drmModeEncoder *encoder = drmModeGetEncoder(drm->fd, drm->connector->encoder_id);
+        if (encoder) {
+            drm->crtc = drmModeGetCrtc(drm->fd, encoder->crtc_id);
+            drmModeFreeEncoder(encoder);
+        }
+    }
+    
+    if (!drm->crtc) {
+        fprintf(stderr, "Warning: Failed to get current CRTC\n");
+    }
+    
+    return 0;
+}*/
 
 static double caculateDpi()
 {
@@ -102,9 +207,9 @@ uint32_t tpDisplay::dp2Px(const uint32_t &_dp, const int32_t &_screenNum)
 	// 暂时先不转换
 	return _dp;
 
-	uint32_t pxValue = _dp * (caculateDpi() / 160.0) + 0.5f;
+//	uint32_t pxValue = _dp * (caculateDpi() / 160.0) + 0.5f;
 
-	return pxValue;
+//	return pxValue;
 }
 
 uint32_t tpDisplay::sp2Px(const uint32_t &_sp, const int32_t &_screenNum)
@@ -112,91 +217,28 @@ uint32_t tpDisplay::sp2Px(const uint32_t &_sp, const int32_t &_screenNum)
 	// 暂时先不转换
 	return _sp;
 
-	uint32_t pxValue = _sp * (caculateDpi() / 160.0) * 1.0f + 0.5f;
+//	uint32_t pxValue = _sp * (caculateDpi() / 160.0) * 1.0f + 0.5f;
 
-	return pxValue;
+//	return pxValue;
 }
 
 // 获取屏幕参数列表
-tpList<tpDisplay::tpDisplayModeParam> tpDisplay::getDisplayMode()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	XRROutputInfo *output_info = displayParm->output_info;
-	XRRScreenResources *resources = displayParm->resources;
-	tpList<tpDisplay::tpDisplayModeParam> *mode_list = &displayParm->mode;
-	for (int i = 0; i < output_info->nmode; i++) // 遍历所有输出模式
-	{
-		RRMode mode_id = output_info->modes[i]; // 当前输出模式的ID，拿到着莪该ID后去模式的池子里面找
-		for (int j = 0; j < resources->nmode; j++)
-		{
-			if (resources->modes[j].id == mode_id)
-			{
-				XRRModeInfo mode_info = resources->modes[j];
-				tpDisplay::tpDisplayModeParam modeParam(mode_info.width, mode_info.height, (mode_info.dotClock / (float)(mode_info.hTotal * mode_info.vTotal)));
-				mode_list->push_back(modeParam);
-				// printf("- %dx%d @ %.2f Hz\n",mode_info.width, mode_info.height,(mode_info.dotClock / (float)(mode_info.hTotal * mode_info.vTotal)));
-			}
-		}
-	}
-	return displayParm->mode;
+tpList<tpDisplay::tpDisplayModeParam> tpDisplay::getDisplayMode() {
+    /*tpList<tpDisplayModeParam> mode_list;
+    tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    
+    if (!drm || !drm->connector) return mode_list;
+    
+    for (int i = 0; i < drm->connector->count_modes; i++) {
+        const drmModeModeInfo *mode = &drm->connector->modes[i];
+        double refresh = (double)mode->clock * 1000.0 / (mode->htotal * mode->vtotal);
+        tpDisplayModeParam modeParam(mode->hdisplay, mode->vdisplay, refresh);
+        mode_list.push_back(modeParam);
+    }
+    
+    return mode_list;*/
 }
 
-// 设置输出参数(当前用于设置分辨率)
-// 是否设置刷新率：&& (int)(mode.dotClock / (mode.hTotal * mode.vTotal)) == refresh_rate
-int set_resolution_output(Display *display, XRRScreenResources *resources, RROutput output, uint16_t width, uint16_t height)
-{
-	for (int i = 0; i < resources->nmode; i++)
-	{
-		XRRModeInfo mode = resources->modes[i];
-		if (mode.width == width && mode.height == height)
-		{
-			for (int j = 0; j < resources->ncrtc; j++)
-			{
-				XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(display, resources, resources->crtcs[j]);
-				if (crtc_info)
-				{
-					XRRSetCrtcConfig(display, resources, resources->crtcs[j], CurrentTime,
-									 crtc_info->x, crtc_info->y, mode.id,
-									 crtc_info->rotation, crtc_info->outputs, crtc_info->noutput);
-					XRRFreeCrtcInfo(crtc_info);
-					/*
-								Window root = DefaultRootWindow(display);
-								int mouse_x, mouse_y;
-								unsigned int mask;
-								XQueryPointer(display, root, &root, &root, &mouse_x, &mouse_y, &mouse_x, &mouse_y, &mask);
-
-								float x_ratio = static_cast<float>(width) / crtc_info->width;
-								float y_ratio = static_cast<float>(height) / crtc_info->height;
-
-								// 计算新的鼠标位置
-								int new_x = static_cast<int>(mouse_x * x_ratio);
-								int new_y = static_cast<int>(mouse_y * y_ratio);
-
-								// 使用XWarpPointer将鼠标移动到新的位置
-								XWarpPointer(display, None, root, 0, 0, 0, 0, new_x, new_y);
-								XFlush(display);
-								break;*/
-					break;
-				}
-			}
-			return 0;
-		}
-	}
-	return -1;
-}
-
-tpDisplay::tpDisplay(tpInt32 num)
-{
-	data_ = new tpDisplayInfoParam();
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-
-	if (num < 0)
-	{
-		std::cerr << "error:display number\n";
-		num = 0;
-	}
-	displayParm->screen = num;
-}
 
 tpDisplay::tpDisplay(tpString &name)
 {
@@ -212,47 +254,51 @@ tpDisplay::tpDisplay()
 	std::cerr << "error:不支持3" << std::endl;
 }
 
-tpDisplay::tpDisplay(void *display, void *resources, void *output_info, unsigned long output)
-{
-	data_ = new tpDisplayInfoParam();
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
 
-	displayParm->display = (Display *)display;
-	displayParm->resources = (XRRScreenResources *)resources;
-	displayParm->output_info = (XRROutputInfo *)output_info;
-	displayParm->output = output;
+tpDisplay::tpDisplay(tpInt32 num) {
+    /*data_ = new tpDisplayInfoParam();
+    if (init_drm_display(static_cast<tpDisplayInfoParam*>(data_)) != 0) {
+        fprintf(stderr, "Failed to initialize DRM display\n");
+        delete static_cast<tpDisplayInfoParam*>(data_);
+        data_ = nullptr;
+    }*/
 }
 
-tpDisplay::~tpDisplay()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-
-	if (displayParm)
-	{
-		// XRRFreeOutputInfo(displayParm->output_info);
-		if (displayParm->output_info)
-		{
-			XRRFreeOutputInfo(displayParm->output_info);
-			displayParm->output_info = nullptr;
-		}
-		delete displayParm;
-		displayParm = nullptr;
-		data_ = nullptr;
-	}
+tpDisplay::~tpDisplay() {
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    if (drm) {
+        if (drm->crtc) drmModeFreeCrtc(drm->crtc);
+        if (drm->connector) drmModeFreeConnector(drm->connector);
+        if (drm->resources) drmModeFreeResources(drm->resources);
+        if (drm->fd >= 0) close(drm->fd);
+        delete drm;
+        data_ = nullptr;
+    }*/
 }
 
-tpInt32 tpDisplay::getPhysicsHeight()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	//getParamNow();
-	return displayParm->output_info->mm_height;
+tpInt32 tpDisplay::getPhysicsHeight() {
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    if (!drm || !drm->connector) return 0;
+    return drm->connector->mmHeight;  // 物理高度(mm)*/
 }
 
-tpInt32 tpDisplay::getPhysicsWidth()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	//getParamNow();
-	return displayParm->output_info->mm_width;
+tpInt32 tpDisplay::getPhysicsWidth() {
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    if (!drm || !drm->connector) return 0;
+    return drm->connector->mmWidth;   // 物理宽度(mm)*/
+	return 0;
+}
+
+tpInt32 tpDisplay::getResolutionHeight() {
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    if (drm && drm->crtc) return drm->crtc->height;*/
+    return 0;
+}
+
+tpInt32 tpDisplay::getResolutionWidth() {
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    if (drm && drm->crtc) return drm->crtc->width;*/
+    return 0;
 }
 
 tpInt32 tpDisplay::getPiXWMResolutionWidth()
@@ -295,206 +341,41 @@ tpInt32 tpDisplay::getPiXWMPhysicsWidth()
 }
 
 
-tpInt32 tpDisplay::getParamNow(tpUInt32 *width, tpUInt32 *height, tpUInt16 *rota,double *refresh)
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	XRROutputInfo *outputInfo = displayParm->output_info;
-
-	// 获取当前的 CRTC (显示控制器)
-	RRCrtc crtc = outputInfo->crtc;
-	if (crtc != 0)
-	{
-		// printf("get crtc info ...\n");
-		//  获取与 CRTC 关联的配置信息
-		XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(displayParm->display, displayParm->resources, crtc);
-		// printf("get crtc info ok\n");
-		if (crtc_info)
-		{
-			RROutput current_mode = crtc_info->mode;
-			*rota = crtc_info->rotation;
-			*width = crtc_info->width;
-			*height = crtc_info->height;
-			for (int j = 0; j < displayParm->resources->nmode; j++)
-			{
-				XRRModeInfo mode_info = displayParm->resources->modes[j];
-				if (mode_info.id == current_mode)
-				{
-					// 计算刷新率
-					*refresh = calculate_refresh_rate(&mode_info);
-					// printf("  当前刷新率: %.2f Hz\n", *refresh);
-					break;
-				}
-			}
-			XRRFreeCrtcInfo(crtc_info);
-		}
-		else
-		{
-			std::cerr << "Failed to get CRTC info for the output device!" << std::endl;
-			return -1;
-		}
-	}
-	else
-	{
-		std::cerr << "No CRTC associated with the output device!" << std::endl;
-		return -1;
-	}
-
-	return 0;
-}
-
-tpInt32 tpDisplay::getResolutionHeight()
-{
-	tpUInt32 width = 0, height = 0;
-	tpUInt16 rota;
-	double refresh;
-	getParamNow(&width, &height, &rota, &refresh);
-	return height;
-}
-
-tpInt32 tpDisplay::getResolutionWidth()
-{
-	tpUInt32 width = 0, height = 0;
-	tpUInt16 rota;
-	double refresh;
-	getParamNow(&width, &height, &rota, &refresh);
-	return width;
-}
-
-double tpDisplay::getRefreshRate()
-{
-	tpUInt32 width = 0, height = 0;
-	tpUInt16 rota;
-	double refresh;
-	getParamNow(&width, &height, &rota, &refresh);
-	return refresh;
-}
-
-tpUInt16 tpDisplay::getRotation()
-{
-	tpUInt32 width = 0, height = 0;
-	tpUInt16 rota;
-	double refresh;
-	getParamNow(&width, &height, &rota, &refresh);
-	return rota;
-}
-
 // 刷新率和分辨率是绑定的，某个分辨率对应的只有一种刷新率
-tpInt32 tpDisplay::setResolution(tpUInt32 width, tpUInt32 height)
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	Display *display = displayParm->display;
-	XRRScreenResources *resources = displayParm->resources;
-
-	XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(display, resources, displayParm->output_info->crtc);
-	if (!crtc_info)
-	{
-		std::cerr << "Failed to get CRTC info for output\n";
-		return -1;
-	}
-	for (int i = 0; i < resources->nmode; i++)
-	{
-		XRRModeInfo mode = resources->modes[i];
-
-		if (mode.width == width && mode.height == height)
-		{
-			XRRSetCrtcConfig(display, resources, displayParm->output_info->crtc, CurrentTime,
-							 crtc_info->x, crtc_info->y, mode.id,
-							 crtc_info->rotation, crtc_info->outputs, crtc_info->noutput);
-			XRRFreeCrtcInfo(crtc_info);
-			return 0;
-		}
-	}
-	XFlush(displayParm->display);
-	return -1;
+tpInt32 tpDisplay::setResolution(tpUInt32 width, tpUInt32 height) {
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    if (!drm || !drm->connector || !drm->crtc) return -1;
+    
+    // 查找匹配的显示模式
+    const drmModeModeInfo *target_mode = nullptr;
+    for (int i = 0; i < drm->connector->count_modes; i++) {
+        const drmModeModeInfo *mode = &drm->connector->modes[i];
+        if (mode->hdisplay == width && mode->vdisplay == height) {
+            target_mode = mode;
+            break;
+        }
+    }
+    
+    if (!target_mode) {
+        fprintf(stderr, "Requested mode %dx%d not found\n", width, height);
+        return -1;
+    }
+    
+    // 设置新分辨率
+    int ret = drmModeSetCrtc(drm->fd, drm->crtc->crtc_id, 
+                            drm->crtc->buffer_id, // 保持当前framebuffer
+                            0, 0,                 // x,y位置
+                            &drm->connector_id, 1, 
+                            const_cast<drmModeModeInfo*>(target_mode));
+    
+    if (ret != 0) {
+        fprintf(stderr, "Failed to set mode: %s\n", strerror(-ret));
+        return -1;
+    }*/
+    
+    return 0;
 }
 
-tpInt32 tpDisplay::setRefreshRate(double rate)
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	Display *display = displayParm->display;
-	XRRScreenResources *resources = displayParm->resources;
-	XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(display, resources, displayParm->output_info->crtc);
-	if (!crtc_info)
-	{
-		std::cerr << "Failed to get CRTC info for output\n";
-		return -1;
-	}
-	for (int i = 0; i < resources->nmode; i++)
-	{
-		XRRModeInfo mode = resources->modes[i];
-
-		double refresh_rate = calculate_refresh_rate(&mode);
-		if (mode.width == crtc_info->width && mode.height == crtc_info->height &&
-			(rate == 0 || abs(refresh_rate - rate) < 0.1))
-		{
-			XRRSetCrtcConfig(display, resources, displayParm->output_info->crtc, CurrentTime,
-							 crtc_info->x, crtc_info->y, mode.id,
-							 crtc_info->rotation, crtc_info->outputs, crtc_info->noutput);
-			XRRFreeCrtcInfo(crtc_info);
-			return 0;
-		}
-	}
-	XFlush(displayParm->display);
-	return -1;
-}
-
-tpInt32 tpDisplay::setRotation(tpRotate rotation)
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	Display *display = displayParm->display;
-	XRRScreenResources *resources = displayParm->resources;
-
-	XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(display, resources, displayParm->output_info->crtc);
-	if (!crtc_info)
-	{
-		std::cerr << "Failed to get CRTC info for output\n";
-		return -1;
-	}
-	Rotation x11_rota;
-	switch (rotation)
-	{
-	case tpRotate_0:
-		x11_rota = RR_Rotate_0;
-		break;
-	case tpRotate_90:
-		x11_rota = RR_Rotate_90;
-		break;
-	case tpRotate_180:
-		x11_rota = RR_Rotate_180;
-		break;
-	case tpRotate_270:
-		x11_rota = RR_Rotate_270;
-		break;
-	default:
-		x11_rota = RR_Rotate_0;
-		break;
-	}
-	XRRSetCrtcConfig(display, resources, displayParm->output_info->crtc, CurrentTime,
-					 crtc_info->x, crtc_info->y, crtc_info->mode,
-					 x11_rota, crtc_info->outputs, crtc_info->noutput);
-	XRRFreeCrtcInfo(crtc_info);
-	return 0;
-}
-
-tpString tpDisplay::getName()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-
-	return tpString(displayParm->output_info->name);
-}
-
-tpInt32 tpDisplay::getNumber()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-
-	return displayParm->screen;
-}
-
-void *tpDisplay::getOutPutInfo()
-{
-	tpDisplayInfoParam *displayParm = static_cast<tpDisplayInfoParam *>(data_);
-	return displayParm->output_info;
-}
 
 
 tpInt32 tpDisplay::setLight(tpUInt8 light)
