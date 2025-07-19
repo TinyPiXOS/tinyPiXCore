@@ -75,3 +75,5 @@ PiXGUIFramework/exampleGUI/exampleGUI_symlink.cmake
 PiXService/PiXService_symlink.cmake
 PiXSingleGUI/PiXSingleGUI_symlink.cmake
 PiXUtils/PiXUtils_symlink.cmake
+examples/SingleGUI/scroll/scroll
+examples/SingleGUI/scrollpanel/scrollpanel
