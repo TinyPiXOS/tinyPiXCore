@@ -825,7 +825,7 @@ bool tpScrollPanel::onWheelEvent(tpWheelEvent *event)
 		// 捕获鼠标滚轮事件,
 
 		int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-		std::cout << "curScrollValue : " << curScrollValue << std::endl;
+		// std::cout << "curScrollValue : " << curScrollValue << std::endl;
 
 		curScrollValue -= WHEEL_SCROLL_INTERVAL;
 
@@ -837,7 +837,7 @@ bool tpScrollPanel::onWheelEvent(tpWheelEvent *event)
 	else
 	{
 		int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-		std::cout << "curScrollValue : " << curScrollValue << std::endl;
+		// std::cout << "curScrollValue : " << curScrollValue << std::endl;
 
 		curScrollValue += WHEEL_SCROLL_INTERVAL;
 

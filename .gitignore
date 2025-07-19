@@ -4,6 +4,8 @@ install/x86_64
 install/arm_64
 CMakeFiles/
 .cmake/
+arm-build-debug/
+arm-build-release/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
