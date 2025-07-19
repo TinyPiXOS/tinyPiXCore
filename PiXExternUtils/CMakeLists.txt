@@ -92,7 +92,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/tpSocketNotifier.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/tpSocketNotifierManager.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpAppDataDisk.cpp
-	${SOURCE_PATH}/src/ExternUtils/tpDisplayManage.cpp
+#	${SOURCE_PATH}/src/ExternUtils/tpDisplayManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpDisplay.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpCompress.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpCpu.cpp
