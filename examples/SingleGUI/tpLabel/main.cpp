@@ -17,7 +17,7 @@ int32_t main(int32_t argc, char *argv[])
 
 	tpLabel *label1 = new tpLabel(vScreen);
 	label1->font()->setFontColor(_RGBA(255, 0, 0, 255), 0);
-	label1->font()->setAntialias(tpFont::TINY_FONT_ANTIALIAS_BEST);
+	label1->font()->setAntialias(tpFont::TINY_FONT_ANTIALIAS_GOOD);
 	label1->font()->setFontWeight(tpFont::TINY_FONT_WEIGHT_THIN);
 	label1->setText("TINY_FONT_WEIGHT_THIN");
 	label1->setRect(0, 0, 250, 30);
