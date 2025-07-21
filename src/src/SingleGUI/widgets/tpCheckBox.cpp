@@ -39,6 +39,7 @@ tpCheckBox::tpCheckBox(tpChildWidget *parent)
 	setMaximumSize(normalCss->maximumWidth(), normalCss->maximumHeight());
 	setSize(normalCss->width(), normalCss->height());
 
+	setEnabledBorderColor(false);
 	setCheckable(true);
 }
 
@@ -91,7 +92,7 @@ bool tpCheckBox::onMousePressEvent(tpMouseEvent *event)
 
 bool tpCheckBox::onMouseRleaseEvent(tpMouseEvent *event)
 {
-	tpChildWidget::onMousePressEvent(event);
+	tpChildWidget::onMouseRleaseEvent(event);
 
 	if (event->button() != BUTTON_LEFT)
 		return true;
@@ -168,7 +169,7 @@ bool tpCheckBox::onPaintEvent(tpObjectPaintEvent *event)
 		}
 		else
 		{
-			paintCanvas->roundedRectangle(0, 0, height(), height(), minRad, normalCss->borderColor(), normalCss->borderWidth());
+			paintCanvas->roundedRectangle(1, 1, height(), height() - 1, minRad, normalCss->borderColor(), normalCss->borderWidth());
 		}
 	}
 
