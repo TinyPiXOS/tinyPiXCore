@@ -15,6 +15,8 @@
 #include "tpSurface.h"
 #include "tpVirtualKeyboard.h"
 #include "tpMap.h"
+#include "tpRect.h"
+#include "tpObjectFunction.hpp"
 
 #include <tinyPiXApi.h>
 #include <mutex>
@@ -43,6 +45,23 @@ struct ItpProcessInfo
 	pid_t pid;
 	char process[PROCESS_MAX_NAME_LENGTH];
 };
+
+struct UpdateCommand
+{
+	tpChildWidget *topScreen = nullptr;
+	int32_t x = 0;
+	int32_t y = 0;
+	int32_t w = 0;
+	int32_t h = 0;
+	bool clip = false;
+	bool onlyBlit = false;
+	bool sync = false;
+
+	UpdateCommand()
+	{
+	}
+};
+// typedef std::shared_ptr<UpdateCommand> UpdateCommandSPtr;
 
 struct ItpAppSet
 {
@@ -79,7 +98,10 @@ struct ItpAppSet
 	tpChildWidget *curInputObj = nullptr;
 
 	std::mutex queueSlotMutex_;
-	std::queue<std::function<void()>> tasks_;
+	std::queue<std::function<void()>> slotTasks_;
+
+	std::mutex queueUpdateMutex_;
+	std::queue<UpdateCommand> updateTasks_;
 };
 
 class appExe : public tpThread
@@ -281,6 +303,64 @@ private:
 };
 
 static tpApp *appInst = nullptr;
+
+// 刷新指令下发
+static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
+{
+	while (!updateCommandQueue.empty())
+	{
+		UpdateCommand task = updateCommandQueue.front();
+		updateCommandQueue.pop();
+
+		tpScreen *topScreen = dynamic_cast<tpScreen *>(task.topScreen);
+
+		ItpObjectSet *set = static_cast<ItpObjectSet *>(topScreen->objectSets());
+
+		if (!set)
+			continue;
+
+		// printf("id=%d, visible=%d, actived=%d\n", this->objectSysID(), set->visible, this->actived());
+		if (!set->visible || !topScreen->actived())
+			continue;
+
+		tpRect updateRect(task.x, task.y, task.w, task.h);
+
+		tinyPiX_wf_lock_mutex(set->agent);
+
+		IPiDSSurface *surface_t = tinyPiX_wf_get_surface(set->agent);
+
+		if (surface_t == nullptr)
+			continue;
+
+		tpSurface surface(surface_t);
+
+		ItpObjectPaintInput input;
+		tpObjectPaintEvent event;
+		input.object = topScreen;
+
+		input.surface = &surface;
+
+		input.updateRect.x = updateRect.X0();
+		input.updateRect.y = updateRect.Y0();
+		input.updateRect.w = updateRect.width();
+		input.updateRect.h = updateRect.height();
+		event.construct(&input);
+
+		bool ret = topScreen->onPaintEvent(&event);
+
+		if (ret)
+		{
+			childPaint(set, &event);
+		}
+
+		tinyPiX_wf_unlock_mutex(set->agent);
+
+		if (task.onlyBlit == false)
+		{
+			tinyPiX_wf_update(set->agent, input.updateRect.x, input.updateRect.y, input.updateRect.w, input.updateRect.h, task.clip, task.sync);
+		}
+	}
+}
 
 static inline bool hold_app_second_run(const char *runPath, const char *uuid)
 {
@@ -606,14 +686,14 @@ bool tpApp::run()
 
 		while (set->running)
 		{
+			// 异步调用信号槽
 			std::queue<std::function<void()>> cacheTaskList;
 
 			{
-				std::unique_lock<std::mutex> lock(set->queueSlotMutex_);
-				cacheTaskList = set->tasks_;
-				set->tasks_ = std::queue<std::function<void()>>();
+				std::lock_guard<std::mutex> lock(set->queueSlotMutex_);
+				cacheTaskList = set->slotTasks_;
+				set->slotTasks_ = std::queue<std::function<void()>>();
 			}
-
 			while (!cacheTaskList.empty())
 			{
 				auto task = cacheTaskList.front();
@@ -622,6 +702,15 @@ bool tpApp::run()
 				task();
 				// lock.lock();
 			}
+
+			// 异步刷新UI
+			std::queue<UpdateCommand> cacheUpdateTaskList;
+			{
+				std::lock_guard<std::mutex> lock(set->queueUpdateMutex_);
+				cacheUpdateTaskList = set->updateTasks_;
+				set->updateTasks_ = std::queue<UpdateCommand>();
+			}
+			DownUpdateCommand(cacheUpdateTaskList);
 
 			tpTimer::sleep(20);
 		}
@@ -749,19 +838,6 @@ bool tpApp::isMainThread()
 {
 	ItpAppSet *set = (ItpAppSet *)this->appSet;
 	return std::this_thread::get_id() == set->mainThreadId;
-}
-
-void tpApp::postEvent(std::function<void()> task)
-{
-	ItpAppSet *set = (ItpAppSet *)this->appSet;
-
-	if (!set->running)
-		return;
-
-	{
-		std::unique_lock<std::mutex> lock(set->queueSlotMutex_);
-		set->tasks_.push(task);
-	}
 }
 
 bool tpApp::sendRegister(tpObject *object)
@@ -914,4 +990,40 @@ int32_t tpApp::disableEventType()
 	}
 
 	return type;
+}
+
+void tpApp::postEvent(std::function<void()> task)
+{
+	ItpAppSet *set = (ItpAppSet *)this->appSet;
+
+	if (!set->running)
+		return;
+
+	{
+		std::lock_guard<std::mutex> lock(set->queueSlotMutex_);
+		set->slotTasks_.push(task);
+	}
+}
+
+void tpApp::postUpdateEvent(tpChildWidget *topScreen, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool clip, bool onlyBlit, bool sync)
+{
+	ItpAppSet *set = (ItpAppSet *)this->appSet;
+
+	if (!set->running)
+		return;
+
+	UpdateCommand updateCommandInfo;
+	updateCommandInfo.topScreen = topScreen;
+	updateCommandInfo.x = x;
+	updateCommandInfo.y = y;
+	updateCommandInfo.w = w;
+	updateCommandInfo.h = h;
+	updateCommandInfo.clip = clip;
+	updateCommandInfo.onlyBlit = onlyBlit;
+	updateCommandInfo.sync = sync;
+
+	{
+		std::lock_guard<std::mutex> lock(set->queueUpdateMutex_);
+		set->updateTasks_.push(updateCommandInfo);
+	}
 }

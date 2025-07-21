@@ -295,7 +295,11 @@ void tpScrollPanel::setVerticalPostion(const int32_t &value)
 		set->panel->broadSetTop();
 	}
 
-	tpChildWidget::update();
+	// static int64_t testIndex = 0;
+
+	// if (testIndex % 5 == 0)
+		update();
+	// ++testIndex;
 }
 
 bool tpScrollPanel::scrollMode()
@@ -709,6 +713,7 @@ bool tpScrollPanel::eventFilter(tpObject *watched, tpEvent *event)
 		if (!mouseMotionEvent)
 			return false;
 
+		// std::cout << "tpScrollPanel::eventFilter  Move" << std::endl;
 		onMouseMoveEvent(mouseMotionEvent);
 	}
 	else if (event->eventType() == tpEvent::EVENT_WHEEL_EVENT)
@@ -797,6 +802,10 @@ bool tpScrollPanel::onMouseMoveEvent(tpMouseEvent *event)
 			// 纵向
 			offset = curPoint.y - set->updatePoint_.y;
 
+			// std::cout << " *******curPoint.y " << curPoint.y << "   set->updatePoint_.y " << set->updatePoint_.y << std::endl;
+			// std::cout << " *******offset " << offset << std::endl;
+			// std::cout << "******verticalPostion() " << verticalPostion() << std::endl;
+
 			setVerticalPostion(verticalPostion() + offset);
 		}
 		else
@@ -810,7 +819,7 @@ bool tpScrollPanel::onMouseMoveEvent(tpMouseEvent *event)
 
 		set->updatePoint_ = curPoint;
 
-		tpChildWidget::update();
+		// tpChildWidget::update();
 	}
 
 	return true;

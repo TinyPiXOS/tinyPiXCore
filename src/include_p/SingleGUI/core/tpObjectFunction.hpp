@@ -1,8 +1,9 @@
 #ifndef TP_OBJECT_FUNCTION_HPP
 #define TP_OBJECT_FUNCTION_HPP
 
-#include "core/tpObject.h"
-#include "core/tpChildWidget.h"
+#include "tpObject.h"
+#include "tpChildWidget.h"
+#include "tpCanvas.h"
 
 static inline ItpPoint selfToScreenPoint(tpObject *object, int32_t x, int32_t y)
 {
@@ -220,6 +221,66 @@ static inline tpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
     set->gMutex.unlock();
 
     return object;
+}
+
+static void paintEnabledBox(tpChildWidget *child, tpCanvas *paintCanvas)
+{
+	if (!child->enabled())
+	{
+		if (child->roundCorners() != 0)
+			paintCanvas->roundedBox(0, 0, child->width(), child->height(), child->roundCorners(), _RGBA(192, 192, 192, 125));
+		else
+			paintCanvas->box(0, 0, child->width(), child->height(), _RGBA(192, 192, 192, 125));
+	}
+}
+
+static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
+{
+	if (!set)
+		return;
+
+	std::list<tpObject *>::iterator iter = set->objectList.begin();
+
+	for (; iter != set->objectList.end(); iter++)
+	{
+		tpChildWidget *child = dynamic_cast<tpChildWidget *>(*iter);
+		if (!child)
+			continue;
+
+		ItpRect updateIRect = events->updateRect();
+		tpRect updateRect(&updateIRect);
+
+		ItpRect childRect = child->toScreen();
+
+		if (!updateRect.intersect(&childRect))
+		{
+			continue;
+		}
+
+		if (!child->visible())
+			continue;
+
+		if (child->alpha() == 0)
+			continue;
+
+		ItpObjectSet *child_set = (ItpObjectSet *)child->objectSets();
+		tpObjectPaintEvent event;
+		ItpObjectPaintInput input;
+		input.object = child;
+		input.updateRect = events->updateRect();
+		input.surface = events->surface();
+		event.construct(&input);
+
+		bool ret = child->onPaintEvent(&event);
+
+		if (ret)
+		{
+			childPaint(child_set, &event);
+		}
+
+		// 控件不可用，绘制遮罩层
+		paintEnabledBox(child, event.canvas());
+	}
 }
 
 #endif

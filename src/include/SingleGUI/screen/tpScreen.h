@@ -50,11 +50,8 @@ public:
 	virtual void bringToBottom();
 
 public:
-	virtual void update(tpRect &rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-	virtual void update(ItpRect &rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-	virtual void update(ItpRect *rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-	virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool clip = true, bool onlyBlit = false, bool sync = false); // must override
-	virtual void update(bool clip = true, bool onlyBlit = false, bool sync = false);											 // must override
+	virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool clip = true, bool onlyBlit = false, bool sync = false) override;
+	virtual void update(bool clip = true, bool onlyBlit = false, bool sync = false) override;
 	virtual void syncUpdate(bool clip = true, bool onlyBlit = false);
 
 public:

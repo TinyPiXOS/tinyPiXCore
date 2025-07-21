@@ -23,6 +23,7 @@ int32_t main(int32_t argc, char *argv[])
 	posMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	posMoveBtn->setSize(150, 40);
 	posMoveBtn->move(20, 20);
+	posMoveBtn->update();
 
 	connect(posMoveBtn, onClicked, [=](bool)
 			{
@@ -36,6 +37,7 @@ int32_t main(int32_t argc, char *argv[])
 	returnMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	returnMoveBtn->setSize(150, 40);
 	returnMoveBtn->move(180, 20);
+	returnMoveBtn->update();
 
 	connect(returnMoveBtn, onClicked, [=](bool)
 			{
@@ -51,11 +53,14 @@ int32_t main(int32_t argc, char *argv[])
 	loopMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	loopMoveBtn->setSize(150, 40);
 	loopMoveBtn->move(20, 80);
+	loopMoveBtn->update();
+
 	tpButton *stopLoopMoveBtn = new tpButton("停止", vScreen);
 	stopLoopMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	stopLoopMoveBtn->setSize(150, 40);
 	stopLoopMoveBtn->move(180, 80);
 	stopLoopMoveBtn->setEnabled(false);
+	stopLoopMoveBtn->update();
 
 	tpAnimation *loopAnimation = nullptr;
 
@@ -83,6 +88,7 @@ int32_t main(int32_t argc, char *argv[])
 	hideBtn->setProperty("type", "ControlPanelPowerButton");
 	hideBtn->setSize(150, 40);
 	hideBtn->move(20, 140);
+	hideBtn->update();
 
 	connect(hideBtn, onClicked, [=](bool)
 			{
@@ -96,6 +102,7 @@ int32_t main(int32_t argc, char *argv[])
 	showBtn->setProperty("type", "ControlPanelPowerButton");
 	showBtn->setSize(150, 40);
 	showBtn->move(180, 140);
+	showBtn->update();
 
 	connect(showBtn, onClicked, [=](bool)
 			{
@@ -109,6 +116,7 @@ int32_t main(int32_t argc, char *argv[])
 	widthResizeBtn->setProperty("type", "ControlPanelPowerButton");
 	widthResizeBtn->setSize(150, 40);
 	widthResizeBtn->move(20, 200);
+	widthResizeBtn->update();
 
 	connect(widthResizeBtn, onClicked, [=](bool)
 			{
@@ -122,6 +130,7 @@ int32_t main(int32_t argc, char *argv[])
 	heightResizeBtn->setProperty("type", "ControlPanelPowerButton");
 	heightResizeBtn->setSize(150, 40);
 	heightResizeBtn->move(20, 260);
+	heightResizeBtn->update();
 
 	connect(heightResizeBtn, onClicked, [=](bool)
 			{
@@ -135,6 +144,7 @@ int32_t main(int32_t argc, char *argv[])
 	resizeBtn->setProperty("type", "ControlPanelPowerButton");
 	resizeBtn->setSize(150, 40);
 	resizeBtn->move(20, 320);
+	resizeBtn->update();
 
 	connect(resizeBtn, onClicked, [=](bool)
 			{
@@ -148,6 +158,7 @@ int32_t main(int32_t argc, char *argv[])
 	posResizeBtn->setProperty("type", "ControlPanelPowerButton");
 	posResizeBtn->setSize(150, 40);
 	posResizeBtn->move(20, 380);
+	posResizeBtn->update();
 
 	connect(posResizeBtn, onClicked, [=](bool)
 			{
@@ -161,6 +172,7 @@ int32_t main(int32_t argc, char *argv[])
 	bgColorBtn->setProperty("type", "ControlPanelPowerButton");
 	bgColorBtn->setSize(150, 40);
 	bgColorBtn->move(20, 440);
+	bgColorBtn->update();
 
 	connect(bgColorBtn, onClicked, [=](bool)
 			{

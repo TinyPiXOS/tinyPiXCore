@@ -92,9 +92,6 @@ public:
 	/// @return 主线程返回true，否则返回false
 	bool isMainThread();
 
-	/// @brief 队列类型信号槽处理；用户无需调用
-	void postEvent(std::function<void()> task);
-
 public:
 	virtual bool isExistObject(tpObject *object, bool autoRemove = false);
 
@@ -111,6 +108,21 @@ public:
 	virtual ItpAppData *appObjectSet();
 
 public:
+	/// @brief 队列类型信号槽处理；用户无需调用
+	void postEvent(std::function<void()> task);
+
+	/// @brief 提交刷新时间异步处理；用户无需调用
+	/// @param topScreen 刷新的顶层窗
+	/// @param x 刷新区域X
+	/// @param y 刷新区域Y
+	/// @param w 刷新区域W
+	/// @param h 刷新区域H
+	/// @param clip 
+	/// @param onlyBlit 
+	/// @param sync 
+	void postUpdateEvent(tpChildWidget* topScreen, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool clip, bool onlyBlit, bool sync);
+	
+private:
 	ItpAppData *appSet;
 };
 
