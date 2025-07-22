@@ -132,6 +132,8 @@ static tpList<tpString> readListString()
 tpList<tpDisk *> tpDiskManage::getList()
 {
 	tpDiskManageData *dmData = static_cast<tpDiskManageData *>(data_);
+	if(dmData->is_runing)
+		return dmData->list;
 	monitorList(TP_TRUE,0);
 	return dmData->list;
 }
@@ -219,7 +221,7 @@ void tpDiskManage::monitorList(tpBool once,uint16_t samp)
 			dmData->is_geting=true;
 			break;
 		}
-			
+		printf("[Debug]:当前磁盘数量%d\n",dmData->list.size());
 		std::this_thread::sleep_for(std::chrono::milliseconds(samp));
 	}
 }
