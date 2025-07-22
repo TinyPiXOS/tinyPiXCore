@@ -146,7 +146,12 @@ struct ItpObjectSet
 	// tpObjectStack *objectStack = nullptr;
 	ItpTempDef tmp;
 
+	// 对象属性信息
 	tpHash<tpString, tpVariant> objPropertyMap;
+
+	// 缓存有多少发送者信号绑定了自己
+	tpVector<std::pair<void*, uintptr_t>> slotConnections_;
+    std::mutex slotConnectMutex_;
 
 	ItpObjectSet()
 	{

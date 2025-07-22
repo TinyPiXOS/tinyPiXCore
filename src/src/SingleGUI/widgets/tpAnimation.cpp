@@ -39,6 +39,7 @@ struct tpAnimationData
 
     // 动画是否停止标志
     std::atomic<bool> stopped;
+    std::atomic<bool> isDelete;
 
     tpAnimationData()
     {
@@ -53,6 +54,8 @@ tpAnimation::tpAnimation(tpChildWidget *target, const AnimationType &propertyTyp
 
     animationData->targetWidget = target;
     animationData->animationType = propertyType;
+    animationData->stopped.store(true);
+    animationData->isDelete.store(false);
 
     animationData->animationTimer.setInterval(globalTimerInterval);
 
@@ -166,8 +169,9 @@ void tpAnimation::stop()
 
     finished.emit(); // 触发完成信号
 
-    if (animationData->deleteMode == tpAnimation::DeleteWhenStopped)
+    if (animationData->deleteMode == tpAnimation::DeleteWhenStopped && !animationData->isDelete.load())
     {
+        animationData->isDelete.store(true);
         deleteLater();
     }
 }
@@ -246,6 +250,8 @@ int32_t lerpColor(int32_t start, int32_t end, float progress)
 
 void tpAnimation::AnimationRun()
 {
+    // std::cout << "动画线程开始 "  << std::endl;
+
     tpAnimationData *animationData = static_cast<tpAnimationData *>(data_);
 
     if (animationData->stopped.load())
@@ -433,8 +439,9 @@ void tpAnimation::AnimationRun()
             // 没有被外部停止才释放，stop函数已经释放，避免重复释放
             if (!animationData->stopped.load())
             {
-                if (animationData->deleteMode == tpAnimation::DeleteWhenStopped)
+                if (animationData->deleteMode == tpAnimation::DeleteWhenStopped && !animationData->isDelete.load())
                 {
+                    animationData->isDelete.store(true);
                     deleteLater();
                 }
 
@@ -448,4 +455,7 @@ void tpAnimation::AnimationRun()
             animationData->curTargetKeyIndex = 0;
         }
     }
+
+    // std::cout << "动画线程结束 "  << std::endl;
+
 }

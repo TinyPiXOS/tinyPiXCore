@@ -202,6 +202,7 @@ public:
 			deleted:
 				set->gMutex.unlock();
 
+				// std::cout << "指针释放 " << std::endl;
 				delete object;
 				object = nullptr;
 				// set->vScreen->update();
@@ -690,6 +691,9 @@ bool tpApp::run()
 				cacheTaskList = set->slotTasks_;
 				set->slotTasks_ = std::queue<std::function<void()>>();
 			}
+
+            // std::cout << "执行槽函数前 "  << std::endl;
+
 			while (!cacheTaskList.empty())
 			{
 				auto task = cacheTaskList.front();
@@ -698,6 +702,8 @@ bool tpApp::run()
 				task();
 				// lock.lock();
 			}
+
+            // std::cout << "执行槽函数后 "  << std::endl;
 
 			// 异步刷新UI
 			std::queue<UpdateCommand> cacheUpdateTaskList;
