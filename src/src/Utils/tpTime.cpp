@@ -155,7 +155,7 @@ int32_t tpTime::secsTo(const tpTime &t) const
            (t.second() - second());
 }
 
-tpTime tpTime::addMSecs(int32_t ms) const
+tpTime tpTime::addMSecs(int64_t ms) const
 {
     int64_t total_ms = hour() * 3600000 + minute() * 60000 + second() * 1000 + msec() + ms;
     total_ms %= 86400000LL;
@@ -169,7 +169,7 @@ tpTime tpTime::addMSecs(int32_t ms) const
         total_ms % 1000);
 }
 
-int32_t tpTime::msecsTo(const tpTime &t) const
+int64_t tpTime::msecsTo(const tpTime &t) const
 {
     return (t.hour() - hour()) * 3600000 +
            (t.minute() - minute()) * 60000 +

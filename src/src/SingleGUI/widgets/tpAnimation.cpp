@@ -37,6 +37,9 @@ struct tpAnimationData
     // 当前要到的关键帧
     int32_t curTargetKeyIndex = 0;
 
+    // 动画是否停止标志
+    std::atomic<bool> stopped;
+
     tpAnimationData()
     {
     }
@@ -138,6 +141,8 @@ void tpAnimation::start(const DeletionPolicy &runMode)
 {
     tpAnimationData *animationData = static_cast<tpAnimationData *>(data_);
 
+    animationData->stopped.store(false);
+
     animationData->curTimeMs = 0;
     animationData->curLoopIndex = 0;
     animationData->curTargetKeyIndex = 0;
@@ -147,12 +152,16 @@ void tpAnimation::start(const DeletionPolicy &runMode)
 void tpAnimation::pause()
 {
     tpAnimationData *animationData = static_cast<tpAnimationData *>(data_);
+    animationData->stopped.store(true);
     animationData->animationTimer.stop();
 }
 
 void tpAnimation::stop()
 {
     tpAnimationData *animationData = static_cast<tpAnimationData *>(data_);
+
+    animationData->stopped.store(true);
+
     animationData->animationTimer.stop();
 
     finished.emit(); // 触发完成信号
@@ -238,6 +247,9 @@ int32_t lerpColor(int32_t start, int32_t end, float progress)
 void tpAnimation::AnimationRun()
 {
     tpAnimationData *animationData = static_cast<tpAnimationData *>(data_);
+
+    if (animationData->stopped.load())
+        return;
 
     // 计算动画总进度（0.0~1.0）
     const float progress = static_cast<float>(animationData->curTimeMs) / animationData->durationMs;
@@ -418,9 +430,15 @@ void tpAnimation::AnimationRun()
             animationData->animationTimer.stop();
             finished.emit(); // 触发完成信号
 
-            if (animationData->deleteMode == tpAnimation::DeleteWhenStopped)
+            // 没有被外部停止才释放，stop函数已经释放，避免重复释放
+            if (!animationData->stopped.load())
             {
-                deleteLater();
+                if (animationData->deleteMode == tpAnimation::DeleteWhenStopped)
+                {
+                    deleteLater();
+                }
+
+                animationData->stopped.store(true);
             }
         }
         else
