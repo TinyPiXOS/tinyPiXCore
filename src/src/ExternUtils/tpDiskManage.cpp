@@ -221,7 +221,7 @@ void tpDiskManage::monitorList(tpBool once,uint16_t samp)
 			dmData->is_geting=true;
 			break;
 		}
-		printf("[Debug]:当前磁盘数量%d\n",dmData->list.size());
+		//printf("[Debug]:当前磁盘数量%d\n",dmData->list.size());
 		std::this_thread::sleep_for(std::chrono::milliseconds(samp));
 	}
 }
