@@ -68,7 +68,9 @@ bool tpPanelSwitchButton::onResizeEvent(tpObjectResizeEvent *event)
 
     buttonData->textLabel->move(0, rect().h - buttonData->textLabel->font()->pixelHeight() - curCssData->paddingBottom());
 
-    uint32_t iconSize = curCssData->iconSize();
+    // uint32_t iconSize = curCssData->iconSize();
+    uint32_t iconSize = ((width() > height()) ? height() : width()) * 0.32679;
+
     uint32_t iconX = (width() - iconSize) / 2.0;
     // uint32_t iconRad =  curCssData->roundCorners();
 

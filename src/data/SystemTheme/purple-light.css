@@ -107,7 +107,7 @@ tpPanelSwitchButton {
   padding-top: 25dp;
   padding-bottom: 25dp;
   gap: 31dp;
-  icon-size: 50dp;
+  /* icon-size: 50dp; */
   icon-background: rgba(240, 240, 240, 0.3);
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 29;

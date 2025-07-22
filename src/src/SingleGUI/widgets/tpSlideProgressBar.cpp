@@ -158,7 +158,7 @@ bool tpSlideProgressBar::onMouseMoveEvent(tpMouseEvent *event)
         onValueChanged.emit(progressData->curValue);
         update();
 
-        std::cout << "progressData->curValue  " << progressData->curValue << std::endl;
+        // std::cout << "progressData->curValue  " << progressData->curValue << std::endl;
     }
     return true;
 }
