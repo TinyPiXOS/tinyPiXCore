@@ -32,6 +32,7 @@ declare -A PATH_MAPPINGS=(
     
     # 示例 4: 资源文件到自定义位置
 	["./{ARCH}/res"]="update:/usr/res/tinyPiX"
+
 )
 # =====================================================
 
@@ -350,7 +351,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# 修复点1: 直接使用脚本所在目录的映射文件
+# 直接使用脚本所在目录的映射文件
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 MAPPING_FILE="$SCRIPT_DIR/path_mappings"
 
@@ -375,6 +376,7 @@ echo "目标目录: $TARGET_DIR"
 echo "映射文件: $MAPPING_FILE"
 
 # 检查系统依赖包 ----------------------------------------
+# libsdl2-image-dev libsdl2-gfx-dev	,改为编译安装
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
 	libsdl2-image-dev libsdl2-gfx-dev
@@ -661,6 +663,32 @@ create_symlinks() {
     else
         echo "  ⚠️  二进制目录不存在: $BIN_DIR"
     fi
+
+	#3. 字体库文件链接
+	FONTS_DIR="${TARGET_DIR}/usr/data/tinyPiX/fonts"
+	if [ -d "$FONTS_DIR" ]; then
+		echo "  → 处理字体源目录: $FONTS_DIR"
+		# 目标字体目录 (此处直接放用户目录避免嵌套)
+		FONT_TARGET_DIR="${TARGET_DIR}/usr/share/fonts/opentype/tinyPiX"
+		mkdir -p "$FONT_TARGET_DIR"
+		
+		# 遍历字体目录中的文件
+		find "$FONTS_DIR" -maxdepth 1 -type d ! -path "$FONTS_DIR" | while read -r font_dir; do
+        dir_name=$(basename "$font_dir")
+        link_path="${FONT_TARGET_DIR}/${dir_name}"
+        
+        # 安全创建整个目录的链接
+        if safe_create_link "$link_path" "$font_dir"; then
+            echo "    ✓ $link_path → $font_dir"
+        fi
+		
+		#更新字体库缓存
+		sudo fc-cache -fv "$FONT_TARGET_DIR"
+    	[ $? -eq 0 ] && echo "    ✓ 字体缓存更新成功"
+    done
+	else
+		echo "  ⚠️  字体源目录不存在: $FONTS_DIR"
+	fi
 }
 
 #调用脚本执行
