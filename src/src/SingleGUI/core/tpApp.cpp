@@ -75,7 +75,7 @@ struct ItpAppSet
 
 	std::mutex gMutex;
 
-	tpChildWidget *vScreen;
+	tpScreen *vScreen;
 
 	tpClipboard *clipboard;
 
@@ -630,7 +630,7 @@ tpApp *tpApp::Inst()
 	return appInst;
 }
 
-bool tpApp::bindVScreen(tpObject *object)
+bool tpApp::bindVScreen(tpScreen *object)
 {
 	ItpAppSet *set = static_cast<ItpAppSet *>(this->appSet);
 	bool ret = false;
@@ -639,10 +639,6 @@ bool tpApp::bindVScreen(tpObject *object)
 		return false;
 
 	if (!object)
-		return false;
-
-	tpChildWidget *vScreenPtr = dynamic_cast<tpChildWidget *>(object);
-	if (!vScreenPtr)
 		return false;
 
 	if (object->objectType() != TP_TOP_OBJECT)
@@ -662,7 +658,7 @@ bool tpApp::bindVScreen(tpObject *object)
 	if (ret)
 	{
 		set->gMutex.lock();
-		set->vScreen = vScreenPtr;
+		set->vScreen = object;
 		set->gMutex.unlock();
 	}
 
@@ -732,10 +728,10 @@ tpClipboard *tpApp::clipboard()
 	return clipboard;
 }
 
-tpChildWidget *tpApp::vScreen()
+tpScreen *tpApp::vScreen()
 {
 	ItpAppSet *set = (ItpAppSet *)this->appSet;
-	tpChildWidget *vScreen = nullptr;
+	tpScreen *vScreen = nullptr;
 
 	if (set)
 	{

@@ -11,6 +11,7 @@ TP_DEF_VOID_TYPE_VAR(ItpAppData);
 class tpObject;
 class tpClipboard;
 class tpChildWidget;
+class tpScreen;
 // class tpMessage;
 class tpCssParser;
 class tpSurface;
@@ -53,7 +54,7 @@ public:
 	/// @brief 绑定应用主窗体
 	/// @param object 主窗体对象指针
 	/// @return 绑定结果
-	virtual bool bindVScreen(tpObject *object);
+	virtual bool bindVScreen(tpScreen *object);
 	/// @brief 开启tpApp主事件循环
 	/// @return 启动结果
 	virtual bool run();
@@ -63,7 +64,7 @@ public:
 
 	/// @brief 获取当前程序主窗体
 	/// @return 主窗体指针
-	virtual tpChildWidget *vScreen();
+	virtual tpScreen *vScreen();
 
 	/// @brief 获取全局单例CSS解析器
 	/// @return css解析器智能指针

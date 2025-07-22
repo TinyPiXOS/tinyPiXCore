@@ -1273,29 +1273,6 @@ bool tpChildWidget::onLeaveEvent(tpObjectLeaveEvent *event)
 	return true;
 }
 
-bool tpChildWidget::onRotateEvent(tpObjectRotateEvent *event)
-{
-	tpObject *object = event->object();
-
-	if (!object)
-		return true;
-
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return true;
-
-	set->layoutMutex.lock();
-
-	if (set->layout)
-	{
-		set->layout->update();
-	}
-
-	set->layoutMutex.unlock();
-
-	return true;
-}
-
 bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
 {
 	bool ret = event->isCanDraw();

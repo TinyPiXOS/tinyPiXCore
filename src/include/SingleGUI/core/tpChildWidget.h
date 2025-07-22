@@ -358,7 +358,6 @@ public:
 	virtual bool onFocusEvent(tpObjectFocusEvent *event) { return true; }
 	virtual bool onLeaveEvent(tpObjectLeaveEvent *event);
 	virtual bool onVisibleEvent(tpObjectVisibleEvent *event) { return true; }
-	virtual bool onRotateEvent(tpObjectRotateEvent *event);
 	/// @brief 绘制事件，禁止在该函数调用 paint和update函数
 	/// @param event 绘制事件指针
 	/// @return 返回true继续执行子控件绘制

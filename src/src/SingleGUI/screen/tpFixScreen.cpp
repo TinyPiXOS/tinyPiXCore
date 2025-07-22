@@ -200,15 +200,6 @@ void *tpFixScreen::varShape()
 	return nullptr;
 }
 
-bool tpFixScreen::onRotateEvent(tpObjectRotateEvent *event)
-{
-	tpFixScreenData *screenData = static_cast<tpFixScreenData *>(data_);
-	if (!screenData)
-		return false;
-
-	return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
-}
-
 bool tpFixScreen::onActiveEvent(tpObjectActiveEvent *event)
 {
 	tpFixScreenData *screenData = static_cast<tpFixScreenData *>(data_);
