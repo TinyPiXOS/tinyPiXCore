@@ -42,15 +42,10 @@ signals:
     declare_signal(onClicked, bool);
 
 protected:
+	virtual bool onMousePressEvent(tpMouseEvent *event) override;
     virtual bool onMouseRleaseEvent(tpMouseEvent *event) override;
-    virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
-    virtual bool onResizeEvent(tpObjectResizeEvent *event) override;
-
+	virtual bool onMouseMoveEvent(tpMouseEvent *event) override;
     virtual bool eventFilter(tpObject *watched, tpEvent *event) override;
-
-    /// @brief
-    /// @param event
-    virtual void onThemeChangeEvent(tpThemeChangeEvent *event) override;
 
 protected:
     virtual tpString pluginType() override { return TO_STRING(tpMenuPanelItem); }

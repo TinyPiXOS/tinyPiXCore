@@ -1201,6 +1201,8 @@ bool tpChildWidget::onMousePressEvent(tpMouseEvent *event)
 
 	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
 	set->isPress = true;
+	set->pressPoint = event->globalPos();
+
 	update();
 
 	return true;
@@ -1215,7 +1217,11 @@ bool tpChildWidget::onMouseRleaseEvent(tpMouseEvent *event)
 	set->isPress = false;
 
 	ItpPoint mouseGlobalPos = event->globalPos();
-	if (toScreen().contains(mouseGlobalPos))
+
+	// std::cout << mouseGlobalPos.x << " " << set->pressPoint.x << " " << mouseGlobalPos.y << " " << set->pressPoint.y << std::endl;
+
+	// if (toScreen().contains(mouseGlobalPos))
+	if ((std::abs(mouseGlobalPos.x - set->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - set->pressPoint.y) <= 5))
 	{
 		if (checkable())
 		{

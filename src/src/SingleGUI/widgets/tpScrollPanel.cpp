@@ -295,11 +295,7 @@ void tpScrollPanel::setVerticalPostion(const int32_t &value)
 		set->panel->broadSetTop();
 	}
 
-	// static int64_t testIndex = 0;
-
-	// if (testIndex % 5 == 0)
-		update();
-	// ++testIndex;
+	update();
 }
 
 bool tpScrollPanel::scrollMode()
@@ -802,6 +798,7 @@ bool tpScrollPanel::onMouseMoveEvent(tpMouseEvent *event)
 			// 纵向
 			offset = curPoint.y - set->updatePoint_.y;
 
+			// std::cout << "******* this  " << this << std::endl;
 			// std::cout << " *******curPoint.y " << curPoint.y << "   set->updatePoint_.y " << set->updatePoint_.y << std::endl;
 			// std::cout << " *******offset " << offset << std::endl;
 			// std::cout << "******verticalPostion() " << verticalPostion() << std::endl;

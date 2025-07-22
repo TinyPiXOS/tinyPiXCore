@@ -7,7 +7,7 @@
 
 static inline ItpPoint selfToScreenPoint(tpObject *object, int32_t x, int32_t y)
 {
-    ItpPoint point = {x, y};
+    ItpPoint point(x, y);
 
     ItpObjectSet *set = static_cast<ItpObjectSet *>(object->objectSets());
     if (!set)

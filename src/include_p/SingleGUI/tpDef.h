@@ -129,6 +129,7 @@ struct ItpObjectSet
 
 	bool isHover = false;
 	bool isPress = false;
+	ItpPoint pressPoint;
 
 	// 圆角值，单位px
 	uint32_t round = 0;

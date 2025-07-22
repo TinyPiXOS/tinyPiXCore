@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <functional>
-#include <list>
+#include <vector>
 #include <mutex>
 #include <algorithm>
 #include <tuple>
@@ -211,13 +211,13 @@ public:
 	void emit(_ArgTypes... args)
 	{
 		// 复制当前连接以避免死锁
-		std::list<Connection> current_connections;
+		std::vector<Connection> currentConnections;
 		{
 			std::lock_guard<std::mutex> lock(gMutex_);
-			current_connections = connections_;
+			currentConnections = connections_;
 		}
 
-		for (const auto &conn : current_connections)
+		for (const auto &conn : currentConnections)
 		{
 			if (conn.type == tinyPiX::AutoConnection)
 			{
@@ -323,7 +323,7 @@ private:
 
 private:
 	std::mutex gMutex_;
-	std::list<Connection> connections_;
+	std::vector<Connection> connections_;
 };
 
 #define declare_signal(signal, ...) tpSignal<__VA_ARGS__> signal
