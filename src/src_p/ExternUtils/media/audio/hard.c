@@ -141,7 +141,7 @@ static int get_snd_volume(const char *name)
 	struct MediaVolumeHard mixer;
 	if(err=open_vloume_hard(name,&mixer)<0)
 		return -1;
-	else if(err==0)
+	else if(err==0)	//没有找到混音器元素，不能甚至硬件音量
 		return -1;
 	if (snd_mixer_selem_get_playback_volume(mixer.elem, SND_MIXER_SCHN_FRONT_LEFT, &volume_get) < 0) {
 		fprintf(stderr, "Error getting current volume\n");

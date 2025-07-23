@@ -21,6 +21,7 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libswresample/swresample.h>
 #include "../media/media.h"
+#include "../video/media_timer.h"
 #include "audio_play.h"
 #include "audio_codec.h"
 #include "filter.h"
@@ -196,16 +197,28 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
 int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 {
 	int ret;
+	int64_t pts=0;
+	uint8_t have_audio_card=0;
+	struct SwrContext *swr_ctx;
 	AVCodecContext *codec_ctx=audio->codec_ctx;
 	struct AudioStreamParams *hard_param=audio->hard_param;
+	AVStream* audioStream=audio->format_ctx->streams[audio->stream_index];	//流参数
+	if(audio->callback_play)
+	{
+		printf("[Debug]: 声卡可以使用\n");
+		have_audio_card=1;
+	}
 
-	struct SwrContext *swr_ctx = swr_set_with_hard_param(codec_ctx,hard_param);
-    if (!swr_ctx || swr_init(swr_ctx) < 0) {
-        fprintf(stderr, "Could not initialize resampler\n");
-		avcodec_free_context(&codec_ctx);
-		avformat_close_input(&audio->format_ctx);
-        return -1;
-    }
+	if(have_audio_card)
+	{
+		swr_ctx = swr_set_with_hard_param(codec_ctx,hard_param);
+		if (!swr_ctx || swr_init(swr_ctx) < 0) {
+			fprintf(stderr, "Could not initialize resampler\n");
+			avcodec_free_context(&codec_ctx);
+			avformat_close_input(&audio->format_ctx);
+			return -1;
+		}
+	}
 
 	// 分配缓冲区
 //	int max_samples = 4096; // 设置一个初始值，可根据需要调整
@@ -238,8 +251,9 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 		avformat_close_input(&audio->format_ctx);
         return -1;
     }
-
+	struct TimerHandle *clock=timer_ofday_handle_creat();;
 	Audio_Set_State(conf,AUDIO_STATE_PLAYING);
+	clock->start(clock);
 	while (av_read_frame(audio->format_ctx, packet) >= 0) 
 	{
 		AudioPlayCommand cmd=(AudioPlayCommand )(conf->command_get(conf));
@@ -247,7 +261,9 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 		{
 			case AUDIO_PLCMD_SUSPEND:	//暂停时等待重新播放
 				Audio_Set_State(conf,AUDIO_STATE_PAUSEING);
+				clock->pause(clock);
 				conf->cond->wait(conf->cond);
+				clock->resume(clock);
 				Audio_Set_State(conf,AUDIO_STATE_PLAYING);
 				break;
 			case AUDIO_PLCMD_NEXT:
@@ -269,7 +285,13 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 		if((ret=Audio_Get_Position_S(conf))>=0)
 		{
 			seek_to_position(audio,ret);
-			Audio_Set_BytePosition(conf,ret*hard_param->byteFrams);
+			if(have_audio_card)
+				Audio_Set_BytePosition(conf,ret*hard_param->byteFrams);
+			else
+			{
+				clock->adjust_time(clock,ret*1000*1000);
+				Audio_Set_Position_N(conf,ret);
+			}
 			printf("Audio_Set_BytePosition:%d\n",ret*hard_param->byteFrams);
 			avcodec_flush_buffers(codec_ctx); // 清空解码器缓冲区
 		}
@@ -291,6 +313,29 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 					break;
 				}
 
+
+				//用于声卡有问题的时候直接播放
+				double audio_clock;
+				if(!have_audio_card)
+				{
+					pts = frame->pts;		//侦的位置
+					if (pts == AV_NOPTS_VALUE) {
+						pts = frame->best_effort_timestamp;		//该值无效则使用默认的值
+					}
+					float speed=Audio_Get_Speed(conf);
+					audio_clock=(double)pts * av_q2d(audioStream->time_base)*1000.0*1000.0/speed;	//time_base为s
+					double delay_time=audio_clock-clock->get_run_time(clock);
+					if(delay_time>0)
+					{
+						//debug_printf("延时%lfus\n",delay_time);
+						usleep(delay_time);
+					}
+					else if(delay_time< (-VIDEO_FRAME_LAG_LOSS_TIME))
+					{
+						//printf("===========舍弃====\n");
+						break;
+					}
+				}
 				/*if (frame->nb_samples > max_samples) 
 				{		
 					max_samples = frame->nb_samples;
@@ -308,27 +353,37 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 				AVFrame *convert_frame = alloc_avframe_frames_hard(frame->nb_samples,hard_param);
 				if(!convert_frame)
 				{
+					printf("convert_frame\n");
 					continue;
 				}
 
-				int samples_converted = swr_convert(swr_ctx, convert_frame->data, frame->nb_samples, (const uint8_t **)frame->data, frame->nb_samples);
-				if(samples_converted<=0)
+				if(have_audio_card)
 				{
-					free_avframe(&convert_frame);
-					continue;
+					int samples_converted = swr_convert(swr_ctx, convert_frame->data, frame->nb_samples, (const uint8_t **)frame->data, frame->nb_samples);
+					if(samples_converted<=0)
+					{
+						free_avframe(&convert_frame);
+						printf("samples_converted<0\n");
+						continue;
+					}
+
+					audio->callback_play((uint8_t *)convert_frame, samples_converted,1,audio->callback_param );		//callback_codec_play
+				}
+				else{		//手动设置进度
+					Audio_Set_Position_N(conf,(int32_t)(audio_clock/1000.0/1000.0));
 				}
 
-				audio->callback_play((uint8_t *)convert_frame, samples_converted,1,audio->callback_param );		//callback_codec_play
-				
 				free_avframe(&convert_frame);
 			}
 		}
 		av_packet_unref(packet);
 	}
 EXIT:
+	timer_ofday_handle_free(clock);
 	av_packet_free(&packet);
 	av_frame_free(&frame);
-	swr_free(&swr_ctx);
+	if(have_audio_card)
+		swr_free(&swr_ctx);
 	avcodec_free_context(&codec_ctx);
     avformat_close_input(&audio->format_ctx);
 	return 0;
