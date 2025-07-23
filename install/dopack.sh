@@ -1,10 +1,11 @@
 #!/bin/bash
-# 修正版：保留完整映射功能 + 相对路径支持 + 软链接生成
-
+# 使用./dopack.sh <架构>
+# 架构可以设置x86_64或arm_64,如果不设置会按照当前环境默认打包
 # ====================== 配置区域 ======================
-OUTPUT_NAME="tinyPiXCore.run"	# 生成的安装包的名字
+BASE_NAME="tinyPiXCore" 	# 生成的安装包的名字,会自动拼接架构和后缀
 TMP_ROOT_DIR="package_build"	# 生成的临时文件的名字
 KEEP_TMP_DIR=false		# 是否保留中间生成的打包源文件
+SCRIPTS_DIR="config"	# 禁止修改，如果需要修改，需要同步修“改智能安装器“部分的SCRIPTS_DIR
 
 if [ $# -ge 1 ]; then
     ARCH="$1"
@@ -17,20 +18,21 @@ declare -A PATH_MAPPINGS=(
     # 相对路径会自动转换为绝对路径
     # 格式: [源目录]="模式:目标路径"
 	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新)
-    ["./$ARCH/lib"]="overwrite:/usr/lib/tinyPiX"
-	["./$ARCH/bin"]="overwrite:/usr/bin/tinyPiX"
+    ["./{ARCH}/lib"]="overwrite:/usr/lib/tinyPiX"
+	["./{ARCH}/bin"]="overwrite:/usr/bin/tinyPiX"
 
-	["../src/depend_lib/dynamic/$ARCH"]="update:/usr/lib/tinyPiX"
-	["../src/depend_lib/static/$ARCH"]="update:/usr/lib/tinyPiX"
+	["../src/depend_lib/dynamic/{ARCH}"]="update:/usr/lib/tinyPiX"
+#	["../src/depend_lib/static/{ARCH}"]="update:/usr/lib/tinyPiX"
     
     # 示例 2: 数据目录重定位
-    ["./$ARCH/data"]="update:/usr/data/tinyPiX"  # 源目录安装到新位置
+    ["./{ARCH}/data"]="update:/usr/data/tinyPiX"  # 源目录安装到新位置
     
     # 示例 3: 头文件
-    ["./$ARCH/include"]="overwrite:/usr/include/tinyPiX"
+    ["./{ARCH}/include"]="overwrite:/usr/include/tinyPiX"
     
     # 示例 4: 资源文件到自定义位置
-	["./$ARCH/res"]="update:/usr/res/tinyPiX"
+	["./{ARCH}/res"]="update:/usr/res/tinyPiX"
+
 )
 # =====================================================
 
@@ -139,11 +141,32 @@ intelligent_copy() {
 
 # ---------------------- 主流程 ----------------------
 echo "===== 开始灵活路径打包 ====="
+#解析架构
+ACTUAL_ARCH=$(resolve_architecture)
+#拼接输出文件名
+OUTPUT_NAME="${BASE_NAME}_${ACTUAL_ARCH}.run"
 
 # 1. 创建临时根目录
 echo "▸ 创建临时工作区: $TMP_ROOT_DIR"
 rm -rf "$TMP_ROOT_DIR"
 safe_mkdir "$TMP_ROOT_DIR"
+
+
+#需要打包的脚本文件
+echo "▸ 添加安装脚本目录: $SCRIPTS_DIR"
+if [ -d "$SCRIPTS_DIR" ]; then
+    # 复制整个脚本目录
+    cp -r "$SCRIPTS_DIR" "$TMP_ROOT_DIR/"
+    echo "    ✓ 已添加脚本目录"
+    
+    # 列出所有脚本
+    echo "    ▸ 包含的脚本:"
+    find "$SCRIPTS_DIR" -type f -name "*.sh" | while read -r script; do
+        echo "      - $(basename "$script")"
+    done
+else
+    echo "  ⚠️  警告: 找不到安装脚本目录: $SCRIPTS_DIR"
+fi
 
 # 2. 创建路径映射表
 MAPPING_FILE="$TMP_ROOT_DIR/path_mappings"
@@ -227,7 +250,7 @@ done
 cat > "$TMP_ROOT_DIR/installer.sh" <<'EOF'
 #!/bin/bash
 # TinyPiXOS 智能安装器 (完整覆盖版)
-
+SCRIPTS_DIR="config"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 show_help() {
@@ -236,6 +259,70 @@ show_help() {
     echo "  -t, --target DIR     指定安装目标目录 (默认: /)"
     echo "  -d, --dry-run        模拟运行不实际修改"
     echo "  -h, --help           显示帮助信息"
+}
+
+# ====================== 通用脚本执行框架 ======================
+run_install_scripts() {
+    local phase="$1"  # "pre" 或 "post"
+    local scripts_dir="${SCRIPT_DIR}/$SCRIPTS_DIR"
+    
+    echo "▸ 执行 $phase 阶段脚本"
+    
+    if [ ! -d "$scripts_dir" ]; then
+        echo "  ℹ️  未找到脚本目录"
+        return 0
+    fi
+    
+    # 获取所有脚本并按文件名排序
+    local script_files=()
+    while IFS= read -r -d $'\0' file; do
+        script_files+=("$file")
+    done < <(find "$scripts_dir" -type f -name "*.sh" -print0 | sort -z)
+    
+    if [ ${#script_files[@]} -eq 0 ]; then
+        echo "  ℹ️  未找到脚本"
+        return 0
+    fi
+    
+    # 执行所有脚本
+    local script_count=0
+    for script_path in "${script_files[@]}"; do
+        script_name=$(basename "$script_path")
+        script_count=$((script_count + 1))
+        
+        echo "  → [$script_count] 执行: $script_name"
+        echo "     路径: $script_path"
+        echo "     参数: $TARGET_DIR"
+        
+        # 设置执行权限
+        chmod +x "$script_path"
+        
+        if $DRY_RUN; then
+            echo "    [模拟] 跳过执行"
+            continue
+        fi
+        
+        # 执行脚本
+        if /bin/bash "$script_path" "$TARGET_DIR"; then
+            echo "    ✅ 脚本执行成功"
+        else
+            local exit_code=$?
+            echo "    ❌ 脚本执行失败 (退出码: $exit_code)" >&2
+            return $exit_code
+        fi
+    done
+    
+    echo "    ✓ 所有脚本执行完成 ($script_count 个)"
+    return 0   
+}
+
+# ====================== 安装阶段定义 ======================
+run_pre_install_scripts() {
+    run_install_scripts "pre" "$TARGET_DIR"
+}
+
+run_post_install_scripts() {
+    run_install_scripts "post" "$TARGET_DIR"
 }
 
 # 参数解析
@@ -264,7 +351,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# 修复点1: 直接使用脚本所在目录的映射文件
+# 直接使用脚本所在目录的映射文件
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 MAPPING_FILE="$SCRIPT_DIR/path_mappings"
 
@@ -289,14 +376,49 @@ echo "目标目录: $TARGET_DIR"
 echo "映射文件: $MAPPING_FILE"
 
 # 检查系统依赖包 ----------------------------------------
+# libsdl2-image-dev libsdl2-gfx-dev	,改为编译安装
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
+	libsdl2-image-dev libsdl2-gfx-dev
+    libcairo2-dev libpango1.0-dev libglib2.0-dev
+    libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev
+    libgbm-dev libgles2 libegl-dev 
 	librsvg2-dev libssl-dev libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev
 	bluez-obexd bluez-alsa-utils libasound2-plugin-bluez
 	libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 )
 
+#网络检查函数
+check_network() {
+    local servers=("google.com" "8.8.8.8" "1.1.1.1")
+    local connected=0
+    
+    echo "▸ 检查网络连接..."
+    
+    for server in "${servers[@]}"; do
+        echo "  测试连接到: $server"
+        if ping -c 1 -W 1 "$server" &> /dev/null; then
+            echo "  ✓ 可以连接到 $server"
+            connected=1
+            break
+        fi
+    done
+    
+    if [ $connected -eq 0 ]; then
+        echo " 错误: 无法连接到任何网络服务器" >&2
+        echo "  • 请检查您的网络连接" >&2
+        echo "  • 或者使用离线安装包" >&2
+        return 1  # 改为返回错误码而不是退出
+    fi
+    
+    echo "✓ 网络连接正常"
+    return 0
+}
+
 check_and_install_packages() {
+	local has_network=$1  # 接收网络状态参数
+    shift  # 移除第一个参数，剩余参数为包列表
+
     if ! command -v apt-get >/dev/null; then
         echo "[错误] 只支持基于Debian的系统（如Ubuntu）自动安装依赖包" >&2
         echo "请手动安装以下包：${packages[*]}" >&2
@@ -304,24 +426,47 @@ check_and_install_packages() {
     fi
 
     # 更新包索引
-    echo "  更新包列表..."
-    apt-get update >/dev/null
+	 if [ $has_network -eq 0 ]; then
+        echo "▸ 更新包列表..."
+        if ! apt-get update >/dev/null; then
+            echo "❌ 更新包列表失败" >&2
+            return 1
+        fi
+    fi
 
     for pkg in "$@"; do
         # 方法1：使用 dpkg-query 精确检查（推荐）
         if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
             echo "  ✓ $pkg 已安装"
         else
+            # 如果没有网络连接，无法安装新包
+            if [ $has_network -ne 0 ]; then
+                echo "❌ 错误: $pkg 未安装且无网络连接" >&2
+                echo "  • 请手动安装此包或检查网络连接" >&2
+                return 1
+            fi
+            
             echo "  ▸ 正在安装 $pkg ..."
             if ! apt-get install -y "$pkg" >/dev/null; then
-                echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
-                exit 1
+                echo "❌ 安装 $pkg 失败，请检查软件源配置" >&2
+                return 1
             fi
+            echo "  ✓ $pkg 安装成功"
         fi
     done
 }
 
-check_and_install_packages "${packages[@]}"
+if check_network; then
+    has_network=0  # 有网络
+else
+    has_network=1  # 无网络
+fi
+
+# 安装依赖包，传递网络状态和包列表
+if ! check_and_install_packages $has_network "${packages[@]}"; then
+    echo "❌ 依赖包检查/安装失败" >&2
+    exit 1
+fi
 
 # ====================== 文件复制逻辑 ======================
 # 处理映射表
@@ -518,7 +663,36 @@ create_symlinks() {
     else
         echo "  ⚠️  二进制目录不存在: $BIN_DIR"
     fi
+
+	#3. 字体库文件链接
+	FONTS_DIR="${TARGET_DIR}/usr/data/tinyPiX/fonts"
+	if [ -d "$FONTS_DIR" ]; then
+		echo "  → 处理字体源目录: $FONTS_DIR"
+		# 目标字体目录 (此处直接放用户目录避免嵌套)
+		FONT_TARGET_DIR="${TARGET_DIR}/usr/share/fonts/opentype/tinyPiX"
+		mkdir -p "$FONT_TARGET_DIR"
+		
+		# 遍历字体目录中的文件
+		find "$FONTS_DIR" -maxdepth 1 -type d ! -path "$FONTS_DIR" | while read -r font_dir; do
+        dir_name=$(basename "$font_dir")
+        link_path="${FONT_TARGET_DIR}/${dir_name}"
+        
+        # 安全创建整个目录的链接
+        if safe_create_link "$link_path" "$font_dir"; then
+            echo "    ✓ $link_path → $font_dir"
+        fi
+		
+		#更新字体库缓存
+		sudo fc-cache -fv "$FONT_TARGET_DIR"
+    	[ $? -eq 0 ] && echo "    ✓ 字体缓存更新成功"
+    done
+	else
+		echo "  ⚠️  字体源目录不存在: $FONTS_DIR"
+	fi
 }
+
+#调用脚本执行
+run_post_install_scripts
 
 # 在文件复制后调用
 create_symlinks
@@ -548,7 +722,7 @@ tail -n +$ARCHIVE_START "$0" | base64 -d | tar -xzf - -C "$EXTRACT_DIR"
 
 # 增加调试：检查解压内容
 echo "▸ 解压目录内容:"
-ls -lR "$EXTRACT_DIR"
+#ls -lR "$EXTRACT_DIR"
 
 # 执行安装器
 if [ -n "$INSTALL_DIR" ]; then
@@ -561,7 +735,7 @@ fi
 
 # 清理
 rm -rf "$EXTRACT_DIR"
-echo "✅ 安装流程完成!"
+echo "安装流程完成!"
 exit 0
 
 __ARCHIVE_BELOW__

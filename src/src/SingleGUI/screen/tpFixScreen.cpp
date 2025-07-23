@@ -129,7 +129,7 @@ int32_t tpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t 
 		screenData->color = color;
 		screenData->attr = screenAttr;
 
-		return tinyPiX_wf_send_app_state(set->agent, TP_INVALIDATE_VALUE, this->rotate(), this->visible(), this->objectActive(), color, alpha, screenAttr);
+		return tinyPiX_wf_send_app_state(set->agent, TP_INVALIDATE_VALUE, this->visible(), this->objectActive(), color, alpha, screenAttr);
 	}
 
 	return false;
@@ -198,15 +198,6 @@ void tpFixScreen::setVarShape(void *shape)
 void *tpFixScreen::varShape()
 {
 	return nullptr;
-}
-
-bool tpFixScreen::onRotateEvent(tpObjectRotateEvent *event)
-{
-	tpFixScreenData *screenData = static_cast<tpFixScreenData *>(data_);
-	if (!screenData)
-		return false;
-
-	return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
 }
 
 bool tpFixScreen::onActiveEvent(tpObjectActiveEvent *event)

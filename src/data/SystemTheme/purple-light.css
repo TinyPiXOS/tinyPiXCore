@@ -107,7 +107,7 @@ tpPanelSwitchButton {
   padding-top: 25dp;
   padding-bottom: 25dp;
   gap: 31dp;
-  icon-size: 50dp;
+  /* icon-size: 50dp; */
   icon-background: rgba(240, 240, 240, 0.3);
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 29;
@@ -344,4 +344,10 @@ tpSlider {
   border-radius: 5;
   background-color: rgba(255, 255, 255, 0.5);
   sub-color: rgb(140, 29, 235);
+}
+
+tpRadioButton {
+  color: rgb(38, 38, 38);
+  border-color: rgb(38, 38, 38);
+  background-color: rgb(38, 38, 38);
 }

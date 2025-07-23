@@ -63,13 +63,6 @@ bool mainWindowService::onResizeEvent(tpObjectResizeEvent *event)
     return true;
 }
 
-bool mainWindowService::onRotateEvent(tpObjectRotateEvent *event)
-{
-    std::cout << "mainWindowService::onRotateEvent" << std::endl;
-
-    return true;
-}
-
 bool mainWindowService::onActiveEvent(tpObjectActiveEvent *event)
 {
     std::cout << "mainWindowService::onActiveEvent" << std::endl;

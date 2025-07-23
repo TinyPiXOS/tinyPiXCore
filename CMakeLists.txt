@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(tinyPiXCore VERSION 1.0.0 LANGUAGES C CXX)
 
 # 设置构建生成的根目录
@@ -33,14 +33,42 @@ add_subdirectory(PiXGUIFramework/exampleGUI)
 add_subdirectory(PiXService)
 
 # 平台不同拷贝资源文件到不同安装目录；以及准备不同平台的安装依赖库
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-    message(STATUS "============X86 平台============")
-    set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
-    set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
-    message(STATUS "============ARM 平台============")
-    set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
-    set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
+# 首选方案：使用 CMAKE_CROSSCOMPILING 和自定义变量
+if(DEFINED TARGET_ARCH)
+    # 显式指定目标架构优先
+    if(TARGET_ARCH STREQUAL "x86_64")
+        message(STATUS "============ 目标平台: X86_64 ============")
+        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
+        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
+    elseif(TARGET_ARCH STREQUAL "arm64" OR TARGET_ARCH STREQUAL "aarch64")
+        message(STATUS "============ 目标平台: ARM64 ============")
+        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
+        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
+    endif()
+elseif(CMAKE_CROSSCOMPILING)
+    # 交叉编译时获取目标架构
+    message(STATUS "============ 交叉编译目标平台: ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR} ============")
+    
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
+        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
+        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
+        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
+        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
+    else()
+        message(WARNING "未知的目标平台架构: ${CMAKE_SYSTEM_PROCESSOR}")
+    endif()
+else()
+    # 本机编译
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
+        message(STATUS "============ 本机平台: X86_64 ============")
+        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
+        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
+        message(STATUS "============ 本机平台: ARM ============")
+        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
+        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
+    endif()
 endif()
 
 # 创建一个虚拟目标用于执行自定义命令，清理安装目录
@@ -51,8 +79,8 @@ add_custom_target(clean_install_directory
     COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_RESOURCE_DIR}"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_DATA_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_DATA_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_BIN_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_BIN_DIR}"
+    # COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_BIN_DIR}"
+    # COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_BIN_DIR}"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_PACKAGE_ROOT_PATH}"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_PACKAGE_ROOT_PATH}"   
     COMMENT "Cleaning install directory for headers and res"

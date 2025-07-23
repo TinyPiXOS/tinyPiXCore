@@ -237,7 +237,7 @@ bool tpMenu::onMousePressEvent(tpMouseEvent *event)
 
 bool tpMenu::onMouseRleaseEvent(tpMouseEvent *event)
 {
-	if (event->button() == BUTTON_LEFT)
+	if (event->button() != BUTTON_LEFT)
 		return true;
 
 	tpMenuData *menuData = static_cast<tpMenuData *>(data_);
@@ -248,6 +248,7 @@ bool tpMenu::onMouseRleaseEvent(tpMouseEvent *event)
 	onClicked.emit(clickIndex);
 
 	setVisible(false);
+	// update();
 
 	return true;
 }

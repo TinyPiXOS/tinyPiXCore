@@ -84,7 +84,6 @@ struct ItpObjectSet
 	bool enable = true;
 
 	char text[OBJECT_MAX_TEXT_LENGTH];
-	bool enableRotate;
 
 	std::mutex layoutMutex;
 	tpLayout *layout = nullptr;
@@ -130,6 +129,7 @@ struct ItpObjectSet
 
 	bool isHover = false;
 	bool isPress = false;
+	ItpPoint pressPoint;
 
 	// 圆角值，单位px
 	uint32_t round = 0;
@@ -146,7 +146,12 @@ struct ItpObjectSet
 	// tpObjectStack *objectStack = nullptr;
 	ItpTempDef tmp;
 
+	// 对象属性信息
 	tpHash<tpString, tpVariant> objPropertyMap;
+
+	// 缓存有多少发送者信号绑定了自己
+	tpVector<std::pair<void*, uintptr_t>> slotConnections_;
+    std::mutex slotConnectMutex_;
 
 	ItpObjectSet()
 	{
@@ -347,37 +352,46 @@ typedef struct
 	};
 } ItpObjectActiveSet;
 
+// static int64_t testCount = 0;
+
+// // 使用 type alias 简化代码
+// using Clock = std::chrono::high_resolution_clock;
+// using Duration = std::chrono::duration<double>;
+// using TimePoint = std::chrono::time_point<Clock>;
+
 #endif
 
 // (触发事件的对象指针，事件数据，事件函数名，对象是否是可用态（外部传入，这样可以控制某些事件在disbled状态下也可触发事件，例如resize）)
 #ifndef IssueObjEvent
-#define IssueObjEvent(Obj, keyEvent, eventFuncName, enabled)             \
-	do                                                                   \
-	{                                                                    \
-		if (!enabled)                                                    \
-			break;                                                       \
-		tpObject *_current = (Obj)->eventFilterObject();                 \
-		tpObject *_filterStack[16] = {0};                                \
-		int _depth = 0;                                                  \
-		while (_current && _depth < 16)                                  \
-		{                                                                \
-			_filterStack[_depth++] = _current;                           \
-			_current = _current->eventFilterObject();                    \
-		}                                                                \
-		bool _handled = false;                                           \
-		for (int _i = _depth - 1; _i >= 0; --_i)                         \
-		{                                                                \
-			tpObject *lastObj = (_i > 0) ? _filterStack[_i - 1] : (Obj); \
-			if (_filterStack[_i]->eventFilter((lastObj), &keyEvent))     \
-			{                                                            \
-				_handled = true;                                         \
-				break;                                                   \
-			}                                                            \
-		}                                                                \
-		if (!_handled)                                                   \
-		{                                                                \
-			(Obj)->eventFuncName(&keyEvent);                             \
-			_handled = true;                                             \
-		}                                                                \
+#define IssueObjEvent(Obj, keyEvent, eventFuncName, enabled)             		\
+	do                                                                   		\
+	{                                                                    		\
+		if (!enabled)                                                    		\
+			break;                                                       		\
+		tpObject *_current = (Obj)->eventFilterObject();                 		\
+		tpObject *_filterStack[16] = {0};                                		\
+		int _depth = 0; /*std::cout << "计数： "<< testCount++ << "  " << #eventFuncName << std::endl;*/   \
+		while (_current && _depth < 16)                                  		\
+		{                                                                		\
+			_filterStack[_depth++] = _current;                           		\
+			_current = _current->eventFilterObject();                    		\
+		}/*std::cout << "过滤层数 " << _depth << std::endl;*/            		\
+		bool _handled = false;                                           		\
+		for (int _i = _depth - 1; _i >= 0; --_i)                         		\
+		{   /*TimePoint start = Clock::now();*/                              	\
+			tpObject *lastObj = (_i > 0) ? _filterStack[_i - 1] : (Obj); 		\
+			if (_filterStack[_i]->eventFilter((lastObj), &keyEvent))     		\
+			{                                                            		\
+				_handled = true;                                         		\
+				break;                                                   		\
+			} /*TimePoint end = Clock::now();Duration elapsed = end - start;*/ 	\
+			/*std::cout << " 第 " << _i << " 层 执行耗时: " << elapsed.count() * 1000000 << " 微秒 (us)" << std::endl; \
+			std::cout << " 第 " << _i << " 层 执行耗时: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << " 毫秒 (ms)" << std::endl;*/ \
+		} /*std::cout << std::endl<< std::endl<< std::endl<< std::endl;*/    	\
+		if (!_handled)                                                   		\
+		{                                                                		\
+			(Obj)->eventFuncName(&keyEvent);                             		\
+			_handled = true;                                             		\
+		}                                                                		\
 	} while (0);
 #endif

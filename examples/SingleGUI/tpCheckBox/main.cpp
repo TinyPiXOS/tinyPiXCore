@@ -13,10 +13,13 @@ int32_t main(int32_t argc, char *argv[])
 	app.bindVScreen(vScreen);
 	
 	tpCheckBox *checkBox1 = new tpCheckBox(vScreen);
-	checkBox1->setText("123");
+	checkBox1->setText("CheckBox1");
 	checkBox1->setRect(100, 100, 80, 30);
 	
-	checkBox1->update();
+	tpCheckBox *checkBox2 = new tpCheckBox(vScreen);
+	checkBox2->setText("CheckBox2");
+	checkBox2->setRect(100, 150, 80, 30);
+
 	vScreen->update();
 
 	return app.run();

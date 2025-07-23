@@ -94,9 +94,9 @@ static uint8_t mapAlpha(uint8_t color, uint8_t alpha)
 #endif
 
 #ifndef WIDGET_MAX_WIDTH
-#define WIDGET_MAX_WIDTH 65536
+#define WIDGET_MAX_WIDTH 32767
 #endif
 
 #ifndef WIDGET_MAX_HEIGHT
-#define WIDGET_MAX_HEIGHT 65536
+#define WIDGET_MAX_HEIGHT 32767
 #endif

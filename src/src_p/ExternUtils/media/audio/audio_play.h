@@ -15,6 +15,7 @@ struct MediaParams;
 #include <stdbool.h>
 #include "audio_codec.h"
 
+#define NONE_AUDIO_CARD_PLAY	1	//允许无声卡播放
 #define DEBUG_AUUDIO		//调试打印接口
 //全局配置
 #define PCM_BUFFER_FRAMES	1024		//pcm的缓存区帧数，每次可以写入这么多侦的数量
@@ -168,7 +169,7 @@ struct MediaParams{        //公共区用户设置
 	struct{   //当前进度和用户设置进度(0-*s)                           初始化-1
 		int32_t position_s;
 		union{
-			double position_p;
+			double position_p;			//播放位置
 			int64_t position_bytes;		//已播放的字节数
 		};
 	};

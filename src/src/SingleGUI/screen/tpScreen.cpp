@@ -40,17 +40,6 @@ static std::atomic<bool> longPressActive{false}; // 原子标志位
 static std::unique_ptr<std::thread> pressThread; // 线程对象
 static std::mutex pressThreadMutex;				 // 保护线程状态
 
-static void paintEnabledBox(tpChildWidget *child, tpCanvas *paintCanvas)
-{
-	if (!child->enabled())
-	{
-		if (child->roundCorners() != 0)
-			paintCanvas->roundedBox(0, 0, child->width(), child->height(), child->roundCorners(), _RGBA(192, 192, 192, 125));
-		else
-			paintCanvas->box(0, 0, child->width(), child->height(), _RGBA(192, 192, 192, 125));
-	}
-}
-
 static inline void timer_delay(unsigned long long usec)
 {
 	struct timeval tv;
@@ -81,55 +70,6 @@ static inline void generateParentList(tpObject *object, std::list<tpObject *> &l
 
 			parent = parent->parent();
 		}
-	}
-}
-
-static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
-{
-	if (!set)
-		return;
-
-	std::list<tpObject *>::iterator iter = set->objectList.begin();
-
-	for (; iter != set->objectList.end(); iter++)
-	{
-		tpChildWidget *child = dynamic_cast<tpChildWidget *>(*iter);
-		if (!child)
-			continue;
-
-		ItpRect updateIRect = events->updateRect();
-		tpRect updateRect(&updateIRect);
-
-		ItpRect childRect = child->toScreen();
-
-		if (!updateRect.intersect(&childRect))
-		{
-			continue;
-		}
-
-		if (!child->visible())
-			continue;
-
-		if (child->alpha() == 0)
-			continue;
-
-		ItpObjectSet *child_set = (ItpObjectSet *)child->objectSets();
-		tpObjectPaintEvent event;
-		ItpObjectPaintInput input;
-		input.object = child;
-		input.updateRect = events->updateRect();
-		input.surface = events->surface();
-		event.construct(&input);
-
-		bool ret = child->onPaintEvent(&event);
-
-		if (ret)
-		{
-			childPaint(child_set, &event);
-		}
-
-		// 控件不可用，绘制遮罩层
-		paintEnabledBox(child, event.canvas());
 	}
 }
 
@@ -200,6 +140,7 @@ static inline void broadMotion(tpObject *dragObject, tpObject *curMotionObject, 
 		motionEvent.construct(&mInput);
 
 		// 如果该对象安装了事件过滤器，先将事件传给事件过滤器
+		// std::cout << "1111++++++++++++Move++++++++++" << mInput.globalPos.x << " , " << mInput.globalPos.y << std::endl;
 		IssueObjEvent(childObj, motionEvent, onMouseMoveEvent, childObj->enabled());
 	}
 
@@ -218,6 +159,7 @@ static inline void broadMotion(tpObject *dragObject, tpObject *curMotionObject, 
 		motionEvent.construct(&mInput);
 
 		// 如果该对象安装了事件过滤器，先将事件传给事件过滤器
+		// std::cout << "222++++++++++++Move++++++++++" << mInput.globalPos.x << " , " << mInput.globalPos.y << std::endl;
 		IssueObjEvent(childMotionObj, motionEvent, onMouseMoveEvent, childMotionObj->enabled());
 
 		// 如果按下对象后鼠标移动，不再触发长按事件
@@ -526,37 +468,6 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
 	return true;
 }
 
-static inline int32_t transferRotate(int32_t id, int32_t rotate, uint32_t rw, uint32_t rh, void *args)
-{
-	tpChildWidget *object = (tpChildWidget *)args;
-	tpObjectRotateEvent event;
-	ItpObjectRotateSet input;
-	input.object = object;
-	input.rotate = (ItpRotateType)rotate;
-	event.construct(&input);
-
-#if 1
-	if (object->objectType() == TP_TOP_OBJECT)
-	{
-		ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
-
-		set->absoluteRect.x = 0;
-		set->absoluteRect.y = 0;
-		set->absoluteRect.w = rw;
-		set->absoluteRect.h = rh;
-
-		set->logicalRect.x = 0;
-		set->logicalRect.y = 0;
-		set->logicalRect.w = rw;
-		set->logicalRect.h = rh;
-	}
-#endif
-	object->onRotateEvent(&event);
-	doTransUpdate(object);
-
-	return true;
-}
-
 static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32_t question, void *args) // only for resolution
 {
 	tpChildWidget *object = (tpChildWidget *)args;
@@ -679,10 +590,10 @@ static inline int32_t transferReturn(int32_t id, void *args)
 	return ((tpScreen *)object)->returns();
 }
 
-static inline int32_t transferAppState(int32_t id, int32_t pid, int32_t rotate, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require, void *args)
+static inline int32_t transferAppState(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require, void *args)
 {
 	tpChildWidget *object = (tpChildWidget *)args;
-	return object->appChange(id, pid, rotate, visible, active, color, alpha, require);
+	return object->appChange(id, pid, visible, active, color, alpha, require);
 }
 
 tpScreen::tpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t h)
@@ -705,7 +616,6 @@ tpScreen::tpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
 		tinyPiX_wf_event_assign(set->agent, transferEvent);
 		tinyPiX_wf_focus_assign(set->agent, transferFocus);
 		tinyPiX_wf_leave_assign(set->agent, transferLeave);
-		tinyPiX_wf_rotate_assign(set->agent, transferRotate);
 		tinyPiX_wf_resize_assign(set->agent, transferResize);
 		tinyPiX_wf_visible_assign(set->agent, transferVisible);
 		tinyPiX_wf_moved_assign(set->agent, transferMoved);
@@ -811,60 +721,6 @@ void tpScreen::setText(const char *text)
 void tpScreen::setText(const tpString &text)
 {
 	this->setText(text.c_str());
-}
-
-void tpScreen::setRotateEnable(bool enabled)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		tinyPiX_wf_set_rotate_enable(set->agent, enabled);
-		set->enableRotate = enabled;
-	}
-}
-
-bool tpScreen::rotateEnable()
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-	bool enable = false;
-
-	if (set)
-	{
-		enable = set->enableRotate;
-	}
-
-	return enable;
-}
-
-void tpScreen::setRotate(ItpRotateType type)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		if (set->enableRotate)
-		{
-			if (set->visible &&
-				this->actived())
-			{
-				tinyPiX_wf_set_rotate(set->agent, type);
-			}
-		}
-	}
-}
-
-ItpRotateType tpScreen::rotate()
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-	ItpRotateType rotate = TP_ROT_0;
-
-	if (set)
-	{
-		rotate = (ItpRotateType)tinyPiX_wf_get_rotate(set->agent);
-	}
-
-	return rotate;
 }
 
 void tpScreen::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
@@ -985,29 +841,6 @@ void tpScreen::setAlpha(const uint8_t &alpha)
 	}
 }
 
-void tpScreen::setColorKey(bool enable, uint32_t colorKey)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		tinyPiX_wf_set_colorkey(set->agent, colorKey, enable);
-		set->colorKey = colorKey;
-		set->enableColorKey = enable;
-	}
-}
-
-void tpScreen::setColorKeyEnable(bool enable)
-{
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (set)
-	{
-		tinyPiX_wf_set_colorkey(set->agent, set->colorKey, enable);
-		set->enableColorKey = enable;
-	}
-}
-
 void tpScreen::bringToTop()
 {
 	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
@@ -1028,82 +861,14 @@ void tpScreen::bringToBottom()
 	}
 }
 
-void tpScreen::update(tpRect &rect, bool clip, bool onlyBlit, bool sync)
-{
-	this->update(rect.X0(), rect.Y0(), rect.width(), rect.height(), clip, onlyBlit, sync);
-}
-
-void tpScreen::update(ItpRect &rect, bool clip, bool onlyBlit, bool sync)
-{
-	this->update(rect.x, rect.y, rect.w, rect.h, clip, onlyBlit, sync);
-}
-
-void tpScreen::update(ItpRect *rect, bool clip, bool onlyBlit, bool sync)
-{
-	if (rect)
-	{
-		this->update(rect->x, rect->y, rect->w, rect->h, clip, onlyBlit, sync);
-	}
-}
-
 void tpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool clip, bool onlyBlit, bool sync) //
 {
-	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
-
-	if (!set)
-		return;
-
-	// printf("id=%d, visible=%d, actived=%d\n", this->objectSysID(), set->visible, this->actived());
-	if (set->visible && this->actived())
-	{
-		tpRect updateRect(x, y, w, h);
-
-		tinyPiX_wf_lock_mutex(set->agent);
-
-		IPiDSSurface *surface_t = tinyPiX_wf_get_surface(set->agent);
-
-		if (surface_t == nullptr)
-		{
-			return;
-		}
-
-		tpSurface surface(surface_t);
-
-		ItpObjectPaintInput input;
-		tpObjectPaintEvent event;
-		input.object = this;
-
-		input.surface = &surface;
-
-		input.updateRect.x = updateRect.X0();
-		input.updateRect.y = updateRect.Y0();
-		input.updateRect.w = updateRect.width();
-		input.updateRect.h = updateRect.height();
-		event.construct(&input);
-
-		bool ret = this->onPaintEvent(&event);
-
-		if (ret)
-		{
-			childPaint(set, &event);
-		}
-
-		tinyPiX_wf_unlock_mutex(set->agent);
-
-		if (onlyBlit == false)
-		{
-			tinyPiX_wf_update(set->agent, input.updateRect.x, input.updateRect.y, input.updateRect.w, input.updateRect.h, clip, sync);
-		}
-	}
-	else
-	{
-		timer_delay(20000);
-	}
+	tpApp::Inst()->postUpdateEvent(this, x, y, w, h, clip, onlyBlit, sync);
 }
 
 void tpScreen::update(bool clip, bool onlyBlit, bool sync)
 {
-	this->update(this->toScreen().x, this->toScreen().y, this->width(), this->height(), clip, onlyBlit, sync);
+	update(this->toScreen().x, this->toScreen().y, this->width(), this->height(), clip, onlyBlit, sync);
 }
 
 void tpScreen::syncUpdate(bool clip, bool onlyBlit)

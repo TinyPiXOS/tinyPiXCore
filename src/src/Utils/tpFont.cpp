@@ -55,6 +55,7 @@ struct tpFontData
 	PangoFontMap *font_map = nullptr;
 	PangoFontDescription *font_desc = nullptr;
 	PangoLayout *layout = nullptr;
+
 	tpSurfaceArgs surface_args;
 	int32_t min_width = 0;
 	int32_t min_height = 0;
@@ -77,6 +78,29 @@ struct tpFontData
 	tpFontData()
 	{
 	}
+
+	// tpFontData &operator=(const tpFontData &others)
+	// {
+	// 	this->surface_args = others.surface_args;
+	// 	this->min_width = others.min_width;
+	// 	this->min_height = others.min_height;
+	// 	this->fgcolor = others.fgcolor;
+	// 	this->bgcolor = others.bgcolor;
+	// 	this->attrib = others.attrib;
+	// 	this->antialias = others.antialias;
+	// 	this->hinting = others.hinting;
+	// 	this->underline = others.underline;
+	// 	this->undercolor = others.undercolor;
+	// 	this->strokecolor = others.strokecolor;
+	// 	this->topcolor = others.topcolor;
+	// 	this->underwidth = others.underwidth;
+	// 	this->strokewidth = others.strokewidth;
+	// 	this->topwidth = others.topwidth;
+	// 	this->useMarkUp = others.useMarkUp;
+	// 	this->ptsize = others.ptsize;
+
+	// 	return *this;
+	// }
 };
 
 static inline unsigned int cal_stride(int width, int depth)
@@ -729,7 +753,7 @@ tpFontFamily *tpFont::getSysFamilyFont()
 	return (new tpFontFamily());
 }
 
-tpFont::tpFont(const char *family, int32_t defaultPtSize)
+tpFont::tpFont(const char *family, int32_t defaultPtSize): data_(nullptr)
 {
 	this->data_ = _createContext(family, defaultPtSize);
 }

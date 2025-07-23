@@ -57,7 +57,6 @@ private:
 	virtual void *varShape() final;
 
 public:
-	virtual bool onRotateEvent(tpObjectRotateEvent *event);
 	virtual bool onActiveEvent(tpObjectActiveEvent *event);
 
 private:

@@ -18,6 +18,26 @@ struct tpSoundData{
 	};
 };
 
+
+//获取单个声卡的配置信息
+static tpJsonObject getAudioCardAllConfig()
+{
+	
+}
+
+//获取声卡的配置信息中的指定值(object)
+static tpJsonObject getAudioCardConfig()
+{
+
+}
+
+//设置声卡的配置信息中的指定值(object)
+static tpJsonObject setAudioCardConfig()
+{
+
+}
+
+
 tpSound::tpSound(const tpString &name)
 {
 	data_=new tpSoundData;
@@ -37,7 +57,9 @@ tpSound::tpSound(tpAudioInterface *audio)
 tpSound::~tpSound()
 {
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
-
+	if(!data)
+		return ;
+	delete(data);
 }
 
 static void callback_get_audio_list(AudioCardDevice *device, void *user_data)
@@ -45,6 +67,8 @@ static void callback_get_audio_list(AudioCardDevice *device, void *user_data)
 	if(!device)
 		return ;
 	tpList<tpString> *list=static_cast<tpList<tpString> *>(user_data);
+	if(!list)
+		return ;
 	tpString card=tpString(device->hw) + tpString(" ") + tpString(device->name);
 	list->push_back(card);
 }
@@ -130,13 +154,17 @@ tpBool tpSound::setUsedDevice(const tpString& name)
 int tpSound::setAudio(tpAudioInterface *audio)
 {
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
-
+	if(!data)
+		return -1;
 	data->audio=audio;
+	return 0;
 }
 
 tpAudioInterface *tpSound::getAudio()
 {
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
+	if(!data)
+		return nullptr;
 	return data->audio;
 }
 
@@ -146,7 +174,7 @@ int tpSound::setVolume(tpUInt8 volume)
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
 	if(!data || !data->audio)
 		return -1;
-	data->audio->setVolume(volume);
+	return data->audio->setVolume(volume);
 }
 
 int tpSound::getVolume()
@@ -160,11 +188,15 @@ int tpSound::getVolume()
 int tpSound::setSystemVolume(tpUInt8 volume)
 {
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
+	if(!data)
+		return -1;
 	return Audio_Set_System_Volume(volume,data->card.c_str());
 }
 
 int tpSound::getSystemVolume()
 {
 	tpSoundData *data = static_cast<tpSoundData *>(data_);
+	if(!data)
+		return -1;
 	return Audio_Get_System_Volume(data->card.c_str());
 }

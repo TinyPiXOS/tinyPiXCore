@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(PiXExternUtils VERSION 1.0.0 LANGUAGES C CXX)
 
 # 指定C++标准
@@ -92,7 +92,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/tpSocketNotifier.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/tpSocketNotifierManager.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpAppDataDisk.cpp
-	${SOURCE_PATH}/src/ExternUtils/tpDisplayManage.cpp
+#	${SOURCE_PATH}/src/ExternUtils/tpDisplayManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpDisplay.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpCompress.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpCpu.cpp

@@ -20,7 +20,7 @@ int example_play_all()
 		printf("device:%s\n",it.c_str());
 	}
 
-	tpString device("hw:0,0 USB Audio");
+	tpString device("hw:3,0 USB Audio");
 	tpAudioInterface audio(device);
 	audio.setVolume(100);
 //	audio.addFile("https://gstreamer.freedesktop.org/data/media/medium/shoutout.mp3");		//添加网络的文件地址
@@ -36,8 +36,11 @@ int example_play_all()
 		printf("open device error\n");
 		return -1;
 	}
+	printf("开始播放\n");
 	audio.playStart();
 //audio.playNext();
+sleep(1);
+	printf("已经开始播放\n");
 	for(int i=0;i<5;i++)
 	{
 		printf("播放进度:%d s\n",audio.getPosition());

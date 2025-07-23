@@ -60,11 +60,11 @@ public:
     /// @brief 对当前时间添加指定毫秒数
     /// @param ms 毫秒数
     /// @return 返回添加指定毫秒数后的事件对象
-    tpTime addMSecs(int32_t ms) const;
+    tpTime addMSecs(int64_t ms) const;
     /// @brief 从当前时间到指定时间的时间间隔 毫秒
     /// @param t 指定时间
     /// @return 指定时间在当前时间之后为正，反之为负值
-    int32_t msecsTo(const tpTime &t) const;
+    int64_t msecsTo(const tpTime &t) const;
 
 public:
     tpTime &operator=(const tpTime &other) noexcept;

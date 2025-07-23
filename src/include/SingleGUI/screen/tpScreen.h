@@ -21,12 +21,6 @@ public:
 	virtual void setText(const tpString &text);
 
 public:
-	virtual void setRotateEnable(bool enabled = false);
-	virtual bool rotateEnable();
-	virtual void setRotate(ItpRotateType type);
-	virtual ItpRotateType rotate();
-
-public:
 	virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h) override;
 
 	/// @brief 设置窗口宽高
@@ -52,19 +46,12 @@ public:
 	virtual void setAlpha(const uint8_t &alpha = 0xff) override;
 
 public:
-	virtual void setColorKey(bool enable = false, uint32_t colorKey = 0);
-	virtual void setColorKeyEnable(bool enable = false);
-
-public:
 	virtual void bringToTop();
 	virtual void bringToBottom();
 
 public:
-	virtual void update(tpRect &rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-	virtual void update(ItpRect &rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-	virtual void update(ItpRect *rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-	virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool clip = true, bool onlyBlit = false, bool sync = false); // must override
-	virtual void update(bool clip = true, bool onlyBlit = false, bool sync = false);											 // must override
+	virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool clip = true, bool onlyBlit = false, bool sync = false) override;
+	virtual void update(bool clip = true, bool onlyBlit = false, bool sync = false) override;
 	virtual void syncUpdate(bool clip = true, bool onlyBlit = false);
 
 public:

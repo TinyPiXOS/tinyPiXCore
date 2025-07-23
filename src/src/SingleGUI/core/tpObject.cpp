@@ -55,7 +55,6 @@ tpObject::tpObject(tpObject *parent)
 	set->layout = nullptr;
 
 	set->visible = false;
-	set->enableRotate = false;
 
 	memset(set->text, 0, OBJECT_MAX_TEXT_LENGTH);
 	memset(&set->absoluteRect, 0, sizeof(ItpRect));
@@ -69,26 +68,41 @@ tpObject::~tpObject()
 {
 	bool ret = tpApp::Inst()->isExistObject(this, true);
 
-	if (ret)
+	if (!ret)
+		return;
+
+	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
+
+	if (!set)
+		return;
+
+	// {
+	// 	std::lock_guard<std::mutex> lock(set->slotConnectMutex_);
+	// 	// 对象销毁时断开所有关联连接
+	// 	while (!set->slotConnections_.empty())
+	// 	{
+	// 		auto [signal, connId] = set->slotConnections_.back();
+	// 		if (signal)
+	// 		{
+	// 			disconnect(signal)
+	// 		}
+	// 			signal->disconnect(connId);
+	// 		connections_.pop_back();
+	// 	}
+	// }
+
+	set->gMutex.lock();
+
+	if (set->parent)
 	{
-		ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-
-		if (set)
-		{
-			set->gMutex.lock();
-
-			if (set->parent)
-			{
-				ItpObjectSet *parent_set = (ItpObjectSet *)set->parent->objectSets();
-				delObject(parent_set, set->parent);
-			}
-
-			set->objectList.clear();
-			set->gMutex.unlock();
-
-			delete set;
-		}
+		ItpObjectSet *parent_set = (ItpObjectSet *)set->parent->objectSets();
+		delObject(parent_set, set->parent);
 	}
+
+	set->objectList.clear();
+	set->gMutex.unlock();
+
+	delete set;
 }
 
 void tpObject::setProperty(const tpString &_name, const tpVariant &_value)

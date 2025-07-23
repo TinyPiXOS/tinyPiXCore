@@ -188,6 +188,7 @@ void tpTimer::timerFunction()
         {
             // 定时器触发
             // std::cout << "Timer " << timerId << " triggered." << std::endl;
+            // std::cout << "定时器超时时间发送 "  << std::endl;
             timeout.emit();
 
             // 根据定时器类型调整下一次触发时间

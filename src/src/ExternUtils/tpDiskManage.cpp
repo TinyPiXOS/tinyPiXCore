@@ -8,6 +8,8 @@
 
 // #include <sys/mount.h>
 #include <iostream>
+#include <cstring>
+#include <string>
 #include <pthread.h>
 #include <atomic>
 #include <libgen.h>    // basename
@@ -34,21 +36,37 @@ struct tpDiskManageData
 
 // 读取挂载在 / 的块设备 basename
 static std::string get_root_partition() {
-    FILE *fp = setmntent("/proc/mounts", "r");
-    if (!fp) return "";
-
-    struct mntent *ent;
-    std::string root_part;
-    while ((ent = getmntent(fp))) {
-        if (ent->mnt_dir && std::string(ent->mnt_dir) == "/") {
-            // basename 会修改输入，所以先复制到缓冲
-            char buf[256];
-            strncpy(buf, ent->mnt_fsname, sizeof(buf)-1);
-            buf[sizeof(buf)-1] = '\0';
-            root_part = basename(buf);
-            break;
+std::string root_part;
+    FILE* fp = setmntent("/proc/mounts", "r");
+    if (!fp) return root_part;  // 返回空字符串
+    
+    struct mntent* ent;
+    while ((ent = getmntent(fp)) != nullptr) {
+        // 检查挂载点和文件系统名称的有效性
+        if (ent->mnt_dir && std::strcmp(ent->mnt_dir, "/") == 0) {
+            if (!ent->mnt_fsname || !*ent->mnt_fsname) {
+                // 文件系统名为空或无效
+                endmntent(fp);
+                return root_part;  // 返回空字符串
+            }
+            // 安全处理路径 - 使用动态缓冲区避免固定大小限制
+            // 计算所需缓冲区大小
+            const size_t len = std::strlen(ent->mnt_fsname);
+            std::vector<char> buf(len + 1);
+            
+            // 复制字符串
+            std::strcpy(buf.data(), ent->mnt_fsname);
+            
+            // 使用 basename 获取最后一部分
+            char* base = basename(buf.data());
+            if (base) {
+                root_part = base;
+            }
+            
+            break;  // 找到根分区后立即跳出循环
         }
     }
+    
     endmntent(fp);
     return root_part;
 }
@@ -132,6 +150,8 @@ static tpList<tpString> readListString()
 tpList<tpDisk *> tpDiskManage::getList()
 {
 	tpDiskManageData *dmData = static_cast<tpDiskManageData *>(data_);
+	if(dmData->is_runing)
+		return dmData->list;
 	monitorList(TP_TRUE,0);
 	return dmData->list;
 }
@@ -219,7 +239,7 @@ void tpDiskManage::monitorList(tpBool once,uint16_t samp)
 			dmData->is_geting=true;
 			break;
 		}
-			
+		//printf("[Debug]:当前磁盘数量%d\n",dmData->list.size());
 		std::this_thread::sleep_for(std::chrono::milliseconds(samp));
 	}
 }

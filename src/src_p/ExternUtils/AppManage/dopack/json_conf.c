@@ -13,7 +13,7 @@ static int json_conf_environment(struct json_object *dependencies,	char *types[M
 	if (json_object_get_type(dependencies) != json_type_array) 
 		return -1;
 
-	char *type,*value;	
+	const char *type,*value;	
 	int depend_count = json_object_array_length(dependencies);
 	if(depend_count>MAX_ITEMS)
 		depend_count=MAX_ITEMS;
@@ -23,12 +23,12 @@ static int json_conf_environment(struct json_object *dependencies,	char *types[M
 		json_object *object;
 		json_object_object_get_ex(item,"item",&object);
 		if (json_object_object_get_ex((const json_object *)item, "type", &object)) {
-			type=json_object_get_string((const json_object *)object);
+			type=json_object_get_string((json_object *)object);
 			if(!type)
 				return -1;
 		}
 		if (json_object_object_get_ex((const json_object *)item, "value", &object)) {
-			value=json_object_get_string((const json_object *)object);
+			value=json_object_get_string((json_object *)object);
 			if(!value)
 				return -1;
 		}
@@ -45,7 +45,7 @@ static int json_conf_dependencies(struct json_object *dependencies,	char *depend
 	if (json_object_get_type(dependencies) != json_type_array) 
 		return -1;
 
-	char *name,*version;	
+	const char *name,*version;	
 	int depend_count = json_object_array_length(dependencies);
 	if(depend_count>MAX_ITEMS)
 		depend_count=MAX_ITEMS;

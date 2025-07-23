@@ -24,7 +24,7 @@ struct MediaVolumeHard{
 };
 
 
-//
+//打开声卡的混音器设备
 static int open_vloume_hard(const char *name,struct MediaVolumeHard *mixer)
 {
 	snd_mixer_selem_id_t *selem_id; // 混音器元素ID
@@ -109,8 +109,12 @@ static int set_snd_volume(uint8_t volume,const char *name)
 	int err=0;
 	
 	struct MediaVolumeHard mixer;
-	if(open_vloume_hard(name,&mixer)<0)
+	if(err=open_vloume_hard(name,&mixer)<0)
 		return -1;
+	else if(err==0)
+	{
+		return -1;
+	}
 
 	// 设置音量值
 	long volume_set=(long)((mixer.max-mixer.min)*volume/100+mixer.min);
@@ -135,7 +139,9 @@ static int get_snd_volume(const char *name)
 	long volume_get;
 	int volume;
 	struct MediaVolumeHard mixer;
-	if(open_vloume_hard(name,&mixer)<0)
+	if(err=open_vloume_hard(name,&mixer)<0)
+		return -1;
+	else if(err==0)	//没有找到混音器元素，不能甚至硬件音量
 		return -1;
 	if (snd_mixer_selem_get_playback_volume(mixer.elem, SND_MIXER_SCHN_FRONT_LEFT, &volume_get) < 0) {
 		fprintf(stderr, "Error getting current volume\n");

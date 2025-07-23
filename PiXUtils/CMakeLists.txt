@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(PiXUtils VERSION 1.0.0 LANGUAGES C CXX)
 
 # 指定C++标准
@@ -52,6 +52,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/Utils/tpJsonObject.cpp
 	${SOURCE_PATH}/src/Utils/tpJsonValue.cpp
     ${SOURCE_PATH}/src/Utils/tpAppConfigIO.cpp
+    ${SOURCE_PATH}/src/Utils/tpThreadPool.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp

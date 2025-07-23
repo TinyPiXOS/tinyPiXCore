@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(PiXSingleGUI VERSION 1.0.0 LANGUAGES C CXX)
 
 # 指定C++标准
@@ -71,6 +71,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/SingleGUI/widgets/tpAnimation.cpp
     ${SOURCE_PATH}/src/SingleGUI/widgets/tpVirtualKeyboard.cpp
     ${SOURCE_PATH}/src/SingleGUI/widgets/tpImageWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/widgets/tpRadioButtonGroup.cpp
     ${SOURCE_PATH}/src_p/SingleGUI/core/tpObjectStack.cpp
 )
 

@@ -17,6 +17,8 @@ struct tpMenuPanelItemData
     tpChildWidget *customWidget = nullptr;
 
     tpHBoxLayout *mainLayout;
+
+    ItpPoint pressPoint;
 };
 
 tpMenuPanelItem::tpMenuPanelItem(tpChildWidget *parent)
@@ -174,25 +176,34 @@ tpChildWidget *tpMenuPanelItem::customizeWidget()
     return itemData->customWidget;
 }
 
+bool tpMenuPanelItem::onMousePressEvent(tpMouseEvent *event)
+{
+    tpChildWidget::onMousePressEvent(event);
+
+    tpMenuPanelItemData *itemData = static_cast<tpMenuPanelItemData *>(data_);
+    itemData->pressPoint = event->globalPos();
+
+    return true;
+}
+
 bool tpMenuPanelItem::onMouseRleaseEvent(tpMouseEvent *event)
 {
     tpChildWidget::onMouseRleaseEvent(event);
 
-    onClicked.emit(checked());
+    tpMenuPanelItemData *itemData = static_cast<tpMenuPanelItemData *>(data_);
+
+    ItpPoint mouseGlobalPos = event->globalPos();
+    if ((std::abs(mouseGlobalPos.x - itemData->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - itemData->pressPoint.y) <= 5))
+    {
+        onClicked.emit(checked());
+    }
 
     return true;
 }
 
-bool tpMenuPanelItem::onPaintEvent(tpObjectPaintEvent *event)
+bool tpMenuPanelItem::onMouseMoveEvent(tpMouseEvent *event)
 {
-    tpChildWidget::onPaintEvent(event);
-
-    return true;
-}
-
-bool tpMenuPanelItem::onResizeEvent(tpObjectResizeEvent *event)
-{
-    tpChildWidget::onResizeEvent(event);
+    tpChildWidget::onMouseMoveEvent(event);
 
     return true;
 }
@@ -205,8 +216,4 @@ bool tpMenuPanelItem::eventFilter(tpObject *watched, tpEvent *event)
         onMouseRleaseEvent(mouseEvent);
     }
     return false;
-}
-
-void tpMenuPanelItem::onThemeChangeEvent(tpThemeChangeEvent *event)
-{
 }

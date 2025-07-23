@@ -1201,6 +1201,8 @@ bool tpChildWidget::onMousePressEvent(tpMouseEvent *event)
 
 	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
 	set->isPress = true;
+	set->pressPoint = event->globalPos();
+
 	update();
 
 	return true;
@@ -1211,8 +1213,15 @@ bool tpChildWidget::onMouseRleaseEvent(tpMouseEvent *event)
 	if (event->button() != BUTTON_LEFT)
 		return true;
 
+	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
+	set->isPress = false;
+
 	ItpPoint mouseGlobalPos = event->globalPos();
-	if (toScreen().contains(mouseGlobalPos))
+
+	// std::cout << mouseGlobalPos.x << " " << set->pressPoint.x << " " << mouseGlobalPos.y << " " << set->pressPoint.y << std::endl;
+
+	// if (toScreen().contains(mouseGlobalPos))
+	if ((std::abs(mouseGlobalPos.x - set->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - set->pressPoint.y) <= 5))
 	{
 		if (checkable())
 		{
@@ -1260,29 +1269,6 @@ bool tpChildWidget::onLeaveEvent(tpObjectLeaveEvent *event)
 		set->isPress = false;
 		update();
 	}
-
-	return true;
-}
-
-bool tpChildWidget::onRotateEvent(tpObjectRotateEvent *event)
-{
-	tpObject *object = event->object();
-
-	if (!object)
-		return true;
-
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return true;
-
-	set->layoutMutex.lock();
-
-	if (set->layout)
-	{
-		set->layout->update();
-	}
-
-	set->layoutMutex.unlock();
 
 	return true;
 }
@@ -1394,11 +1380,6 @@ void tpChildWidget::onThemeChangeEvent(tpThemeChangeEvent *event)
 ItpObjectType tpChildWidget::objectType()
 {
 	return TP_CHILD_OBJECT;
-}
-
-bool tpChildWidget::appChange(int32_t id, int32_t pid, int32_t rotate, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require)
-{
-	return true;
 }
 
 tpChildWidget *tpChildWidget::find(tpPoint &point)

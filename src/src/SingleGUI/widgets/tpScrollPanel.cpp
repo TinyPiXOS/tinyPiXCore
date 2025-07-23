@@ -295,7 +295,7 @@ void tpScrollPanel::setVerticalPostion(const int32_t &value)
 		set->panel->broadSetTop();
 	}
 
-	tpChildWidget::update();
+	update();
 }
 
 bool tpScrollPanel::scrollMode()
@@ -709,6 +709,7 @@ bool tpScrollPanel::eventFilter(tpObject *watched, tpEvent *event)
 		if (!mouseMotionEvent)
 			return false;
 
+		// std::cout << "tpScrollPanel::eventFilter  Move" << std::endl;
 		onMouseMoveEvent(mouseMotionEvent);
 	}
 	else if (event->eventType() == tpEvent::EVENT_WHEEL_EVENT)
@@ -797,6 +798,11 @@ bool tpScrollPanel::onMouseMoveEvent(tpMouseEvent *event)
 			// 纵向
 			offset = curPoint.y - set->updatePoint_.y;
 
+			// std::cout << "******* this  " << this << std::endl;
+			// std::cout << " *******curPoint.y " << curPoint.y << "   set->updatePoint_.y " << set->updatePoint_.y << std::endl;
+			// std::cout << " *******offset " << offset << std::endl;
+			// std::cout << "******verticalPostion() " << verticalPostion() << std::endl;
+
 			setVerticalPostion(verticalPostion() + offset);
 		}
 		else
@@ -810,7 +816,7 @@ bool tpScrollPanel::onMouseMoveEvent(tpMouseEvent *event)
 
 		set->updatePoint_ = curPoint;
 
-		tpChildWidget::update();
+		// tpChildWidget::update();
 	}
 
 	return true;
@@ -825,7 +831,7 @@ bool tpScrollPanel::onWheelEvent(tpWheelEvent *event)
 		// 捕获鼠标滚轮事件,
 
 		int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-		std::cout << "curScrollValue : " << curScrollValue << std::endl;
+		// std::cout << "curScrollValue : " << curScrollValue << std::endl;
 
 		curScrollValue -= WHEEL_SCROLL_INTERVAL;
 
@@ -837,7 +843,7 @@ bool tpScrollPanel::onWheelEvent(tpWheelEvent *event)
 	else
 	{
 		int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-		std::cout << "curScrollValue : " << curScrollValue << std::endl;
+		// std::cout << "curScrollValue : " << curScrollValue << std::endl;
 
 		curScrollValue += WHEEL_SCROLL_INTERVAL;
 
