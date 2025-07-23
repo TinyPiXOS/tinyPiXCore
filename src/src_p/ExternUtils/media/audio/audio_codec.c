@@ -294,6 +294,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 			}
 			printf("Audio_Set_BytePosition:%d\n",ret*hard_param->byteFrams);
 			avcodec_flush_buffers(codec_ctx); // 清空解码器缓冲区
+			continue;
 		}
 
 		if (packet->stream_index == audio->stream_index) 
@@ -372,7 +373,6 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 				else{		//手动设置进度
 					Audio_Set_Position_N(conf,(int32_t)(audio_clock/1000.0/1000.0));
 				}
-
 				free_avframe(&convert_frame);
 			}
 		}
