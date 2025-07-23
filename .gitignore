@@ -79,3 +79,9 @@ examples/SingleGUI/scroll/scroll
 examples/SingleGUI/scrollpanel/scrollpanel
 examples/SingleGUI/tpCheckBox/checkbox
 examples/SingleGUI/tpLabel/label
+examples/SingleGUI/media_test/dialog
+examples/SingleGUI/notificationWidget/notification
+examples/SingleGUI/onoffbutton/onoff
+examples/SingleGUI/picture/picture
+examples/SingleGUI/scrollbar/scrollbar
+examples/SingleGUI/timer/timer
