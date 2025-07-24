@@ -379,7 +379,6 @@ echo "映射文件: $MAPPING_FILE"
 # libsdl2-image-dev libsdl2-gfx-dev	,改为编译安装
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
-	libsdl2-image-dev libsdl2-gfx-dev
     libcairo2-dev libpango1.0-dev libglib2.0-dev
     libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev
     libgbm-dev libgles2 libegl-dev 
