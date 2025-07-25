@@ -376,9 +376,9 @@ echo "目标目录: $TARGET_DIR"
 echo "映射文件: $MAPPING_FILE"
 
 # 检查系统依赖包 ----------------------------------------
-# libsdl2-image-dev libsdl2-gfx-dev	,改为编译安装
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
+	libsdl2-image-dev libsdl2-gfx-dev
     libcairo2-dev libpango1.0-dev libglib2.0-dev
     libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev
     libgbm-dev libgles2 libegl-dev 
@@ -386,6 +386,28 @@ packages=(
 	bluez-obexd bluez-alsa-utils libasound2-plugin-bluez
 	libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 )
+# 可能已经通过手动安装的库
+declare -A LIB_DETECT_FUNCTIONS=(
+    ["libsdl2-image-dev"]="check_sdl2_image_installed"
+	["libsdl2-gfx-dev"]="check_sdl2_gfx_installed"
+    # 添加新库示例：["libopencv-dev"]="check_opencv_installed"
+)
+
+# 检查sdl2-image安装
+check_sdl2_image_installed() {
+    # 检查关键文件：头文件、库文件、pkg-config
+    [ -f /usr/local/include/SDL2/SDL_image.h ] || \
+    [ -f /usr/include/SDL2/SDL_image.h ] || \
+    (pkg-config --exists sdl2_image 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2_image 2>/dev/null)/libSDL2_image.so ])
+}
+
+# 检查sdl2-gfx安装
+check_sdl2_gfx_installed() {
+    # 检查关键文件：头文件、库文件、pkg-config
+    [ -f /usr/local/include/SDL2/SDL2_gfxPrimitives.h ] || \
+    [ -f /usr/include/SDL2/SDL2_gfxPrimitives.h ] || \
+    (pkg-config --exists sdl2_gfx 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2_gfx 2>/dev/null)/libSDL2_gfx.so ])
+}
 
 #网络检查函数
 check_network() {
@@ -413,7 +435,43 @@ check_network() {
     echo "✓ 网络连接正常"
     return 0
 }
+check_and_install_packages() {
+    if ! command -v apt-get >/dev/null; then
+        echo "[错误] 只支持基于Debian的系统（如Ubuntu）自动安装依赖包" >&2
+        echo "请手动安装以下包：${packages[*]}" >&2
+        return 1
+    fi
 
+    # 更新包列表...
+    echo "  更新包列表..."
+    if ! apt-get update >/dev/null; then
+        echo "[错误] 更新包列表失败，请检查软件源配置" >&2
+        return 1
+    fi
+
+    for pkg in "$@"; do
+        # 使用 dpkg-query 精确检查
+        if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
+            echo "  ✓ $pkg 已安装"
+			continue;
+		fi
+		# 检查可能通过手动安装的库
+		if [[ -n "${LIB_DETECT_FUNCTIONS[$pkg]}" ]]; then
+            if ${LIB_DETECT_FUNCTIONS[$pkg]}; then
+                echo "  ✓ [$pkg] 检测到手动编译安装"
+                continue  # 跳过安装流程
+            fi
+        fi
+		#安装
+		echo "  ▸ 正在安装 $pkg ..."
+		if ! apt-get install -y "$pkg" >/dev/null; then
+			echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
+			return 1
+		fi
+    done
+    
+    return 0
+}
 check_and_install_packages() {
 	local has_network=$1  # 接收网络状态参数
     shift  # 移除第一个参数，剩余参数为包列表
@@ -435,23 +493,30 @@ check_and_install_packages() {
 
     for pkg in "$@"; do
         # 方法1：使用 dpkg-query 精确检查（推荐）
+         # 使用 dpkg-query 精确检查
         if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
             echo "  ✓ $pkg 已安装"
-        else
-            # 如果没有网络连接，无法安装新包
-            if [ $has_network -ne 0 ]; then
-                echo "❌ 错误: $pkg 未安装且无网络连接" >&2
-                echo "  • 请手动安装此包或检查网络连接" >&2
-                return 1
+			continue;
+		fi
+		# 检查可能通过手动安装的库
+		if [[ -n "${LIB_DETECT_FUNCTIONS[$pkg]}" ]]; then
+            if ${LIB_DETECT_FUNCTIONS[$pkg]}; then
+                echo "  ✓ [$pkg] 检测到手动编译安装"
+                continue  # 跳过安装流程
             fi
-            
-            echo "  ▸ 正在安装 $pkg ..."
-            if ! apt-get install -y "$pkg" >/dev/null; then
-                echo "❌ 安装 $pkg 失败，请检查软件源配置" >&2
-                return 1
-            fi
-            echo "  ✓ $pkg 安装成功"
         fi
+		# 如果没有网络连接，无法安装新包
+		if [ $has_network -ne 0 ]; then
+			echo "❌ 错误: $pkg 未安装且无网络连接" >&2
+			echo "  • 请手动安装此包或检查网络连接" >&2
+			return 1
+		fi
+        echo "  ▸ 正在安装 $pkg ..."
+		if ! apt-get install -y "$pkg" >/dev/null; then
+			echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
+			return 1
+		fi
+        echo "  ✓ $pkg 安装成功"
     done
 }
 
