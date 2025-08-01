@@ -21,7 +21,7 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libswresample/swresample.h>
 #include "../media/media.h"
-#include "../video/media_timer.h"
+#include "../media/media_timer.h"
 #include "audio_play.h"
 #include "audio_codec.h"
 #include "filter.h"

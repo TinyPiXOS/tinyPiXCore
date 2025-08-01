@@ -6,9 +6,7 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -31,23 +29,30 @@ static long get_current_time_us() {
 
 // 启动计时器
 static void start_timer_ofday(struct TimerHandle *timer) {
+	if(timer->running)
+		return ;
+	pthread_rwlock_wrlock(&timer->rw_mut);  // 获取写锁
 	gettimeofday(&timer->start_time, NULL);
 	timer->paused_us = 0;
 	timer->running = true;
+	pthread_rwlock_unlock(&timer->rw_mut);  // 获取写锁
 	debug_printf("Stopwatch started.\n");
 }
 
 // 暂停计时器
 static void pause_timer_ofday(struct TimerHandle *timer) {
-	if (timer->running) {
-		gettimeofday(&timer->pause_time, NULL);
-		timer->running = false;
-		debug_printf("Stopwatch paused.\n");
-	}
+	if (!timer->running)
+		return ;
+	pthread_rwlock_wrlock(&timer->rw_mut);  // 获取写锁
+	gettimeofday(&timer->pause_time, NULL);
+	timer->running = false;
+	pthread_rwlock_unlock(&timer->rw_mut); 
+	debug_printf("Stopwatch paused.\n");
 }
 
 // 继续计时器
 static void resume_timer_ofday(struct TimerHandle *timer) {
+	pthread_rwlock_wrlock(&timer->rw_mut);  // 获取写锁
 	if (!timer->running) {
 		struct timeval resume_time;
 		gettimeofday(&resume_time, NULL);
@@ -57,10 +62,12 @@ static void resume_timer_ofday(struct TimerHandle *timer) {
 		timer->running = true;
 		debug_printf("Stopwatch resumed.\n");
 	}
+	pthread_rwlock_unlock(&timer->rw_mut); 
 }
 
 // 获取已运行时间（微秒）
 static long get_elapsed_time(struct TimerHandle *timer) {
+	pthread_rwlock_rdlock(&timer->rw_mut);  // 获取读锁
 	if (timer->running) {
 		long current_time = get_current_time_us();
 		long start_time = (timer->start_time.tv_sec * 1000000) + timer->start_time.tv_usec;
@@ -71,17 +78,21 @@ static long get_elapsed_time(struct TimerHandle *timer) {
 		long start_time = (timer->start_time.tv_sec * 1000000) + timer->start_time.tv_usec;
 		return pause_time - start_time - timer->paused_us;
 	}
+	pthread_rwlock_unlock(&timer->rw_mut);
 }
 
 // 重置计时器
 static void reset_timer_ofday(struct TimerHandle *timer) {
+	pthread_rwlock_wrlock(&timer->rw_mut);  // 获取写锁
     timer->running = false;
     timer->paused_us = 0;
+	
     debug_printf("Stopwatch reset.\n");
 }
 
 //调整时间
 static void adjust_timer_ofday(struct TimerHandle *timer, long new_time_us) {
+	pthread_rwlock_wrlock(&timer->rw_mut);  // 获取写锁
 	long now_us = get_current_time_us();
 
 	if (timer->running) {
@@ -94,7 +105,7 @@ static void adjust_timer_ofday(struct TimerHandle *timer, long new_time_us) {
 		timer->pause_time.tv_sec = (now_us - new_time_us) / 1000000;
 		timer->pause_time.tv_usec = (now_us - new_time_us) % 1000000;
 	}
-
+	pthread_rwlock_unlock(&timer->rw_mut);
 	debug_printf("Stopwatch adjusted to %ld us (%.3f s).\n", new_time_us, new_time_us / 1000000.0);
 }
 
@@ -127,6 +138,4 @@ void timer_ofday_handle_free(struct TimerHandle *timer)
 
 
 
-#ifdef __cplusplus
-}
-#endif
+

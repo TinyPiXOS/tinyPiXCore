@@ -15,6 +15,8 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/fileUtils.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/media/media.c
+	${SOURCE_PATH}/src_p/ExternUtils/media/media/media_timer.c
+	${SOURCE_PATH}/src_p/ExternUtils/media/media/media_file_list.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/audio_codec.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/audio_manage.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/audio_play.c
@@ -22,7 +24,6 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/hard.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/filter.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/video/video_display.c
-	${SOURCE_PATH}/src_p/ExternUtils/media/video/media_timer.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/video/video_codec.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/video/video_manage.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/video/video_play.c
@@ -162,6 +163,7 @@ include_directories(${SOURCE_PATH}/src_p/ExternUtils)
 include_directories(${SOURCE_PATH}/src_p/ExternUtils/media/include)
 include_directories(${SOURCE_PATH}/src_p/ExternUtils/media/audio)
 include_directories(${SOURCE_PATH}/src_p/ExternUtils/media/video)
+include_directories(${SOURCE_PATH}/src_p/ExternUtils/media/media)
 include_directories(${SOURCE_PATH}/src_p/ExternUtils/network)
 include_directories(${SOURCE_PATH}/src_p/ExternUtils/AppManage/manage)
 include_directories(${SOURCE_PATH}/src_p/ExternUtils/AppManage/dopack)

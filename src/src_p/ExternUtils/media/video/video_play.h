@@ -41,15 +41,15 @@ struct VideoHardParam{
 };
 
 int video_hard_param_init(struct VideoHardParam *video,const char *audio_card);
-int video_params_get_all(struct MediaParams *user,struct MediaVideoParams *video_params);
+int video_params_get_all(struct MediaParams *user,struct VideoStreamParams *video_params);
 
 SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer,uint32_t *format,int w,int h);		//创建纹理(
-int count_rect_size_from_user(struct VideoHardParam *display,struct MediaVideoParams *video_params,AVCodecContext *codec_ctx);
+int count_rect_size_from_user(struct VideoHardParam *display,struct VideoStreamParams *video_params,AVCodecContext *codec_ctx);
 
 int Video_Play_File(struct VideoHardParam *display, struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a);
 int Video_Play_Main(struct MediaParams *user,const char *audio_card);
 int Video_Get_Position(struct MediaParams *conf,PIAudioConf *pcm_play);
 //获取显示参数
-int Video_Get_All_Params(struct MediaParams *conf,struct MediaVideoParams *video_params);
+int Video_Get_All_Params(struct MediaParams *conf,struct VideoStreamParams *video_params);
 
 #endif

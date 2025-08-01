@@ -1,6 +1,10 @@
 #ifndef _AUDIO_FILTER_H_
 #define _AUDIO_FILTER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <libavfilter/avfilter.h>
 
 
@@ -20,6 +24,8 @@ int audio_filter_delete(struct MediaFilterParam *filter);
 
 int media_filte_get_data(struct MediaFilterParam *filter,AVFrame *frame_src,AVFrame *frame_flt);
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

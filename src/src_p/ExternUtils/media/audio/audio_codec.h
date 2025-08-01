@@ -63,8 +63,6 @@ struct AudioStreamParams{
 //媒体编/解码器参数
 struct MediaCodecParam{
 	AVFormatContext *format_ctx;	//输入输出相关信息，贯穿ffmpeg
-//	AVCodecParameters *codec_params;
-//	AVCodec *codec;
 	AVCodecContext *codec_ctx;		//编码器上下文，源文件中的音频参数,位宽，声道等，视频的帧率分辨率等
 	int stream_index;				//需要使用的编解码器index	
 	AVStream *audio_stream;

@@ -10,6 +10,7 @@
 #include "filter.h"
 #include "tpAudioDevice.h"
 #include "tpVideoDevice.h"
+#include "../media/media_file_list.h"
 
 struct MediaParams;
 #include <stdbool.h>
@@ -28,7 +29,7 @@ struct MediaParams;
 
 #define USER_CONF_VOLUME 		100	//默认音量
 
-typedef struct MediaConf PIAudioConf;
+typedef struct MediaAudioHandle PIAudioConf;
 //前置声明
 struct MediaCodecParam;
 
@@ -73,36 +74,6 @@ typedef enum AudioPlayType_{
 }AudioPlayType;
 
 
-struct MediaFileNode{
-	char *file;
-	struct MediaFileNode *next;
-	struct MediaFileNode *last;
-};
-
-//尾插，头删
-//头为固定的空节点，头的下一个是链表第一个节点，end和pos是具体的节点
-struct MediaFileList{
-	struct MediaFileNode *head;
-	struct MediaFileNode *end;
-	struct MediaFileNode *pos;	//当前读取的位置
-	pthread_rwlock_t mut;
-	char *(*read)(struct MediaFileList * list);		//默认读取下一个
-	char *(*read_now)(struct MediaFileList * list);
-	char *(*read_last)(struct MediaFileList * list);
-	char *(*read_saft)(struct MediaFileList * list);		//默认读取下一个
-	char *(*read_now_saft)(struct MediaFileList * list);
-	char *(*read_last_saft)(struct MediaFileList * list);
-	int (*insert_end)(struct MediaFileList * list,char *file);
-	int (*insert_pos)(struct MediaFileList * list,char *file);
-	int (*insert_end_saft)(struct MediaFileList * list,char *file);
-	int (*insert_pos_saft)(struct MediaFileList * list,char *file);
-	int (*delete_file)(struct MediaFileList * list,char *file);
-	int (*delete_file_saft)(struct MediaFileList * list,char *file);
-	int (*delete_all)(struct MediaFileList * list);
-	int (*delete_all_saft)(struct MediaFileList * list);
-	int (*remove)(struct MediaFileList * list);
-	size_t size;
-};
 
 
 
@@ -123,12 +94,12 @@ struct AudioHostOperate{
 };
 
 //内部使用，声卡配置信息
-typedef struct MediaConf{
+//音频的硬件参数和句柄
+typedef struct MediaAudioHandle{
 	char *device;
-	snd_pcm_t *handle;             	//设备句柄
+	snd_pcm_t *handle;             	//设备句柄（当设备句柄为空的时候说明无法使用硬件播放）
 	snd_pcm_hw_params_t *hwparams;  //设备配置信息的结构体(结构体内部隐藏)，配置信息保存在该结构体
 	uint8_t file_type;          	//音频文件类型(AudioFileType类型)
-	uint8_t thread_num;				//线程编号，暂时未使用
 	struct AudioStreamParams *adparams;	//解码后可以用于播放的音频流的参数
 	struct PcmHardParams *ahparams;		//设置后的一些关键硬件参数(其实是从snd_pcm_hw_params_t里面拿出来的几个常用的参数)
 }PIAudioConf;
@@ -148,16 +119,16 @@ struct MediaRect{
 	uint16_t w;		//显示宽度
 	uint16_t h;		//显示高度
 };
-struct MediaVideoParams{
+struct VideoStreamParams{
 	struct MediaRect rect;
 	uint16_t light;	//显示亮度
 	VideoScalingType fill;
 };
+
 //内部使用，用户交互信息
 struct MediaParams{        //公共区用户设置
 	bool is_playing;
 	struct MediaFileList *list;//文件列表
-	void *memory;
 	char *file;				//正在播放的文件
 	AudioPlayType type;		//文件/列表/流	，暂时未使用
 	uint8_t volume;			//声音(0-100)
@@ -165,7 +136,8 @@ struct MediaParams{        //公共区用户设置
 		float speed;		//播放速度，0.5～100
 		struct MediaFilterParam *filter;	//过滤器，用于速度控制，此处只是一个地址用于防止退出的时候内存泄漏
 	};
-	struct MediaVideoParams *video;
+	struct MediaAudioHandle *aduio_handle;	//重构后新增
+	struct VideoStreamParams *video;
 	struct{   //当前进度和用户设置进度(0-*s)                           初始化-1
 		int32_t position_s;
 		union{
@@ -190,7 +162,6 @@ struct MediaParams{        //公共区用户设置
 	struct PthreadCond *cond;
 };
 
-int media_pcm_hwparams_init(PIAudioConf *pcm);
 int pcm_hwparams_set(PIAudioConf *pcm,struct AudioStreamParams *audio);		//设置硬件参数
 
 

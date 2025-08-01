@@ -36,7 +36,7 @@ extern "C" {
 
 uint8_t video_flag=0;
 
-void exit_signal(int sig)
+static void exit_signal(int sig)
 {
 	video_flag=1;
 }
@@ -540,8 +540,8 @@ static void *thread_video_codec(void *param)
 	enum AVPixelFormat pix_fmt_dest = get_format_pixel_sdl(display->format);		//需要的转换后的格式
 	enum AVPixelFormat pix_fmt_sour=video->codec_ctx->pix_fmt;				//视频原始的格式
 	
-	struct MediaVideoParams show_param_l,show_param;		//视频参数(宽高亮度等)		
-	memset(&show_param_l,0,sizeof(struct MediaVideoParams));
+	struct VideoStreamParams show_param_l,show_param;		//视频参数(宽高亮度等)		
+	memset(&show_param_l,0,sizeof(struct VideoStreamParams));
 
 	SDL_Rect dst_rect = {display->rect_dst->x, display->rect_dst->y, display->rect_dst->w, display->rect_dst->h};  // 设置目标矩形为 960x540
 	SDL_Rect src_rect = {display->rect_src->x,display->rect_src->y,display->rect_src->w,display->rect_src->h};
@@ -716,7 +716,7 @@ static void *thread_audio_codec(void *param)
 	int audioStreamIndex = audio->stream_index;
 	AVStream* audioStream = audio->format_ctx->streams[	audioStreamIndex];	//流参数
 
-	double video_clock = 0.0,audio_clock=0.0; // 用于保持视频的播放时间
+//	double video_clock = 0.0,audio_clock=0.0; // 用于保持视频的播放时间
 
 	// 分配音频缓冲区
 //	int max_samples = 4096; // 设置一个初始值，可根据需要调整
@@ -768,7 +768,7 @@ static void *thread_audio_codec(void *param)
 
 			float speed=Audio_Get_Speed(user);
 			double audio_clock=(double)pts * av_q2d(audioStream->time_base)*1000.0*1000.0/speed;	//time_base为s
-			double delay_time=video_clock-audio_t->clock->get_run_time(audio_t->clock);
+			double delay_time=audio_clock-audio_t->clock->get_run_time(audio_t->clock);
 			if(delay_time>0)
 			{
 				//debug_printf("延时%lf\n",delay_time);
@@ -776,7 +776,7 @@ static void *thread_audio_codec(void *param)
 			}
 			else if(delay_time< (-VIDEO_FRAME_LAG_LOSS_TIME))
 			{
-				//printf("===========舍弃====\n");
+				//debug_printf("===========舍弃====\n");
 				break;
 			}
 			AVFrame *convert_frame = alloc_avframe_frames_hard(frame_s->nb_samples,audio->hard_param);

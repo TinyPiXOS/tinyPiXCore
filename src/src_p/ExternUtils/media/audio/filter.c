@@ -5,10 +5,6 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -183,7 +179,5 @@ int media_filte_get_data(struct MediaFilterParam *filter,AVFrame *frame_src,AVFr
 	return 0;
 }
 
-#ifdef __cplusplus
-}
-#endif
+
 

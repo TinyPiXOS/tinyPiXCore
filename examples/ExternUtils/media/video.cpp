@@ -86,6 +86,8 @@ int main()
 	}
 	printf("文件时长%d\n",video.getDuration());
 	video.getPosition();
+	video.setPosition(1);
+	printf("后退成功\n");
 //	printf("播放下一个\n");
 //	video.playNext();
 	sleep(10);

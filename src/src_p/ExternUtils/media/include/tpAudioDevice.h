@@ -37,7 +37,7 @@ typedef enum MediaFileType_{
 	MEDIA_FILE_TYPE_WAV		=0x03
 }MediaFileType;
 
-typedef struct MediaConf PIAudioConf;
+typedef struct MediaAudioHandle PIAudioConf;
 struct MediaParams;
 struct MediaCodecParam;
 struct AudioStreamParams;
@@ -133,7 +133,7 @@ int Audio_Write_Stream(PIAudioConf *pcm,struct MediaParams *conf,struct AudioStr
 int Audio_Set_System_Volume(uint8_t volume,const char *name);
 int Audio_Get_System_Volume(const char *name);
 void Audio_Set_Video_Callback(struct MediaParams *conf,CallbackVideoDisplay cb,void *userdata);
-int Audio_Set_Video_Decode_Format(struct MediaParams *conf, uint32_t format_video);
+int Audio_Set_Video_Decode_Format(struct MediaParams *conf, uint32_t format);
 #ifdef __cplusplus
 }
 #endif

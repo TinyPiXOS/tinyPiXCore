@@ -24,7 +24,13 @@ typedef struct VariableArray{
 
 
 void delete_variable_array(VariableArray *arr);
+
+/// @brief 动态数组创建
+/// @param elem_size 每个元素的大小
+/// @param initial_capacity 初始最大容量
+/// @return 
 VariableArray *creat_variable_array(size_t elem_size, size_t initial_capacity) ;
+
 
 
 #endif

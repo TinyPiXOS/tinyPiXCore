@@ -19,7 +19,7 @@ typedef enum VideoScalingType_{
 		MEDIA_VIDEO_SCALING_LETTERBOX	= 0X06	//保持原始比例，上下左右添加黑边
 }VideoScalingType;
 
-typedef struct MediaConf PIAudioConf __attribute__((used));
+typedef struct MediaAudioHandle PIAudioConf __attribute__((used));
 
 int Video_Play_Main(struct MediaParams *user,const char *audio_card) __attribute__((used));
 int Video_Get_Position(struct MediaParams *conf,PIAudioConf *pcm_play) __attribute__((used));

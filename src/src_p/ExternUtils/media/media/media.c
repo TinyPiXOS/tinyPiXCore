@@ -23,6 +23,7 @@ int media_get_file_info(const char *url,MediaFormatContext **format_ctx)
     if ((ret = avformat_find_stream_info(*format_ctx, NULL)) < 0) {
         fprintf(stderr, "Could not find stream information\n");
 		//fprintf(stderr, "Could not find stream information: %s\n", av_err2str(ret));
+		avformat_close_input(format_ctx);
         return -1;
     }
 	return 0;
@@ -75,6 +76,12 @@ int media_deinit(uint8_t en_net)
 {
 	if(en_net)
 		avformat_network_init();
+}
+
+//获取秒级时长
+double media_get_url_duration_sec(MediaFormatContext *format_ctx)
+{
+	return format_ctx->duration / (double)AV_TIME_BASE;
 }
 
 

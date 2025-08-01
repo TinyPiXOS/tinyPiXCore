@@ -7,7 +7,7 @@ extern "C" {
 
 
 
-typedef struct MediaConf PIAudioConf;
+typedef struct MediaAudioHandle PIAudioConf;
 struct MediaParams;
 struct MediaCodecParam;
 
