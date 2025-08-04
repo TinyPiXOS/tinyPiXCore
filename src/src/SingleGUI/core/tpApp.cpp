@@ -308,6 +308,7 @@ static tpApp *appInst = nullptr;
 // 刷新指令下发
 static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 {
+	// 遍历刷新指令，合并相邻和相同区域
 	while (!updateCommandQueue.empty())
 	{
 		UpdateCommand task = updateCommandQueue.front();

@@ -180,25 +180,12 @@ static inline tpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
         ItpObjectSet *child_set = (ItpObjectSet *)childWidgetPtr->objectSets();
         bool ret = false;
 
-        if (set->varSize)
-        {
-            ItpPoint point = selfToObjectPoint(childWidgetPtr, x, y);
-            ret = tinyPiX_bit_array_get_value(set->varShape, point.x, point.y);
+        tpRect absRect(child_set->absoluteRect);
+        ret = absRect.in(x, y);
 
-            if (ret)
-            {
-                object = childWidgetPtr;
-            }
-        }
-        else
+        if (ret)
         {
-            tpRect absRect(child_set->absoluteRect);
-            ret = absRect.in(x, y);
-
-            if (ret)
-            {
-                object = childWidgetPtr;
-            }
+            object = childWidgetPtr;
         }
     }
 
@@ -225,62 +212,62 @@ static inline tpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
 
 static void paintEnabledBox(tpChildWidget *child, tpCanvas *paintCanvas)
 {
-	if (!child->enabled())
-	{
-		if (child->roundCorners() != 0)
-			paintCanvas->roundedBox(0, 0, child->width(), child->height(), child->roundCorners(), _RGBA(192, 192, 192, 125));
-		else
-			paintCanvas->box(0, 0, child->width(), child->height(), _RGBA(192, 192, 192, 125));
-	}
+    if (!child->enabled())
+    {
+        if (child->roundCorners() != 0)
+            paintCanvas->roundedBox(0, 0, child->width(), child->height(), child->roundCorners(), _RGBA(192, 192, 192, 125));
+        else
+            paintCanvas->box(0, 0, child->width(), child->height(), _RGBA(192, 192, 192, 125));
+    }
 }
 
 static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
 {
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	std::list<tpObject *>::iterator iter = set->objectList.begin();
+    std::list<tpObject *>::iterator iter = set->objectList.begin();
 
-	for (; iter != set->objectList.end(); iter++)
-	{
-		tpChildWidget *child = dynamic_cast<tpChildWidget *>(*iter);
-		if (!child)
-			continue;
+    for (; iter != set->objectList.end(); iter++)
+    {
+        tpChildWidget *child = dynamic_cast<tpChildWidget *>(*iter);
+        if (!child)
+            continue;
 
-		ItpRect updateIRect = events->updateRect();
-		tpRect updateRect(&updateIRect);
+        ItpRect updateIRect = events->updateRect();
+        tpRect updateRect(&updateIRect);
 
-		ItpRect childRect = child->toScreen();
+        ItpRect childRect = child->toScreen();
 
-		if (!updateRect.intersect(&childRect))
-		{
-			continue;
-		}
+        if (!updateRect.intersect(&childRect))
+        {
+            continue;
+        }
 
-		if (!child->visible())
-			continue;
+        if (!child->visible())
+            continue;
 
-		if (child->alpha() == 0)
-			continue;
+        if (child->alpha() == 0)
+            continue;
 
-		ItpObjectSet *child_set = (ItpObjectSet *)child->objectSets();
-		tpObjectPaintEvent event;
-		ItpObjectPaintInput input;
-		input.object = child;
-		input.updateRect = events->updateRect();
-		input.surface = events->surface();
-		event.construct(&input);
+        ItpObjectSet *child_set = (ItpObjectSet *)child->objectSets();
+        tpObjectPaintEvent event;
+        ItpObjectPaintInput input;
+        input.object = child;
+        input.updateRect = events->updateRect();
+        input.surface = events->surface();
+        event.construct(&input);
 
-		bool ret = child->onPaintEvent(&event);
+        bool ret = child->onPaintEvent(&event);
 
-		if (ret)
-		{
-			childPaint(child_set, &event);
-		}
+        if (ret)
+        {
+            childPaint(child_set, &event);
+        }
 
-		// 控件不可用，绘制遮罩层
-		paintEnabledBox(child, event.canvas());
-	}
+        // 控件不可用，绘制遮罩层
+        paintEnabledBox(child, event.canvas());
+    }
 }
 
 #endif

@@ -66,7 +66,7 @@ tpFixScreen::tpFixScreen(const char *type)
 	if (set)
 	{
 		uint32_t rW = 0, rH = 0;
-		tinyPiX_wf_get_rotate_metrics(set->agent, &rW, &rH);
+		tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 
 		set->absoluteRect.x = 0;
 		set->absoluteRect.y = 0;
@@ -168,36 +168,13 @@ bool tpFixScreen::moved()
 	return false;
 }
 
-void tpFixScreen::setAlpha(const uint8_t& alpha)
+void tpFixScreen::setAlpha(const uint8_t &alpha)
 {
 }
 
 uint8_t tpFixScreen::alpha()
 {
 	return 0xff;
-}
-
-void tpFixScreen::setColorKey(bool enable, uint32_t colorKey)
-{
-}
-
-bool tpFixScreen::colorKeyEnable()
-{
-	return false;
-}
-
-uint32_t tpFixScreen::colorKey()
-{
-	return 0;
-}
-
-void tpFixScreen::setVarShape(void *shape)
-{
-}
-
-void *tpFixScreen::varShape()
-{
-	return nullptr;
 }
 
 bool tpFixScreen::onActiveEvent(tpObjectActiveEvent *event)

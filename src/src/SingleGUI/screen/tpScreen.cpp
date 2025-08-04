@@ -277,7 +277,7 @@ static inline void broadFinger(ItpObjectSet *set, ItpFingerSet &input, tpObject 
 		return;
 
 	uint32_t rW = 0, rH = 0;
-	tinyPiX_wf_get_rotate_metrics(set->agent, &rW, &rH);
+	tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 	tpFingerEvent event;
 
 	input.timestamp = events->fingerEvent.timestamp;
@@ -305,7 +305,7 @@ static inline void broaDollar(ItpObjectSet *set, ItpDollarSet &input, tpObject *
 		return;
 
 	uint32_t rW = 0, rH = 0;
-	tinyPiX_wf_get_rotate_metrics(set->agent, &rW, &rH);
+	tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 	tpDollAREvent event;
 
 	input.timestamp = events->dollarEvent.timestamp;
@@ -332,7 +332,7 @@ static inline void broadMultiGesture(ItpObjectSet *set, ItpMultiGestureSet &inpu
 		return;
 
 	uint32_t rW = 0, rH = 0;
-	tinyPiX_wf_get_rotate_metrics(set->agent, &rW, &rH);
+	tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 	tpMultiGestureEvent event;
 
 	input.timestamp = events->gestrueEvent.timestamp;
@@ -1036,7 +1036,7 @@ ItpSize tpScreen::screenSize()
 
 	if (set)
 	{
-		tinyPiX_wf_get_rotate_metrics(set->agent, &sWidth, &sHeight);
+		tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
 	}
 
 	return ItpSize(sWidth, sHeight);
@@ -1049,7 +1049,7 @@ int32_t tpScreen::screenWidth()
 
 	if (set)
 	{
-		tinyPiX_wf_get_rotate_metrics(set->agent, &sWidth, nullptr);
+		tinyPiX_wf_get_display_size(set->agent, &sWidth, nullptr);
 	}
 
 	return sWidth;
@@ -1062,7 +1062,7 @@ int32_t tpScreen::screenHeight()
 
 	if (set)
 	{
-		tinyPiX_wf_get_rotate_metrics(set->agent, nullptr, &sHeight);
+		tinyPiX_wf_get_display_size(set->agent, nullptr, &sHeight);
 	}
 
 	return sHeight;

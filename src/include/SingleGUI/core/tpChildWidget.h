@@ -314,15 +314,6 @@ public:
 	/// @return 是否启用背景模糊
 	bool enableBlur();
 
-public:
-	virtual void setColorKey(bool enable = false, int32_t colorKey = 0);
-	virtual void setColorKeyEnable(bool enable = false);
-	virtual bool colorKeyEnable();
-	virtual uint32_t colorKey();
-
-public:
-	virtual void setVarShape(void *shape); // unused during the period
-	virtual void *varShape();			   // unused during the period
 	virtual void setParent(tpObject *parent) override;
 
 public:

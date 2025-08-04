@@ -294,7 +294,7 @@ void tpChildWidget::showMaximum()
 	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
 	uint32_t sWidth = 0;
 	uint32_t sHeight = 0;
-	tinyPiX_wf_get_rotate_metrics(set->agent, &sWidth, &sHeight);
+	tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
 
 	setRect(0, 0, sWidth, sHeight);
 	setVisible(true);
@@ -469,7 +469,7 @@ ItpSize tpChildWidget::screenSize()
 	ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
 	uint32_t sWidth = 0;
 	uint32_t sHeight = 0;
-	tinyPiX_wf_get_rotate_metrics(set->agent, &sWidth, &sHeight);
+	tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
 
 	return ItpSize(sWidth, sHeight);
 }
@@ -1093,74 +1093,6 @@ bool tpChildWidget::enableBlur()
 	return set->enableBlur;
 }
 
-void tpChildWidget::setColorKey(bool enable, int32_t colorKey)
-{
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return;
-
-	set->colorKey = colorKey;
-	set->enableColorKey = enable;
-}
-
-void tpChildWidget::setColorKeyEnable(bool enable)
-{
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return;
-
-	set->enableColorKey = enable;
-}
-
-bool tpChildWidget::colorKeyEnable()
-{
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return false;
-
-	return set->enableColorKey;
-}
-
-uint32_t tpChildWidget::colorKey()
-{
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return 0;
-
-	return set->colorKey;
-}
-
-void tpChildWidget::setVarShape(void *shape)
-{
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return;
-
-	if (set->varShape == shape)
-		return;
-
-	if (set->varSize)
-		tinyPiX_bit_array_free(set->varShape);
-
-	set->varSize = 0;
-	set->varShape = nullptr;
-
-	if (shape)
-	{
-		set->varShape = shape;
-		set->varSize = tinyPiX_bit_array_get_size_by_bytes(shape);
-	}
-}
-
-void *tpChildWidget::varShape()
-{
-	ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
-	if (!set)
-		return nullptr;
-
-	return set->varShape;
-}
-
 void SetTopFunc(tpObject *topObj, ItpObjectSet *findSetData)
 {
 	for (const auto &setObj : findSetData->objectList)
@@ -1327,13 +1259,6 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
 
 	if (set->enableImage && set->cacheImage)
 	{
-		// uint8_t reservAlpha = set->cacheImage->alpha();
-		// alpha = tpHelper::mapAlpha(set->cacheImage->alpha(), set->alpha);
-		// set->cacheImage->setAlpha(alpha);
-		// set->cacheImage->setColorKey(set->colorKey, set->enableColorKey);
-
-		// if (set->enableBlur)
-
 		if (minRad == 0)
 		{
 			canvas->paintSurface(0, 0, set->cacheImage);

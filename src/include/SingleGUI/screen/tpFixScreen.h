@@ -47,15 +47,6 @@ private:
 	virtual void setAlpha(const uint8_t& alpha = 0xff) final;
 	virtual uint8_t alpha() final;
 
-private:
-	virtual void setColorKey(bool enable = false, uint32_t colorKey = 0) final;
-	virtual bool colorKeyEnable() final;
-	virtual uint32_t colorKey() final;
-
-private:
-	virtual void setVarShape(void *shape) final;
-	virtual void *varShape() final;
-
 public:
 	virtual bool onActiveEvent(tpObjectActiveEvent *event);
 

@@ -40,8 +40,6 @@ tpObject::tpObject(tpObject *parent)
 
 	set->top = nullptr;
 
-	set->varSize = 0;
-	set->varShape = nullptr;
 	set->agent = nullptr;
 
 	set->enableColor = true;
@@ -49,8 +47,6 @@ tpObject::tpObject(tpObject *parent)
 	set->enableImage = true;
 
 	set->alpha = 0xff;
-	set->colorKey = 0x000000000;
-	set->enableColorKey = false;
 
 	set->layout = nullptr;
 

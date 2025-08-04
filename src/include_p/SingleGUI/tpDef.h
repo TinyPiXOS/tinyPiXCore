@@ -134,12 +134,7 @@ struct ItpObjectSet
 	// 圆角值，单位px
 	uint32_t round = 0;
 
-	uint32_t varSize;
-	void *varShape = nullptr;
-
 	uint8_t alpha;
-	uint32_t colorKey;
-	bool enableColorKey;
 
 	IPiWFApiAgent *agent = nullptr;
 	std::mutex gMutex;

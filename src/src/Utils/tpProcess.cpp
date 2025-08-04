@@ -118,7 +118,7 @@ void tpProcess::start(const tpString &program, const tpVector<tpString> &argumen
     {
         // 子进程
         char **argv = processData->prepareArgs(program, arguments);
-        execvp(program.c_str(), argv);
+        int aa = execvp(program.c_str(), argv);
         processData->freeArgs(argv);
         // 执行失败
         exit(EXIT_FAILURE);
