@@ -129,7 +129,7 @@ static int sdl_display_init(struct MediaVideoHandle *display,uint32_t format,int
 	}
 
 	//创建SDL窗口
-	display->window = SDL_CreateWindow("tinyPiX Video", x, y, w, h, SDL_WINDOW_SHOWN);
+	display->window = SDL_CreateWindow("tinyPiX Video", x, y, w, h, SDL_WINDOW_HIDDEN);//隐藏：SDL_WINDOW_HIDDEN,显示：SDL_WINDOW_SHOWN
 	if (!display->window) {
 		fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		SDL_Quit();
@@ -145,15 +145,16 @@ static int sdl_display_init(struct MediaVideoHandle *display,uint32_t format,int
 		return -1;
 	}
 	//创建纹理
-	display->texture = sdl_creat_texture_near(display->renderer, &format,w,h);
+	display->texture=NULL;
+	/*display->texture = sdl_creat_texture_near(display->renderer, &format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
 	if(display->texture==NULL)
 	{
 		fprintf(stderr, "Creat Texture! SDL_Error: %s\n", SDL_GetError());
 		SDL_DestroyRenderer(display->renderer);
         SDL_DestroyWindow(display->window);
         SDL_Quit();
-	}
-	
+	}*/
+
 	debug_printf("debug:sdl init ok, display on(%d,%d %d*%d)\n",x,y,w,h);
 #endif
 	return 0;
@@ -207,6 +208,21 @@ static int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,s
 	return 0;
 }
 
+static int Audio_Hard_Deinit(struct MediaStreamParams *audio)
+{
+	if(!audio)
+		return ;
+
+	struct codePlayCallbackParam *cb_param=(struct codePlayCallbackParam *)audio->callback_param;
+	if(cb_param!=NULL)
+    {
+		if(cb_param->audio_param!=NULL)
+		    free(cb_param->audio_param);
+		free(cb_param);
+		cb_param=NULL;
+	}
+    return 0;
+}
 
 //声卡初始化
 static int alsa_hard_init(const char *name,struct MediaStreamParams *audio,struct MediaParams *user)
@@ -259,7 +275,7 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 //user_params：用户设置参数
 //rect_s:原始图像中的提取矩形
 //rect_d:显示的位置需要的矩形
-int count_rect_size_from_user(struct VideoStreamParams *user_params,AVCodecContext *codec_ctx,struct MediaRect *rect_s,struct MediaRect *rect_d)
+/*int count_rect_size_from_user(struct VideoStreamParams *user_params,AVCodecContext *codec_ctx,struct MediaRect *rect_s,struct MediaRect *rect_d)
 {
 	struct VideoStreamParams *user_=user_params;
 //	struct MediaRect *rect_d=(struct MediaRect *)malloc(sizeof(struct MediaRect));
@@ -323,7 +339,7 @@ int count_rect_size_from_user(struct VideoStreamParams *user_params,AVCodecConte
 
 			break;
 	}
-}
+}*/
 
 static int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params)
 {
@@ -372,14 +388,14 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 	{
 		goto ERROR_RETURN;
 	}
-	count_rect_size_from_user(&user_params,stream->codec_ctx,&params_s->rect,&params_d->rect);		//根据用户设置来调整需要提取的位置和输出位置
+
 	uint32_t sdl_format;
 	if(handle->is_sdl)
 	{
 		sdl_format=(uint32_t)get_sdl_pixel_format(user->format_video);
 
 		//视频播放的SDL初始化
-		if(sdl_display_init(handle,sdl_format,user_params.rect.x, user_params.rect.y, user_params.rect.w, user_params.rect.h )<0)
+		if(sdl_display_init(handle,sdl_format,0,0,0,0 )<0)		//只初始化，窗口不显示
 		{
 			fprintf(stderr,"init sdl error\n");
 			goto ERROR_RETURN;
@@ -389,8 +405,7 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 		sdl_format=user->format_video;
 
 	stream->video.format=sdl_format;
-	stream->video.params_d=params_d;
-	stream->video.params_s=params_s;
+
 	stream->video.handle=handle;
 	return 0;
 
@@ -407,7 +422,7 @@ ERROR_RETURN:
 
 static int media_stream_audio_init_handle(struct MediaStreamParams *stream,struct MediaParams *user)
 {
-	if(alsa_hard_init(stream->audio.handle->device,stream,user)<0)
+	if(alsa_hard_init(user->aduio_handle->device,stream,user)<0)
 	{
 		fprintf(stderr,"[Error]:Init audio error,The video will play silently\n");
 		return -1;

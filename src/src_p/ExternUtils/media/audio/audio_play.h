@@ -127,17 +127,17 @@ struct VideoStreamParams{
 
 //内部使用，用户交互信息
 struct MediaParams{        //公共区用户设置
+	//通用设置
 	bool is_playing;
 	struct MediaFileList *list;//文件列表
 	char *file;				//正在播放的文件
 	AudioPlayType type;		//文件/列表/流	，暂时未使用
-	uint8_t volume;			//声音(0-100)
+	double length;			//正在播放的文件的时长(单位：s)
+	AudioPlayState state;	//播放状态 ,
 	struct{
 		float speed;		//播放速度，0.5～100
 		struct MediaFilterParam *filter;	//过滤器，用于速度控制，此处只是一个地址用于防止退出的时候内存泄漏
 	};
-	struct MediaAudioHandle *aduio_handle;	//重构后新增
-	struct VideoStreamParams *video;
 	struct{   //当前进度和用户设置进度(0-*s)                           初始化-1
 		int32_t position_s;
 		union{
@@ -145,19 +145,28 @@ struct MediaParams{        //公共区用户设置
 			int64_t position_bytes;		//已播放的字节数
 		};
 	};
-	double length;			//正在播放的文件的时长(单位：s)
-	AudioPlayState state;	//播放状态 ,
 	struct{
 		AudioPlayCommand cmd;	//控制命令
 		int (*command_get)(struct MediaParams *conf);		//安全获取当前的命令
 	};
-	struct{		//视频显示回调函数以及解码格式
+
+	//音频流相关配置
+	struct{
+		uint8_t volume;			//声音(0-100)
+		struct MediaAudioHandle *aduio_handle;	//重构后新增	
+	};
+
+	//视频流相关配置
+	struct{
+		struct VideoStreamParams *video;		//
+		//视频显示回调函数以及解码格式
 		uint32_t format_video;		//解码格式，仅在用户自己处理时候才会生效
 		CallbackVideoDisplay callback_video;
 		void *userdata;
 		CallbackVideoDisplay (*get_callback_video)(struct MediaParams *conf);
 		void (*set_callback_video)(struct MediaParams *conf, CallbackVideoDisplay callback,void *userdata);
 	};
+	
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
 	struct PthreadCond *cond;
 };

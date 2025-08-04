@@ -67,18 +67,20 @@ static void resume_timer_ofday(struct TimerHandle *timer) {
 
 // 获取已运行时间（微秒）
 static long get_elapsed_time(struct TimerHandle *timer) {
+	long time;
 	pthread_rwlock_rdlock(&timer->rw_mut);  // 获取读锁
 	if (timer->running) {
 		long current_time = get_current_time_us();
 		long start_time = (timer->start_time.tv_sec * 1000000) + timer->start_time.tv_usec;
-		return current_time - start_time - timer->paused_us;
+		time = current_time - start_time - timer->paused_us;
 	} 
 	else {
 		long pause_time = (timer->pause_time.tv_sec * 1000000) + timer->pause_time.tv_usec;
 		long start_time = (timer->start_time.tv_sec * 1000000) + timer->start_time.tv_usec;
-		return pause_time - start_time - timer->paused_us;
+		time = pause_time - start_time - timer->paused_us;
 	}
 	pthread_rwlock_unlock(&timer->rw_mut);
+	return time;
 }
 
 // 重置计时器
@@ -86,7 +88,7 @@ static void reset_timer_ofday(struct TimerHandle *timer) {
 	pthread_rwlock_wrlock(&timer->rw_mut);  // 获取写锁
     timer->running = false;
     timer->paused_us = 0;
-	
+	pthread_rwlock_unlock(&timer->rw_mut);
     debug_printf("Stopwatch reset.\n");
 }
 

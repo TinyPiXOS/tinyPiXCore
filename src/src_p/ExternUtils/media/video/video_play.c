@@ -39,21 +39,30 @@ int video_hard_param_init(struct VideoHardParam *video, const char *audio_card)
 	video->window=NULL;
 	video->renderer=NULL;
 	video->texture=NULL;
+	video->format=0;
 	video->rect_dst=NULL;
 	video->rect_src=NULL;
-	video->format=0;
+	
 	if(audio_card)
 		video->audio_card=strdup(audio_card);
 	video->audio_data=NULL;
 //	video->pcm_play=NULL;
 	video->swr_ctr=NULL;
 	video->is_sdl=false;
+	return 0;
 }
 
 int video_hard_param_deinit(struct VideoHardParam *video)
 {
 	if(video->audio_card)
 		free(video->audio_card);
+	if(video->rect_dst)
+		free(video->rect_dst);
+	if(video->rect_src)
+		free(video->rect_src);
+	video->audio_card=NULL;
+	video->rect_dst=NULL;
+	video->rect_src=NULL;
 	return 0;
 }
 
@@ -214,7 +223,7 @@ static int sdl_display_init(struct VideoHardParam *display, struct MediaCodecPar
 	}
 
 	//创建SDL窗口
-	display->window = SDL_CreateWindow("tinyPiX Video", x, y, w, h, SDL_WINDOW_SHOWN);
+	display->window = SDL_CreateWindow("tinyPiX Video", x, y, w, h, SDL_WINDOW_HIDDEN);//隐藏：SDL_WINDOW_HIDDEN,显示：SDL_WINDOW_SHOWN
 	if (!display->window) {
 		fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		SDL_Quit();
@@ -230,14 +239,15 @@ static int sdl_display_init(struct VideoHardParam *display, struct MediaCodecPar
 		return -1;
 	}
 	//创建纹理
-	display->texture = sdl_creat_texture_near(display->renderer, &format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
+	display->texture=NULL;
+	/*display->texture = sdl_creat_texture_near(display->renderer, &format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
 	if(display->texture==NULL)
 	{
 		fprintf(stderr, "Creat Texture! SDL_Error: %s\n", SDL_GetError());
 		SDL_DestroyRenderer(display->renderer);
         SDL_DestroyWindow(display->window);
         SDL_Quit();
-	}
+	}*/
 	
 	
 	debug_printf("debug:sdl init ok, display on(%d,%d %d*%d)\n",x,y,w,h);
@@ -310,11 +320,11 @@ static int get_smaller_value(int value1,int value2)
 	return (value1<value2 ? value1:value2);
 }
 //根据用户设置参数计算画面真实显示尺寸
-int count_rect_size_from_user(struct VideoHardParam *display,struct VideoStreamParams *video_params,AVCodecContext *codec_ctx)
+int count_rect_size_from_user(struct VideoStreamParams *user_params,AVCodecContext *codec_ctx,struct MediaRect *rect_s,struct MediaRect *rect_d)
 {
-	struct VideoStreamParams *user_=video_params;
-	struct MediaRect *rect_d=(struct MediaRect *)malloc(sizeof(struct MediaRect));
-	struct MediaRect *rect_s=(struct MediaRect *)malloc(sizeof(struct MediaRect));
+	struct VideoStreamParams *user_=user_params;
+//	struct MediaRect *rect_d=(struct MediaRect *)malloc(sizeof(struct MediaRect));
+//	struct MediaRect *rect_s=(struct MediaRect *)malloc(sizeof(struct MediaRect));
 	//获取显示参数
 	switch(user_->fill)
 	{
@@ -374,9 +384,9 @@ int count_rect_size_from_user(struct VideoHardParam *display,struct VideoStreamP
 
 			break;
 	}
-	display->rect_dst=rect_d;
-	display->rect_src=rect_s;
+	return 0;
 }
+
 
 //播放解码文件
 //display:硬件参数
@@ -401,8 +411,9 @@ int video_play_codec_file(struct VideoHardParam *display,struct MediaParams *use
 	Audio_Set_Length(user,duration);
 		
 	struct VideoStreamParams video_params;
-	get_display_params_user_codec(user,codec_v.codec_ctx,&video_params);
-	count_rect_size_from_user(display,&video_params,codec_v.codec_ctx);
+	video_params.rect.x=0; video_params.rect.y=0; video_params.rect.w=0; video_params.rect.h=0;
+//	get_display_params_user_codec(user,codec_v.codec_ctx,&video_params);
+//	count_rect_size_from_user(display,&video_params,codec_v.codec_ctx);
 //	if(sdl_display_init(display, format,0, 0, codec_v.codec_ctx->width, codec_v.codec_ctx->height )<0)
 	if(display->is_sdl)
 	{
@@ -554,7 +565,7 @@ int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec
 	if(!video_params)
 		return -1;
 	video_params_get_all(user,video_params);
-	if(video_params->rect.w==0 || video_params->rect.h==0)		//宽高不符合则使用视频默认参数
+	if((video_params->rect.w==0 || video_params->rect.h==0) && codec_ctx!=NULL)		//宽高不符合则使用视频默认参数,若没有传默认参数则直接返回
 	{
 		video_params->rect.w=codec_ctx->width;
 		video_params->rect.h=codec_ctx->height;

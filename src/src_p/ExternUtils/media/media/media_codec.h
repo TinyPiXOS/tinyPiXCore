@@ -87,16 +87,13 @@ struct MediaStreamParams{
 	union		//每个流独特的硬件相关参数
 	{
 		struct{
-
 			struct MediaAudioHandle *handle;	//音频硬件的采样参数
-			struct AudioStreamParams *params_s;	//暂时不用
-			struct AudioStreamParams *params_d;	//暂时不用
 			struct SwrContext *swr_ctx;
 		}audio;
 		struct{
 			struct MediaVideoHandle *handle;
-			struct VideoStreamParams *params_s;	
-			struct VideoStreamParams *params_d;	
+			//struct VideoStreamParams *params_s;	
+			//struct VideoStreamParams *params_d;	
 			uint32_t format;			//格式，RGB，YUV等，当启用本地显示的时候就是带鸟sdl窗口的格式，如果没有启用就代表用户设置的格式(当前用户默认使用RGB888)
 		}video;
 		
