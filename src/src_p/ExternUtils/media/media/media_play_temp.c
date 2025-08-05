@@ -37,7 +37,8 @@ static int callback_codec_play(uint8_t *buff,uint32_t frames,int offset,void *pa
 
 
 //SDL初始化(显示)
-static int sdl_display_init(struct MediaVideoHandle *display,uint32_t format,int x, int y, int w, int h)
+//当设置的format无法成功生效时会自动修改可以成功设置的format
+static int sdl_display_init(struct MediaVideoHandle *display,uint32_t *format,int x, int y, int w, int h)
 {
 #ifdef MEDIA_SDL_ENABLE	
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -63,7 +64,7 @@ static int sdl_display_init(struct MediaVideoHandle *display,uint32_t format,int
 	}
 	//创建纹理
 	display->texture=NULL;
-	/*display->texture = sdl_creat_texture_near(display->renderer, &format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
+	/*display->texture = sdl_creat_texture_near(display->renderer, format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
 	if(display->texture==NULL)
 	{
 		fprintf(stderr, "Creat Texture! SDL_Error: %s\n", SDL_GetError());
@@ -363,23 +364,23 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 		goto ERROR_RETURN;
 	}
 
-	uint32_t sdl_format;
+#ifdef MEDIA_SDL_ENABLE
 	if(handle->is_sdl)
 	{
-		sdl_format=(uint32_t)get_sdl_pixel_format(user->format_video);
-
+		uint32_t sdl_format=(uint32_t)get_sdl_pixel_format(user->format_video);	//此处的sdl_format已无实际意义，真正格式会在codec中使用，此处为了兼容旧版程序
 		//视频播放的SDL初始化
-		if(sdl_display_init(handle,sdl_format,0,0,0,0 )<0)		//只初始化，窗口不显示
+		if(sdl_display_init(handle,&sdl_format,0,0,0,0 )<0)		//只初始化，窗口不显示
 		{
 			fprintf(stderr,"init sdl error\n");
 			goto ERROR_RETURN;
 		}
+		stream->video.format=get_format_pixel_sdl(sdl_format);	//根据新的sdlformat获取av_format
 	}
 	else	
-		sdl_format=user->format_video;
+		;
+#endif
 
-	stream->video.format=sdl_format;
-
+	stream->video.format=user->format_video;
 	stream->video.handle=handle;
 	return 0;
 

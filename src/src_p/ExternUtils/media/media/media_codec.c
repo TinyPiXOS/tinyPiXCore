@@ -544,7 +544,7 @@ static void *thread_video_codec(void *param)
 	int videoStreamIndex = stream->stream_index;		//流索引
 	AVStream* videoStream = stream->format_ctx->streams[videoStreamIndex];	//流参数
 
-	enum AVPixelFormat pix_fmt_dest = get_format_pixel_sdl(stream->video.format);		//需要的转换后的格式
+	enum AVPixelFormat pix_fmt_dest = stream->video.format;					//需要的转换后的格式
 	enum AVPixelFormat pix_fmt_sour=stream->codec_ctx->pix_fmt;				//视频原始的格式
 	
 	struct VideoStreamParams show_param_l,show_param;		//视频参数(宽高亮度等)		
@@ -562,7 +562,10 @@ static void *thread_video_codec(void *param)
 	AVPacket *packet;
 	int num=0;
 	//video_t->clock->start(video_t->clock);
-	SDL_ShowWindow(stream->video.handle->window);
+#ifdef MEDIA_SDL_ENABLE
+	if(stream->video.handle->is_sdl)
+		SDL_ShowWindow(stream->video.handle->window);
+#endif
 	while(video_t->is_running(video_t))
 	{
 		int cmd=user->command_get(user);
@@ -611,6 +614,7 @@ static void *thread_video_codec(void *param)
 				data->err_code=-1;
 				return &data->err_code;
 			}
+#ifdef MEDIA_SDL_ENABLE
 			if(stream->video.handle->is_sdl)
 			{
 				//调整窗口大小
@@ -618,15 +622,24 @@ static void *thread_video_codec(void *param)
 				//更新纹理
 				if(stream->video.handle->texture)
 					SDL_DestroyTexture(stream->video.handle->texture);		//销毁原来的纹理
-				stream->video.handle->texture = sdl_creat_texture_near(stream->video.handle->renderer, &stream->video.format,rect_dst.w,rect_dst.h);//创建新的纹理
+				uint32_t sdl_format=(uint32_t)get_sdl_pixel_format(pix_fmt_dest);	
+				stream->video.handle->texture = sdl_creat_texture_near(stream->video.handle->renderer, &sdl_format,rect_dst.w,rect_dst.h);//创建新的纹理
+				if(!stream->video.handle->texture)
+				{
+					continue;
+				}
+				pix_fmt_dest=get_format_pixel_sdl(sdl_format);
 			}
+#endif
 			show_param_l.rect.w=show_param.rect.w;
 			show_param_l.rect.h=show_param.rect.h;
 		}
 		if(show_param.rect.x!=show_param_l.rect.x || show_param.rect.y!=show_param_l.rect.y)	//位置不一样
 		{
+#ifdef MEDIA_SDL_ENABLE
 			if(stream->video.handle->is_sdl)
 				SDL_SetWindowPosition(stream->video.handle->window, show_param.rect.x, show_param.rect.y);
+#endif
 			show_param_l.rect.x=show_param.rect.x;
 			show_param_l.rect.y=show_param.rect.y;
 		}
@@ -682,9 +695,11 @@ static void *thread_video_codec(void *param)
 			}
 			else
 			{
+#ifdef MEDIA_SDL_ENABLE
 				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,
 								stream->video.handle->renderer,stream->video.handle->texture,
 								&rect_src,&rect_dst);
+#endif
 			}
 				
 			

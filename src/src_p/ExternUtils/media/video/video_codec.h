@@ -3,11 +3,11 @@
 
 
 #include <pthread.h>
-#include <SDL2/SDL.h>
 #include <libavformat/avformat.h>
 #include "video_play.h"
 #include "audio_codec.h"
 #include "media_timer.h"
+#include "media_config.h"
 
 #define DEBUG
 //#define DEBUG_VIDEO

@@ -13,7 +13,6 @@ extern "C" {
 #include <sys/time.h>
 #include <pthread.h>
 #include <signal.h>		//用于signal函数，测试使用
-#include <SDL2/SDL.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
@@ -505,7 +504,10 @@ static void *thread_video_codec(void *param)
 	AVPacket *packet;
 	int num=0;
 	//video_t->clock->start(video_t->clock);
-	SDL_ShowWindow(display->window);
+#ifdef MEDIA_SDL_ENABLE
+	if(display->is_sdl)
+		SDL_ShowWindow(display->window);
+#endif
 	while(video_t->is_running(video_t))
 	{
 		int cmd=user->command_get(user);
@@ -553,6 +555,7 @@ static void *thread_video_codec(void *param)
 				data->err_code=-1;
 				return &data->err_code;
 			}
+#ifdef MEDIA_SDL_ENABLE
 			if(display->is_sdl)
 			{
 				//调整窗口大小
@@ -561,14 +564,19 @@ static void *thread_video_codec(void *param)
 				if(display->texture)
 					SDL_DestroyTexture(display->texture);		//销毁原来的纹理
 				display->texture = sdl_creat_texture_near(display->renderer, &display->format,rect_dst.w,rect_dst.h);//创建新的纹理
+				if(!display->texture)
+					continue;
 			}
+#endif
 			show_param_l.rect.w=show_param.rect.w;
 			show_param_l.rect.h=show_param.rect.h;
 		}
 		if(show_param.rect.x!=show_param_l.rect.x || show_param.rect.y!=show_param_l.rect.y)	//位置不一样
 		{
+#ifdef MEDIA_SDL_ENABLE
 			if(display->is_sdl)
 				SDL_SetWindowPosition(display->window, show_param.rect.x, show_param.rect.y);
+#endif
 			show_param_l.rect.x=show_param.rect.x;
 			show_param_l.rect.y=show_param.rect.y;
 		}
@@ -624,7 +632,9 @@ static void *thread_video_codec(void *param)
 			}
 			else
 			{
+#ifdef MEDIA_SDL_ENABLE
 				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,display->renderer,display->texture,display->rect_src,display->rect_dst);
+#endif
 			}
 			
 			//写入进度

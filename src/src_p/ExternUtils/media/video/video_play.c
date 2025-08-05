@@ -10,7 +10,6 @@ extern "C" {
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL2/SDL.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
@@ -37,9 +36,11 @@ int video_hard_param_init(struct VideoHardParam *video, const char *audio_card)
 {
 	if(!video)
 		return -1;
+#ifdef MEDIA_SDL_ENABLE
 	video->window=NULL;
 	video->renderer=NULL;
 	video->texture=NULL;
+#endif
 	video->format=0;
 	video->rect_dst=NULL;
 	video->rect_src=NULL;
@@ -70,6 +71,7 @@ int video_hard_param_deinit(struct VideoHardParam *video)
 
 //创建纹理（设置format，如果不支持会设置为其他格式）
 //每次调整播放窗口大小都要重新创建纹理
+#ifdef MEDIA_SDL_ENABLE
 SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer,uint32_t *format,int w,int h)
 {
 	SDL_Texture *texture = SDL_CreateTexture(renderer, *format, SDL_TEXTUREACCESS_STREAMING,w, h);		//SDL_PIXELFORMAT_RGB24
@@ -91,86 +93,8 @@ SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer,uint32_t *format,int 
 	}
 	return texture;
 }
+#endif
 
-//音频播放回调
-static void sdl_audio_callback(void *userdata, Uint8 *stream, int len) 
-{
-	struct AudioData *audio = (struct AudioData *)userdata;
-	int remaining = audio->buffer_size - audio->buffer_pos;
-
-	if (remaining == 0) {
-		memset(stream, 0, len);  // 没有数据时填充静音
-		return;
-	}
-
-	int to_copy = len > remaining ? remaining : len;
-	memcpy(stream, audio->buffer + audio->buffer_pos, to_copy);
-	audio->buffer_pos += to_copy;
-
-	if (to_copy < len) {
-		memset(stream + to_copy, 0, len - to_copy);  // 填充剩余部分为静音
-	}
-}
-
-//sdl音频初始化(SDL对alsa进行了封装，也可以直接使用alsa库)
-static int sdl_audio_init(struct VideoHardParam *display,struct MediaCodecParam *audio)
-{
-	AVCodecContext *codec_ctx=audio->codec_ctx;
-
-	SDL_AudioSpec audioSpec;
-    audioSpec.freq = codec_ctx->sample_rate;
-    audioSpec.format = AUDIO_S16SYS;
-    audioSpec.channels = codec_ctx->channels;
-    audioSpec.silence = 0;
-    audioSpec.samples = 1024;
-    audioSpec.callback = sdl_audio_callback;
-
-    struct AudioData *audioData = (struct AudioData *)malloc(sizeof(struct AudioData));
-	audioData->buffer=NULL;
-	audioData->buffer_pos=0;
-	audioData->buffer_size=0;
-    audioSpec.userdata = audioData;
-
-    if (SDL_OpenAudio(&audioSpec, NULL) < 0) {
-        fprintf(stderr, "SDL_OpenAudio error: %s\n", SDL_GetError());
-        return -1;
-    }
-
-	SDL_PauseAudio(0);
-	// 音频重采样
-	
-	/*struct SwrContext *swrContext = swr_alloc();
-	if(swrContext==NULL)
-		return -1;
-	av_opt_set_int(swrContext, "in_channel_layout", codec_ctx->channel_layout, 0);
-	av_opt_set_int(swrContext, "out_channel_layout", codec_ctx->channel_layout, 0);
-	av_opt_set_int(swrContext, "in_sample_rate", codec_ctx->sample_rate, 0);
-	av_opt_set_int(swrContext, "out_sample_rate", codec_ctx->sample_rate, 0);
-	av_opt_set_sample_fmt(swrContext, "in_sample_fmt", codec_ctx->sample_fmt, 0);
-	av_opt_set_sample_fmt(swrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);*/
-	struct SwrContext *swrContext = swr_alloc_set_opts(NULL,
-                                 codec_ctx->channel_layout,		//codec_ctx->channel_layout = av_get_default_channel_layout(codec_ctx->channels);
-                                 AV_SAMPLE_FMT_S16,
-                                 codec_ctx->sample_rate,
-                                 codec_ctx->channel_layout,
-                                 codec_ctx->sample_fmt,
-                                 codec_ctx->sample_rate,
-                                 0,
-                                 NULL);	
-	
-    if (!swrContext || swr_init(swrContext) < 0) {
-        fprintf(stderr, "Could not initialize resampler\n");
-		avcodec_free_context(&codec_ctx);
-		avformat_close_input(&audio->format_ctx);
-        return -1;
-    }
-
-	debug_printf("init sdl audio ok\n");
-	display->swr_ctr=swrContext;
-	display->audio_data=audioData;
-	audio->callback_play=callback_codec_play_audio;
-	return 0;
-}
 
 //声卡初始化
 static int alsa_hard_init(const char *name,struct VideoHardParam *display,struct MediaCodecParam *audio,struct MediaParams *conf)
@@ -216,6 +140,7 @@ static int alsa_hard_deinit(struct VideoHardParam *display,struct MediaCodecPara
 
 
 //SDL初始化(显示)
+#ifdef MEDIA_SDL_ENABLE
 static int sdl_display_init(struct VideoHardParam *display, struct MediaCodecParam *codec_v,uint32_t format,int x, int y, int w, int h)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -255,7 +180,9 @@ static int sdl_display_init(struct VideoHardParam *display, struct MediaCodecPar
 	display->format=format;
 	return 0;
 }
+#endif
 
+#ifdef MEDIA_SDL_ENABLE
 static int sdl_display_deinit(struct VideoHardParam *display)
 {
 	if(display->texture);
@@ -267,7 +194,7 @@ static int sdl_display_deinit(struct VideoHardParam *display)
 	SDL_Quit();
 	return 0;
 }
-
+#endif
 
 int callback_codec_play_audio(uint8_t *buf,uint32_t frames,int offset,void *param)
 {
@@ -395,7 +322,7 @@ int count_rect_size_from_user(struct VideoStreamParams *user_params,AVCodecConte
 //filename:
 int video_play_codec_file(struct VideoHardParam *display,struct MediaParams *user,const char *filename)
 {
-	uint32_t format=SDL_PIXELFORMAT_RGB24;	//暂时使用固定RGB888格式（）
+	uint32_t format=AV_PIX_FMT_RGB24;	//暂时使用固定RGB888格式（）
 	if(!user->get_callback_video(user))		//用户没设置回调就启用本地显示
 	{
 		printf("=============启用本地显示===========\n");
@@ -416,6 +343,7 @@ int video_play_codec_file(struct VideoHardParam *display,struct MediaParams *use
 //	get_display_params_user_codec(user,codec_v.codec_ctx,&video_params);
 //	count_rect_size_from_user(display,&video_params,codec_v.codec_ctx);
 //	if(sdl_display_init(display, format,0, 0, codec_v.codec_ctx->width, codec_v.codec_ctx->height )<0)
+#ifdef MEDIA_SDL_ENABLE
 	if(display->is_sdl)
 	{
 		//format=(uint32_t)get_sdl_pixel_format(codec_v.codec_ctx->pix_fmt);
@@ -433,6 +361,7 @@ int video_play_codec_file(struct VideoHardParam *display,struct MediaParams *use
 	{
 		display->format=format;
 	}
+#endif
 	//音频硬件初始化设置
 	if(alsa_hard_init(display->audio_card,display,&codec_a,user)<0)
 	{
@@ -446,8 +375,10 @@ int video_play_codec_file(struct VideoHardParam *display,struct MediaParams *use
 	}
 	else
 		Video_File_Codec(display,&codec_v,&codec_a,user);		//解码并播放
-
-	if(display->is_sdl)	sdl_display_deinit(display);
+#ifdef MEDIA_SDL_ENABLE
+	if(display->is_sdl)	
+		sdl_display_deinit(display);
+#endif
 	if(alsa_hard_deinit(display,&codec_a)<0)
 	{
 		fprintf(stderr,"alsa hard deinit error\n");
@@ -630,25 +561,6 @@ int Video_Play_Main(struct MediaParams *user,const char *audio_card)
 	return 0;
 }
 
-//临时测试使用的文件播放
-int Video_Play_File(struct VideoHardParam *display, struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a)
-{
-	struct MediaParams *conf=media_user_config_creat();
-	uint32_t format=(uint32_t)get_sdl_pixel_format(codec_v->codec_ctx->pix_fmt);
-	if(sdl_display_init(display, codec_v,format,VIDEO_WINDOWPOS_UNDEFINED, VIDEO_WINDOWPOS_UNDEFINED, codec_v->codec_ctx->width, codec_v->codec_ctx->height )<0)
-		debug_printf("init sdl  error\n");
-	//if(sdl_audio_init(display,codec_a)<0)
-	//	debug_printf("init sdl audio error\n");
-	if(alsa_hard_init(NULL,display,codec_a,conf)<0)
-		debug_printf("init sdl audio error\n");
-	struct MediaParams *user=media_user_config_creat();
-	Video_File_Codec(display,codec_v,codec_a,user);
-	sdl_display_deinit(display);
-	if(alsa_hard_deinit(display,codec_a)<0)
-		debug_printf("init sdl audio error\n");
-	media_user_config_free(conf);
-	return 0;
-}
 
 #ifdef __cplusplus
 }

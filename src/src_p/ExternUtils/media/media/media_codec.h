@@ -23,10 +23,6 @@ extern "C" {
 
 
 
-#ifdef MEDIA_SDL_ENABLE
-#include <SDL2/SDL.h>
-#endif
-
 typedef enum AVMediaType  MediaType;
 typedef VariableArray	MediaStreamArray;
 
@@ -98,7 +94,7 @@ struct MediaStreamParams{
 			struct MediaVideoHandle *handle;
 			//struct VideoStreamParams *params_s;	
 			//struct VideoStreamParams *params_d;	
-			uint32_t format;			//格式，RGB，YUV等，当启用本地显示的时候就是带鸟sdl窗口的格式，如果没有启用就代表用户设置的格式(当前用户默认使用RGB888)
+			uint32_t format;			//FFMPEG的格式，RGB，YUV等，(当前用户默认使用RGB888)
 		}video;
 		
 	};

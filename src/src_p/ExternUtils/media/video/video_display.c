@@ -6,13 +6,13 @@
 #include "video_display.h"
 #include "../media/media_codec.h"
 
+#ifdef MEDIA_SDL_ENABLE
 struct MediaSdlDisplayCbData{
 	SDL_Renderer *renderer;		//渲染器
 	SDL_Texture *texture;		//纹理
 	struct MediaRect *rect_src;
 	struct MediaRect *rect_dst;
 };
-
 
 //ffmpeg和sdl映射表
 struct PixelFormatMapping{
@@ -70,7 +70,7 @@ enum AVPixelFormat get_format_pixel_sdl(uint32_t format)
 }
 
 
-#ifdef MEDIA_SDL_ENABLE
+
 int video_display_image(uint8_t **data, int *linesize, uint32_t format ,void *user_data)
 {
 	struct MediaSdlDisplayCbData *display=(struct MediaSdlDisplayCbData *)user_data;

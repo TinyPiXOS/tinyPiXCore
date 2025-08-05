@@ -10,7 +10,7 @@
 #include <thread>
 #include <stdint.h>
 #include <sys/types.h>
-#include <SDL2/SDL.h>
+#include <libavutil/imgutils.h>
 #include "tpVideoInterface.h"
 #include "tpAudioDevice.h"
 #include "tpVideoDevice.h"
@@ -369,25 +369,25 @@ int tpVideoInterface::setDecode(tpVideoDecodeType format)
 	switch (format)
 	{
 	case TP_VIDEO_DECODE_RGB24:
-		format_video = SDL_PIXELFORMAT_RGB24;
+		format_video = AV_PIX_FMT_RGB24;
 		break;
 	case TP_VIDEO_DECODE_BGR24:
-		format_video = SDL_PIXELFORMAT_BGR24;
+		format_video = AV_PIX_FMT_BGR24;
 		break;
 	case TP_VIDEO_DECODE_RGBA8888:
-		format_video = SDL_PIXELFORMAT_RGBA8888;
+		format_video = AV_PIX_FMT_RGBA;
 		break;
 	case TP_VIDEO_DECODE_IYUV:
-		format_video = SDL_PIXELFORMAT_IYUV;
+		format_video = AV_PIX_FMT_YUV420P;
 		break;
 	case TP_VIDEO_DECODE_YUV2:
-		format_video = SDL_PIXELFORMAT_YUY2;
+		format_video = AV_PIX_FMT_YUYV422;
 		break;
 	case TP_VIDEO_DECODE_UYVY:
-		format_video = SDL_PIXELFORMAT_UYVY;
+		format_video = AV_PIX_FMT_UYVY422;
 		break;
 	default:
-		format_video = SDL_PIXELFORMAT_RGB24;
+		format_video = AV_PIX_FMT_RGB24;
 		break;
 	}
 

@@ -9,9 +9,6 @@ extern "C" {
 #include "../media/media_config.h"
 #include "../audio/audio_play.h"
 
-#ifdef MEDIA_SDL_ENABLE
-#include <SDL2/SDL.h>
-#endif
 
 
 
