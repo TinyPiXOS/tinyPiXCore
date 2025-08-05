@@ -20,6 +20,7 @@ extern "C" {
 #include "audio_codec.h"
 #include "audio_play.h"
 #include "video_codec.h"
+#include "video_display.h"
 #include "../media/media_file_list.h"
 
 int callback_codec_play_audio(uint8_t *buf,uint32_t frames,int offset,void *param);
@@ -542,7 +543,7 @@ int Video_Set_Light(struct MediaParams *conf,uint16_t light)
 }
 
 //获取所有显示参数
-int video_params_get_all(struct MediaParams *user,struct VideoStreamParams *video_params)
+static int video_params_get_all(struct MediaParams *user,struct VideoStreamParams *video_params)
 {
 	//使用memcpy有问题，原因未知
 	pthread_rwlock_rdlock(&user->rw_mut);

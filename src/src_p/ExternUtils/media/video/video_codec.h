@@ -81,14 +81,6 @@ struct MediaThread{
 
 
 
-
-int get_sizeof_format_mapping();
-uint32_t get_format_mapping_with_num(uint32_t num);
-uint32_t get_sdl_pixel_format(enum AVPixelFormat pixFmt);
-enum AVPixelFormat get_format_pixel_sdl(uint32_t format);
-
-struct MediaThread *Media_Thread_Creat();
-int Media_Thread_Free(struct MediaThread *thread);
 int Video_File_Codec(struct VideoHardParam *display,struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a,struct MediaParams *user);
 int Video_Get_File_Info(const char *filename,struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a);
 int Video_Free_File(struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a);

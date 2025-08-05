@@ -11,13 +11,17 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
 #include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
 #include "media_timer.h"
 #include "media.h"
 #include "utils/variable_array.h"
 #include "audio_play.h"
-#define MEDIA_SDL_ENABLE	1
+#include "media_play_temp.h"
+#include "media_config.h"
+
+
 
 #ifdef MEDIA_SDL_ENABLE
 #include <SDL2/SDL.h>
@@ -111,12 +115,30 @@ struct MediaStreamParams{
 
 
 
+struct MediaPlayerHandle{
+	char *url;
+	AVFormatContext *format_ctx;	//输入输出相关信息，贯穿ffmpeg
+	int sysnc_clock_index;			//主同步时钟的流索引号
+	struct TimerHandle *clock;		//同步时钟
+	MediaStreamArray *stream_array;	//所有的流
+
+
+	int (*player_start)(MediaStreamArray *stream_array);
+	int (*player_wait)(MediaStreamArray *stream_array);
+	int (*player_pause)(MediaStreamArray *stream_array);
+	int (*player_resume)(MediaStreamArray *stream_array);
+	int (*set_state)(MediaStreamArray *stream_array, AudioPlayState state);
+
+	int (*flush_list)(MediaStreamArray *stream_array);			//删除全部流队列中所有元素
+	int (*packet_exit)(MediaStreamArray *stream_array);			//
+	MediaPacketQueueState (*list_state)(MediaStreamArray *stream_array);
+};
 
 
 
 MediaFormatContext *Media_Get_File_Info(const char *filename,MediaStreamArray *media_array);
 int Media_Free_File(MediaStreamArray *media_array);
-int Mediao_File_Codec(struct VideoHardParam *display,struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a,struct MediaParams *user);
+int Mediao_File_Codec(struct MediaPlayerHandle *player,struct MediaParams *user);
 
 struct MediaPlayerHandle *media_player_handle_creat();
 int media_player_handle_delete(struct MediaPlayerHandle *player);

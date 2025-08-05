@@ -44,10 +44,9 @@ struct VideoHardParam{
 };
 
 int video_hard_param_init(struct VideoHardParam *video,const char *audio_card);
-int video_params_get_all(struct MediaParams *user,struct VideoStreamParams *video_params);
+int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params);
 
 SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer,uint32_t *format,int w,int h);		//创建纹理(
-int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params);
 int count_rect_size_from_user(struct VideoStreamParams *user_params,AVCodecContext *codec_ctx,struct MediaRect *rect_s,struct MediaRect *rect_d);
 
 int Video_Play_File(struct VideoHardParam *display, struct MediaCodecParam *codec_v,struct MediaCodecParam *codec_a);

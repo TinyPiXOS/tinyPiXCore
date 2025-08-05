@@ -2,10 +2,19 @@
 #include <signal.h>		//用于signal函数，测试使用
 #include "media_codec.h"
 #include "media_play_temp.h"
-
+#include "../video/video_display.h"
+#include "../video/video_play.h"
+#include "../audio/audio_play.h"
 
 #define AUDIO_MAX_QUEUE_SIZE	500		//音频缓存区最大长度
 #define VIDEO_MAX_QUEUE_SIZE	100		//视频缓存区最大长度
+
+#ifdef DEBUG_MEDIA_CODEC
+    #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+    #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#endif
+
 
 typedef struct MediaPacketList {
     AVPacket *pkt;
@@ -77,16 +86,6 @@ struct MediaThread{
 		uint32_t (*packet_number)(struct MediaPacketQueue *list);	//获取队列中元素数量
 		int (*packet_exit)(struct MediaPacketQueue *list);
 	};
-};
-
-struct ThreadData{
-	struct MediaThread *thread;
-	struct VideoHardParam *display;		//显示信息
-	struct MediaCodecParam *codec;
-	AVFrame *frame_s ;		//原始的侦数据(直接从文件中解码出来的)
-	int8_t err_code;		//错误码
-	AVPacket *packet;
-	struct MediaParams *user;		//用户交互
 };
 
 
@@ -314,6 +313,16 @@ static int thread_set_state(struct MediaThread *thread, AudioPlayState state)
 	return 0;
 }
 
+struct ThreadData{
+	struct MediaThread *thread;
+	struct MediaStreamParams *stream;
+	AVFrame *frame_s ;		//原始的侦数据(直接从文件中解码出来的)
+	int8_t err_code;		//错误码
+	struct TimerHandle *clock;
+	struct MediaParams *user;		//用户交互
+};
+
+
 static int thread_start_running(struct MediaThread *thread,
 								struct TimerHandle *clock,
 								void *(*thread_main)(void *),
@@ -396,12 +405,13 @@ static double count_media_clock_delay_time(struct MediaParams *user,struct Timer
 
 
 
-
-uint8_t video_flag=0;
+uint8_t media_flag=0;
+struct MediaThread *Media_Thread_Creat();
+static int Media_Thread_Free(struct MediaThread *thread);
 
 static void exit_signal(int sig)
 {
-	video_flag=1;
+	media_flag=1;
 }
 
 
@@ -447,7 +457,7 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
 
     // 打开媒体文件
 	if(media_get_file_info(url,&format_ctx)<0)
-		return -1;
+		return NULL;
     // 查找流合适的解码器()av_find_best_stream(format_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
 	for (int i = 0; i < format_ctx->nb_streams; i++) 
 	{
@@ -515,66 +525,6 @@ static int media_find_sys_clock_index(MediaStreamArray *media_array, MediaType t
 	return clock_index;
 }
 
-
-//为转码后的图像申请帧空间
-static int malloc_codec_frame(int dst_width,int dst_height, enum AVPixelFormat pix_fmt,uint8_t **buffer, AVFrame **frame_d)
-{
-	int numBytes;
-	numBytes = av_image_get_buffer_size(pix_fmt, dst_width, dst_height, 1);		//计算需要的空间大小
-	*buffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
-	if(*buffer == NULL) {
-		return -1;
-	}
-	*frame_d = av_frame_alloc();
-	if(*frame_d == NULL) {
-		av_free(*buffer);
-		return -1;
-	}
-	if(av_image_fill_arrays((*frame_d)->data, (*frame_d)->linesize, *buffer, pix_fmt,
-							dst_width, dst_height, 1)<0)
-	{
-		av_free(*buffer);
-		av_frame_free(&(*frame_d));
-		return -1;
-	}
-	return 0;
-}
-static int free_codec_frame(uint8_t *buffer,AVFrame *frame_d)
-{
-	av_frame_free(&frame_d);
-	av_free(buffer);
-	return 0;
-}
-
-static int re_alloc_codec_context(int srcW, int srcH, enum AVPixelFormat srcFormat,
-                                  int dstW, int dstH, enum AVPixelFormat dstFormat,
-                                  int flags, SwsFilter *srcFilter,
-                                  SwsFilter *dstFilter, const double *param)
-{
-	return 0;
-}
-
-//计算当前时钟需要的延时时间
-static double count_media_clock_delay_time(struct MediaParams *user,struct TimerHandle *clock,int64_t pts, AVRational time_base)
-{
-	float speed=Audio_Get_Speed(user);
-	//延时一段时间
-	double video_clock = (double)pts * av_q2d(time_base)*1000.0*1000.0/speed;		//time_base为s
-	double delay_time=video_clock-clock->get_run_time(clock);
-	return delay_time;
-}
-
-struct ThreadData{
-	struct MediaThread *thread;
-	struct MediaStreamParams *stream;
-	AVFrame *frame_s ;		//原始的侦数据(直接从文件中解码出来的)
-	int8_t err_code;		//错误码
-	struct TimerHandle *clock;
-	struct MediaParams *user;		//用户交互
-};
-
-
-
 //视频播放的视频解码线程
 static void *thread_video_codec(void *param) 
 {
@@ -635,7 +585,7 @@ static void *thread_video_codec(void *param)
 		//重新设置解码器参数
 		if(show_param.rect.w!=show_param_l.rect.w || show_param.rect.h!=show_param_l.rect.h)	//宽高不一样就从设大小
 		{
-			count_rect_size_from_user(user,stream->codec_ctx,&rect_src,&rect_dst);		//计算新的显示窗口尺寸
+			count_rect_size_from_user(user->video,stream->codec_ctx,&rect_src,&rect_dst);		//计算新的显示窗口尺寸
 
 			debug_printf("原始尺寸：%d*%d,需要显示成%d*%d\n",stream->codec_ctx->width,stream->codec_ctx->height,rect_dst.w,rect_dst.h);
 			debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n",rect_src.x,rect_src.y,rect_src.w,rect_src.h,
@@ -731,7 +681,12 @@ static void *thread_video_codec(void *param)
 				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,user->userdata);
 			}
 			else
-				video_display_image(frame_d->data,frame_d->linesize,pix_fmt_dest,display);
+			{
+				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,
+								stream->video.handle->renderer,stream->video.handle->texture,
+								&rect_src,&rect_dst);
+			}
+				
 			
 			//写入进度
 			Audio_Set_Position_N(user,(int32_t)(video_clock/1000.0/1000.0));
@@ -1000,19 +955,19 @@ static int media_player_set_state(MediaStreamArray *stream_array,AudioPlayState 
 	};
 }
 
-static media_player_packet_exit(MediaStreamArray *stream_array)
+static int media_player_packet_exit(MediaStreamArray *stream_array)
 {
 	struct MediaThread* t;
 	FOREACH_THREAD(stream_array,t){
-		t->packet_exit(t);
+		t->packet_exit(&t->list);
 	};
 }
 
-static media_player_flush_list(MediaStreamArray *stream_array)
+static int media_player_flush_list(MediaStreamArray *stream_array)
 {
 	struct MediaThread* t;
 	FOREACH_THREAD(stream_array,t){
-		t->flush_list(t);
+		t->flush_list(&t->list);
 	};
 }
 
@@ -1028,7 +983,7 @@ static int media_write_packet_to_queue(MediaStreamArray *stream_array, AVPacket 
 		if(stream->stream_index==packet->stream_index)
 		{
 			struct MediaThread *thread=stream->codec_thread;
-			thread->push_packet(&thread->list,&packet);
+			thread->push_packet(&thread->list,packet);
 		}
 			
 	}
@@ -1087,7 +1042,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 			break;
 
 #ifdef DEBUG_VIDEO
-		if(video_flag==1)
+		if(media_flag==1)
 		{
 			debug_printf("强制退出===========================================================================================\n");
 			player->player_start(stream_array);
@@ -1201,7 +1156,7 @@ struct MediaThread *Media_Thread_Creat()
 }
 
 //
-int Media_Thread_Free(struct MediaThread *thread)
+static int Media_Thread_Free(struct MediaThread *thread)
 {
 	if(!thread)
 		NULL;
@@ -1298,10 +1253,10 @@ int Media_Free_File(MediaStreamArray *media_array)
 	return 0;
 }
 
-int Mediao_File_Codec(MediaStreamArray *stream_array,struct MediaParams *user)
+int Mediao_File_Codec(struct MediaPlayerHandle *player,struct MediaParams *user)
 {
 	signal(SIGINT, exit_signal);
-	return media_codec_play(stream_array,user);
+	return media_codec_play(player,user);
 }
 
 

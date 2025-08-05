@@ -36,64 +36,11 @@ extern "C" {
 
 uint8_t video_flag=0;
 
+static int Media_Thread_Free(struct MediaThread *thread);
+static struct MediaThread *Media_Thread_Creat();
 static void exit_signal(int sig)
 {
 	video_flag=1;
-}
-
-//ffmpeg和sdl映射表
-struct PixelFormatMapping{
-    enum AVPixelFormat avFmt;
-    Uint32 sdlFmt;
-};
-const struct PixelFormatMapping pixelFormatMap[] = {
-    {AV_PIX_FMT_YUV420P, SDL_PIXELFORMAT_IYUV},    // YUV 4:2:0
-    {AV_PIX_FMT_YUYV422, SDL_PIXELFORMAT_YUY2},    // YUV 4:2:2
-    {AV_PIX_FMT_UYVY422, SDL_PIXELFORMAT_UYVY},    // YUV 4:2:2 (UYVY)
-    {AV_PIX_FMT_NV12, SDL_PIXELFORMAT_NV12},       // NV12
-    {AV_PIX_FMT_NV21, SDL_PIXELFORMAT_NV21},       // NV21
-    {AV_PIX_FMT_RGB24, SDL_PIXELFORMAT_RGB24},     // RGB 24-bit		排列方式为：R0G0B0 R1G1B1 R2G2B2
-    {AV_PIX_FMT_BGR24, SDL_PIXELFORMAT_BGR24},     // BGR 24-bit
-    {AV_PIX_FMT_ARGB, SDL_PIXELFORMAT_ARGB8888},   // ARGB 32-bit
-    {AV_PIX_FMT_RGBA, SDL_PIXELFORMAT_RGBA8888},   // RGBA 32-bit
-    {AV_PIX_FMT_ABGR, SDL_PIXELFORMAT_ABGR8888},   // ABGR 32-bit
-    {AV_PIX_FMT_BGRA, SDL_PIXELFORMAT_BGRA8888},   // BGRA 32-bit
-};
-
-//获取mapping的大小
-int get_sizeof_format_mapping()
-{
-	return sizeof(pixelFormatMap) / sizeof(pixelFormatMap[0]);
-}
-
-//根据序号获取SDL格式
-uint32_t get_format_mapping_with_num(uint32_t num)
-{
-	return pixelFormatMap[num].sdlFmt;
-}
-
-//根据AVPixelFormat获取sdl的format
-uint32_t get_sdl_pixel_format(enum AVPixelFormat pixFmt) 
-{
-	for (size_t i = 0; i < get_sizeof_format_mapping(); ++i) 
-	{
-		if (pixelFormatMap[i].avFmt == pixFmt) {
-			return pixelFormatMap[i].sdlFmt;
-		}
-	}
-	return SDL_PIXELFORMAT_UNKNOWN; //未找到匹配格式
-}
-
-//根据SDL格式获取AVPixelFormat
-enum AVPixelFormat get_format_pixel_sdl(uint32_t format)
-{
-	for (size_t i = 0; i < get_sizeof_format_mapping(); ++i) 
-	{
-		if (pixelFormatMap[i].sdlFmt == format) {
-			return pixelFormatMap[i].avFmt;
-		}
-	}
-	return AV_PIX_FMT_NB; //未找到匹配格式
 }
 
 int video_find_codec(const char *url, struct MediaCodecParam *video,struct MediaCodecParam *audio)
@@ -573,7 +520,7 @@ static void *thread_video_codec(void *param)
 			default:
 				break;
 		}
-		video_params_get_all(user,&show_param);
+		get_display_params_user_codec(user,NULL,&show_param);
 		if(show_param.rect.w==0||show_param.rect.h==0)
 		{
 			continue;
@@ -677,7 +624,7 @@ static void *thread_video_codec(void *param)
 			}
 			else
 			{
-				video_display_image(frame_d->data,frame_d->linesize,pix_fmt_dest,display);
+				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,display->renderer,display->texture,display->rect_src,display->rect_dst);
 			}
 			
 			//写入进度
@@ -997,7 +944,7 @@ FREE_AUDIO_THREAD:
 }
 
 //流播放线程结构体创建
-struct MediaThread *Media_Thread_Creat()
+static struct MediaThread *Media_Thread_Creat()
 {
 	struct MediaThread *thread=(struct MediaThread *)malloc(sizeof(struct MediaThread));
 	if(thread==NULL)
@@ -1030,7 +977,7 @@ struct MediaThread *Media_Thread_Creat()
 }
 
 //
-int Media_Thread_Free(struct MediaThread *thread)
+static int Media_Thread_Free(struct MediaThread *thread)
 {
 	thread->set_state(thread,AUDIO_STATE_NONE);
 	pthread_join(thread->thread,NULL);

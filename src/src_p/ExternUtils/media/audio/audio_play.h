@@ -172,7 +172,10 @@ struct MediaParams{        //公共区用户设置
 };
 
 int pcm_hwparams_set(PIAudioConf *pcm,struct AudioStreamParams *audio);		//设置硬件参数
-
+int audio_stream_write(PIAudioConf *pcm_play,struct MediaParams *conf,
+							uint8_t *buffer,uint32_t frames,
+							float volume,
+							int offset,int delay);
 
 int media_pcm_drain(PIAudioConf *pcm);
 int media_pcm_drop(PIAudioConf *pcm);

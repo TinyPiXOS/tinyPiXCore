@@ -224,7 +224,7 @@ static int media_pcm_hwparams_init(PIAudioConf *pcm)
 /// @param nSamplesPersec 采样频率
 /// @param wBitsPerSample 数据位数
 /// @return 
-int audioStreamParams_init(int wChannels,int nSamplesPersec,int wBitsPerSample,struct AudioStreamParams *header)
+int audio_stream_params_init(int wChannels,int nSamplesPersec,int wBitsPerSample,struct AudioStreamParams *header)
 {
 	header->wChannels=wChannels;    //声道数
 	header->nSamplesPersec=nSamplesPersec;          //采样频率
@@ -343,7 +343,7 @@ int pcm_hwparams_set(PIAudioConf *pcm,struct AudioStreamParams *audio)
 
 	//设置完后修改最终成功设置的参数
 	if(audio!=NULL){
-		audioStreamParams_init(channels,frequency,bit,audio);
+		audio_stream_params_init(channels,frequency,bit,audio);
 		memcpy(pcm->adparams,audio,sizeof(struct AudioStreamParams));
 		/*pcm->adparams->nAvgBitsPerSample=audio->nAvgBitsPerSample;
 		pcm->adparams->wBitsPerSample=audio->wBitsPerSample;
@@ -677,7 +677,7 @@ int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,struct M
 {
 	debug_printf("初始化声卡硬件\n");
 	struct AudioStreamParams *stream_params=(struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
-	audioStreamParams_init(codec->codec_ctx->channels,
+	audio_stream_params_init(codec->codec_ctx->channels,
 								codec->codec_ctx->sample_rate,
 								AUDIO_CODEC_CHANNEL_DEF,		//使用16位宽，(本值是解码时候自己指定的，不需要动态设置)
 								stream_params);

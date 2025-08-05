@@ -5,6 +5,15 @@
 #include "media_play_temp.h"
 #include "video_play.h"
 #include "media_file_list.h"
+#include "../audio/audio_play.h"
+#include "../video/video_display.h"
+
+#ifdef DEBUG_MEDIA_PLAY
+    #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+    #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#endif
+
 
 //音频播放回调函数用户参数
 struct codePlayCallbackParam{
@@ -24,98 +33,6 @@ static int callback_codec_play(uint8_t *buff,uint32_t frames,int offset,void *pa
 {
 	struct codePlayCallbackParam *p=(struct codePlayCallbackParam *)param;
 	return audio_stream_write(p->pcm, p->conf, buff, frames, -1, offset, p->delay);
-}
-
-/// @brief 写入硬件的音频流接口写入硬件的音频流接口
-/// @param pcm_play 
-/// @param conf 
-/// @param audio_param 
-/// @param buffer 缓存区
-/// @param frames 原始的帧数
-/// @param volume 音量，设置为-1的时候自己从conf中读取
-/// @param offset 位置偏移，设置为-1的时候需要上层自己写入位置，设置为正值的时候自动写入(当前只作为标志位使用)
-/// @param delay 阻塞时长，
-/// @return 
-int audio_stream_write(PIAudioConf *pcm_play,struct MediaParams *conf,
-							uint8_t *buffer,uint32_t frames,
-							float volume,
-							int offset,int delay)
-{
-
-	int ret=0;
-	float volume_set;
-	struct AudioStreamParams *audio_param=pcm_play->adparams;
-	static struct MediaFilterParam *filter=NULL;
-	AVFrame *frame_flt=NULL;
-	int64_t position=Audio_Get_BytePosition(conf);		//获取当前播放位置
-	uint8_t *data=((AVFrame *)buffer)->data[0];		//输出的数据
-	uint32_t data_frames=frames;
-	static float speed_l=0.0;
-	static uint16_t wChannels_l=0,wBitsPerSample_l=0;
-	static uint32_t nSamplesPersec_l=0;
-
-	float speed=Audio_Get_Speed(conf);
-	if((speed_l!=speed || 
-			audio_param->wChannels!=wChannels_l || 
-			audio_param->wBitsPerSample!=wBitsPerSample_l ||
-			audio_param->nSamplesPersec!=nSamplesPersec_l) 
-			&& speed!=1)		//位置为0认为是新的一首开始播放，或者两次速度不相等，都需要重新设置过滤器
-	{
-		
-		if(filter)
-			audio_filter_delete(filter);
-		filter=audio_filter_creat_init(speed,audio_param->nSamplesPersec,audio_param->wChannels,code_get_channel_layout(audio_param->wChannels),code_get_format(audio_param->wBitsPerSample));
-		if(!filter)
-		{
-			ret = -1;
-			goto WRITE_POS;
-		}
-		conf->filter=filter;
-		speed_l=speed;
-		wChannels_l=audio_param->wChannels;
-		wBitsPerSample_l=audio_param->wBitsPerSample;
-		nSamplesPersec_l=audio_param->nSamplesPersec;
-	}
-	if(speed!=1)
-	{
-		AVFrame *convert_frame=(AVFrame *)buffer;
-		frame_flt = av_frame_alloc();		//提前申请
-		
-		if(!frame_flt)
-		{
-			ret =-1;
-			goto WRITE_POS;
-		}
-		media_filte_get_data(filter,convert_frame,frame_flt);
-		data=frame_flt->data[0];
-		data_frames=frame_flt->nb_samples;
-	}
-
-	if(volume<0)
-	{
-		volume_set=Audio_Get_Volume(conf);
-		volume_set*=0.01;
-	}
-	else
-		volume_set=volume;
-	
-	pcm_data_adjust_volume(data,data_frames,audio_param->wChannels,volume_set,audio_param->wBitsPerSample);
-	ret= pcm_write_data(pcm_play,data,data_frames,delay);
-
-FREE_FLT:
-	if(frame_flt)
-	{
-		av_frame_free(&frame_flt);
-	}
-WRITE_POS:
-//	printf("offset:%d,audio_param->nAvgBitsPerSample:%d,进度：%d\n",offset,audio_param->nAvgBitsPerSample,position);
-	if(offset >= 0 && audio_param->nAvgBitsPerSample!= 0)		//如果要自行设置offset直接传入-1即可
-	{
-		position += (frames*audio_param->byteFrams);
-		Audio_Set_BytePosition(conf,(int64_t)position);
-	}
-	
-	return ret;
 }
 
 
@@ -160,7 +77,7 @@ static int sdl_display_init(struct MediaVideoHandle *display,uint32_t format,int
 	return 0;
 }
 
-static int sdl_display_deinit(struct VideoHardParam *display)
+static int sdl_display_deinit(struct MediaVideoHandle *display)
 {
 #ifdef MEDIA_SDL_ENABLE
 	if(display->texture);
@@ -175,12 +92,69 @@ static int sdl_display_deinit(struct VideoHardParam *display)
 }
 
 
+static int pcm_start_play(PIAudioConf *pcm)
+{
+	if(!pcm || !pcm->handle)
+		return -1;
+	int rc=0;
+	//准备播放
+	if ((rc = snd_pcm_prepare(pcm->handle)) < 0) {		//在第一次设置时可以不需要准备播放，播放后重新设置需要准备播放
+		perror("无法准备播放:");
+		media_pcm_close(pcm);
+		return -1;
+	}
+	snd_pcm_start(pcm->handle);
+//	media_pcm_drop(pcm);
+//	debug_printf("PCM handle name = '%s'\n", snd_pcm_name(pcm->handle));
+	return 0;
+}
+
+/// @brief 暂停播放
+/// @param pcm 
+/// @return 
+static int pcm_play_stop(PIAudioConf *pcm)
+{
+	if(!pcm || !pcm->handle)
+		return -1;
+	int err;
+
+	if (pcm->ahparams->can_pause) {
+		if ((err = snd_pcm_pause(pcm->handle, 1)) < 0) {
+//		    mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_ALSA_PcmPauseError, snd_strerror(err));
+        	return -1;
+		}
+	} 
+	else {
+		if ((err = media_pcm_drop(pcm)) < 0){
+//			mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_ALSA_PcmDropError, snd_strerror(err));
+			return -1;
+		}
+	}
+	return 0;
+}
+
+
+/// @brief audioStreamParams结构体初始化
+/// @param wChannels 通道
+/// @param nSamplesPersec 采样频率
+/// @param wBitsPerSample 数据位数
+/// @return 
+static int audio_stream_params_init(int wChannels,int nSamplesPersec,int wBitsPerSample,struct AudioStreamParams *header)
+{
+	header->wChannels=wChannels;    //声道数
+	header->nSamplesPersec=nSamplesPersec;          //采样频率
+	header->wBitsPerSample=wBitsPerSample;   		// 样本数据位数  
+	header->byteFrams=wChannels*wBitsPerSample/8;
+	header->nAvgBitsPerSample=nSamplesPersec*header->byteFrams;             //每秒播放字节数
+	return 0;
+}
+
 //声卡硬件初始化(使用解码器的参数自动设置)
-static int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,struct MediaStreamParams *audio)
+static int media_audio_hard_auto_init(PIAudioConf *pcm_play,struct MediaParams *conf,struct MediaStreamParams *audio)
 {
 	debug_printf("初始化声卡硬件\n");
 	struct AudioStreamParams *stream_params=(struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
-	audioStreamParams_init(audio->codec_ctx->channels,			//使用流的参数来初始化声卡
+	audio_stream_params_init(audio->codec_ctx->channels,			//使用流的参数来初始化声卡
 								audio->codec_ctx->sample_rate,
 								AUDIO_CODEC_CHANNEL_DEF,		//使用16位宽，(本值是解码时候自己指定的，不需要动态设置)
 								stream_params);
@@ -208,10 +182,10 @@ static int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,s
 	return 0;
 }
 
-static int Audio_Hard_Deinit(struct MediaStreamParams *audio)
+static int media_audio_hard_deinit(struct MediaStreamParams *audio)
 {
 	if(!audio)
-		return ;
+		return 0;
 
 	struct codePlayCallbackParam *cb_param=(struct codePlayCallbackParam *)audio->callback_param;
 	if(cb_param!=NULL)
@@ -233,7 +207,7 @@ static int alsa_hard_init(const char *name,struct MediaStreamParams *audio,struc
 		fprintf(stderr, "Audio pcm open error\n");
 		return -1;
 	}
-	if(Audio_Hard_Auto_Init(pcm_play,user,audio)<0)		//声卡初始化
+	if(media_audio_hard_auto_init(pcm_play,user,audio)<0)		//声卡初始化
 		return -1;
 	struct SwrContext *swrContext=swr_set_with_hard_param(codec_ctx,pcm_play->adparams);
     if (!swrContext || swr_init(swrContext) < 0) {
@@ -265,7 +239,7 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 		avformat_close_input(&audio->format_ctx);
 	if(!audio->audio.swr_ctx)
 		swr_free(&audio->audio.swr_ctx);
-	Audio_Hard_Deinit(audio);		//取消硬件的设置
+	media_audio_hard_deinit(audio);		//取消硬件的设置
 	Audio_Device_Close(audio->audio.handle);			//关闭设备
 	return 0;
 }
@@ -341,7 +315,7 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 	}
 }*/
 
-static int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params)
+/*static int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params)
 {
 	if(!video_params)
 		return -1;
@@ -352,7 +326,7 @@ static int get_display_params_user_codec(struct MediaParams *user,AVCodecContext
 		video_params->rect.h=codec_ctx->height;
 	}
 	return 0;
-}
+}*/
 
 //使用流信息获取文件时长
 static double media_get_stream_duration()
@@ -520,11 +494,11 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 	player->stream_array=array;
 	media_stream_all_init_handle(array,user);		//初始化对应硬件
 
-
+	Mediao_File_Codec(player,user);
 
 	media_stream_all_deinit_handle(array);
 
-	Media_Free_File_Info(array);
+	Media_Free_File(array);
 	media_player_handle_delete(player);
 	return 0;
 }
