@@ -80,8 +80,7 @@ int video_display_image(uint8_t **data, int *linesize, uint32_t format ,void *us
 		return -1;
 	}
 
-	
-	uint32_t sdl_format=get_sdl_pixel_format(format);
+	uint32_t sdl_format=format;
 	if(SDL_ISPIXELFORMAT_FOURCC(sdl_format))		//如果是YUV格式（需要特苏处理）
 	{
 		const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(format);

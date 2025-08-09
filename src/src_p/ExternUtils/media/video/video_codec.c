@@ -483,7 +483,7 @@ static void *thread_video_codec(void *param)
 	int videoStreamIndex = video->stream_index;
 	AVStream* videoStream = video->format_ctx->streams[	videoStreamIndex];	//流参数
 
-	enum AVPixelFormat pix_fmt_dest = get_format_pixel_sdl(display->format);		//需要的转换后的格式
+	enum AVPixelFormat pix_fmt_dest = display->format;//get_format_pixel_sdl(display->format);		//需要的转换后的格式
 	enum AVPixelFormat pix_fmt_sour=video->codec_ctx->pix_fmt;				//视频原始的格式
 	
 	struct VideoStreamParams show_param_l,show_param;		//视频参数(宽高亮度等)		
@@ -505,6 +505,7 @@ static void *thread_video_codec(void *param)
 	int num=0;
 	//video_t->clock->start(video_t->clock);
 #ifdef MEDIA_SDL_ENABLE
+	uint32_t sdl_format;
 	if(display->is_sdl)
 		SDL_ShowWindow(display->window);
 #endif
@@ -563,7 +564,8 @@ static void *thread_video_codec(void *param)
 				//更新纹理
 				if(display->texture)
 					SDL_DestroyTexture(display->texture);		//销毁原来的纹理
-				display->texture = sdl_creat_texture_near(display->renderer, &display->format,rect_dst.w,rect_dst.h);//创建新的纹理
+				sdl_format=get_sdl_pixel_format(pix_fmt_dest);
+				display->texture = sdl_creat_texture_near(display->renderer, &sdl_format,rect_dst.w,rect_dst.h);//创建新的纹理
 				if(!display->texture)
 					continue;
 			}
@@ -633,7 +635,7 @@ static void *thread_video_codec(void *param)
 			else
 			{
 #ifdef MEDIA_SDL_ENABLE
-				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,display->renderer,display->texture,display->rect_src,display->rect_dst);
+				video_display_image_sdl(frame_d->data,frame_d->linesize,sdl_format,display->renderer,display->texture,display->rect_src,display->rect_dst);
 #endif
 			}
 			

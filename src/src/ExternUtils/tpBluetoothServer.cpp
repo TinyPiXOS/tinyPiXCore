@@ -129,7 +129,7 @@ tpInt32 tpBluetoothServer::close()
 	tpBluetoothServerData *data = static_cast<tpBluetoothServerData *>(data_);
 	if(!data)
 		return -1;
-	
+	return 0;
 }
 
 /// @brief 设置最大可以连接的数量，需要在监听之前调用
@@ -223,6 +223,9 @@ tpBool tpBluetoothServer::isListening()
 tpBluetoothSocket *tpBluetoothServer::nextPendingConnection()
 {
 	tpBluetoothServerData *data = static_cast<tpBluetoothServerData *>(data_);
+
+
+
 	return nullptr;
 }
 
