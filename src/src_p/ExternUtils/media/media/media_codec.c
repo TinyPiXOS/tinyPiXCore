@@ -563,6 +563,7 @@ static void *thread_video_codec(void *param)
 	int num=0;
 	//video_t->clock->start(video_t->clock);
 #ifdef MEDIA_SDL_ENABLE
+	uint32_t sdl_format;
 	if(stream->video.handle->is_sdl)
 		SDL_ShowWindow(stream->video.handle->window);
 #endif
@@ -622,7 +623,7 @@ static void *thread_video_codec(void *param)
 				//更新纹理
 				if(stream->video.handle->texture)
 					SDL_DestroyTexture(stream->video.handle->texture);		//销毁原来的纹理
-				uint32_t sdl_format=(uint32_t)get_sdl_pixel_format(pix_fmt_dest);	
+				sdl_format=(uint32_t)get_sdl_pixel_format(pix_fmt_dest);	
 				stream->video.handle->texture = sdl_creat_texture_near(stream->video.handle->renderer, &sdl_format,rect_dst.w,rect_dst.h);//创建新的纹理
 				if(!stream->video.handle->texture)
 				{
@@ -696,7 +697,7 @@ static void *thread_video_codec(void *param)
 			else
 			{
 #ifdef MEDIA_SDL_ENABLE
-				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,
+				video_display_image_sdl(frame_d->data,frame_d->linesize,sdl_format,
 								stream->video.handle->renderer,stream->video.handle->texture,
 								&rect_src,&rect_dst);
 #endif
