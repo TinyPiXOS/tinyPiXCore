@@ -17,6 +17,8 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/media/media/media.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/media/media_timer.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/media/media_file_list.c
+	${SOURCE_PATH}/src_p/ExternUtils/media/media/media_codec.c
+	${SOURCE_PATH}/src_p/ExternUtils/media/media/media_play_temp.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/audio_codec.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/audio_manage.c
 	${SOURCE_PATH}/src_p/ExternUtils/media/audio/audio_play.c

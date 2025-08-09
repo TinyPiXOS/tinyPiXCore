@@ -13,7 +13,6 @@ extern "C" {
 #include <sys/time.h>
 #include <pthread.h>
 #include <signal.h>		//用于signal函数，测试使用
-#include <SDL2/SDL.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
@@ -36,64 +35,11 @@ extern "C" {
 
 uint8_t video_flag=0;
 
+static int Media_Thread_Free(struct MediaThread *thread);
+static struct MediaThread *Media_Thread_Creat();
 static void exit_signal(int sig)
 {
 	video_flag=1;
-}
-
-//ffmpeg和sdl映射表
-struct PixelFormatMapping{
-    enum AVPixelFormat avFmt;
-    Uint32 sdlFmt;
-};
-const struct PixelFormatMapping pixelFormatMap[] = {
-    {AV_PIX_FMT_YUV420P, SDL_PIXELFORMAT_IYUV},    // YUV 4:2:0
-    {AV_PIX_FMT_YUYV422, SDL_PIXELFORMAT_YUY2},    // YUV 4:2:2
-    {AV_PIX_FMT_UYVY422, SDL_PIXELFORMAT_UYVY},    // YUV 4:2:2 (UYVY)
-    {AV_PIX_FMT_NV12, SDL_PIXELFORMAT_NV12},       // NV12
-    {AV_PIX_FMT_NV21, SDL_PIXELFORMAT_NV21},       // NV21
-    {AV_PIX_FMT_RGB24, SDL_PIXELFORMAT_RGB24},     // RGB 24-bit		排列方式为：R0G0B0 R1G1B1 R2G2B2
-    {AV_PIX_FMT_BGR24, SDL_PIXELFORMAT_BGR24},     // BGR 24-bit
-    {AV_PIX_FMT_ARGB, SDL_PIXELFORMAT_ARGB8888},   // ARGB 32-bit
-    {AV_PIX_FMT_RGBA, SDL_PIXELFORMAT_RGBA8888},   // RGBA 32-bit
-    {AV_PIX_FMT_ABGR, SDL_PIXELFORMAT_ABGR8888},   // ABGR 32-bit
-    {AV_PIX_FMT_BGRA, SDL_PIXELFORMAT_BGRA8888},   // BGRA 32-bit
-};
-
-//获取mapping的大小
-int get_sizeof_format_mapping()
-{
-	return sizeof(pixelFormatMap) / sizeof(pixelFormatMap[0]);
-}
-
-//根据序号获取SDL格式
-uint32_t get_format_mapping_with_num(uint32_t num)
-{
-	return pixelFormatMap[num].sdlFmt;
-}
-
-//根据AVPixelFormat获取sdl的format
-uint32_t get_sdl_pixel_format(enum AVPixelFormat pixFmt) 
-{
-	for (size_t i = 0; i < get_sizeof_format_mapping(); ++i) 
-	{
-		if (pixelFormatMap[i].avFmt == pixFmt) {
-			return pixelFormatMap[i].sdlFmt;
-		}
-	}
-	return SDL_PIXELFORMAT_UNKNOWN; //未找到匹配格式
-}
-
-//根据SDL格式获取AVPixelFormat
-enum AVPixelFormat get_format_pixel_sdl(uint32_t format)
-{
-	for (size_t i = 0; i < get_sizeof_format_mapping(); ++i) 
-	{
-		if (pixelFormatMap[i].sdlFmt == format) {
-			return pixelFormatMap[i].avFmt;
-		}
-	}
-	return AV_PIX_FMT_NB; //未找到匹配格式
 }
 
 int video_find_codec(const char *url, struct MediaCodecParam *video,struct MediaCodecParam *audio)
@@ -543,8 +489,10 @@ static void *thread_video_codec(void *param)
 	struct VideoStreamParams show_param_l,show_param;		//视频参数(宽高亮度等)		
 	memset(&show_param_l,0,sizeof(struct VideoStreamParams));
 
-	SDL_Rect dst_rect = {display->rect_dst->x, display->rect_dst->y, display->rect_dst->w, display->rect_dst->h};  // 设置目标矩形为 960x540
-	SDL_Rect src_rect = {display->rect_src->x,display->rect_src->y,display->rect_src->w,display->rect_src->h};
+	struct MediaRect rect_src;//display->rect_src;		//用于解码前后的矩形区域
+	struct MediaRect rect_dst;//display->rect_dst;
+	display->rect_src=&rect_src;
+	display->rect_dst=&rect_dst;
 
 	debug_printf("thread debug:\n");
 	int64_t pts=0;	//帧的位置(需要解码才能知道)，可以辅助判断是否丢帧
@@ -556,6 +504,10 @@ static void *thread_video_codec(void *param)
 	AVPacket *packet;
 	int num=0;
 	//video_t->clock->start(video_t->clock);
+#ifdef MEDIA_SDL_ENABLE
+	if(display->is_sdl)
+		SDL_ShowWindow(display->window);
+#endif
 	while(video_t->is_running(video_t))
 	{
 		int cmd=user->command_get(user);
@@ -570,7 +522,7 @@ static void *thread_video_codec(void *param)
 			default:
 				break;
 		}
-		video_params_get_all(user,&show_param);
+		get_display_params_user_codec(user,NULL,&show_param);
 		if(show_param.rect.w==0||show_param.rect.h==0)
 		{
 			continue;
@@ -578,17 +530,17 @@ static void *thread_video_codec(void *param)
 		//重新设置解码器参数
 		if(show_param.rect.w!=show_param_l.rect.w || show_param.rect.h!=show_param_l.rect.h)	//宽高不一样就从设大小
 		{
-			debug_printf("原始尺寸：%d*%d,需要显示成%d*%d\n",video->codec_ctx->width,video->codec_ctx->height,display->rect_dst->w,display->rect_dst->h);
-			debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n",display->rect_src->x,display->rect_src->y,display->rect_src->w,display->rect_src->h,
-																display->rect_dst->x,display->rect_dst->y,display->rect_dst->w,display->rect_dst->h);
-			
-			count_rect_size_from_user(display,user->video,video->codec_ctx);		//计算新的显示窗口尺寸
+			count_rect_size_from_user(user->video,video->codec_ctx,&rect_src,&rect_dst);		//计算新的显示窗口尺寸
 
+			debug_printf("原始尺寸：%d*%d,需要显示成%d*%d\n",video->codec_ctx->width,video->codec_ctx->height,rect_dst.w,rect_dst.h);
+			debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n",rect_src.x,rect_src.y,rect_src.w,rect_src.h,
+																rect_dst.x,rect_dst.y,rect_dst.w,rect_dst.h);
+			
 			debug_printf("thread debug:pix_fmt_sour != pix_fmt\n");
 			swsContext = sws_getContext(video->codec_ctx->width, video->codec_ctx->height, 		//创建一个swsContext用于处理图像缩放格式转换
 										pix_fmt_sour,
 										//video->codec_ctx->width, video->codec_ctx->height, 
-										display->rect_dst->w,display->rect_dst->h,
+										rect_dst.w,rect_dst.h,
 										pix_fmt_dest,
 										SWS_BICUBIC, NULL, NULL, NULL);
 			if (!swsContext) {
@@ -597,27 +549,34 @@ static void *thread_video_codec(void *param)
 				return &data->err_code;
 			}
 			// 为转换后的格式申请空间
-			if(malloc_codec_frame(display->rect_dst->w,display->rect_dst->h,pix_fmt_dest,&buffer,&frame_d)<0)
+			if(malloc_codec_frame(rect_dst.w,rect_dst.h,pix_fmt_dest,&buffer,&frame_d)<0)
 			{
 				sws_freeContext(swsContext);
 				data->err_code=-1;
 				return &data->err_code;
 			}
+#ifdef MEDIA_SDL_ENABLE
 			if(display->is_sdl)
 			{
 				//调整窗口大小
 				SDL_SetWindowSize(display->window, show_param.rect.w, show_param.rect.h);
 				//更新纹理
-				SDL_DestroyTexture(display->texture);		//销毁原来的纹理
-				display->texture = sdl_creat_texture_near(display->renderer, &display->format,display->rect_dst->w,display->rect_dst->h);//创建新的纹理
+				if(display->texture)
+					SDL_DestroyTexture(display->texture);		//销毁原来的纹理
+				display->texture = sdl_creat_texture_near(display->renderer, &display->format,rect_dst.w,rect_dst.h);//创建新的纹理
+				if(!display->texture)
+					continue;
 			}
+#endif
 			show_param_l.rect.w=show_param.rect.w;
 			show_param_l.rect.h=show_param.rect.h;
 		}
 		if(show_param.rect.x!=show_param_l.rect.x || show_param.rect.y!=show_param_l.rect.y)	//位置不一样
 		{
+#ifdef MEDIA_SDL_ENABLE
 			if(display->is_sdl)
 				SDL_SetWindowPosition(display->window, show_param.rect.x, show_param.rect.y);
+#endif
 			show_param_l.rect.x=show_param.rect.x;
 			show_param_l.rect.y=show_param.rect.y;
 		}
@@ -672,7 +631,11 @@ static void *thread_video_codec(void *param)
 				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,user->userdata);
 			}
 			else
-				video_display_image(frame_d->data,frame_d->linesize,pix_fmt_dest,display);
+			{
+#ifdef MEDIA_SDL_ENABLE
+				video_display_image_sdl(frame_d->data,frame_d->linesize,pix_fmt_dest,display->renderer,display->texture,display->rect_src,display->rect_dst);
+#endif
+			}
 			
 			//写入进度
 			Audio_Set_Position_N(user,(int32_t)(video_clock/1000.0/1000.0));
@@ -680,7 +643,8 @@ static void *thread_video_codec(void *param)
 		video_t->free_packet(packet);
 		video_t->set_state(video_t,MEDIA_THREAD_WAITING);
 	}
-	printf("显示宽高：%d*%d\n",display->rect_dst->w,display->rect_dst->h);
+	display->rect_dst=NULL;
+	display->rect_src=NULL;
 	debug_printf("video线程结束\n");
 	if(1)
 	//if (pix_fmt_sour != pix_fmt) 
@@ -892,18 +856,24 @@ int video_codec_play(struct VideoHardParam *display,struct MediaCodecParam *vide
 		}
 #endif
 		if((err=Audio_Get_Position_S(user))>=0)
-		{
+		{	debug_printf("调整播放位置\n");
 			AVRational reference_time_base = video->format_ctx->streams[videoStreamIndex]->time_base;
 			int64_t target_timestamp = err / av_q2d(reference_time_base);
+			debug_printf("av_seek_frame...\n");
 			av_seek_frame(video->format_ctx,-1,target_timestamp,AVSEEK_FLAG_BACKWARD);	//调整所有流的位置，stream_index设置为-1
 			//清空队列
+			debug_printf("清空队列...\n");
 			video_t->flush_list(&video_t->list);
 			audio_t->flush_list(&audio_t->list);
 			//清空声卡缓存
 			//media_pcm_drop(display->pcm_play);
 
+			debug_printf("时钟校准...\n");
 			video_t->clock->adjust_time(video_t->clock,(long)err*1000*1000);
 			audio_t->clock->adjust_time(audio_t->clock,(long)err*1000*1000);
+
+			av_packet_unref(&packet);
+			debug_printf("调整播放位置,直接进行下一次读取数据包\n");
 			continue;
 		}
 		int cmd=user->command_get(user);
@@ -984,7 +954,7 @@ FREE_AUDIO_THREAD:
 }
 
 //流播放线程结构体创建
-struct MediaThread *Media_Thread_Creat()
+static struct MediaThread *Media_Thread_Creat()
 {
 	struct MediaThread *thread=(struct MediaThread *)malloc(sizeof(struct MediaThread));
 	if(thread==NULL)
@@ -1017,7 +987,7 @@ struct MediaThread *Media_Thread_Creat()
 }
 
 //
-int Media_Thread_Free(struct MediaThread *thread)
+static int Media_Thread_Free(struct MediaThread *thread)
 {
 	thread->set_state(thread,AUDIO_STATE_NONE);
 	pthread_join(thread->thread,NULL);
