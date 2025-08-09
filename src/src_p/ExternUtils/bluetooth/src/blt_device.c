@@ -451,3 +451,5 @@ int bluet_adapter_get_paired(Adapter *adapter,const char *name)
 }
 
 
+
+

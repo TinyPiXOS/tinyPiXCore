@@ -304,4 +304,3 @@ int get_obex_channel(const char *bt_addr) {
 }
 
 
-

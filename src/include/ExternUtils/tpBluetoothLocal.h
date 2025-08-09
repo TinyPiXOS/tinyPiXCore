@@ -48,6 +48,16 @@ public:
 	/// @return
 	tpList<tpBluetoothAddress> getConnectedDevices();
 
+	/// @brief 和远程的蓝牙设备建立物理连接
+	/// @param addr 
+	/// @return 
+	int connectToDevice(const tpBluetoothAddress &addr);
+
+	/// @brief 和远程的蓝牙设备断开物理连接
+	/// @param addr 
+	/// @return 
+	int disconnectToDevice(const tpBluetoothAddress &addr);
+
 	/// @brief 设置远程蓝牙设备的信任状态
 	/// @param address 远程设备地址
 	/// @param trusted 信任/不信任

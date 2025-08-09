@@ -6,6 +6,7 @@
 #include "tpBluetoothLocal.h"
 #include "tpBluetoothDiscovery.h"
 #include "tpBluetoothDevice.h"
+#include "blt_service.h"
 
 //本地蓝牙设备获取
 int example_list_adapter()
@@ -53,6 +54,10 @@ int example_power()
 	sleep(5);
 	local.powerOn();
 }
+
+
+
+
 
 int main()
 {

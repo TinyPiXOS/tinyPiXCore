@@ -57,6 +57,10 @@ tpTcpSocket::~tpTcpSocket()
 		return ;
 	if(tcp->status==tpSocket::TP_SOCK_CONNECT)
 		close();
+	if (tcp->notifier_read) {
+        delete tcp->notifier_read; 
+		tcp->notifier_read = nullptr;
+    }
 	if(tcp->sock)
 	{
 		delete(tcp->sock);
@@ -102,11 +106,6 @@ tpInt32 tpTcpSocket::connectToHost(const tpString &addr, tpUInt16 port)
 tpInt32 tpTcpSocket::close()
 {
 	tpTcpSocketData *tcp=static_cast<tpTcpSocketData *>(data_);
-
-	if (tcp->notifier_read) {
-        delete tcp->notifier_read; 
-		tcp->notifier_read = nullptr;
-    }
 	tcp->sock->close();
 	tcp->status=tpSocket::TP_SOCK_DISCONNECT;
 	disconnected.emit(this);		//发送断开连接的信号

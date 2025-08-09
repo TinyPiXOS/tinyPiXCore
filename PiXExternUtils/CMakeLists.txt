@@ -51,6 +51,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/bluez_alsa.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/freedesktop_systemd.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/media_transport.c
+	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/service.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/bluez/adapter.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/bluez/agent_manager.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/lib/bluez/device.c
@@ -74,6 +75,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_hard.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_hid.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_sdp.c
+	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_service.c
 	${SOURCE_PATH}/src_p/ExternUtils/utils/utilslib.c
 	${SOURCE_PATH}/src_p/ExternUtils/utils/utlist.c
 	${SOURCE_PATH}/src_p/ExternUtils/utils/variable_array.c
@@ -130,6 +132,10 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothLocal.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothDevice.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothDiscovery.cpp
+	${SOURCE_PATH}/src/ExternUtils/tpBluetoothService.cpp
+	${SOURCE_PATH}/src/ExternUtils/tpBluetoothServiceDiscovery.cpp
+	${SOURCE_PATH}/src/ExternUtils/tpBluetoothSocket.cpp
+	${SOURCE_PATH}/src/ExternUtils/tpBluetoothServer.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothTransfer.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothTransferAgent.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothAudioDevice.cpp

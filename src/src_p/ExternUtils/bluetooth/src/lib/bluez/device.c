@@ -214,6 +214,13 @@ void device_cancel_pair(Device *self, GError **error)
 	g_dbus_proxy_call_sync(self->priv->proxy, "CancelPairing", NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
 }
 
+//扫描服务
+GVariant *device_discover_services(Device *self, GError **error)
+{
+	g_assert(DEVICE_IS(self));
+	g_dbus_proxy_call_sync(self->priv->proxy, "DiscoverServices", NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
+}
+
 
 
 

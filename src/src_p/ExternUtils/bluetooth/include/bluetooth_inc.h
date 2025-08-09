@@ -33,6 +33,8 @@ extern "C" {
 #include "lib/obex/obex_agent.h"
 #include "lib/bluez_alsa.h"
 #include "lib/freedesktop_systemd.h"
+#include "lib/service.h"
+#include "lib/spp/spp_client.h"
 /*
 
 

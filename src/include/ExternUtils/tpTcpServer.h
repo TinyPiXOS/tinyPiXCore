@@ -22,6 +22,9 @@ public:
 	/// @brief 设置最大可以连接的数量，需要在监听之前调用
 	/// @param max 最大连接数量
 	void setMaxPendingConnects(tpInt32 max);
+	/// @brief 获取最大可以连接的数量
+	/// @return 
+	tpInt32 getMaxPendingConnects();
 	/// @brief 开始监听客户端连接
 	/// @param addr 
 	/// @param port 

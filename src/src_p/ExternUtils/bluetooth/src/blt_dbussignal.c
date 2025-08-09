@@ -152,3 +152,29 @@ BluetDbusSignal *bluet_dbus_signal_subscribe_properties_changed(GDBusConnection 
 	return sig_sub;
 }
 
+//新增连接的信号
+BluetDbusSignal *bluet_dbus_signal_subscribe_new_connection(GDBusConnection *connection, Adapter *adapter,
+												GDBusSignalCallback callback,
+												gpointer user_data,
+												GDestroyNotify user_data_free_func)
+{
+	BluetDbusSignal *sig_sub=bluet_dbus_signal_creat();
+	if(!sig_sub)
+		return NULL;
+
+	guint prop_sig_sub_id = g_dbus_connection_signal_subscribe(
+									connection, 
+									BLUEZ_DBUS_SERVICE_NAME, 
+									NULL, 
+									"NewConnection", 
+									adapter_get_dbus_object_path(adapter), 
+									NULL, 
+									G_DBUS_SIGNAL_FLAGS_NONE, 
+									callback,user_data,user_data_free_func);
+//									_adapter_property_changed, 
+//									mainloop, 
+//									NULL);
+	sig_sub->priv->sig_sub_id=prop_sig_sub_id;
+	return sig_sub;
+}
+

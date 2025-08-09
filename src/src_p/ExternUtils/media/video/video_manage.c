@@ -24,7 +24,6 @@ int Video_Test()
 	struct MediaCodecParam codec_v,codec_a;
 	Video_Get_File_Info("/home/pix/Media/test_video.mp4",&codec_v,&codec_a);
 
-	Video_Play_File(&display,&codec_v,&codec_a);
 
 	Video_Free_File(&codec_v,&codec_a);
 	return 0;

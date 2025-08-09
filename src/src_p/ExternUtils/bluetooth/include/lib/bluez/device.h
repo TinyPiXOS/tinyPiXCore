@@ -81,6 +81,7 @@ void device_set_trusted(Device *self, const gboolean value, GError **error);
 const gchar **device_get_uuids(Device *self, GError **error);
 
 gboolean device_is_paired(Device *self, GError **error);
+GVariant *device_discover_services(Device *self, GError **error);
 
 #ifdef	__cplusplus
 }

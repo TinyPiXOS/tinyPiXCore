@@ -63,6 +63,12 @@ void tpTcpServer::setMaxPendingConnects(tpInt32 max)
 	tcp->connect_max=max;
 }
 
+tpInt32 tpTcpServer::getMaxPendingConnects()
+{
+	tpTcpServerData *tcp=static_cast<tpTcpServerData *>(data_);
+	return tcp->connect_max;
+}
+
 tpInt32 tpTcpServer::close()
 {
 	tpTcpServerData *tcp=static_cast<tpTcpServerData *>(data_);
