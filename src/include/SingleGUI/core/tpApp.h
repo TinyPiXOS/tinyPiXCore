@@ -121,7 +121,8 @@ public:
 	/// @param clip 
 	/// @param onlyBlit 
 	/// @param sync 
-	void postUpdateEvent(tpChildWidget* topScreen, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool clip, bool onlyBlit, bool sync);
+	// void postUpdateEvent(tpChildWidget* topScreen, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool clip, bool onlyBlit, bool sync);
+	void postUpdateEvent(tpChildWidget* topScreen, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool onlyBlit);
 	
 private:
 	ItpAppData *appSet;
