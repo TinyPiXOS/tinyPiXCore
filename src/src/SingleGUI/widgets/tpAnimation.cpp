@@ -171,6 +171,7 @@ void tpAnimation::stop()
 
     if (animationData->deleteMode == tpAnimation::DeleteWhenStopped && !animationData->isDelete.load())
     {
+        disconnect(&animationData->animationTimer, timeout, this, &tpAnimation::AnimationRun);
         animationData->isDelete.store(true);
         deleteLater();
     }
@@ -419,6 +420,7 @@ void tpAnimation::AnimationRun()
         tpChildWidget *targetParent = dynamic_cast<tpChildWidget *>(animationData->targetWidget->parent());
         if (targetParent)
         {
+            // std::cout << "更新父窗口" << std::endl;
             targetParent->update();
         }
     }
@@ -441,6 +443,7 @@ void tpAnimation::AnimationRun()
             {
                 if (animationData->deleteMode == tpAnimation::DeleteWhenStopped && !animationData->isDelete.load())
                 {
+                    disconnect(&animationData->animationTimer, timeout, this, &tpAnimation::AnimationRun);
                     animationData->isDelete.store(true);
                     deleteLater();
                 }
@@ -457,5 +460,4 @@ void tpAnimation::AnimationRun()
     }
 
     // std::cout << "动画线程结束 "  << std::endl;
-
 }
