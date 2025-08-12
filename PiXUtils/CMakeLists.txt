@@ -85,7 +85,46 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/gumbo_edit.c
 	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/Utils/ContainerUtil.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/Utils/StringUtil.cpp
+	${SOURCE_PATH}/src_p/Utils/tweeny/tweeny.tcc
+	${SOURCE_PATH}/src_p/Utils/tweeny/tween.tcc
+	${SOURCE_PATH}/src_p/Utils/tweeny/tweenone.tcc
+	${SOURCE_PATH}/src_p/Utils/tweeny/tweenpoint.tcc
     ${SOURCE_PATH}/src_p/Utils/tpMessage.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/binding/lottieanimation_capi.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieitem.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieitem_capi.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieloader.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottiemodel.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieproxymodel.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieparser.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieanimation.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottiekeypath.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vrect.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdasher.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbrush.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbitmap.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vpainter.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper_common.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper_sse2.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper_neon.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vrle.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vpath.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vpathmesure.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vmatrix.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/velapsedtimer.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdebug.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vinterpolator.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbezier.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vraster.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawable.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vimageloader.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/varenaalloc.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/freetype/v_ft_math.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/freetype/v_ft_raster.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/freetype/v_ft_stroker.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/pixman/pixman-arm-neon-asm.S
+    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/stb/stb_image.cpp
 )
 
 include_directories(/usr/include)
@@ -105,6 +144,7 @@ include_directories(/usr/include/gdk-pixbuf-2.0)
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/ExternUtils)
 include_directories(${SOURCE_PATH}/include/Utils)
+include_directories(${SOURCE_PATH}/include/Utils/JsonStructPackage)
 include_directories(${SOURCE_PATH}/include/SingleGUI)
 include_directories(${SOURCE_PATH}/include/SingleGUI/core)
 include_directories(${SOURCE_PATH}/include/SingleGUI/screen)
@@ -122,6 +162,10 @@ include_directories(${SOURCE_PATH}/include_p/Utils/CSSParser/Vendor/gumbo)
 include_directories(${SOURCE_PATH}/include_p/Utils/CSSParser/CSSParser)
 include_directories(${SOURCE_PATH}/include_p/Utils/CSSParser/CSSParser/Keyword)
 include_directories(${SOURCE_PATH}/include_p/Utils/CSSParser/CSSParser/Selectors)
+include_directories(${SOURCE_PATH}/include_p/Utils/tweeny)
+include_directories(${SOURCE_PATH}/include_p/Utils/rlottie)
+include_directories(${SOURCE_PATH}/include_p/Utils/rlottie/lottie)
+include_directories(${SOURCE_PATH}/include_p/Utils/rlottie/vector)
 
 # 添加动态库目标
 add_library(PiXUtils SHARED ${SOURCE_FILES})
@@ -134,13 +178,15 @@ link_directories("/usr/lib")
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
     set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libnanomsg.a)
+    set(RLOTTIE_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/librlottie.a)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
     set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libnanomsg.a)
+    set(RLOTTIE_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/librlottie.a)
 endif()
 
 # 将pthread库链接到可执行目标
-target_link_libraries(PiXUtils ${NANOMSG_STATIC_LIB} dl pthread PiXApi SDL2 SDL2_image SDL2_gfx cairo pango-1.0 gobject-2.0
-    glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime
+target_link_libraries(PiXUtils ${NANOMSG_STATIC_LIB} ${RLOTTIE_STATIC_LIB} dl pthread PiXApi SDL2 SDL2_image SDL2_gfx
+    cairo pango-1.0 gobject-2.0  glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime
 )
 
 # 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径

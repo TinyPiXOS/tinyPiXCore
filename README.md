@@ -176,6 +176,27 @@ git clone https://github.com/TinyPiXOS/tinyPiXCore.git
 # git clone https://gitee.com/tinypixos/tinyPiXCore.git
 ```
 
+### 依赖库清单
+
+| 依赖库  | 依赖库文件名 | 推荐版本(项目中已有)  | 已支持的版本 |
+|:------:|:------:|:------:|:------:|
+| libasound2-dev    | libasound.so  | 1.2.6.1   | 1.2.6.1 |
+| libavcodec-dev    | libavcodec.so    | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libavformat-dev   | libavformat.so   | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libavutil-dev     | libavutil.so     | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libswscale-dev    | libswscale.so    | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libswresample-dev | libswresample.so | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libavfilter-dev   | libavfilter.so   | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libavdevice-dev   | libavdevice.so   | 7:4.4.2  | 7:4.4.2, 7:3.4.11 |
+| libssl-dev        | libssl.so        | 3.0.2    | 3.0.2 |
+| librsvg2-dev      | librsvg-2.so     | 2.52.5   | 2.52.5  |
+| libbluetooth      | libbluetooth.so  | 5.64     | 5.64    |
+| libdbus           | libdbus-1.so     | 1.12.20  | 1.12.20 |
+| bluez-alsa-utils  |                  |          | 3.0.0-2 |
+| libasound2-plugin-bluez|             |          | 3.0.0-2 |
+| bluez-obexd       |                  |          | 5.64-0  |
+| libusb-1.0        |                  |          | 1.0.25  |
+
 ### 构建安装
 
 - ​**安装 PiXWM 基础库**
