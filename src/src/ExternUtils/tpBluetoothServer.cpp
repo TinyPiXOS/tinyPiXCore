@@ -29,7 +29,9 @@ struct tpBluetoothServerData{
 	};
 };
 
-
+//type：协议类型
+//address：返回绑定到的地址
+//channel:绑定到的端口
 static int bluet_server_socket(tpBluetoothService::Protocol type,const char *address,uint16_t channel)
 {
 	int sock = -1;
@@ -42,6 +44,12 @@ static int bluet_server_socket(tpBluetoothService::Protocol type,const char *add
         sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
         if (sock < 0) 
 			return -1;
+
+		// 设置地址重用
+		if (address) {
+			int reuse = 1;
+			setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+		}
 
         sockaddr_rc local_addr = {0};
         local_addr.rc_family = AF_BLUETOOTH;
@@ -57,7 +65,7 @@ static int bluet_server_socket(tpBluetoothService::Protocol type,const char *add
 		/*sockaddr_rc bound_addr;
 		socklen_t len = sizeof(bound_addr);
 		if (getsockname(sock, (struct sockaddr*)&bound_addr, &len) == 0) {
-			memcpy(address_.data(), bound_addr.rc_bdaddr.b, 6);
+			memcpy(address, bound_addr.rc_bdaddr.b, 6);
 		}*/
     }
     else if (type == tpBluetoothService::TP_BLUET_L2CAP_PROTOCOL) {
@@ -80,7 +88,7 @@ static int bluet_server_socket(tpBluetoothService::Protocol type,const char *add
 		/*sockaddr_l2 bound_addr;
 		socklen_t len = sizeof(bound_addr);
 		if (getsockname(sock, (struct sockaddr*)&bound_addr, &len) == 0) {
-			memcpy(address_.data(), bound_addr.l2_bdaddr.b, 6);
+			memcpy(address, bound_addr.l2_bdaddr.b, 6);
 		}*/
     }
     else {
@@ -91,7 +99,7 @@ static int bluet_server_socket(tpBluetoothService::Protocol type,const char *add
 
 
 
-tpBluetoothServer::tpBluetoothServer(const char *name, tpBluetoothService::Protocol type)
+tpBluetoothServer::tpBluetoothServer(const tpString& name, tpBluetoothService::Protocol type)
 {
 	data_ = new tpBluetoothServerData();
 	tpBluetoothServerData *data = static_cast<tpBluetoothServerData *>(data_);
@@ -105,7 +113,7 @@ tpBluetoothServer::tpBluetoothServer(const char *name, tpBluetoothService::Proto
 		fprintf(stderr,"[Error]: connect to dbus error\n");
 		return ;
 	}
-	data->adapter=find_adapter(name,NULL);
+	data->adapter=find_adapter(name.c_str(),NULL);
 	if(data->adapter)
 	{
 		fprintf(stderr,"[Error]: 设备不存在\n");
@@ -117,8 +125,11 @@ tpBluetoothServer::~tpBluetoothServer()
 	tpBluetoothServerData *data = static_cast<tpBluetoothServerData *>(data_);
 	if(!data)
 		return ;
+	close();
+
 	if(data->adapter)
 		bluet_object_free(data->adapter);
+	
 	delete(data);
 }
 
@@ -129,6 +140,19 @@ tpInt32 tpBluetoothServer::close()
 	tpBluetoothServerData *data = static_cast<tpBluetoothServerData *>(data_);
 	if(!data)
 		return -1;
+	if (data->notifier) {
+		delete data->notifier; 
+		data->notifier = nullptr;
+    }
+	for(auto it : data->connects)
+	{
+		if(it==nullptr)
+			continue;
+		it->disconnectFromService();
+		delete(it);
+	}
+	::close(data->sockfd);
+	
 	return 0;
 }
 
@@ -224,9 +248,11 @@ tpBluetoothSocket *tpBluetoothServer::nextPendingConnection()
 {
 	tpBluetoothServerData *data = static_cast<tpBluetoothServerData *>(data_);
 
-
-
-	return nullptr;
+    if (data->connects.empty()) 
+		return nullptr;
+    tpBluetoothSocket* client = data->connects.front();
+    data->connects.pop_front();
+    return client;
 }
 
 
@@ -238,10 +264,10 @@ int tpBluetoothServer::accept()
 	char c_addr[64];
 	int acceptfd;
 	union {
-                sockaddr_rc rc;
-                sockaddr_l2 l2;
-                sockaddr_storage storage; // 保证足够大
-    } clieaddr;
+		sockaddr_rc rc;
+		sockaddr_l2 l2;
+		sockaddr_storage storage; // 保证足够大
+	} clieaddr;
 
 	int size_clieaddr=sizeof(clieaddr);
 	if((acceptfd=::accept(data->sockfd,(struct sockaddr*)(&clieaddr), (socklen_t *)&size_clieaddr))<0)

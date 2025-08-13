@@ -141,7 +141,6 @@ Adapter *find_adapter(const gchar *name, GError **error)
 	if(!system_conn)
 		printf("system connect error\n");
     Manager *manager = manager_new(system_conn);
-
     // If name is null or empty - return default adapter
     if (name == NULL || strlen(name) == 0)
     {
@@ -156,12 +155,14 @@ Adapter *find_adapter(const gchar *name, GError **error)
     {
         // Try to find by id
         adapter_path = (gchar *) manager_find_adapter(manager, name, error);
-
+		//printf("find manager_find_adapter ok,path:%s\n",adapter_path);
+		//adapter_path=NULL;
         // Found
         if (adapter_path)
         {
             // adapter = g_object_new(ADAPTER_TYPE, "DBusObjectPath", adapter_path, NULL);
-            adapter = adapter_new(adapter_path);
+            adapter = adapter_new(adapter_path);		//会报错：(process:15744): GLib-GObject-CRITICAL **: 17:58:06.971: g_object_new_is_valid_property: object class 'Properties' has no property named 'DBusConnection'
+
         }
         else
         {
@@ -171,6 +172,7 @@ Adapter *find_adapter(const gchar *name, GError **error)
             for (int i = 0; i < adapters_list->len; i++)
             {
                 adapter_path = g_ptr_array_index(adapters_list, i);
+				//printf("find manager_get_adapters ok,path:%s\n",adapter_path);
                 // adapter = g_object_new(ADAPTER_TYPE, "DBusObjectPath", adapter_path, NULL);
                 adapter = adapter_new(adapter_path);
                 adapter_path = NULL;
@@ -192,8 +194,8 @@ Adapter *find_adapter(const gchar *name, GError **error)
     }
 
     g_object_unref(manager);
-    if (adapter_path) g_free(adapter_path);
-
+    if (adapter_path) 
+		g_free(adapter_path);
     return adapter;
 }
 

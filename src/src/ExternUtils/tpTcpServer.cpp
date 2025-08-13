@@ -174,8 +174,29 @@ void tpTcpServer::handleNewConnection()
 	// 创建 tpTcpSocket
 	tpTcpSocket* tcp_c = new tpTcpSocket(tcp_sock);
 	tcp->tcp_connect.push_front(tcp_c);
-
+	// 调试点1：检查对象地址
+    std::cout << "Created tpTcpSocket at: " << tcp_c << std::endl;
+    
+    // 调试点2：检查信号地址
+    std::cout << "disconnected signal address: " 
+              << &tpTcpSocket::disconnected << std::endl;
+    
+    // 调试点3：检查信号成员偏移
+    std::cout << "Signal offset: " 
+              << reinterpret_cast<char*>(&tcp_c->disconnected) - reinterpret_cast<char*>(tcp_c)
+              << std::endl;
+    
+    // 调试点4：尝试调用成员函数
+    std::cout << "Peer address: " << tcp_c->getPeerAddress() << std::endl;
+    
+    // 将对象添加到列表
+    tcp->tcp_connect.push_front(tcp_c);
+    
+    // 调试点5：在连接信号前暂停
+    std::cout << "About to connect signal..." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	connect(tcp_c, tpTcpSocket::disconnected, [=](tpTcpSocket *client) {
+		printf("[DEBUG] Creating new connection: %p\n", client);
         tcp->tcp_connect.remove(client);
 		std::thread([client]() {
            // 等 epoll 事件处理完再删除

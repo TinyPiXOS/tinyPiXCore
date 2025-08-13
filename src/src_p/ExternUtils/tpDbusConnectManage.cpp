@@ -37,7 +37,7 @@ tpDbusConnectManage::tpDbusConnectManage()
 		dbus_system_disconnect();
 		return ;
 	}*/
-	printf("connect ok");
+	printf("connect ok\n");
 	conData->is_connect=TP_TRUE;
 }
 

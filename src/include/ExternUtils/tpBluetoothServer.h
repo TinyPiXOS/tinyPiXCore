@@ -14,7 +14,7 @@ TP_DEF_VOID_TYPE_VAR(ItpBluetoothServerData);
 class tpBluetoothServer{
 public:
 
-	tpBluetoothServer(const char *name, tpBluetoothService::Protocol type);
+	tpBluetoothServer(const tpString& name, tpBluetoothService::Protocol type);
 	~tpBluetoothServer();
 
 public:
@@ -32,13 +32,24 @@ public:
 	/// @param port 非传统意义上的端口，当RFCOMM时表示channel，当使用L2CAP时表示psm。未来可能扩展其他协议
 	/// @return 
 	tpBool listen(const tpBluetoothAddress &addr, tpUInt16 port=0);
+	/// @brief 开始监听客户端连接
+	/// @param uuid profile类型
+	/// @return 
 	tpBool listen(const tpString &uuid);
+	/// @brief 获取服务端蓝牙端口
+	/// @return 
 	tpUInt16 getServerPort();
+	/// @brief 获取服务端蓝牙地址
+	/// @return 
 	tpBluetoothAddress getServerAddress();
+	/// @brief 获取服务端协议类型
+	/// @return 
 	tpBluetoothService::Protocol getServerType();
 	/// @brief 查看当前是否在监听
 	/// @return 返回监听状态
 	tpBool isListening();
+	/// @brief 获取下一个可用连接
+	/// @return 
 	tpBluetoothSocket *nextPendingConnection();
 public signals:
 	declare_signal(newConnection);

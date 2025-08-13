@@ -41,6 +41,7 @@ void tpSocketNotifierManager::stop() {
 //	EPOLLERR：错误发生
 //	EPOLLHUP：挂断
 //	EPOLLET：边缘触发模式
+//V1版本
 void tpSocketNotifierManager::registerNotifier(tpSocketNotifier* notifier) {
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -82,12 +83,81 @@ void tpSocketNotifierManager::registerNotifier(tpSocketNotifier* notifier) {
     notifiers_.push_back(notifier);
 }
 
+//V2版本
+/*void tpSocketNotifierManager::registerNotifier(tpSocketNotifier* notifier) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    
+    // 查找相同socket的已有通知器
+    std::vector<tpSocketNotifier*> sameSocketNotifiers;
+    for (auto* n : notifiers_) {
+        if (n->socket() == notifier->socket()) {
+            sameSocketNotifiers.push_back(n);
+        }
+    }
+    
+    // 创建合并事件
+    uint32_t events = 0;
+    for (auto* n : sameSocketNotifiers) {
+        switch (n->type()) {
+            case tpSocketNotifier::Read:
+                events |= (EPOLLIN | EPOLLET);
+                if (n->hangupCallback_) events |= EPOLLRDHUP;
+                break;
+                
+            case tpSocketNotifier::Write:
+                events |= (EPOLLOUT | EPOLLERR | EPOLLHUP);
+                break;
+                
+            case tpSocketNotifier::Exception:
+                // 修复：添加 Exception 类型处理
+                events |= (EPOLLERR | EPOLLHUP | EPOLLET);
+                break;
+        }
+    }
+    
+    // 添加新通知器的事件
+    switch (notifier->type()) {
+        case tpSocketNotifier::Read:
+            events |= (EPOLLIN | EPOLLET);
+            if (notifier->hangupCallback_) events |= EPOLLRDHUP;
+            break;
+            
+        case tpSocketNotifier::Write:
+            events |= (EPOLLOUT | EPOLLERR | EPOLLHUP);
+            break;
+            
+        case tpSocketNotifier::Exception:
+            // 修复：添加 Exception 类型处理
+            events |= (EPOLLERR | EPOLLHUP | EPOLLET);
+            break;
+    }
+    
+    epoll_event ev{};
+    ev.events = events;
+    ev.data.ptr = notifier;  // 注意：指向当前通知器
+    
+    if (sameSocketNotifiers.empty()) {
+        // 新注册
+        if (epoll_ctl(epollFd_, EPOLL_CTL_ADD, notifier->socket(), &ev) < 0) {
+            perror("epoll_ctl ADD failed");
+        }
+    } else {
+        // 更新事件
+        if (epoll_ctl(epollFd_, EPOLL_CTL_MOD, notifier->socket(), &ev) < 0) {
+            perror("epoll_ctl MOD failed");
+        }
+    }
+    
+    notifiers_.push_back(notifier);
+}*/
+
 void tpSocketNotifierManager::unregisterNotifier(tpSocketNotifier* notifier) {
     std::lock_guard<std::mutex> lock(mutex_);
     epoll_ctl(epollFd_, EPOLL_CTL_DEL, notifier->socket(), nullptr);
     notifiers_.erase(std::remove(notifiers_.begin(), notifiers_.end(), notifier), notifiers_.end());
 }
 
+//V1版本
 void tpSocketNotifierManager::eventLoop() {
     epoll_event events[64];
 	printf("debug:eventLoop\n");
@@ -139,3 +209,62 @@ void tpSocketNotifierManager::eventLoop() {
 
     }
 }
+
+//V2版本
+/*void tpSocketNotifierManager::eventLoop() {
+    epoll_event events[64];
+    
+    while (running_) {
+        int nfds = epoll_wait(epollFd_, events, 64, -1);
+        if (nfds < 0) {
+            if (errno == EINTR) continue;
+            perror("epoll_wait error");
+            break;
+        }
+
+        for (int i = 0; i < nfds; i++) {
+            tpSocketNotifier* notifier = static_cast<tpSocketNotifier*>(events[i].data.ptr);
+            
+            // 添加有效性检查
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                auto it = std::find(notifiers_.begin(), notifiers_.end(), notifier);
+                if (it == notifiers_.end()) continue; // 通知器已注销
+            }
+            
+            if (!notifier || !notifier->isEnabled()) continue;
+            
+            uint32_t evs = events[i].events;
+            
+            // 根据通知器类型处理事件
+            switch (notifier->type()) {
+                case tpSocketNotifier::Read:
+                    if (evs & EPOLLRDHUP) {
+                        // TCP 连接挂断
+                        if (notifier->hangupCallback_) notifier->hangupCallback_();
+                    } else if (evs & EPOLLIN) {
+                        // 可读事件
+                        if (notifier->callback_) notifier->callback_();
+                    }
+                    break;
+                    
+                case tpSocketNotifier::Write:
+                    if (evs & (EPOLLERR | EPOLLHUP)) {
+                        // 错误处理
+                        if (notifier->hangupCallback_) notifier->hangupCallback_();
+                    } else if (evs & EPOLLOUT) {
+                        // 可写事件
+                        if (notifier->callback_) notifier->callback_();
+                    }
+                    break;
+                    
+                case tpSocketNotifier::Exception:  // 修复：添加 Exception 处理
+                    if (evs & (EPOLLERR | EPOLLHUP)) {
+                        // 异常/挂断回调
+                        if (notifier->hangupCallback_) notifier->hangupCallback_();
+                    }
+                    break;
+            }
+        }
+    }
+}*/

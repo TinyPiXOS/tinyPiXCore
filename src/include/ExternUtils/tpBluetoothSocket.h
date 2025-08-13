@@ -12,12 +12,12 @@ TP_DEF_VOID_TYPE_VAR(ItpBluetoothSocketData);
 /// @brief 蓝牙设备的连接通信
 class tpBluetoothSocket{
 public:
-	tpBluetoothSocket(const char *name,tpBluetoothService::Protocol type=tpBluetoothService::TP_BLUET_UNKNOWN_PROTOCOL);
+	tpBluetoothSocket(const tpString& name,tpBluetoothService::Protocol type=tpBluetoothService::TP_BLUET_UNKNOWN_PROTOCOL);
 	tpBluetoothSocket(int sockfd,tpBluetoothService::Protocol type=tpBluetoothService::TP_BLUET_UNKNOWN_PROTOCOL);
 	~tpBluetoothSocket();
 public:
-	/// @brief 连接到远端蓝牙设备
-	/// @param address 远端蓝牙地址
+	/// @brief 连接到远端蓝牙设备(暂不支持)
+	/// @param service 远端蓝牙的服务
 	/// @return 
 	int connectToService(const tpBluetoothService& service);
 	/// @brief 

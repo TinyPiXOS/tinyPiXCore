@@ -28,7 +28,6 @@ struct tpBluetoothSocketData{
 	BluetDevice *device;
 	tpBluetoothSocketData(){
 		adapter=NULL;
-		uuid=NULL;
 		type=tpBluetoothService::TP_BLUET_UNKNOWN_PROTOCOL;
 		notifier_read=NULL;
 		notifier_write=NULL;
@@ -106,6 +105,7 @@ static int bluet_socket(tpBluetoothService::Protocol type,const char *address,ui
     } 
     else if (errno != EINPROGRESS) {
         // 立即失败
+		printf("立即失败\n");
         close(sock);
         return -1;
     }
@@ -115,7 +115,7 @@ static int bluet_socket(tpBluetoothService::Protocol type,const char *address,ui
 
 
 
-tpBluetoothSocket::tpBluetoothSocket(const char *name,tpBluetoothService::Protocol type)
+tpBluetoothSocket::tpBluetoothSocket(const tpString& name,tpBluetoothService::Protocol type)
 {
 	data_ = new tpBluetoothSocketData();
 	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
@@ -124,11 +124,13 @@ tpBluetoothSocket::tpBluetoothSocket(const char *name,tpBluetoothService::Protoc
 		fprintf(stderr,"[Error]: connect to dbus error\n");
 		return ;
 	}
-	data->adapter=find_adapter(name,NULL);
-	if(data->adapter)
+	printf("查找设备：%s\n",name.c_str());
+	data->adapter=find_adapter(name.c_str(),NULL);
+	if(!data->adapter)
 	{
 		fprintf(stderr,"[Error]: 设备不存在\n");
 	}
+	printf("tpBluetoothSocket\n");
 	data->type=type;
 	data->notifier_read = new tpSocketNotifier(data->sockfd, tpSocketNotifier::Read, 
 		[this]() { handleRead(); },
@@ -160,9 +162,13 @@ tpBluetoothSocket::~tpBluetoothSocket()
 		return ;
 	if(data->adapter)
 		bluet_object_free(data->adapter);
+	disconnectFromService();
+	if (data->notifier_read) {
+		delete data->notifier_read; 
+		data->notifier_read = nullptr;
+	}
 	delete(data);
 }
-
 
 int tpBluetoothSocket::connectToService(const tpBluetoothService& service)
 {
@@ -189,10 +195,23 @@ int tpBluetoothSocket::connectToService(const tpBluetoothAddress& address,tpUInt
 		fprintf(stderr,"[Error]: Repeatedly establish connection\n");
 		return -1;
 	}
+
 	tpBluetoothAddress addr(address);
+	data->device=bluet_device_creat(data->adapter,addr.toString().c_str());
+	if(!data->device)
+	{
+		fprintf(stderr,"[Error]: can't find device\n");
+		return -1;
+	}
+	printf("find device:%s\n",bluet_device_get_address(data->device));
+	
+
 	data->sockfd=bluet_socket(data->type,addr.toString().c_str(),(uint16_t)port);
 	if(data->sockfd<0)
+	{
+		printf("[Debug]: bluet socket connect error\n");
 		return -1;
+	}		
 
 	data->notifier_write = new tpSocketNotifier(
 			data->sockfd, tpSocketNotifier::Write,
@@ -223,9 +242,12 @@ int tpBluetoothSocket::disconnectFromService()
 	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
 	if(!data || !data->adapter)
 		return -1;
-	
+	if(data->sockfd>=0)
+		::close(data->sockfd);
+	::close(data->sockfd);
+	data->status=tpSocket::TP_SOCK_DISCONNECT;
+	disconnected.emit(this);		//发送断开连接的信号
 
-	
 	return 0;
 }
 

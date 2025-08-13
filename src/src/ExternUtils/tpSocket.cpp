@@ -290,3 +290,70 @@ tpUInt16 tpSocket::getPeerPort()
 	tpSocketData *sock=static_cast<tpSocketData *>(data_);
 	return sock->port_r;
 }
+
+
+/*tpBool tpSocket::waitForBytesWritten(int msecs = 10000)
+{
+	tpSocketData *sock=static_cast<tpSocketData *>(data_);
+
+	struct pollfd pfd;
+    pfd.fd = sock->sockfd;
+    pfd.events = POLLOUT | POLLERR | POLLHUP;
+    pfd.revents = 0;
+    
+    // 转换超时时间为毫秒
+    int timeout = msecs;
+    
+    // 调用 poll
+    int ret = poll(&pfd, 1, timeout);
+    
+    if (ret < 0) {
+        // 错误
+        return -1;
+    } else if (ret == 0) {
+        // 超时
+        return 0;
+    }
+    
+    // 检查事件
+    if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+        // 连接错误
+        return -1;
+    }
+    
+    return (pfd.revents & POLLOUT) ? 1 : 0;
+}
+
+tpBool tpSocket::waitForReadyRead(int msecs = 10000)
+{
+	tpSocketData *sock=static_cast<tpSocketData *>(data_);
+	if (socket_fd_ < 0) return false;
+        
+        // 检查是否已有数据可读
+        if (hasPendingData()) {
+            return true;
+        }
+        
+        // 使用 poll 等待数据可读
+        struct pollfd pfd;
+        pfd.fd = socket_fd_;
+        pfd.events = POLLIN | POLLERR | POLLHUP;
+        pfd.revents = 0;
+        
+        int ret = poll(&pfd, 1, msecs);
+        if (ret < 0) {
+            // 错误
+            return false;
+        } else if (ret == 0) {
+            // 超时
+            return false;
+        }
+        
+        // 检查事件
+        if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+            // 连接错误
+            return false;
+        }
+        
+        return (pfd.revents & POLLIN) != 0;
+}*/

@@ -64,10 +64,24 @@ BluetAgent *bluet_agent_creat()
 
 	GError *error = NULL;
 	register_agent_callbacks(TRUE, NULL, dbus_main_thread_get_main_thread(self->priv->mainthread), &error);		//注册一个agent对象
+	if (error != NULL) {
+		g_print("[Debug]: Error occurred: %s\n", error->message);
+		// 如果你不再需要这个错误，释放它
+		g_error_free(error);
+		error = NULL; // 重置错误指针，避免重复释放
+	}
+	g_clear_error(&error);
 	agent_manager_register_agent(agent_manager, AGENT_PATH, "DisplayYesNo", &error);
+	if (error != NULL) {
+		g_print("[Debug]: Error occurred: %s\n", error->message);
+		// 如果你不再需要这个错误，释放它
+		g_error_free(error);
+		error = NULL; // 重置错误指针，避免重复释放
+	}
 	agent_manager_request_default_agent(agent_manager, AGENT_PATH, &error);
 	if(error)
 	{
+		g_print("[Debug]: Error occurred: %s\n", error->message);
 		g_clear_error(&error);
 		bluet_agent_delete(self);
 		return NULL;
