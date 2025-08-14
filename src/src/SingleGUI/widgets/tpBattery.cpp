@@ -132,7 +132,7 @@ bool tpBattery::onPaintEvent(tpObjectPaintEvent *event)
 
         double unit = (batteryRect.w - (margin * 2) - linew * 2) / 100;
         ItpPointF topLeft(batteryRect.left() + margin + linew, batteryRect.top() + margin + linew);
-        ItpPointF bottomRight(batteryData->value * unit + margin, batteryRect.bottom() - margin - linew);
+        ItpPointF bottomRight(batteryData->value * unit + margin + linew, batteryRect.bottom() - margin - linew);
         ItpRectF rect(topLeft, bottomRight);
 
         double bgRadius = rect.h * 0.3;
