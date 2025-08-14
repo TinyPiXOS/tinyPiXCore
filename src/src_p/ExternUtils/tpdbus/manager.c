@@ -1,3 +1,4 @@
+#include "stdio.h"
 #include <gio/gio.h>
 //#include "bluetooth_inc.h"
 #include "manager.h"
@@ -222,7 +223,6 @@ const gchar *manager_default_adapter(Manager *self, GError **error)
 const gchar *manager_find_adapter(Manager *self, const gchar *pattern, GError **error)
 {
     g_assert(MANAGER_IS(self));
-
     GVariant *objects = NULL;
     objects = manager_get_managed_objects(self, error);
     if (objects == NULL)

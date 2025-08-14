@@ -37,6 +37,7 @@ static void adapterListCallback(const BluetoothAdapter* adapter, void* user_data
 {
     tpList<tpBluetoothLocal > *adapter_list = static_cast<tpList<tpBluetoothLocal >*>(user_data);
 //	tpBluetoothLocal *local=new tpBluetoothLocal(adapter->id, adapter->address, adapter->name);
+//	printf("adapter:%s %s\n",adapter->name,adapter->address);
     adapter_list->emplace_back(adapter->id, adapter->address, adapter->name);
 }
 
@@ -54,13 +55,13 @@ tpBluetoothLocal::tpBluetoothLocal(int id, const char *address, const char *name
 	tpBluetoothLocalData *data = static_cast<tpBluetoothLocalData *>(data_);
 	if(tpDbusConnectManage::instance().connection()!=TP_TRUE)
 	{
-		fprintf(stderr,"connect to dbus error\n");
+		fprintf(stderr,"[Error]: connect to dbus error\n");
 		return ;
 	}
 	data->address=tpBluetoothAddress(tpString(address));
 	data->name=tpString(name);
 	if(!getAdapter())
-		fprintf(stderr,"Adapter does not exist\n");
+		fprintf(stderr,"[Error]: Adapter does not exist\n");
 }
 
 tpBluetoothLocal::tpBluetoothLocal(const char *name)
@@ -69,16 +70,18 @@ tpBluetoothLocal::tpBluetoothLocal(const char *name)
 	tpBluetoothLocalData *data = static_cast<tpBluetoothLocalData *>(data_);
 	if(tpDbusConnectManage::instance().connection()!=TP_TRUE)
 	{
-		fprintf(stderr,"connect to dbus error\n");
+		fprintf(stderr,"[Error]: connect to dbus error\n");
 		return ;
 	}
 	data->name=tpString(name);
 	if(!getAdapter())
-		fprintf(stderr,"Adapter does not exist\n");
+		fprintf(stderr,"[Error]: Adapter does not exist\n");
+	printf("[Debug]: bluet_agent_creat\n");
 	data->agent=bluet_agent_creat();
+	printf("[Debug]: bluet_agent_creat ok\n");
 	if(!data->agent)
 	{
-		fprintf(stderr,"Bluetooth service did not start successfully\n");
+		fprintf(stderr,"[Error]: Bluetooth service did not start successfully\n");
 	}
 }
 

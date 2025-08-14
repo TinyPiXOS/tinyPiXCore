@@ -237,9 +237,9 @@ int32_t main(int32_t argc, char *argv[])
 //	example_dhcp();
 //    example_printf_device();
 //	example_wireless();//
- //   example_udp();
-//    example_tcp_server();
-    example_tcp_client();
+//    example_udp();
+    example_tcp_server();
+//   example_tcp_client();
     return 0;
 }
 

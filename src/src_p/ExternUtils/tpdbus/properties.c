@@ -26,7 +26,7 @@ G_DEFINE_TYPE_WITH_PRIVATE (Properties, properties, G_TYPE_OBJECT)
 enum
 {
     PROP_0,
-	PROP_DBUS_CONNECTION,       //D-Bus Connection 注入
+	PROP_DBUS_CONNECTION=1,       //D-Bus Connection 注入
     PROP_DBUS_TYPE,
     PROP_DBUS_SERVICE_NAME,
     PROP_DBUS_OBJECT_PATH,
@@ -179,8 +179,8 @@ static void properties_class_init (PropertiesClass *klass)
 
     /* 注入 D-Bus Connection */
 	obj_properties[PROP_DBUS_CONNECTION] =
-	g_param_spec_object("connection",
-						"Connection",
+	g_param_spec_object("dbus-connection",
+						"D-Bus Connection",
 						"System or session bus connection",
 						G_TYPE_DBUS_CONNECTION,
 						G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
