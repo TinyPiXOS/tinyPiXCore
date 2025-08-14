@@ -30,6 +30,7 @@ add_subdirectory(PiXExternUtils)
 add_subdirectory(PiXSingleGUI)
 add_subdirectory(PiXGUIFramework/desktopGUI)
 add_subdirectory(PiXGUIFramework/exampleGUI)
+add_subdirectory(PiXGUIFramework/smartDeviceGUI)
 add_subdirectory(PiXService)
 
 # 平台不同拷贝资源文件到不同安装目录；以及准备不同平台的安装依赖库

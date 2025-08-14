@@ -99,6 +99,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieparser.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieanimation.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottiekeypath.cpp
+    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/zip/zip.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vrect.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdasher.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbrush.cpp
@@ -178,14 +179,12 @@ link_directories("/usr/lib")
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
     set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libnanomsg.a)
-    set(RLOTTIE_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/librlottie.a)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
     set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libnanomsg.a)
-    set(RLOTTIE_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/librlottie.a)
 endif()
 
 # 将pthread库链接到可执行目标
-target_link_libraries(PiXUtils ${NANOMSG_STATIC_LIB} ${RLOTTIE_STATIC_LIB} dl pthread PiXApi SDL2 SDL2_image SDL2_gfx
+target_link_libraries(PiXUtils ${NANOMSG_STATIC_LIB} dl pthread PiXApi SDL2 SDL2_image SDL2_gfx
     cairo pango-1.0 gobject-2.0  glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime
 )
 

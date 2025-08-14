@@ -103,15 +103,13 @@ link_directories("/usr/lib")
 # 直接指定静态库的路径
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
     set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libsqlite3.a)
-    set(RLOTTIE_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/librlottie.a)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
     set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libsqlite3.a)
-    set(RLOTTIE_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/librlottie.a)
 endif()
 
 # 库链接到可执行目标
 target_link_libraries(PiXSingleGUI
-    ${SQLITE3_STATIC_LIB} ${RLOTTIE_STATIC_LIB}
+    ${SQLITE3_STATIC_LIB}
     dl pthread PiXApi PiXUtils PiXExternUtils
 )
 

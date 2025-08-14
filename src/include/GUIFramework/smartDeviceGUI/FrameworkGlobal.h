@@ -1,0 +1,7 @@
+#ifndef _SMART_DEVICE_GUI_GLOBAL_H
+#define _SMART_DEVICE_GUI_GLOBAL_H
+
+#define SMART_DEVICE_GUI_NAMESPACE_BEGIN namespace smartDeviceGUI {
+#define SMART_DEVICE_GUI_NAMESPACE_END }
+
+#endif

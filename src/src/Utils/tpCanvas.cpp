@@ -832,7 +832,7 @@ void tpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
     }
 }
 
-static inline void draw_arc(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad, double start, double end, int32_t color, double width)
+static inline void draw_arc(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad, double start, double end, int32_t color, double width, const bool &isRound)
 {
     if (!set->cairo_surface)
         return;
@@ -862,6 +862,35 @@ static inline void draw_arc(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad
     double end_p = end * M_PI / 180;
 
     cairo_arc(cr, x, y, rad, start_p, end_p);
+    // cairo_arc_negative(cr, x, y, rad, start_p, end_p);
+
+    // 顶端绘制圆角效果
+    if (isRound && width > 1)
+    {
+        // 保存当前状态
+        cairo_save(cr);
+
+        // 计算圆弧起点和终点的坐标
+        double start_x = x + rad * cos(start_p);
+        double start_y = y + rad * sin(start_p);
+        double end_x = x + rad * cos(end_p);
+        double end_y = y + rad * sin(end_p);
+
+        // 设置圆角半径（为线宽的一半）
+        double round_radius = width / 2.0;
+
+        // 在起点添加圆角
+        cairo_new_sub_path(cr);
+        cairo_set_line_width(cr, 1);
+        cairo_arc(cr, start_x, start_y, round_radius /2 , start_p + M_PI, start_p);
+
+        // 在终点添加圆角
+        cairo_new_sub_path(cr);
+        cairo_arc(cr, end_x, end_y, round_radius, end_p, end_p + M_PI);
+
+        // 恢复状态
+        cairo_restore(cr);
+    }
 
     cairo_stroke(cr);
     cairo_destroy(cr);
@@ -878,11 +907,11 @@ void tpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double w
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_arc(set, x, y, rad, 0, 360, color, width);
+        draw_arc(set, x, y, rad, 0, 360, color, width, false);
     }
 }
 
-void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width)
+void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width, const bool &isRound)
 {
     ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
 
@@ -893,7 +922,7 @@ void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_arc(set, x, y, rad, start, end, color, width);
+        draw_arc(set, x, y, rad, start, end, color, width, isRound);
     }
 }
 

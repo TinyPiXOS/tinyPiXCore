@@ -83,7 +83,16 @@ public:
 	/// @param color 颜色
 	/// @param width 画笔宽度
 	virtual void circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width = 1.0);
-	virtual void arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width = 1.0);
+	/// @brief 绘制圆环;逆时针绘制0°：正右方（3点钟方向）90°：正上方（12点钟方向）180°：正左方（9点钟方向）270°：正下方（6点钟方向）
+	/// @param x 圆心坐标
+	/// @param y 圆心坐标
+	/// @param rad 半径
+	/// @param start 起始角度
+	/// @param end 终止角度
+	/// @param color 颜色
+	/// @param width 画笔宽度
+	/// @param isRound 顶点位置是否圆角处理
+	virtual void arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width = 1.0, const bool& isRound = false);
 	/// @brief 绘制填充圆形
 	/// @param x 圆心坐标X
 	/// @param y 圆心坐标Y
