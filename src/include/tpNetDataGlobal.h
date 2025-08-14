@@ -6,7 +6,7 @@
 #include "Utils/StructPackage/DataPackagerMacro.h"
 #include "Utils/StructPackage/DataPackager.hpp"
 
-/// @brief 与桌面通信相关数据定义；若无桌面则无需使用
+/// @brief 与服务通信相关数据定义；
 
 #ifndef StructSerializeFunc
 #define StructSerializeFunc                                                             \

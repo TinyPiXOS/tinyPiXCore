@@ -83,7 +83,7 @@ public:
 	/// @param color 颜色
 	/// @param width 画笔宽度
 	virtual void circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width = 1.0);
-	/// @brief 绘制圆环;逆时针绘制0°：正右方（3点钟方向）90°：正上方（12点钟方向）180°：正左方（9点钟方向）270°：正下方（6点钟方向）
+	/// @brief 绘制圆环;起始角顺时针绘制至终止角；0°：正右方（3点钟方向）90°：正下方（6点钟方向）180°：正左方（9点钟方向）270°：正上方（12点钟方向）
 	/// @param x 圆心坐标
 	/// @param y 圆心坐标
 	/// @param rad 半径

@@ -11,6 +11,14 @@ struct tpBatteryData
 
     int32_t alarmValue = 20;
     int32_t value = 0;
+
+    int32_t borderWidth = 1;
+    int32_t whiteBorderColor = _RGB(255, 255, 255);
+    int32_t whiteColor = _RGB(255, 255, 255);
+    int32_t blackBorderColor = _RGB(159, 159, 159);
+    int32_t blackColor = _RGB(0, 0, 0);
+
+    tpBattery::BatteryStyle style = tpBattery::White;
 };
 
 tpBattery::tpBattery(tpChildWidget *parent)
@@ -18,7 +26,7 @@ tpBattery::tpBattery(tpChildWidget *parent)
 {
     data_ = new tpBatteryData();
 
-    refreshBaseCss();
+    // refreshBaseCss();
 }
 
 tpBattery::~tpBattery()
@@ -30,6 +38,19 @@ tpBattery::~tpBattery()
         batteryData = nullptr;
         data_ = nullptr;
     }
+}
+
+void tpBattery::setStyle(const BatteryStyle &style)
+{
+    tpBatteryData *batteryData = static_cast<tpBatteryData *>(data_);
+    batteryData->style = style;
+    update();
+}
+
+tpBattery::BatteryStyle tpBattery::style()
+{
+    tpBatteryData *batteryData = static_cast<tpBatteryData *>(data_);
+    return batteryData->style;
 }
 
 void tpBattery::setValue(const int32_t &value)
@@ -85,11 +106,12 @@ bool tpBattery::onPaintEvent(tpObjectPaintEvent *event)
 
     tpChildWidget::onPaintEvent(event);
 
-    int32_t powerColor = currentStatusCss()->color();
-    int32_t borderColor = currentStatusCss()->borderColor();
+    int32_t powerColor = batteryData->style == tpBattery::White ? batteryData->whiteColor : batteryData->blackColor;
+    int32_t borderColor = batteryData->style == tpBattery::White ? batteryData->whiteBorderColor : batteryData->blackBorderColor;
+    int32_t fontColor = batteryData->style == tpBattery::White ? batteryData->blackColor : batteryData->whiteColor;
 
     tpCanvas *painter = event->canvas();
-    double linew = 1;
+    double linew = batteryData->borderWidth;
 
     double headWidth = width() / 12;
     double batteryWidth = width() - headWidth;
@@ -97,7 +119,7 @@ bool tpBattery::onPaintEvent(tpObjectPaintEvent *event)
     ItpRect batteryRect = ItpRect(ItpPoint(0, 0), ItpPoint(batteryWidth, height()));
 
     // 边框
-    double borderRadius = batteryRect.h / 30;
+    double borderRadius = batteryRect.h * 0.3;
     painter->roundedRectangle(batteryRect.x, batteryRect.y, batteryRect.x + batteryRect.w, batteryRect.y + batteryRect.h, borderRadius, borderColor, linew);
 
     // 电量
@@ -105,26 +127,27 @@ bool tpBattery::onPaintEvent(tpObjectPaintEvent *event)
     {
         int32_t powerColoer = batteryData->value > batteryData->alarmValue ? powerColor : batteryData->alarmColor;
 
-        double margin = std::min(width(), height()) / 50.0;
+        double margin = std::min(width(), height()) * 0.06;
         margin = std::max(margin, linew);
 
-        double unit = (batteryRect.w - (margin * 2)) / 100;
-        ItpPointF topLeft(batteryRect.left() + margin, batteryRect.top() + margin);
-        ItpPointF bottomRight(batteryData->value * unit + margin, batteryRect.bottom() - margin);
+        double unit = (batteryRect.w - (margin * 2) - linew * 2) / 100;
+        ItpPointF topLeft(batteryRect.left() + margin + linew, batteryRect.top() + margin + linew);
+        ItpPointF bottomRight(batteryData->value * unit + margin, batteryRect.bottom() - margin - linew);
         ItpRectF rect(topLeft, bottomRight);
 
-        double bgRadius = rect.h / 30;
+        double bgRadius = rect.h * 0.3;
         // painter->setBrush(powerColoer);
         painter->roundedBox(rect.x, rect.y, rect.x + rect.w, rect.y + rect.h, bgRadius, powerColoer);
     }
 
     // 绘制数值
-    int32_t fontColoer = batteryData->value > batteryData->alarmValue ? _RGB(64, 65, 66) : batteryData->alarmColor;
+    fontColor = batteryData->value > batteryData->alarmValue ? fontColor : batteryData->alarmColor;
     tpString text = tpString::number(batteryData->value);
     // 设置电量文字字体、大小
     // tpFont font(DEFAULT_FONT_FAMILY, batteryRect.w / 10);
     tpFont font(DEFAULT_FONT_FAMILY, height() / 2);
     font.setText(text);
+    font.setFontColor(fontColor, fontColor);
     uint32_t textX = (batteryRect.w - font.pixelWidth()) / 2.0;
     uint32_t textY = (batteryRect.h - font.pixelHeight()) / 2.0 + 1;
     painter->renderText(font, textX, textY, text);

@@ -1,5 +1,5 @@
-#ifndef __TP_BATTERY_H
-#define __TP_BATTERY_H
+#ifndef __TP_SMART_GUI_CIRCULAR_PROGRESS_BAR_H
+#define __TP_SMART_GUI_CIRCULAR_PROGRESS_BAR_H
 
 #include "tpChildWidget.h"
 #include "tpSignalSlot.h"
@@ -8,14 +8,14 @@
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
-TP_DEF_VOID_TYPE_VAR(ITpSemiCircleProgressBarData);
+TP_DEF_VOID_TYPE_VAR(ITpCircularProgressBarData);
 /// @brief 环形进度条
-class TpSemiCircleProgressBar : public tpChildWidget
+class TpCircularProgressBar : public tpChildWidget
 {
 public:
-	TpSemiCircleProgressBar(tpChildWidget *parent = nullptr);
+	TpCircularProgressBar(tpChildWidget *parent = nullptr);
 
-	virtual ~TpSemiCircleProgressBar();
+	virtual ~TpCircularProgressBar();
 
     /// @brief 设置取值范围；最小值需小于最大值
     /// @param min 最小值
@@ -30,13 +30,21 @@ public:
 	/// @return 当前值
 	int32_t value();
 
+    /// @brief 设置圆环线宽
+    /// @param width 宽度
+    void setLineWidth(const uint32_t& width);
+
+    /// @brief 获取线宽
+    /// @return 线宽
+    uint32_t lineWidth();
+
 public:
 	virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
 
-	virtual tpString pluginType() override { return TO_STRING(TpSemiCircleProgressBar); }
+	virtual tpString pluginType() override { return TO_STRING(TpCircularProgressBar); }
 
 private:
-	ITpSemiCircleProgressBarData *data_;
+	ITpCircularProgressBarData *data_;
 };
 
 SMART_DEVICE_GUI_NAMESPACE_END

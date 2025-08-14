@@ -72,12 +72,6 @@ tpButton[type="FunctionButton"]:hover {
   background-color: rgb(224, 197, 250);
 }
 
-tpBattery {
-  border-color: rgb(255, 255, 255);
-  color: rgb(255, 255, 255);
-  border-width: 1dp;
-}
-
 tpSlideProgressBar {
   height: 64dp;
   width: 305dp;

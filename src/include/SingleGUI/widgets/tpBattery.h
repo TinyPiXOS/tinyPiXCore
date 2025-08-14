@@ -10,39 +10,54 @@ TP_DEF_VOID_TYPE_VAR(ItpBatteryData);
 class tpBattery : public tpChildWidget
 {
 public:
-	tpBattery(tpChildWidget *parent);
-
-	virtual ~tpBattery();
-
-	/// @brief 设置电量，最大100，最小0
-	/// @param value 电量值
-	void setValue(const int32_t &value);
-
-	/// @brief 获取当前电量
-	/// @return 电量值[0,100]
-	int32_t value();
-
-	/// @brief 设置告警值
-	/// @param value 告警值
-	void setAlamValue(const int32_t& value);
-	/// @brief 获取当前告警值
-	/// @return 
-	int32_t alamValue();
-
-	/// @brief 设置告警颜色
-	/// @param color 颜色_RGB
-	void setAlamColor(const int32_t& color);
-	/// @brief 获取告警颜色值
-	/// @return 颜色RGB
-	int32_t alamColor();
+    enum BatteryStyle
+    {
+        White,
+        Black
+    };
 
 public:
-	virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
+    tpBattery(tpChildWidget *parent);
 
-	virtual tpString pluginType() override { return TO_STRING(tpBattery); }
+    virtual ~tpBattery();
+
+    /// @brief 设置电池配色主题
+    /// @param style 样式主题
+    void setStyle(const BatteryStyle &style);
+
+    /// @brief 获取当前样式
+    /// @return 样式枚举
+    BatteryStyle style();
+
+    /// @brief 设置电量，最大100，最小0
+    /// @param value 电量值
+    void setValue(const int32_t &value);
+
+    /// @brief 获取当前电量
+    /// @return 电量值[0,100]
+    int32_t value();
+
+    /// @brief 设置告警值
+    /// @param value 告警值
+    void setAlamValue(const int32_t &value);
+    /// @brief 获取当前告警值
+    /// @return
+    int32_t alamValue();
+
+    /// @brief 设置告警颜色
+    /// @param color 颜色_RGB
+    void setAlamColor(const int32_t &color);
+    /// @brief 获取告警颜色值
+    /// @return 颜色RGB
+    int32_t alamColor();
+
+public:
+    virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
+
+    virtual tpString pluginType() override { return TO_STRING(tpBattery); }
 
 private:
-	ItpBatteryData *data_;
+    ItpBatteryData *data_;
 };
 
 #endif

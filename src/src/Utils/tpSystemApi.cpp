@@ -4,7 +4,7 @@
 #include "tpFile.h"
 #include "tpJsonDocument.h"
 #include "tpJsonObject.h"
-#include "tpDesktopGlobal.h"
+#include "tpNetDataGlobal.h"
 
 tpSystemApi *tpSystemApi::Instance()
 {

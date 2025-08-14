@@ -81,3 +81,4 @@ examples/SingleGUI/tpCheckBox/checkbox
 examples/SingleGUI/tpLabel/label
 examplesApp/bin/examplesApp
 PiXGUIFramework/smartDeviceGUI/PiXSmartDeviceGUI_symlink.cmake
+examples/SingleGUI/tpBattery/battery
