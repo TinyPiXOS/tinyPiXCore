@@ -14,6 +14,7 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/GUIFramework/smartDeviceGUI/widgets/TpCircularProgressBar.cpp
+    ${SOURCE_PATH}/src/GUIFramework/smartDeviceGUI/widgets/TpMusicPlayerView.cpp
 )
 
 include_directories(/usr/include/cairo)

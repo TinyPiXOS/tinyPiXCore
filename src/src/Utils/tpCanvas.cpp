@@ -2,8 +2,11 @@
 #include "tpSurface.h"
 #include "tpFont.h"
 #include "tpRect.h"
-#include <SDL2_gfxPrimitives.h>
 #include "tpDef.h"
+#include "thorVG/thorvg.h"
+
+#include <SDL2_gfxPrimitives.h>
+#include <thread>
 
 #define OFFSET_X(set, x) (set->offsetX + x)
 #define OFFSET_Y(set, y) (set->offsetY + y)
@@ -19,6 +22,11 @@ struct ItpCanvasSet
     int32_t offsetX, offsetY;
     bool beUsed;
     SDL_Rect clipRect;
+
+    // CPU绘制引擎
+    tvg::SwCanvas *swCanvas = nullptr;
+    // 使用OpenGL加速的绘制引擎；需有GPU和OpenGL才能使用；暂时无用
+    tvg::GlCanvas *glCanvas = nullptr;
 };
 
 // 绘制圆角图片资源数据
@@ -211,20 +219,6 @@ static inline void drawCircleButton(tpCanvas *canvas, cairo_t *cr, cairo_surface
 
     double radius = set->roundRad;
 
-#if 0
-	cairo_arc(cr, width / 2.0, height / 2.0, radius, 0, 2 * M_PI);
-	cairo_clip(cr);
-	cairo_new_path(cr); /* path not consumed by clip()*/
-
-	cairo_scale(cr, 256.0 /width, 256.0 / height);
-
-	cairo_set_source_surface(cr, cairo_image, set->offsetX + set->x, set->offsetY + set->y);
-
-	cairo_paint(cr);
-
-	cairo_surface_destroy(cairo_image);
-
-#else
     cairo_surface_t *output = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 
     if (output)
@@ -261,38 +255,54 @@ static inline void drawCircleButton(tpCanvas *canvas, cairo_t *cr, cairo_surface
 
     cairo_stroke(cr);
     cairo_surface_destroy(output);
-#endif
+}
+
+// 重设canvas的target
+static inline void refreshCanvasTarget(ItpCanvasSet *set)
+{
+    int32_t surfaceWidth = set->tpsurface->width();
+    int32_t surfaceHeight = set->tpsurface->height();
+    set->swCanvas->target((uint32_t *)set->tpsurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
 }
 
 tpCanvas::tpCanvas(tpSurface *surface, int32_t offsetX, int32_t offsetY)
 {
+    if (!surface)
+        return;
+
     ItpCanvasSet *set = new ItpCanvasSet();
 
-    if (set)
-    {
-        set->surface = nullptr;
-        set->render = nullptr;
-        set->beUsed = false;
-        set->cairo_surface = nullptr;
-        set->offsetX = offsetX;
-        set->offsetY = offsetY;
+    if (!set)
+        return;
 
-        if (surface)
-        {
-            set->tpsurface = surface;
-            set->surface = (SDL_Surface *)surface->surface();
-            set->render = (SDL_Renderer *)surface->renderer();
-            set->cairo_surface = convertFromSDL_Surface(set->surface);
-            set->beUsed = (set->surface && set->render);
-        }
+    set->surface = nullptr;
+    set->render = nullptr;
+    set->beUsed = false;
+    set->cairo_surface = nullptr;
+    set->offsetX = offsetX;
+    set->offsetY = offsetY;
 
-        this->canvasSet = set;
-    }
+    set->tpsurface = surface;
+    set->surface = (SDL_Surface *)surface->surface();
+    set->render = (SDL_Renderer *)surface->renderer();
+    set->cairo_surface = convertFromSDL_Surface(set->surface);
+    set->beUsed = (set->surface && set->render);
+
+    // 根据CPU核心数；分配绘图引擎线程数
+    uint32_t cores = std::thread::hardware_concurrency();
+    tvg::Initializer::init(cores / 2);
+
+    // TODO判断是GPU环境还是CPU环境
+    set->swCanvas = tvg::SwCanvas::gen();
+
+    refreshCanvasTarget(set);
+
+    this->data_ = set;
 }
 
 tpCanvas::~tpCanvas()
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set)
     {
@@ -300,65 +310,18 @@ tpCanvas::~tpCanvas()
         delete set;
     }
 }
-#include <rlottie/rlottie.h>
+
 void tpCanvas::paintTest()
 {
-    // 加载动画
-    auto animation = rlottie::Animation::loadFromFile("/home/hawk/Public/tinyPiXCore/examplesApp/data/legoAnimation.json");
-    uint32_t width = 400, height = 400;
 
-    // 创建像素缓冲区 (RGBA8888格式)
-    // std::vector<uint32_t> buffer(width * height);
-
-    // // 创建 rlottie 画布
-    // rlottie::Surface surface(
-    //     buffer.data(),
-    //     width,
-    //     height,
-    //     width * sizeof(uint32_t) // stride
-    // );
-
-    // 渲染指定帧
-    // animation->renderSync(0, surface);
-
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
-    if (!set->cairo_surface)
-        return;
-
-    // 创建 Cairo 表面
-    // cairo_surface_t *cairoSurface = cairo_image_surface_create(
-    //     CAIRO_FORMAT_ARGB32, width, height);
-
-    // 获取 Cairo 缓冲区
-    uint32_t *cairoBuffer = reinterpret_cast<uint32_t *>(
-        cairo_image_surface_get_data(set->cairo_surface));
-
-    // 渲染到 Cairo 缓冲区
-    rlottie::Surface rlSurface(
-        cairoBuffer,
-        width,
-        height,
-        cairo_image_surface_get_stride(set->cairo_surface));
-
-    static double animationPercent = 0;
-
-    animation->renderSync(animationPercent * animation->totalFrame(), rlSurface);
-
-    animationPercent += 0.016;
-
-    if (animationPercent >= 1)
-        animationPercent = 0;
-
-    // 绘制到窗口
-    cairo_t *cr = cairo_create(set->cairo_surface);
-    cairo_set_source_surface(cr, set->cairo_surface, 0, 0);
-    cairo_paint(cr);
-    cairo_destroy(cr);
+    // 绘制并同步
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 bool tpCanvas::setTarget(tpSurface *surface, int32_t offsetX, int32_t offsetY)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set)
     {
@@ -393,7 +356,7 @@ bool tpCanvas::setTarget(tpSurface *surface, int32_t offsetX, int32_t offsetY)
 
 void tpCanvas::setClipRect(tpRect &rect)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set &&
         set->beUsed)
@@ -418,7 +381,7 @@ void tpCanvas::setClipRect(ItpRect *rect)
 
 tpSurface *tpCanvas::surface()
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
     tpSurface *surface = nullptr;
 
     if (set &&
@@ -459,946 +422,615 @@ static inline void draw_erase(ItpCanvasSet *set)
 
 void tpCanvas::erase()
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
         draw_erase(set);
     }
 }
 
-static inline void draw_pixel(ItpCanvasSet *set, int32_t x, int32_t y, int32_t color)
+static inline void drawPixel(ItpCanvasSet *set, int32_t x, int32_t y, int32_t color)
 {
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
+    if (!set->swCanvas)
+        return;
 
-        if (cr == nullptr)
-        {
-            return;
-        }
+    refreshCanvasTarget(set);
 
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
+    auto pixel = tvg::Shape::gen();
+    pixel->appendCircle(x, y, 0.5, 0.5); // 半径 0.5 的圆形
+    pixel->fill(_R(color), _G(color), _B(color), _A(color));
+    set->swCanvas->push(std::move(pixel));
 
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-
-        cairo_move_to(cr, x, y);
-        cairo_line_to(cr, x, y);
-
-        cairo_stroke(cr);
-        cairo_destroy(cr);
-    }
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 void tpCanvas::pixel(int32_t x, int32_t y, int32_t color)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_pixel(set, x, y, color);
+        drawPixel(set, x, y, color);
     }
 }
 
-static inline void draw_line(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
+static inline void drawLine(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
 {
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
+    if (!set->swCanvas)
+        return;
 
-        if (cr == nullptr)
-        {
-            return;
-        }
+    refreshCanvasTarget(set);
 
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
+    // 创建直线
+    auto line = tvg::Shape::gen();
+    line->moveTo(x1, y1);
+    line->lineTo(x2, y2);
 
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
+    // 设置描边属性
+    line->strokeWidth(width); // 线宽
+    line->strokeFill(_R(color), _G(color), _B(color), _A(color));
+    line->strokeCap(tvg::StrokeCap::Round);   // 圆角线头
+    line->strokeJoin(tvg::StrokeJoin::Round); // 圆角连接
 
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_set_line_width(cr, width);
+    set->swCanvas->push(std::move(line));
 
-        cairo_move_to(cr, x1, y1);
-        cairo_line_to(cr, x2, y2);
+    // 绘制并同步
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 
-        cairo_stroke(cr);
-        cairo_destroy(cr);
-    }
+    return;
 }
 
 void tpCanvas::hline(int32_t x1, int32_t x2, int32_t y, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
 
         x1 = OFFSET_X(set, x1);
         x2 = OFFSET_X(set, x2);
         y = OFFSET_Y(set, y);
 
-        draw_line(set, x1, y, x2, y, color, width);
+        drawLine(set, x1, y, x2, y, color, width);
     }
 }
 
 void tpCanvas::vline(int32_t x, int32_t y1, int32_t y2, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
         x = OFFSET_X(set, x);
         y1 = OFFSET_Y(set, y1);
         y2 = OFFSET_Y(set, y2);
 
-        draw_line(set, x, y1, x, y2, color, width);
+        drawLine(set, x, y1, x, y2, color, width);
     }
 }
 
 void tpCanvas::line(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x1 = OFFSET_X(set, x1);
         y1 = OFFSET_Y(set, y1);
         x2 = OFFSET_X(set, x2);
         y2 = OFFSET_Y(set, y2);
 
-        draw_line(set, x1, y1, x2, y2, color, width);
+        drawLine(set, x1, y1, x2, y2, color, width);
     }
 }
 
-static inline void draw_rectangle(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
+static inline void drawRectangle(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width, int32_t rad, bool isFill)
 {
-    if (set->cairo_surface)
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    // 绘制矩形填充
+    auto rect = tvg::Shape::gen();
+    rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
+
+    if (isFill)
     {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_set_line_width(cr, width);
-        cairo_rectangle(cr, x1, y1, x2, y2);
-        cairo_stroke(cr);
-        cairo_destroy(cr);
+        rect->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
     }
+    else
+    {
+        rect->strokeFill(_R(color), _G(color), _B(color), _A(color));
+        rect->strokeWidth(width);
+    }
+
+    set->swCanvas->push(std::move(rect));
+
+    // 绘制并同步
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 void tpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x1 = OFFSET_X(set, x1);
         y1 = OFFSET_Y(set, y1);
         x2 = OFFSET_X(set, x2);
         y2 = OFFSET_Y(set, y2);
 
-        draw_rectangle(set, x1, y1, x2, y2, color, width);
+        drawRectangle(set, x1, y1, x2, y2, color, width, 0, false);
     }
-}
-
-static inline void draw_roundedRectangle(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, double width)
-{
-    if (!set->cairo_surface)
-        return;
-
-    double x = x1;
-    double y = y1;
-    double rectWidth = x2 - x1;
-    double rectHeight = y2 - y1;
-
-    if (rectWidth == 0 || rectHeight == 0)
-        return;
-
-    cairo_t *cr = cairo_create(set->cairo_surface);
-
-    if (cr == nullptr)
-        return;
-
-    double aspect = 1.0;        /* 纵横比 */
-    double corner_radius = rad; /* 拐角曲率半径 */
-
-    double radius = corner_radius / aspect;
-    double degrees = M_PI / 180.0;
-
-    // 圆角不能大于短边的一半
-    double shortSide = rectWidth > rectHeight ? rectHeight : rectWidth;
-    shortSide /= 2.0;
-    if (radius > shortSide)
-        radius = shortSide;
-
-    cairo_new_sub_path(cr);
-    cairo_arc(cr, x + rectWidth - radius, y + radius, radius, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, x + rectWidth - radius, y + rectHeight - radius, radius, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, x + radius, y + rectHeight - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, x + radius, y + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-
-    double r = _R(color) / 255.0;
-    double g = _G(color) / 255.0;
-    double b = _B(color) / 255.0;
-    double a = _A(color) / 255.0;
-
-    cairo_set_source_rgba(cr, r, g, b, a);
-    cairo_set_line_width(cr, width);
-    cairo_stroke(cr);
-    cairo_destroy(cr);
 }
 
 void tpCanvas::roundedRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x1 = OFFSET_X(set, x1);
         y1 = OFFSET_Y(set, y1);
         x2 = OFFSET_X(set, x2);
         y2 = OFFSET_Y(set, y2);
 
-        draw_roundedRectangle(set, x1, y1, x2, y2, rad, color, width);
-    }
-}
-
-static inline void draw_box(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_rectangle(cr, x1, y1, x2 - x1, y2 - y1);
-        cairo_fill(cr);
-        cairo_destroy(cr);
+        drawRectangle(set, x1, y1, x2, y2, color, width, rad, false);
     }
 }
 
 void tpCanvas::box(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x1 = OFFSET_X(set, x1);
         y1 = OFFSET_Y(set, y1);
         x2 = OFFSET_X(set, x2);
         y2 = OFFSET_Y(set, y2);
 
-        draw_box(set, x1, y1, x2, y2, color);
+        drawRectangle(set, x1, y1, x2, y2, color, 1, 0, true);
     }
-}
-
-static inline void draw_roundedBox(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color)
-{
-    if (!set->cairo_surface)
-        return;
-
-    double x = x1;
-    double y = y1;
-
-    double rectWidth = x2 - x1;
-    double rectHeight = y2 - y1;
-
-    if (rectWidth == 0 || rectHeight == 0)
-        return;
-
-    cairo_t *cr = cairo_create(set->cairo_surface);
-
-    if (cr == nullptr)
-    {
-        return;
-    }
-
-    SDL_Rect clipRect;
-    SDL_GetClipRect(set->surface, &clipRect);
-    cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-    cairo_clip(cr);
-    cairo_new_path(cr);
-
-    // 圆角不能大于短边的一半
-    double radius = rad;
-    double shortSide = rectWidth > rectHeight ? rectHeight : rectWidth;
-    shortSide /= 2.0;
-    if (radius > shortSide)
-        radius = shortSide;
-
-    double r = _R(color) / 255.0;
-    double g = _G(color) / 255.0;
-    double b = _B(color) / 255.0;
-    double a = _A(color) / 255.0;
-
-    cairo_set_source_rgba(cr, r, g, b, a);
-
-    cairo_move_to(cr, x + radius, y);
-    cairo_line_to(cr, x + rectWidth - radius, y);
-
-    cairo_move_to(cr, x + rectWidth, y + radius);
-    cairo_line_to(cr, x + rectWidth, y + rectHeight - radius);
-
-    cairo_move_to(cr, x + rectWidth - radius, y + rectHeight);
-    cairo_line_to(cr, x + radius, y + rectHeight);
-
-    cairo_move_to(cr, x, y + rectHeight - radius);
-    cairo_line_to(cr, x, y + radius);
-
-    cairo_arc(cr, x + radius, y + radius, radius, M_PI, 3 * M_PI / 2.0);
-    cairo_arc(cr, x + rectWidth - radius, y + radius, radius, 3 * M_PI / 2, 2 * M_PI);
-    cairo_arc(cr, x + rectWidth - radius, y + rectHeight - radius, radius, 0, M_PI / 2);
-    cairo_arc(cr, x + radius, y + rectHeight - radius, radius, M_PI / 2, M_PI);
-
-    cairo_fill(cr);
-    cairo_destroy(cr);
 }
 
 void tpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set &&
         set->beUsed)
     {
-
         x1 = OFFSET_X(set, x1);
         y1 = OFFSET_Y(set, y1);
         x2 = OFFSET_X(set, x2);
         y2 = OFFSET_Y(set, y2);
 
-        draw_roundedBox(set, x1, y1, x2, y2, rad, color);
+        drawRectangle(set, x1, y1, x2, y2, color, 1, rad, true);
     }
 }
 
-static inline void draw_filledCircle(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad, double start, double end, int32_t color)
+/// @brief 绘制圆形、椭圆；填充或线条
+/// @param set
+/// @param x 坐标
+/// @param y
+/// @param rx 长轴
+/// @param ry 短轴
+/// @param color 颜色
+/// @param width 线条宽度，当填充绘制时线宽无效
+/// @param isFill 是否是填充颜色图形
+static inline void drawEllipse(ItpCanvasSet *set, const int32_t &x, const int32_t &y, const int32_t &rx, const int32_t &ry, const int32_t &color, double width, const bool &isFill)
 {
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-
-        double start_p = start * M_PI / 180;
-        double end_p = end * M_PI / 180;
-
-        cairo_arc(cr, x, y, rad, start, end);
-
-        cairo_fill(cr);
-        cairo_destroy(cr);
-    }
-}
-
-static inline void draw_arc(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad, double start, double end, int32_t color, double width, const bool &isRound)
-{
-    if (!set->cairo_surface)
+    if (!set->swCanvas)
         return;
 
-    cairo_t *cr = cairo_create(set->cairo_surface);
+    refreshCanvasTarget(set);
 
-    if (cr == nullptr)
+    auto circle = tvg::Shape::gen();
+    circle->appendCircle(x, y, rx, ry);
+
+    if (isFill)
     {
-        return;
+        circle->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
+    }
+    else
+    {
+        circle->strokeFill(_R(color), _G(color), _B(color), _A(color));
+        circle->strokeWidth(width);
     }
 
-    SDL_Rect clipRect;
-    SDL_GetClipRect(set->surface, &clipRect);
-    cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-    cairo_clip(cr);
-    cairo_new_path(cr);
+    set->swCanvas->push(std::move(circle)); // push the rectangle into the canvas
 
-    double r = _R(color) / 255.0;
-    double g = _G(color) / 255.0;
-    double b = _B(color) / 255.0;
-    double a = _A(color) / 255.0;
-
-    cairo_set_source_rgba(cr, r, g, b, a);
-    cairo_set_line_width(cr, width);
-
-    double start_p = start * M_PI / 180;
-    double end_p = end * M_PI / 180;
-
-    cairo_arc(cr, x, y, rad, start_p, end_p);
-    // cairo_arc_negative(cr, x, y, rad, start_p, end_p);
-
-    // 顶端绘制圆角效果
-    if (isRound && width > 1)
-    {
-        // // 计算圆弧起点和终点的坐标
-        double start_x = x + rad * cos(start_p);
-        double start_y = y + rad * sin(start_p);
-        double end_x = x + rad * cos(end_p);
-        double end_y = y + rad * sin(end_p);
-
-        // // 设置圆角半径（为线宽的一半）
-        double round_radius = width / 2.0;
-
-        draw_filledCircle(set, start_x, start_y, round_radius, 0, 360, color);
-        draw_filledCircle(set, end_x, end_y, round_radius, 0, 360, color);
-    }
-
-    cairo_stroke(cr);
-    cairo_destroy(cr);
+    // 绘制并同步
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 void tpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_arc(set, x, y, rad, 0, 360, color, width, false);
-    }
-}
-
-void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width, const bool &isRound)
-{
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
-
-    if (set &&
-        set->beUsed)
-    {
-
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        draw_arc(set, x, y, rad, start, end, color, width, isRound);
+        drawEllipse(set, x, y, rad, rad, color, width, false);
     }
 }
 
 void tpCanvas::filledCircle(int32_t x, int32_t y, int32_t rad, int32_t color)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_filledCircle(set, x, y, rad, 0, 360, color);
-    }
-}
-
-static inline void draw_ellipse(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, double width)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_set_line_width(cr, width);
-
-        double scale = (double)ry / rx;
-
-        cairo_scale(cr, 1, scale);
-        cairo_arc(cr, x, y, rx, 0, 2 * M_PI);
-
-        cairo_stroke(cr);
-        cairo_destroy(cr);
+        drawEllipse(set, x, y, rad, rad, color, 0, true);
     }
 }
 
 void tpCanvas::ellipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_ellipse(set, x, y, rx, ry, color, width);
-    }
-}
-
-static inline void draw_filledEllipse(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-        double scale = (double)ry / rx;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-
-        cairo_scale(cr, 1, scale);
-        cairo_arc(cr, x, y, rx, 0, 2 * M_PI);
-
-        cairo_fill(cr);
-        cairo_destroy(cr);
+        drawEllipse(set, x, y, rx, ry, color, width, false);
     }
 }
 
 void tpCanvas::filledEllipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_filledEllipse(set, x, y, rx, ry, color);
+        drawEllipse(set, x, y, rx, ry, color, 0, true);
     }
 }
 
-static inline void draw_pie(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad, double start, double end, int32_t color, double width)
+// 核心圆弧转贝塞尔曲线算法（基于 _pathAppendArcTo）
+static void appendArcToPath(tvg::Shape *shape, float startX, float startY,
+                            float endX, float endY, float rx, float ry,
+                            float angle, bool largeArc, bool sweep)
 {
-    if (set->cairo_surface)
+    tvg::Point start = tvg::Point{startX, startY};
+    tvg::Point next = tvg::Point{endX, endY};
+    tvg::Point radius = tvg::Point{rx, ry};
+
+    float cosPhi = cosf(angle);
+    float sinPhi = sinf(angle);
+
+    tvg::Point d2;
+    d2.x = (start.x - next.x) * 0.5f;
+    d2.y = (start.y - next.y) * 0.5f;
+    // auto d2 = (start - next) * 0.5f;
+
+    float x1p = cosPhi * d2.x + sinPhi * d2.y;
+    float y1p = cosPhi * d2.y - sinPhi * d2.x;
+    float x1p2 = x1p * x1p;
+    float y1p2 = y1p * y1p;
+    tvg::Point radius2 = tvg::Point{radius.x * radius.x, radius.y * radius.y};
+    float lambda = (x1p2 / radius2.x) + (y1p2 / radius2.y);
+
+    // 校正超出范围的半径
+    if (lambda > 1.0f)
     {
-        cairo_t *cr = cairo_create(set->cairo_surface);
+        radius.x = radius.x * sqrtf(lambda);
+        radius.y = radius.y * sqrtf(lambda);
+        // radius *= sqrtf(lambda);
 
-        if (cr == nullptr)
+        radius2 = {radius.x * radius.x, radius.y * radius.y};
+    }
+
+    tvg::Point cp, center;
+    float c = (radius2.x * radius2.y) - (radius2.x * y1p2) - (radius2.y * x1p2);
+
+    if (c < 0.0f)
+    {
+        radius.x = radius.x * sqrtf(1.0f - c / (radius2.x * radius2.y));
+        radius.y = radius.y * sqrtf(1.0f - c / (radius2.x * radius2.y));
+        // radius *= sqrtf(1.0f - c / (radius2.x * radius2.y));
+
+        radius2 = {radius.x * radius.x, radius.y * radius.y};
+        cp = {0.0f, 0.0f};
+        center = {0.0f, 0.0f};
+    }
+    else
+    {
+        c = sqrtf(c / ((radius2.x * y1p2) + (radius2.y * x1p2)));
+        if (largeArc == sweep)
+            c = -c;
+
+        cp.x = c * (radius.x * y1p / radius.y);
+        cp.y = c * (-radius.y * x1p / radius.x);
+
+        // cp = c * tvg::Point{(radius.x * y1p / radius.y), (-radius.y * x1p / radius.x)};
+
+        center = {cosPhi * cp.x - sinPhi * cp.y, sinPhi * cp.x + cosPhi * cp.y};
+    }
+
+    center.x = center.x + (start.x + next.x) * 0.5f;
+    center.y = center.y + (start.y + next.y) * 0.5f;
+    // center += (start + next) * 0.5f;
+
+    // 计算角度
+    auto at = atan2f(((y1p - cp.y) / radius.y), ((x1p - cp.x) / radius.x));
+    auto theta1 = (at < 0.0f) ? 2.0f * M_PI + at : at;
+    auto nat = atan2f(((-y1p - cp.y) / radius.y), ((-x1p - cp.x) / radius.x));
+    auto deltaTheta = (nat < at) ? 2.0f * M_PI - at + nat : nat - at;
+
+    if (sweep)
+    {
+        if (deltaTheta < 0.0f)
+            deltaTheta += 2.0f * M_PI;
+    }
+    else
+    {
+        if (deltaTheta > 0.0f)
+            deltaTheta -= 2.0f * M_PI;
+    }
+
+    // 分段处理，每段小于90度
+    auto segments = int(fabsf(deltaTheta / (M_PI / 2)) + 1.0f);
+    auto delta = deltaTheta / segments;
+    auto bcp = 4.0f / 3.0f * (1.0f - cosf(delta / 2.0f)) / sinf(delta / 2.0f);
+
+    auto cosPhiR = tvg::Point{cosPhi * radius.x, cosPhi * radius.y};
+    auto sinPhiR = tvg::Point{sinPhi * radius.x, sinPhi * radius.y};
+    auto cosTheta1 = cosf(theta1);
+    auto sinTheta1 = sinf(theta1);
+
+    for (int i = 0; i < segments; ++i)
+    {
+        auto theta2 = theta1 + delta;
+        auto cosTheta2 = cosf(theta2);
+        auto sinTheta2 = sinf(theta2);
+
+        // 第一个控制点
+        tvg::Point c1;
+        c1.x = start.x + -bcp * (cosPhiR.x * sinTheta1 + sinPhiR.y * cosTheta1);
+        c1.y = start.y + bcp * (cosPhiR.y * cosTheta1 - sinPhiR.x * sinTheta1);
+
+        // 终点
+        tvg::Point e;
+        e.x = center.x + cosPhiR.x * cosTheta2 - sinPhiR.y * sinTheta2;
+        e.y = center.y + sinPhiR.x * cosTheta2 + cosPhiR.y * sinTheta2;
+
+        // 第二个控制点
+        tvg::Point c2;
+        c2.x = e.x + bcp * (cosPhiR.x * sinTheta2 + sinPhiR.y * cosTheta2);
+        c2.y = e.y + bcp * (sinPhiR.x * sinTheta2 - cosPhiR.y * cosTheta2);
+
+        shape->cubicTo(c1.x, c1.y, c2.x, c2.y, e.x, e.y);
+
+        start = e;
+        theta1 = theta2;
+        cosTheta1 = cosTheta2;
+        sinTheta1 = sinTheta2;
+    }
+}
+
+static inline void drawArc(ItpCanvasSet *set, const int32_t &x, const int32_t &y, const int32_t &rad,
+                           const double &start, const double &end, const int32_t &color, double width,
+                           const bool &isRound, bool isPie, bool isFill)
+{
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    // 绘制矩形填充
+    tvg::Shape *arc = tvg::Shape::gen();
+
+    // 将角度转换为弧度
+    float startRad = start * M_PI / 180.0f;
+    float endRad = end * M_PI / 180.0f;
+
+    // 计算起点和终点
+    float startX = x + rad * cosf(startRad);
+    float startY = y + rad * sinf(startRad);
+    float endX = x + rad * cosf(endRad);
+    float endY = y + rad * sinf(endRad);
+
+    if (isPie)
+    {
+        // 绘制扇形路径
+        arc->moveTo(x, y);           // 移动到圆心
+        arc->lineTo(startX, startY); // 画线到起点
+    }
+    else
+    {
+        // 移动到起点
+        arc->moveTo(startX, startY);
+    }
+
+    // 计算角度差
+    float angleDiff = endRad - startRad;
+    // if (!clockwise)
+    //     angleDiff = -angleDiff;
+
+    // 确保角度在正确范围内
+    while (angleDiff > 2 * M_PI)
+        angleDiff -= 2 * M_PI;
+    while (angleDiff < -2 * M_PI)
+        angleDiff += 2 * M_PI;
+
+    // 使用类似 _pathAppendArcTo 的算法
+    appendArcToPath(arc, startX, startY, endX, endY, rad, rad, 0.0f,
+                    fabsf(angleDiff) > M_PI, true);
+
+    if (isPie)
+    {
+        // 封口
+        arc->lineTo(x, y); // 画线到起点
+        arc->close();      // 闭合路径回到圆心
+
+        if (isFill)
         {
-            return;
+            arc->fill(_R(color), _G(color), _B(color), _A(color));
         }
+        else
+        {
+            arc->strokeFill(_R(color), _G(color), _B(color), _A(color));
+            arc->strokeWidth(width);
+        }
+    }
+    else
+    {
+        arc->strokeFill(_R(color), _G(color), _B(color), _A(color));
+        arc->strokeWidth(width);
 
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
+        if (isRound)
+        {
+            arc->strokeCap(tvg::StrokeCap::Round);   // 圆角线头
+            arc->strokeJoin(tvg::StrokeJoin::Round); // 圆角连接
+        }
+    }
 
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
+    set->swCanvas->push(std::move(arc));
 
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_set_line_width(cr, width);
+    // 绘制并同步
+    set->swCanvas->draw();
+    set->swCanvas->sync();
+}
 
-        double start_p = start * M_PI / 180;
-        double end_p = end * M_PI / 180;
+void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width, const bool &isRound)
+{
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-        cairo_arc(cr, x, y, rad, start_p, end_p);
-        cairo_move_to(cr, x, y);
-        cairo_line_to(cr, x + rad * cos(start_p), y + rad * sin(start_p));
-        cairo_line_to(cr, x + rad * cos(end_p), y + rad * sin(end_p));
+    if (set && set->beUsed)
+    {
+        x = OFFSET_X(set, x);
+        y = OFFSET_Y(set, y);
 
-        cairo_stroke(cr);
-        cairo_destroy(cr);
+        drawArc(set, x, y, rad, start, end, color, width, isRound, false, false);
     }
 }
 
 void tpCanvas::pie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_pie(set, x, y, rad, start, end, color, width);
-    }
-}
-
-static inline void draw_filledpie(ItpCanvasSet *set, int32_t x, int32_t y, int32_t rad, double start, double end, int32_t color)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-
-        double start_p = start * M_PI / 180;
-        double end_p = end * M_PI / 180;
-
-        cairo_arc(cr, x, y, rad, start_p, end_p);
-        cairo_move_to(cr, x, y);
-        cairo_line_to(cr, x + rad * cos(start_p), y + rad * sin(start_p));
-        cairo_line_to(cr, x + rad * cos(end_p), y + rad * sin(end_p));
-
-        cairo_fill(cr);
-        cairo_destroy(cr);
+        drawArc(set, x, y, rad, start, end, color, width, false, true, false);
     }
 }
 
 void tpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        draw_filledpie(set, x, y, rad, start, end, color);
+        drawArc(set, x, y, rad, start, end, color, 1, false, true, true);
     }
 }
 
-static inline void draw_trigon(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t color, double width)
+static inline void drawPolygon(ItpCanvasSet *set, const tpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill)
 {
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
+    if (pointList.size() == 0)
+        return;
 
-        if (cr == nullptr)
+    if (!set->swCanvas)
+        return;
+
+    // 只有一个点，绘制一个像素点
+    if (pointList.size() == 1)
+    {
+        drawPixel(set, pointList.front().x + set->offsetX, pointList.front().y + set->offsetY, color);
+    }
+    else if (pointList.size() == 2)
+    {
+        // 两个点，绘制线
+        const auto &firstPoint = pointList[0];
+        const auto &secondPoint = pointList[1];
+        drawLine(set, firstPoint.x + set->offsetX, firstPoint.y + set->offsetY, secondPoint.x + set->offsetX, secondPoint.y + set->offsetY, color, width);
+    }
+    else
+    {
+        // 绘制多边形
+        refreshCanvasTarget(set);
+
+        auto polygon = tvg::Shape::gen();
+
+        // 移动到第一个顶点
+        polygon->moveTo(pointList.front().x + set->offsetX, pointList.front().y + set->offsetY);
+
+        for (int i = 1; i < pointList.size(); ++i)
         {
-            return;
+            const auto &curPoint = pointList[i];
+            polygon->lineTo(curPoint.x + set->offsetX, curPoint.y + set->offsetY);
+        }
+        // 闭合路径回到起点
+        polygon->close();
+
+        if (isFill)
+        {
+            polygon->fill(_R(color), _G(color), _B(color), _A(color));
+        }
+        else
+        {
+            polygon->strokeFill(_R(color), _G(color), _B(color), _A(color));
+            polygon->strokeWidth(width);
         }
 
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
+        set->swCanvas->push(std::move(polygon));
 
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_set_line_width(cr, width);
-
-        cairo_move_to(cr, x1, y1);
-        cairo_line_to(cr, x2, y2);
-
-        cairo_move_to(cr, x2, y2);
-        cairo_line_to(cr, x3, y3);
-
-        cairo_move_to(cr, x3, y3);
-        cairo_line_to(cr, x1, y1);
-
-        cairo_stroke(cr);
-        cairo_destroy(cr);
+        // 绘制并同步
+        set->swCanvas->draw();
+        set->swCanvas->sync();
     }
 }
 
-void tpCanvas::trigon(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t color, double width)
+void tpCanvas::polygon(const tpVector<ItpPoint> &pointList, int32_t color, double width)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
-        x1 = OFFSET_X(set, x1);
-        y1 = OFFSET_Y(set, y1);
-        x2 = OFFSET_X(set, x2);
-        y2 = OFFSET_Y(set, y2);
-
-        draw_trigon(set, x1, y1, x2, y2, x3, y3, color, width);
+        drawPolygon(set, pointList, color, width, false);
     }
 }
 
-static inline void draw_filledTrigon(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t color)
+void tpCanvas::filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color)
 {
-    if (set->cairo_surface)
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+
+    if (set && set->beUsed)
     {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-
-        cairo_move_to(cr, x1, y1);
-        cairo_line_to(cr, x2, y2);
-
-        cairo_move_to(cr, x2, y2);
-        cairo_line_to(cr, x3, y3);
-
-        cairo_move_to(cr, x3, y3);
-        cairo_line_to(cr, x1, y1);
-
-        cairo_fill(cr);
-        cairo_destroy(cr);
-    }
-}
-
-void tpCanvas::filledTrigon(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t color)
-{
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
-
-    if (set &&
-        set->beUsed)
-    {
-
-        x1 = OFFSET_X(set, x1);
-        y1 = OFFSET_Y(set, y1);
-        x2 = OFFSET_X(set, x2);
-        y2 = OFFSET_Y(set, y2);
-
-        draw_filledTrigon(set, x1, y1, x2, y2, x3, y3, color);
-    }
-}
-
-static inline void draw_polygon(ItpCanvasSet *set, short *vx, short *vy, int32_t n, int32_t color, double width)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_set_line_width(cr, width);
-
-        cairo_move_to(cr, vx[0], vy[0]);
-
-        int i;
-
-        for (i = 1; i < n; ++i)
-        {
-            cairo_line_to(cr, vx[i], vy[i]);
-            cairo_move_to(cr, vx[i], vy[i]);
-        }
-
-        cairo_line_to(cr, vx[0], vy[0]);
-
-        cairo_stroke(cr);
-        cairo_destroy(cr);
-    }
-}
-
-void tpCanvas::polygon(short *vx, short *vy, int32_t n, int32_t color, double width)
-{
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
-
-    if (set &&
-        set->beUsed)
-    {
-
-        int32_t i;
-        for (i = 0; i < n; i++)
-        {
-            vx[i] = OFFSET_X(set, vx[i]);
-            vy[i] = OFFSET_Y(set, vy[i]);
-        }
-
-        draw_polygon(set, vx, vy, n, color, width);
-    }
-}
-
-static inline void draw_filledPolygon(ItpCanvasSet *set, short *vx, short *vy, int32_t n, int32_t color)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        double r = _R(color) / 255.0;
-        double g = _G(color) / 255.0;
-        double b = _B(color) / 255.0;
-        double a = _A(color) / 255.0;
-
-        cairo_set_source_rgba(cr, r, g, b, a);
-        cairo_move_to(cr, vx[0], vy[0]);
-
-        int i;
-
-        for (i = 1; i < n; ++i)
-        {
-            cairo_line_to(cr, vx[i], vy[i]);
-            cairo_move_to(cr, vx[i], vy[i]);
-        }
-
-        cairo_line_to(cr, vx[0], vy[0]);
-
-        cairo_fill(cr);
-        cairo_destroy(cr);
-    }
-}
-
-void tpCanvas::filledPolygon(short *vx, short *vy, int32_t n, int32_t color)
-{
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
-
-    if (set &&
-        set->beUsed)
-    {
-
-        int32_t i;
-        for (i = 0; i < n; i++)
-        {
-            vx[i] = OFFSET_X(set, vx[i]);
-            vy[i] = OFFSET_Y(set, vy[i]);
-        }
-
-        draw_filledPolygon(set, vx, vy, n, color);
+        drawPolygon(set, pointList, color, 1, true);
     }
 }
 
 void tpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
     if (!set)
         return;
 
@@ -1444,7 +1076,7 @@ void tpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t
 
 void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
     if (!set)
         return;
 
@@ -1500,7 +1132,7 @@ void tpCanvas::paintSurface(const tpShared<tpSurface> &surface, const tpRect &sr
 
 void tpCanvas::paintSurface(const tpShared<tpSurface> &surface, const tpRect *src_rect, const tpRect *dst_rect, bool strench)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
     if (!set)
         return;
 
@@ -1570,7 +1202,7 @@ void tpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad
         return;
     }
 
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     RoundSurfaceData roundData;
     roundData.roundRad = rad;
@@ -1589,7 +1221,7 @@ void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &te
 
 void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const char *text)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set &&
         set->beUsed)
@@ -1609,7 +1241,7 @@ void tpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &
 
 void tpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set &&
         set->beUsed)
@@ -1624,7 +1256,7 @@ void tpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text
 
 void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set &&
         set->beUsed)
@@ -1639,7 +1271,7 @@ void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
 
 void tpCanvas::customizedCarioMethod(defDrawFunction func, void *args)
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set &&
         set->beUsed)
@@ -1761,24 +1393,29 @@ cairo_surface_t *tpCanvas::convertFromSurfaceToCairo(tpSurface *surface)
 
 void tpCanvas::release()
 {
-    ItpCanvasSet *set = (ItpCanvasSet *)canvasSet;
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set)
+    if (!set)
+        return;
+
+    if (!set->beUsed)
+        return;
+
+    set->surface = nullptr;
+    set->render = nullptr;
+    set->tpsurface = nullptr;
+    set->cairo_surface = nullptr;
+    set->beUsed = false;
+
+    delete set->swCanvas;
+    delete set->glCanvas;
+
+    if (set->cairo_surface)
     {
-        if (set->beUsed)
-        {
-            set->surface = nullptr;
-            set->render = nullptr;
-            set->tpsurface = nullptr;
-            set->cairo_surface = nullptr;
-            set->beUsed = false;
-
-            if (set->cairo_surface)
-            {
-                cairo_surface_destroy(set->cairo_surface);
-            }
-        }
+        cairo_surface_destroy(set->cairo_surface);
     }
+
+    tvg::Initializer::term();
 }
 
 HollowMask::HollowMask()

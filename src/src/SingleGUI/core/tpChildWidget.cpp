@@ -930,11 +930,11 @@ void tpChildWidget::setBackGroundImage(tpShared<tpSurface> image, bool enable)
     set->reserveImage = image;
     set->enableImage = enable;
 
-    if (set->logicalRect.w != 0 &&
-        set->logicalRect.h != 0)
+    if (set->logicalRect.w != 0 && set->logicalRect.h != 0)
     {
         refreshCacheImage(set);
     }
+    update();
 }
 
 tpShared<tpSurface> tpChildWidget::backGroundImage()

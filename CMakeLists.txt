@@ -131,7 +131,7 @@ list(APPEND COPY_DEPEND_COMMANDS
     COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_LIB_DIR}"
 )
 foreach(SO_FILE IN LISTS DEPEND_SO_FILES)
-    # message(STATUS "拷贝依赖库: ===== ${SO_FILE} =====")
+    message(STATUS "拷贝依赖库: ===== ${SO_FILE} =====")
    
     # 拷贝
     list(APPEND COPY_DEPEND_COMMANDS
