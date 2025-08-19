@@ -49,7 +49,7 @@ BluetDevice *bluet_device_creat(Adapter *adapter,const char *name)
 	
 	GError *error = NULL;
 	Device *device = find_device(adapter, name, &error);
-	if(error)
+	if(!device || error)
 	{
 		g_printerr("Error: Device not found.\n");
 		g_clear_error(&error);

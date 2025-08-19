@@ -155,7 +155,7 @@ Adapter *find_adapter(const gchar *name, GError **error)
     {
         // Try to find by id
         adapter_path = (gchar *) manager_find_adapter(manager, name, error);
-		printf("find manager_find_adapter ok,path:%s\n",adapter_path);
+		//printf("find manager_find_adapter ok,path:%s\n",adapter_path);
 		//adapter_path=NULL;
         // Found
         if (adapter_path)
@@ -216,7 +216,7 @@ Device *find_device(Adapter *adapter, const gchar *name, GError **error)
     {
         return NULL;
     }
-    
+	
     const gchar *object_path;
     GVariant *ifaces_and_properties;
     GVariantIter i;
@@ -270,7 +270,6 @@ Device *find_device(Adapter *adapter, const gchar *name, GError **error)
         g_variant_unref(ifaces_and_properties);
     }
     g_variant_unref(objects);
-    
     return device;
 }
 
