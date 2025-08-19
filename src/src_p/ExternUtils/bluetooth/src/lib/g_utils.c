@@ -155,7 +155,7 @@ Adapter *find_adapter(const gchar *name, GError **error)
     {
         // Try to find by id
         adapter_path = (gchar *) manager_find_adapter(manager, name, error);
-		//printf("find manager_find_adapter ok,path:%s\n",adapter_path);
+		printf("find manager_find_adapter ok,path:%s\n",adapter_path);
 		//adapter_path=NULL;
         // Found
         if (adapter_path)

@@ -150,7 +150,7 @@ static void _obex_session_create_gdbus_proxy(ObexSession *self, const gchar *dbu
 	if(self->priv->proxy == NULL)
 		return;
 
-	self->priv->properties = g_object_new(PROPERTIES_TYPE, "DBusConnection", session_conn, "DBusType", "session", "DBusServiceName", dbus_service_name, "DBusObjectPath", dbus_object_path, NULL);
+	self->priv->properties = g_object_new(PROPERTIES_TYPE, "dbus-connection", session_conn, "DBusType", "session", "DBusServiceName", dbus_service_name, "DBusObjectPath", dbus_object_path, NULL);
 	g_assert(self->priv->properties != NULL);
 }
 

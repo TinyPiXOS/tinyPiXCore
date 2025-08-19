@@ -787,7 +787,7 @@ bool tpApp::run()
                 set->slotTasks_ = std::queue<std::function<void()>>();
             }
 
-            // std::cout << "执行槽函数前 "  << std::endl;
+            //std::cout << "执行槽函数前  "  << cacheTaskList.size()  << std::endl;
 
             while (!cacheTaskList.empty())
             {
@@ -798,7 +798,7 @@ bool tpApp::run()
                 // lock.lock();
             }
 
-            // std::cout << "执行槽函数后 "  << std::endl;
+            //std::cout << "执行槽函数后 "  << std::endl;
 
             // 异步刷新UI
             std::queue<UpdateCommand> cacheUpdateTaskList;

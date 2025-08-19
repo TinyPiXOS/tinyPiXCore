@@ -180,7 +180,7 @@ void tpSocketNotifierManager::eventLoop() {
             switch (notifier->type()) 
 			{
                 case tpSocketNotifier::Read:
-                    if (evs & EPOLLRDHUP) {
+                    if (evs & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {		//EPOLLRDHUP
                         // 挂断回调（TCP 专用）
                         notifier->hangupCallback_();
                     } else if (evs & EPOLLIN) {

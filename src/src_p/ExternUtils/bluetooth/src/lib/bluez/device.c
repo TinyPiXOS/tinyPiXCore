@@ -136,7 +136,7 @@ static void _device_create_gdbus_proxy(Device *self, const gchar *dbus_service_n
 	if(self->priv->proxy == NULL)
 		return;
 
-	self->priv->properties = g_object_new(PROPERTIES_TYPE, "DBusConnection", system_conn, "DBusType", "system", "DBusServiceName", dbus_service_name, "DBusObjectPath", dbus_object_path, NULL);
+	self->priv->properties = g_object_new(PROPERTIES_TYPE, "dbus-connection", system_conn, "DBusType", "system", "DBusServiceName", dbus_service_name, "DBusObjectPath", dbus_object_path, NULL);
 	g_assert(self->priv->properties != NULL);
 }
 

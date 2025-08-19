@@ -1,12 +1,19 @@
 #include "tpDiskManage.h"
+#include "tpApp.h"
+#include "tpFixScreen.h"
 #include <tpString.h>
 #include <tpList.h>
 #include <iostream>
 
 int32_t main(int32_t argc, char *argv[])
 {
+	tpApp app(argc, argv);
+	tpFixScreen *vScreen = new tpFixScreen();
+	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
+	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
+	app.bindVScreen(vScreen);
 	tpDiskManage diskManager(TP_TRUE,500);
-std::cout << "-------------------------------" << std::endl;
+	std::cout << "-------------------------------" << std::endl;
 	
 
 	tpList<tpDisk *> diskInfoList = diskManager.getList();
@@ -42,10 +49,5 @@ std::cout << "-------------------------------" << std::endl;
             { std::cout << "[Signal]设备插入：" << disk->getName() << std::endl; });
 	
 	
-	while(1)
-	{
-		sleep(1);
-	}
-
-	return 0;
+	app.run();
 }

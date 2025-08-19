@@ -22,19 +22,19 @@ struct tpSoundData{
 //获取单个声卡的配置信息
 static tpJsonObject getAudioCardAllConfig()
 {
-	
+	return tpJsonObject();
 }
 
 //获取声卡的配置信息中的指定值(object)
 static tpJsonObject getAudioCardConfig()
 {
-
+	return tpJsonObject();
 }
 
 //设置声卡的配置信息中的指定值(object)
 static tpJsonObject setAudioCardConfig()
 {
-
+	return tpJsonObject();
 }
 
 
