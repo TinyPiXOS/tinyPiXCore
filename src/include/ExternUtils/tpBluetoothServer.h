@@ -31,7 +31,7 @@ public:
 	/// @param addr 
 	/// @param port 非传统意义上的端口，当RFCOMM时表示channel，当使用L2CAP时表示psm。未来可能扩展其他协议
 	/// @return 
-	tpBool listen(const tpBluetoothAddress &addr, tpUInt16 port=0);
+	tpBool listen(const tpBluetoothAddress &addr=tpBluetoothAddress(), tpUInt16 port=0);
 	/// @brief 开始监听客户端连接
 	/// @param uuid profile类型
 	/// @return 
@@ -56,7 +56,7 @@ public signals:
 
 private:
 	void handleNewConnection();
-	int accept();
+	int accept(tpString &client_addr, int &client_port);
 private:
 	ItpBluetoothServerData *data_;
 };

@@ -357,7 +357,7 @@ static void print_string_property(GDBusProxy *proxy, const char *prop, const cha
 //dbus_object_path:
 Properties *properties_new(GDBusConnection *conn, const char *dbus_type,const char *dbus_service_name,const char *dbus_object_path)
 {
-	return g_object_new(PROPERTIES_TYPE, "connection", conn, "DBusType", dbus_type, "DBusServiceName", dbus_service_name, "DBusObjectPath", dbus_object_path, NULL);
+	return g_object_new(PROPERTIES_TYPE, "dbus-connection", conn, "DBusType", dbus_type, "DBusServiceName", dbus_service_name, "DBusObjectPath", dbus_object_path, NULL);
 }
 
 void properties_free(Properties *self)

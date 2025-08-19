@@ -18,14 +18,16 @@
 #include "tpBluetoothSocket.h"
 
 struct tpBluetoothSocketData{
-	Adapter *adapter;	//当前网络连接使用的蓝牙适配器
+	Adapter *adapter;	//当前网络连接使用的蓝牙适配器,客户端必须不为空，服务端接收的socket的此参数通常为空
+	BluetDevice *device;		//设备
 	tpString uuid;
-	int sockfd;		
-	tpBluetoothService::Protocol type;
-	tpSocket::tpSocketStatus status;
-	tpSocketNotifier *notifier_read;		//监听断开，读写
-	tpSocketNotifier *notifier_write;		//监听连接
-	BluetDevice *device;
+	int sockfd;			//连接的文件描述符
+	tpString adapter_name;				//本地适配器名字(可以是名字或地址)
+	tpBluetoothService::Protocol type;	//连接的类型
+	tpSocket::tpSocketStatus status;	//连接状态
+	tpSocketNotifier *notifier_read;	//监听断开，读写
+	tpSocketNotifier *notifier_write;	//监听连接
+	tpBluetoothAddress address;			//远端地址
 	tpBluetoothSocketData(){
 		adapter=NULL;
 		type=tpBluetoothService::TP_BLUET_UNKNOWN_PROTOCOL;
@@ -52,18 +54,35 @@ bool setBlocking(int sock_fd, bool blocking) {
 	return true;
 }
 
-static int bluet_socket(tpBluetoothService::Protocol type,const char *address,uint16_t channel)
+
+
+static int bluet_socket(tpBluetoothService::Protocol type)
 {
 	int sock = -1;
+	if (type == tpBluetoothService::TP_BLUET_RFCOMM_PROTOCOL) {
+        sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+        if (sock < 0) 
+			return -1;
+    }
+    else if (type == tpBluetoothService::TP_BLUET_L2CAP_PROTOCOL) {
+        sock = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
+        if (sock < 0) 
+			return -1;
+    }
+    else {
+        return -1; // 不支持的协议
+    }
+	return sock;
+}
+
+
+static int bluet_connect(int sock,tpBluetoothService::Protocol type,const char *address,uint16_t channel)
+{
     struct sockaddr* addr_ptr = nullptr;
     socklen_t addr_len = 0;
 
     // 根据协议创建不同类型的socket和地址结构
-
     if (type == tpBluetoothService::TP_BLUET_RFCOMM_PROTOCOL) {
-        sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-        if (sock < 0) 
-			return -1;
 
         sockaddr_rc remote_addr = {0};
         remote_addr.rc_family = AF_BLUETOOTH;
@@ -71,15 +90,14 @@ static int bluet_socket(tpBluetoothService::Protocol type,const char *address,ui
         // 复制地址
         bdaddr_t bt_addr;
         memcpy(&bt_addr.b, address, 6);
-        bacpy(&remote_addr.rc_bdaddr, &bt_addr);
+		str2ba(address, &bt_addr);  // address 必须是 "XX:XX:XX:XX:XX:XX"
+		bacpy(&remote_addr.rc_bdaddr, &bt_addr);
+        //bacpy(&remote_addr.rc_bdaddr, &bt_addr);
 
         addr_ptr = (struct sockaddr*)&remote_addr;
         addr_len = sizeof(remote_addr);
     }
     else if (type == tpBluetoothService::TP_BLUET_L2CAP_PROTOCOL) {
-        sock = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
-        if (sock < 0) 
-			return -1;
 
         sockaddr_l2 remote_addr = {0};
         remote_addr.l2_family = AF_BLUETOOTH;
@@ -87,6 +105,7 @@ static int bluet_socket(tpBluetoothService::Protocol type,const char *address,ui
         // 复制地址
         bdaddr_t bt_addr;
         memcpy(&bt_addr.b, address, 6);
+		str2ba(address, &bt_addr); 
         bacpy(&remote_addr.l2_bdaddr, &bt_addr);
 
         addr_ptr = (struct sockaddr*)&remote_addr;
@@ -96,7 +115,7 @@ static int bluet_socket(tpBluetoothService::Protocol type,const char *address,ui
         return -1; // 不支持的协议
     }
 
-	setBlocking(sock,false);
+//	setBlocking(sock,false);
     // 建立连接
     int connect_ret = (::connect)(sock, addr_ptr, addr_len);
 	if (connect_ret == 0) {
@@ -106,12 +125,12 @@ static int bluet_socket(tpBluetoothService::Protocol type,const char *address,ui
     else if (errno != EINPROGRESS) {
         // 立即失败
 		printf("立即失败\n");
+		perror("connect:");
         close(sock);
         return -1;
     }
-	return sock;
+	return connect_ret;
 }
-
 
 
 
@@ -129,16 +148,23 @@ tpBluetoothSocket::tpBluetoothSocket(const tpString& name,tpBluetoothService::Pr
 	if(!data->adapter)
 	{
 		fprintf(stderr,"[Error]: 设备不存在\n");
+		return ;
 	}
 	printf("tpBluetoothSocket\n");
 	data->type=type;
+	data->sockfd=bluet_socket(data->type);
+	if(data->sockfd<0)
+	{
+		fprintf(stderr,"[Error]: 蓝牙socket无法创建\n");
+		return ;
+	}
 	data->notifier_read = new tpSocketNotifier(data->sockfd, tpSocketNotifier::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleDisconnected(); }
 	);
 }
 
-tpBluetoothSocket::tpBluetoothSocket(int sockfd,tpBluetoothService::Protocol type)
+tpBluetoothSocket::tpBluetoothSocket(const tpString& name,int sockfd,tpBluetoothService::Protocol type)
 {
 	data_ = new tpBluetoothSocketData();
 	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
@@ -148,10 +174,13 @@ tpBluetoothSocket::tpBluetoothSocket(int sockfd,tpBluetoothService::Protocol typ
 		return ;
 	}
 	data->type=type;
+	data->sockfd=sockfd;
+	data->adapter_name=name;
 	data->notifier_read = new tpSocketNotifier(data->sockfd, tpSocketNotifier::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleDisconnected(); }
 	);
+	data->status=tpSocket::TP_SOCK_CONNECT;
 }
 
 
@@ -180,7 +209,6 @@ int tpBluetoothSocket::connectToService(const tpBluetoothService& service)
 		fprintf(stderr,"[Error]: Repeatedly establish connection\n");
 		return -1;
 	}
-
 	return 0;
 }
 
@@ -203,16 +231,16 @@ int tpBluetoothSocket::connectToService(const tpBluetoothAddress& address,tpUInt
 		fprintf(stderr,"[Error]: can't find device\n");
 		return -1;
 	}
-	printf("find device:%s\n",bluet_device_get_address(data->device));
+	printf("find device:%sok\n",bluet_device_get_address(data->device));
 	
-
-	data->sockfd=bluet_socket(data->type,addr.toString().c_str(),(uint16_t)port);
-	if(data->sockfd<0)
+	int ret=bluet_connect(data->sockfd,data->type,addr.toString().c_str(),(uint16_t)port);
+	if(ret<0)
 	{
 		printf("[Debug]: bluet socket connect error\n");
 		return -1;
 	}		
 
+	data->address=address;
 	data->notifier_write = new tpSocketNotifier(
 			data->sockfd, tpSocketNotifier::Write,
 			[this](){ handleWrite(); }
@@ -245,17 +273,77 @@ int tpBluetoothSocket::disconnectFromService()
 	if(data->sockfd>=0)
 		::close(data->sockfd);
 	::close(data->sockfd);
-	data->status=tpSocket::TP_SOCK_DISCONNECT;
+	setDisconnectedInfo();
 	disconnected.emit(this);		//发送断开连接的信号
 
 	return 0;
+}
+
+tpBluetoothAddress tpBluetoothSocket::getPeerAddress()
+{
+	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
+	if(!data)
+		return tpBluetoothAddress();
+	if(data->status!=tpSocket::TP_SOCK_CONNECT)
+		return tpBluetoothAddress();
+
+	struct sockaddr_rc addr;
+    socklen_t len = sizeof(addr);
+    
+    if (::getpeername(data->sockfd, (struct sockaddr*)&addr, &len) == 0) {
+        char addrStr[18];
+        ba2str(&addr.rc_bdaddr, addrStr); // 返回 "00:11:22:33:44:55"
+        return tpBluetoothAddress(tpString(addrStr));
+    }
+    return tpBluetoothAddress();
+}
+
+tpString tpBluetoothSocket::getPeerName()
+{
+	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
+	if(!data)
+		return nullptr;
+	if(data->status!=tpSocket::TP_SOCK_CONNECT)
+		return nullptr;
+
+	tpBluetoothAddress address=getPeerAddress();
+	data->adapter=find_adapter(data->adapter_name.c_str(),NULL);
+	if(!data->adapter)
+	{
+		fprintf(stderr,"[Error]: 无法获取远程设备名称\n");
+		return nullptr;
+	}
+	BluetDevice *device=bluet_device_creat(data->adapter,address.toString().c_str());
+	if(!device)
+	{
+		fprintf(stderr,"[Error]: 无法获取远程设备名称\n");
+		return nullptr;
+	}
+
+	return bluet_device_get_name(device);
+}
+
+tpUInt16 tpBluetoothSocket::getPeerPort()
+{
+	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
+	if(!data)
+		return 0;
+	if(data->status!=tpSocket::TP_SOCK_CONNECT)
+		return 0;
+	struct sockaddr_rc addr;
+    socklen_t len = sizeof(addr);
+    
+    if (::getpeername(data->sockfd, (struct sockaddr*)&addr, &len) == 0) {
+        return addr.rc_channel; // 直接返回整数端口
+    }
+    return 0;
 }
 
 
 tpUInt64 tpBluetoothSocket::send(const tpUInt8 *buff, tpUInt64 size)
 {
 	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
-	if(!data || !data->adapter)
+	if(!data)
 		return -1;
 	if(data->status!=tpSocket::TP_SOCK_CONNECT)
 		return -1;
@@ -265,15 +353,18 @@ tpUInt64 tpBluetoothSocket::send(const tpUInt8 *buff, tpUInt64 size)
 tpUInt64 tpBluetoothSocket::recv(tpUInt8 *buff, tpUInt64 size)
 {
 	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
-	if(!data || !data->adapter)
+	if(!data)
 		return -1;
 	if(data->status!=tpSocket::TP_SOCK_CONNECT)
 		return -1;
-	return ::recv(data->sockfd,buff,size,0);
+	int ret= ::recv(data->sockfd,buff,size,0);
+	if(ret==0)
+	{
+		setDisconnectedInfo();
+		disconnected.emit(this);
+	}
+	return ret;
 }
-
-
-
 
 
 
@@ -312,7 +403,7 @@ void tpBluetoothSocket::handleRead()
 void tpBluetoothSocket::handleDisconnected()
 {
 	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
-	data->status = tpSocket::TP_SOCK_DISCONNECT;
+	setDisconnectedInfo();
 	disconnected.emit(this);
 }	
 
@@ -323,9 +414,17 @@ tpBool tpBluetoothSocket::checkDisconnected()
 	char c;
 	int ret = ::recv(data->sockfd,(tpUInt8*)&c, 1, MSG_PEEK);
 	if (ret == 0) {
-		data->status = tpSocket::TP_SOCK_DISCONNECT;
+		setDisconnectedInfo();
 		disconnected.emit(this);
 		return TP_TRUE;
 	}
 	return TP_FALSE;
+}
+
+void tpBluetoothSocket::setDisconnectedInfo()
+{
+	tpBluetoothSocketData *data = static_cast<tpBluetoothSocketData *>(data_);
+	data->status = tpSocket::TP_SOCK_DISCONNECT;
+	data->sockfd = -1;
+	data->address = tpBluetoothAddress();
 }

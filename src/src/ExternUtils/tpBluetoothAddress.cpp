@@ -14,7 +14,9 @@
 
 struct tpBluetoothAddressData{
 	uint8_t address[6];
-	tpBluetoothAddressData(){};
+	tpBluetoothAddressData(){
+		memset(address,0,sizeof(address));
+	};
 };
 
 
@@ -106,6 +108,21 @@ bool tpBluetoothAddress::operator!=(const tpBluetoothAddress &other)
 	tpBluetoothAddressData *data = static_cast<tpBluetoothAddressData *>(data_);
     return !(*this == other);
 }
+
+tpBluetoothAddress tpBluetoothAddress::any() {
+    return tpBluetoothAddress(); // 默认构造就是全 0
+}
+
+/*tpBluetoothAddress tpBluetoothAddress::Local() {
+    tpBluetoothAddress addr;
+    // 这里假设你有 Adapter 结构或者方法可以获取默认适配器地址
+    Adapter* a = find_default_adapter(); // 你自己实现
+    if(a) {
+        memcpy(addr.data_->address, a->bdaddr.b, 6); // 复制 bdaddr 到 tpBluetoothAddress
+    }
+    return addr;
+}*/
+
 
 tpBool tpBluetoothAddress::isNull() 
 {

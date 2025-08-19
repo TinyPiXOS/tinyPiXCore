@@ -26,6 +26,7 @@ public:
 
 
 public:
+	static tpBluetoothAddress any();
 	tpBool isNull();
 	tpString toString();
 	tpUInt64 toUInt64();

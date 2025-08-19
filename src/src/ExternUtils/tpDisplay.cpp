@@ -224,8 +224,8 @@ uint32_t tpDisplay::sp2Px(const uint32_t &_sp, const int32_t &_screenNum)
 
 // 获取屏幕参数列表
 tpList<tpDisplay::tpDisplayModeParam> tpDisplay::getDisplayMode() {
-    /*tpList<tpDisplayModeParam> mode_list;
-    tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
+    tpList<tpDisplayModeParam> mode_list;
+    /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
     
     if (!drm || !drm->connector) return mode_list;
     
@@ -234,9 +234,9 @@ tpList<tpDisplay::tpDisplayModeParam> tpDisplay::getDisplayMode() {
         double refresh = (double)mode->clock * 1000.0 / (mode->htotal * mode->vtotal);
         tpDisplayModeParam modeParam(mode->hdisplay, mode->vdisplay, refresh);
         mode_list.push_back(modeParam);
-    }
+    }*/
     
-    return mode_list;*/
+    return mode_list;
 }
 
 
@@ -280,6 +280,7 @@ tpInt32 tpDisplay::getPhysicsHeight() {
     /*tpDisplayInfoParam *drm = static_cast<tpDisplayInfoParam*>(data_);
     if (!drm || !drm->connector) return 0;
     return drm->connector->mmHeight;  // 物理高度(mm)*/
+	return 0;
 }
 
 tpInt32 tpDisplay::getPhysicsWidth() {
