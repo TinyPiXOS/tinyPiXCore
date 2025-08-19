@@ -44,82 +44,6 @@ struct RoundSurfaceData
     int32_t offsetY = 0;
 };
 
-// 添加圆角矩形路径的辅助函数
-static void addRoundedRectPath(cairo_t *cr, double x, double y, double width, double height, double radius)
-{
-    const double degrees = M_PI / 180.0;
-
-    cairo_new_sub_path(cr);
-    cairo_arc(cr, x + width - radius, y + radius, radius, -90 * degrees, 0);
-    cairo_arc(cr, x + width - radius, y + height - radius, radius, 0, 90 * degrees);
-    cairo_arc(cr, x + radius, y + height - radius, radius, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, x + radius, y + radius, radius, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
-}
-
-// 公共掏空操作函数
-static void applyHollowMask(cairo_t *cr, ItpCanvasSet *set, const HollowMask &hollowMaskData)
-{
-    // 矩形镂空
-    tpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
-    for (const auto &hollowData : rectHollow)
-    {
-        cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-        cairo_rectangle(cr, OFFSET_X(set, hollowData.x), OFFSET_Y(set, hollowData.y), hollowData.w, hollowData.h);
-        cairo_fill(cr);
-    }
-
-    // 圆角矩形镂空
-    tpVector<HollowMask::roundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
-    for (const auto &hollowData : roundHollow)
-    {
-        cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-        const double rectX = OFFSET_X(set, hollowData.region.x);
-        const double rectY = OFFSET_Y(set, hollowData.region.y);
-        const double rectWidth = hollowData.region.w;
-        const double rectHeight = hollowData.region.h;
-        const double cornerRadius = hollowData.round;
-
-        addRoundedRectPath(cr, rectX, rectY, rectWidth, rectHeight, cornerRadius);
-        cairo_fill(cr);
-    }
-
-    // 圆形镂空
-    tpVector<HollowMask::circleHollow> circleHollow = hollowMaskData.circleHollowList();
-    for (const auto &hollowData : circleHollow)
-    {
-        cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-        const double centerX = OFFSET_X(set, hollowData.x);
-        const double centerY = OFFSET_Y(set, hollowData.y);
-        const double radius = hollowData.radius;
-
-        cairo_arc(cr, centerX, centerY, radius, 0, 2 * M_PI);
-        cairo_close_path(cr);
-        cairo_fill(cr);
-    }
-
-    // 扇形镂空
-    tpVector<HollowMask::pieHollow> pieHollowList = hollowMaskData.pieHollowList();
-    for (const auto &hollowData : pieHollowList)
-    {
-        cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-        const double centerX = OFFSET_X(set, hollowData.x);
-        const double centerY = OFFSET_Y(set, hollowData.y);
-
-        const double startAngleRad = -M_PI_2 + (hollowData.start * M_PI / 180.0);
-        const double endAngleRad = -M_PI_2 + (hollowData.end * M_PI / 180.0);
-
-        cairo_move_to(cr, centerX, centerY);
-        cairo_line_to(cr,
-                      centerX + hollowData.radius * cos(startAngleRad),
-                      centerY + hollowData.radius * sin(startAngleRad));
-        cairo_arc(cr, centerX, centerY, hollowData.radius,
-                  startAngleRad, endAngleRad);
-        cairo_close_path(cr);
-        cairo_fill(cr);
-    }
-}
-
 static inline int32_t cal_stride(int32_t width, int32_t depth)
 {
     int32_t bpp = depth / 8;
@@ -1028,6 +952,89 @@ void tpCanvas::filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color)
     }
 }
 
+// 公共掏空操作函数
+static void applyHollowMask(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, int32_t rad, const HollowMask &hollowMaskData)
+{
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    // 创建底纹矩形
+    tvg::Shape *rect = tvg::Shape::gen();
+    rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
+    rect->fill(_R(color), _G(color), _B(color), _A(color));
+
+    // 矩形镂空
+    auto clipper = tvg::Shape::gen();
+    tpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
+    for (const auto &hollowData : rectHollow)
+    {
+        // 创建裁剪形状
+        clipper->appendRect(hollowData.x + x1, hollowData.y + y1, hollowData.w, hollowData.h);
+    }
+
+    // 圆角矩形镂空
+    tpVector<HollowMask::RoundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
+    for (const auto &hollowData : roundHollow)
+    {
+        // 创建裁剪形状
+        clipper->appendRect(hollowData.region.x + x1, hollowData.region.y + y1, hollowData.region.w, hollowData.region.h, hollowData.round, hollowData.round);
+    }
+
+    // 圆形镂空
+    tpVector<HollowMask::CircleHollow> circleHollow = hollowMaskData.circleHollowList();
+    for (const auto &hollowData : circleHollow)
+    {
+        // 创建裁剪形状
+        clipper->appendCircle(hollowData.x + x1, hollowData.y + y1, hollowData.radius, hollowData.radius);
+    }
+
+    // 扇形镂空
+    tpVector<HollowMask::PieHollow> pieHollowList = hollowMaskData.pieHollowList();
+    for (const auto &hollowData : pieHollowList)
+    {
+        // 将角度转换为弧度
+        float startRad = hollowData.start * M_PI / 180.0f;
+        float endRad = hollowData.end * M_PI / 180.0f;
+
+        // 计算起点和终点
+        float startX = hollowData.x + x1 + hollowData.radius * cosf(startRad);
+        float startY = hollowData.y + y1 + hollowData.radius * sinf(startRad);
+        float endX = hollowData.x + x1 + hollowData.radius * cosf(endRad);
+        float endY = hollowData.y + y1 + hollowData.radius * sinf(endRad);
+
+        // 绘制扇形路径
+        clipper->moveTo(hollowData.x + x1, hollowData.y + y1); // 移动到圆心
+        clipper->lineTo(startX, startY);                       // 画线到起点
+
+        // 计算角度差
+        float angleDiff = endRad - startRad;
+
+        // 确保角度在正确范围内
+        while (angleDiff > 2 * M_PI)
+            angleDiff -= 2 * M_PI;
+        while (angleDiff < -2 * M_PI)
+            angleDiff += 2 * M_PI;
+
+        // 使用类似 _pathAppendArcTo 的算法
+        appendArcToPath(clipper, startX, startY, endX, endY, hollowData.radius, hollowData.radius, 0.0f,
+                        fabsf(angleDiff) > M_PI, true);
+
+        // 封口
+        clipper->lineTo(hollowData.x + x1, hollowData.y + y1); // 画线到起点
+        clipper->close();                                      // 闭合路径回到圆心
+    }
+
+    // 应用反向Alpha遮罩实现镂空
+    clipper->fill(255, 255, 255, 255);
+    rect->mask(clipper, tvg::MaskMethod::InvAlpha);
+
+    set->swCanvas->push(std::move(rect));
+    set->swCanvas->draw();
+    set->swCanvas->sync();
+}
+
 void tpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
@@ -1042,36 +1049,7 @@ void tpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t
     x2 = OFFSET_X(set, x2);
     y2 = OFFSET_Y(set, y2);
 
-    if (!set->cairo_surface)
-        return;
-
-    cairo_t *cr = cairo_create(set->cairo_surface);
-
-    if (cr == nullptr)
-        return;
-
-    // 创建临时图层
-    cairo_push_group(cr);
-
-    double r = _R(color) / 255.0;
-    double g = _G(color) / 255.0;
-    double b = _B(color) / 255.0;
-    double a = _A(color) / 255.0;
-
-    int32_t width = x2 - x1;
-    int32_t height = y2 - y1;
-
-    cairo_set_source_rgba(cr, r, g, b, a);
-    cairo_rectangle(cr, x1, y1, width, height);
-    cairo_fill(cr);
-
-    // 应用所有掏空效果
-    applyHollowMask(cr, set, hollowMaskData);
-
-    // 应用图层
-    cairo_pop_group_to_source(cr);
-    cairo_paint(cr);
-    cairo_destroy(cr);
+    applyHollowMask(set, x1, y1, x2, y2, color, 0, hollowMaskData);
 }
 
 void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
@@ -1088,41 +1066,7 @@ void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
     x2 = OFFSET_X(set, x2);
     y2 = OFFSET_Y(set, y2);
 
-    cairo_t *cr = cairo_create(set->cairo_surface);
-    if (!cr)
-        return;
-
-    // 创建临时图层
-    cairo_push_group(cr);
-
-    // 绘制圆角矩形遮罩
-    double width = x2 - x1;
-    double height = y2 - y1;
-
-    // 计算实际圆角半径（不超过短边一半）
-    double radius = rad;
-    double minDimension = (width < height) ? width : height;
-    if (radius > minDimension / 2)
-    {
-        radius = minDimension / 2;
-    }
-
-    double r = _R(color) / 255.0;
-    double g = _G(color) / 255.0;
-    double b = _B(color) / 255.0;
-    double a = _A(color) / 255.0;
-
-    cairo_set_source_rgba(cr, r, g, b, a);
-    addRoundedRectPath(cr, x1, y1, width, height, radius);
-    cairo_fill(cr);
-
-    // 应用所有掏空效果
-    applyHollowMask(cr, set, hollowMaskData);
-
-    // 应用图层
-    cairo_pop_group_to_source(cr);
-    cairo_paint(cr);
-    cairo_destroy(cr);
+    applyHollowMask(set, x1, y1, x2, y2, color, rad, hollowMaskData);
 }
 
 void tpCanvas::paintSurface(const tpShared<tpSurface> &surface, const tpRect &src_rect, const tpRect &dst_rect, bool strench)
@@ -1438,45 +1382,45 @@ tpVector<ItpRect> HollowMask::rectHollowList() const
 
 void HollowMask::addRoundRectHollow(const ItpRect &region, const uint32_t &round)
 {
-    addRoundRectHollow(HollowMask::roundRectHollow(region, round));
+    addRoundRectHollow(HollowMask::RoundRectHollow(region, round));
 }
 
-void HollowMask::addRoundRectHollow(const roundRectHollow &data)
+void HollowMask::addRoundRectHollow(const RoundRectHollow &data)
 {
     roundRectList_.emplace_back(data);
 }
 
-tpVector<HollowMask::roundRectHollow> HollowMask::roundRectHollowList() const
+tpVector<HollowMask::RoundRectHollow> HollowMask::roundRectHollowList() const
 {
     return roundRectList_;
 }
 
 void HollowMask::addCircleHollow(const int32_t &x, const int32_t &y, const uint32_t &radius)
 {
-    addCircleHollow(HollowMask::circleHollow(x, y, radius));
+    addCircleHollow(HollowMask::CircleHollow(x, y, radius));
 }
 
-void HollowMask::addCircleHollow(const circleHollow &data)
+void HollowMask::addCircleHollow(const CircleHollow &data)
 {
     circleList_.emplace_back(data);
 }
 
-tpVector<HollowMask::circleHollow> HollowMask::circleHollowList() const
+tpVector<HollowMask::CircleHollow> HollowMask::circleHollowList() const
 {
     return circleList_;
 }
 
 void HollowMask::addPieHollow(const int32_t &x, const int32_t &y, const uint32_t &radius, const int32_t &start, const int32_t &end)
 {
-    addPieHollow(pieHollow(x, y, radius, start, end));
+    addPieHollow(PieHollow(x, y, radius, start, end));
 }
 
-void HollowMask::addPieHollow(const pieHollow &data)
+void HollowMask::addPieHollow(const PieHollow &data)
 {
     pieList_.emplace_back(data);
 }
 
-tpVector<HollowMask::pieHollow> HollowMask::pieHollowList() const
+tpVector<HollowMask::PieHollow> HollowMask::pieHollowList() const
 {
     return pieList_;
 }

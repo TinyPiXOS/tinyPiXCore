@@ -258,30 +258,30 @@ private:
 class HollowMask
 {
 public:
-    struct roundRectHollow
+    struct RoundRectHollow
     {
         ItpRect region;
         uint32_t round = 0;
 
-        roundRectHollow(const ItpRect &region, const uint32_t &round)
+        RoundRectHollow(const ItpRect &region, const uint32_t &round)
             : region(region), round(round)
         {
         }
     };
 
-    struct circleHollow
+    struct CircleHollow
     {
         int32_t x;
         int32_t y;
         uint32_t radius;
 
-        circleHollow(const int32_t &x, const int32_t &y, const uint32_t &radius)
+        CircleHollow(const int32_t &x, const int32_t &y, const uint32_t &radius)
             : x(x), y(y), radius(radius)
         {
         }
     };
 
-    struct pieHollow
+    struct PieHollow
     {
         int32_t x;
         int32_t y;
@@ -289,10 +289,10 @@ public:
         int32_t end;   // 终止角度 0-360
         uint32_t radius;
 
-        pieHollow()
+        PieHollow()
         {
         }
-        pieHollow(const int32_t &x, const int32_t &y, const int32_t &start, const int32_t &end, const uint32_t &radius)
+        PieHollow(const int32_t &x, const int32_t &y, const int32_t &start, const int32_t &end, const uint32_t &radius)
             : x(x), y(y), start(start), end(end), radius(radius)
         {
         }
@@ -315,10 +315,10 @@ public:
     void addRoundRectHollow(const ItpRect &region, const uint32_t &round);
     /// @brief 添加圆角矩形镂空
     /// @param data 矩形镂空参数
-    void addRoundRectHollow(const roundRectHollow &data);
+    void addRoundRectHollow(const RoundRectHollow &data);
     /// @brief 获取圆角矩形镂空列表
     /// @return 圆角矩形镂空列表
-    tpVector<roundRectHollow> roundRectHollowList() const;
+    tpVector<RoundRectHollow> roundRectHollowList() const;
 
     /// @brief 添加圆形镂空
     /// @param x 圆心X坐标
@@ -327,10 +327,10 @@ public:
     void addCircleHollow(const int32_t &x, const int32_t &y, const uint32_t &radius);
     /// @brief 添加圆形镂空
     /// @param data 圆形镂空参数
-    void addCircleHollow(const circleHollow &data);
+    void addCircleHollow(const CircleHollow &data);
     /// @brief 获取圆形镂空列表
     /// @return 圆形镂空列表
-    tpVector<circleHollow> circleHollowList() const;
+    tpVector<CircleHollow> circleHollowList() const;
 
     /// @brief 添加扇形镂空
     /// @param x 圆心X坐标
@@ -341,19 +341,19 @@ public:
     void addPieHollow(const int32_t &x, const int32_t &y, const uint32_t &radius, const int32_t &start, const int32_t &end);
     /// @brief 添加扇形镂空
     /// @param data 扇形镂空参数
-    void addPieHollow(const pieHollow &data);
+    void addPieHollow(const PieHollow &data);
     /// @brief 获取扇形镂空列表
     /// @return 扇形镂空列表
-    tpVector<pieHollow> pieHollowList() const;
+    tpVector<PieHollow> pieHollowList() const;
 
     // 通用多边形镂空（扩展用）
     // void addPolygonHollow(const Polygon& points);
 
 private:
     tpVector<ItpRect> rectList_;
-    tpVector<roundRectHollow> roundRectList_;
-    tpVector<circleHollow> circleList_;
-    tpVector<pieHollow> pieList_;
+    tpVector<RoundRectHollow> roundRectList_;
+    tpVector<CircleHollow> circleList_;
+    tpVector<PieHollow> pieList_;
 };
 
 #endif
