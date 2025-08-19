@@ -115,7 +115,7 @@ static int bluet_connect(int sock,tpBluetoothService::Protocol type,const char *
         return -1; // 不支持的协议
     }
 
-//	setBlocking(sock,false);
+	setBlocking(sock,false);
     // 建立连接
     int connect_ret = (::connect)(sock, addr_ptr, addr_len);
 	if (connect_ret == 0) {

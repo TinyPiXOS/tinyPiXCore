@@ -49,8 +49,12 @@ int example_socket_client(int32_t argc, char *argv[],const tpString& adapter)
 	//扫描
 //	example_list_device(adapter);
 
-	bt_client.connectToService(tpBluetoothAddress("E4:5F:01:37:58:93"), 1);
-
+	std::cout << "connect to E4:5F:01:37:58:93 ..." << std::endl; 
+	if(bt_client.connectToService(tpBluetoothAddress("E4:5F:01:37:58:93"), 1)<0)
+	{
+		std::cout << "connect error" << std::endl; 	
+	}
+	std::cout << "connect to E4:5F:01:37:58:93 ..." << std::endl; 
 	
 
 	connect(&bt_client, connected, [&bt_client, &buff]( )
@@ -104,7 +108,7 @@ int example_socket_server(int32_t argc, char *argv[],const tpString& adapter)
 
 			});
 			connect(bt_c, tpBluetoothSocket::disconnected, [=](tpBluetoothSocket *client) {
-				std::cout << "Client disconnected: " << std::endl;
+				std::cout << "Client disconnected" << std::endl;
 							
 			});			
 		}
@@ -126,8 +130,8 @@ int main(int32_t argc, char *argv[])
 		std::cout << std::endl;
 	}
 	printf("蓝牙客户端/服务端收发数据测试\n");
-//	example_socket_client(argc,argv,tpString("hci1"));
-	example_socket_server(argc,argv,tpString("hci1"));
+	example_socket_client(argc,argv,tpString("hci1"));
+//	example_socket_server(argc,argv,tpString("hci1"));
 }
 
 
