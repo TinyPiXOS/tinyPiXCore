@@ -59,7 +59,14 @@ public:
         painter->filledPolygon(polygonPointList2, _RGB(150, 200, 168));
 
         painter->pie(260, 380, 50, 45, 170, _RGB(150, 200, 168), 5);
-        painter->filledPie(330, 380, 50, 225, 315, _RGB(150, 200, 168));
+        painter->filledPie(330, 450, 50, 225, 315, _RGB(150, 200, 168));
+
+        HollowMask hallowMask;
+        hallowMask.addRectHollow(ItpRect(10, 10, 30, 30));
+        hallowMask.addRoundRectHollow(ItpRect(50, 10, 30, 30), 10);
+        hallowMask.addCircleHollow(HollowMask::CircleHollow(110, 20, 15));
+        hallowMask.addPieHollow(HollowMask::PieHollow(40, 50, 0, 45, 30));
+        painter->hollowBox(320, 220, 480, 310, _RGB(150, 200, 168), hallowMask);
 
         return true;
     }
