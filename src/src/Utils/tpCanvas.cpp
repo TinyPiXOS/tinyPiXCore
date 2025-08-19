@@ -5,23 +5,17 @@
 #include "tpDef.h"
 #include "thorVG/thorvg.h"
 
-#include <SDL2_gfxPrimitives.h>
 #include <thread>
+#include <cmath>
 
 #define OFFSET_X(set, x) (set->offsetX + x)
 #define OFFSET_Y(set, y) (set->offsetY + y)
 
-#define SET_CLIP_RECT(set, rect) (SDL_SetClipRect(set->surface, &rect) && SDL_RenderSetClipRect(set->render, &rect))
-
 struct ItpCanvasSet
 {
-    SDL_Surface *surface;
-    SDL_Renderer *render;
-    tpSurface *tpsurface;
-    cairo_surface_t *cairo_surface;
+    tpShared<tpSurface> tpSurfacePtr;
     int32_t offsetX, offsetY;
     bool beUsed;
-    SDL_Rect clipRect;
 
     // CPU绘制引擎
     tvg::SwCanvas *swCanvas = nullptr;
@@ -44,152 +38,15 @@ struct RoundSurfaceData
     int32_t offsetY = 0;
 };
 
-static inline int32_t cal_stride(int32_t width, int32_t depth)
-{
-    int32_t bpp = depth / 8;
-    int32_t stride = width * bpp;
-
-    switch (depth)
-    {
-    case 4:
-        stride = (stride + 1) / 2;
-        break;
-    default:
-        break;
-    }
-
-    return ((stride + 3) & ~3);
-}
-
-static inline cairo_surface_t *convertFromSDL_Surface(SDL_Surface *dstSurf)
-{
-    cairo_format_t format = CAIRO_FORMAT_INVALID;
-    bool ret = false;
-
-    int32_t Rmask = dstSurf->format->Rmask;
-    int32_t Gmask = dstSurf->format->Gmask;
-    int32_t Bmask = dstSurf->format->Bmask;
-    int32_t Amask = dstSurf->format->Amask;
-
-    switch (dstSurf->format->BitsPerPixel)
-    {
-    case 32:
-    {
-        ret = (((Rmask & 0x00ff0000) == 0x00ff0000) && ((Gmask & 0x0000ff00) == 0x0000ff00) && ((Bmask & 0x000000ff) == 0x000000ff) && ((Amask & 0xff000000) == 0xff000000));
-
-        if (ret)
-        {
-            format = CAIRO_FORMAT_ARGB32;
-        }
-        else
-        {
-            if ((Amask & 0xff000000) == 0x00000000)
-            {
-                format = CAIRO_FORMAT_RGB24;
-            }
-        }
-    }
-    break;
-    case 24:
-    {
-        ret = (((Rmask & 0x00ff0000) == 0x00ff0000) && ((Gmask & 0x0000ff00) == 0x0000ff00) && ((Bmask & 0x000000ff) == 0x000000ff) && ((Amask & 0x00000000) == 0x00000000));
-
-        if (ret)
-        {
-            format = CAIRO_FORMAT_RGB24;
-        }
-    }
-    break;
-    case 16:
-    {
-        ret = (((Rmask & 0x0000f800) == 0x0000f800) && ((Gmask & 0x000007e0) == 0x000007e0) && ((Bmask & 0x0000001f) == 0x0000001f) && ((Amask & 0x00000000) == 0x00000000));
-
-        if (ret)
-        {
-            format = CAIRO_FORMAT_RGB16_565;
-        }
-    }
-    break;
-    case 8:
-    {
-        format = CAIRO_FORMAT_A8;
-    }
-    break;
-    default:
-        return nullptr;
-    }
-
-    if (format == CAIRO_FORMAT_INVALID)
-    {
-        return nullptr;
-    }
-
-    return cairo_image_surface_create_for_data((uint8_t *)dstSurf->pixels, format, dstSurf->w, dstSurf->h, dstSurf->pitch);
-}
-
-static inline void drawCircleButton(tpCanvas *canvas, cairo_t *cr, cairo_surface_t *cairo_surface, int32_t offsetX, int32_t offsetY, void *args)
-{
-    RoundSurfaceData *set = (RoundSurfaceData *)args;
-
-    cairo_surface_t *cairo_image = canvas->convertFromSurfaceToCairo(set->surface.get());
-
-    if (cairo_image == nullptr)
-    {
-        return;
-    }
-
-    int width = cairo_image_surface_get_width(cairo_image);
-    int height = cairo_image_surface_get_height(cairo_image);
-
-    double radius = set->roundRad;
-
-    cairo_surface_t *output = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-
-    if (output)
-    {
-        cairo_t *output_cr = cairo_create(output);
-        // 清空背景
-        cairo_set_source_rgba(output_cr, 0, 0, 0, 0);
-        cairo_paint(output_cr);
-
-        cairo_fill(output_cr);
-        // cairo_arc(output_cr, width / 2.0, height / 2.0, radius, 0, 2 * M_PI);
-
-        // 绘制圆角矩形路径
-        cairo_move_to(output_cr, radius, 0);
-        cairo_line_to(output_cr, width - radius, 0);
-        cairo_arc(output_cr, width - radius, radius, radius, -M_PI / 2, 0);
-        cairo_line_to(output_cr, width, height - radius);
-        cairo_arc(output_cr, width - radius, height - radius, radius, 0, M_PI / 2);
-        cairo_line_to(output_cr, radius, height);
-        cairo_arc(output_cr, radius, height - radius, radius, M_PI / 2, M_PI);
-        cairo_line_to(output_cr, 0, radius);
-        cairo_arc(output_cr, radius, radius, radius, M_PI, 3 * M_PI / 2);
-        cairo_close_path(output_cr);
-
-        cairo_clip(output_cr);
-        cairo_set_source_surface(output_cr, cairo_image, 0, 0);
-        cairo_paint(output_cr);
-
-        cairo_surface_destroy(cairo_image);
-    }
-
-    cairo_set_source_surface(cr, output, set->offsetX + set->x, set->offsetY + set->y);
-    cairo_paint(cr);
-
-    cairo_stroke(cr);
-    cairo_surface_destroy(output);
-}
-
 // 重设canvas的target
 static inline void refreshCanvasTarget(ItpCanvasSet *set)
 {
-    int32_t surfaceWidth = set->tpsurface->width();
-    int32_t surfaceHeight = set->tpsurface->height();
-    set->swCanvas->target((uint32_t *)set->tpsurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+    int32_t surfaceWidth = set->tpSurfacePtr->width();
+    int32_t surfaceHeight = set->tpSurfacePtr->height();
+    set->swCanvas->target((uint32_t *)set->tpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
 }
 
-tpCanvas::tpCanvas(tpSurface *surface, int32_t offsetX, int32_t offsetY)
+tpCanvas::tpCanvas(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY)
 {
     if (!surface)
         return;
@@ -199,18 +56,12 @@ tpCanvas::tpCanvas(tpSurface *surface, int32_t offsetX, int32_t offsetY)
     if (!set)
         return;
 
-    set->surface = nullptr;
-    set->render = nullptr;
     set->beUsed = false;
-    set->cairo_surface = nullptr;
     set->offsetX = offsetX;
     set->offsetY = offsetY;
 
-    set->tpsurface = surface;
-    set->surface = (SDL_Surface *)surface->surface();
-    set->render = (SDL_Renderer *)surface->renderer();
-    set->cairo_surface = convertFromSDL_Surface(set->surface);
-    set->beUsed = (set->surface && set->render);
+    set->tpSurfacePtr = surface;
+    set->beUsed = (surface != nullptr);
 
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -227,12 +78,84 @@ tpCanvas::tpCanvas(tpSurface *surface, int32_t offsetX, int32_t offsetY)
 tpCanvas::~tpCanvas()
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    if (!set)
+        return;
 
-    if (set)
+    if (!set->beUsed)
+        return;
+
+    set->tpSurfacePtr = nullptr;
+    set->beUsed = false;
+
+    delete set->swCanvas;
+    delete set->glCanvas;
+
+    tvg::Initializer::term();
+
+    delete set;
+}
+
+tpShared<tpSurface> tpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_surface)
+{
+    if (cairo_surface == nullptr)
     {
-        this->release();
-        delete set;
+        return nullptr;
     }
+
+    void *addr = (void *)cairo_image_surface_get_data(cairo_surface);
+    cairo_format_t fmt = cairo_image_surface_get_format(cairo_surface);
+    int32_t width = cairo_image_surface_get_width(cairo_surface);
+    int32_t height = cairo_image_surface_get_height(cairo_surface);
+    int32_t stride = cairo_image_surface_get_stride(cairo_surface);
+
+    if (addr == nullptr)
+    {
+        return nullptr;
+    }
+
+    ItpFormat format = TP_RGB_UNKOWN;
+    int32_t Rmask = 0, Gmask = 0, Bmask = 0, Amask = 0;
+
+    switch (fmt)
+    {
+    case CAIRO_FORMAT_ARGB32:
+    case CAIRO_FORMAT_RGB24:
+    {
+        format = TP_RGB_32;
+
+        Rmask = 0x00ff0000;
+        Gmask = 0x0000ff00;
+        Bmask = 0x000000ff;
+        Amask = (fmt == CAIRO_FORMAT_RGB24) ? 0x00000000 : 0xff000000;
+    }
+    break;
+    case CAIRO_FORMAT_RGB16_565:
+    {
+        format = TP_RGB_16;
+
+        Rmask = 0x0000f800;
+        Gmask = 0x000007e0;
+        Bmask = 0x0000001f;
+    }
+    break;
+    case CAIRO_FORMAT_A8:
+    {
+        format = TP_RGB_8;
+    }
+    break;
+    default:
+        return nullptr;
+    }
+
+    tpShared<tpSurface> surface = tpMakeShared<tpSurface>();
+    bool ret = surface->create(addr, width, height, format, stride, Rmask, Gmask, Bmask, Amask);
+
+    if (ret == false)
+    {
+        return nullptr;
+    }
+
+    return surface;
 }
 
 void tpCanvas::paintTest()
@@ -243,54 +166,48 @@ void tpCanvas::paintTest()
     // set->swCanvas->sync();
 }
 
-bool tpCanvas::setTarget(tpSurface *surface, int32_t offsetX, int32_t offsetY)
+bool tpCanvas::setTarget(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY)
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set)
+    if (!set)
+        return false;
+
+    if (surface == nullptr)
+        return false;
+
+    if (set->beUsed)
     {
-        if (surface == nullptr)
-        {
-            return false;
-        }
-
-        SDL_Surface *tmpS = (SDL_Surface *)surface->surface();
-        SDL_Renderer *tmpR = (SDL_Renderer *)surface->renderer();
-
-        if (tmpS &&
-            tmpR)
-        {
-            if (set->beUsed)
-            {
-                this->release();
-            }
-
-            set->surface = tmpS;
-            set->render = tmpR;
-            set->tpsurface = surface;
-            set->cairo_surface = convertFromSDL_Surface(set->surface);
-            set->offsetX = offsetX;
-            set->offsetY = offsetY;
-            set->beUsed = true;
-        }
+        set->tpSurfacePtr = nullptr;
     }
 
+    set->tpSurfacePtr = surface;
+    set->offsetX = offsetX;
+    set->offsetY = offsetY;
+    set->beUsed = true;
+
     return true;
+}
+
+tpShared<tpSurface> tpCanvas::surface()
+{
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+
+    if (set && set->beUsed)
+    {
+        return set->tpSurfacePtr;
+    }
+
+    return nullptr;
 }
 
 void tpCanvas::setClipRect(tpRect &rect)
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-        set->tpsurface->setClipRect(&rect);
-
-        set->clipRect.x = rect.X0();
-        set->clipRect.y = rect.Y0();
-        set->clipRect.w = rect.width();
-        set->clipRect.h = rect.height();
+        set->tpSurfacePtr->setClipRect(&rect);
     }
 }
 
@@ -303,54 +220,18 @@ void tpCanvas::setClipRect(ItpRect *rect)
     }
 }
 
-tpSurface *tpCanvas::surface()
-{
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
-    tpSurface *surface = nullptr;
-
-    if (set &&
-        set->beUsed)
-    {
-        surface = set->tpsurface;
-    }
-
-    return surface;
-}
-
-static inline void draw_erase(ItpCanvasSet *set)
-{
-    if (set->cairo_surface)
-    {
-        cairo_t *cr = cairo_create(set->cairo_surface);
-
-        if (cr == nullptr)
-        {
-            return;
-        }
-
-        SDL_Rect clipRect;
-        SDL_GetClipRect(set->surface, &clipRect);
-        cairo_rectangle(cr, clipRect.x, clipRect.y, clipRect.w, clipRect.h);
-        cairo_clip(cr);
-        cairo_new_path(cr);
-
-        cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-        cairo_paint(cr);
-        cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-        cairo_set_source_rgba(cr, 0, 0, 0, 0);
-        cairo_fill(cr);
-
-        cairo_destroy(cr);
-    }
-}
-
 void tpCanvas::erase()
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
     if (set && set->beUsed)
     {
-        draw_erase(set);
+        // 方法1：清除所有 Paint 对象
+        set->swCanvas->remove();
+
+        // 方法2：清除缓冲区并重新绘制
+        set->swCanvas->draw(true);
+        set->swCanvas->sync();
     }
 }
 
@@ -1019,7 +900,7 @@ static void applyHollowMask(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x
 
         // 使用类似 _pathAppendArcTo 的算法
         appendArcToPath(clipper, startX, startY, endX, endY, hollowData.radius, hollowData.radius, 0.0f,
-                        fabsf(angleDiff) > M_PI, true);
+                        std::fabs(angleDiff) > M_PI, true);
 
         // 封口
         clipper->lineTo(hollowData.x + x1, hollowData.y + y1); // 画线到起点
@@ -1069,112 +950,73 @@ void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
     applyHollowMask(set, x1, y1, x2, y2, color, rad, hollowMaskData);
 }
 
-void tpCanvas::paintSurface(const tpShared<tpSurface> &surface, const tpRect &src_rect, const tpRect &dst_rect, bool strench)
-{
-    this->paintSurface(surface, &src_rect, &dst_rect, strench);
-}
-
-void tpCanvas::paintSurface(const tpShared<tpSurface> &surface, const tpRect *src_rect, const tpRect *dst_rect, bool strench)
-{
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
-    if (!set)
-        return;
-
-    if (!set->beUsed)
-        return;
-
-    SDL_Surface *srcSurf = (SDL_Surface *)surface->surface();
-
-    if (srcSurf == nullptr)
-        return;
-
-    SDL_Rect srect, drect;
-
-    if (src_rect)
-    {
-        srect.x = src_rect->X0();
-        srect.y = src_rect->Y0();
-        srect.w = src_rect->width();
-        srect.h = src_rect->height();
-    }
-    else
-    {
-        srect.x = 0;
-        srect.y = 0;
-        srect.w = surface->width();
-        srect.h = surface->height();
-    }
-
-    if (dst_rect)
-    {
-        drect.x = dst_rect->X0() + set->offsetX;
-        drect.y = dst_rect->Y0() + set->offsetY;
-        drect.w = dst_rect->width();
-        drect.h = dst_rect->height();
-    }
-    else
-    {
-        drect.x = set->offsetX;
-        drect.y = set->offsetY;
-        drect.w = set->surface->w;
-        drect.h = set->surface->h;
-    }
-
-    if (strench)
-    {
-        SDL_BlitScaled(srcSurf, &srect, set->surface, &drect);
-    }
-    else
-    {
-        SDL_BlitSurface(srcSurf, &srect, set->surface, &drect);
-    }
-}
-
 void tpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface)
 {
-    tpRect srcRect(0, 0, surface->width(), surface->height());
-    tpRect dstRect(x, y, surface->width(), surface->height());
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    if (!set->swCanvas)
+        return;
 
-    this->paintSurface(surface, srcRect, dstRect);
+    refreshCanvasTarget(set);
+
+    auto picture = tvg::Picture::gen();
+    picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
+    // 设置图片位置
+    picture->translate(set->offsetX + x, set->offsetY + y);
+
+    set->swCanvas->push(std::move(picture));
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 void tpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface)
 {
-    if (rad == 0)
-    {
-        this->paintSurface(x, y, surface);
-        return;
-    }
-
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    if (!set->swCanvas)
+        return;
 
-    RoundSurfaceData roundData;
-    roundData.roundRad = rad;
-    roundData.surface = surface;
-    roundData.x = x;
-    roundData.y = y;
-    roundData.offsetX = set->offsetX;
-    roundData.offsetY = set->offsetY;
-    this->customizedCarioMethod(drawCircleButton, &roundData);
+    refreshCanvasTarget(set);
+
+    auto picture = tvg::Picture::gen();
+    picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
+    // 设置图片位置
+    picture->translate(set->offsetX + x, set->offsetY + y);
+
+    // 添加圆角遮罩
+    auto clipper = tvg::Shape::gen();
+    clipper->appendRect(set->offsetX + x, set->offsetY + y, surface->width(), surface->height(), rad, rad);
+
+    // 应用Alpha实现遮罩圆角
+    clipper->fill(255, 255, 255, 255);
+    picture->mask(clipper, tvg::MaskMethod::Alpha);
+
+    set->swCanvas->push(std::move(picture));
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &text)
 {
-    this->renderText(font, x, y, text.c_str());
-}
-
-void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const char *text)
-{
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        font.renderText(set->tpsurface, text, x, y);
+        font.renderText(set->tpSurfacePtr, text.c_str(), x, y);
+    }
+}
+
+void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
+{
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x = OFFSET_X(set, x);
+        y = OFFSET_Y(set, y);
+
+        font.render(set->tpSurfacePtr, x, y);
     }
 }
 
@@ -1187,179 +1029,13 @@ void tpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
 
-    if (set &&
-        set->beUsed)
+    if (set && set->beUsed)
     {
-
         x = OFFSET_X(set, x);
         y = OFFSET_Y(set, y);
 
-        font.renderMarkUp(set->tpsurface, text, x, y);
+        font.renderMarkUp(set->tpSurfacePtr, text, x, y);
     }
-}
-
-void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
-{
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
-
-    if (set &&
-        set->beUsed)
-    {
-
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        font.render(set->tpsurface, x, y);
-    }
-}
-
-void tpCanvas::customizedCarioMethod(defDrawFunction func, void *args)
-{
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
-
-    if (set &&
-        set->beUsed)
-    {
-        cairo_surface_t *cairo_surface = tpCanvas::convertFromSurfaceToCairo(set->tpsurface);
-
-        if (cairo_surface == nullptr)
-        {
-            return;
-        }
-
-        cairo_t *cr = cairo_create(cairo_surface);
-
-        if (cr)
-        {
-            SDL_Rect clipRect;
-            SDL_GetClipRect(set->surface, &clipRect);
-            cairo_rectangle(cr, (double)clipRect.x, (double)clipRect.y, (double)clipRect.w, (double)clipRect.h);
-            cairo_clip(cr);
-            cairo_new_path(cr);
-
-            if (func)
-            {
-                func(this, cr, cairo_surface, set->offsetX, set->offsetY, args);
-            }
-        }
-
-        cairo_surface_destroy(cairo_surface);
-        cairo_destroy(cr);
-    }
-}
-
-tpSurface *tpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_surface)
-{
-    if (cairo_surface == nullptr)
-    {
-        return nullptr;
-    }
-
-    void *addr = (void *)cairo_image_surface_get_data(cairo_surface);
-    cairo_format_t fmt = cairo_image_surface_get_format(cairo_surface);
-    int32_t width = cairo_image_surface_get_width(cairo_surface);
-    int32_t height = cairo_image_surface_get_height(cairo_surface);
-    int32_t stride = cairo_image_surface_get_stride(cairo_surface);
-
-    if (addr == nullptr)
-    {
-        return nullptr;
-    }
-
-    ItpFormat format = TP_RGB_UNKOWN;
-    int32_t Rmask = 0, Gmask = 0, Bmask = 0, Amask = 0;
-
-    switch (fmt)
-    {
-    case CAIRO_FORMAT_ARGB32:
-    case CAIRO_FORMAT_RGB24:
-    {
-        format = TP_RGB_32;
-
-        Rmask = 0x00ff0000;
-        Gmask = 0x0000ff00;
-        Bmask = 0x000000ff;
-        Amask = (fmt == CAIRO_FORMAT_RGB24) ? 0x00000000 : 0xff000000;
-    }
-    break;
-    case CAIRO_FORMAT_RGB16_565:
-    {
-        format = TP_RGB_16;
-
-        Rmask = 0x0000f800;
-        Gmask = 0x000007e0;
-        Bmask = 0x0000001f;
-    }
-    break;
-    case CAIRO_FORMAT_A8:
-    {
-        format = TP_RGB_8;
-    }
-    break;
-    default:
-        return nullptr;
-    }
-
-    tpSurface *surface = new tpSurface();
-
-    if (surface == nullptr)
-    {
-        return nullptr;
-    }
-
-    bool ret = surface->create(addr, width, height, format, stride, Rmask, Gmask, Bmask, Amask);
-
-    if (ret == false)
-    {
-        delete surface;
-        return nullptr;
-    }
-
-    return surface;
-}
-
-cairo_surface_t *tpCanvas::convertFromSurfaceToCairo(tpSurface *surface)
-{
-    if (surface == nullptr)
-    {
-        return nullptr;
-    }
-
-    SDL_Surface *dstSurf = (SDL_Surface *)surface->surface();
-
-    if (dstSurf == nullptr)
-    {
-        return nullptr;
-    }
-
-    return convertFromSDL_Surface(dstSurf);
-}
-
-void tpCanvas::release()
-{
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
-
-    if (!set)
-        return;
-
-    if (!set->beUsed)
-        return;
-
-    set->surface = nullptr;
-    set->render = nullptr;
-    set->tpsurface = nullptr;
-    set->cairo_surface = nullptr;
-    set->beUsed = false;
-
-    delete set->swCanvas;
-    delete set->glCanvas;
-
-    if (set->cairo_surface)
-    {
-        cairo_surface_destroy(set->cairo_surface);
-    }
-
-    tvg::Initializer::term();
 }
 
 HollowMask::HollowMask()

@@ -1462,7 +1462,6 @@ bool tpObjectPaintEvent::construct(ItpEventData *eventData)
 
 	if (set->canvas == nullptr)
 	{
-		delete set->surface;
 		set->surface = nullptr;
 		return false;
 	}
@@ -1534,17 +1533,16 @@ tpCanvas *tpObjectPaintEvent::canvas()
 	return canvas;
 }
 
-tpSurface *tpObjectPaintEvent::surface()
+tpShared<tpSurface> tpObjectPaintEvent::surface()
 {
 	ItpObjectPaintSet *set = (ItpObjectPaintSet *)tpEvent::tpEventSet;
-	tpSurface *surface = nullptr;
 
 	if (set)
 	{
-		surface = set->surface;
+		return set->surface;
 	}
 
-	return surface;
+	return nullptr;
 }
 
 ItpSufaceData *tpObjectPaintEvent::itpSurface()

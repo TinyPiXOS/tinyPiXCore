@@ -426,13 +426,13 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         if (surface_t == nullptr)
             continue;
 
-        tpSurface surface(surface_t);
+        tpShared<tpSurface> surface = tpMakeShared<tpSurface>(surface_t);
 
         ItpObjectPaintInput input;
         tpObjectPaintEvent event;
         input.object = topScreen;
 
-        input.surface = &surface;
+        input.surface = surface;
 
         input.updateRect.x = updateRect.X0();
         input.updateRect.y = updateRect.Y0();
