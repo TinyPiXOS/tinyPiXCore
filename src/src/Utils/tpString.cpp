@@ -403,7 +403,7 @@ bool tpString::toBool() const
 }
 
 // 删除所有指定字符
-tpString tpString::remove(char ch) const
+tpString tpString::removeChar(char ch) const
 {
     if (this->find(ch) == std::string::npos) {
         return *this;

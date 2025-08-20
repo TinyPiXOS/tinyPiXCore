@@ -142,7 +142,7 @@ public:
     bool containsOnly(const tpString &charSet) const;
 
 	// 删除所有指定字符
-    tpString remove(char ch) const;
+    tpString removeChar(char ch) const;
     
     // 字符串反转
     tpString reversed() const;
