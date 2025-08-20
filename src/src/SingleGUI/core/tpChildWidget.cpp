@@ -1150,13 +1150,11 @@ bool tpChildWidget::onMouseRleaseEvent(tpMouseEvent *event)
 
     ItpPoint mouseGlobalPos = event->globalPos();
 
-    // std::cout << mouseGlobalPos.x << " " << set->pressPoint.x << " " << mouseGlobalPos.y << " " << set->pressPoint.y << std::endl;
-
-    // if (toScreen().contains(mouseGlobalPos))
     if ((std::abs(mouseGlobalPos.x - set->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - set->pressPoint.y) <= 5))
     {
         if (checkable())
         {
+            std::cout << "当前选中状态： " << checked() << std::endl;
             setChecked(!checked());
         }
     }

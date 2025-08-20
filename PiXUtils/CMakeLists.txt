@@ -53,6 +53,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/Utils/tpJsonValue.cpp
     ${SOURCE_PATH}/src/Utils/tpAppConfigIO.cpp
     ${SOURCE_PATH}/src/Utils/tpThreadPool.cpp
+    ${SOURCE_PATH}/src/Utils/TpImage.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp

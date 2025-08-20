@@ -22,23 +22,29 @@ TP_DEF_VOID_TYPE_VAR(ItpCanvasData);
 class tpCanvas
 {
 public:
-    tpCanvas(tpSurface *surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0); // set target and initalized
+    tpCanvas(tpShared<tpSurface> surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0);
     virtual ~tpCanvas();
 
     void paintTest();
 
 public:
-    virtual bool setTarget(tpSurface *surface, int32_t offsetX = 0, int32_t offsetY = 0); // nullptr will be canceled
+    /// @brief 重设绘制画布
+    /// @param surface 画布指针
+    /// @param offsetX X偏移量
+    /// @param offsetY Y偏移量
+    /// @return 设置结果；成功返回true；否则返回false
+    virtual bool setTarget(tpShared<tpSurface> surface, int32_t offsetX = 0, int32_t offsetY = 0);
+    /// @brief 获取当前画图
+    /// @return 返回画布指针；无则返回nullptr
+    virtual tpShared<tpSurface> surface();
 
 public:
     virtual void setClipRect(tpRect &rect);
     virtual void setClipRect(ItpRect *rect);
 
 public:
-    virtual tpSurface *surface();
-
-public:
-    virtual void erase(); // fill transparency color
+    /// @brief 清理画布；清除所有绘制对象
+    virtual void erase();
 
 public:
     /**color all are RRGGBBAA**/
@@ -206,18 +212,6 @@ public:
 
 public:
     /// @brief 绘制图片资源
-    /// @param surface 资源指针
-    /// @param src_rect 绘制资源矩形；按此矩形从源文件中裁剪出矩形
-    /// @param dst_rect 绘制矩形，将裁剪出的资源矩形绘制在此矩形
-    /// @param strench 是否缩放
-    virtual void paintSurface(const tpShared<tpSurface> &surface, const tpRect &src_rect, const tpRect &dst_rect, bool strench = false);
-    /// @brief 绘制图片资源
-    /// @param surface 资源指针
-    /// @param src_rect 绘制资源矩形；按此矩形从源文件中裁剪出矩形
-    /// @param dst_rect 绘制矩形，将裁剪出的资源矩形绘制在此矩形
-    /// @param strench 是否缩放
-    virtual void paintSurface(const tpShared<tpSurface> &surface, const tpRect *src_rect, const tpRect *dst_rect, bool strench = false);
-    /// @brief 绘制图片资源
     /// @param x 绘制X坐标
     /// @param y Y坐标
     /// @param surface 资源指针
@@ -230,25 +224,24 @@ public:
     virtual void paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface);
 
 public:
-    /**font render for mark up**/
+    /// @brief 绘制文本
+    /// @param font 文本字体
+    /// @param x X坐标
+    /// @param y Y坐标
+    /// @param text 文本字符串内容
     virtual void renderText(tpFont &font, int32_t x, int32_t y, const tpString &text);
-    virtual void renderText(tpFont &font, int32_t x, int32_t y, const char *text);
+    /// @brief 绘制文本
+    /// @param font 文本字体；内部需设置文本字符串
+    /// @param x X坐标
+    /// @param y Y坐标
+    virtual void renderText(tpFont &font, int32_t x, int32_t y);
 
     virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &text);
     virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text);
-    /**font render normally by font setText or setMarkUp**/
-    virtual void renderText(tpFont &font, int32_t x, int32_t y);
 
 public:
-    /**customized function**/
-    virtual void customizedCarioMethod(defDrawFunction func, void *args); // must be ARGB for 32 or 24, 565 for 16. or will not be ran
-
-public:
-    virtual void release();
-
-public:
-    static tpSurface *convertFromCairoToSurface(cairo_surface_t *cairo_surface);
-    static cairo_surface_t *convertFromSurfaceToCairo(tpSurface *surface);
+    static tpShared<tpSurface> convertFromCairoToSurface(cairo_surface_t *cairo_surface);
+    // static cairo_surface_t *convertFromSurfaceToCairo(tpShared<tpSurface>surface);
 
 private:
     ItpCanvasData *data_;
