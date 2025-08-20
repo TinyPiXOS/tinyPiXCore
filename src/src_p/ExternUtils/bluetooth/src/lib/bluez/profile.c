@@ -198,10 +198,3 @@ void profile_manager_connect_unregister_profile(ProfileManager *self, const gcha
 {
 
 }
-
-//设置/切换服务
-void profile_manager_proxy_set_profile(ProfileManager *self, const gchar *device ,const gchar *profile, GError **error)
-{
-	g_assert(PROFILE_MANAGER_IS(self));
-	g_dbus_proxy_call_sync(self->priv->proxy, "SetProfile", g_variant_new ("(os)", "/org/bluez/hci0/dev_XX_XX_XX_XX_XX_XX",profile), G_DBUS_CALL_FLAGS_NONE, -1, NULL, error);
-}

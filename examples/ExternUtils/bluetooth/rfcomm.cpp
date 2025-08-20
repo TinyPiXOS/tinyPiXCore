@@ -130,7 +130,7 @@ int main(int32_t argc, char *argv[])
 		std::cout << std::endl;
 	}
 	printf("蓝牙客户端/服务端收发数据测试\n");
-	example_socket_client(argc,argv,tpString("hci1"));
+	example_socket_client(argc,argv,tpString("hci0"));
 //	example_socket_server(argc,argv,tpString("hci1"));
 }
 

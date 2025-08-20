@@ -20,7 +20,27 @@ public:
 		TP_BLUET_UNKNOWN_PROFILE,
 		TP_BLUET_SPP_PROFILE,
 	};
-
+	enum AttributeType{
+		ServiceRecordHandle	= 0X0000,	//指定可从中检索属性的服务记录。
+		ServiceClassIds	= 0X0001,	//服务遵循的服务类的 UUID。最常见的服务类定义在（QBluetoothUuid::ServiceClassUuid)
+		ServiceRecordState	= 0X0002,	//当添加、删除或修改任何其他服务属性时，属性也会发生变化。
+		ServiceId	= 0X0003,	//唯一标识服务的 UUID。
+		ProtocolDescriptorList	= 0X0004,	//服务使用的协议列表。最常用的协议 UUID 定义在QBluetoothUuid::ProtocolUuid
+		BrowseGroupList	= 0X0005,	//该服务所在浏览组的列表。
+		LanguageBaseAttributeIdList	= 0X0006,	//支持人类可读属性的语言基础属性 ID 列表。
+		ServiceInfoTimeToLive	= 0X0007,	//服务记录预计保持有效且不变的秒数。
+		ServiceAvailability	= 0X0008,	//表示服务可用性的值。
+		BluetoothProfileDescriptorList	= 0X0009,	//该服务符合的配置文件列表。
+		DocumentationUrl	= 0X000A,	//指向服务文档的 URL。
+		ClientExecutableUrl	= 0X000B,	//指向可用于使用该服务的应用程序位置的 URL。
+		IconUrl	= 0X000C,	//代表服务的图标位置的 URL。
+		AdditionalProtocolDescriptorList	= 0X000D,	//服务使用的附加协议。此属性扩展了ProtocolDescriptorList。
+		PrimaryLanguageBase	= 0X0100,	//主要语言文本描述符的基本索引。
+		ServiceName	= PrimaryLanguageBase + 0X0000,	//以主要语言表示的蓝牙服务名称。
+		ServiceDescription	= PrimaryLanguageBase + 0X0001,	//以主要语言描述蓝牙服务。
+		ServiceProvider	= PrimaryLanguageBase + 0X0002,	//提供蓝牙服务主要语言的公司/实体的名称。
+	};
+	
 public:
 	tpBluetoothService();
 	tpBluetoothService& operator=(const tpBluetoothService &other);

@@ -1,9 +1,9 @@
 #ifndef _BLUET_PROFILE_H_
 #define _BLUET_PROFILE_H_
 
-/*#ifdef	__cplusplus
+#ifdef	__cplusplus
 extern "C" {
-#endif*/
+#endif
 
 #include <glib-object.h>
 
@@ -45,11 +45,14 @@ GType profile_manager_get_type(void) G_GNUC_CONST;
 
 ProfileManager *profile_manager_new();
 
+void profile_manager_proxy_register_profile(ProfileManager *self, const gchar *profile, const gchar *uuid, const GVariant *options, GError **error);
+void profile_manager_proxy_unregister_profile(ProfileManager *self, const gchar *profile, GError **error);
 
 
-/*#ifdef	__cplusplus
+
+#ifdef	__cplusplus
 }
-#endif*/
+#endif
 
 
 #endif

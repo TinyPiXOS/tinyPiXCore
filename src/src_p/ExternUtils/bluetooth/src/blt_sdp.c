@@ -15,7 +15,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
-#include "../include/blt_sdp.h"
+#include "blt_sdp.h"
 #include "bluetooth_inc.h"
 
 
@@ -120,11 +120,24 @@ static void print_service_class(void *value, void *userData)
 }
 
 
-static void print_service_attr(sdp_record_t *rec)
+void sdp_record_print_(const sdp_record_t *rec)
+{
+	sdp_data_t *d = sdp_data_get(rec, SDP_ATTR_SVCNAME_PRIMARY);
+	if (d && SDP_IS_TEXT_STR(d->dtd))
+		printf("Service Name: %.*s\n", d->unitSize, d->val.str);
+	d = sdp_data_get(rec, SDP_ATTR_SVCDESC_PRIMARY);
+	if (d && SDP_IS_TEXT_STR(d->dtd))
+		printf("Service Description: %.*s\n", d->unitSize, d->val.str);
+	d = sdp_data_get(rec, SDP_ATTR_PROVNAME_PRIMARY);
+	if (d && SDP_IS_TEXT_STR(d->dtd))
+		printf("Service Provider: %.*s\n", d->unitSize, d->val.str);
+}
+
+void print_service_attr(sdp_record_t *rec)
 {
 	sdp_list_t *list = 0, *proto = 0;
 	printf("debug print_service_attr\n");
-	sdp_record_print(rec);
+	sdp_record_print_(rec);
 
 	printf("Service RecHandle: 0x%x\n", rec->handle);
 
@@ -154,61 +167,226 @@ static void print_service_attr(sdp_record_t *rec)
 
 
 
+static sdp_list_t *g_last_search_result = NULL;
+
+/* 释放上一次保存的 search_result（并释放所有记录） */
+void bluet_free_last_search(void)
+{
+    if (g_last_search_result) {
+        sdp_list_free(g_last_search_result, (void (*)(void *))sdp_record_free);
+        g_last_search_result = NULL;
+    }
+}
+
+int sdp_query_device(const char *bt_addr, uint16_t uuid, struct SdpAttrValue *attr_data, size_t attr_size)
+{
+	bdaddr_t bdaddr;  
+    sdp_session_t *sess;  
+    sdp_list_t *search_list = NULL, *attrid_list = NULL, *response_list = NULL;  
+    uuid_t search_uuid;  
+    uint32_t range = 0x0000ffff;  // 获取所有属性  
+    int result = -1;  
+    size_t found_attrs = 0;  
+      
+    // 解析蓝牙地址  
+    if (str2ba(bt_addr, &bdaddr) < 0) {  
+        printf("Invalid Bluetooth address: %s\n", bt_addr);  
+        return -1;  
+    }  
+      
+    // 建立SDP连接 (基于 lib/sdp_lib.h:119)  
+    sess = sdp_connect(BDADDR_ANY, &bdaddr, SDP_RETRY_IF_BUSY);  
+    if (!sess) {  
+        printf("Failed to connect to SDP server on %s: %s\n", bt_addr, strerror(errno));  
+        return -1;  
+    }  
+      
+    printf("Scanning services on %s for UUID 0x%04x...\n", bt_addr, uuid);  
+      
+    // 创建搜索UUID (基于 lib/sdp.h中的UUID定义)  
+    sdp_uuid16_create(&search_uuid, uuid);  
+    search_list = sdp_list_append(NULL, &search_uuid);  
+      
+    // 设置属性范围 (基于 tools/sdptool.c:3907)  
+    attrid_list = sdp_list_append(NULL, &range);  
+      
+    // 执行服务搜索属性请求 (基于 lib/sdp.c:4420)  
+    if (sdp_service_search_attr_req(sess, search_list, SDP_ATTR_REQ_RANGE,   
+                                   attrid_list, &response_list) == 0) {  
+          
+        // 处理返回的服务记录  
+        for (sdp_list_t *r = response_list; r && found_attrs < attr_size; r = r->next) {  
+            sdp_record_t *rec = (sdp_record_t *)r->data;  
+              
+            if (!rec) continue;  
+              
+            printf("Service Record Handle: 0x%x\n", rec->handle);  
+              
+            // 遍历记录中的所有属性 (基于 lib/sdp.h:496)  
+            for (sdp_list_t *attr_list = rec->attrlist;   
+                 attr_list && found_attrs < attr_size;   
+                 attr_list = attr_list->next) {  
+                  
+                sdp_data_t *attr = (sdp_data_t *)attr_list->data;  
+                if (attr && found_attrs < attr_size) {  
+                    //extract_attr_value(attr, &attr_data[found_attrs]);  
+                    printf("  Attribute 0x%04x found\n", attr->attrId);  
+                    found_attrs++;  
+                }  
+            }  
+        }  
+          
+        printf("Found %zu attributes\n", found_attrs);  
+        result = found_attrs;  
+          
+        // 释放响应列表  
+        sdp_list_free(response_list, (sdp_free_func_t)sdp_record_free);  
+    } else {  
+        printf("Service Search failed: %s\n", strerror(errno));  
+    }  
+      
+    // 清理资源  
+    sdp_list_free(search_list, NULL);  
+    sdp_list_free(attrid_list, NULL);  
+    sdp_close(sess);  
+    printf("result=%d\n",result);
+    return result;  
+}
+
+/* 释放 attr_data[] 的动态分配部分 */
+void bluet_free_attr_array(struct SdpAttrValue *attr_data, size_t count)
+{
+    if (!attr_data) return;
+    for (size_t i = 0; i < count; i++) {
+        if (attr_data[i].val.str) {
+            free(attr_data[i].val.str);
+            attr_data[i].val.str = NULL;
+        }
+    }
+}
+
+
+
 //按照服务和属性查询
 //bt_addr:要查询的蓝牙的地址
 //uuid:要哦查询的蓝牙服务或者协议的UUID,这个UUID必须是sdp.h中宏定义的_UUID或_ID
 //attr_data:要查询的属性列表
 //attr_size:要查询的属性列表的长度
-int bluet_quere_profile_attr(const char *bt_addr, uint16_t uuid, struct SdpAttrValue *attr_data, size_t attr_size) 
+int bluet_quere_profile_attr(const char *bt_addr, uint16_t uuid,
+                             struct SdpAttrValue *attr_data, size_t attr_size) 
 {
-	bdaddr_t target;
-	if (str2ba(bt_addr, &target) != 0) {
-		perror("Invalid Bluetooth address");
-		return -1;
-	}
+    bdaddr_t target;
+    if (str2ba(bt_addr, &target) != 0) {
+        perror("Invalid Bluetooth address");
+        return -1;
+    }
 
-	sdp_session_t *session = sdp_connect(BDADDR_ANY, &target, SDP_RETRY_IF_BUSY);
-	if (!session) {
-		perror("SDP connection failed");
-		return -1;
-	}
+    sdp_session_t *session = sdp_connect(BDADDR_ANY, &target, SDP_RETRY_IF_BUSY);
+    if (!session) {
+        perror("SDP connection failed");
+        return -1;
+    }
 
-	//要查询的服务UUID
-	uuid_t sdp_uuid;
-	sdp_uuid16_create(&sdp_uuid, uuid);
-	sdp_list_t *search_list = sdp_list_append(NULL, &sdp_uuid);
-	
-	//要查询的服务属性
-	sdp_list_t *attrid_list = NULL;
-	for (size_t i = 0; i < attr_size; i++) {
-		uint32_t *p = malloc(sizeof(uint32_t));
-		*p = attr_data[i].attr;
-		attrid_list = sdp_list_append(attrid_list, p);
-	}
+    // 构造查询的服务UUID
+    uuid_t sdp_uuid;
+    sdp_uuid16_create(&sdp_uuid, uuid);
+    sdp_list_t *search_list = sdp_list_append(NULL, &sdp_uuid);
 
-	//查询结果
-	sdp_list_t *search_result = NULL;
-	if (sdp_service_search_attr_req(session, search_list, SDP_ATTR_REQ_RANGE, attrid_list, &search_result) != 0) {
-		perror("SDP query failed");
-		sdp_list_free(search_list, free);
-		sdp_list_free(attrid_list, free);
-		sdp_close(session);
-		return -1;
-	}
+    // 构造要查询的属性列表（不使用 malloc，直接存值）
+    sdp_list_t *attrid_list = NULL;
+    for (size_t i = 0; i < attr_size; i++) {
+        uint32_t attr_val = attr_data[i].attr;
+        attrid_list = sdp_list_append(attrid_list, &attr_val);
+    }
 
-	sdp_record_t *record;
-	for (sdp_list_t *r = search_result; r; r = r->next) {
-		record = (sdp_record_t *)r->data;
-		print_service_attr(record);
-		sdp_record_free(record);
-	}
+    // 查询结果
+    sdp_list_t *search_result = NULL;
+    if (sdp_service_search_attr_req(session, search_list, SDP_ATTR_REQ_RANGE,
+                                    attrid_list, &search_result) != 0) {
+        perror("SDP query failed");
+        sdp_list_free(search_list, NULL);
+        sdp_list_free(attrid_list, NULL);
+        sdp_close(session);
+        return -1;
+    }
 
-	sdp_list_free(search_list, free);
-	sdp_list_free(attrid_list, free);
-	sdp_list_free(search_result, NULL);
-	sdp_close(session);
-	return 0;
+    // 遍历结果并打印服务信息
+    for (sdp_list_t *r = search_result; r; r = r->next) {
+        sdp_record_t *record = (sdp_record_t *)r->data;
+        print_service_attr(record); // 保留原有打印逻辑
+    }
+
+    // 一次性释放结果和记录
+    sdp_list_free(search_result, (void (*)(void *))sdp_record_free);
+    sdp_list_free(search_list, NULL);
+    sdp_list_free(attrid_list, NULL);
+
+    sdp_close(session);
+    return 0;
 }
+
+
+
+int scan_device_services(const char *bt_addr)  
+{  
+    bdaddr_t bdaddr;  
+    sdp_session_t *sess;  
+    sdp_list_t *attrid_list = NULL, *search_list = NULL, *seq = NULL, *next;  
+    uuid_t group;  
+    uint32_t range = 0x0000ffff;  // 获取所有属性  
+    int result = -1;  
+  
+    // 解析蓝牙地址  
+    if (str2ba(bt_addr, &bdaddr) < 0) {  
+        printf("Invalid Bluetooth address: %s\n", bt_addr);  
+        return -1;  
+    }  
+  
+    // 建立SDP连接  
+    sess = sdp_connect(BDADDR_ANY, &bdaddr, SDP_RETRY_IF_BUSY);  
+    if (!sess) {  
+        printf("Failed to connect to SDP server on %s: %s\n", bt_addr, strerror(errno));  
+        return -1;  
+    }  
+  
+    printf("Browsing %s ...\n", bt_addr);  
+  
+    // 设置搜索参数 - 浏览所有公共服务  
+    sdp_uuid16_create(&group, PUBLIC_BROWSE_GROUP);  
+    search_list = sdp_list_append(NULL, &group);  
+    attrid_list = sdp_list_append(NULL, &range);  
+  
+    // 执行服务搜索属性请求  
+    if (sdp_service_search_attr_req(sess, search_list, SDP_ATTR_REQ_RANGE,   
+                                   attrid_list, &seq) == 0) {  
+          
+        // 处理返回的服务记录  
+        for (; seq; seq = next) {  
+            sdp_record_t *rec = (sdp_record_t *)seq->data;  
+              
+            if (rec) {  
+                print_service_attr(rec);  
+                printf("\n");  
+            }  
+              
+            next = seq->next;  
+            free(seq);  
+            if (rec)  
+                sdp_record_free(rec);  
+        }  
+          
+        result = 0;  
+    } else {  
+        printf("Service Search failed: %s\n", strerror(errno));  
+    }  
+  
+    // 清理资源  
+    sdp_list_free(search_list, NULL);  
+    sdp_list_free(attrid_list, NULL);  
+    sdp_close(sess);  
+  
+    return result;  
+}  
 
 
 //解析查询结果

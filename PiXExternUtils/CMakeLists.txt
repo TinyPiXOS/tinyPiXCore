@@ -76,6 +76,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_hid.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_sdp.c
 	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_service.c
+	${SOURCE_PATH}/src_p/ExternUtils/bluetooth/src/blt_service_reg.c
 	${SOURCE_PATH}/src_p/ExternUtils/utils/utilslib.c
 	${SOURCE_PATH}/src_p/ExternUtils/utils/utlist.c
 	${SOURCE_PATH}/src_p/ExternUtils/utils/variable_array.c
@@ -129,6 +130,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/tpSystemBatteryInfo.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpLogin.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothAddress.cpp
+	${SOURCE_PATH}/src/ExternUtils/tpBluetoothUuid.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothLocal.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothDevice.cpp
 	${SOURCE_PATH}/src/ExternUtils/tpBluetoothDiscovery.cpp
