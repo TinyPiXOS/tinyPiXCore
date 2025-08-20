@@ -114,6 +114,39 @@ public:
     int32_t toInt(int32_t base = 10) const;
     double toDouble() const;
 
+	bool toBool() const;
+
+	// 转换为无符号短整型
+    uint16_t toUShort(bool *ok = nullptr, int base = 10) const;
+    
+    // 转换为无符号整型
+    uint32_t toUInt(bool *ok = nullptr, int base = 10) const;
+	tpString toUpper() const;
+	tpString toLower() const;
+	// 在字符串左侧填充字符
+    tpString leftJustified(uint32_t width, char fill = ' ') const;
+    
+    // 在字符串右侧填充字符
+    tpString rightJustified(uint32_t width, char fill = ' ') const;
+    
+    // 重复字符串n次
+    tpString repeated(uint32_t times) const;
+
+	// 获取字符的十六进制表示
+    tpString toHex(char separator = '\0') const;
+    
+    // 检查字符串是否包含任何指定字符集中的字符
+    bool containsAnyOf(const tpString &charSet) const;
+    
+    // 检查字符串是否仅包含指定字符集中的字符
+    bool containsOnly(const tpString &charSet) const;
+
+	// 删除所有指定字符
+    tpString remove(char ch) const;
+    
+    // 字符串反转
+    tpString reversed() const;
+
     /// @brief 指定索引插入指定字符或字符串
     /// @param post 索引值，从0开始
     /// @param str 插入字符串
