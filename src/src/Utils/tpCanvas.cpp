@@ -4,6 +4,7 @@
 #include "tpRect.h"
 #include "tpDef.h"
 #include "thorVG/thorvg.h"
+#include "TpImage_p.h"
 
 #include <thread>
 #include <cmath>
@@ -48,6 +49,10 @@ static inline void refreshCanvasTarget(ItpCanvasSet *set)
 
 tpCanvas::tpCanvas(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY)
 {
+    // 根据CPU核心数；分配绘图引擎线程数
+    uint32_t cores = std::thread::hardware_concurrency();
+    tvg::Initializer::init(cores / 2);
+
     if (!surface)
         return;
 
@@ -63,20 +68,18 @@ tpCanvas::tpCanvas(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY
     set->tpSurfacePtr = surface;
     set->beUsed = (surface != nullptr);
 
-    // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
-
     // TODO判断是GPU环境还是CPU环境
     set->swCanvas = tvg::SwCanvas::gen();
 
-    refreshCanvasTarget(set);
+    // refreshCanvasTarget(set);
 
     this->data_ = set;
 }
 
 tpCanvas::~tpCanvas()
 {
+    tvg::Initializer::term();
+
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
     if (!set)
         return;
@@ -89,8 +92,6 @@ tpCanvas::~tpCanvas()
 
     delete set->swCanvas;
     delete set->glCanvas;
-
-    tvg::Initializer::term();
 
     delete set;
 }
@@ -950,7 +951,51 @@ void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
     applyHollowMask(set, x1, y1, x2, y2, color, rad, hollowMaskData);
 }
 
-void tpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface)
+// void tpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface)
+// {
+//     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+//     if (!set->swCanvas)
+//         return;
+
+//     refreshCanvasTarget(set);
+
+//     auto picture = tvg::Picture::gen();
+//     picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
+//     // 设置图片位置
+//     picture->translate(set->offsetX + x, set->offsetY + y);
+
+//     set->swCanvas->push(std::move(picture));
+//     set->swCanvas->draw();
+//     set->swCanvas->sync();
+// }
+
+// void tpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface)
+// {
+//     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+//     if (!set->swCanvas)
+//         return;
+
+//     refreshCanvasTarget(set);
+
+//     auto picture = tvg::Picture::gen();
+//     picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
+//     // 设置图片位置
+//     picture->translate(set->offsetX + x, set->offsetY + y);
+
+//     // 添加圆角遮罩
+//     auto clipper = tvg::Shape::gen();
+//     clipper->appendRect(set->offsetX + x, set->offsetY + y, surface->width(), surface->height(), rad, rad);
+
+//     // 应用Alpha实现遮罩圆角
+//     clipper->fill(255, 255, 255, 255);
+//     picture->mask(clipper, tvg::MaskMethod::Alpha);
+
+//     set->swCanvas->push(std::move(picture));
+//     set->swCanvas->draw();
+//     set->swCanvas->sync();
+// }
+
+void tpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
 {
     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
     if (!set->swCanvas)
@@ -958,38 +1003,28 @@ void tpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<t
 
     refreshCanvasTarget(set);
 
-    auto picture = tvg::Picture::gen();
-    picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
-    // 设置图片位置
-    picture->translate(set->offsetX + x, set->offsetY + y);
+    TpImageData *imageData = static_cast<TpImageData *>(image.data_);
 
-    set->swCanvas->push(std::move(picture));
-    set->swCanvas->draw();
-    set->swCanvas->sync();
-}
+    // 创建深拷贝（不修改原对象）
+    tvg::Picture *pictureCopy = static_cast<tvg::Picture *>(imageData->tvgPicture->duplicate());
+    pictureCopy->translate(set->offsetX + x, set->offsetY + y);
 
-void tpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface)
-{
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
-    if (!set->swCanvas)
-        return;
+    if (roundRad != 0)
+    {
+        int32_t imageMaxRound = (image.width() < image.height() ? image.width() : image.height()) / 2.0;
+        if (roundRad > imageMaxRound)
+            roundRad = imageMaxRound;
 
-    refreshCanvasTarget(set);
+        // 添加圆角遮罩
+        auto clipper = tvg::Shape::gen();
+        clipper->appendRect(set->offsetX + x, set->offsetY + y, image.width(), image.height(), roundRad, roundRad);
 
-    auto picture = tvg::Picture::gen();
-    picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
-    // 设置图片位置
-    picture->translate(set->offsetX + x, set->offsetY + y);
+        // 应用Alpha实现遮罩圆角
+        clipper->fill(255, 255, 255, 255);
+        pictureCopy->mask(clipper, tvg::MaskMethod::Alpha);
+    }
 
-    // 添加圆角遮罩
-    auto clipper = tvg::Shape::gen();
-    clipper->appendRect(set->offsetX + x, set->offsetY + y, surface->width(), surface->height(), rad, rad);
-
-    // 应用Alpha实现遮罩圆角
-    clipper->fill(255, 255, 255, 255);
-    picture->mask(clipper, tvg::MaskMethod::Alpha);
-
-    set->swCanvas->push(std::move(picture));
+    set->swCanvas->push(pictureCopy);
     set->swCanvas->draw();
     set->swCanvas->sync();
 }

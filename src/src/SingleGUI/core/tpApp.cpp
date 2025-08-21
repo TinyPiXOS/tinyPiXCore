@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <thread>
 #include <queue>
+#include "thorVG/thorvg.h"
 
 #define PROCESS_MAX_NAME_LENGTH 1024
 
@@ -651,6 +652,10 @@ static void InitVirtualKeyboard(ItpAppSet *set)
 
 tpApp::tpApp(int32_t argc, char *argv[])
 {
+    // // 根据CPU核心数；分配绘图引擎线程数
+    uint32_t cores = std::thread::hardware_concurrency();
+    tvg::Initializer::init(cores / 2);
+
     ItpAppSet *set = new ItpAppSet();
 
     bool ret = decide_run_once(argv[0]);
@@ -696,6 +701,8 @@ tpApp::tpApp(int32_t argc, char *argv[])
 
 tpApp::~tpApp()
 {
+    tvg::Initializer::term();
+
     ItpAppSet *set = (ItpAppSet *)this->appSet;
 
     if (set)
@@ -728,6 +735,8 @@ tpApp *tpApp::Inst()
 
 bool tpApp::bindVScreen(tpScreen *object)
 {
+    tvg::Initializer::term();
+
     ItpAppSet *set = static_cast<ItpAppSet *>(this->appSet);
     bool ret = false;
 
@@ -787,7 +796,7 @@ bool tpApp::run()
                 set->slotTasks_ = std::queue<std::function<void()>>();
             }
 
-            //std::cout << "执行槽函数前  "  << cacheTaskList.size()  << std::endl;
+            // std::cout << "执行槽函数前  "  << cacheTaskList.size()  << std::endl;
 
             while (!cacheTaskList.empty())
             {
@@ -798,7 +807,7 @@ bool tpApp::run()
                 // lock.lock();
             }
 
-            //std::cout << "执行槽函数后 "  << std::endl;
+            // std::cout << "执行槽函数后 "  << std::endl;
 
             // 异步刷新UI
             std::queue<UpdateCommand> cacheUpdateTaskList;
@@ -869,12 +878,12 @@ tinyPiX::SystemTheme tpApp::style()
     return set->systemTheme;
 }
 
-tpShared<tpSurface> tpApp::grabWindow()
+TpImage tpApp::grabWindow()
 {
     // ItpAppSet *set = (ItpAppSet *)this->appSet;
 
     // tinyPiX_sys_capture_screen();
-    return tpShared<tpSurface>();
+    return TpImage();
 }
 
 void tpApp::wakeUpVirtualKeyboard(tpChildWidget *object)

@@ -1,5 +1,5 @@
 #include "tpImageWidget.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpFileInfo.h"
 #include "tpEvent.h"
 #include "tpCanvas.h"
@@ -7,9 +7,9 @@
 struct tpImageWidgetData
 {
     tpString filePath = "";
-    tpShared<tpSurface> fileSurface = nullptr;
+    TpImage fileSurface;
 
-    tpShared<tpSurface> cachedScaledSurface = nullptr;
+    TpImage cachedScaledSurface;
     uint32_t cachedWidth = 0;
     uint32_t cachedHeight = 0;
 };
@@ -18,7 +18,6 @@ tpImageWidget::tpImageWidget()
     : tpDialog()
 {
     tpImageWidgetData *imageData = new tpImageWidgetData();
-    imageData->fileSurface = tpMakeShared<tpSurface>();
     data_ = imageData;
 
     setBackGroundColor(_RGBA(0, 0, 0, 200));
@@ -43,7 +42,7 @@ void tpImageWidget::setImageFilePath(const tpString &filePath)
 
     tpImageWidgetData *imageData = static_cast<tpImageWidgetData *>(data_);
     imageData->filePath = filePath;
-    imageData->fileSurface->fromFile(filePath);
+    imageData->fileSurface.load(filePath);
     update();
 }
 
@@ -68,8 +67,8 @@ bool tpImageWidget::onPaintEvent(tpObjectPaintEvent *event)
     uint32_t windowHeight = height();
 
     // 获取图像尺寸
-    uint32_t imageWidth = imageData->fileSurface->width();
-    uint32_t imageHeight = imageData->fileSurface->height();
+    uint32_t imageWidth = imageData->fileSurface.width();
+    uint32_t imageHeight = imageData->fileSurface.height();
 
     // 计算缩放比例和最终尺寸
     double scaleRatio = 1.0;
@@ -113,14 +112,14 @@ bool tpImageWidget::onPaintEvent(tpObjectPaintEvent *event)
     if (needsScaling)
     {
         // 创建缩放后的表面
-        tpShared<tpSurface> scaledSurface;
+        TpImage scaledSurface;
 
         // 检查是否需要重新创建缩放表面
-        if (!imageData->cachedScaledSurface ||
+        if (imageData->cachedScaledSurface.isNull() ||
             imageData->cachedWidth != finalWidth ||
             imageData->cachedHeight != finalHeight)
         {
-            scaledSurface = imageData->fileSurface->scaled(finalWidth, finalHeight);
+            scaledSurface = imageData->fileSurface.scaled(finalWidth, finalHeight);
 
             // 更新缓存
             imageData->cachedScaledSurface = scaledSurface;
@@ -133,12 +132,12 @@ bool tpImageWidget::onPaintEvent(tpObjectPaintEvent *event)
             scaledSurface = imageData->cachedScaledSurface;
         }
 
-        painter->paintSurface(x, y, scaledSurface);
+        painter->paintImage(x, y, scaledSurface);
     }
     else
     {
         // 无需缩放，直接绘制
-        painter->paintSurface(x, y, imageData->fileSurface);
+        painter->paintImage(x, y, imageData->fileSurface);
     }
 
     return true;

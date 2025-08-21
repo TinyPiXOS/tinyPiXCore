@@ -5,6 +5,8 @@
 #include "tpVariant.h"
 #include "tpEvent.h"
 #include "Utils/tpCssParser.h"
+#include "TpImage.h"
+
 #include <memory>
 
 TP_DEF_VOID_TYPE_VAR(ItpChildWidgetData);
@@ -251,15 +253,15 @@ public:
     uint32_t roundCorners();
 
 public:
-    virtual tpShared<tpSurface> backGroundCacheImage();
+    virtual TpImage backGroundCacheImage();
 
     /// @brief 设置背景图片显示
     /// @param image 背景图片对象
     /// @param enable 启用/禁用背景图片绘制
-    virtual void setBackGroundImage(tpShared<tpSurface> image, bool enable = true);
+    virtual void setBackGroundImage(TpImage image, bool enable = true);
     /// @brief 获取当前的背景图片资源
     /// @return 图片对象指针，没有则返回空
-    virtual tpShared<tpSurface> backGroundImage();
+    virtual TpImage backGroundImage();
     /// @brief 获取是否启用背景图片绘制
     /// @return 启动返回true，否则返回false
     virtual bool enableBackGroundImage();

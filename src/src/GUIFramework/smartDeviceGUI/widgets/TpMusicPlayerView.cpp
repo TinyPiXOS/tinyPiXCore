@@ -103,10 +103,10 @@ tpString TpMusicPlayerView::lyric()
 void TpMusicPlayerView::setImage(const tpString &imagePath)
 {
     TpMusicPlayerViewData *musicData = static_cast<TpMusicPlayerViewData *>(data_);
-    musicData->musicImageLabel->setBackGroundImage(tpMakeShared<tpSurface>(imagePath));
+    musicData->musicImageLabel->setBackGroundImage(TpImage(imagePath));
 }
 
-void TpMusicPlayerView::setImage(tpShared<tpSurface> image)
+void TpMusicPlayerView::setImage(TpImage image)
 {
     TpMusicPlayerViewData *musicData = static_cast<TpMusicPlayerViewData *>(data_);
     musicData->musicImageLabel->setBackGroundImage(image);

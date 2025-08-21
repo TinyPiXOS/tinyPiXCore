@@ -7,7 +7,6 @@
 #include "tpEvent.h"
 #include "tpRect.h"
 #include "tpLayout.h"
-#include "tpSurface.h"
 #include "tpCanvas.h"
 #include "tpPoint.h"
 #include "tinyPiXUtils.h"
@@ -16,6 +15,7 @@
 #include "tpDefaultCss.h"
 #include "tpScreen.h"
 #include "tpVirtualKeyboard.h"
+#include "TpImage.h"
 
 #include <unordered_map>
 #include <mutex>
@@ -44,19 +44,16 @@ static void refreshCacheImage(ItpObjectSet *set)
     if (!set)
         return;
 
-    if (!set->reserveImage)
-    {
-        set->cacheImage = nullptr;
+    if (set->reserveImage.isNull())
         return;
-    }
 
-    set->cacheImage = set->reserveImage->scaled(set->logicalRect.w, set->logicalRect.h);
-    if (set->cacheImage)
+    set->cacheImage = set->reserveImage.scaled(set->logicalRect.w, set->logicalRect.h);
+    if (!set->cacheImage.isNull())
     {
         // 是否进行背景模糊
         if (set->enableBlur)
         {
-            set->cacheImage->glassBlur(set->blurRadius);
+            set->cacheImage.gaussianBlur(set->blurRadius);
         }
     }
 }
@@ -912,16 +909,16 @@ uint32_t tpChildWidget::roundCorners()
     return set->round;
 }
 
-tpShared<tpSurface> tpChildWidget::backGroundCacheImage()
+TpImage tpChildWidget::backGroundCacheImage()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
     if (!set)
-        return nullptr;
+        return TpImage();
 
     return set->cacheImage;
 }
 
-void tpChildWidget::setBackGroundImage(tpShared<tpSurface> image, bool enable)
+void tpChildWidget::setBackGroundImage(TpImage image, bool enable)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
     if (!set)
@@ -937,11 +934,11 @@ void tpChildWidget::setBackGroundImage(tpShared<tpSurface> image, bool enable)
     update();
 }
 
-tpShared<tpSurface> tpChildWidget::backGroundImage()
+TpImage tpChildWidget::backGroundImage()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
     if (!set)
-        return nullptr;
+        return TpImage();
 
     return set->reserveImage;
 }
@@ -1233,7 +1230,7 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
         {
             if ((curCssData->backgroundColor() & 0xff) != 0xff)
             {
-                canvas->erase();
+                // canvas->erase();
             }
         }
 
@@ -1255,20 +1252,9 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
             canvas->roundedRectangle(0, 0, rect.w - 1, rect.h - 1, minRad, curCssData->borderColor());
     }
 
-    if (set->enableImage && set->cacheImage)
+    if (set->enableImage && !set->cacheImage.isNull())
     {
-        if (minRad == 0)
-        {
-            canvas->paintSurface(0, 0, set->cacheImage);
-
-            // canvas->paintSurface(set->cacheImage, nullptr, nullptr, false);
-        }
-        else
-        {
-            canvas->paintRoundSurface(0, 0, minRad, set->cacheImage);
-        }
-
-        // set->cacheImage->setAlpha(reservAlpha);
+        canvas->paintImage(0, 0, set->cacheImage, minRad);
     }
 
     // 窗体更新，如果有布局更新布局

@@ -1,6 +1,6 @@
 #include "tpComBox.h"
 #include "tpLabel.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpFont.h"
 #include "tpHBoxLayout.h"
 #include "tpMenu.h"
@@ -56,9 +56,7 @@ tpComBox::tpComBox(tpChildWidget *parent)
     cbxData->expandIconLabel->setFixedSize(cbxData->titleLabel->font()->pixelHeight() * 0.7, cbxData->titleLabel->font()->pixelHeight());
     cbxData->expandIconLabel->installEventFilter(this);
 
-    tpShared<tpSurface> expandIconSurface = tpMakeShared<tpSurface>();
-    expandIconSurface->fromFile("/usr/res/tinyPiX/双箭头上.png");
-    cbxData->expandIconLabel->setBackGroundImage(expandIconSurface);
+    cbxData->expandIconLabel->setBackGroundImage(TpImage("/usr/res/tinyPiX/双箭头上.png"));
 
     cbxData->contextMenu = new tpMenu();
     connect(cbxData->contextMenu, onClicked, [=](uint32_t index)

@@ -1,8 +1,9 @@
 #include "GUIFramework/desktopGUI/widgets/tpTreeWidgetItem.h"
 #include "GUIFramework/desktopGUI/widgets/tpTreeWidget.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpMap.h"
 #include "tpCanvas.h"
+#include "TpImage.h"
 
 DESKTOP_GUI_NAMESPACE_BEGIN
 
@@ -16,9 +17,9 @@ struct tpTreeWidgetItemData
     tpFont *font;
 
     tpString text;
-    tpShared<tpSurface> iconSurface;
+    TpImage iconSurface;
 
-    tpShared<tpSurface> expandStatusSurface;
+    TpImage expandStatusSurface;
 
     // 自定义数据map
     tpMap<int32_t, tpVariant> dataMap;
@@ -31,7 +32,7 @@ struct tpTreeWidgetItemData
     bool isSelect;
 
     tpTreeWidgetItemData()
-        : text(""), iconSurface(tpMakeShared<tpSurface>()), parentPtr(nullptr), font(new tpFont()), isExpand(false), expandStatusSurface(tpMakeShared<tpSurface>())
+        : text(""), parentPtr(nullptr), font(new tpFont()), isExpand(false)
         ,isSelect(false)
     {
     }
@@ -114,15 +115,15 @@ void tpTreeWidgetItem::setIcon(const tpString &iconPath)
     if (!itemData)
         return;
 
-    itemData->iconSurface->fromFile(iconPath);
+    itemData->iconSurface.load(iconPath);
     update();
 }
 
-tpShared<tpSurface> tpTreeWidgetItem::icon()
+TpImage tpTreeWidgetItem::icon()
 {
     tpTreeWidgetItemData *itemData = static_cast<tpTreeWidgetItemData *>(data_);
     if (!itemData)
-        return nullptr;
+        return TpImage();
 
     return itemData->iconSurface;
 }

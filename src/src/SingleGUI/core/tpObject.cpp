@@ -35,9 +35,6 @@ tpObject::tpObject(tpObject *parent)
 	// set->backColor = tpApp::Inst()->appConfigSet()->bkcolor;
 	set->objectID = tpAutoObject::Inst()->selfCounterIncrease();
 
-	set->reserveImage = nullptr;
-	set->cacheImage = nullptr;
-
 	set->top = nullptr;
 
 	set->agent = nullptr;

@@ -4,7 +4,7 @@
 #include "tpChildWidget.h"
 #include "tpSignalSlot.h"
 #include "tpString.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "smartDeviceGUI/FrameworkGlobal.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
@@ -44,7 +44,7 @@ public:
     void setImage(const tpString& imagePath);
     /// @brief 设置音乐图片资源对象
     /// @param image 资源对象
-    void setImage(tpShared<tpSurface> image);
+    void setImage(TpImage image);
 
 public:
 	virtual bool onPaintEvent(tpObjectPaintEvent *event) override;

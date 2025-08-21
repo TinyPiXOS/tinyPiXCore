@@ -1,7 +1,7 @@
 #include "tpTabBar.h"
 #include "tpLabel.h"
 #include "tpVector.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpEvent.h"
 #include "tpCanvas.h"
 #include "tpFont.h"
@@ -11,8 +11,8 @@ struct singleButtonData
     tpLabel *iconLabel = nullptr;
     tpLabel *textLabel = nullptr;
 
-    tpShared<tpSurface> normalIcon = tpMakeShared<tpSurface>();
-    tpShared<tpSurface> selectedIcon = tpMakeShared<tpSurface>();
+    TpImage normalIcon;
+    TpImage selectedIcon;
 
     bool isSelected = false;
 
@@ -143,10 +143,10 @@ void tpTabBar::setIcon(const uint32_t &buttonIndex, const tpString &normalIconPa
     singleButtonData &findData = menuData->buttonGroup[buttonIndex];
 
     if (!normalIconPath.empty())
-        findData.normalIcon->fromFile(normalIconPath);
+        findData.normalIcon.load(normalIconPath);
 
     if (!selectIconPath.empty())
-        findData.selectedIcon->fromFile(selectIconPath);
+        findData.selectedIcon.load(selectIconPath);
 }
 
 tpString tpTabBar::tabText(int32_t index) const
@@ -374,7 +374,7 @@ void tpTabBar::caculateButtonSize()
         curButtonData.iconLabel->setSize(iconWidthHeight, iconWidthHeight);
         curButtonData.textLabel->setSize(iconWidthHeight, curButtonData.textLabel->font()->pixelHeight());
 
-        if (curButtonData.normalIcon->hasSurface())
+        if (!curButtonData.normalIcon.isNull())
         {
             curButtonData.iconLabel->setVisible(true);
             curButtonData.iconLabel->move(buttonX + i * singleButtonWidth, normalCss->paddingTop());

@@ -1,7 +1,7 @@
 #include "tpListCheckBoxGroupItem.h"
 #include "tpLabel.h"
 #include "tpFont.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpEvent.h"
 
 struct tpListCheckBoxGroupItemData
@@ -21,9 +21,7 @@ tpListCheckBoxGroupItem::tpListCheckBoxGroupItem(tpChildWidget *parent)
     itemData->selectIconLabel = new tpLabel(this);
     itemData->selectIconLabel->installEventFilter(this);
 
-    tpShared<tpSurface> selectIcon = tpMakeShared<tpSurface>();
-    selectIcon->fromFile("/usr/res/tinyPiX/勾选.png");
-    itemData->selectIconLabel->setBackGroundImage(selectIcon);
+    itemData->selectIconLabel->setBackGroundImage(TpImage("/usr/res/tinyPiX/勾选.png"));
 
     tpShared<tpCssData> normalCss = currentStatusCss();
     itemData->titleLabel->font()->setText("tpMenu");
@@ -49,9 +47,7 @@ tpListCheckBoxGroupItem::tpListCheckBoxGroupItem(const tpString &text, tpChildWi
     itemData->selectIconLabel = new tpLabel(this);
     itemData->selectIconLabel->installEventFilter(this);
 
-    tpShared<tpSurface> selectIcon = tpMakeShared<tpSurface>();
-    selectIcon->fromFile("/usr/res/tinyPiX/勾选.png");
-    itemData->selectIconLabel->setBackGroundImage(selectIcon);
+    itemData->selectIconLabel->setBackGroundImage(TpImage("/usr/res/tinyPiX/勾选.png"));
 
     tpShared<tpCssData> normalCss = currentStatusCss();
     itemData->titleLabel->font()->setText("tpMenu");

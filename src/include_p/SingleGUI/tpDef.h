@@ -16,6 +16,7 @@
 #include "tpHash.h"
 #include "tpVariant.h"
 #include "tpChildWidget.h"
+#include "TpImage.h"
 
 #define OBJECT_MAX_TEXT_LENGTH 1024
 
@@ -108,8 +109,8 @@ struct ItpObjectSet
 
     // 背景图片
     bool enableImage;
-    tpShared<tpSurface> reserveImage = nullptr;
-    tpShared<tpSurface> cacheImage = nullptr;
+    TpImage reserveImage;
+    TpImage cacheImage;
 
     // 背景颜色
     bool enableColor = true;
@@ -380,7 +381,7 @@ typedef struct
                 _handled = true;                                                                                                                                            \
                 break;                                                                                                                                                      \
             } /*TimePoint end = Clock::now();Duration elapsed = end - start;*/                                                                                              \
-            /*std::cout << " 第 " << _i << " 层 执行耗时: " << elapsed.count() * 1000000 << " 微秒 (us)" << std::endl;                                                    \
+            /*std::cout << " 第 " << _i << " 层 执行耗时: " << elapsed.count() * 1000000 << " 微秒 (us)" << std::endl;                                              \
             std::cout << " 第 " << _i << " 层 执行耗时: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << " 毫秒 (ms)" << std::endl;*/ \
         } /*std::cout << std::endl<< std::endl<< std::endl<< std::endl;*/                                                                                                   \
         if (!_handled)                                                                                                                                                      \

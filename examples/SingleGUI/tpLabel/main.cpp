@@ -4,7 +4,7 @@
 #include "tpLabel.h"
 #include "tpDialog.h"
 #include "tpFont.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -83,10 +83,7 @@ int32_t main(int32_t argc, char *argv[])
 	}
 
 	tpLabel *label6 = new tpLabel(vScreen);
-	tpShared<tpSurface> bgSurface = tpMakeShared<tpSurface>();
-	// bgSurface->fromFile(applicationDirPath() + "/icon2.png");
-	bgSurface->fromFile(applicationDirPath() + "/test.svg");
-	label6->setBackGroundImage(bgSurface);
+	label6->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
 	// label6->setBackGroundColor(_RGB(255, 0, 0));
 	// label6->setBlurRadius(20);
 	label6->setRect(300, 300, 300, 300);

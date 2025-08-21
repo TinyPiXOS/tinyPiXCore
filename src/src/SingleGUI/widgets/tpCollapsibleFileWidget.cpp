@@ -1,6 +1,6 @@
 #include "tpCollapsibleFileWidget.h"
 #include "tpLabel.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpVector.h"
 #include "tpHBoxLayout.h"
 #include "tpVBoxLayout.h"
@@ -35,8 +35,8 @@ struct tpCollapsibleFileWidgetData
 
     // 是否展开图标
     tpLabel *expandLabel;
-    tpShared<tpSurface> expandIcon;
-    tpShared<tpSurface> noExpandIcon;
+    TpImage expandIcon;
+    TpImage noExpandIcon;
 
     tpCheckBox *selectAllItem;
 
@@ -91,10 +91,8 @@ tpCollapsibleFileWidget::tpCollapsibleFileWidget(tpChildWidget *parent)
     widgetData->expandLabel->setFixedSize(tpDisplay::dp2Px(30), tpDisplay::dp2Px(30));
     // widgetData->expandLabel->setBackGroundColor(_RGB(255, 0, 0));
 
-    widgetData->expandIcon = tpMakeShared<tpSurface>();
-    widgetData->expandIcon->fromFile("/usr/res/tinyPiX/箭头-已展开.png");
-    widgetData->noExpandIcon = tpMakeShared<tpSurface>();
-    widgetData->noExpandIcon->fromFile("/usr/res/tinyPiX/箭头-未展开.png");
+    widgetData->expandIcon.load("/usr/res/tinyPiX/箭头-已展开.png");
+    widgetData->noExpandIcon.load("/usr/res/tinyPiX/箭头-未展开.png");
 
     widgetData->expandLabel->setBackGroundImage(widgetData->noExpandIcon);
 

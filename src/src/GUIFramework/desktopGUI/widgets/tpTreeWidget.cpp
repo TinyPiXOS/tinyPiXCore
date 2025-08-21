@@ -1,10 +1,12 @@
 #include "GUIFramework/desktopGUI/widgets/tpTreeWidget.h"
 #include "tpList.h"
 #include "tpLabel.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpCanvas.h"
 #include "tpList.h"
 #include "tpUtils.h"
+#include "TpImage.h"
+
 #include <cmath>
 
 DESKTOP_GUI_NAMESPACE_BEGIN
@@ -155,10 +157,7 @@ void tpTreeWidget::setTitleIcon(const tpString &titleIconPath)
     if (!widgetData)
         return;
 
-    tpShared<tpSurface> iconSurface = tpMakeShared<tpSurface>();
-    iconSurface->fromFile(titleIconPath);
-
-    widgetData->titleIconLabel->setBackGroundImage(iconSurface, true);
+    widgetData->titleIconLabel->setBackGroundImage(TpImage(titleIconPath));
     widgetData->titleIconLabel->update();
 }
 
@@ -442,36 +441,36 @@ void tpTreeWidget::drawItem(tpObjectPaintEvent *event, tpTreeWidgetItem *topItem
     uint32_t fontTextHeight = topItem->font()->pixelHeight();
 
     // 绘制图标,图标在文字左侧
-    tpShared<tpSurface> itemIcon = topItem->icon();
-    if (itemIcon && itemIcon->hasSurface())
+    TpImage itemIcon = topItem->icon();
+    if (!itemIcon.isNull())
     {
-        auto drawSurface = itemIcon->scaled(fontTextHeight * 0.7, fontTextHeight * 0.7);
+        auto drawSurface = itemIcon.scaled(fontTextHeight * 0.7, fontTextHeight * 0.7);
 
-        uint32_t iconX = textX - IconTextMargin - drawSurface->width();
-        uint32_t iconY = (fontTextHeight - drawSurface->height()) / 2.0;
+        uint32_t iconX = textX - IconTextMargin - drawSurface.width();
+        uint32_t iconY = (fontTextHeight - drawSurface.height()) / 2.0;
 
-        paintCanvas->paintSurface(iconX, drawY + iconY, drawSurface);
+        paintCanvas->paintImage(iconX, drawY + iconY, drawSurface);
     }
 
     // 如果子节点展开，需要绘制 展开符号
     if (topItem->childCount() > 0)
     {
-        tpShared<tpSurface> expandSurface = tpMakeShared<tpSurface>();
+        TpImage expandSurface;
         if (topItem->isExpanded())
         {
-            expandSurface->fromFile("/usr/res/tinyPiX/desktopGUI/上箭头.png");
+            expandSurface.load("/usr/res/tinyPiX/desktopGUI/上箭头.png");
         }
         else
         {
-            expandSurface->fromFile("/usr/res/tinyPiX/desktopGUI/下箭头.png");
+            expandSurface.load("/usr/res/tinyPiX/desktopGUI/下箭头.png");
         }
 
-        auto drawSurface = expandSurface->scaled(fontTextHeight * 0.7, fontTextHeight * 0.7);
+        auto drawSurface = expandSurface.scaled(fontTextHeight * 0.7, fontTextHeight * 0.7);
 
         uint32_t iconX = textX + topItem->font()->pixelWidth() + IconTextMargin;
-        uint32_t iconY = (fontTextHeight - drawSurface->height()) / 2.0;
+        uint32_t iconY = (fontTextHeight - drawSurface.height()) / 2.0;
 
-        paintCanvas->paintSurface(iconX, drawY + iconY, drawSurface);
+        paintCanvas->paintImage(iconX, drawY + iconY, drawSurface);
 
         if (topItem->isExpanded())
         {

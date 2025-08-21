@@ -1,7 +1,7 @@
 #include "tpIconTopButton.h"
 #include "tpLabel.h"
 #include "tpButton.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpDisplay.h"
 #include "tpEvent.h"
 #include "tpFont.h"
@@ -50,9 +50,7 @@ void tpIconTopButton::setIcon(const tpString &iconPath)
 {
     tpIconTopButtonData *buttonData = static_cast<tpIconTopButtonData *>(data_);
 
-    tpShared<tpSurface> image = tpMakeShared<tpSurface>();
-    image->fromFile(iconPath);
-    buttonData->iconLabel->setBackGroundImage(image);
+    buttonData->iconLabel->setBackGroundImage(TpImage(iconPath));
 }
 
 tpFont *tpIconTopButton::font()

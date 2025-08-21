@@ -7,7 +7,6 @@
 #include "tpTimer.h"
 #include "tpChildWidget.h"
 #include <tpCanvas.h>
-#include <tpSurface.h>
 #include <tpColors.h>
 #include <tpRect.h>
 #include <tpPoint.h>
@@ -493,12 +492,12 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
     set->logicalRect.h = nh;
 #endif
 
-    if (set->reserveImage)
+    if (!set->reserveImage.isNull())
     {
         bool ret = (nw > 0 && nh > 0);
         if (ret)
         {
-            set->cacheImage = set->reserveImage->scaled(nw, nh);
+            set->cacheImage = set->reserveImage.scaled(nw, nh);
 
             // if (set->cacheImage)
             // {

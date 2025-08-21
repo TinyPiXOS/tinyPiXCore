@@ -5,6 +5,7 @@
 #include <tpUtils.h>
 #include <string>
 #include <functional>
+#include "TpImage.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpAppData);
 
@@ -14,7 +15,6 @@ class tpChildWidget;
 class tpScreen;
 // class tpMessage;
 class tpCssParser;
-class tpSurface;
 
 class tpApp
 {
@@ -80,7 +80,7 @@ public:
 
 	/// @brief 获取当前应用界面抓图;暂未实现
 	/// @return 图片资源对象
-	tpShared<tpSurface> grabWindow();
+	TpImage grabWindow();
 
 	/// @brief 唤醒虚拟键盘
 	/// @return object 唤醒对象；虚拟键盘的输入将会给入该对象

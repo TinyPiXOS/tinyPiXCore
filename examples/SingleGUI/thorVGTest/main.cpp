@@ -3,7 +3,7 @@
 #include "tpEvent.h"
 #include "tpCanvas.h"
 #include "tpUtils.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 
 class ThorVgPaintWidget : public tpChildWidget
 {
@@ -11,7 +11,7 @@ public:
     ThorVgPaintWidget(tpChildWidget *parent) : tpChildWidget(parent)
     {
         setBackGroundColor(_RGB(100, 100, 100));
-        setBackGroundImage(tpMakeShared<tpSurface>(applicationDirPath() + "/test.svg"));
+        setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
     }
     ~ThorVgPaintWidget()
     {
@@ -70,10 +70,9 @@ public:
         hallowMask.addPieHollow(HollowMask::PieHollow(40, 50, 0, 45, 30));
         painter->hollowBox(320, 220, 480, 310, _RGB(150, 200, 168), hallowMask);
 
-        tpShared<tpSurface> testIcon = tpMakeShared<tpSurface>(applicationDirPath() + "/icon.png");
-        painter->paintSurface(400, 415, testIcon->scaled(50, 50));
-
-        painter->paintRoundSurface(400, 340, 15, testIcon->scaled(50, 50));
+        TpImage pngImage(applicationDirPath() + "/icon.png");
+        painter->paintImage(400, 415, pngImage.scaled(50, 50));
+        painter->paintImage(400, 340, pngImage.scaled(50, 50), 15);
 
         return true;
     }

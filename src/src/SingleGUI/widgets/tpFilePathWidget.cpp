@@ -1,5 +1,5 @@
 #include "tpFilePathWidget.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpFont.h"
 #include "tpCanvas.h"
 #include "tpEvent.h"
@@ -11,7 +11,7 @@ struct tpFilePathWidgetData
     tpVector<tpFilePathWidgetItem *> pathLabelList;
     // tpVector<tpLabel *> arrowLabelList;
 
-    tpShared<tpSurface> arrowSurface = tpMakeShared<tpSurface>();
+    TpImage arrowSurface;
 
     tpFilePathWidgetItem *curClickedItem = nullptr;
 
@@ -24,7 +24,7 @@ tpFilePathWidget::tpFilePathWidget(tpChildWidget *parent)
     : tpChildWidget(parent)
 {
     tpFilePathWidgetData *buttonData = new tpFilePathWidgetData();
-    buttonData->arrowSurface->fromFile("/usr/res/tinyPiX/箭头-右.png");
+    buttonData->arrowSurface.load("/usr/res/tinyPiX/箭头-右.png");
 
     data_ = buttonData;
 
@@ -225,7 +225,7 @@ bool tpFilePathWidget::onPaintEvent(tpObjectPaintEvent *event)
         offsetX = allWidth - width();
     }
 
-    tpShared<tpSurface> scaledSurface = buttonData->arrowSurface->scaled(iconSize, iconSize);
+    TpImage scaledSurface = buttonData->arrowSurface.scaled(iconSize, iconSize);
 
     int32_t curStartX = -offsetX;
     uint32_t iconY = (height() - iconSize) / 2.0;
@@ -239,7 +239,7 @@ bool tpFilePathWidget::onPaintEvent(tpObjectPaintEvent *event)
 
         if (i != (buttonData->pathLabelList.size() - 1))
         {
-            paintCanvas->paintSurface(curStartX, iconY, scaledSurface);
+            paintCanvas->paintImage(curStartX, iconY, scaledSurface);
             curStartX += iconSize + curCssData->gap();
         }
     }

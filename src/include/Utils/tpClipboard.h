@@ -3,7 +3,6 @@
 #define __TP_CLIP_BOARD_H
 
 #include "tpUtils.h"
-#include "tpSurface.h"
 #include <string>
 
 TP_DEF_VOID_TYPE_VAR(ItpClipboardData);

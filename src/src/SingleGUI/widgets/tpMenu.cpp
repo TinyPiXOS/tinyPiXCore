@@ -2,14 +2,14 @@
 #include "tpEvent.h"
 #include "tpCanvas.h"
 #include "tpDef.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpFont.h"
 
 struct MenuItemData
 {
 	uint32_t id;
 	tpString text;
-	tpShared<tpSurface> iconSurface = nullptr;
+	TpImage iconImage;
 };
 
 struct tpMenuData
@@ -143,8 +143,7 @@ uint32_t tpMenu::addItem(const tpString &text, const tpString &iconPath)
 	itemData.id = menuData->idIndex++;
 	itemData.text = text;
 
-	itemData.iconSurface = tpMakeShared<tpSurface>();
-	itemData.iconSurface->fromFile(iconPath);
+	itemData.iconImage.load(iconPath);
 
 	menuData->itemList.emplace_back(itemData);
 
@@ -296,7 +295,7 @@ bool tpMenu::onPaintEvent(tpObjectPaintEvent *event)
 		menuData->font->setText(curItem.text);
 
 		uint32_t curItemX = (width() - menuData->font->pixelWidth()) / 2.0;
-		if (curItem.iconSurface)
+		if (!curItem.iconImage.isNull())
 		{
 			curItemX = (width() - menuData->font->fontSize() - normalCss->gap() - menuData->font->pixelWidth()) / 2.0;
 		}

@@ -3,7 +3,7 @@
 #include "tpFont.h"
 #include "tpString.h"
 #include "tpVBoxLayout.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpDisplay.h"
 #include "tpFileInfo.h"
 #include "tpDir.h"
@@ -224,9 +224,7 @@ void tpCollapsibleFileItem::setPath(const tpString &filePath)
 
     itemData->typeLabel->setText(typeStr);
 
-    tpShared<tpSurface> iconSurface = tpMakeShared<tpSurface>();
-    iconSurface->fromFile(iconPath);
-    itemData->iconLabel->setBackGroundImage(iconSurface);
+    itemData->iconLabel->setBackGroundImage(TpImage(iconPath));
 
     update();
 }

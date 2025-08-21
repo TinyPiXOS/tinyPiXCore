@@ -2,7 +2,7 @@
 #include "tpCanvas.h"
 #include "tpEvent.h"
 #include "tpFont.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpCanvas.h"
 #include "tpRect.h"
 #include "tpLabel.h"
@@ -85,11 +85,9 @@ tpFont *tpButton::font()
 void tpButton::setIcon(const tpString &iconPath)
 {
 	tpButtonData *set = (tpButtonData *)this->data_;
-	tpShared<tpSurface> iconSurface = tpMakeShared<tpSurface>();
-	iconSurface->fromFile(iconPath);
 
 	// set->iconLabel->setBackGroundColor(_RGB(255, 50, 50));
-	set->iconLabel->setBackGroundImage(iconSurface);
+	set->iconLabel->setBackGroundImage(TpImage(iconPath));
 	set->iconLabel->update();
 }
 

@@ -34,7 +34,7 @@ public:
     tpString text();
 
     void setIcon(const tpString& iconPath);
-    tpShared<tpSurface> icon();
+    TpImage icon();
 
     void setExpanded(bool expand);
     bool isExpanded() const;

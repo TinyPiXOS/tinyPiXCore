@@ -4,7 +4,7 @@
 #include "tpTimer.h"
 #include "tpClipboard.h"
 #include "tpLabel.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpApp.h"
 #include "tpVirtualKeyboard.h"
 
@@ -163,9 +163,7 @@ void tpLineEdit::setIcon(const tpString &iconPath)
         return;
     }
 
-    tpShared<tpSurface> iconSurface = tpMakeShared<tpSurface>();
-    iconSurface->fromFile(iconPath);
-    editData->iconLabel->setBackGroundImage(iconSurface);
+    editData->iconLabel->setBackGroundImage(TpImage(iconPath));
 
     editData->iconLabel->setVisible(true);
     caculateIconPos();

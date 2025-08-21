@@ -1,6 +1,6 @@
 #include "tpMediaTileButton.h"
 #include "tpLabel.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpFont.h"
 #include "tpEvent.h"
 
@@ -50,10 +50,7 @@ void tpMediaTileButton::setIcon(const tpString &iconPath)
     if (!buttonData)
         return;
 
-    tpShared<tpSurface> iconSurface = tpMakeShared<tpSurface>();
-
-    iconSurface->fromFile(iconPath);
-    buttonData->iconLabel->setBackGroundImage(iconSurface);
+    buttonData->iconLabel->setBackGroundImage(TpImage(iconPath));
 }
 
 void tpMediaTileButton::setText(const tpString &text)

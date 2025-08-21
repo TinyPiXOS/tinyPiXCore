@@ -2,7 +2,6 @@
 #include "tpFixScreen.h"
 #include "tpDialog.h"
 #include "tpColors.h"
-#include "tpSurface.h"
 #include "tpButton.h"
 #include "tpVariant.h"
 #include "tpLabel.h"

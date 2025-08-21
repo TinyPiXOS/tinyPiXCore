@@ -148,44 +148,6 @@ tpSurface::tpSurface(IPiDSSurface *surface)
     }
 }
 
-tpSurface::tpSurface(const tpString &fileName, IPiDSSurface *surface)
-{
-    ItpSurfaceSet *set = new ItpSurfaceSet();
-
-    if (set)
-    {
-        set->surface = nullptr;
-        set->render = nullptr;
-        set->beUsed = false;
-
-        this->surfaceSet = set;
-
-        if (surface)
-        {
-            bool ret = this->create(surface);
-
-            if (ret == false)
-            {
-                std::cout << "tpSurface creates failed!" << std::endl;
-                std::exit(0);
-            }
-        }
-    }
-
-    if (useRef == 0 &&
-        inited == false)
-    {
-        inited = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP);
-    }
-
-    if (inited)
-    {
-        useRef++;
-    }
-
-    fromFile(fileName);
-}
-
 tpSurface::~tpSurface()
 {
     ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
@@ -203,128 +165,6 @@ tpSurface::~tpSurface()
     {
         IMG_Quit();
         inited = false;
-    }
-}
-
-bool tpSurface::fromFile(const tpString &filename, bool convertToFit)
-{
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
-    bool ret = false;
-
-    if (!set)
-        return false;
-
-    if (filename.empty())
-        return false;
-
-    tpFileInfo surfaceFile(filename);
-    if (!surfaceFile.exists())
-        return false;
-
-    if ((surfaceFile.suffix().compare("svg") == 0) || (surfaceFile.suffix().compare("SVG") == 0))
-    {
-        RsvgHandle *tmp_handle = rsvg_handle_new_from_file(filename.c_str(), nullptr);
-
-        if (tmp_handle == nullptr)
-            return false;
-
-        if (set->handle)
-        {
-            g_object_unref(set->handle);
-        }
-
-        set->handle = tmp_handle;
-
-        initSvgData(this, set);
-    }
-    else
-    {
-        // 非SVG文件重置SVG指针
-        if (set->handle)
-        {
-            g_object_unref(set->handle);
-        }
-
-        SDL_Surface *tmpSurface = IMG_Load(filename.c_str());
-
-        if (tmpSurface == NULL)
-        {
-            return false;
-        }
-
-        if (convertToFit)
-        {
-            SDL_Surface *tmp = SDL_ConvertSurfaceFormat(tmpSurface, SDL_PIXELFORMAT_ARGB8888, 0);
-            SDL_FreeSurface(tmpSurface);
-
-            if (tmp)
-            {
-                tmpSurface = tmp;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        SDL_Renderer *tmpRenderer = SDL_CreateSoftwareRenderer(tmpSurface);
-
-        if (tmpRenderer == nullptr)
-        {
-            SDL_FreeSurface(tmpSurface);
-            return false;
-        }
-
-        if (set->beUsed)
-        {
-            this->release();
-        }
-
-        SDL_SetSurfaceBlendMode(tmpSurface, SDL_BLENDMODE_BLEND);
-
-        set->surface = tmpSurface;
-        set->render = tmpRenderer;
-
-        ret = true;
-        set->beUsed = ret;
-    }
-
-    return ret;
-}
-
-tpShared<tpSurface> tpSurface::scaled(const ItpSize &size)
-{
-    return scaled(size.w, size.h);
-}
-
-tpShared<tpSurface> tpSurface::scaled(const uint32_t &width, const uint32_t &height)
-{
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
-
-    if (!set)
-        return nullptr;
-
-    if (set->handle)
-    {
-        set->svgWidth = width;
-        set->svgHeight = height;
-
-        tpShared<tpSurface> scaledRes = tpMakeShared<tpSurface>();
-        initSvgData(scaledRes.get(), set);
-
-        return scaledRes;
-    }
-    else
-    {
-        double zx = 1;
-        if (this->width() != 0)
-            zx = 1.0 * width / this->width();
-
-        double zy = 1;
-        if (this->height() != 0)
-            zy = 1.0 * height / this->height();
-
-        return this->rotoZoomXY(zx, zy, 0);
     }
 }
 
@@ -560,49 +400,6 @@ void *tpSurface::matrix()
     return matrix;
 }
 
-void tpSurface::glassBlur(const int32_t &radius)
-{
-    int width = this->width();
-    int height = this->height();
-    uint32_t *matrix = (uint32_t *)this->matrix();
-
-    if (!matrix)
-        return;
-
-    // 初始化随机种子
-    srand(time(NULL));
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            // 生成随机偏移（范围: [-radius, radius]）
-            int dx = (rand() % (2 * radius + 1)) - radius;
-            int dy = (rand() % (2 * radius + 1)) - radius;
-
-            // 边界检查
-            int nx = x + dx;
-            int ny = y + dy;
-            nx = (nx < 0) ? 0 : (nx >= width) ? width - 1
-                                              : nx;
-            ny = (ny < 0) ? 0 : (ny >= height) ? height - 1
-                                               : ny;
-
-            // 提取当前像素Alpha
-            uint32_t current_pixel = matrix[y * width + x];
-            uint8_t alpha = ARGB_A(current_pixel);
-
-            // 获取邻域像素RGB
-            uint32_t neighbor_pixel = matrix[ny * width + nx];
-            uint8_t r = ARGB_R(neighbor_pixel);
-            uint8_t g = ARGB_G(neighbor_pixel);
-            uint8_t b = ARGB_B(neighbor_pixel);
-
-            // 替换RGB并保留Alpha
-            matrix[y * width + x] = ARGB_PACK(alpha, r, g, b);
-        }
-    }
-}
-
 int32_t tpSurface::stride()
 {
     ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
@@ -815,11 +612,6 @@ bool tpSurface::hasSurface()
     return ret;
 }
 
-bool tpSurface::hasImage()
-{
-    return this->hasSurface();
-}
-
 tpShared<tpSurface> tpSurface::copy(tpRect &rect)
 {
     return this->copy(rect.X0(), rect.Y0(), rect.width(), rect.height());
@@ -994,59 +786,6 @@ void tpSurface::strenchBlitT(tpSurface &surface, tpRect &src, tpRect &dst)
     }
 }
 
-bool tpSurface::save(const tpString &filename, tpImageType type, int32_t jpguality)
-{
-    if (filename.empty())
-        return false;
-
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
-
-    if (!set)
-        return false;
-
-    if (!set->beUsed)
-        return false;
-
-    switch (type)
-    {
-    case SAVE_BMP_FMT:
-    {
-        SDL_SaveBMP(set->surface, filename.c_str());
-    }
-    break;
-    case SAVE_JPG_FMT:
-    {
-        IMG_SaveJPG(set->surface, filename.c_str(), jpguality);
-    }
-    break;
-    case SAVE_PNG_FMT:
-    {
-        IMG_SavePNG(set->surface, filename.c_str());
-    }
-    break;
-    default:
-        return false;
-    }
-
-    return true;
-}
-
-bool tpSurface::save(const tpString &filename, tpRect &rect, tpImageType type, int32_t jpguality)
-{
-    if (filename.empty())
-        return false;
-
-    tpShared<tpSurface> tmp = this->copy(rect);
-    bool ret = false;
-
-    if (!tmp)
-        return false;
-
-    ret = tmp->save(filename, type, jpguality);
-
-    return ret;
-}
-
 bool tpSurface::release()
 {
     ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
@@ -1078,62 +817,4 @@ bool tpSurface::release()
     set->beUsed = false;
 
     return true;
-}
-
-tpShared<tpSurface> tpSurface::rotoZoomXY(double zx, double zy, double angle)
-{
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
-    tpShared<tpSurface> newSurf = nullptr;
-
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            SDL_Surface *tmp = rotozoomSurfaceXY(set->surface, -angle, zx, zy, true);
-
-            if (tmp == nullptr)
-            {
-                return nullptr;
-            }
-
-            int32_t width = tmp->w;
-            int32_t height = tmp->h;
-
-            int32_t depth = tmp->format->BitsPerPixel;
-
-            int32_t stride = cal_stride(width, depth);
-
-            int32_t Rmask = tmp->format->Rmask;
-            int32_t Gmask = tmp->format->Gmask;
-            int32_t Bmask = tmp->format->Bmask;
-            int32_t Amask = tmp->format->Amask;
-
-            newSurf = tpMakeShared<tpSurface>();
-
-            if (newSurf == nullptr)
-            {
-                SDL_FreeSurface(tmp);
-                return nullptr;
-            }
-
-            bool ret = newSurf->create(nullptr, width, height, depth, stride, Rmask, Gmask, Bmask, Amask);
-
-            if (ret == false)
-            {
-                SDL_FreeSurface(tmp);
-                newSurf = nullptr;
-            }
-
-            void *matrix = newSurf->matrix();
-
-            if (matrix)
-            {
-                memcpy(matrix, tmp->pixels, stride * height);
-            }
-
-            SDL_FreeSurface(tmp);
-        }
-    }
-
-    return newSurf;
 }

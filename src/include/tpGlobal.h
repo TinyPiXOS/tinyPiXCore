@@ -51,6 +51,7 @@
 
 #define tpShared std::shared_ptr
 #define tpWeakPtr std::weak_ptr
+#define tpUniquePtr std::unique_ptr
 #define tpMakeShared std::make_shared
 
 namespace tinyPiX

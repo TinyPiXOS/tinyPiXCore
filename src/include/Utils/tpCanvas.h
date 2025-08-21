@@ -5,6 +5,7 @@
 #include "tpString.h"
 #include "tpVector.h"
 #include "tpGlobal.h"
+#include "TpImage.h"
 #include <cairo.h>
 
 class tpCanvas;
@@ -215,13 +216,20 @@ public:
     /// @param x 绘制X坐标
     /// @param y Y坐标
     /// @param surface 资源指针
-    virtual void paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface);
+    // virtual void paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface);
     /// @brief 绘制圆角图片
     /// @param x X坐标
     /// @param y Y坐标
     /// @param rad 圆角弧度
     /// @param surface 资源指针
-    virtual void paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface);
+    // virtual void paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface);
+
+    /// @brief 绘制图片资源
+    /// @param x 绘制X坐标
+    /// @param y 绘制Y坐标
+    /// @param image 资源对象
+    /// @param roundRad 
+    virtual void paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad = 0);
 
 public:
     /// @brief 绘制文本

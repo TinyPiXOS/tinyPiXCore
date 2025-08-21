@@ -3,7 +3,7 @@
 #include "tpCanvas.h"
 #include "tpMap.h"
 #include "tpFile.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 
 #include <cmath>
 #include <iterator>
@@ -26,7 +26,7 @@ struct ListItemData
     tpVariant data;
 
     // <列号，icon>
-    tpMap<uint32_t, tpShared<tpSurface>> iconMap;
+    tpMap<uint32_t, TpImage> iconMap;
 };
 
 // 当前绘制的item信息
@@ -231,13 +231,11 @@ void tpFileListWidget::setColumnIcon(const tpVariant &data, const uint32_t &colu
         {
             if (itemInfo.iconMap.contains(column))
             {
-                itemInfo.iconMap[column]->fromFile(iconPath);
+                itemInfo.iconMap[column].load(iconPath);
             }
             else
             {
-                tpShared<tpSurface> newSurface = tpMakeShared<tpSurface>();
-                newSurface->fromFile(iconPath);
-                itemInfo.iconMap[column] = newSurface;
+                itemInfo.iconMap[column] = TpImage(iconPath);
             }
         }
     }
@@ -649,11 +647,13 @@ bool tpFileListWidget::onPaintEvent(tpObjectPaintEvent *event)
             // 如果当前列有图标先绘制图标
             if (curItemData.iconMap.contains(j))
             {
-                auto drawSurface = curItemData.iconMap[j]->scaled(widgetData->itemHeight * 0.6, widgetData->itemHeight * 0.6);
-                uint32_t iconY = curItemStartY + (widgetData->itemHeight - drawSurface->height()) / 2.0;
-                paintCanvas->paintSurface(curStartX, iconY, drawSurface);
+                auto drawSurface = curItemData.iconMap[j].scaled(widgetData->itemHeight * 0.6, widgetData->itemHeight * 0.6);
+               
+                uint32_t iconY = curItemStartY + (widgetData->itemHeight - drawSurface.height()) / 2.0;
+                
+                paintCanvas->paintImage(curStartX, iconY, drawSurface);
 
-                curStartX += drawSurface->width() + 10;
+                curStartX += drawSurface.width() + 10;
             }
 
             // 绘制当前列文本

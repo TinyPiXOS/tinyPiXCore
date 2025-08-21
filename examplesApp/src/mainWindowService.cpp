@@ -8,7 +8,7 @@ mainWindowService::mainWindowService()
 {
     setStyleSheet(applicationDirPath() + "/../data/style.css");
 
-    setBackGroundColor(_RGB(128, 128, 128));
+    // setBackGroundColor(_RGB(128, 128, 128));
 
     //     tpString testCSSStr = "tpButton {   \
 //     gap: 5dp;   \
@@ -46,10 +46,13 @@ mainWindowService::mainWindowService()
     //     light->setSize(200, 50);
     //     light->move(150, 300);
 
-    tpTimer *animationTimer = new tpTimer(50);
-    connect(animationTimer, timeout, [=]()
-            { update(); });
-    animationTimer->start();
+    // tpTimer *animationTimer = new tpTimer(50);
+    // connect(animationTimer, timeout, [=]()
+    //         { update(); });
+    // animationTimer->start();
+
+    setBackGroundColor(_RGB(100, 100, 100));
+    setBackGroundImage(TpImage("/home/hawk/Public/tinyPiXCore/examples/SingleGUI/thorVGTest/icon.png"));
 }
 
 mainWindowService::~mainWindowService()
@@ -81,9 +84,9 @@ bool mainWindowService::onPaintEvent(tpObjectPaintEvent *event)
 {
     tpFixScreen::onPaintEvent(event);
 
-    tpCanvas *paintCanvas = event->canvas();
+    // tpCanvas *paintCanvas = event->canvas();
 
-    paintCanvas->paintTest();
+    // paintCanvas->paintTest();
 
     return true;
 }

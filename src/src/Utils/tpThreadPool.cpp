@@ -34,7 +34,6 @@ const T &clampCompat(const T &value, const T &min, const T &max)
 tpThreadPool::tpThreadPool()
 {
     uint32_t cores = std::thread::hardware_concurrency();
-
     tpThreadPoolData *poolData = new tpThreadPoolData(cores * 2, cores * 4);
     data_ = poolData;
 

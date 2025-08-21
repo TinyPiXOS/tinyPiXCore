@@ -3,7 +3,7 @@
 #include "tpFont.h"
 #include "tpHBoxLayout.h"
 #include "tpSpacerItem.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpFile.h"
 #include "tpEvent.h"
 
@@ -48,9 +48,7 @@ tpMenuPanelItem::tpMenuPanelItem(tpChildWidget *parent)
     itemData->expandLabel->setFixedSize(19, 19);
     itemData->expandLabel->installEventFilter(this);
 
-    tpShared<tpSurface> expandIcon = tpMakeShared<tpSurface>();
-    expandIcon->fromFile("/usr/res/tinyPiX/菜单面板单元-展开.png");
-    itemData->expandLabel->setBackGroundImage(expandIcon);
+    itemData->expandLabel->setBackGroundImage(TpImage("/usr/res/tinyPiX/菜单面板单元-展开.png"));
 
     itemData->mainLayout = new tpHBoxLayout();
     itemData->mainLayout->setContentsMargins(curCssData->paddingLeft(), curCssData->paddingTop(), curCssData->paddingRight(), curCssData->paddingBottom());
@@ -111,9 +109,7 @@ void tpMenuPanelItem::setIcon(const tpString &iconPath)
 
     itemData->iconLabel->setVisible(true);
 
-    tpShared<tpSurface> expandIcon = tpMakeShared<tpSurface>();
-    expandIcon->fromFile(iconPath);
-    itemData->iconLabel->setBackGroundImage(expandIcon);
+    itemData->iconLabel->setBackGroundImage(TpImage(iconPath));
 }
 
 void tpMenuPanelItem::setTitle(const tpString &text)

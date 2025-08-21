@@ -1,5 +1,5 @@
 #include "tpSlideProgressBar.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 #include "tpDisplay.h"
 #include "tpCanvas.h"
 
@@ -9,12 +9,12 @@ struct tpSlideProgressBarData
     int32_t maxValue = 0;
     double curValue = 0;
 
-    tpShared<tpSurface> iconSurface;
+    TpImage iconSurface;
 
     ItpPoint pressPoint;
     bool mouseLeftPress = false;
 
-    tpSlideProgressBarData() : iconSurface(tpMakeShared<tpSurface>())
+    tpSlideProgressBarData()
     {
     }
 
@@ -47,7 +47,7 @@ tpSlideProgressBar::~tpSlideProgressBar()
 void tpSlideProgressBar::setIcon(const tpString &iconPath)
 {
     tpSlideProgressBarData *progressData = static_cast<tpSlideProgressBarData *>(data_);
-    progressData->iconSurface->fromFile(iconPath);
+    progressData->iconSurface.load(iconPath);
 }
 
 void tpSlideProgressBar::setRange(const int32_t &minValue, const int32_t &maxValue)
@@ -209,20 +209,18 @@ bool tpSlideProgressBar::onPaintEvent(tpObjectPaintEvent *event)
     }
 
     // 绘制图标
-    if (progressData->iconSurface->hasSurface())
+    if (!progressData->iconSurface.isNull())
     {
-        tpShared<tpSurface> drawSurface = progressData->iconSurface->scaled(curCssData->iconSize(), curCssData->iconSize());
-        if (!drawSurface)
-            return true;
+        TpImage drawSurface = progressData->iconSurface.scaled(curCssData->iconSize(), curCssData->iconSize());
 
-        int32_t imageWidth = drawSurface->width();
-        int32_t imageHeight = drawSurface->height();
+        int32_t imageWidth = drawSurface.width();
+        int32_t imageHeight = drawSurface.height();
 
         tpCanvas *canvas = event->canvas();
 
         int32_t cy = (rect().h - imageHeight) / 2;
 
-        paintCanvas->paintSurface(cy, cy, drawSurface);
+        paintCanvas->paintImage(cy, cy, drawSurface);
     }
 
     return true;

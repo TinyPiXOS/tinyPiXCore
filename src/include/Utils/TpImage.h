@@ -19,6 +19,7 @@ public:
         PNG_FMT,
         WEBP_FMT
     };
+    friend class tpCanvas;
 
 public:
     TpImage(const tpString &fileName = "");
@@ -38,7 +39,7 @@ public:
     /// @param width 缩放后的宽度
     /// @param height 缩放后的高度
     /// @return  缩放后的资源对象
-    TpImage scaled(const uint32_t &width, const uint32_t &height);
+    TpImage scaled(const int32_t &width, const int32_t &height);
 
     /// @brief 对图片资源进行高斯模糊处理;返回新对象(不会对原始数据进行更新)
     /// @param radius 模糊半径
@@ -46,18 +47,15 @@ public:
 
     /// @brief 获取surface的宽度
     /// @return 宽度值
-    virtual int32_t width();
+    virtual int32_t width() const;
     /// @brief 获取surface的高度
     /// @return 高度值
-    virtual int32_t height();
+    virtual int32_t height() const;
 
     /// @brief 图片资源是否为空；是否加载了图片
     /// @return 加载结果
     virtual bool isNull();
 
-    /// @brief 拷贝一个新对象
-    /// @return 新的图像管理对象
-    virtual TpImage copy();
     /// @brief 指定矩形拷贝对象
     /// @param rect 拷贝矩形，将原始图片裁剪此矩形后返回新对象
     /// @return 新的图像管理对象
@@ -73,12 +71,14 @@ public:
     /// @brief 指定文件绝对路径保存资源文件数据
     /// @param filename 文件绝对路径
     /// @param type 新存储文件类型
-    /// @param jpguality 存储质量
+    /// @param jpguality 存储质量,取值范围[0, 100]
     /// @return 保存结果
     virtual bool save(const tpString &filename, ImageType type, int32_t jpguality = 100);
 
+    // TODO 旋转接口
+    
 public:
-    TpImage operator=(const TpImage &others);
+    TpImage& operator=(const TpImage &others);
 
 private:
     ITpImageData *data_;

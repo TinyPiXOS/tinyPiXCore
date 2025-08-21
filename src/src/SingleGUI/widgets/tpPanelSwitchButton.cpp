@@ -2,7 +2,7 @@
 #include "tpCanvas.h"
 #include "tpLabel.h"
 #include "tpFont.h"
-#include "tpSurface.h"
+#include "TpImage.h"
 
 struct tpPanelSwitchButtonData
 {
@@ -40,9 +40,7 @@ void tpPanelSwitchButton::setIcon(const tpString &iconPath)
 {
     tpPanelSwitchButtonData *buttonData = static_cast<tpPanelSwitchButtonData *>(data_);
 
-    tpShared<tpSurface> iconSurface = tpMakeShared<tpSurface>();
-    iconSurface->fromFile(iconPath);
-    buttonData->iconLabel->setBackGroundImage(iconSurface);
+    buttonData->iconLabel->setBackGroundImage(TpImage(iconPath));
     buttonData->iconLabel->update();
 }
 
