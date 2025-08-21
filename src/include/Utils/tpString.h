@@ -121,12 +121,25 @@ public:
     
     // 转换为无符号整型
     uint32_t toUInt(bool *ok = nullptr, int base = 10) const;
+
+	/// @brief 转换为大写
+	/// @return 
 	tpString toUpper() const;
+
+	/// @brief 转换为小写
+	/// @return 
 	tpString toLower() const;
-	// 在字符串左侧填充字符
+	
+    /// @brief 	在字符串左侧填充字符
+    /// @param width 填充数量
+    /// @param fill 填充的字符
+    /// @return 
     tpString leftJustified(uint32_t width, char fill = ' ') const;
     
-    // 在字符串右侧填充字符
+    /// @brief 	在字符串右侧填充字符
+    /// @param width 填充数量
+    /// @param fill 填充的字符
+    /// @return 
     tpString rightJustified(uint32_t width, char fill = ' ') const;
     
     // 重复字符串n次

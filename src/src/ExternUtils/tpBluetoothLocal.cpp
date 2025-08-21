@@ -11,6 +11,8 @@
 #include "bluetooth/include/blt_hard.h"
 #include "bluetooth/include/blt_device.h"
 #include "bluetooth/include/blt_agent.h"
+#include "bluetooth/include/blt_sdp.h"
+
 
 struct tpBluetoothLocalData{
 	tpBluetoothAddress address;
@@ -240,6 +242,34 @@ int tpBluetoothLocal::setDiscoverableTimeout(tpUInt32 timeout)
 {
 	tpBluetoothLocalData *data = static_cast<tpBluetoothLocalData *>(data_);
 	return bluet_adapter_set_discoverable_timeout(data->adapter,timeout);
+}
+
+
+tpList<tpBluetoothUuid> tpBluetoothLocal::getUuids()
+{
+	tpBluetoothLocalData *data = static_cast<tpBluetoothLocalData *>(data_);
+	tpList<tpBluetoothUuid> uuid_list;
+	char **uuids=bluet_adapter_get_service_uuids(data->adapter);
+	for (int i = 0; uuids[i] != NULL; i++)
+	{
+		uint8_t uuid128[16];
+		bluet_uuidstr_to_uuid128(uuids[i], uuid128);
+		tpBluetoothUuid uuid(uuid128);
+		uuid_list.emplace_back(uuid);
+	}
+	return uuid_list;
+}
+
+tpBool tpBluetoothLocal::isHaveUuid(tpBluetoothUuid& uuid)
+{
+	tpBluetoothLocalData *data = static_cast<tpBluetoothLocalData *>(data_);
+	tpList<tpBluetoothUuid> uuid_list=getUuids();
+	for(auto &it : uuid_list)
+	{
+		if(it==uuid)
+			return TP_TRUE;
+	}
+	return TP_FALSE;
 }
 
 

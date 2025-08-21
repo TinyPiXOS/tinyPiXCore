@@ -1011,6 +1011,13 @@ int bluet_adapter_set_powered(Adapter *adapter,uint8_t state)
 }
 
 
+//获取uuid列表
+char **bluet_adapter_get_service_uuids(Adapter *adapter)
+{
+	return (char **)adapter_get_uuids(adapter, NULL);
+}
+     
+
 
 typedef enum{
 	GET_DEVICE_FILTER_CONNECTED,
@@ -1098,8 +1105,7 @@ int bluet_adapter_set_discoverable(Adapter *adapter,uint8_t discoverable)
 int bluet_adapter_set_discoverable_timeout(Adapter *adapter,uint32_t timeout)
 {
 	adapter_set_discoverable_timeout(adapter, timeout, NULL);
-}
-            
+}       
 
 
 //获取蓝牙设备ID

@@ -1,71 +1,37 @@
+
+#include <string>
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
+#include <cstdint>
 #include "tpBluetoothUuid.h"
+#include "bluetooth/include/blt_sdp.h"
 
 
-
+enum tpBluetoothUuidType{
+	TP_UUID_TYPE_NONE,
+	TP_UUID_TYPE_PROTOCOL,
+	TP_UUID_TYPE_PROFILE,
+	TP_UUID_TYPE_OTHER,
+};
 
 struct tpBluetoothUuidData{
 	tpBluetoothUuid::Format format;
-	union{
-		tpUInt16 uuid16;
-		tpUInt32 uuid32;
-		tpUInt8 uuid128[16];
-	};
+	tpBluetoothUuidType type;
+	tpUInt8 uuid128[16];		//全部扩展成128位uuid
 	tpBluetoothUuidData(){
+		format=tpBluetoothUuid::FormatUnknown;
+		type=TP_UUID_TYPE_NONE;
 		memset(uuid128, 0, sizeof(uuid128));
 	}
-	tpBluetoothUuidData(const tpBluetoothUuidData &other) : format(other.format)
+	tpBluetoothUuidData(const tpBluetoothUuidData &other) : format(other.format),type(other.type)
     {
-        // 安全地复制union数据
-		switch(format)
-		{
-			case tpBluetoothUuid::Format128Bit:
-				memcpy(uuid128, other.uuid128, sizeof(uuid128));
-				break;
-			case tpBluetoothUuid::Format32Bit:
-				uuid32 = other.uuid32;
-				break;
-			case tpBluetoothUuid::Format16Bit:
-				uuid16 = other.uuid16;
-				break;
-			default:
-				memset(uuid128, 0, sizeof(uuid128));
-				break;
-		}
+        memcpy(uuid128, other.uuid128, sizeof(uuid128));
+        format = other.format;
+		type = other.type;
     }
-	tpBluetoothUuidData(tpUInt16 uuid): format(tpBluetoothUuid::Format16Bit),uuid16(uuid) {}
-	tpBluetoothUuidData(tpUInt32 uuid): format(tpBluetoothUuid::Format32Bit),uuid32(uuid) {}
-	tpBluetoothUuidData(const uint8_t uuid[16]): format(tpBluetoothUuid::Format128Bit) {
-		memcpy(uuid128, uuid, sizeof(uuid128));
-	}
-	tpBluetoothUuidData(const tpString& uuid);
 };
 
-tpBluetoothUuidData::tpBluetoothUuidData(const tpString& uuid)
-    : format(tpBluetoothUuid::FormatUnknown)
-{
-    tpString clean = uuid.toUpper().removeChar('-').removeChar('{').removeChar('}');
-    if (clean.length() == 4) {
-        bool ok = false;
-        uuid16 = clean.toUShort(&ok, 16);
-        format = ok ? tpBluetoothUuid::Format16Bit : tpBluetoothUuid::FormatUnknown;
-    } 
-    else if (clean.length() == 8) {
-        bool ok = false;
-        uuid32 = clean.toUInt(&ok, 16);
-        format = ok ? tpBluetoothUuid::Format32Bit : tpBluetoothUuid::FormatUnknown;
-    } 
-    else if (clean.length() == 32) {
-        for (int i = 0; i < 16; i++) {
-            bool ok = false;
-            uuid128[i] = clean.mid(i * 2, 2).toUShort(&ok, 16);
-            if (!ok) {
-                format = tpBluetoothUuid::FormatUnknown;
-                return;
-            }
-        }
-        format = tpBluetoothUuid::Format128Bit;
-    }
-}
 
 // 辅助函数：深拷贝创建私有数据对象
 static tpBluetoothUuidData* clonePrivate(const tpBluetoothUuidData* other)
@@ -76,55 +42,88 @@ static tpBluetoothUuidData* clonePrivate(const tpBluetoothUuidData* other)
 
 
 
+
 tpBluetoothUuid::tpBluetoothUuid()
 	: data_(new tpBluetoothUuidData()) 
 {}
 
 tpBluetoothUuid::tpBluetoothUuid(tpUInt16 uuid)
-    : data_(new tpBluetoothUuidData(uuid)) 
-{}
+    : data_(new tpBluetoothUuidData()) 
+{
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	bluet_uuid16_to_uuid128(uuid,data->uuid128);
+    data->format = Format16Bit;
+}
 
 tpBluetoothUuid::tpBluetoothUuid(tpUInt32 uuid)
-    : data_(new tpBluetoothUuidData(uuid)) 
-{}
+    : data_(new tpBluetoothUuidData()) 
+{
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	bluet_uuid32_to_uuid128(uuid,data->uuid128);
+    data->format = Format32Bit;
+}
 
 tpBluetoothUuid::tpBluetoothUuid(const tpUInt8 uuid[16])
-    : data_(new tpBluetoothUuidData(uuid)) 
-{}
+    : data_(new tpBluetoothUuidData()) 
+{
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	memcpy(data->uuid128, uuid, 16);
+	data->format = Format128Bit;
+}
 
 tpBluetoothUuid::tpBluetoothUuid(const tpString &uuid)
-    : data_(new tpBluetoothUuidData(uuid)) 
-{}
+    : data_(new tpBluetoothUuidData()) 
+{
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	bluet_uuidstr_to_uuid128(uuid.c_str(),data->uuid128);
+	data->format = Format128Bit;
+}
 
 tpBluetoothUuid::tpBluetoothUuid(const tpBluetoothUuid& other)
-{
-	tpBluetoothUuidData *data_other = static_cast<tpBluetoothUuidData *>(other.data_);
-	data_=clonePrivate(data_other);
+	: data_(new tpBluetoothUuidData(*static_cast<tpBluetoothUuidData*> (other.data_))) 
+{	
 }
 
 
-tpBluetoothUuid::tpBluetoothUuid(const tpBluetoothUuid::ProtocolUuid uuid)
-{}
+tpBluetoothUuid::tpBluetoothUuid(const tpBluetoothUuid::ProtocolUuid uuid_p)
+{
+	tpUInt16 uuid=static_cast<tpUInt16>(uuid_p);
+	data_ = new tpBluetoothUuidData();
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	bluet_uuid16_to_uuid128(uuid,data->uuid128);
+	data->format=tpBluetoothUuid::Format16Bit;
+	data->type=TP_UUID_TYPE_PROTOCOL;
+}
 
-tpBluetoothUuid::tpBluetoothUuid(const tpBluetoothUuid::ProfileUuid uuid)
-{}
+tpBluetoothUuid::tpBluetoothUuid(const tpBluetoothUuid::ProfileUuid uuid_p)
+{
+	tpUInt16 uuid=static_cast<tpUInt16>(uuid_p);
+	data_ = new tpBluetoothUuidData();
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	bluet_uuid16_to_uuid128(uuid,data->uuid128);
+	data->format=tpBluetoothUuid::Format16Bit;
+	data->type=TP_UUID_TYPE_PROFILE;
+}
 
 
 tpBluetoothUuid::~tpBluetoothUuid()
 {
 	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	data->format=tpBluetoothUuid::FormatUnknown;
+	data->type=TP_UUID_TYPE_NONE;
 }
 
 
 // 赋值运算符
 tpBluetoothUuid& tpBluetoothUuid::operator=(const tpBluetoothUuid &other) 
 {
-    if (this != &other) {
-        // 删除旧数据
-        delete static_cast<tpBluetoothUuidData*>(data_);
-        
-        // 创建新数据副本
-        data_ = clonePrivate(static_cast<const tpBluetoothUuidData*>(other.data_));
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData *>(data_);
+	tpBluetoothUuidData *data_other = static_cast<tpBluetoothUuidData*>(other.data_);
+	if (this != &other) {
+        // 深度复制数据
+        memcpy(data->uuid128, data_other->uuid128, 16);
+        data->format = data_other->format;
+		data->type=data_other->type;
     }
     return *this;
 }
@@ -135,21 +134,13 @@ tpBool tpBluetoothUuid::operator==(const tpBluetoothUuid &other) const
 	tpBluetoothUuidData *data_other = static_cast<tpBluetoothUuidData*>(other.data_);
 
 	// 不同格式不可能相等
-	if (data->format != data_other->format) return TP_FALSE;
 
-	// 根据格式比较
-	switch (data->format) {
-		case tpBluetoothUuid::Format16Bit: 
-			return (data->uuid16 == data_other->uuid16) ? TP_TRUE : TP_FALSE;
-		case tpBluetoothUuid::Format32Bit: 
-			return (data->uuid32 == data_other->uuid32) ? TP_TRUE : TP_FALSE;
-		case tpBluetoothUuid::Format128Bit: 
-			return (memcmp(data->uuid128, data_other->uuid128, sizeof(data->uuid128)) == 0) ? TP_TRUE : TP_FALSE;
-		case tpBluetoothUuid::FormatUnknown: 
-			return TP_TRUE; // 两个未知的UUID视为相等
-		default:
+	for (int i = 0; i < 16; i++) {
+		if (data->uuid128[i] != data_other->uuid128[i]) {
 			return TP_FALSE;
+		}
 	}
+    return TP_TRUE;
 }
 
 tpBool tpBluetoothUuid::operator!=(const tpBluetoothUuid &other) const 
@@ -166,59 +157,39 @@ tpBluetoothUuid::Format tpBluetoothUuid::getFormat() const
 tpUInt16 tpBluetoothUuid::toUInt16(tpBool *ok) const 
 {
     tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData*>(data_);
-    
-    tpBool valid = ((data->format == Format16Bit) ? TP_TRUE : TP_FALSE);
-    if (ok) *ok = valid;
-    
-    return valid ? data->uuid16 : 0;
+    tpUInt16 uuid;
+	if(bluet_uuid128_to_uuid16(data->uuid128,&uuid)<0)
+	{
+		if(ok) *ok=TP_FALSE;
+	}
+	if(ok) *ok=TP_TRUE;
+	return uuid;
 }
 
 // 转换为32位UUID
 tpUInt32 tpBluetoothUuid::toUInt32(tpBool *ok) const 
 {
     tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData*>(data_);
-    
-    tpBool valid = ((data->format == Format32Bit || data->format == Format16Bit)? TP_TRUE : TP_FALSE);
-    if (ok) *ok = valid;
-    
-    if (valid) {
-        if (data->format == Format32Bit) {
-            return data->uuid32;
-        }
-        return data->uuid16; // Format16Bit转换为uint32_t
-    }
-    return 0;
+    tpUInt32 uuid;
+	if(bluet_uuid128_to_uuid32(data->uuid128,&uuid)<0)
+	{
+		if(ok) *ok=TP_FALSE;
+	}
+		
+	if(ok) *ok=TP_TRUE;
+	return uuid;
 }
 
 tpString tpBluetoothUuid::toString() const 
 {
     tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData*>(data_);
-    
-    switch (data->format) {
-    case Format16Bit:
-        return tpString::number(data->uuid16, 16).rightJustified(4, '0').toUpper();
-        
-    case Format32Bit:
-        return tpString::number(data->uuid32, 16).rightJustified(8, '0').toUpper();
-        
-    case Format128Bit: {
-        tpString result;
-        for (int i = 0; i < 16; i++) {
-            if (i == 4 || i == 6 || i == 8 || i == 10) {
-                result += '-';
-            }
-            
-            // 直接使用数字转换和填充
-            char hex[3];
-            snprintf(hex, sizeof(hex), "%02X", data->uuid128[i]);
-            result += hex;
-        }
-        return result;
-    }
-    
-    default:
-        return "Unknown";
-    }
+
+	char *uuidstr=bluet_uuid128_to_uuidstr(data->uuid128);
+	if(!uuidstr)
+		return "UnKnown";
+	tpString uuid(uuidstr);
+	free(uuidstr);
+	return uuid;
 }
 
 // 检查是否为无效UUID
@@ -226,3 +197,31 @@ tpBool tpBluetoothUuid::isNull() const
 {
     return (getFormat() == tpBluetoothUuid::FormatUnknown) ? TP_TRUE : TP_FALSE;
 }
+
+
+
+tpString tpBluetoothUuid::toName()const
+{
+	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData*>(data_);
+	switch(data->type)
+	{
+		case TP_UUID_TYPE_PROTOCOL:
+			return "Unknown";
+		case TP_UUID_TYPE_PROFILE:
+		{
+			// 使用字符串流直接构建完整UUID
+			char *uuidstr=bluet_uuid128_to_uuidstr(data->uuid128);
+			if(!uuidstr)
+				return "Unknown";
+			const char* name = bluet_uuid_to_name(uuidstr);
+			if (!name) {
+				return "Unknown";
+			}
+			free(uuidstr);
+			return tpString(name);
+		}
+		default:
+			return "Unknown";
+	}
+}
+

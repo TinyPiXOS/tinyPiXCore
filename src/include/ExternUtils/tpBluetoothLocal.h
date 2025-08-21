@@ -4,6 +4,7 @@
 #include "tpUtils.h"
 #include "tpBluetoothDevice.h"
 #include "tpBluetoothAddress.h"
+#include "tpBluetoothUuid.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpBluetoothLocalData);
 
@@ -86,6 +87,15 @@ public:
 	/// @param timeout 超时时间
 	/// @return
 	int setDiscoverableTimeout(tpUInt32 timeout);
+
+	/// @brief 获取本机蓝牙上所有注册的UUID
+	/// @return 
+	tpList<tpBluetoothUuid> getUuids();
+
+	/// @brief 是否已经有某个服务(若想获取该uuid的具体注册信息需要使用服务扫描)
+	/// @param uuid uuid值
+	/// @return 
+	tpBool isHaveUuid(tpBluetoothUuid& uuid);
 
 	/// @brief 本机蓝牙是否打开
 	/// @return

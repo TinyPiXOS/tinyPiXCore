@@ -5,17 +5,27 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
+#include <cstdint>
 #include "tpBluetoothService.h"
+#include "tpDbusConnectManage.h"
 #include "bluetooth/include/blt_device.h"
+#include "bluetooth/include/blt_service_reg.h"
+#include "bluetooth/include/blt_sdp.h"
 
 struct tpBluetoothServiceData{
-	tpBluetoothAddress addr;	//服务产生的设备
-	tpString uuid;				//服务的uuid
+	tpBluetoothAddress addr;	//服务产生或注册的设备
+	tpBluetoothUuid uuid;		//服务的uuid
 	tpString name;				//服务的名字
 	tpString desc;				//服务的描述
-	tpUInt16 channel;			//通道
+	tpUInt16 port;			//通道
+	tpBool is_registed;			//是否注册
+	int servicefd;
 	tpBluetoothServiceData(){
-		channel=0;
+		port=0;
+		is_registed=TP_FALSE;
 	};
 };
 
@@ -26,11 +36,15 @@ tpBluetoothService::tpBluetoothService()
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
 	if(!data)
 	{
-		fprintf(stderr,"[Error]: tpBluetoothServiceData\n");
+		fprintf(stderr,"[Error]: tpBluetoothServerData\n");
 		return ;
 	}
-
-
+	if(tpDbusConnectManage::instance().connection()!=TP_TRUE)
+	{
+		fprintf(stderr,"[Error]: connect to dbus error\n");
+		return ;
+	}
+	service_registry_init();
 }
 
 // 拷贝赋值
@@ -52,7 +66,7 @@ tpBluetoothService::~tpBluetoothService()
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
 	if(!data)
 		return ;
-
+//	unregisterService();
 	delete(data);
 }
 
@@ -60,20 +74,19 @@ tpBluetoothService::~tpBluetoothService()
 
 /// @brief 获取服务的UUID
 /// @return 
-tpString tpBluetoothService::getServiceUuid() const
+tpBluetoothUuid tpBluetoothService::getServiceUuid() const
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-
 	return data->uuid;
 }
 
 /// @brief 设置服务的UUID
 /// @param uuid 
 /// @return 
-int tpBluetoothService::setServiceUuid(const tpString& uuid)
+int tpBluetoothService::setServiceUuid(const tpBluetoothUuid& uuid)
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-
+	data->uuid=uuid;
 	return 0;
 }
 
@@ -82,7 +95,6 @@ int tpBluetoothService::setServiceUuid(const tpString& uuid)
 tpString tpBluetoothService::getServiceName() const
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-
 	return data->name;
 }
 
@@ -101,19 +113,9 @@ int tpBluetoothService::setServiceName(const tpString& name)
 tpBluetoothAddress tpBluetoothService::getDeviceAddress() const
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-
 	return data->addr;
 }
 
-/// @brief 设置产生服务的设备地址
-/// @param addr 
-/// @return 
-int tpBluetoothService::setDeviceAddress(tpBluetoothAddress& addr)
-{
-	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-	data->addr=addr;
-	return 0;
-}
 
 /// @brief 获取服务的描述
 /// @return 
@@ -127,10 +129,18 @@ tpString tpBluetoothService::getServiceDescription() const
 /// @brief 设置服务的描述
 /// @param desc 
 /// @return 
-int tpBluetoothService::setServiceDescription(tpString& desc)
+int tpBluetoothService::setServiceDescription(const tpString& desc)
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
 	data->desc=desc;
+	return 0;
+}
+
+
+int tpBluetoothService::setServiceChannel(tpUInt16 channel)
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	data->port=channel;
 	return 0;
 }
 
@@ -140,5 +150,56 @@ tpUInt16 tpBluetoothService::getServerChannel()
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
 
-	return data->channel;
+	return data->port;
 }
+
+tpBool tpBluetoothService::registerService(const tpBluetoothAddress& address)
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	if(data->uuid.isNull())
+	{
+		fprintf(stderr,"[Error]: 未设置uuid\n");
+		return TP_FALSE;
+	}
+		
+	std::ostringstream uuid_128;
+			uuid_128 << "0000" 
+				<< std::hex << std::setfill('0') << std::setw(4) 
+				<< static_cast<unsigned>(data->uuid.toUInt16())
+				<< "-0000-1000-8000-00805F9B34FB";
+
+	const char* name = bluet_uuid_to_name(uuid_128.str().c_str());
+	if (!name) {
+		fprintf(stderr,"[Error]: uuid不合法\n");
+		return TP_FALSE;
+	}
+	
+	if(data->name.empty())
+	{
+		data->name=tpString(name);
+	}
+printf("[Debug]: name=%s\n",name);
+	data->servicefd=register_bluetooth_service( "00001101-0000-1000-8000-00805F9B34FB",//uuid_128.str().c_str(),
+                                 "Serial Port Profile",//data->name.c_str(),
+                                  data->port, 
+                                  "server");		//暂时只支持注册为服务端(客户端暂无必要场景)
+	if(data->servicefd<0)
+		return TP_FALSE;
+	data->is_registed=TP_TRUE;
+	return data->is_registed;
+}
+
+tpBool tpBluetoothService::isRegisted()
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	return data->is_registed;
+}
+
+tpBool tpBluetoothService::unregisterService()
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	unregister_bluetooth_service(data->servicefd);
+	data->is_registed=TP_FALSE;
+	return TP_TRUE;
+}
+

@@ -496,3 +496,258 @@ gboolean path_to_address(const gchar *object_path, gchar *out_addr, gsize out_le
     out_addr[out_len-1] = '\0';
     return TRUE;
 }
+
+
+/**
+ * @brief 检查UUID128是否符合蓝牙基础格式
+ */
+gboolean is_base_uuid_format(const uint8_t uuid128[16])
+{
+    // 检查第4-15字节是否匹配基础UUID
+    for (int i = 4; i < 16; i++) {
+        if (uuid128[i] != BLUETOOTH_BASE_UUID[i]) {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+/**
+ * @brief UUID16转UUID128
+ */
+void uuid16_to_uuid128(uint16_t uuid16, uint8_t uuid128[16])
+{
+    // 复制基础UUID
+    memcpy(uuid128, BLUETOOTH_BASE_UUID, 16);
+    
+    // 设置UUID16值（大端序）
+    uuid128[2] = (uuid16 >> 8) & 0xFF;  // 高字节
+    uuid128[3] = uuid16 & 0xFF;          // 低字节
+}
+
+/**
+ * @brief UUID32转UUID128
+ */
+void uuid32_to_uuid128(uint32_t uuid32, uint8_t uuid128[16])
+{
+    // 复制基础UUID
+    memcpy(uuid128, BLUETOOTH_BASE_UUID, 16);
+    
+    // 设置UUID32值（大端序）
+    uuid128[0] = (uuid32 >> 24) & 0xFF;  // 最高字节
+    uuid128[1] = (uuid32 >> 16) & 0xFF;
+    uuid128[2] = (uuid32 >> 8) & 0xFF;
+    uuid128[3] = uuid32 & 0xFF;          // 最低字节
+}
+
+/**
+ * @brief UUID128转UUID16
+ * 
+ * @return gboolean 转换是否成功
+ */
+gboolean uuid128_to_uuid16(const uint8_t uuid128[16], uint16_t *uuid16)
+{
+    if (!is_base_uuid_format(uuid128)) {
+        return FALSE;
+    }
+    
+    // 提取UUID16值（大端序）
+    *uuid16 = (uuid128[2] << 8) | uuid128[3];
+    return TRUE;
+}
+
+/**
+ * @brief UUID128转UUID32
+ * 
+ * @return gboolean 转换是否成功
+ */
+gboolean uuid128_to_uuid32(const uint8_t uuid128[16], uint32_t *uuid32)
+{
+    if (!is_base_uuid_format(uuid128)) {
+        return FALSE;
+    }
+    
+    // 提取UUID32值（大端序）
+    *uuid32 = (uuid128[0] << 24) | 
+              (uuid128[1] << 16) | 
+              (uuid128[2] << 8) | 
+              uuid128[3];
+    return TRUE;
+}
+
+/**
+ * @brief UUID128转UUID字符串
+ * 
+ * @param uuid128 128位UUID
+ * @param str_buf 输出缓冲区(至少37字节)
+ */
+void uuid128_to_uuidstr(const uint8_t uuid128[16], gchar *str_buf)
+{
+    snprintf(str_buf, 37,
+            "%02X%02X%02X%02X-"
+            "%02X%02X-"
+            "%02X%02X-"
+            "%02X%02X-"
+            "%02X%02X%02X%02X%02X%02X",
+            uuid128[0], uuid128[1], uuid128[2], uuid128[3],
+            uuid128[4], uuid128[5],
+            uuid128[6], uuid128[7],
+            uuid128[8], uuid128[9],
+            uuid128[10], uuid128[11], uuid128[12], uuid128[13], uuid128[14], uuid128[15]);
+}
+
+/**
+ * @brief UUID字符串转UUID128
+ * 
+ * @param uuidstr UUID字符串
+ * @param uuid128 输出缓冲区
+ * 
+ * @return gboolean 转换是否成功
+ */
+gboolean uuidstr_to_uuid128(const gchar *uuidstr, uint8_t uuid128[16])
+{
+    if (!uuidstr || strlen(uuidstr) < 36) {
+        return FALSE;
+    }
+    
+    // 解析UUID字符串
+    int values[16];
+    int count = sscanf(uuidstr,
+                      "%2X%2X%2X%2X-"
+                      "%2X%2X-"
+                      "%2X%2X-"
+                      "%2X%2X-"
+                      "%2X%2X%2X%2X%2X%2X",
+                      &values[0], &values[1], &values[2], &values[3],
+                      &values[4], &values[5],
+                      &values[6], &values[7],
+                      &values[8], &values[9],
+                      &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
+    
+    if (count != 16) {
+        return FALSE;
+    }
+    
+    // 转换为字节数组
+    for (int i = 0; i < 16; i++) {
+        uuid128[i] = (uint8_t)values[i];
+    }
+    
+    return TRUE;
+}
+
+/**
+ * @brief UUID16转UUID字符串
+ * 
+ * @param uuid16 16位UUID
+ * @param str_buf 输出缓冲区(至少37字节)
+ */
+void uuid16_to_uuidstr(uint16_t uuid16, gchar *str_buf)
+{
+    uint8_t uuid128[16];
+    uuid16_to_uuid128(uuid16, uuid128);
+    uuid128_to_uuidstr(uuid128, str_buf);
+}
+
+/**
+ * @brief UUID32转UUID字符串
+ * 
+ * @param uuid32 32位UUID
+ * @param str_buf 输出缓冲区(至少37字节)
+ */
+void uuid32_to_uuidstr(uint32_t uuid32, gchar *str_buf)
+{
+    uint8_t uuid128[16];
+    uuid32_to_uuid128(uuid32, uuid128);
+    uuid128_to_uuidstr(uuid128, str_buf);
+}
+
+/**
+ * @brief UUID字符串转UUID16
+ * 
+ * @param uuidstr UUID字符串
+ * @param uuid16 输出缓冲区
+ * 
+ * @return gboolean 转换是否成功
+ */
+gboolean uuidstr_to_uuid16(const gchar *uuidstr, uint16_t *uuid16)
+{
+    uint8_t uuid128[16];
+    if (!uuidstr_to_uuid128(uuidstr, uuid128)) {
+        return FALSE;
+    }
+    return uuid128_to_uuid16(uuid128, uuid16);
+}
+
+/**
+ * @brief UUID字符串转UUID32
+ * 
+ * @param uuidstr UUID字符串
+ * @param uuid32 输出缓冲区
+ * 
+ * @return gboolean 转换是否成功
+ */
+gboolean uuidstr_to_uuid32(const gchar *uuidstr, uint32_t *uuid32)
+{
+    uint8_t uuid128[16];
+    if (!uuidstr_to_uuid128(uuidstr, uuid128)) {
+        return FALSE;
+    }
+    return uuid128_to_uuid32(uuid128, uuid32);
+}
+
+/**
+ * @brief UUID16转UUID32
+ * 
+ * @param uuid16 16位UUID
+ * 
+ * @return uint32_t 32位UUID
+ */
+uint32_t uuid16_to_uuid32(uint16_t uuid16)
+{
+    return (uint32_t)uuid16;
+}
+
+/**
+ * @brief UUID32转UUID16
+ * 
+ * @param uuid32 32位UUID
+ * @param uuid16 输出缓冲区
+ * 
+ * @return gboolean 转换是否成功
+ */
+gboolean uuid32_to_uuid16(uint32_t uuid32, uint16_t *uuid16)
+{
+    // 检查高16位是否为0
+    if ((uuid32 & 0xFFFF0000) != 0) {
+        return FALSE;
+    }
+    
+    *uuid16 = (uint16_t)(uuid32 & 0x0000FFFF);
+    return TRUE;
+}
+
+/**
+ * @brief 获取UUID的短格式
+ * 
+ * @param uuid128 128位UUID
+ * @param buf 输出缓冲区(至少11字节)
+ * 
+ * @return gboolean 是否成功获取短格式
+ */
+gboolean get_short_uuid_format(const uint8_t uuid128[16], gchar *buf)
+{
+    uint16_t uuid16;
+    if (uuid128_to_uuid16(uuid128, &uuid16)) {
+        snprintf(buf, 7, "0x%04X", uuid16);
+        return TRUE;
+    }
+    
+    uint32_t uuid32;
+    if (uuid128_to_uuid32(uuid128, &uuid32)) {
+        snprintf(buf, 11, "0x%08X", uuid32);
+        return TRUE;
+    }
+    
+    return FALSE;
+}
