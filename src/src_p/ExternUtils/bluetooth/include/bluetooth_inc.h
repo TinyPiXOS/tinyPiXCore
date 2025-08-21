@@ -24,6 +24,7 @@ extern "C" {
 #include "lib/bluez/adapter.h"
 #include "lib/bluez/device.h"
 #include "lib/bluez/agent_manager.h"
+#include "lib/bluez/profile.h"
 #include "lib/g_utils.h"
 #include "lib/bluez/adapter.h"
 #include "lib/obex/obex_object_push.h"

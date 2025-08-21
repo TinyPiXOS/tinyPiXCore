@@ -6,6 +6,7 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
 
 #include "tpBluetoothService.h"
+#include "bluetooth/include/blt_device.h"
 
 struct tpBluetoothServiceData{
 	tpBluetoothAddress addr;	//服务产生的设备
@@ -28,6 +29,8 @@ tpBluetoothService::tpBluetoothService()
 		fprintf(stderr,"[Error]: tpBluetoothServiceData\n");
 		return ;
 	}
+
+
 }
 
 // 拷贝赋值
