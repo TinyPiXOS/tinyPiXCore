@@ -1,5 +1,5 @@
 #include "tpCheckBox.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "TpImage.h"
 
@@ -129,7 +129,7 @@ bool tpCheckBox::onPaintEvent(tpObjectPaintEvent *event)
     // return true;
     // tpChildWidget::onPaintEvent(event);
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     tpCheckBoxData *cbxData = static_cast<tpCheckBoxData *>(data_);
 

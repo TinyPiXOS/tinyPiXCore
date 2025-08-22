@@ -3,11 +3,11 @@
 #include "tpChildWidget.h"
 #include "tpEvent.h"
 #include "tpApp.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpLayout.h"
 #include "tpDef.h"
 #include "tpObjectStack.h"
-#include <tpSurface.h>
+#include <TpSurface.h>
 #include <tpColors.h>
 #include <tpRect.h>
 #include <tpPoint.h>

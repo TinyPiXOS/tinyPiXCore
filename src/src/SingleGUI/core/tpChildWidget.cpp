@@ -7,7 +7,7 @@
 #include "tpEvent.h"
 #include "tpRect.h"
 #include "tpLayout.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpPoint.h"
 #include "tinyPiXUtils.h"
 #include "core/tpObjectFunction.hpp"
@@ -1209,7 +1209,7 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
     if (!ret)
         return false;
 
-    tpCanvas *canvas = event->canvas();
+    TpCanvas *canvas = event->canvas();
     ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
     if (!set)
         return false;

@@ -13,7 +13,7 @@
 #include "tpList.h"
 #include "tpVector.h"
 #include "tpFont.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include <cmath>
 
 #ifndef ITEM_V_PIX
@@ -800,7 +800,7 @@ bool tpTreeWidget::onPaintEvent(tpObjectPaintEvent *event)
     // 默认边框线颜色
     int32_t borderColor = _RGB(0, 0, 0) & 0xffffff00 | (alpha & 0xff);
 
-    tpCanvas *paint = event->canvas();
+    TpCanvas *paint = event->canvas();
 
     if (!paint)
         return false;
@@ -928,7 +928,7 @@ uint32_t tpTreeWidget::quetyChildCount(tpTreeWidgetItem *item)
     return 0;
 }
 
-void tpTreeWidget::DrawItem(tpCanvas *paint, tpTreeWidgetItem *item, uint32_t &findIndex, uint32_t &globalCount)
+void tpTreeWidget::DrawItem(TpCanvas *paint, tpTreeWidgetItem *item, uint32_t &findIndex, uint32_t &globalCount)
 {
     PiTreeWidgetPrivData *privData = (PiTreeWidgetPrivData *)this->privData;
     if (!privData)

@@ -6,17 +6,17 @@
 #include "tpGlobal.h"
 
 /**strage 32bits and ARGB**/
-TP_DEF_VOID_TYPE_VAR(IPitpSurface);
+TP_DEF_VOID_TYPE_VAR(ITpSurfaceData);
 TP_DEF_VOID_TYPE_VAR(IPitpSurfacePtr);
 TP_DEF_VOID_TYPE_VAR(IPiDSSurface);
 TP_DEF_VOID_TYPE_VAR(IPiRendererPtr);
 
 class tpRect;
-class tpSurface
+class TpSurface
 {
 public:
-    tpSurface(IPiDSSurface *surface = nullptr); // only for tinypix, otherwise use nullptr
-    virtual ~tpSurface();
+    TpSurface(IPiDSSurface *surface = nullptr); // only for tinypix, otherwise use nullptr
+    virtual ~TpSurface();
 
 public:
     virtual bool create(IPiDSSurface *surface); // only for tinypix
@@ -24,7 +24,7 @@ public:
     virtual bool create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
                         int32_t rmask = 0, int32_t gmask = 0, int32_t bmask = 0, int32_t amask = 0,
                         uint8_t alpha = 0xff, bool enableColroKey = false, uint32_t colorKey = 0, tpRect *clip = nullptr, bool convertToFit = false);
-    virtual bool create(tpShared<tpSurface> surface, bool bShareMemoried = true); // if false, can not copy source data, only copy other parameters
+    virtual bool create(tpShared<TpSurface> surface, bool bShareMemoried = true); // if false, can not copy source data, only copy other parameters
 
 public:
     virtual IPitpSurfacePtr *surface(); // real surface
@@ -64,16 +64,16 @@ public:
     virtual bool hasSurface();
 
 public:
-    virtual tpShared<tpSurface> copy(tpRect &rect);                               // will be effected by clip rect
-    virtual tpShared<tpSurface> copy(int32_t x, int32_t y, int32_t w, int32_t h); // will be effected by clip rect
+    virtual tpShared<TpSurface> copy(tpRect &rect);                               // will be effected by clip rect
+    virtual tpShared<TpSurface> copy(int32_t x, int32_t y, int32_t w, int32_t h); // will be effected by clip rect
 
 public:
-    virtual void directBlitF(tpShared<tpSurface> surface, tpRect &src, tpRect &dst); // from other surface
-    virtual void directBlitT(tpShared<tpSurface> surface, tpRect &src, tpRect &dst); // to other surface
+    virtual void directBlitF(tpShared<TpSurface> surface, tpRect &src, tpRect &dst); // from other surface
+    virtual void directBlitT(tpShared<TpSurface> surface, tpRect &src, tpRect &dst); // to other surface
 
 public:
-    virtual void strenchBlitF(tpSurface &surface, tpRect &src, tpRect &dst); // from other surface, can strench, have to zoom out will be effective
-    virtual void strenchBlitT(tpSurface &surface, tpRect &src, tpRect &dst); // to other surface, can strench, have to zoom out will be effective
+    virtual void strenchBlitF(TpSurface &surface, tpRect &src, tpRect &dst); // from other surface, can strench, have to zoom out will be effective
+    virtual void strenchBlitT(TpSurface &surface, tpRect &src, tpRect &dst); // to other surface, can strench, have to zoom out will be effective
 
 public:
     /// @brief 释放内部所有资源，释放后Surface即无效
@@ -81,7 +81,7 @@ public:
     virtual bool release();
 
 private:
-    IPitpSurface *surfaceSet;
+    ITpSurfaceData *data_;
 };
 
 #endif

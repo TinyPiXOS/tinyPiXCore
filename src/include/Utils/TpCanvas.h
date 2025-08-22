@@ -8,23 +8,22 @@
 #include "TpImage.h"
 #include <cairo.h>
 
-class tpCanvas;
-class tpSurface;
+class TpCanvas;
+class TpSurface;
 class tpRect;
 class tpFont;
 class HollowMask;
 
-typedef void (*defDrawFunction)(tpCanvas *, cairo_t *cr, cairo_surface_t *cairo_surface, int32_t offsetX, int32_t offsetY, void *args);
+typedef void (*defDrawFunction)(TpCanvas *, cairo_t *cr, cairo_surface_t *cairo_surface, int32_t offsetX, int32_t offsetY, void *args);
 
-TP_DEF_VOID_TYPE_VAR(ItpCanvasData);
-
+TP_DEF_VOID_TYPE_VAR(ITpCanvasData);
 /// @brief 绘制模块类，用于绘制各种形状。资源等
 /// @brief 所有的颜色值，均使用_RGB或_RGBA宏给入十进制值（0-255），例如_RGB(128,128,128)或_RGBA(128,128,128,120)
-class tpCanvas
+class TpCanvas
 {
 public:
-    tpCanvas(tpShared<tpSurface> surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0);
-    virtual ~tpCanvas();
+    TpCanvas(tpShared<TpSurface> surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0);
+    virtual ~TpCanvas();
 
     void paintTest();
 
@@ -34,10 +33,10 @@ public:
     /// @param offsetX X偏移量
     /// @param offsetY Y偏移量
     /// @return 设置结果；成功返回true；否则返回false
-    virtual bool setTarget(tpShared<tpSurface> surface, int32_t offsetX = 0, int32_t offsetY = 0);
+    virtual bool setTarget(tpShared<TpSurface> surface, int32_t offsetX = 0, int32_t offsetY = 0);
     /// @brief 获取当前画图
     /// @return 返回画布指针；无则返回nullptr
-    virtual tpShared<tpSurface> surface();
+    virtual tpShared<TpSurface> surface();
 
 public:
     virtual void setClipRect(tpRect &rect);
@@ -216,13 +215,13 @@ public:
     /// @param x 绘制X坐标
     /// @param y Y坐标
     /// @param surface 资源指针
-    // virtual void paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface);
+    // virtual void paintSurface(const int32_t &x, const int32_t &y, const tpShared<TpSurface> &surface);
     /// @brief 绘制圆角图片
     /// @param x X坐标
     /// @param y Y坐标
     /// @param rad 圆角弧度
     /// @param surface 资源指针
-    // virtual void paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface);
+    // virtual void paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<TpSurface> &surface);
 
     /// @brief 绘制图片资源
     /// @param x 绘制X坐标
@@ -248,11 +247,11 @@ public:
     virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text);
 
 public:
-    static tpShared<tpSurface> convertFromCairoToSurface(cairo_surface_t *cairo_surface);
-    // static cairo_surface_t *convertFromSurfaceToCairo(tpShared<tpSurface>surface);
+    static tpShared<TpSurface> convertFromCairoToSurface(cairo_surface_t *cairo_surface);
+    // static cairo_surface_t *convertFromSurfaceToCairo(tpShared<TpSurface>surface);
 
 private:
-    ItpCanvasData *data_;
+    ITpCanvasData *data_;
 };
 
 /// @brief 绘制镂空遮罩

@@ -16,7 +16,7 @@
 TP_DEF_VOID_TYPE_VAR(ItpFontData);
 TP_DEF_VOID_TYPE_VAR(IPiFontFamily);
 
-class tpSurface;
+class TpSurface;
 class tpFontFamily;
 
 class tpFont
@@ -126,10 +126,10 @@ public:
     virtual ItpSize pixelSize();
 
 public:
-    virtual tpShared<tpSurface> createSurfaceDraw();
-    virtual void render(tpShared<tpSurface>surface, int32_t x, int32_t y);                                  // render style or content by setText or setMarkUp
-    virtual void renderText(tpShared<tpSurface> surface, const char *text, int32_t x, int32_t y);            // do not use markup
-    virtual void renderMarkUp(tpShared<tpSurface> surface, const char *text, int32_t x, int32_t y); // use markup
+    virtual tpShared<TpSurface> createSurfaceDraw();
+    virtual void render(tpShared<TpSurface>surface, int32_t x, int32_t y);                                  // render style or content by setText or setMarkUp
+    virtual void renderText(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y);            // do not use markup
+    virtual void renderMarkUp(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y); // use markup
 
 public:
     static tpFontFamily *getSysFamilyFont();

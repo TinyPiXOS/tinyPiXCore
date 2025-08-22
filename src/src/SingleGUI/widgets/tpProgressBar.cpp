@@ -24,7 +24,7 @@
 */
 #include "tpProgressBar.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpColors.h"
 #include "tpRange.h"
 #include "tpFont.h"
@@ -259,7 +259,7 @@ bool tpProgressBar::onPaintEvent(tpObjectPaintEvent *event)
 		if (ret)
 		{
 			ItpRect rect = event->rect();
-			tpCanvas *canvas = event->canvas();
+			TpCanvas *canvas = event->canvas();
 
 			uint8_t alpha1 = mapAlpha((uint8_t)(set->topLeftColor & 0x000000ff), this->alpha());
 			uint8_t alpha2 = mapAlpha((uint8_t)(set->bottomRightColor & 0x000000ff), this->alpha());

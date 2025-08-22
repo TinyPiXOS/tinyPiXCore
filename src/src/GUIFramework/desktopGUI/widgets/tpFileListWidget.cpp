@@ -1,6 +1,6 @@
 
 #include "GUIFramework/desktopGUI/widgets/tpFileListWidget.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpMap.h"
 #include "tpFile.h"
 #include "TpImage.h"
@@ -543,7 +543,7 @@ bool tpFileListWidget::onPaintEvent(tpObjectPaintEvent *event)
 
     tpChildWidget::onPaintEvent(event);
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     // 计算所有列总份数
     uint32_t columnStrechTotal = 0;

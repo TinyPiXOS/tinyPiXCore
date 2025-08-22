@@ -1,6 +1,6 @@
 #include "tpScroll.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpRange.h"
 #include "tpRect.h"
 #include <cstring>
@@ -766,7 +766,7 @@ bool tpScroll::onPaintEvent(tpObjectPaintEvent *event)
 	if (!ret)
 		return ret;
 
-	tpCanvas *canvas = event->canvas();
+	TpCanvas *canvas = event->canvas();
 	uint8_t alpha = mapAlpha((uint8_t)(set->barColor & 0x000000ff), this->alpha());
 	int32_t x0 = 0, y0 = 0, x1 = 0, y1 = 0;
 	switch (set->direction)

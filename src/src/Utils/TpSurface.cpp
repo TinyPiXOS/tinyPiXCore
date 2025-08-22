@@ -1,4 +1,4 @@
-#include "tpSurface.h"
+#include "TpSurface.h"
 #include "tpRect.h"
 #include <unistd.h>
 #include <iostream>
@@ -20,13 +20,13 @@
 #define ARGB_B(pixel) ((pixel) & 0xFF)         // Blue通道
 #define ARGB_PACK(a, r, g, b) (((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
 
-typedef struct
+struct TpSurfaceData
 {
     SDL_Surface *surface = nullptr;
     SDL_Renderer *render = nullptr;
 
     bool beUsed;
-} ItpSurfaceSet;
+};
 
 static int32_t useRef = 0;
 static bool inited = false;
@@ -48,9 +48,9 @@ static inline int32_t cal_stride(int32_t width, int32_t depth)
     return ((stride + 3) & ~3);
 }
 
-tpSurface::tpSurface(IPiDSSurface *surface)
+TpSurface::TpSurface(IPiDSSurface *surface)
 {
-    ItpSurfaceSet *set = new ItpSurfaceSet();
+    TpSurfaceData *set = new TpSurfaceData();
 
     if (set)
     {
@@ -58,7 +58,7 @@ tpSurface::tpSurface(IPiDSSurface *surface)
         set->render = nullptr;
         set->beUsed = false;
 
-        this->surfaceSet = set;
+        this->data_ = set;
 
         if (surface)
         {
@@ -66,7 +66,7 @@ tpSurface::tpSurface(IPiDSSurface *surface)
 
             if (ret == false)
             {
-                std::cout << "tpSurface creates failed!" << std::endl;
+                std::cout << "TpSurface creates failed!" << std::endl;
                 std::exit(0);
             }
         }
@@ -84,9 +84,9 @@ tpSurface::tpSurface(IPiDSSurface *surface)
     }
 }
 
-tpSurface::~tpSurface()
+TpSurface::~TpSurface()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
     if (set)
     {
@@ -104,7 +104,7 @@ tpSurface::~tpSurface()
     }
 }
 
-bool tpSurface::create(IPiDSSurface *surface)
+bool TpSurface::create(IPiDSSurface *surface)
 {
     if (surface == nullptr)
     {
@@ -166,11 +166,11 @@ bool tpSurface::create(IPiDSSurface *surface)
     return this->create(matrix, width, height, depth, pitch, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, &clipRect);
 }
 
-bool tpSurface::create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
+bool TpSurface::create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
                        int32_t rmask, int32_t gmask, int32_t bmask, int32_t amask,
                        uint8_t alpha, bool enableColroKey, uint32_t colorKey, tpRect *clip, bool convertToFit)
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     bool ret = false;
 
     if (set)
@@ -259,7 +259,7 @@ bool tpSurface::create(void *address, int32_t width, int32_t height, int32_t for
     return ret;
 }
 
-bool tpSurface::create(tpShared<tpSurface> surface, bool bShareMemoried)
+bool TpSurface::create(tpShared<TpSurface> surface, bool bShareMemoried)
 {
     if (surface == nullptr)
         return false;
@@ -288,9 +288,9 @@ bool tpSurface::create(tpShared<tpSurface> surface, bool bShareMemoried)
     return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, &rect);
 }
 
-IPitpSurfacePtr *tpSurface::surface()
+IPitpSurfacePtr *TpSurface::surface()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     SDL_Surface *surface = nullptr;
 
     if (!set)
@@ -304,9 +304,9 @@ IPitpSurfacePtr *tpSurface::surface()
     return surface;
 }
 
-IPiRendererPtr *tpSurface::renderer()
+IPiRendererPtr *TpSurface::renderer()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     SDL_Renderer *render = nullptr;
 
     if (!set)
@@ -320,9 +320,9 @@ IPiRendererPtr *tpSurface::renderer()
     return render;
 }
 
-void *tpSurface::matrix()
+void *TpSurface::matrix()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     void *matrix = nullptr;
 
     if (!set)
@@ -336,9 +336,9 @@ void *tpSurface::matrix()
     return matrix;
 }
 
-int32_t tpSurface::stride()
+int32_t TpSurface::stride()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t stride = 0;
 
     if (set)
@@ -352,9 +352,9 @@ int32_t tpSurface::stride()
     return stride;
 }
 
-int32_t tpSurface::width()
+int32_t TpSurface::width()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
     int32_t width = 0;
     if (!set)
@@ -368,9 +368,9 @@ int32_t tpSurface::width()
     return width;
 }
 
-int32_t tpSurface::height()
+int32_t TpSurface::height()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t height = 0;
 
     if (set)
@@ -384,9 +384,9 @@ int32_t tpSurface::height()
     return height;
 }
 
-int32_t tpSurface::format()
+int32_t TpSurface::format()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t format = 0;
 
     if (set)
@@ -400,9 +400,9 @@ int32_t tpSurface::format()
     return format;
 }
 
-int32_t tpSurface::rmask()
+int32_t TpSurface::rmask()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t rmask = 0;
 
     if (set)
@@ -416,9 +416,9 @@ int32_t tpSurface::rmask()
     return rmask;
 }
 
-int32_t tpSurface::gmask()
+int32_t TpSurface::gmask()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t gmask = 0;
 
     if (set)
@@ -432,9 +432,9 @@ int32_t tpSurface::gmask()
     return gmask;
 }
 
-int32_t tpSurface::bmask()
+int32_t TpSurface::bmask()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t bmask = 0;
 
     if (set)
@@ -448,9 +448,9 @@ int32_t tpSurface::bmask()
     return bmask;
 }
 
-int32_t tpSurface::amask()
+int32_t TpSurface::amask()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     int32_t amask = 0;
 
     if (set)
@@ -464,9 +464,9 @@ int32_t tpSurface::amask()
     return amask;
 }
 
-void tpSurface::setClipRect(tpRect *rect)
+void TpSurface::setClipRect(tpRect *rect)
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     SDL_Rect *pClipRect = nullptr, clipRect;
 
     if (rect)
@@ -489,9 +489,9 @@ void tpSurface::setClipRect(tpRect *rect)
     }
 }
 
-ItpRect tpSurface::clipRect()
+ItpRect TpSurface::clipRect()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     SDL_Rect rect = {0};
 
     if (!set)
@@ -507,14 +507,14 @@ ItpRect tpSurface::clipRect()
     return result;
 }
 
-void tpSurface::clear()
+void TpSurface::clear()
 {
     this->fill(nullptr, _RGB(0, 0, 0));
 }
 
-void tpSurface::fill(tpRect *rect, int32_t color)
+void TpSurface::fill(tpRect *rect, int32_t color)
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     SDL_Rect *pFillRect = nullptr, fillRect;
 
     if (rect)
@@ -535,9 +535,9 @@ void tpSurface::fill(tpRect *rect, int32_t color)
     }
 }
 
-bool tpSurface::hasSurface()
+bool TpSurface::hasSurface()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
     bool ret = false;
 
     if (set)
@@ -548,14 +548,14 @@ bool tpSurface::hasSurface()
     return ret;
 }
 
-tpShared<tpSurface> tpSurface::copy(tpRect &rect)
+tpShared<TpSurface> TpSurface::copy(tpRect &rect)
 {
     return this->copy(rect.X0(), rect.Y0(), rect.width(), rect.height());
 }
 
-tpShared<tpSurface> tpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
+tpShared<TpSurface> TpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
     if (!set)
         return nullptr;
@@ -590,7 +590,7 @@ tpShared<tpSurface> tpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
 
     bool enable = SDL_HasColorKey(set->surface);
 
-    tpShared<tpSurface> newSurf = tpMakeShared<tpSurface>();
+    tpShared<TpSurface> newSurf = tpMakeShared<TpSurface>();
 
     if (newSurf == nullptr)
         return nullptr;
@@ -612,7 +612,7 @@ tpShared<tpSurface> tpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     return newSurf;
 }
 
-void tpSurface::directBlitF(tpShared<tpSurface> surface, tpRect &src, tpRect &dst)
+void TpSurface::directBlitF(tpShared<TpSurface> surface, tpRect &src, tpRect &dst)
 {
     SDL_Rect srect, drect;
 
@@ -630,7 +630,7 @@ void tpSurface::directBlitF(tpShared<tpSurface> surface, tpRect &src, tpRect &ds
 
     if (srcSurf)
     {
-        ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+        TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
         if (set && set->beUsed)
         {
@@ -639,7 +639,7 @@ void tpSurface::directBlitF(tpShared<tpSurface> surface, tpRect &src, tpRect &ds
     }
 }
 
-void tpSurface::directBlitT(tpShared<tpSurface> surface, tpRect &src, tpRect &dst)
+void TpSurface::directBlitT(tpShared<TpSurface> surface, tpRect &src, tpRect &dst)
 {
     SDL_Rect srect, drect;
 
@@ -657,7 +657,7 @@ void tpSurface::directBlitT(tpShared<tpSurface> surface, tpRect &src, tpRect &ds
 
     if (dstSurf)
     {
-        ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+        TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
         if (set && set->beUsed)
         {
@@ -666,7 +666,7 @@ void tpSurface::directBlitT(tpShared<tpSurface> surface, tpRect &src, tpRect &ds
     }
 }
 
-void tpSurface::strenchBlitF(tpSurface &surface, tpRect &src, tpRect &dst)
+void TpSurface::strenchBlitF(TpSurface &surface, tpRect &src, tpRect &dst)
 {
     SDL_Rect srect, drect;
 
@@ -684,7 +684,7 @@ void tpSurface::strenchBlitF(tpSurface &surface, tpRect &src, tpRect &dst)
 
     if (srcSurf)
     {
-        ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+        TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
         if (set &&
             set->beUsed)
@@ -694,7 +694,7 @@ void tpSurface::strenchBlitF(tpSurface &surface, tpRect &src, tpRect &dst)
     }
 }
 
-void tpSurface::strenchBlitT(tpSurface &surface, tpRect &src, tpRect &dst)
+void TpSurface::strenchBlitT(TpSurface &surface, tpRect &src, tpRect &dst)
 {
     SDL_Rect srect, drect;
 
@@ -712,7 +712,7 @@ void tpSurface::strenchBlitT(tpSurface &surface, tpRect &src, tpRect &dst)
 
     if (dstSurf)
     {
-        ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+        TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
         if (set &&
             set->beUsed)
@@ -722,9 +722,9 @@ void tpSurface::strenchBlitT(tpSurface &surface, tpRect &src, tpRect &dst)
     }
 }
 
-bool tpSurface::release()
+bool TpSurface::release()
 {
-    ItpSurfaceSet *set = (ItpSurfaceSet *)this->surfaceSet;
+    TpSurfaceData *set = (TpSurfaceData *)this->data_;
 
     if (!set)
         return false;

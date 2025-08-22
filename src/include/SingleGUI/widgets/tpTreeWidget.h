@@ -134,13 +134,13 @@ private:
 
     /***
      * @description: 递归绘制item
-     * @param {tpCanvas} *paint
+     * @param {TpCanvas} *paint
      * @param {tpTreeWidgetItem} *item
      * @param {uint32_t} &findIndex 当前查询的index
      * @param {uint32_t} &globalCount  已绘制的item计数
      * @return {*}
      */
-    void DrawItem(tpCanvas *paint, tpTreeWidgetItem *item, uint32_t &findIndex, uint32_t &globalCount);
+    void DrawItem(TpCanvas *paint, tpTreeWidgetItem *item, uint32_t &findIndex, uint32_t &globalCount);
 
 private:
     IPiTreeWidgetPrivData *privData;

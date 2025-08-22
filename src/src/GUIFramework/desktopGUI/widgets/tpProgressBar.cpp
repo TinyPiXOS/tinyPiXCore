@@ -1,5 +1,5 @@
 #include "GUIFramework/desktopGUI/widgets/tpProgressBar.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpFont.h"
 
 #include <sstream>
@@ -67,7 +67,7 @@ void tpProgressBar::setBorderColor(const int32_t &color)
 
 bool tpProgressBar::onPaintEvent(tpObjectPaintEvent *event)
 {
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     // 计算百分比
     double percentValue = 1.0 * (value_ - min_) / (max_ - min_);

@@ -1,6 +1,6 @@
 #include "tpListCheckBoxGroup.h"
 #include "tpVector.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 
 #define SPACER_LINE_WIDTH 1
@@ -240,7 +240,7 @@ bool tpListCheckBoxGroup::onPaintEvent(tpObjectPaintEvent *event)
 {
     tpChildWidget::onPaintEvent(event);
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
     tpListCheckBoxGroupData *cbxData = static_cast<tpListCheckBoxGroupData *>(data_);
     tpShared<tpCssData> normalCss = currentStatusCss();
 

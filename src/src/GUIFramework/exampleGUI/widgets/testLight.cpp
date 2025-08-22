@@ -1,5 +1,5 @@
 #include "testLight.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 
 EXAMPLE_GUI_NAMESPACE_BEGIN
 
@@ -50,7 +50,7 @@ bool testLight::onPaintEvent(tpObjectPaintEvent *event)
 
     testLightData *lightData = static_cast<testLightData *>(data_);
 
-    tpCanvas *painter = event->canvas();
+    TpCanvas *painter = event->canvas();
 
     painter->box(0, 0, width(), height(), _RGB(255, 255, 255));
 

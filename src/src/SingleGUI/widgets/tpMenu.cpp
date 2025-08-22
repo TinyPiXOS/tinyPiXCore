@@ -1,6 +1,6 @@
 #include "tpMenu.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpDef.h"
 #include "TpImage.h"
 #include "tpFont.h"
@@ -278,7 +278,7 @@ bool tpMenu::onPaintEvent(tpObjectPaintEvent *event)
 {
 	tpChildWidget::onPaintEvent(event);
 
-	tpCanvas *paintCanvas = event->canvas();
+	TpCanvas *paintCanvas = event->canvas();
 
 	tpMenuData *menuData = static_cast<tpMenuData *>(data_);
 	if (!menuData)

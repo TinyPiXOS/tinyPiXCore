@@ -1,7 +1,7 @@
 #include "tpSlideProgressBar.h"
 #include "TpImage.h"
 #include "tpDisplay.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 
 struct tpSlideProgressBarData
 {
@@ -188,7 +188,7 @@ bool tpSlideProgressBar::onPaintEvent(tpObjectPaintEvent *event)
 
     tpShared<tpCssData> curCssData = enabledCss();
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     // 绘制填充
     double valuePercent = 1.0 * (progressData->curValue - progressData->minValue) / (progressData->maxValue - progressData->minValue);
@@ -216,7 +216,7 @@ bool tpSlideProgressBar::onPaintEvent(tpObjectPaintEvent *event)
         int32_t imageWidth = drawSurface.width();
         int32_t imageHeight = drawSurface.height();
 
-        tpCanvas *canvas = event->canvas();
+        TpCanvas *canvas = event->canvas();
 
         int32_t cy = (rect().h - imageHeight) / 2;
 

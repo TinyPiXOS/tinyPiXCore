@@ -1,5 +1,5 @@
 #include "TpCircularProgressBar.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpFont.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
@@ -87,7 +87,7 @@ bool TpCircularProgressBar::onPaintEvent(tpObjectPaintEvent *event)
     TpCircularProgressBarData *progressData = static_cast<TpCircularProgressBarData *>(data_);
 
     // tpChildWidget::onPaintEvent(event);
-    tpCanvas *painter = event->canvas();
+    TpCanvas *painter = event->canvas();
     // painter->arc(50, 50, 40, 140, 40, _RGBA(204, 179, 230, 204), 15, true);
 
     int32_t circlePoint = (width() < height() ? width() : height()) / 2.0;

@@ -1,6 +1,6 @@
 #include "tpSlider.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpRange.h"
 #include "tpRect.h"
 
@@ -206,7 +206,7 @@ bool tpSlider::onPaintEvent(tpObjectPaintEvent *event)
 	// tpChildWidget::onPaintEvent(event);
 	tpShared<tpCssData> curCssData = currentStatusCss();
 
-	tpCanvas *painter = event->canvas();
+	TpCanvas *painter = event->canvas();
 
 	// 整体高度、宽度；分成4份。进度条1份，顶点2份，浅色顶点4份
 	uint32_t bgWidth = width();

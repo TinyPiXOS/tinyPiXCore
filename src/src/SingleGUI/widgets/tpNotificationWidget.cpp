@@ -1,5 +1,5 @@
 #include "tpNotificationWidget.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include <math.h>
 #include "tpScrollPanel.h"
 
@@ -104,7 +104,7 @@ bool tpNotificationWidget::onPaintEvent(tpObjectPaintEvent *event)
 {
     tpNotificationWidgetData *widgetData = static_cast<tpNotificationWidgetData *>(data_);
 
-    tpCanvas *canvas = event->canvas();
+    TpCanvas *canvas = event->canvas();
 
     ItpRect widgetRect = this->rect();
 

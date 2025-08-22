@@ -1,6 +1,6 @@
 
 #include "tpOnOffButton.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "tpFont.h"
 #include "tpLabel.h"
@@ -166,7 +166,7 @@ bool tpOnOffButton::onPaintEvent(tpObjectPaintEvent *event)
 
 	tpChildWidget::onPaintEvent(event);
 
-	tpCanvas *canvas = event->canvas();
+	TpCanvas *canvas = event->canvas();
 
 	// 绘制背景色
 	int32_t backColor = btnData->onOff ? btnData->onBackColor : btnData->offBackColor;

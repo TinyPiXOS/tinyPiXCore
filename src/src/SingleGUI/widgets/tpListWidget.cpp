@@ -12,7 +12,7 @@
 #include "tpList.h"
 #include "tpVector.h"
 #include "tpFont.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 
 #include <cmath>
 #include <iterator>
@@ -735,7 +735,7 @@ bool tpListWidget::onPaintEvent(tpObjectPaintEvent *event)
     // 默认边框线颜色
     int32_t borderColor = _RGB(0, 0, 0) & 0xffffff00 | (alpha & 0xff);
 
-    tpCanvas *paint = event->canvas();
+    TpCanvas *paint = event->canvas();
 
     if (!paint)
         return false;

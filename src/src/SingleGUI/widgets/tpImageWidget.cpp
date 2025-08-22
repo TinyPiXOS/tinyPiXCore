@@ -2,7 +2,7 @@
 #include "TpImage.h"
 #include "tpFileInfo.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 
 struct tpImageWidgetData
 {
@@ -61,7 +61,7 @@ bool tpImageWidget::onPaintEvent(tpObjectPaintEvent *event)
 
     tpDialog::onPaintEvent(event);
 
-    tpCanvas *painter = event->canvas();
+    TpCanvas *painter = event->canvas();
 
     uint32_t windowWidth = width();
     uint32_t windowHeight = height();

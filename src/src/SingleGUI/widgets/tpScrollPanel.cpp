@@ -1,7 +1,7 @@
 #include "tpScrollPanel.h"
 #include "tpScroll.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpRect.h"
 #include "tpMap.h"
 #include "tpVector.h"

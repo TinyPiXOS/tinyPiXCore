@@ -1,5 +1,5 @@
 #include "tpBattery.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "tpFont.h"
 
@@ -110,7 +110,7 @@ bool tpBattery::onPaintEvent(tpObjectPaintEvent *event)
     int32_t borderColor = batteryData->style == tpBattery::White ? batteryData->whiteBorderColor : batteryData->blackBorderColor;
     int32_t fontColor = batteryData->style == tpBattery::White ? batteryData->blackColor : batteryData->whiteColor;
 
-    tpCanvas *painter = event->canvas();
+    TpCanvas *painter = event->canvas();
     double linew = batteryData->borderWidth;
 
     double headWidth = width() / 12;

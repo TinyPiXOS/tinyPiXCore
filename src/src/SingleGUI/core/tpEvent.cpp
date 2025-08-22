@@ -23,8 +23,8 @@
 ** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 */
 #include "tpEvent.h"
-#include "tpSurface.h"
-#include "tpCanvas.h"
+#include "TpSurface.h"
+#include "TpCanvas.h"
 #include "tpRect.h"
 #include "tpChildWidget.h"
 #include <cstring>
@@ -1458,7 +1458,7 @@ bool tpObjectPaintEvent::construct(ItpEventData *eventData)
 	}
 
 	set->surface = input->surface;
-	set->canvas = new tpCanvas(set->surface, set->offsetX, set->offsetY);
+	set->canvas = new TpCanvas(set->surface, set->offsetX, set->offsetY);
 
 	if (set->canvas == nullptr)
 	{
@@ -1520,10 +1520,10 @@ tpObject *tpObjectPaintEvent::object()
 	return object;
 }
 
-tpCanvas *tpObjectPaintEvent::canvas()
+TpCanvas *tpObjectPaintEvent::canvas()
 {
 	ItpObjectPaintSet *set = (ItpObjectPaintSet *)tpEvent::tpEventSet;
-	tpCanvas *canvas = nullptr;
+	TpCanvas *canvas = nullptr;
 
 	if (set)
 	{
@@ -1533,7 +1533,7 @@ tpCanvas *tpObjectPaintEvent::canvas()
 	return canvas;
 }
 
-tpShared<tpSurface> tpObjectPaintEvent::surface()
+tpShared<TpSurface> tpObjectPaintEvent::surface()
 {
 	ItpObjectPaintSet *set = (ItpObjectPaintSet *)tpEvent::tpEventSet;
 

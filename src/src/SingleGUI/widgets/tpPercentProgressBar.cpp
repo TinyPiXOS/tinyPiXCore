@@ -2,7 +2,7 @@
 #include "tpVector.h"
 #include "tpFont.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include <cmath>
 
 struct ItemData
@@ -145,7 +145,7 @@ bool tpPercentProgressBar::onPaintEvent(tpObjectPaintEvent *event)
     if (progressData->itemList.size() == 0)
         return true;
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
     tpShared<tpCssData> normalCss = currentStatusCss();
 
     // 绘制进度条底色

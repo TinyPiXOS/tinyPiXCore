@@ -2,8 +2,8 @@
 #include "tpColors.h"
 #include "tpRect.h"
 #include "tpSize.h"
-#include "tpSurface.h"
-#include "tpCanvas.h"
+#include "TpSurface.h"
+#include "TpCanvas.h"
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
 #include <cairo.h>
@@ -459,7 +459,7 @@ static inline ItpSize _getPixelSize(tpFontData *context)
     return size;
 }
 
-static inline void _surfaceToSurface(tpShared<tpSurface> src, tpShared<tpSurface> dst, int x, int y)
+static inline void _surfaceToSurface(tpShared<TpSurface> src, tpShared<TpSurface> dst, int x, int y)
 {
     if (dst == nullptr)
         return;
@@ -500,7 +500,7 @@ static inline void _surfaceToSurface(tpShared<tpSurface> src, tpShared<tpSurface
     src->directBlitT(dst, srect, drect);
 }
 
-static inline void _complexDraw(tpFontData *context, tpShared<tpSurface> surface, int32_t x, int32_t y)
+static inline void _complexDraw(tpFontData *context, tpShared<TpSurface> surface, int32_t x, int32_t y)
 {
     ItpSize size = _getPixelSize(context);
 
@@ -602,7 +602,7 @@ static inline void _complexDraw(tpFontData *context, tpShared<tpSurface> surface
     pango_cairo_update_layout(cr, context->layout);
     pango_cairo_show_layout(cr, context->layout);
 
-    tpShared<tpSurface> srcSurf = tpCanvas::convertFromCairoToSurface(surf);
+    tpShared<TpSurface> srcSurf = TpCanvas::convertFromCairoToSurface(surf);
 
     if (srcSurf == nullptr)
     {
@@ -611,7 +611,7 @@ static inline void _complexDraw(tpFontData *context, tpShared<tpSurface> surface
 
     if (context->underline && context->useMarkUp == false)
     {
-        tpCanvas *canvas = new tpCanvas(nullptr);
+        TpCanvas *canvas = new TpCanvas(nullptr);
         if (canvas)
         {
             canvas->setTarget(srcSurf);
@@ -646,7 +646,7 @@ failed:
     cairo_destroy(cr);
 }
 
-static inline tpShared<tpSurface> _createSurfaceDraw(tpFontData *context)
+static inline tpShared<TpSurface> _createSurfaceDraw(tpFontData *context)
 {
     ItpSize size = _getPixelSize(context);
 
@@ -655,7 +655,7 @@ static inline tpShared<tpSurface> _createSurfaceDraw(tpFontData *context)
         return nullptr;
     }
 
-    tpShared<tpSurface> surface = tpMakeShared<tpSurface>();
+    tpShared<TpSurface> surface = tpMakeShared<TpSurface>();
 
     if (surface)
     {
@@ -1045,10 +1045,10 @@ ItpSize tpFont::pixelSize()
     return size;
 }
 
-tpShared<tpSurface> tpFont::createSurfaceDraw()
+tpShared<TpSurface> tpFont::createSurfaceDraw()
 {
     tpFontData *set = (tpFontData *)this->data_;
-    tpShared<tpSurface> surface = nullptr;
+    tpShared<TpSurface> surface = nullptr;
 
     if (set)
     {
@@ -1058,7 +1058,7 @@ tpShared<tpSurface> tpFont::createSurfaceDraw()
     return surface;
 }
 
-void tpFont::render(tpShared<tpSurface> surface, int32_t x, int32_t y)
+void tpFont::render(tpShared<TpSurface> surface, int32_t x, int32_t y)
 {
     tpFontData *set = (tpFontData *)this->data_;
 
@@ -1068,7 +1068,7 @@ void tpFont::render(tpShared<tpSurface> surface, int32_t x, int32_t y)
     }
 }
 
-void tpFont::renderText(tpShared<tpSurface> surface, const char *text, int32_t x, int32_t y)
+void tpFont::renderText(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y)
 {
     tpFontData *set = (tpFontData *)this->data_;
 
@@ -1084,7 +1084,7 @@ void tpFont::renderText(tpShared<tpSurface> surface, const char *text, int32_t x
     }
 }
 
-void tpFont::renderMarkUp(tpShared<tpSurface> surface, const char *text, int32_t x, int32_t y)
+void tpFont::renderMarkUp(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y)
 {
     tpFontData *set = (tpFontData *)this->data_;
 

@@ -2,7 +2,7 @@
 #include "GUIFramework/desktopGUI/widgets/tpTreeWidget.h"
 #include "TpImage.h"
 #include "tpMap.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "TpImage.h"
 
 DESKTOP_GUI_NAMESPACE_BEGIN
@@ -344,7 +344,7 @@ bool tpTreeWidgetItem::onPaintEvent(tpObjectPaintEvent *event)
     // if (!itemData)
     //     return true;
 
-    // tpCanvas *paintCanvas = event->canvas();
+    // TpCanvas *paintCanvas = event->canvas();
 
     // // 先绘制文字，文字要居中
     // uint32_t textX = (rect().w - itemData->font->pixelWidth()) / 2.0;

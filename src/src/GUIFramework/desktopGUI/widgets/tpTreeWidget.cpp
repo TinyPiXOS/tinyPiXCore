@@ -2,7 +2,7 @@
 #include "tpList.h"
 #include "tpLabel.h"
 #include "TpImage.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpList.h"
 #include "tpUtils.h"
 #include "TpImage.h"
@@ -237,7 +237,7 @@ bool tpTreeWidget::onPaintEvent(tpObjectPaintEvent *event)
 
     tpChildWidget::onPaintEvent(event);
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     uint32_t drawItemStartY = UpDownMargin;
 
@@ -409,7 +409,7 @@ void tpTreeWidget::drawItem(tpObjectPaintEvent *event, tpTreeWidgetItem *topItem
     if (!widgetData)
         return;
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     // curTopItem->setRect(LeftRightMargin, drawItemStartY + curDrawIndex * (TreeItemHeight + TreeItemMargin), rect().w, TreeItemHeight);
 

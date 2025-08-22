@@ -1,5 +1,5 @@
 #include "tpLineEdit.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "tpTimer.h"
 #include "tpClipboard.h"
@@ -251,7 +251,7 @@ bool tpLineEdit::onPaintEvent(tpObjectPaintEvent *event)
     if (!editData)
         return true;
 
-    tpCanvas *canvas = event->canvas();
+    TpCanvas *canvas = event->canvas();
     if (!canvas)
         return true;
 

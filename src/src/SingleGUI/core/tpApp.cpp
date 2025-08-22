@@ -12,7 +12,7 @@
 #include "tpEvent.h"
 #include "tpDef.h"
 #include "tpChildWidget.h"
-#include "tpSurface.h"
+#include "TpSurface.h"
 #include "tpVirtualKeyboard.h"
 #include "tpMap.h"
 #include "tpRect.h"
@@ -341,7 +341,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         if (surface_t == nullptr)
             continue;
 
-        tpSurface surface(surface_t);
+        TpSurface surface(surface_t);
 
         ItpObjectPaintInput input;
         tpObjectPaintEvent event;
@@ -427,7 +427,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         if (surface_t == nullptr)
             continue;
 
-        tpShared<tpSurface> surface = tpMakeShared<tpSurface>(surface_t);
+        tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t);
 
         ItpObjectPaintInput input;
         tpObjectPaintEvent event;

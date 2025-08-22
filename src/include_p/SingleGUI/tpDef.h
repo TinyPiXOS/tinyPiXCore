@@ -313,7 +313,7 @@ typedef struct
 typedef struct
 {
     tpObject *object;
-    tpShared<tpSurface> surface;
+    tpShared<TpSurface> surface;
     ItpRect updateRect;
 } ItpObjectPaintInput;
 
@@ -323,8 +323,8 @@ typedef struct
 
     tpObject *object;
 
-    tpCanvas *canvas;
-    tpShared<tpSurface> surface;
+    TpCanvas *canvas;
+    tpShared<TpSurface> surface;
     ItpSufaceData *itpSurface;
 
     int32_t offsetX;

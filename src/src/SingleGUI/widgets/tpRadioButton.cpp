@@ -1,7 +1,7 @@
 #include "tpRadioButton.h"
 #include "tpEvent.h"
 #include "tpColors.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpRect.h"
 #include "tpFont.h"
 #include "tpString.h"
@@ -199,7 +199,7 @@ bool tpRadioButton::onPaintEvent(tpObjectPaintEvent *event)
 
     tpShared<tpCssData> curCssData = currentStatusCss();
 
-    tpCanvas *canvas = event->canvas();
+    TpCanvas *canvas = event->canvas();
     ItpSize size = set->font->pixelSize();
     double rad = size.h / 4.0;
 

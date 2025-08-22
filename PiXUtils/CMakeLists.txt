@@ -16,9 +16,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/tpRect.cpp
     ${SOURCE_PATH}/src/Utils/tpPoint.cpp
     ${SOURCE_PATH}/src/Utils/tpSize.cpp
-    ${SOURCE_PATH}/src/Utils/tpSurface.cpp
+    ${SOURCE_PATH}/src/Utils/TpSurface.cpp
     ${SOURCE_PATH}/src/Utils/tpFont.cpp
-    ${SOURCE_PATH}/src/Utils/tpCanvas.cpp
+    ${SOURCE_PATH}/src/Utils/TpCanvas.cpp
     ${SOURCE_PATH}/src/Utils/tpRange.cpp
     ${SOURCE_PATH}/src/Utils/tpUUID.cpp
     ${SOURCE_PATH}/src/Utils/tpMD5.cpp

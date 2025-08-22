@@ -1,7 +1,7 @@
 #include "tpFilePathWidget.h"
 #include "TpImage.h"
 #include "tpFont.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "tpFileInfo.h"
 
@@ -196,7 +196,7 @@ bool tpFilePathWidget::onPaintEvent(tpObjectPaintEvent *event)
     if (buttonData->pathLabelList.size() == 0)
         return true;
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     tpShared<tpCssData> curCssData = currentStatusCss();
 

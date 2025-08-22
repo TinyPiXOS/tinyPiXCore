@@ -3,7 +3,7 @@
 
 #include "tpObject.h"
 #include "tpChildWidget.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 
 static inline ItpPoint selfToScreenPoint(tpObject *object, int32_t x, int32_t y)
 {
@@ -210,7 +210,7 @@ static inline tpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
     return object;
 }
 
-static void paintEnabledBox(tpChildWidget *child, tpCanvas *paintCanvas)
+static void paintEnabledBox(tpChildWidget *child, TpCanvas *paintCanvas)
 {
     if (!child->enabled())
     {

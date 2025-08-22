@@ -1,5 +1,5 @@
 #include "tpCarouselButton.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "tpDisplay.h"
 
@@ -88,7 +88,7 @@ bool tpCarouselButton::onPaintEvent(tpObjectPaintEvent *event)
 {
     tpCarouselButtonData *buttonData = static_cast<tpCarouselButtonData *>(data_);
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     uint32_t minRad = roundCorners();
 

@@ -1,6 +1,6 @@
 #include "tpMessageBox.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpDisplay.h"
 
 static int32_t BtnFontColor = _RGB(38, 38, 38);
@@ -180,7 +180,7 @@ bool tpMessageBox::onPaintEvent(tpObjectPaintEvent *event)
     if (messageData->text.empty())
         return true;
 
-    tpCanvas *paintCanvas = event->canvas();
+    TpCanvas *paintCanvas = event->canvas();
 
     uint32_t msgWidth = tpDisplay::dp2Px(450);
     uint32_t msgHeight = tpDisplay::dp2Px(160);

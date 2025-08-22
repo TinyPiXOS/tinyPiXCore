@@ -5,7 +5,7 @@
 #include "tpVBoxLayout.h"
 #include "tpHBoxLayout.h"
 #include "tpApp.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpButton.h"
 
 #ifndef TOP_MARGIN
@@ -831,7 +831,7 @@ bool tpCandidateWidget::onPaintEvent(tpObjectPaintEvent *event)
 {
     tpChildWidget::onPaintEvent(event);
 
-    tpCanvas *painter = event->canvas();
+    TpCanvas *painter = event->canvas();
 
     int32_t pinyinHeight = 0;
     if (!cachePinyin_.empty())

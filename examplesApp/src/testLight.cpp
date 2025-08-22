@@ -1,5 +1,5 @@
 #include "testLight.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 
 testLight::testLight(tpChildWidget *parent)
     : tpChildWidget(parent), maxCount_(4), count_(0)
@@ -22,7 +22,7 @@ bool testLight::onPaintEvent(tpObjectPaintEvent *event)
 {
     tpChildWidget::onPaintEvent(event);
 
-    tpCanvas *painter = event->canvas();
+    TpCanvas *painter = event->canvas();
 
     painter->box(0, 0, width(), height(), _RGB(255, 255, 255));
 

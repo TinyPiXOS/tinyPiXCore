@@ -1,7 +1,7 @@
 #include "tpApp.h"
 #include "tpFixScreen.h"
 #include "tpEvent.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpUtils.h"
 #include "TpImage.h"
 
@@ -22,7 +22,7 @@ public:
     {
         tpChildWidget::onPaintEvent(event);
 
-        tpCanvas *painter = event->canvas();
+        TpCanvas *painter = event->canvas();
         // painter->paintTest();
 
         // painter->hline(10, 490, 10, _RGB(255, 0, 0));

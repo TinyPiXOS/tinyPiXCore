@@ -9,7 +9,7 @@ TP_DEF_VOID_TYPE_VAR(IPitpObject);
 
 class tpRect;
 class tpPoint;
-class tpSurface;
+class TpSurface;
 class tpColors;
 
 class tpKeyboardEvent;

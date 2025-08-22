@@ -1,5 +1,5 @@
 #include "tpLabel.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpFont.h"
 #include "tpEvent.h"
 #include "tpRect.h"
@@ -318,7 +318,7 @@ bool tpLabel::onPaintEvent(tpObjectPaintEvent *event)
 
 	tpChildWidget::onPaintEvent(event);
 
-	tpCanvas *canvas = event->canvas();
+	TpCanvas *canvas = event->canvas();
 	tpString text = this->text();
 
 	if (text.empty())

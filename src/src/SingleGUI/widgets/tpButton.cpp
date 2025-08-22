@@ -1,9 +1,9 @@
 #include "tpButton.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpEvent.h"
 #include "tpFont.h"
 #include "TpImage.h"
-#include "tpCanvas.h"
+#include "TpCanvas.h"
 #include "tpRect.h"
 #include "tpLabel.h"
 #include <iostream>

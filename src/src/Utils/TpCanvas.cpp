@@ -1,5 +1,5 @@
-#include "tpCanvas.h"
-#include "tpSurface.h"
+#include "TpCanvas.h"
+#include "TpSurface.h"
 #include "tpFont.h"
 #include "tpRect.h"
 #include "tpDef.h"
@@ -12,9 +12,9 @@
 #define OFFSET_X(set, x) (set->offsetX + x)
 #define OFFSET_Y(set, y) (set->offsetY + y)
 
-struct ItpCanvasSet
+struct TpCanvasData
 {
-    tpShared<tpSurface> tpSurfacePtr;
+    tpShared<TpSurface> tpSurfacePtr;
     int32_t offsetX, offsetY;
     bool beUsed;
 
@@ -27,7 +27,7 @@ struct ItpCanvasSet
 // 绘制圆角图片资源数据
 struct RoundSurfaceData
 {
-    tpShared<tpSurface> surface = nullptr;
+    tpShared<TpSurface> surface = nullptr;
     int32_t roundRad = 0;
 
     // 绘制坐标起始点
@@ -40,14 +40,14 @@ struct RoundSurfaceData
 };
 
 // 重设canvas的target
-static inline void refreshCanvasTarget(ItpCanvasSet *set)
+static inline void refreshCanvasTarget(TpCanvasData *set)
 {
     int32_t surfaceWidth = set->tpSurfacePtr->width();
     int32_t surfaceHeight = set->tpSurfacePtr->height();
     set->swCanvas->target((uint32_t *)set->tpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
 }
 
-tpCanvas::tpCanvas(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY)
+TpCanvas::TpCanvas(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
 {
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -56,7 +56,7 @@ tpCanvas::tpCanvas(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY
     if (!surface)
         return;
 
-    ItpCanvasSet *set = new ItpCanvasSet();
+    TpCanvasData *set = new TpCanvasData();
 
     if (!set)
         return;
@@ -76,11 +76,11 @@ tpCanvas::tpCanvas(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY
     this->data_ = set;
 }
 
-tpCanvas::~tpCanvas()
+TpCanvas::~TpCanvas()
 {
     tvg::Initializer::term();
 
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
     if (!set)
         return;
 
@@ -96,7 +96,7 @@ tpCanvas::~tpCanvas()
     delete set;
 }
 
-tpShared<tpSurface> tpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_surface)
+tpShared<TpSurface> TpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_surface)
 {
     if (cairo_surface == nullptr)
     {
@@ -148,7 +148,7 @@ tpShared<tpSurface> tpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_s
         return nullptr;
     }
 
-    tpShared<tpSurface> surface = tpMakeShared<tpSurface>();
+    tpShared<TpSurface> surface = tpMakeShared<TpSurface>();
     bool ret = surface->create(addr, width, height, format, stride, Rmask, Gmask, Bmask, Amask);
 
     if (ret == false)
@@ -159,9 +159,9 @@ tpShared<tpSurface> tpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_s
     return surface;
 }
 
-void tpCanvas::paintTest()
+void TpCanvas::paintTest()
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     tvg::SwCanvas *testCanvas = tvg::SwCanvas::gen();
 
@@ -181,9 +181,9 @@ void tpCanvas::paintTest()
     testCanvas->sync();
 }
 
-bool tpCanvas::setTarget(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY)
+bool TpCanvas::setTarget(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (!set)
         return false;
@@ -204,9 +204,9 @@ bool tpCanvas::setTarget(tpShared<tpSurface> surface, int32_t offsetX, int32_t o
     return true;
 }
 
-tpShared<tpSurface> tpCanvas::surface()
+tpShared<TpSurface> TpCanvas::surface()
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -216,9 +216,9 @@ tpShared<tpSurface> tpCanvas::surface()
     return nullptr;
 }
 
-void tpCanvas::setClipRect(tpRect &rect)
+void TpCanvas::setClipRect(tpRect &rect)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -226,7 +226,7 @@ void tpCanvas::setClipRect(tpRect &rect)
     }
 }
 
-void tpCanvas::setClipRect(ItpRect *rect)
+void TpCanvas::setClipRect(ItpRect *rect)
 {
     if (rect)
     {
@@ -235,9 +235,9 @@ void tpCanvas::setClipRect(ItpRect *rect)
     }
 }
 
-void tpCanvas::erase()
+void TpCanvas::erase()
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -250,7 +250,7 @@ void tpCanvas::erase()
     }
 }
 
-static inline void drawPixel(ItpCanvasSet *set, int32_t x, int32_t y, int32_t color)
+static inline void drawPixel(TpCanvasData *set, int32_t x, int32_t y, int32_t color)
 {
     if (!set->swCanvas)
         return;
@@ -266,9 +266,9 @@ static inline void drawPixel(ItpCanvasSet *set, int32_t x, int32_t y, int32_t co
     set->swCanvas->sync();
 }
 
-void tpCanvas::pixel(int32_t x, int32_t y, int32_t color)
+void TpCanvas::pixel(int32_t x, int32_t y, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -279,7 +279,7 @@ void tpCanvas::pixel(int32_t x, int32_t y, int32_t color)
     }
 }
 
-static inline void drawLine(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
+static inline void drawLine(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
 {
     if (!set->swCanvas)
         return;
@@ -306,9 +306,9 @@ static inline void drawLine(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x
     return;
 }
 
-void tpCanvas::hline(int32_t x1, int32_t x2, int32_t y, int32_t color, double width)
+void TpCanvas::hline(int32_t x1, int32_t x2, int32_t y, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -321,9 +321,9 @@ void tpCanvas::hline(int32_t x1, int32_t x2, int32_t y, int32_t color, double wi
     }
 }
 
-void tpCanvas::vline(int32_t x, int32_t y1, int32_t y2, int32_t color, double width)
+void TpCanvas::vline(int32_t x, int32_t y1, int32_t y2, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -335,9 +335,9 @@ void tpCanvas::vline(int32_t x, int32_t y1, int32_t y2, int32_t color, double wi
     }
 }
 
-void tpCanvas::line(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
+void TpCanvas::line(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -350,7 +350,7 @@ void tpCanvas::line(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t colo
     }
 }
 
-static inline void drawRectangle(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width, int32_t rad, bool isFill)
+static inline void drawRectangle(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width, int32_t rad, bool isFill)
 {
     if (!set->swCanvas)
         return;
@@ -378,9 +378,9 @@ static inline void drawRectangle(ItpCanvasSet *set, int32_t x1, int32_t y1, int3
     set->swCanvas->sync();
 }
 
-void tpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
+void TpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -393,9 +393,9 @@ void tpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t
     }
 }
 
-void tpCanvas::roundedRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, double width)
+void TpCanvas::roundedRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -408,9 +408,9 @@ void tpCanvas::roundedRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
     }
 }
 
-void tpCanvas::box(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
+void TpCanvas::box(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -423,9 +423,9 @@ void tpCanvas::box(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color
     }
 }
 
-void tpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color)
+void TpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set &&
         set->beUsed)
@@ -448,7 +448,7 @@ void tpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 /// @param color 颜色
 /// @param width 线条宽度，当填充绘制时线宽无效
 /// @param isFill 是否是填充颜色图形
-static inline void drawEllipse(ItpCanvasSet *set, const int32_t &x, const int32_t &y, const int32_t &rx, const int32_t &ry, const int32_t &color, double width, const bool &isFill)
+static inline void drawEllipse(TpCanvasData *set, const int32_t &x, const int32_t &y, const int32_t &rx, const int32_t &ry, const int32_t &color, double width, const bool &isFill)
 {
     if (!set->swCanvas)
         return;
@@ -475,9 +475,9 @@ static inline void drawEllipse(ItpCanvasSet *set, const int32_t &x, const int32_
     set->swCanvas->sync();
 }
 
-void tpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width)
+void TpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -488,9 +488,9 @@ void tpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double w
     }
 }
 
-void tpCanvas::filledCircle(int32_t x, int32_t y, int32_t rad, int32_t color)
+void TpCanvas::filledCircle(int32_t x, int32_t y, int32_t rad, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -501,9 +501,9 @@ void tpCanvas::filledCircle(int32_t x, int32_t y, int32_t rad, int32_t color)
     }
 }
 
-void tpCanvas::ellipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, double width)
+void TpCanvas::ellipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -514,9 +514,9 @@ void tpCanvas::ellipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t col
     }
 }
 
-void tpCanvas::filledEllipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color)
+void TpCanvas::filledEllipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -649,7 +649,7 @@ static void appendArcToPath(tvg::Shape *shape, float startX, float startY,
     }
 }
 
-static inline void drawArc(ItpCanvasSet *set, const int32_t &x, const int32_t &y, const int32_t &rad,
+static inline void drawArc(TpCanvasData *set, const int32_t &x, const int32_t &y, const int32_t &rad,
                            const double &start, const double &end, const int32_t &color, double width,
                            const bool &isRound, bool isPie, bool isFill)
 {
@@ -733,9 +733,9 @@ static inline void drawArc(ItpCanvasSet *set, const int32_t &x, const int32_t &y
     set->swCanvas->sync();
 }
 
-void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width, const bool &isRound)
+void TpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width, const bool &isRound)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -746,9 +746,9 @@ void tpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end
     }
 }
 
-void tpCanvas::pie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width)
+void TpCanvas::pie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -759,9 +759,9 @@ void tpCanvas::pie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end
     }
 }
 
-void tpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color)
+void TpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -772,7 +772,7 @@ void tpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32
     }
 }
 
-static inline void drawPolygon(ItpCanvasSet *set, const tpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill)
+static inline void drawPolygon(TpCanvasData *set, const tpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill)
 {
     if (pointList.size() == 0)
         return;
@@ -828,9 +828,9 @@ static inline void drawPolygon(ItpCanvasSet *set, const tpVector<ItpPoint> &poin
     }
 }
 
-void tpCanvas::polygon(const tpVector<ItpPoint> &pointList, int32_t color, double width)
+void TpCanvas::polygon(const tpVector<ItpPoint> &pointList, int32_t color, double width)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -838,9 +838,9 @@ void tpCanvas::polygon(const tpVector<ItpPoint> &pointList, int32_t color, doubl
     }
 }
 
-void tpCanvas::filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color)
+void TpCanvas::filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -849,7 +849,7 @@ void tpCanvas::filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color)
 }
 
 // 公共掏空操作函数
-static void applyHollowMask(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, int32_t rad, const HollowMask &hollowMaskData)
+static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, int32_t rad, const HollowMask &hollowMaskData)
 {
     if (!set->swCanvas)
         return;
@@ -931,9 +931,9 @@ static void applyHollowMask(ItpCanvasSet *set, int32_t x1, int32_t y1, int32_t x
     set->swCanvas->sync();
 }
 
-void tpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
+void TpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
     if (!set)
         return;
 
@@ -948,9 +948,9 @@ void tpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t
     applyHollowMask(set, x1, y1, x2, y2, color, 0, hollowMaskData);
 }
 
-void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
+void TpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
     if (!set)
         return;
 
@@ -965,9 +965,9 @@ void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
     applyHollowMask(set, x1, y1, x2, y2, color, rad, hollowMaskData);
 }
 
-// void tpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<tpSurface> &surface)
+// void TpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<TpSurface> &surface)
 // {
-//     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+//     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 //     if (!set->swCanvas)
 //         return;
 
@@ -983,9 +983,9 @@ void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
 //     set->swCanvas->sync();
 // }
 
-// void tpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<tpSurface> &surface)
+// void TpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<TpSurface> &surface)
 // {
-//     ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+//     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 //     if (!set->swCanvas)
 //         return;
 
@@ -1009,9 +1009,9 @@ void tpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
 //     set->swCanvas->sync();
 // }
 
-void tpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
+void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
     if (!set->swCanvas)
         return;
 
@@ -1075,9 +1075,9 @@ void tpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &ima
     set->swCanvas->sync();
 }
 
-void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &text)
+void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &text)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -1088,9 +1088,9 @@ void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &te
     }
 }
 
-void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
+void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
@@ -1101,14 +1101,14 @@ void tpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
     }
 }
 
-void tpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &text)
+void TpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &text)
 {
     this->renderMarkUp(font, x, y, text.c_str());
 }
 
-void tpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text)
+void TpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text)
 {
-    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {

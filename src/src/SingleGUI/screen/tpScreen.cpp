@@ -6,7 +6,7 @@
 #include "tpObjectStack.h"
 #include "tpTimer.h"
 #include "tpChildWidget.h"
-#include <tpCanvas.h>
+#include <TpCanvas.h>
 #include <tpColors.h>
 #include <tpRect.h>
 #include <tpPoint.h>
