@@ -324,43 +324,6 @@ const char *bluet_device_get_name(BluetDevice *self)
 }
 
 
-
-//获取蓝牙设备信息暂时不用
-int bluet_get_remote_info(Adapter *adapter,const char *name)
-{
-	GError *error = NULL;
-	printf("info_arg\n");
-	Device *device = find_device(adapter, name, &error);
-	if(!device)
-	{
-		g_printerr("Error: Device not found.\n");
-		return -1;
-	}
-
-	g_print("[%s]\n", device_get_address(device, NULL));
-	g_print("  Name: %s\n", device_get_name(device, NULL));
-	g_print("  Alias: %s [rw]\n", device_get_alias(device, NULL));
-	g_print("  Address: %s\n", device_get_address(device, NULL));
-	g_print("  Icon: %s\n", device_get_icon(device, NULL));
-	g_print("  Class: 0x%x\n", device_get_class(device, NULL));
-	g_print("  Paired: %d\n", device_get_paired(device, NULL));
-	g_print("  Trusted: %d [rw]\n", device_get_trusted(device, NULL));
-	g_print("  Blocked: %d [rw]\n", device_get_blocked(device, NULL));
-	g_print("  Connected: %d\n", device_get_connected(device, NULL));
-	g_print("  UUIDs: [");
-	const gchar **uuids = device_get_uuids(device, NULL);
-	for (int j = 0; uuids[j] != NULL; j++)
-	{
-		if (j > 0) g_print(", ");
-		g_print("%s", uuid_to_name(uuids[j]));
-	}
-	g_print("]\n");
-
-	g_object_unref(device);
-	return 0;
-}
-
-
 //-----------------------------------------------------------------------------------------------------------------
 //属性设置/获取，不需要BluetDevice
 //------------------------------------------------------------------------------------------------------------------

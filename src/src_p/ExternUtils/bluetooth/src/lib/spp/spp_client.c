@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include "spp_client.h"
 #include "bluetooth_inc.h"
+#include "blt_sdp.h"
 
 
 #define RECV_BUF_SIZE           1024
@@ -190,8 +191,10 @@ int connect_spp_service(BluetSppClient  *self) {
     
     GError *error = NULL;
 	
-    device_connect_profile(self->priv->target_device, name_to_uuid("SerialPort"), &error); // SPP UUID
-    
+	char *uuidstr=bluet_name_to_uuidstr("SerialPort");
+    device_connect_profile(self->priv->target_device, uuidstr, &error); // SPP UUID
+    free(uuidstr);
+	
     if (error) {
         g_printerr("连接到SPP服务失败: %s\n", error->message);
         g_error_free(error);

@@ -4,9 +4,9 @@
 #include "bluetooth/include/blt_sdp.h"
 
 struct tpBluetoothServiceDiscoveryData{
-	tpBluetoothAddress remote_addr;
+	tpBluetoothAddress addr;
 	tpList<tpString> uuids_filter;
-	tpBluetoothServiceDiscoveryData(const tpBluetoothAddress &addr):remote_addr(addr){
+	tpBluetoothServiceDiscoveryData(const tpBluetoothAddress &addr_):addr(addr_){
 
 	};
 };
@@ -42,10 +42,13 @@ int tpBluetoothServiceDiscovery::start()
 	memset(attr_data,0,sizeof(struct SdpAttrValue)*16);
 	uint16_t uuid=0x0003;
 	const char bt_addr[18]="E4:5F:01:37:58:93";
+
 	printf("开始扫描\n");
-	bluet_quere_profile_attr((const char *)bt_addr, uuid,  attr_data,16);
-	scan_device_services((const char *)bt_addr);
-	memset(attr_data,0,sizeof(struct SdpAttrValue)*16);	
+//	bluet_quere_profile_attr((const char *)bt_addr, uuid,  attr_data,16);
+	printf("开始扫描\n");
+//	scan_device_services((const char *)bt_addr);
+	scan_device_services(NULL);
+	/*memset(attr_data,0,sizeof(struct SdpAttrValue)*16);	
 	int count = sdp_query_device(bt_addr, uuid, attr_data, 16);
 	if (count < 0) {
         printf("查询失败或未找到服务。\n");
@@ -53,7 +56,7 @@ int tpBluetoothServiceDiscovery::start()
 	else {
         printf("查询到 %d 个属性:\n", count);		
 
-    }
+    }*/
 
     free(attr_data);
 

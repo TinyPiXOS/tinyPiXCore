@@ -4,6 +4,7 @@
 #include "tpUtils.h"
 #include "tpBluetoothDevice.h"
 #include "tpBluetoothAddress.h"
+#include "tpBluetoothUuid.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpBluetoothServiceData);
 
@@ -51,12 +52,12 @@ public:
 public:
 	/// @brief 获取服务的UUID
 	/// @return 
-	tpString getServiceUuid() const;
+	tpBluetoothUuid getServiceUuid() const;
 
 	/// @brief 设置服务的UUID
 	/// @param uuid 
 	/// @return 
-	int setServiceUuid(const tpString& uuid);
+	int setServiceUuid(const tpBluetoothUuid& uuid);
 
 	/// @brief 获取服务的名字
 	/// @return 
@@ -71,11 +72,6 @@ public:
 	/// @return 
 	tpBluetoothAddress getDeviceAddress() const;
 
-	/// @brief 设置产生服务的设备地址
-	/// @param addr 
-	/// @return 
-	int setDeviceAddress(tpBluetoothAddress& addr);
-
 	/// @brief 获取服务的描述
 	/// @return 
 	tpString getServiceDescription() const;
@@ -83,11 +79,31 @@ public:
 	/// @brief 设置服务的描述
 	/// @param desc 
 	/// @return 
-	int setServiceDescription(tpString& desc);
+	int setServiceDescription(const tpString& desc);
+
+	/// @brief 设置服务的通道号
+	/// @param channel 
+	/// @return 
+	int setServiceChannel(tpUInt16 channel);
 
 	/// @brief 获取通道号
 	/// @return 
 	tpUInt16 getServerChannel();
+
+	/// @brief 
+	/// @param address 
+	/// @return 
+	tpBool registerService(const tpBluetoothAddress& address= tpBluetoothAddress());
+
+	/// @brief 
+	/// @return 
+	tpBool isRegisted();
+
+	/// @brief 
+	/// @return 
+	tpBool unregisterService();
+
+
 private:
 	ItpBluetoothServiceData *data_;
 };
