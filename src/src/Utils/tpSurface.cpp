@@ -26,20 +26,10 @@ typedef struct
     SDL_Renderer *render = nullptr;
 
     bool beUsed;
-
-    // SVG的相关数据
-    RsvgHandle *handle = nullptr;
-    uint32_t svgWidth = DEFAULT_SVG_WIDTH;
-    uint32_t svgHeight = DEFAULT_SVG_HEIGHT;
 } ItpSurfaceSet;
 
 static int32_t useRef = 0;
 static bool inited = false;
-
-static inline bool file_exist(const char *filename)
-{
-    return (access(filename, F_OK) != -1);
-}
 
 static inline int32_t cal_stride(int32_t width, int32_t depth)
 {
@@ -56,60 +46,6 @@ static inline int32_t cal_stride(int32_t width, int32_t depth)
     }
 
     return ((stride + 3) & ~3);
-}
-
-// 初始化SVG的数据
-static void initSvgData(tpSurface *thisPtr, ItpSurfaceSet *data)
-{
-    cairo_surface_t *cairo_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, data->svgWidth, data->svgHeight);
-
-    if (!cairo_surface)
-        return;
-
-    cairo_t *cr = cairo_create(cairo_surface);
-
-    if (!cr)
-    {
-        cairo_surface_destroy(cairo_surface);
-        return;
-    }
-
-    cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
-    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-
-    RsvgRectangle rectangle = {0, 0, (double)data->svgWidth, (double)data->svgHeight};
-
-    rsvg_handle_render_document(data->handle, cr, &rectangle, nullptr);
-
-    int32_t stride = cairo_image_surface_get_stride(cairo_surface);
-
-    if (!stride)
-    {
-        cairo_destroy(cr);
-        cairo_surface_destroy(cairo_surface);
-        return;
-    }
-
-    bool ret = thisPtr->create(nullptr, data->svgWidth, data->svgHeight, TP_RGB_32, stride, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-    // printf("ret=%d, width=%d,height=%d,stride=%d\n", ret, data->svgWidth, data->svgHeight, stride);
-
-    if (ret)
-    {
-        void *matrix = (void *)cairo_image_surface_get_data(cairo_surface);
-
-        if (matrix)
-        {
-            void *addr = thisPtr->matrix();
-
-            if (addr)
-            {
-                memcpy(addr, matrix, stride * data->svgHeight);
-            }
-        }
-    }
-
-    cairo_destroy(cr);
-    cairo_surface_destroy(cairo_surface);
 }
 
 tpSurface::tpSurface(IPiDSSurface *surface)
@@ -806,11 +742,6 @@ bool tpSurface::release()
     if (set->render)
     {
         SDL_DestroyRenderer(set->render);
-    }
-
-    if (set->handle)
-    {
-        g_object_unref(set->handle);
     }
 
     set->render = nullptr;

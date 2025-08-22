@@ -47,7 +47,7 @@ static void refreshCacheImage(ItpObjectSet *set)
     if (set->reserveImage.isNull())
         return;
 
-    set->cacheImage = set->reserveImage.scaled(set->logicalRect.w, set->logicalRect.h);
+    set->cacheImage = set->reserveImage.scaled(set->logicalRect.w, set->logicalRect.h, set->keepAspectRatio);
     if (!set->cacheImage.isNull())
     {
         // 是否进行背景模糊
@@ -918,14 +918,15 @@ TpImage tpChildWidget::backGroundCacheImage()
     return set->cacheImage;
 }
 
-void tpChildWidget::setBackGroundImage(TpImage image, bool enable)
+void tpChildWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(tpObject::objectSets());
     if (!set)
         return;
 
     set->reserveImage = image;
-    set->enableImage = enable;
+    set->enableImage = true;
+    set->keepAspectRatio = keepAspectRatio;
 
     if (set->logicalRect.w != 0 && set->logicalRect.h != 0)
     {
@@ -1254,6 +1255,7 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
 
     if (set->enableImage && !set->cacheImage.isNull())
     {
+        // canvas->paintImage(width() / 2.0, 0, set->cacheImage, minRad);
         canvas->paintImage(0, 0, set->cacheImage, minRad);
     }
 

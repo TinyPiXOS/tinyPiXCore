@@ -52,7 +52,7 @@ mainWindowService::mainWindowService()
     // animationTimer->start();
 
     setBackGroundColor(_RGB(100, 100, 100));
-    setBackGroundImage(TpImage("/home/hawk/Public/tinyPiXCore/examples/SingleGUI/thorVGTest/icon.png"));
+    setBackGroundImage(TpImage("/home/hawk/Public/tinyPiXCore/examples/SingleGUI/thorVGTest/icon.png"), false);
 }
 
 mainWindowService::~mainWindowService()

@@ -257,8 +257,8 @@ public:
 
     /// @brief 设置背景图片显示
     /// @param image 背景图片对象
-    /// @param enable 启用/禁用背景图片绘制
-    virtual void setBackGroundImage(TpImage image, bool enable = true);
+    /// @param keepAspectRatio 是否保持纵横比
+    virtual void setBackGroundImage(TpImage image, bool keepAspectRatio = true);
     /// @brief 获取当前的背景图片资源
     /// @return 图片对象指针，没有则返回空
     virtual TpImage backGroundImage();
@@ -281,9 +281,9 @@ public:
     /// @return RGBA值
     virtual uint32_t backGroundColor();
     /// @brief 获取是否启用背景颜色绘制
-    /// @return
+    /// @return 启用返回true，否则返回false
     virtual bool enableBackGroundColor();
-    /// @brief
+    /// @brief 设置是否启用背景颜色绘制
     /// @param enable
     virtual void setEnableBackGroundColor(bool enable);
 

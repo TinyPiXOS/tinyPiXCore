@@ -23,6 +23,7 @@ public:
 
 public:
     TpImage(const tpString &fileName = "");
+    TpImage(const TpImage& other);
     virtual ~TpImage();
 
 public:
@@ -33,13 +34,15 @@ public:
 
     /// @brief 指定size对图片进行缩放
     /// @param size 缩放后的尺寸
+    /// @param keepAspectRatio 是否保持纵横比
     /// @return 缩放后的资源对象
-    TpImage scaled(const ItpSize &size);
+    TpImage scaled(const ItpSize &size, bool keepAspectRatio = true);
     /// @brief 指定size对图片进行缩放
     /// @param width 缩放后的宽度
     /// @param height 缩放后的高度
+    /// @param keepAspectRatio 是否保持纵横比
     /// @return  缩放后的资源对象
-    TpImage scaled(const int32_t &width, const int32_t &height);
+    TpImage scaled(const int32_t &width, const int32_t &height, bool keepAspectRatio = true);
 
     /// @brief 对图片资源进行高斯模糊处理;返回新对象(不会对原始数据进行更新)
     /// @param radius 模糊半径
@@ -75,10 +78,21 @@ public:
     /// @return 保存结果
     virtual bool save(const tpString &filename, ImageType type, int32_t jpguality = 100);
 
-    // TODO 旋转接口
-    
+    /// @brief 旋转图片；返回新对象，不会修改原始对象
+    /// @param angle 旋转角度；顺时针旋转，3点钟方向为0°
+    /// @return 旋转后的新对象
+    virtual TpImage rotate(const float& angle);
+
+    /// @brief 获取旋转角度
+    /// @return 旋转角度
+    virtual float rotateAngle() const;
+
+    /// @brief 获取图片是否旋转
+    /// @return 旋转的返回true，否则返回false
+    virtual bool isRotated() const;
+
 public:
-    TpImage& operator=(const TpImage &others);
+    TpImage &operator=(const TpImage &others);
 
 private:
     ITpImageData *data_;

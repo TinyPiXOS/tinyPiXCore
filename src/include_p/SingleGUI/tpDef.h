@@ -111,6 +111,7 @@ struct ItpObjectSet
     bool enableImage;
     TpImage reserveImage;
     TpImage cacheImage;
+    bool keepAspectRatio = true;
 
     // 背景颜色
     bool enableColor = true;

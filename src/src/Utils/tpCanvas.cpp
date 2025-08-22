@@ -161,10 +161,24 @@ tpShared<tpSurface> tpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_s
 
 void tpCanvas::paintTest()
 {
+    ItpCanvasSet *set = static_cast<ItpCanvasSet *>(data_);
+
+    tvg::SwCanvas *testCanvas = tvg::SwCanvas::gen();
+
+    int32_t surfaceWidth = set->tpSurfacePtr->width();
+    int32_t surfaceHeight = set->tpSurfacePtr->height();
+    testCanvas->target((uint32_t *)set->tpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+
+    tvg::Picture *testPic = tvg::Picture::gen();
+    testPic->load("/home/hawk/Public/tinyPiXCore/examples/SingleGUI/thorVGTest/icon.png");
+    testPic->size(100, 100);
+    testPic->translate(set->offsetX + 10, set->offsetY + 10);
+    testPic->rotate(45);
+    testCanvas->push(std::move(testPic));
 
     // 绘制并同步
-    // set->swCanvas->draw();
-    // set->swCanvas->sync();
+    testCanvas->draw();
+    testCanvas->sync();
 }
 
 bool tpCanvas::setTarget(tpShared<tpSurface> surface, int32_t offsetX, int32_t offsetY)
@@ -1007,7 +1021,39 @@ void tpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &ima
 
     // 创建深拷贝（不修改原对象）
     tvg::Picture *pictureCopy = static_cast<tvg::Picture *>(imageData->tvgPicture->duplicate());
-    pictureCopy->translate(set->offsetX + x, set->offsetY + y);
+    if (image.isRotated())
+    {
+        float width = image.width();
+        float height = image.height();
+        float angle = image.rotateAngle(); // 获取旋转角度
+        float rad = angle * M_PI / 180.0f;
+        float cosθ = cos(-rad);
+        float sinθ = sin(-rad);
+
+        // 计算原始中心点
+        float originalCenterX = width / 2.0f;
+        float originalCenterY = height / 2.0f;
+
+        float rotatedCenterX = originalCenterX * cosθ + originalCenterY * sinθ;
+        float rotatedCenterY = -originalCenterX * sinθ + originalCenterY * cosθ;
+
+        // 计算绘制坐标，使得旋转后图片的中心位于指定位置
+        float drawX = -(rotatedCenterX - originalCenterX);
+        float drawY = -(rotatedCenterY - originalCenterY);
+
+        // std::cout << "原始中心点坐标： " << originalCenterX << " , " << originalCenterY << std::endl;
+        // std::cout << "旋转后中心点坐标： " << rotatedCenterX << " , " << rotatedCenterY << std::endl;
+        // std::cout << "新的绘制顶点坐标 " << drawX << " , " << drawY << std::endl;
+
+        // 调整绘制位置：减去偏移量，使中心点回到原位
+        pictureCopy->translate(
+            set->offsetX + x + drawX,
+            set->offsetY + y + drawY);
+    }
+    else
+    {
+        pictureCopy->translate(set->offsetX + x, set->offsetY + y);
+    }
 
     if (roundRad != 0)
     {

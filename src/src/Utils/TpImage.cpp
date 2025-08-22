@@ -4,6 +4,7 @@
 #include "TpImage_p.h"
 
 #include <thread>
+#include <cmath>
 
 TpImage::TpImage(const tpString &fileName) : data_(nullptr)
 {
@@ -17,6 +18,25 @@ TpImage::TpImage(const tpString &fileName) : data_(nullptr)
     data_ = imageData;
 
     load(fileName);
+}
+
+TpImage::TpImage(const TpImage &other)
+{
+    TpImageData *otherData = static_cast<TpImageData *>(other.data_);
+
+    TpImageData *imageData = new TpImageData();
+    imageData->tvgPicture = tvg::Picture::gen();
+
+    if (otherData)
+    {
+        TpImageData *otherData = static_cast<TpImageData *>(other.data_);
+
+        // 深拷贝所有成员
+        imageData->fileName = otherData->fileName;
+        imageData->tvgPicture = static_cast<tvg::Picture *>(otherData->tvgPicture->duplicate());
+    }
+
+    data_ = imageData;
 }
 
 TpImage::~TpImage()
@@ -58,19 +78,19 @@ bool TpImage::load(const tpString &filename)
     return true;
 }
 
-TpImage TpImage::scaled(const ItpSize &size)
+TpImage TpImage::scaled(const ItpSize &size, bool keepAspectRatio)
 {
     TpImageData *imageData = static_cast<TpImageData *>(data_);
     if (!imageData)
         return TpImage(imageData->fileName);
 
-    return scaled(size.w, size.h);
+    return scaled(size.w, size.h, keepAspectRatio);
 }
 
-TpImage TpImage::scaled(const int32_t &width, const int32_t &height)
+TpImage TpImage::scaled(const int32_t &width, const int32_t &height, bool keepAspectRatio)
 {
     TpImageData *imageData = static_cast<TpImageData *>(data_);
-    TpImage newImageObj(imageData->fileName);
+    TpImage newImageObj = *this;
     if (!imageData)
         return newImageObj;
 
@@ -81,7 +101,26 @@ TpImage TpImage::scaled(const int32_t &width, const int32_t &height)
         return newImageObj;
 
     TpImageData *newImageData = static_cast<TpImageData *>(newImageObj.data_);
-    newImageData->tvgPicture->size(width, height);
+
+    if (keepAspectRatio)
+    {
+        newImageData->tvgPicture->size(width, height);
+    }
+    else
+    {
+        // 获取原始尺寸
+        float originalW, originalH;
+        newImageData->tvgPicture->size(&originalW, &originalH);
+
+        // 计算缩放因子
+        float scaleX = width / originalW;
+        float scaleY = height / originalH;
+
+        // 应用不同的 X 和 Y 缩放因子
+        tvg::Matrix stretchMatrix = {scaleX, 0, 0, 0, scaleY, 0, 0, 0, 1};
+        newImageData->tvgPicture->transform(stretchMatrix);
+    }
+
     return newImageObj;
 }
 
@@ -118,14 +157,6 @@ int32_t TpImage::height() const
 
 bool TpImage::isNull()
 {
-    // TpImage test11;
-
-    // {
-    //     TpImage test22("/home/hawk/Public/tinyPiXCore/examples/SingleGUI/thorVGTest/icon.png");
-    //     test11 = test22;
-    // }
-    // TpImageData *test11Data = static_cast<TpImageData *>(test11.data_);
-
     TpImageData *imageData = static_cast<TpImageData *>(data_);
     if (!imageData)
         return true;
@@ -157,8 +188,7 @@ TpImage TpImage::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     if (!imageData)
         return TpImage();
 
-    // 创建深拷贝
-    TpImage newCopyImage = *this;
+    TpImage newCopyImage(imageData->fileName);
     TpImageData *newImageData = static_cast<TpImageData *>(newCopyImage.data_);
 
     newImageData->tvgPicture->translate(0, 0);
@@ -191,6 +221,42 @@ bool TpImage::save(const tpString &filename, ImageType type, int32_t jpguality)
     // saver->save(imageData->tvgPicture, "output.tvg", jpguality); // 质量参数 0-100
     // saver->sync();                                               // 等待保存完成
     return true;
+}
+
+TpImage TpImage::rotate(const float &angle)
+{
+    TpImageData *imageData = static_cast<TpImageData *>(data_);
+    if (!imageData)
+        return TpImage();
+
+    TpImage newCopyImage = *this;
+
+    TpImageData *newImageData = static_cast<TpImageData *>(newCopyImage.data_);
+    newImageData->tvgPicture->rotate(angle);
+
+    return newCopyImage;
+}
+
+float TpImage::rotateAngle() const
+{
+    TpImageData *imageData = static_cast<TpImageData *>(data_);
+    if (!imageData || !imageData->tvgPicture)
+        return 0.0f;
+
+    auto matrix = imageData->tvgPicture->transform();
+    return atan2(matrix.e21, matrix.e11) * 180.0f / M_PI;
+}
+
+bool TpImage::isRotated() const
+{
+    TpImageData *imageData = static_cast<TpImageData *>(data_);
+    if (!imageData || !imageData->tvgPicture)
+        return false;
+
+    auto matrix = imageData->tvgPicture->transform();
+
+    // 检查是否有旋转分量
+    return (matrix.e12 != 0.0f || matrix.e21 != 0.0f);
 }
 
 TpImage &TpImage::operator=(const TpImage &others)
