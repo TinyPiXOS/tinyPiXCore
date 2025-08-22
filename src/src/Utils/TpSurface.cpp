@@ -4,12 +4,8 @@
 #include <iostream>
 #include "tpFileInfo.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL2_rotozoom.h>
-#include <SDL2_gfxPrimitives.h>
 #include <tinyPiXUtils.h>
-#include "librsvg/rsvg.h"
+#include "thorVG/thorvg.h"
 
 #define DEFAULT_SVG_WIDTH 100
 #define DEFAULT_SVG_HEIGHT 100
@@ -22,10 +18,9 @@
 
 struct TpSurfaceData
 {
-    SDL_Surface *surface = nullptr;
-    SDL_Renderer *render = nullptr;
+    IPiWFSurface *pixWFSurface = nullptr;
 
-    bool beUsed;
+    bool beUsed = false;
 };
 
 static int32_t useRef = 0;
@@ -51,42 +46,24 @@ static inline int32_t cal_stride(int32_t width, int32_t depth)
 TpSurface::TpSurface(IPiDSSurface *surface)
 {
     TpSurfaceData *set = new TpSurfaceData();
+    set->beUsed = false;
+    this->data_ = set;
 
-    if (set)
+    if (surface)
     {
-        set->surface = nullptr;
-        set->render = nullptr;
-        set->beUsed = false;
+        bool ret = this->create(surface);
 
-        this->data_ = set;
-
-        if (surface)
+        if (ret == false)
         {
-            bool ret = this->create(surface);
-
-            if (ret == false)
-            {
-                std::cout << "TpSurface creates failed!" << std::endl;
-                std::exit(0);
-            }
+            std::cout << "TpSurface creates failed!" << std::endl;
+            std::exit(0);
         }
-    }
-
-    if (useRef == 0 &&
-        inited == false)
-    {
-        inited = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP);
-    }
-
-    if (inited)
-    {
-        useRef++;
     }
 }
 
 TpSurface::~TpSurface()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
     if (set)
     {
@@ -95,13 +72,6 @@ TpSurface::~TpSurface()
     }
 
     useRef--;
-
-    if (inited &&
-        useRef == 0)
-    {
-        IMG_Quit();
-        inited = false;
-    }
 }
 
 bool TpSurface::create(IPiDSSurface *surface)
@@ -121,8 +91,7 @@ bool TpSurface::create(IPiDSSurface *surface)
     int32_t width = tinyPiX_surface_get_width(surface);
     int32_t height = tinyPiX_surface_get_height(surface);
 
-    if (width == 0 ||
-        height == 0)
+    if (width == 0 || height == 0)
     {
         return false;
     }
@@ -161,102 +130,51 @@ bool TpSurface::create(IPiDSSurface *surface)
 
     tinyPiX_surface_get_cliprect(surface, &x, &y, &w, &h);
 
-    tpRect clipRect(x, y, w, h);
+    ItpRect clipRect(x, y, w, h);
 
-    return this->create(matrix, width, height, depth, pitch, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, &clipRect);
+    return this->create(matrix, width, height, depth, pitch, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, clipRect);
 }
 
 bool TpSurface::create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
                        int32_t rmask, int32_t gmask, int32_t bmask, int32_t amask,
-                       uint8_t alpha, bool enableColroKey, uint32_t colorKey, tpRect *clip, bool convertToFit)
+                       uint8_t alpha, bool enableColroKey, uint32_t colorKey, const ItpRect &clip)
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    bool ret = false;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return false;
 
-    if (set)
+    IPiWFSurface *tmpSurface2 = nullptr;
+
+    tmpSurface2 = tinyPiX_surface_create(address, width, height, format, rmask, gmask, bmask, amask);
+    if (tmpSurface2 == nullptr)
+        return false;
+
+    if (alpha != 0xff)
     {
-        SDL_Surface *tmpSurface = nullptr;
+        // SDL_SetSurfaceAlphaMod(tmpSurface, alpha);
+        // SDL_SetSurfaceBlendMode(tmpSurface, SDL_BLENDMODE_BLEND);
 
-        if (address)
-        {
-            tmpSurface = SDL_CreateRGBSurfaceFrom(address, width, height, format, stride, rmask, gmask, bmask, amask);
-        }
-        else
-        {
-            tmpSurface = SDL_CreateRGBSurface(0, width, height, format, rmask, gmask, bmask, amask);
-        }
-
-        if (tmpSurface == nullptr)
-        {
-            return false;
-        }
-
-        if (convertToFit)
-        {
-            if (tmpSurface->format->BytesPerPixel < TP_RGB_32 ||
-                tmpSurface->format->Amask == 0)
-            {
-                SDL_Surface *tmp = SDL_ConvertSurfaceFormat(tmpSurface, SDL_PIXELFORMAT_ARGB32, 0);
-                SDL_FreeSurface(tmpSurface);
-
-                if (tmp)
-                {
-                    tmpSurface = tmp;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        SDL_Renderer *tmpRenderer = SDL_CreateSoftwareRenderer(tmpSurface);
-
-        if (tmpRenderer == nullptr)
-        {
-            SDL_FreeSurface(tmpSurface);
-            return false;
-        }
-
-        if (alpha != 0xff)
-        {
-            SDL_SetSurfaceAlphaMod(tmpSurface, alpha);
-            SDL_SetSurfaceBlendMode(tmpSurface, SDL_BLENDMODE_BLEND);
-        }
-
-        SDL_SetColorKey(tmpSurface, (int32_t)enableColroKey, colorKey);
-
-        if (clip)
-        {
-            if (clip->width() > 0 &&
-                clip->height() > 0)
-            {
-
-                SDL_Rect rect;
-
-                rect.x = clip->X0();
-                rect.y = clip->Y0();
-                rect.w = clip->width();
-                rect.h = clip->height();
-
-                SDL_SetClipRect(tmpSurface, &rect);
-                SDL_RenderSetClipRect(tmpRenderer, &rect);
-            }
-        }
-
-        if (set->beUsed)
-        {
-            this->release();
-        }
-
-        set->surface = tmpSurface;
-        set->render = tmpRenderer;
-
-        ret = true;
-        set->beUsed = ret;
+        tinyPiX_surface_set_alpha(tmpSurface2, alpha);
     }
 
-    return ret;
+    tinyPiX_surface_set_colorkey_enable(tmpSurface2, enableColroKey);
+    tinyPiX_surface_set_colorkey(tmpSurface2, colorKey);
+
+    if (clip.w > 0 && clip.h > 0)
+    {
+        tinyPiX_surface_set_cliprect(tmpSurface2, clip.x, clip.y, clip.w, clip.h);
+    }
+
+    if (set->beUsed)
+    {
+        this->release();
+    }
+
+    set->pixWFSurface = tmpSurface2;
+
+    set->beUsed = true;
+
+    return true;
 }
 
 bool TpSurface::create(tpShared<TpSurface> surface, bool bShareMemoried)
@@ -283,46 +201,26 @@ bool TpSurface::create(tpShared<TpSurface> surface, bool bShareMemoried)
     bool enable = true;
 
     ItpRect tpr = surface->clipRect();
-    tpRect rect = tpr;
 
-    return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, &rect);
+    return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, tpr);
 }
 
-IPitpSurfacePtr *TpSurface::surface()
+IPiDSSurface *TpSurface::surface()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    SDL_Surface *surface = nullptr;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
     if (!set)
-        return surface;
+        return nullptr;
 
     if (!set->beUsed)
-        return surface;
+        return nullptr;
 
-    surface = set->surface;
-
-    return surface;
-}
-
-IPiRendererPtr *TpSurface::renderer()
-{
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    SDL_Renderer *render = nullptr;
-
-    if (!set)
-        return render;
-
-    if (!set->beUsed)
-        return render;
-
-    render = set->render;
-
-    return render;
+    return set->pixWFSurface;
 }
 
 void *TpSurface::matrix()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     void *matrix = nullptr;
 
     if (!set)
@@ -331,213 +229,172 @@ void *TpSurface::matrix()
     if (!set->beUsed)
         return matrix;
 
-    matrix = set->surface->pixels;
+    matrix = tinyPiX_surface_get_matrix(set->pixWFSurface);
+    // matrix = set->surface->pixels;
 
     return matrix;
 }
 
 int32_t TpSurface::stride()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t stride = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            stride = set->surface->pitch;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return stride;
+    return tinyPiX_surface_get_stride(set->pixWFSurface);
 }
 
 int32_t TpSurface::width()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-
-    int32_t width = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     if (!set)
-        return width;
+        return 0;
 
     if (!set->beUsed)
-        return width;
+        return 0;
 
-    width = set->surface->w;
-
-    return width;
+    return tinyPiX_surface_get_width(set->pixWFSurface);
 }
 
 int32_t TpSurface::height()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t height = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            height = set->surface->h;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return height;
+    return tinyPiX_surface_get_height(set->pixWFSurface);
 }
 
 int32_t TpSurface::format()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t format = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            format = set->surface->format->BitsPerPixel;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return format;
+    return tinyPiX_surface_get_format(set->pixWFSurface);
 }
 
 int32_t TpSurface::rmask()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t rmask = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            rmask = set->surface->format->Rmask;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return rmask;
+    return tinyPiX_surface_get_rmask(set->pixWFSurface);
 }
 
 int32_t TpSurface::gmask()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t gmask = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            gmask = set->surface->format->Gmask;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return gmask;
+    return tinyPiX_surface_get_gmask(set->pixWFSurface);
 }
 
 int32_t TpSurface::bmask()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t bmask = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            bmask = set->surface->format->Bmask;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return bmask;
+    return tinyPiX_surface_get_bmask(set->pixWFSurface);
 }
 
 int32_t TpSurface::amask()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    int32_t amask = 0;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return 0;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            amask = set->surface->format->Amask;
-        }
-    }
+    if (!set->beUsed)
+        return 0;
 
-    return amask;
+    return tinyPiX_surface_get_amask(set->pixWFSurface);
 }
 
-void TpSurface::setClipRect(tpRect *rect)
+void TpSurface::setClipRect(const ItpRect &rect)
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    SDL_Rect *pClipRect = nullptr, clipRect;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (!set)
+        return;
 
-    if (rect)
-    {
-        clipRect.x = rect->X0();
-        clipRect.y = rect->Y0();
-        clipRect.w = rect->width();
-        clipRect.h = rect->height();
+    if (!set->beUsed)
+        return;
 
-        pClipRect = &clipRect;
-    }
+    if (rect.w == 0 || rect.h == 0)
+        return;
 
-    if (set)
-    {
-        if (set->beUsed)
-        {
-            SDL_SetClipRect(set->surface, pClipRect);
-            SDL_RenderSetClipRect(set->render, pClipRect);
-        }
-    }
+    tinyPiX_surface_set_cliprect(set->pixWFSurface, rect.x, rect.y, rect.w, rect.h);
 }
 
 ItpRect TpSurface::clipRect()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    SDL_Rect rect = {0};
-
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     if (!set)
         return ItpRect();
 
     if (!set->beUsed)
         return ItpRect();
 
-    SDL_GetClipRect(set->surface, &rect);
+    int32_t x = 0;
+    int32_t y = 0;
+    uint32_t width = 0;
+    uint32_t height = 0;
+    tinyPiX_surface_get_cliprect(set->pixWFSurface, &x, &y, &width, &height);
 
-    ItpRect result(rect.x, rect.y, rect.w, rect.h);
-
-    return result;
+    return ItpRect(x, y, width, height);
 }
 
-void TpSurface::clear()
-{
-    this->fill(nullptr, _RGB(0, 0, 0));
-}
+// void TpSurface::clear()
+// {
+//     this->fill(nullptr, _RGB(0, 0, 0));
+// }
 
-void TpSurface::fill(tpRect *rect, int32_t color)
-{
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
-    SDL_Rect *pFillRect = nullptr, fillRect;
+// void TpSurface::fill(tpRect *rect, int32_t color)
+// {
+//     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+//     SDL_Rect *pFillRect = nullptr, fillRect;
 
-    if (rect)
-    {
-        fillRect.x = rect->X0();
-        fillRect.y = rect->Y0();
-        fillRect.w = rect->width();
-        fillRect.h = rect->height();
+//     if (rect)
+//     {
+//         fillRect.x = rect->X0();
+//         fillRect.y = rect->Y0();
+//         fillRect.w = rect->width();
+//         fillRect.h = rect->height();
 
-        pFillRect = &fillRect;
-    }
+//         pFillRect = &fillRect;
+//     }
 
-    if (set)
-    {
-        uint8_t r = _R(color), g = _G(color), b = _B(color), a = _A(color);
-        color = SDL_MapRGBA(set->surface->format, r, g, b, a);
-        SDL_FillRect(set->surface, pFillRect, color);
-    }
-}
+//     if (set)
+//     {
+//         uint8_t r = _R(color), g = _G(color), b = _B(color), a = _A(color);
+//         color = SDL_MapRGBA(set->surface->format, r, g, b, a);
+//         SDL_FillRect(set->surface, pFillRect, color);
+//     }
+// }
 
 bool TpSurface::hasSurface()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     bool ret = false;
 
     if (set)
@@ -555,7 +412,7 @@ tpShared<TpSurface> TpSurface::copy(tpRect &rect)
 
 tpShared<TpSurface> TpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
     if (!set)
         return nullptr;
@@ -563,168 +420,140 @@ tpShared<TpSurface> TpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     if (set->beUsed == false)
         return nullptr;
 
-    SDL_Rect cpRect;
+    int32_t width = w;
+    int32_t height = h;
 
-    cpRect.x = x;
-    cpRect.y = y;
-    cpRect.w = w;
-    cpRect.h = h;
-
-    int32_t width = cpRect.w;
-    int32_t height = cpRect.h;
-
-    int32_t depth = set->surface->format->BitsPerPixel;
+    int32_t depth = format();
 
     int32_t stride = cal_stride(width, depth);
 
-    int32_t Rmask = set->surface->format->Rmask;
-    int32_t Gmask = set->surface->format->Gmask;
-    int32_t Bmask = set->surface->format->Bmask;
-    int32_t Amask = set->surface->format->Amask;
+    uint32_t Rmask;
+    uint32_t Gmask;
+    uint32_t Bmask;
+    uint32_t Amask;
+    tinyPiX_surface_get_rgba_mask(set->pixWFSurface, &Rmask, &Gmask, &Bmask, &Amask);
 
-    uint8_t alpha = 0xff;
-    SDL_GetSurfaceAlphaMod(set->surface, &alpha);
-
-    uint32_t colorKey = 0;
-    SDL_GetColorKey(set->surface, &colorKey);
-
-    bool enable = SDL_HasColorKey(set->surface);
+    uint8_t alpha = tinyPiX_surface_get_alpha(set->pixWFSurface);
+    int32_t colorKey = tinyPiX_surface_get_colorkey(set->pixWFSurface);
+    bool enable = tinyPiX_surface_get_colorkey_enable(set->pixWFSurface);
 
     tpShared<TpSurface> newSurf = tpMakeShared<TpSurface>();
-
     if (newSurf == nullptr)
         return nullptr;
 
-    bool ret = newSurf->create(nullptr, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, nullptr);
+    bool ret = newSurf->create(nullptr, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey);
 
     if (ret == false)
-    {
         return nullptr;
-    }
 
-    SDL_Surface *dstSurf = (SDL_Surface *)newSurf->surface();
-
-    if (dstSurf)
-    {
-        SDL_BlitSurface(set->surface, &cpRect, dstSurf, nullptr);
-    }
-
+    // newSurf->setClipRect(ItpRect(x, y, w, h));
     return newSurf;
 }
 
-void TpSurface::directBlitF(tpShared<TpSurface> surface, tpRect &src, tpRect &dst)
+bool thorvgBlitSurfaceWithAlpha(uint32_t *srcData, int srcW, int srcH,
+                                const ItpRect &srcRect, uint32_t *dstData,
+                                int dstW, int dstH, const ItpRect &dstRect,
+                                uint8_t alpha = 255,
+                                tvg::BlendMethod blendMode = tvg::BlendMethod::Normal)
 {
-    SDL_Rect srect, drect;
+    auto picture = tvg::Picture::gen();
+    if (!picture)
+        return false;
 
-    srect.x = src.X0();
-    srect.y = src.Y0();
-    srect.w = src.width();
-    srect.h = src.height();
-
-    drect.x = dst.X0();
-    drect.y = dst.Y0();
-    drect.w = dst.width();
-    drect.h = dst.height();
-
-    SDL_Surface *srcSurf = (SDL_Surface *)surface->surface();
-
-    if (srcSurf)
+    // 加载源图像（支持 alpha 通道）
+    auto result = picture->load(srcData, srcW, srcH, tvg::ColorSpace::ARGB8888, false);
+    if (result != tvg::Result::Success)
     {
-        TpSurfaceData *set = (TpSurfaceData *)this->data_;
+        delete picture;
+        return false;
+    }
 
-        if (set && set->beUsed)
-        {
-            SDL_BlitSurface(srcSurf, &srect, set->surface, &drect);
-        }
+    // 设置透明度
+    if (alpha < 255)
+    {
+        picture->opacity(alpha);
+    }
+
+    // 设置混合模式
+    picture->blend(blendMode);
+
+    // 其余实现与之前相同...
+    auto canvas = tvg::SwCanvas::gen();
+    canvas->target(dstData, dstW, dstW, dstH, tvg::ColorSpace::ARGB8888);
+
+    std::cout << "dstRect: " << dstRect.x << "  " << dstRect.y << "  " << dstRect.w << "  " << dstRect.h << std::endl;
+    std::cout << "srcRect: " << srcRect.x << "  " << srcRect.y << "  " << srcRect.w << "  " << srcRect.h << std::endl;
+
+    // TODO
+    // if (srcRect.w > 0 && srcRect.h > 0)
+    // {
+    //     auto clipper = tvg::Shape::gen();
+    //     clipper->appendRect(srcRect.x, srcRect.y, srcRect.w, srcRect.h);
+    //     picture->clip(clipper);
+    // }
+
+    if (dstRect.w > 0 && dstRect.h > 0)
+    {
+        picture->size(dstRect.w, dstRect.h);
+        picture->translate(dstRect.x, dstRect.y);
+        // picture->translate(0, 0);
+    }
+
+    canvas->push(picture);
+    canvas->draw();
+
+    canvas->sync();
+
+    delete canvas;
+    return true;
+}
+
+void TpSurface::directBlitF(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst)
+{
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
+    if (set && set->beUsed)
+    {
+        thorvgBlitSurfaceWithAlpha((uint32_t *)surface->matrix(), surface->width(), surface->height(),
+                                   src, (uint32_t *)matrix(), width(), height(), dst);
+        // SDL_BlitSurface(srcSurf, &srect, set->surface, &drect);
     }
 }
 
-void TpSurface::directBlitT(tpShared<TpSurface> surface, tpRect &src, tpRect &dst)
+void TpSurface::directBlitT(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst)
 {
-    SDL_Rect srect, drect;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
-    srect.x = src.X0();
-    srect.y = src.Y0();
-    srect.w = src.width();
-    srect.h = src.height();
-
-    drect.x = dst.X0();
-    drect.y = dst.Y0();
-    drect.w = dst.width();
-    drect.h = dst.height();
-
-    SDL_Surface *dstSurf = (SDL_Surface *)surface->surface();
-
-    if (dstSurf)
+    if (set && set->beUsed)
     {
-        TpSurfaceData *set = (TpSurfaceData *)this->data_;
-
-        if (set && set->beUsed)
-        {
-            SDL_BlitSurface(set->surface, &srect, dstSurf, &drect);
-        }
+        thorvgBlitSurfaceWithAlpha((uint32_t *)matrix(), width(), height(),
+                                   src, (uint32_t *)surface->matrix(), surface->width(), surface->height(), dst);
+        // SDL_BlitSurface(set->surface, &srect, dstSurf, &drect);
     }
 }
 
-void TpSurface::strenchBlitF(TpSurface &surface, tpRect &src, tpRect &dst)
+void TpSurface::strenchBlitF(TpSurface &surface, const ItpRect &src, const ItpRect &dst)
 {
-    SDL_Rect srect, drect;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
-    srect.x = src.X0();
-    srect.y = src.Y0();
-    srect.w = src.width();
-    srect.h = src.height();
-
-    drect.x = dst.X0();
-    drect.y = dst.Y0();
-    drect.w = dst.width();
-    drect.h = dst.height();
-
-    SDL_Surface *srcSurf = (SDL_Surface *)surface.surface();
-
-    if (srcSurf)
+    if (set && set->beUsed)
     {
-        TpSurfaceData *set = (TpSurfaceData *)this->data_;
-
-        if (set &&
-            set->beUsed)
-        {
-            SDL_BlitScaled(srcSurf, &srect, set->surface, &drect);
-        }
+        // SDL_BlitScaled(srcSurf, src, set->surface, dst);
     }
 }
 
-void TpSurface::strenchBlitT(TpSurface &surface, tpRect &src, tpRect &dst)
+void TpSurface::strenchBlitT(TpSurface &surface, const ItpRect &src, const ItpRect &dst)
 {
-    SDL_Rect srect, drect;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
-    srect.x = src.X0();
-    srect.y = src.Y0();
-    srect.w = src.width();
-    srect.h = src.height();
-
-    drect.x = dst.X0();
-    drect.y = dst.Y0();
-    drect.w = dst.width();
-    drect.h = dst.height();
-
-    SDL_Surface *dstSurf = (SDL_Surface *)surface.surface();
-
-    if (dstSurf)
+    if (set && set->beUsed)
     {
-        TpSurfaceData *set = (TpSurfaceData *)this->data_;
-
-        if (set &&
-            set->beUsed)
-        {
-            SDL_BlitScaled(set->surface, &srect, dstSurf, &drect);
-        }
+        // SDL_BlitScaled(set->surface, &srect, dstSurf, &drect);
     }
 }
 
 bool TpSurface::release()
 {
-    TpSurfaceData *set = (TpSurfaceData *)this->data_;
+    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
     if (!set)
         return false;
@@ -732,19 +561,13 @@ bool TpSurface::release()
     if (!set->beUsed)
         return false;
 
-    if (set->surface)
+    if (set->pixWFSurface)
     {
-        SDL_FreeSurface(set->surface);
+        tinyPiX_surface_free(set->pixWFSurface);
     }
 
-    set->surface = nullptr;
+    set->pixWFSurface = nullptr;
 
-    if (set->render)
-    {
-        SDL_DestroyRenderer(set->render);
-    }
-
-    set->render = nullptr;
     set->beUsed = false;
 
     return true;

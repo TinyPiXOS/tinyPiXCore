@@ -39,8 +39,7 @@ public:
     virtual tpShared<TpSurface> surface();
 
 public:
-    virtual void setClipRect(tpRect &rect);
-    virtual void setClipRect(ItpRect *rect);
+    virtual void setClipRect(const ItpRect &rect);
 
 public:
     /// @brief 清理画布；清除所有绘制对象
@@ -227,7 +226,7 @@ public:
     /// @param x 绘制X坐标
     /// @param y 绘制Y坐标
     /// @param image 资源对象
-    /// @param roundRad 
+    /// @param roundRad
     virtual void paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad = 0);
 
 public:

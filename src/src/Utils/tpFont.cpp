@@ -494,8 +494,8 @@ static inline void _surfaceToSurface(tpShared<TpSurface> src, tpShared<TpSurface
     final_w = TP_MIN(sw, dw);
     final_h = TP_MIN(sh, dh);
 
-    tpRect srect(sx, sy, final_w, final_h);
-    tpRect drect(dx, dy, final_w, final_h);
+    ItpRect srect(sx, sy, final_w, final_h);
+    ItpRect drect(dx, dy, final_w, final_h);
 
     src->directBlitT(dst, srect, drect);
 }
@@ -602,7 +602,15 @@ static inline void _complexDraw(tpFontData *context, tpShared<TpSurface> surface
     pango_cairo_update_layout(cr, context->layout);
     pango_cairo_show_layout(cr, context->layout);
 
+    // int32_t Rmask = 0x00ff0000;
+    // int32_t Gmask = 0x0000ff00;
+    // int32_t Bmask = 0x000000ff;
+    // int32_t Amask = 0xff000000;
+
     tpShared<TpSurface> srcSurf = TpCanvas::convertFromCairoToSurface(surf);
+    // tpShared<TpSurface> srcSurf = tpMakeShared<TpSurface>();
+    // void *addr = (void *)cairo_image_surface_get_data(cairo_surface);
+    // srcSurf->create(nullptr, size.w, size.h, TP_RGB_32, 0, Rmask, Gmask, Bmask, Amask);
 
     if (srcSurf == nullptr)
     {

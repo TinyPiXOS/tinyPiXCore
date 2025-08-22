@@ -7,9 +7,7 @@
 
 /**strage 32bits and ARGB**/
 TP_DEF_VOID_TYPE_VAR(ITpSurfaceData);
-TP_DEF_VOID_TYPE_VAR(IPitpSurfacePtr);
 TP_DEF_VOID_TYPE_VAR(IPiDSSurface);
-TP_DEF_VOID_TYPE_VAR(IPiRendererPtr);
 
 class tpRect;
 class TpSurface
@@ -23,12 +21,13 @@ public:
     // if format not be 32, or Amask = 0, canvas will be ineffective
     virtual bool create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
                         int32_t rmask = 0, int32_t gmask = 0, int32_t bmask = 0, int32_t amask = 0,
-                        uint8_t alpha = 0xff, bool enableColroKey = false, uint32_t colorKey = 0, tpRect *clip = nullptr, bool convertToFit = false);
+                        uint8_t alpha = 0xff, bool enableColroKey = false, uint32_t colorKey = 0, const ItpRect &clip = ItpRect());
     virtual bool create(tpShared<TpSurface> surface, bool bShareMemoried = true); // if false, can not copy source data, only copy other parameters
 
 public:
-    virtual IPitpSurfacePtr *surface(); // real surface
-    virtual IPiRendererPtr *renderer(); // real render
+    /// @brief 获取当前绘制画布指针
+    /// @return 画布指针
+    virtual IPiDSSurface *surface();
 
 public:
     virtual void *matrix();
@@ -53,12 +52,12 @@ public:
     virtual int32_t amask();
 
 public:
-    virtual void setClipRect(tpRect *rect);
+    virtual void setClipRect(const ItpRect &rect);
     virtual ItpRect clipRect();
 
 public:
-    virtual void clear();
-    virtual void fill(tpRect *rect, int32_t color);
+    // virtual void clear();
+    // virtual void fill(tpRect *rect, int32_t color);
 
 public:
     virtual bool hasSurface();
@@ -68,12 +67,17 @@ public:
     virtual tpShared<TpSurface> copy(int32_t x, int32_t y, int32_t w, int32_t h); // will be effected by clip rect
 
 public:
-    virtual void directBlitF(tpShared<TpSurface> surface, tpRect &src, tpRect &dst); // from other surface
-    virtual void directBlitT(tpShared<TpSurface> surface, tpRect &src, tpRect &dst); // to other surface
+    virtual void directBlitF(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst); // from other surface
+
+    /// @brief 将自己的surface数据拷贝至目标surface
+    /// @param surface
+    /// @param src
+    /// @param dst
+    virtual void directBlitT(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst);
 
 public:
-    virtual void strenchBlitF(TpSurface &surface, tpRect &src, tpRect &dst); // from other surface, can strench, have to zoom out will be effective
-    virtual void strenchBlitT(TpSurface &surface, tpRect &src, tpRect &dst); // to other surface, can strench, have to zoom out will be effective
+    virtual void strenchBlitF(TpSurface &surface, const ItpRect &src, const ItpRect &dst); // from other surface, can strench, have to zoom out will be effective
+    virtual void strenchBlitT(TpSurface &surface, const ItpRect &src, const ItpRect &dst); // to other surface, can strench, have to zoom out will be effective
 
 public:
     /// @brief 释放内部所有资源，释放后Surface即无效

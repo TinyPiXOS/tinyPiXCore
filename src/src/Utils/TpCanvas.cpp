@@ -216,22 +216,13 @@ tpShared<TpSurface> TpCanvas::surface()
     return nullptr;
 }
 
-void TpCanvas::setClipRect(tpRect &rect)
+void TpCanvas::setClipRect(const ItpRect &rect)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
     if (set && set->beUsed)
     {
-        set->tpSurfacePtr->setClipRect(&rect);
-    }
-}
-
-void TpCanvas::setClipRect(ItpRect *rect)
-{
-    if (rect)
-    {
-        tpRect r(rect);
-        this->setClipRect(r);
+        set->tpSurfacePtr->setClipRect(rect);
     }
 }
 

@@ -1488,7 +1488,7 @@ bool tpObjectPaintEvent::construct(ItpEventData *eventData)
 	}
 
 	set->rect = inputObjectChild->rect();
-	set->canvas->setClipRect(clipRect);
+	set->canvas->setClipRect(clipRect.get());
 	set->type = EVENT_OBJECT_PAINT_TYPE;
 
 	return true;
