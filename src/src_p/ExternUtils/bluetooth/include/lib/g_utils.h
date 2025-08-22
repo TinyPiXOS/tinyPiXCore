@@ -28,8 +28,8 @@ if (error) { \
 int xtoi(const gchar *str);
 
 /* UUID converters */
-const char *uuid_to_name(const char *uuid);
-const char *name_to_uuid(const char *name);
+const char *uuid_to_name(uint16_t uuid);
+uint16_t name_to_uuid(const char *name);
 
 //蓝牙地址的冒号转换为下划线(附带有地址格式校验)
 char* convert_bt_addr_format(const char* bt_addr);

@@ -397,12 +397,12 @@ int scan_device_services(const char *bt_addr)
 }  
 
 
-const char *bluet_uuid_to_name(const char *uuid)
+const char *bluet_uuid_to_name(uint16_t uuid)
 {
 	return uuid_to_name(uuid);
 }
 
-const char *bluet_name_to_uuid(const char *name)
+uint16_t bluet_name_to_uuid(const char *name)
 {
 	return name_to_uuid(name);
 }
@@ -448,7 +448,7 @@ void bluet_uuid32_to_uuid128(uint32_t uuid32, uint8_t uuid128[16])
 
 char *bluet_uuid128_to_uuidstr(const uint8_t uuid128[16])
 {
-	char *uuidstr=malloc(40);
+	char *uuidstr=malloc(37);
 	if(!uuidstr)
 		return NULL;
 	uuid128_to_uuidstr(uuid128,uuidstr);
@@ -460,7 +460,24 @@ int bluet_uuidstr_to_uuid128(const char *uuidstr, uint8_t uuid128[16])
 	return (uuidstr_to_uuid128(uuidstr, uuid128)==TRUE ? 0 : -1);
 }
 
+char *bluet_name_to_uuidstr(const char *name)
+{
+	uint16_t uuid=bluet_name_to_uuid(name);
+	if(uuid==0)
+		return NULL;
+	uint8_t uuid128[16];
+	bluet_uuid16_to_uuid128(uuid,uuid128);
+	return bluet_uuid128_to_uuidstr(uuid128);
+}
 
+const char *bluet_uuidstr_to_name(const char *uuidstr)
+{
+	uint8_t uuid128[16];
+	bluet_uuidstr_to_uuid128(uuidstr,uuid128);
+	uint16_t uuid;
+	bluet_uuid128_to_uuid16(uuid128,&uuid);
+	return bluet_uuid_to_name(uuid);
+}
 
 //解析查询结果
 

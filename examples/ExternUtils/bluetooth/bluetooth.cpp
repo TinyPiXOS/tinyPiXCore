@@ -23,7 +23,7 @@ int example_list_adapter()
 //扫描蓝牙
 int example_list_device()
 {
-	tpBluetoothDiscovery discovery("hci1");
+	tpBluetoothDiscovery discovery("hci0");
 	discovery.start();
 	
 	connect(&discovery, bluetoothDeviceRemove, [=](tpBluetoothAddress address)
@@ -54,7 +54,6 @@ int example_power()
 	sleep(5);
 	local.powerOn();
 }
-
 
 
 

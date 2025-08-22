@@ -161,14 +161,8 @@ tpBool tpBluetoothService::registerService(const tpBluetoothAddress& address)
 		fprintf(stderr,"[Error]: 未设置uuid\n");
 		return TP_FALSE;
 	}
-		
-	std::ostringstream uuid_128;
-			uuid_128 << "0000" 
-				<< std::hex << std::setfill('0') << std::setw(4) 
-				<< static_cast<unsigned>(data->uuid.toUInt16())
-				<< "-0000-1000-8000-00805F9B34FB";
 
-	const char* name = bluet_uuid_to_name(uuid_128.str().c_str());
+	const char* name = bluet_uuid_to_name(data->uuid.toUInt16());
 	if (!name) {
 		fprintf(stderr,"[Error]: uuid不合法\n");
 		return TP_FALSE;
@@ -178,9 +172,9 @@ tpBool tpBluetoothService::registerService(const tpBluetoothAddress& address)
 	{
 		data->name=tpString(name);
 	}
-printf("[Debug]: name=%s\n",name);
-	data->servicefd=register_bluetooth_service( "00001101-0000-1000-8000-00805F9B34FB",//uuid_128.str().c_str(),
-                                 "Serial Port Profile",//data->name.c_str(),
+
+	data->servicefd=register_bluetooth_service( data->uuid.toString().c_str(),
+                                  data->name.c_str(),
                                   data->port, 
                                   "server");		//暂时只支持注册为服务端(客户端暂无必要场景)
 	if(data->servicefd<0)

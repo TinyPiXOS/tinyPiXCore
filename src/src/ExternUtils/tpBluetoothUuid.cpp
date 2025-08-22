@@ -203,25 +203,27 @@ tpBool tpBluetoothUuid::isNull() const
 tpString tpBluetoothUuid::toName()const
 {
 	tpBluetoothUuidData *data = static_cast<tpBluetoothUuidData*>(data_);
+	tpString name("Unknown");
+	uint16_t uuid16;
+	if(bluet_uuid128_to_uuid16(data->uuid128,&uuid16)<0)
+		return "Unknown";
+
 	switch(data->type)
 	{
 		case TP_UUID_TYPE_PROTOCOL:
 			return "Unknown";
+		
 		case TP_UUID_TYPE_PROFILE:
-		{
-			// 使用字符串流直接构建完整UUID
-			char *uuidstr=bluet_uuid128_to_uuidstr(data->uuid128);
-			if(!uuidstr)
-				return "Unknown";
-			const char* name = bluet_uuid_to_name(uuidstr);
-			if (!name) {
-				return "Unknown";
-			}
-			free(uuidstr);
-			return tpString(name);
-		}
 		default:
-			return "Unknown";
+		{
+			const char *uuid_name = bluet_uuid_to_name(uuid16);
+			if (!uuid_name) {
+				break;
+			}
+			name=tpString(uuid_name);
+			break;
+		}
 	}
+	return name;
 }
 
