@@ -9,6 +9,7 @@ extern "C" {
 
 #include <unistd.h>
 #include <bluetooth/sdp.h>
+#include <bluetooth/sdp_lib.h>
 
 //主要对常用的几个协议的UUID的二次封装
 typedef enum SdpCreatUUID_{
@@ -17,7 +18,7 @@ typedef enum SdpCreatUUID_{
 }SdpCreatUUID;
 
 
-
+typedef void (*ServiceDiscoveryCallback)(sdp_record_t *rec,void *userdata);
 struct SdpAttrValue{
 	uint32_t attr;
 	union {
@@ -49,15 +50,11 @@ struct SdpServerInfo{
 	char *desc;		//描述
 };
 
-void print_service_attr(sdp_record_t *rec);
 int bluet_quere_profile_attr(const char *bt_addr,uint16_t uuid,struct SdpAttrValue *attr_data,size_t attr_size);
-int sdp_query_device(const char *bt_addr, uint16_t uuid, struct SdpAttrValue *attr_data, size_t attr_size);
-void bluet_free_attr_array(struct SdpAttrValue *attr_data, size_t count);
-void bluet_free_last_search(void);
 
 int get_obex_channel(const char *bt_addr);
 
-int scan_device_services(const char *bt_addr)  ;
+int scan_device_services(const char *bt_addr,ServiceDiscoveryCallback callback,void *userdata);
 
 const char *bluet_uuid_to_name(uint16_t uuid);
 uint16_t bluet_name_to_uuid(const char *name);

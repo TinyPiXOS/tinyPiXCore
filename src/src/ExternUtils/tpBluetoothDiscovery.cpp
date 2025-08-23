@@ -24,6 +24,7 @@ struct tpBluetoothListData{
 
 
 struct tpBluetoothDiscoveryData{
+	tpBluetoothLocal adapter;
 	tpList<tpBluetoothDevice *> device_list;
 	tpSystemDataManage data;
 	BluetDeviceScan *scan;
@@ -31,10 +32,11 @@ struct tpBluetoothDiscoveryData{
 	BluetDbusSignal *sig_remove;
 	BluetDbusSignal *sig_cha;
 	
-	tpBluetoothDiscoveryData(){
+	tpBluetoothDiscoveryData(const tpString& local):adapter(local){
 		sig_add=NULL;
 		sig_cha=NULL;
 		scan=NULL;
+
 	};
 
 	~tpBluetoothDiscoveryData() {
@@ -117,22 +119,19 @@ tpBluetoothDiscovery::tpBluetoothDiscovery(const tpString& local)
 
 tpBluetoothDiscovery::tpBluetoothDiscovery(const char *local)
 {
-	tpBluetoothLocal adapter(local);
-	if(!adapter.isPowerOn())
+	data_ = new tpBluetoothDiscoveryData(local);
+	tpBluetoothDiscoveryData *data = static_cast<tpBluetoothDiscoveryData *>(data_);
+
+	if(!data->adapter.isPowerOn())
 	{
 		fprintf(stderr,"[Error]:Adapter is power down\n");
-		//return;
 	}
-
-	data_ = new tpBluetoothDiscoveryData();
-	tpBluetoothDiscoveryData *data = static_cast<tpBluetoothDiscoveryData *>(data_);
 
 	if(tpDbusConnectManage::instance().connection()!=TP_TRUE)
 	{
 		fprintf(stderr,"[Error]:connect to dbus error\n");
 		return ;
 	}
-
 
 	data->scan=bluet_adapter_scan_creat(local);
 	if(!data->scan)
@@ -242,6 +241,13 @@ void tpBluetoothDiscovery::stop()
 	data->sig_cha=NULL;
 }
 
+//bluet_adapter_is_discovering
+tpBool tpBluetoothDiscovery::isDiscovering()
+{
+	tpBluetoothDiscoveryData *data = static_cast<tpBluetoothDiscoveryData *>(data_);
+	Adapter *adp=(Adapter *)data->adapter.getAdapter();
+	return (bluet_adapter_is_discovering(adp)==1 ? TP_TRUE : TP_FALSE);
+}
 
 /*
 由于改为了信号的方式，暂不支持直接获取列表，需要用户手动生成

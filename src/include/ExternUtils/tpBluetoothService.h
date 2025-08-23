@@ -1,15 +1,94 @@
 #ifndef _TP_BLUETOOTH_SERVICE_H_
 #define _TP_BLUETOOTH_SERVICE_H_
 
+#include <map>
 #include "tpUtils.h"
+#include "tpVariant.h"
+#include "tpVector.h"
 #include "tpBluetoothDevice.h"
 #include "tpBluetoothAddress.h"
 #include "tpBluetoothUuid.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpBluetoothServiceData);
 
-
 class tpBluetoothService{
+public:
+    class Sequence
+    {
+    public:
+        Sequence();
+        Sequence(const Sequence& other);
+        Sequence(Sequence&& other) noexcept;
+        ~Sequence();
+        
+        Sequence& operator=(const Sequence& other);
+        Sequence& operator=(Sequence&& other) noexcept;
+        
+        // 添加各种类型的值
+        Sequence& append(bool value);
+		Sequence& append(int8_t value);
+        Sequence& append(uint8_t value);
+		Sequence& append(int16_t value);
+        Sequence& append(uint16_t value);
+        Sequence& append(int32_t value);
+        Sequence& append(uint32_t value);
+        Sequence& append(int64_t value);
+        Sequence& append(uint64_t value);
+        Sequence& append(float value);
+        Sequence& append(double value);
+        Sequence& append(const char* value);
+        Sequence& append(const std::string& value);
+        Sequence& append(const Sequence& value); // 嵌套序列支持
+        
+        // 流式操作符
+        Sequence& operator<<(bool value);
+		Sequence& operator<<(int8_t value);
+        Sequence& operator<<(uint8_t value);
+		Sequence& operator<<(int16_t value);
+        Sequence& operator<<(uint16_t value);
+        Sequence& operator<<(int32_t value);
+        Sequence& operator<<(uint32_t value);
+        Sequence& operator<<(int64_t value);
+        Sequence& operator<<(uint64_t value);
+        Sequence& operator<<(float value);
+        Sequence& operator<<(double value);
+        Sequence& operator<<(const char* value);
+        Sequence& operator<<(const std::string& value);
+        Sequence& operator<<(const Sequence& value);
+        
+        // 访问元素
+        const tpVariant& at(size_t index) const;
+        tpVariant& operator[](size_t index);
+        
+        // 容器信息
+        size_t size() const;
+        bool isEmpty() const;
+        void clear();
+        
+        // 类型安全的取值方法
+        bool boolValueAt(size_t index) const;
+		int8_t int8ValueAt(size_t index) const;
+        uint8_t uint8ValueAt(size_t index) const;
+		int16_t int16ValueAt(size_t index) const;
+        uint16_t uint16ValueAt(size_t index) const;
+        int32_t int32ValueAt(size_t index) const;
+        uint32_t uint32ValueAt(size_t index) const;
+        int64_t int64ValueAt(size_t index) const;
+        uint64_t uint64ValueAt(size_t index) const;
+        float floatValueAt(size_t index) const;
+        double doubleValueAt(size_t index) const;
+        std::string stringValueAt(size_t index) const;
+        Sequence sequenceValueAt(size_t index) const; // 嵌套序列取值
+
+		const std::vector<tpVariant>& getValues() const;
+        void setValues(const std::vector<tpVariant>& values);
+    private:
+        // 添加通用 append 方法
+        Sequence& appendVariant(const tpVariant& value);
+        
+        std::vector<tpVariant> m_values;
+    };
+
 public:
 	enum Protocol{
 		TP_BLUET_UNKNOWN_PROTOCOL,
@@ -44,7 +123,12 @@ public:
 	
 public:
 	tpBluetoothService();
+	//赋值
 	tpBluetoothService& operator=(const tpBluetoothService &other);
+	//移动赋值
+	tpBluetoothService& operator=(tpBluetoothService&& other) noexcept;
+	//移动构造
+	tpBluetoothService(tpBluetoothService&& other) noexcept;
 	tpBluetoothService(const tpBluetoothService &other);
 
 	~tpBluetoothService();
@@ -90,6 +174,15 @@ public:
 	/// @return 
 	tpUInt16 getServerChannel();
 
+	/// @brief 设置 provider
+	/// @param provider 
+	/// @return 
+	int setServiceProvider(const tpString& provider);
+
+	/// @brief 获取设置 provider
+	/// @return 
+	tpString getServiceProvider() const;
+
 	/// @brief 
 	/// @param address 
 	/// @return 
@@ -103,6 +196,28 @@ public:
 	/// @return 
 	tpBool unregisterService();
 
+	int setServiceClassUuids(tpList<tpBluetoothUuid>& uuids);
+
+	int addServiceClassUuid(tpBluetoothUuid& uuid);
+
+	tpList<tpBluetoothUuid> getServiceClassUuids();
+
+	int setServiceRecHandle(tpUInt32 handle);
+
+	tpUInt32 getServiceRecHandle();
+
+	void setAttribute(uint16_t attributeId, const tpVariant& value);
+    void setAttribute(uint16_t attributeId, const Sequence& value);
+	const tpVariant& attribute(uint16_t attributeId) const;
+	const std::map<uint16_t, tpVariant>& attributes() const;
+
+
+	Sequence getProtocolDescriptorList() const;
+
+	Sequence getProfileDescriptorList() const;
+
+	int setProtocolDescriptorList(const Sequence& list);
+	int setProfileDescriptorList(const Sequence& list);
 
 private:
 	ItpBluetoothServiceData *data_;

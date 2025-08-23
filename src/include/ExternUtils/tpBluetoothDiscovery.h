@@ -28,6 +28,9 @@ public:
 	/// @brief 停止扫描
 	void stop();
 public:
+	/// @brief 是否处于扫描中
+	/// @return 
+	tpBool isDiscovering();
 	/// @brief 设置扫描蓝牙的类型
 	/// @param type 类型
 	/// @return 

@@ -9,7 +9,7 @@
 #include <assert.h>
 
 #include "tpUtils.h"
-
+class BluetoothService;
 /// @brief 泛类型
 class tpVariant
 {
@@ -28,6 +28,15 @@ public:
         tpRect,
         tpSize,
         tpPoint,
+
+		tpInt1,  //!< int8_t 类型
+        tpUint1, //!< uint8_t 类型
+		tpInt2,  //!< int16_t 类型
+        tpUint2 , //!< uint16_t 类型
+
+		tpVector, // 向量类型
+
+
         tpSet = 1 << 8 // 0x1000, //!< 集合类型，该类型的值需要用过特定函数获取，不能直接通过成员变量获取
     };
 
@@ -37,6 +46,10 @@ public:
         union InnerUnion
         {
             bool m_bVal;
+			int8_t m_i1Val;
+			uint8_t m_ui1Val;
+			int16_t m_i2Val;
+			uint16_t m_ui2Val;
             int32_t m_i4Val;
             uint32_t m_ui4Val;
             int64_t m_i8Val;
@@ -50,6 +63,8 @@ public:
 
             char *m_strVal;
             void *m_pSetVal;
+			
+			std::vector<tpVariant>* m_vectorVal; // 向量指针
 
             InnerUnion() {}
         } data;
@@ -62,6 +77,10 @@ public:
 public:
     tpVariant();
     tpVariant(bool bValue);
+	tpVariant(int8_t nValue);
+    tpVariant(uint8_t nValue);
+    tpVariant(int16_t nValue);
+    tpVariant(uint16_t nValue);
     tpVariant(int32_t nValue);
     tpVariant(uint32_t uValue);
     tpVariant(int64_t nValue);
@@ -76,6 +95,10 @@ public:
     tpVariant(const ItpPoint &value);
 
     tpVariant(const std::vector<bool> &valueVector);
+	tpVariant(const std::vector<int8_t> &valueVector);
+    tpVariant(const std::vector<uint8_t> &valueVector);
+	tpVariant(const std::vector<int16_t> &valueVector);
+    tpVariant(const std::vector<uint16_t> &valueVector);
     tpVariant(const std::vector<int32_t> &valueVector);
     tpVariant(const std::vector<uint32_t> &valueVector);
     tpVariant(const std::vector<int64_t> &valueVector);
@@ -84,6 +107,10 @@ public:
     tpVariant(const std::vector<double> &valueVector);
     tpVariant(const std::vector<std::string> &valueVector);
     tpVariant(const std::set<bool> &valueSet);
+	tpVariant(const std::set<int8_t> &valueSet);
+    tpVariant(const std::set<uint8_t> &valueSet);
+	tpVariant(const std::set<int16_t> &valueSet);
+    tpVariant(const std::set<uint16_t> &valueSet);
     tpVariant(const std::set<int32_t> &valueSet);
     tpVariant(const std::set<uint32_t> &valueSet);
     tpVariant(const std::set<int64_t> &valueSet);
@@ -94,11 +121,17 @@ public:
 
     tpVariant(const VariantValue &value);
     tpVariant(const tpVariant &other);
+	tpVariant(std::vector<tpVariant>* vectorVal);
 
+	~tpVariant();
 public:
     bool isNull();
 
     tpVariant &operator=(bool bValue);
+	tpVariant &operator=(int8_t nValue);
+    tpVariant &operator=(uint8_t uValue);
+	tpVariant &operator=(int16_t nValue);
+    tpVariant &operator=(uint16_t uValue);
     tpVariant &operator=(int32_t nValue);
     tpVariant &operator=(uint32_t uValue);
     tpVariant &operator=(int64_t nValue);
@@ -111,6 +144,10 @@ public:
     tpVariant &operator=(const char *pChar);
     tpVariant &operator=(const std::string &strChar);
     tpVariant &operator=(const std::vector<bool> &valueVector);
+	tpVariant &operator=(const std::vector<int8_t> &valueVector);
+    tpVariant &operator=(const std::vector<uint8_t> &valueVector);
+    tpVariant &operator=(const std::vector<int16_t> &valueVector);
+    tpVariant &operator=(const std::vector<uint16_t> &valueVector);
     tpVariant &operator=(const std::vector<int32_t> &valueVector);
     tpVariant &operator=(const std::vector<uint32_t> &valueVector);
     tpVariant &operator=(const std::vector<int64_t> &valueVector);
@@ -119,6 +156,10 @@ public:
     tpVariant &operator=(const std::vector<double> &valueVector);
     tpVariant &operator=(const std::vector<std::string> &valueVector);
     tpVariant &operator=(const std::set<bool> &valueSet);
+	tpVariant &operator=(const std::set<int8_t> &valueSet);
+    tpVariant &operator=(const std::set<uint8_t> &valueSet);
+    tpVariant &operator=(const std::set<int16_t> &valueSet);
+    tpVariant &operator=(const std::set<uint16_t> &valueSet);
     tpVariant &operator=(const std::set<int32_t> &valueSet);
     tpVariant &operator=(const std::set<uint32_t> &valueSet);
     tpVariant &operator=(const std::set<int64_t> &valueSet);
@@ -140,6 +181,32 @@ public:
         if (!isBool())
             return false;
         return data_.data.m_bVal;
+    }
+	operator int8_t() const
+    {
+        if (!isInt8())
+            return 0;
+        return data_.data.m_i1Val;
+    }
+
+    operator uint8_t() const
+    {
+        if (!isUint8())
+            return 0;
+        return data_.data.m_ui1Val;
+    }
+	operator int16_t() const
+    {
+        if (!isInt16())
+            return 0;
+        return data_.data.m_i2Val;
+    }
+
+    operator uint16_t() const
+    {
+        if (!isUint16())
+            return 0;
+        return data_.data.m_ui2Val;
     }
 
     operator int32_t() const
@@ -226,7 +293,18 @@ public:
         return ItpPoint(data_.data.tpPointValue);
     }
 
+	bool isVector() const;
+	const std::vector<tpVariant>* toVectorPtr() const;
+
     bool isBool() const { return (uint16_t)VariantType::tpBool == data_.m_vt; }
+
+	bool isInt8() const { return (uint16_t)VariantType::tpInt1 == data_.m_vt; }
+
+    bool isUint8() const { return (uint16_t)VariantType::tpUint1 == data_.m_vt; }
+
+	bool isInt16() const { return (uint16_t)VariantType::tpInt2 == data_.m_vt; }
+
+    bool isUint16() const { return (uint16_t)VariantType::tpUint2 == data_.m_vt; }
 
     bool isInt32() const { return (uint16_t)VariantType::tpInt4 == data_.m_vt; }
 
@@ -256,6 +334,34 @@ public:
             return defaultValue;
 
         return bool(*this);
+    }
+
+	int8_t toInt8(const int8_t &defaultValue = 0) const
+    {
+        if (!isInt8())
+            return defaultValue;
+        return int8_t(*this);
+    }
+
+    uint8_t toUInt8(const uint8_t &defaultValue = 0) const
+    {
+        if (!isUint8())
+            return defaultValue;
+        return uint8_t(*this);
+    }
+
+	int16_t toInt16(const int16_t &defaultValue = 0) const
+    {
+        if (!isInt16())
+            return defaultValue;
+        return int16_t(*this);
+    }
+
+    uint16_t toUInt16(const uint16_t &defaultValue = 0) const
+    {
+        if (!isUint16())
+            return defaultValue;
+        return uint16_t(*this);
     }
 
     int32_t toInt32(const int32_t &defaultValue = 0) const
@@ -331,6 +437,10 @@ public:
     }
 
     std::vector<bool> ToBoolArray() const;
+	std::vector<int8_t> ToInt8Array() const;
+    std::vector<uint8_t> ToUint8Array() const;
+	std::vector<int16_t> ToInt16Array() const;
+    std::vector<uint16_t> ToUint16Array() const;
     std::vector<int32_t> ToInt32Array() const;
     std::vector<uint32_t> ToUint32Array() const;
     std::vector<int64_t> ToInt64Array() const;
@@ -340,6 +450,10 @@ public:
     std::vector<std::string> ToStringArray() const;
 
     std::set<bool> &ToBoolSet();
+	 std::set<int8_t> &ToInt8Set();
+    std::set<uint8_t> &ToUint8Set();
+	 std::set<int16_t> &ToInt16Set();
+    std::set<uint16_t> &ToUint16Set();
     std::set<int32_t> &ToInt32Set();
     std::set<uint32_t> &ToUint32Set();
     std::set<int64_t> &ToInt64Set();

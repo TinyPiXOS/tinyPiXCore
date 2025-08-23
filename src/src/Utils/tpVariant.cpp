@@ -43,6 +43,31 @@ tpVariant::tpVariant(bool bValue)
     data_.data.m_bVal = bValue;
 }
 
+
+tpVariant::tpVariant(int8_t nValue)
+{
+    data_.m_vt = (uint16_t)VariantType::tpInt1;
+    data_.data.m_i1Val = nValue;
+}
+
+tpVariant::tpVariant(uint8_t nValue)
+{
+	data_.m_vt = (uint16_t)VariantType::tpUint1;
+    data_.data.m_ui1Val = nValue;
+}
+
+tpVariant::tpVariant(int16_t nValue)
+{
+    data_.m_vt = (uint16_t)VariantType::tpInt2;
+    data_.data.m_i2Val = nValue;
+}
+
+tpVariant::tpVariant(uint16_t nValue)
+{
+	data_.m_vt = (uint16_t)VariantType::tpUint2;
+    data_.data.m_ui2Val = nValue;
+}
+
 tpVariant::tpVariant(int32_t nValue)
 {
     data_.m_vt = (uint16_t)VariantType::tpInt4;
@@ -140,6 +165,42 @@ tpVariant::tpVariant(const std::vector<bool> &valueVector)
     data_.data.m_pSetVal = pSetVal;
 }
 
+tpVariant::tpVariant(const std::vector<int8_t> &valueVector)
+{
+    data_.m_vt = (uint16_t)VariantType::tpInt1 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<int8_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+}
+
+tpVariant::tpVariant(const std::vector<uint8_t> &valueVector)
+{
+    data_.m_vt = (uint16_t)VariantType::tpUint1 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<uint8_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+}
+
+tpVariant::tpVariant(const std::vector<int16_t> &valueVector)
+{
+    data_.m_vt = (uint16_t)VariantType::tpInt2 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<int16_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+}
+
+tpVariant::tpVariant(const std::vector<uint16_t> &valueVector)
+{
+    data_.m_vt = (uint16_t)VariantType::tpUint2 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<uint16_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+}
+
 tpVariant::tpVariant(const std::vector<int32_t> &valueVector)
 {
     data_.m_vt = (uint16_t)VariantType::tpInt4 | (uint16_t)VariantType::tpSet;
@@ -209,6 +270,30 @@ tpVariant::tpVariant(const std::set<bool> &valueSet)
     data_.data.m_pSetVal = new std::set<bool>(valueSet);
 }
 
+tpVariant::tpVariant(const std::set<int8_t> &valueSet)
+{
+    data_.m_vt = (uint16_t)VariantType::tpInt1 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<int8_t>(valueSet);
+}
+
+tpVariant::tpVariant(const std::set<uint8_t> &valueSet)
+{
+    data_.m_vt = (uint16_t)VariantType::tpUint1 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<uint8_t>(valueSet);
+}
+
+tpVariant::tpVariant(const std::set<int16_t> &valueSet)
+{
+    data_.m_vt = (uint16_t)VariantType::tpInt2 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<int16_t>(valueSet);
+}
+
+tpVariant::tpVariant(const std::set<uint16_t> &valueSet)
+{
+    data_.m_vt = (uint16_t)VariantType::tpUint2 | (uint16_t)VariantType::tpSet;
+	data_.data.m_pSetVal = new std::set<uint16_t>(valueSet);
+}
+
 tpVariant::tpVariant(const std::set<int32_t> &valueSet)
 {
     data_.m_vt = (uint16_t)VariantType::tpInt4 | (uint16_t)VariantType::tpSet;
@@ -263,6 +348,16 @@ tpVariant::tpVariant(const tpVariant &other)
     VariantValueCopy(data_, other.data_);
 }
 
+tpVariant::tpVariant(std::vector<tpVariant>* vectorVal) {
+    data_.m_vt = static_cast<uint16_t>(VariantType::tpVector);
+    data_.data.m_vectorVal = vectorVal;
+}
+
+tpVariant::~tpVariant() {
+    VariantValueClear(data_);
+}
+
+
 bool tpVariant::isNull()
 {
     return (data_.m_vt == (uint16_t)VariantType::tpEmpty);
@@ -273,6 +368,36 @@ tpVariant &tpVariant::operator=(bool bValue)
     VariantValueClear(data_);
     data_.m_vt = (uint16_t)VariantType::tpBool;
     data_.data.m_bVal = bValue;
+    return *this;
+}
+tpVariant &tpVariant::operator=(int8_t nValue)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpInt1;
+    data_.data.m_i1Val = nValue;
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(uint8_t uValue)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpUint1;
+    data_.data.m_ui1Val = uValue;
+    return *this;
+}
+tpVariant &tpVariant::operator=(int16_t nValue)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpInt2;
+    data_.data.m_i2Val = nValue;
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(uint16_t uValue)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpUint2;
+    data_.data.m_ui2Val = uValue;
     return *this;
 }
 
@@ -401,6 +526,49 @@ tpVariant &tpVariant::operator=(const std::vector<bool> &valueVector)
     return *this;
 }
 
+tpVariant &tpVariant::operator=(const std::vector<int8_t> &valueVector)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpInt1 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<int8_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(const std::vector<uint8_t> &valueVector)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpUint1 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<uint8_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+    return *this;
+}
+tpVariant &tpVariant::operator=(const std::vector<int16_t> &valueVector)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpInt2 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<int16_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(const std::vector<uint16_t> &valueVector)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpUint2 | (uint16_t)VariantType::tpSet;
+    auto pSetVal = new std::set<uint16_t>();
+    for (auto value : valueVector)
+        pSetVal->insert(value);
+    data_.data.m_pSetVal = pSetVal;
+    return *this;
+}
+
 tpVariant &tpVariant::operator=(const std::vector<int32_t> &valueVector)
 {
     VariantValueClear(data_);
@@ -490,6 +658,38 @@ tpVariant &tpVariant::operator=(const std::set<bool> &valueSet)
     VariantValueClear(data_);
     data_.m_vt = (uint16_t)VariantType::tpBool | (uint16_t)VariantType::tpSet;
     data_.data.m_pSetVal = new std::set<bool>(valueSet);
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(const std::set<int8_t> &valueSet)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpInt1 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<int8_t>(valueSet);
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(const std::set<uint8_t> &valueSet)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpUint1 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<uint8_t>(valueSet);
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(const std::set<int16_t> &valueSet)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpInt2 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<int16_t>(valueSet);
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(const std::set<uint16_t> &valueSet)
+{
+    VariantValueClear(data_);
+    data_.m_vt = (uint16_t)VariantType::tpUint2 | (uint16_t)VariantType::tpSet;
+    data_.data.m_pSetVal = new std::set<uint16_t>(valueSet);
     return *this;
 }
 
@@ -612,6 +812,95 @@ std::vector<bool> tpVariant::ToBoolArray() const
 
     return arrayValue;
 }
+
+std::vector<int8_t> tpVariant::ToInt8Array() const
+{
+    std::vector<int8_t> arrayValue;
+    std::set<int8_t> *pSetVal = static_cast<std::set<int8_t> *>(data_.data.m_pSetVal);
+
+    if (pSetVal)
+    {
+        uint32_t i = 0;
+
+        assert(data_.m_vt == (((uint16_t)VariantType::tpInt1) | (uint16_t)VariantType::tpSet));
+        arrayValue.resize(pSetVal->size());
+        for (auto subValue : *pSetVal)
+            arrayValue[i++] = subValue;
+    }
+    else
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+    }
+
+    return arrayValue;
+}
+
+std::vector<uint8_t> tpVariant::ToUint8Array() const
+{
+    std::vector<uint8_t> arrayValue;
+    std::set<uint8_t> *pSetVal = static_cast<std::set<uint8_t> *>(data_.data.m_pSetVal);
+
+    if (pSetVal)
+    {
+        uint32_t i = 0;
+
+        assert(data_.m_vt == (((uint16_t)VariantType::tpUint1) | (uint16_t)VariantType::tpSet));
+        arrayValue.resize(pSetVal->size());
+        for (auto subValue : *pSetVal)
+            arrayValue[i++] = subValue;
+    }
+    else
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+    }
+
+    return arrayValue;
+}
+
+std::vector<int16_t> tpVariant::ToInt16Array() const
+{
+    std::vector<int16_t> arrayValue;
+    std::set<int16_t> *pSetVal = static_cast<std::set<int16_t> *>(data_.data.m_pSetVal);
+
+    if (pSetVal)
+    {
+        uint32_t i = 0;
+
+        assert(data_.m_vt == (((uint16_t)VariantType::tpInt2) | (uint16_t)VariantType::tpSet));
+        arrayValue.resize(pSetVal->size());
+        for (auto subValue : *pSetVal)
+            arrayValue[i++] = subValue;
+    }
+    else
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+    }
+
+    return arrayValue;
+}
+
+std::vector<uint16_t> tpVariant::ToUint16Array() const
+{
+    std::vector<uint16_t> arrayValue;
+    std::set<uint16_t> *pSetVal = static_cast<std::set<uint16_t> *>(data_.data.m_pSetVal);
+
+    if (pSetVal)
+    {
+        uint32_t i = 0;
+
+        assert(data_.m_vt == (((uint16_t)VariantType::tpUint2) | (uint16_t)VariantType::tpSet));
+        arrayValue.resize(pSetVal->size());
+        for (auto subValue : *pSetVal)
+            arrayValue[i++] = subValue;
+    }
+    else
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+    }
+
+    return arrayValue;
+}
+
 
 std::vector<int32_t> tpVariant::ToInt32Array() const
 {
@@ -781,6 +1070,70 @@ std::set<bool> &tpVariant::ToBoolSet()
     }
 
     return *static_cast<std::set<bool> *>(data_.data.m_pSetVal);
+}
+
+std::set<int8_t> &tpVariant::ToInt8Set()
+{
+    if (nullptr == data_.data.m_pSetVal)
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+        data_.m_vt = (((uint16_t)VariantType::tpInt1) | (uint16_t)VariantType::tpSet);
+        data_.data.m_pSetVal = new std::set<int8_t>();
+    }
+    else
+    {
+        assert(data_.m_vt == (((uint16_t)VariantType::tpInt1) | (uint16_t)VariantType::tpSet));
+    }
+
+    return *static_cast<std::set<int8_t> *>(data_.data.m_pSetVal);
+}
+
+std::set<uint8_t> &tpVariant::ToUint8Set()
+{
+    if (nullptr == data_.data.m_pSetVal)
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+        data_.m_vt = (((uint16_t)VariantType::tpUint1) | (uint16_t)VariantType::tpSet);
+        data_.data.m_pSetVal = new std::set<uint8_t>();
+    }
+    else
+    {
+        assert((data_.m_vt == (((uint16_t)VariantType::tpUint1) | (uint16_t)VariantType::tpSet)));
+    }
+
+    return *static_cast<std::set<uint8_t> *>(data_.data.m_pSetVal);
+}
+
+std::set<int16_t> &tpVariant::ToInt16Set()
+{
+    if (nullptr == data_.data.m_pSetVal)
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+        data_.m_vt = (((uint16_t)VariantType::tpInt2) | (uint16_t)VariantType::tpSet);
+        data_.data.m_pSetVal = new std::set<int16_t>();
+    }
+    else
+    {
+        assert(data_.m_vt == (((uint16_t)VariantType::tpInt2) | (uint16_t)VariantType::tpSet));
+    }
+
+    return *static_cast<std::set<int16_t> *>(data_.data.m_pSetVal);
+}
+
+std::set<uint16_t> &tpVariant::ToUint16Set()
+{
+    if (nullptr == data_.data.m_pSetVal)
+    {
+        assert(data_.m_vt == (uint16_t)VariantType::tpEmpty);
+        data_.m_vt = (((uint16_t)VariantType::tpUint2) | (uint16_t)VariantType::tpSet);
+        data_.data.m_pSetVal = new std::set<uint16_t>();
+    }
+    else
+    {
+        assert((data_.m_vt == (((uint16_t)VariantType::tpUint2) | (uint16_t)VariantType::tpSet)));
+    }
+
+    return *static_cast<std::set<uint16_t> *>(data_.data.m_pSetVal);
 }
 
 std::set<int32_t> &tpVariant::ToInt32Set()
@@ -953,4 +1306,18 @@ bool tpVariant::Compare(const VariantValue &value)
             return 0 == strcmp(data_.data.m_strVal, value.data.m_strVal);
         }
     }
+}
+
+
+// 添加类型检查方法
+bool tpVariant::isVector() const {
+    return data_.m_vt == static_cast<uint16_t>(VariantType::tpVector);
+}
+
+// 添加向量指针访问方法
+const std::vector<tpVariant>* tpVariant::toVectorPtr() const {
+    if (isVector()) {
+        return data_.data.m_vectorVal;
+    }
+    return nullptr;
 }
