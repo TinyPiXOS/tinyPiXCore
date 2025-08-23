@@ -22,6 +22,8 @@ struct TpCanvasData
     tvg::SwCanvas *swCanvas = nullptr;
     // 使用OpenGL加速的绘制引擎；需有GPU和OpenGL才能使用；暂时无用
     tvg::GlCanvas *glCanvas = nullptr;
+
+    tvg::Scene *tvgScene = nullptr;
 };
 
 // 绘制圆角图片资源数据
@@ -159,26 +161,47 @@ tpShared<TpSurface> TpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_s
     return surface;
 }
 
+void TpCanvas::addScene(void *scene)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    // 如果已有 Scene，先移除
+    if (set->tvgScene)
+    {
+        set->swCanvas->remove(set->tvgScene);
+        set->tvgScene = nullptr;
+    }
+
+    tvg::Scene *addScene = (tvg::Scene *)scene;
+    set->tvgScene = static_cast<tvg::Scene *>(addScene->duplicate());
+    // set->swCanvas->push(set->tvgScene);
+
+    // if (set->tvgScene == nullptr)
+    // {
+    //     tvg::Scene* addScene = (tvg::Scene*)scene;
+    //     set->tvgScene = static_cast<tvg::Scene*>(addScene->duplicate());
+    //     set->swCanvas->push(set->tvgScene);
+    // }
+}
+
 void TpCanvas::paintTest()
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
-    tvg::SwCanvas *testCanvas = tvg::SwCanvas::gen();
+    // 确保设置了渲染目标
+    // refreshCanvasTarget(set);
 
-    int32_t surfaceWidth = set->tpSurfacePtr->width();
-    int32_t surfaceHeight = set->tpSurfacePtr->height();
-    testCanvas->target((uint32_t *)set->tpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
-
-    tvg::Picture *testPic = tvg::Picture::gen();
-    testPic->load("/home/hawk/Public/tinyPiXCore/examples/SingleGUI/thorVGTest/icon.png");
-    testPic->size(100, 100);
-    testPic->translate(set->offsetX + 10, set->offsetY + 10);
-    testPic->rotate(45);
-    testCanvas->push(std::move(testPic));
+    // 强制场景更新
+    if (set->tvgScene)
+    {
+        // std::list<tvg::Paint *> paintsList = set->tvgScene->paints(); // 关键！更新场景状态
+        // std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
+    }
 
     // 绘制并同步
-    testCanvas->draw();
-    testCanvas->sync();
+    set->swCanvas->push(set->tvgScene);
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 bool TpCanvas::setTarget(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
@@ -251,10 +274,12 @@ static inline void drawPixel(TpCanvasData *set, int32_t x, int32_t y, int32_t co
     auto pixel = tvg::Shape::gen();
     pixel->appendCircle(x, y, 0.5, 0.5); // 半径 0.5 的圆形
     pixel->fill(_R(color), _G(color), _B(color), _A(color));
-    set->swCanvas->push(std::move(pixel));
 
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    set->tvgScene->push(std::move(pixel));
+    // set->swCanvas->push(std::move(pixel));
+
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 void TpCanvas::pixel(int32_t x, int32_t y, int32_t color)
@@ -288,11 +313,12 @@ static inline void drawLine(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
     line->strokeCap(tvg::StrokeCap::Round);   // 圆角线头
     line->strokeJoin(tvg::StrokeJoin::Round); // 圆角连接
 
-    set->swCanvas->push(std::move(line));
+    set->tvgScene->push(std::move(line));
+    // set->swCanvas->push(std::move(line));
 
     // 绘制并同步
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 
     return;
 }
@@ -362,11 +388,12 @@ static inline void drawRectangle(TpCanvasData *set, int32_t x1, int32_t y1, int3
         rect->strokeWidth(width);
     }
 
-    set->swCanvas->push(std::move(rect));
+    set->tvgScene->push(std::move(rect));
+    // set->swCanvas->push(std::move(rect));
 
     // 绘制并同步
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 void TpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
@@ -459,11 +486,12 @@ static inline void drawEllipse(TpCanvasData *set, const int32_t &x, const int32_
         circle->strokeWidth(width);
     }
 
-    set->swCanvas->push(std::move(circle)); // push the rectangle into the canvas
+    set->tvgScene->push(std::move(circle));
+    // set->swCanvas->push(std::move(circle));
 
     // 绘制并同步
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 void TpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width)
@@ -717,11 +745,12 @@ static inline void drawArc(TpCanvasData *set, const int32_t &x, const int32_t &y
         }
     }
 
-    set->swCanvas->push(std::move(arc));
+    set->tvgScene->push(std::move(arc));
+    // set->swCanvas->push(std::move(arc));
 
     // 绘制并同步
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 void TpCanvas::arc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, double width, const bool &isRound)
@@ -811,11 +840,10 @@ static inline void drawPolygon(TpCanvasData *set, const tpVector<ItpPoint> &poin
             polygon->strokeWidth(width);
         }
 
-        set->swCanvas->push(std::move(polygon));
-
-        // 绘制并同步
-        set->swCanvas->draw();
-        set->swCanvas->sync();
+        set->tvgScene->push(std::move(polygon));
+        // set->swCanvas->push(std::move(polygon));
+        // set->swCanvas->draw();
+        // set->swCanvas->sync();
     }
 }
 
@@ -917,9 +945,10 @@ static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
     clipper->fill(255, 255, 255, 255);
     rect->mask(clipper, tvg::MaskMethod::InvAlpha);
 
-    set->swCanvas->push(std::move(rect));
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    set->tvgScene->push(std::move(rect));
+    // set->swCanvas->push(std::move(rect));
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 void TpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
@@ -955,50 +984,6 @@ void TpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
 
     applyHollowMask(set, x1, y1, x2, y2, color, rad, hollowMaskData);
 }
-
-// void TpCanvas::paintSurface(const int32_t &x, const int32_t &y, const tpShared<TpSurface> &surface)
-// {
-//     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-//     if (!set->swCanvas)
-//         return;
-
-//     refreshCanvasTarget(set);
-
-//     auto picture = tvg::Picture::gen();
-//     picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
-//     // 设置图片位置
-//     picture->translate(set->offsetX + x, set->offsetY + y);
-
-//     set->swCanvas->push(std::move(picture));
-//     set->swCanvas->draw();
-//     set->swCanvas->sync();
-// }
-
-// void TpCanvas::paintRoundSurface(const int32_t &x, const int32_t &y, int32_t rad, const tpShared<TpSurface> &surface)
-// {
-//     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-//     if (!set->swCanvas)
-//         return;
-
-//     refreshCanvasTarget(set);
-
-//     auto picture = tvg::Picture::gen();
-//     picture->load((uint32_t *)surface->matrix(), surface->width(), surface->height(), tvg::ColorSpace::ARGB8888, false);
-//     // 设置图片位置
-//     picture->translate(set->offsetX + x, set->offsetY + y);
-
-//     // 添加圆角遮罩
-//     auto clipper = tvg::Shape::gen();
-//     clipper->appendRect(set->offsetX + x, set->offsetY + y, surface->width(), surface->height(), rad, rad);
-
-//     // 应用Alpha实现遮罩圆角
-//     clipper->fill(255, 255, 255, 255);
-//     picture->mask(clipper, tvg::MaskMethod::Alpha);
-
-//     set->swCanvas->push(std::move(picture));
-//     set->swCanvas->draw();
-//     set->swCanvas->sync();
-// }
 
 void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
 {
@@ -1061,9 +1046,10 @@ void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &ima
         pictureCopy->mask(clipper, tvg::MaskMethod::Alpha);
     }
 
-    set->swCanvas->push(pictureCopy);
-    set->swCanvas->draw();
-    set->swCanvas->sync();
+    set->tvgScene->push(std::move(pictureCopy));
+    // set->swCanvas->push(std::move(pictureCopy));
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &text)

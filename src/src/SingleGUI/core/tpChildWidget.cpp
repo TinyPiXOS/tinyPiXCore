@@ -16,6 +16,7 @@
 #include "tpScreen.h"
 #include "tpVirtualKeyboard.h"
 #include "TpImage.h"
+#include "thorVG/thorvg.h"
 
 #include <unordered_map>
 #include <mutex>
@@ -27,6 +28,8 @@ struct tpChildWidgetData
     tpShared<tpCssData> hoverCssData;
     tpShared<tpCssData> checkedCssData;
     tpShared<tpCssData> disabledCssData;
+
+    tvg::Scene* tvgScene = nullptr;
 
     tpChildWidgetData()
     {
@@ -225,6 +228,14 @@ tpChildWidget::~tpChildWidget()
         childData = nullptr;
         data_ = nullptr;
     }
+}
+
+void *tpChildWidget::testScenePtr()
+{
+    tpChildWidgetData *childData = static_cast<tpChildWidgetData *>(data_);
+    if (childData->tvgScene == nullptr)
+        childData->tvgScene = tvg::Scene::gen();
+    return childData->tvgScene;
 }
 
 void tpChildWidget::setProperty(const tpString &_name, const tpVariant &_value)
@@ -831,10 +842,12 @@ void tpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
 
     if (ret)
     {
-        if (set->top != this)
-        {
-            childWidgetPtr->update(blitRect, onlyBlit);
-        }
+        tpApp::Inst()->postUpdateEvent(this, x, y, w, h, onlyBlit);
+
+        // if (set->top != this)
+        // {
+        //     childWidgetPtr->update(blitRect, onlyBlit);
+        // }
     }
 }
 
@@ -1147,6 +1160,7 @@ bool tpChildWidget::onMouseRleaseEvent(tpMouseEvent *event)
     set->isPress = false;
 
     ItpPoint mouseGlobalPos = event->globalPos();
+    bool isUpdate = false;
 
     if ((std::abs(mouseGlobalPos.x - set->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - set->pressPoint.y) <= 5))
     {
@@ -1154,9 +1168,12 @@ bool tpChildWidget::onMouseRleaseEvent(tpMouseEvent *event)
         {
             std::cout << "当前选中状态： " << checked() << std::endl;
             setChecked(!checked());
+            isUpdate = true;
         }
     }
-    update();
+
+    if (!isUpdate)
+        update();
 
     return true;
 }
@@ -1227,14 +1244,6 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
 
     if (set->enableColor)
     {
-        if (objectType() == TP_FLOAT_OBJECT)
-        {
-            if ((curCssData->backgroundColor() & 0xff) != 0xff)
-            {
-                // canvas->erase();
-            }
-        }
-
         if (minRad == 0)
         {
             canvas->box(0, 0, rect.w, rect.h, curCssData->backgroundColor());

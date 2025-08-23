@@ -454,7 +454,7 @@ bool thorvgBlitSurfaceWithAlpha(uint32_t *srcData, int srcW, int srcH,
                                 const ItpRect &srcRect, uint32_t *dstData,
                                 int dstW, int dstH, const ItpRect &dstRect,
                                 uint8_t alpha = 255,
-                                tvg::BlendMethod blendMode = tvg::BlendMethod::Normal)
+                                tvg::BlendMethod blendMode = tvg::BlendMethod::Overlay)
 {
     auto picture = tvg::Picture::gen();
     if (!picture)
@@ -481,8 +481,8 @@ bool thorvgBlitSurfaceWithAlpha(uint32_t *srcData, int srcW, int srcH,
     auto canvas = tvg::SwCanvas::gen();
     canvas->target(dstData, dstW, dstW, dstH, tvg::ColorSpace::ARGB8888);
 
-    std::cout << "dstRect: " << dstRect.x << "  " << dstRect.y << "  " << dstRect.w << "  " << dstRect.h << std::endl;
-    std::cout << "srcRect: " << srcRect.x << "  " << srcRect.y << "  " << srcRect.w << "  " << srcRect.h << std::endl;
+    // std::cout << "dstRect: " << dstRect.x << "  " << dstRect.y << "  " << dstRect.w << "  " << dstRect.h << std::endl;
+    // std::cout << "srcRect: " << srcRect.x << "  " << srcRect.y << "  " << srcRect.w << "  " << srcRect.h << std::endl;
 
     // TODO
     // if (srcRect.w > 0 && srcRect.h > 0)

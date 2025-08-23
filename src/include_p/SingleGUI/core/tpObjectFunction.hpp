@@ -4,6 +4,7 @@
 #include "tpObject.h"
 #include "tpChildWidget.h"
 #include "TpCanvas.h"
+#include "thorVG/thorvg.h"
 
 static inline ItpPoint selfToScreenPoint(tpObject *object, int32_t x, int32_t y)
 {
@@ -250,7 +251,7 @@ static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
         if (child->alpha() == 0)
             continue;
 
-        ItpObjectSet *child_set = (ItpObjectSet *)child->objectSets();
+        ItpObjectSet *childSet = (ItpObjectSet *)child->objectSets();
         tpObjectPaintEvent event;
         ItpObjectPaintInput input;
         input.object = child;
@@ -258,11 +259,21 @@ static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
         input.surface = events->surface();
         event.construct(&input);
 
+        // 刷新前清除scene
+        TpCanvas* childPainter = event.canvas();
+
+        tvg::Scene* childScene = (tvg::Scene*)child->testScenePtr();
+        childScene->remove();
+        childPainter->addScene(childScene);
+
         bool ret = child->onPaintEvent(&event);
+
+        // 绘制完成刷新绘制
+        childPainter->paintTest();
 
         if (ret)
         {
-            childPaint(child_set, &event);
+            childPaint(childSet, &event);
         }
 
         // 控件不可用，绘制遮罩层

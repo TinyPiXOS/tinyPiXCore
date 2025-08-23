@@ -49,14 +49,12 @@ struct ItpProcessInfo
 
 struct UpdateCommand
 {
-    tpChildWidget *topScreen = nullptr;
+    tpChildWidget *updateObj = nullptr;
     int32_t x = 0;
     int32_t y = 0;
     int32_t w = 0;
     int32_t h = 0;
-    // bool clip = false;
     bool onlyBlit = false;
-    // bool sync = false;
 
     UpdateCommand()
     {
@@ -312,9 +310,123 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     if (updateCommandQueue.size() == 0)
         return;
 
-#if 0
-    // tpMap<IPiWFApiAgent *, tpVector<ItpObjectPaintInput>> mergeUpdateInfo;
-    tpMap<IPiWFApiAgent *, ItpObjectPaintInput> mergeUpdateInfo;
+#if 1
+    tpMap<IPiWFApiAgent *, ItpRect> pixwmMergeUpdateRect;
+    tpMap<tpChildWidget *, ItpObjectPaintInput> mergeUpdateWidget;
+
+    while (!updateCommandQueue.empty())
+    {
+        UpdateCommand task = updateCommandQueue.front();
+        updateCommandQueue.pop();
+
+        ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(task.updateObj->objectSets());
+        ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
+
+        if (pixwmMergeUpdateRect.contains(topScreenSet->agent))
+        {
+            ItpRect &hasRect = pixwmMergeUpdateRect[topScreenSet->agent];
+
+            // task.x, task.y, task.w, task.h
+
+            hasRect.x = task.x < hasRect.x ? task.x : hasRect.x;
+            hasRect.y = task.y < hasRect.y ? task.y : hasRect.y;
+
+            tpInt32 hasRectBottom = hasRect.bottom();
+            tpInt32 hasRectRight = hasRect.right();
+
+            tpInt32 inputRectBottom = task.y + task.h;
+            tpInt32 inputRectRight = task.x + task.w;
+
+            tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
+            tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
+
+            hasRect.w = actualBottom - hasRect.y;
+            hasRect.h = actualRight - hasRect.x;
+        }
+        else
+        {
+                pixwmMergeUpdateRect[topScreenSet->agent] = ItpRect(task.x, task.y, task.w, task.h);
+        }
+
+        if (mergeUpdateWidget.contains(task.updateObj))
+        {
+            ItpObjectPaintInput &paintInput = mergeUpdateWidget[task.updateObj];
+
+            paintInput.updateRect.x = task.x < paintInput.updateRect.x ? task.x : paintInput.updateRect.x;
+            paintInput.updateRect.y = task.y < paintInput.updateRect.y ? task.y : paintInput.updateRect.y;
+
+            tpInt32 hasRectBottom = paintInput.updateRect.bottom();
+            tpInt32 hasRectRight = paintInput.updateRect.right();
+
+            tpInt32 inputRectBottom = task.y + task.h;
+            tpInt32 inputRectRight = task.x + task.w;
+
+            tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
+            tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
+
+            paintInput.updateRect.w = actualBottom - paintInput.updateRect.y;
+            paintInput.updateRect.h = actualRight - paintInput.updateRect.x;
+        }
+        else
+        {
+            ItpObjectPaintInput paintInput;
+
+            IPiDSSurface *surface_t = tinyPiX_wf_get_surface(topScreenSet->agent);
+            if (surface_t == nullptr)
+                continue;
+
+            tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t);
+
+            paintInput.object = task.updateObj;
+            paintInput.surface = surface;
+            paintInput.updateRect.x = task.x;
+            paintInput.updateRect.y = task.y;
+            paintInput.updateRect.w = task.w;
+            paintInput.updateRect.h = task.h;
+
+            mergeUpdateWidget[task.updateObj] = paintInput;
+        }
+    }
+
+    for (const auto &updateWidgetIter : mergeUpdateWidget)
+    {
+        ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(updateWidgetIter.first->objectSets());
+        ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
+
+        ItpObjectPaintInput paintInput = updateWidgetIter.second;
+
+        tinyPiX_wf_lock_mutex(topScreenSet->agent);
+
+        tpObjectPaintEvent event;
+        event.construct(&paintInput);
+
+        // 刷新前清除scene
+        TpCanvas *childPainter = event.canvas();
+
+        tvg::Scene *childScene = (tvg::Scene *)updateWidgetIter.first->testScenePtr();
+        childScene->remove();
+        childPainter->addScene(childScene);
+
+        bool ret = updateWidgetIter.first->onPaintEvent(&event);
+
+        // 绘制完成刷新绘制
+        childPainter->paintTest();
+
+        if (ret)
+        {
+            childPaint(updateObjSet, &event);
+        }
+
+        tinyPiX_wf_unlock_mutex(topScreenSet->agent);
+    }
+
+    for (const auto &updateInfo : pixwmMergeUpdateRect)
+    {
+        const ItpRect &updateRect = updateInfo.second;
+        tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
+    }
+
+#elif 0
 
     // 遍历刷新指令，合并相邻和相同区域
     while (!updateCommandQueue.empty())
@@ -341,13 +453,13 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         if (surface_t == nullptr)
             continue;
 
-        TpSurface surface(surface_t);
+        tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t);
 
         ItpObjectPaintInput input;
         tpObjectPaintEvent event;
         input.object = topScreen;
 
-        input.surface = &surface;
+        input.surface = surface;
 
         input.updateRect.x = updateRect.X0();
         input.updateRect.y = updateRect.Y0();
@@ -407,7 +519,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         UpdateCommand task = updateCommandQueue.front();
         updateCommandQueue.pop();
 
-        tpScreen *topScreen = dynamic_cast<tpScreen *>(task.topScreen);
+        tpScreen *topScreen = dynamic_cast<tpScreen *>(task.updateObj);
 
         ItpObjectSet *set = static_cast<ItpObjectSet *>(topScreen->objectSets());
 
@@ -441,7 +553,17 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         input.updateRect.h = updateRect.height();
         event.construct(&input);
 
+        // 刷新前清除scene
+        TpCanvas *childPainter = event.canvas();
+
+        tvg::Scene *childScene = (tvg::Scene *)topScreen->testScenePtr();
+        childScene->remove();
+        childPainter->addScene(childScene);
+
         bool ret = topScreen->onPaintEvent(&event);
+
+        // 绘制完成刷新绘制
+        childPainter->paintTest();
 
         if (ret)
         {
@@ -1111,23 +1233,23 @@ void tpApp::postEvent(std::function<void()> task)
     }
 }
 
-// void tpApp::postUpdateEvent(tpChildWidget *topScreen, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool clip, bool onlyBlit, bool sync)
-void tpApp::postUpdateEvent(tpChildWidget *topScreen, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit)
+void tpApp::postUpdateEvent(tpChildWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit)
 {
+    if (!updateObj)
+        return;
+
     ItpAppSet *set = (ItpAppSet *)this->appSet;
 
     if (!set->running)
         return;
 
     UpdateCommand updateCommandInfo;
-    updateCommandInfo.topScreen = topScreen;
+    updateCommandInfo.updateObj = updateObj;
     updateCommandInfo.x = x;
     updateCommandInfo.y = y;
     updateCommandInfo.w = w;
     updateCommandInfo.h = h;
-    // updateCommandInfo.clip = clip;
     updateCommandInfo.onlyBlit = onlyBlit;
-    // updateCommandInfo.sync = sync;
 
     {
         std::lock_guard<std::mutex> lock(set->queueUpdateMutex_);

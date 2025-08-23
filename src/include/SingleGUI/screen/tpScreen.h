@@ -57,10 +57,6 @@ public:
     virtual void update(bool onlyBlit = false) override;
 
 public:
-    virtual tpList<tpObject *> &objectList();
-    virtual IPitpObject *objectSets();
-
-public:
     virtual ItpObjectType objectType();
     virtual ItpObjectSysLayer objectLayer();
     virtual int32_t objectSysID();

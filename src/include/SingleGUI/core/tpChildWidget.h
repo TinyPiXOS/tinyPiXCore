@@ -17,6 +17,8 @@ public:
     tpChildWidget(tpChildWidget *parent = nullptr);
     virtual ~tpChildWidget();
 
+    void* testScenePtr();
+    
 public:
     /// @brief 设置属性值
     /// @param _name 属性名称

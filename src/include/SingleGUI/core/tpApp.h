@@ -113,16 +113,13 @@ public:
 	void postEvent(std::function<void()> task);
 
 	/// @brief 提交刷新时间异步处理；用户无需调用
-	/// @param topScreen 刷新的顶层窗
+	/// @param updateObj 刷新对象指针
 	/// @param x 刷新区域X
 	/// @param y 刷新区域Y
 	/// @param w 刷新区域W
 	/// @param h 刷新区域H
-	/// @param clip 
 	/// @param onlyBlit 
-	/// @param sync 
-	// void postUpdateEvent(tpChildWidget* topScreen, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool clip, bool onlyBlit, bool sync);
-	void postUpdateEvent(tpChildWidget* topScreen, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool onlyBlit);
+	void postUpdateEvent(tpChildWidget* updateObj, const int32_t& x, const int32_t& y, const int32_t& w, const int32_t& h, bool onlyBlit);
 	
 private:
 	ItpAppData *appSet;

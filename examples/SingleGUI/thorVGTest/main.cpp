@@ -4,6 +4,8 @@
 #include "TpCanvas.h"
 #include "tpUtils.h"
 #include "TpImage.h"
+#include "tpBattery.h"
+#include "tpLabel.h"
 
 class ThorVgPaintWidget : public tpChildWidget
 {
@@ -12,18 +14,58 @@ public:
     {
         setBackGroundColor(_RGB(100, 100, 100));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
-        setBackGroundImage(TpImage(applicationDirPath() + "/icon.png").rotate(45));
+        // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png").rotate(45));
+
+        testBattery_ = new tpBattery(this);
+        testBattery_->setValue(100);
+
+        testLabel_ = new tpLabel(this);
+        testLabel_->setText("qqq");
+
+        testBattery_->setRect(10, 100, 200, 80);
+        testLabel_->setRect(10, 200, 300, 150);
     }
     ~ThorVgPaintWidget()
     {
     }
 
+    virtual bool onMousePressEvent(tpMouseEvent *event) override
+    {
+        int32_t batteryValue = testBattery_->value();
+        batteryValue -= 10;
+        if (batteryValue < 0)
+            batteryValue = 100;
+        testBattery_->setValue(batteryValue);
+
+        testLabel_->setText(tpString::number(batteryValue));
+
+        update();
+
+        return true;
+    }
+
+    virtual bool onMouseRleaseEvent(tpMouseEvent *event) override
+    {
+        tpChildWidget::onMouseRleaseEvent(event);
+        return true;
+    }
+
     virtual bool onPaintEvent(tpObjectPaintEvent *event) override
     {
+        static uint64_t paintCount = 0;
+        std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
+
         tpChildWidget::onPaintEvent(event);
 
         TpCanvas *painter = event->canvas();
         // painter->paintTest();
+
+        static int32_t width = 100;
+        painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));
+
+        width -= 10;
+        if (width < 0)
+            width = 100;
 
         // painter->hline(10, 490, 10, _RGB(255, 0, 0));
         // painter->vline(490, 10, 490, _RGB(0, 255, 0), 3);
@@ -78,6 +120,10 @@ public:
 
         return true;
     }
+
+private:
+    tpBattery *testBattery_;
+    tpLabel *testLabel_;
 };
 
 int32_t main(int32_t argc, char *argv[])

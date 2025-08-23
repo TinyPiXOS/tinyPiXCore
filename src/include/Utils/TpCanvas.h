@@ -25,6 +25,8 @@ public:
     TpCanvas(tpShared<TpSurface> surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0);
     virtual ~TpCanvas();
 
+    void addScene(void* scene);
+
     void paintTest();
 
 public:

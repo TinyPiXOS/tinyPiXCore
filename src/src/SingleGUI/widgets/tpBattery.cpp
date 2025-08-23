@@ -102,9 +102,12 @@ int32_t tpBattery::alamColor()
 
 bool tpBattery::onPaintEvent(tpObjectPaintEvent *event)
 {
+    static uint64_t paintCount = 0;
+    std::cout << "tpBattery::onPaintEvent " << paintCount++ << std::endl;
+
     tpBatteryData *batteryData = static_cast<tpBatteryData *>(data_);
 
-    tpChildWidget::onPaintEvent(event);
+    // tpChildWidget::onPaintEvent(event);
 
     int32_t powerColor = batteryData->style == tpBattery::White ? batteryData->whiteColor : batteryData->blackColor;
     int32_t borderColor = batteryData->style == tpBattery::White ? batteryData->whiteBorderColor : batteryData->blackBorderColor;

@@ -958,16 +958,6 @@ tpObject *tpScreen::topObject()
     return this;
 }
 
-tpList<tpObject *> &tpScreen::objectList()
-{
-    return tpObject::objectList();
-}
-
-IPitpObject *tpScreen::objectSets()
-{
-    return tpObject::objectSets();
-}
-
 void tpScreen::deleteLater()
 {
     ItpObjectSet *set = (ItpObjectSet *)tpObject::objectSets();
