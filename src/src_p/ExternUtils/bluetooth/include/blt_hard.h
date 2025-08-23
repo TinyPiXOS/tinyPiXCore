@@ -102,6 +102,7 @@ int bluet_adapter_get_trusted_device_list(Adapter *adapter,BluetoothRemoteCallba
 
 int bluet_adapter_set_discoverable(Adapter *adapter,uint8_t discoverable);
 int bluet_adapter_set_discoverable_timeout(Adapter *adapter,uint32_t timeout);
+int bluet_adapter_is_discovering(Adapter *adapter);
 int bluet_adapter_get_powered(Adapter *adapter);
 int bluet_adapter_set_powered(Adapter *adapter,uint8_t state);
 char **bluet_adapter_get_service_uuids(Adapter *adapter);

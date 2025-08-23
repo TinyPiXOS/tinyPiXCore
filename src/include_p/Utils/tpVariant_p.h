@@ -137,6 +137,12 @@ void VariantValueClear(tpVariant::VariantValue &value)
     {
         if (((uint16_t)tpVariant::VariantType::tpBstr == value.m_vt) && value.data.m_strVal)
             delete[] value.data.m_strVal;
+		// 向量处理
+		else if (value.m_vt == static_cast<uint16_t>(tpVariant::VariantType::tpVector) && value.data.m_vectorVal) 
+		{
+        	delete value.data.m_vectorVal;
+        	value.data.m_vectorVal = nullptr;
+    	}
     }
 
     memset(&value, 0, sizeof(value));
@@ -207,6 +213,10 @@ void VariantValueCopy(tpVariant::VariantValue &toValue, const tpVariant::Variant
                 toValue.data.m_strVal = nullptr;
             }
         }
+		 // 向量处理
+		else if (from.m_vt == static_cast<uint16_t>(tpVariant::VariantType::tpVector) && from.data.m_vectorVal) {
+			toValue.data.m_vectorVal = new std::vector<tpVariant>(*from.data.m_vectorVal);
+		}
         else
         {
             memcpy(&toValue, &from, sizeof(from));

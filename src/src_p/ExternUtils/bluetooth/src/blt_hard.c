@@ -1099,13 +1099,22 @@ int bluet_adapter_get_trusted_device_list(Adapter *adapter,BluetoothRemoteCallba
 int bluet_adapter_set_discoverable(Adapter *adapter,uint8_t discoverable)
 {
 	adapter_set_discoverable(adapter, discoverable==0?FALSE:TRUE, NULL);
+	return 0;
 }
 
 //设置可见性超时
 int bluet_adapter_set_discoverable_timeout(Adapter *adapter,uint32_t timeout)
 {
 	adapter_set_discoverable_timeout(adapter, timeout, NULL);
+	return 0;
 }       
+
+int bluet_adapter_is_discovering(Adapter *adapter)
+{
+	return (adapter_get_discovering(adapter, NULL)==TRUE ? 1 :0);
+}
+
+
 
 
 //获取蓝牙设备ID

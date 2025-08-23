@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstdint>
+#include <list>
+#include <algorithm>
 #include "tpBluetoothService.h"
 #include "tpDbusConnectManage.h"
 #include "bluetooth/include/blt_device.h"
@@ -18,14 +20,19 @@
 struct tpBluetoothServiceData{
 	tpBluetoothAddress addr;	//服务产生或注册的设备
 	tpBluetoothUuid uuid;		//服务的uuid
+	tpList<tpBluetoothUuid> class_uuids;
 	tpString name;				//服务的名字
+	tpUInt32 rec_handle;
 	tpString desc;				//服务的描述
-	tpUInt16 port;			//通道
+	tpString provider;
+	tpUInt16 port;				//通道
 	tpBool is_registed;			//是否注册
 	int servicefd;
+	std::map<uint16_t, tpVariant> m_attributes;
 	tpBluetoothServiceData(){
 		port=0;
 		is_registed=TP_FALSE;
+		rec_handle=0;
 	};
 };
 
@@ -34,11 +41,6 @@ tpBluetoothService::tpBluetoothService()
 {
 	data_ = new tpBluetoothServiceData();
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-	if(!data)
-	{
-		fprintf(stderr,"[Error]: tpBluetoothServerData\n");
-		return ;
-	}
 	if(tpDbusConnectManage::instance().connection()!=TP_TRUE)
 	{
 		fprintf(stderr,"[Error]: connect to dbus error\n");
@@ -49,16 +51,34 @@ tpBluetoothService::tpBluetoothService()
 
 // 拷贝赋值
 tpBluetoothService& tpBluetoothService::operator=(const tpBluetoothService& other) {
-	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-    if (this != &other) {
-        delete[] data;
+	if (this != &other) {
+        // 删除现有数据
+        delete static_cast<tpBluetoothServiceData*>(data_);
+        
+        // 深拷贝数据
         data_ = new tpBluetoothServiceData();
-		memcpy(data_,other.data_,sizeof(tpBluetoothServiceData));
+        const tpBluetoothServiceData* otherData = static_cast<const tpBluetoothServiceData*>(other.data_);
+        *static_cast<tpBluetoothServiceData*>(data_) = *otherData;
     }
     return *this;
 }
 
+// 移动构造函数
+tpBluetoothService::tpBluetoothService(tpBluetoothService&& other) noexcept
+    : data_(other.data_)
+{
+    other.data_ = nullptr;
+}
 
+// 移动赋值运算符
+tpBluetoothService& tpBluetoothService::operator=(tpBluetoothService&& other) noexcept {
+    if (this != &other) {
+        delete static_cast<tpBluetoothServiceData*>(data_);
+        data_ = other.data_;
+        other.data_ = nullptr;
+    }
+    return *this;
+}
 
 
 tpBluetoothService::~tpBluetoothService()
@@ -77,7 +97,14 @@ tpBluetoothService::~tpBluetoothService()
 tpBluetoothUuid tpBluetoothService::getServiceUuid() const
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
-	return data->uuid;
+	if(!data->uuid.isNull())
+		return data->uuid;
+	
+	tpBluetoothUuid uuid;
+	if(data->class_uuids.size()==0)
+		return uuid;
+	uuid=data->class_uuids.front();
+	return uuid;
 }
 
 /// @brief 设置服务的UUID
@@ -153,6 +180,19 @@ tpUInt16 tpBluetoothService::getServerChannel()
 	return data->port;
 }
 
+int tpBluetoothService::setServiceProvider(const tpString& provider)
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	data->provider=provider;
+	return 0;
+}
+
+tpString tpBluetoothService::getServiceProvider() const
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	return data->provider;
+}
+
 tpBool tpBluetoothService::registerService(const tpBluetoothAddress& address)
 {
 	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
@@ -197,3 +237,466 @@ tpBool tpBluetoothService::unregisterService()
 	return TP_TRUE;
 }
 
+
+int tpBluetoothService::setServiceClassUuids(tpList<tpBluetoothUuid>& uuids)
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	data->class_uuids.empty();
+	for(auto &it : uuids)
+	{
+		data->class_uuids.emplace_back(it);
+	}
+	return 0;
+}
+
+int tpBluetoothService::addServiceClassUuid(tpBluetoothUuid& uuid)
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+
+	auto it = std::find(data->class_uuids.begin(), data->class_uuids.end(), uuid);
+	if(it!=data->class_uuids.end())
+	{
+		return 0;
+	}
+	data->class_uuids.emplace_back(uuid);
+	return 0;
+}
+
+
+tpList<tpBluetoothUuid> tpBluetoothService::getServiceClassUuids()
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	return data->class_uuids;
+}
+
+
+int tpBluetoothService::setServiceRecHandle(tpUInt32 handle)
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	data->rec_handle=handle;
+	return 0;
+}
+
+tpUInt32 tpBluetoothService::getServiceRecHandle()
+{
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	return data->rec_handle;
+}
+
+void tpBluetoothService::setAttribute(uint16_t attributeId, const tpVariant& value) {
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+	data->m_attributes[attributeId] = value;
+}
+
+// 修改 setAttribute 方法
+void tpBluetoothService::setAttribute(uint16_t attributeId, const Sequence& value) {
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+    // 使用 getValues() 访问私有成员
+    std::vector<tpVariant>* vec = new std::vector<tpVariant>(value.getValues());
+    data->m_attributes[attributeId] = tpVariant(vec);
+}
+
+const tpVariant& tpBluetoothService::attribute(uint16_t attributeId) const {
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+    auto it = data->m_attributes.find(attributeId);
+    if (it == data->m_attributes.end()) {
+        throw std::out_of_range("Attribute not found");
+    }
+    return it->second;
+}
+
+const std::map<uint16_t, tpVariant>& tpBluetoothService::attributes() const {
+	tpBluetoothServiceData *data = static_cast<tpBluetoothServiceData *>(data_);
+    return data->m_attributes;
+}
+
+
+// 设置协议描述符列表
+int tpBluetoothService::setProtocolDescriptorList(const Sequence& list) {
+    setAttribute(ProtocolDescriptorList, list);
+	return 0;
+}
+
+// 设置蓝牙配置文件描述符列表
+int tpBluetoothService::setProfileDescriptorList(const Sequence& list) {
+    setAttribute(BluetoothProfileDescriptorList, list);
+	return 0;
+}
+
+// 获取协议描述符列表
+tpBluetoothService::Sequence tpBluetoothService::getProtocolDescriptorList() const {
+    try {
+        const tpVariant& attr = attribute(ProtocolDescriptorList);
+        if (!attr.isVector()) {
+            throw std::runtime_error("ProtocolDescriptorList is not a vector");
+        }
+        
+        const std::vector<tpVariant>* vec = attr.toVectorPtr();
+        if (!vec) {
+            throw std::runtime_error("Vector pointer is null");
+        }
+        
+        Sequence result;
+        result.setValues(*vec);
+        return result;
+    } catch (const std::exception& e) {
+        // 返回空序列
+		fprintf(stderr, "Error getting protocol descriptor list: %s\n", e.what());
+        return Sequence();
+    }
+}
+
+// 获取蓝牙配置文件描述符列表
+tpBluetoothService::Sequence tpBluetoothService::getProfileDescriptorList() const {
+    try {
+        const tpVariant& attr = attribute(BluetoothProfileDescriptorList);
+        if (!attr.isVector()) {
+            throw std::runtime_error("BluetoothProfileDescriptorList is not a vector");
+        }
+        
+        const std::vector<tpVariant>* vec = attr.toVectorPtr();
+        if (!vec) {
+            throw std::runtime_error("Vector pointer is null");
+        }
+        
+        Sequence result;
+        result.setValues(*vec);
+        return result;
+    } catch (const std::exception& e) {
+        // 返回空序列
+        return Sequence();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tpBluetoothService::Sequence::Sequence() = default;
+
+tpBluetoothService::Sequence::Sequence(const Sequence& other) 
+    : m_values(other.m_values) {}
+
+tpBluetoothService::Sequence::Sequence(Sequence&& other) noexcept 
+    : m_values(std::move(other.m_values)) {}
+
+tpBluetoothService::Sequence::~Sequence() = default;
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator=(const Sequence& other) {
+    if (this != &other) {
+        m_values = other.m_values;
+    }
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator=(Sequence&& other) noexcept {
+    if (this != &other) {
+        m_values = std::move(other.m_values);
+    }
+    return *this;
+}
+
+// 添加各种类型的值
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(bool value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(int8_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(uint8_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(int16_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(uint16_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(int32_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(uint32_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(int64_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(uint64_t value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(float value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(double value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(const char* value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(const std::string& value) {
+    m_values.push_back(tpVariant(value));
+    return *this;
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(const Sequence& value) {
+	std::vector<tpVariant>* newVec = new std::vector<tpVariant>(value.m_values);
+    m_values.push_back(tpVariant(newVec));
+    return *this;
+}
+
+// 流式操作符实现
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(bool value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(int8_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(uint8_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(int16_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(uint16_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(int32_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(uint32_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(int64_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(uint64_t value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(float value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(double value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(const char* value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(const std::string& value) {
+    return append(value);
+}
+
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::operator<<(const Sequence& value) {
+    return append(value);
+}
+
+// 访问元素
+const tpVariant& tpBluetoothService::Sequence::at(size_t index) const {
+    if (index >= m_values.size()) {
+        throw std::out_of_range("Index out of range in Sequence::at");
+    }
+    return m_values[index];
+}
+
+tpVariant& tpBluetoothService::Sequence::operator[](size_t index) {
+    if (index >= m_values.size()) {
+        throw std::out_of_range("Index out of range in Sequence::operator[]");
+    }
+    return m_values[index];
+}
+
+size_t tpBluetoothService::Sequence::size() const {
+    return m_values.size();
+}
+
+bool tpBluetoothService::Sequence::isEmpty() const {
+    return m_values.empty();
+}
+
+void tpBluetoothService::Sequence::clear() {
+    m_values.clear();
+}
+
+// 类型安全的取值方法
+bool tpBluetoothService::Sequence::boolValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isBool()) {
+        throw std::runtime_error("Value is not a bool");
+    }
+    return var.toBool();
+}
+
+int8_t tpBluetoothService::Sequence::int8ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isInt8()) {
+        throw std::runtime_error("Value is not an int8");
+    }
+    return var.toInt8();
+}
+
+uint8_t tpBluetoothService::Sequence::uint8ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isUint8()) {
+        throw std::runtime_error("Value is not a uint8");
+    }
+    return var.toUInt8();
+}
+
+int16_t tpBluetoothService::Sequence::int16ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isInt16()) {
+        throw std::runtime_error("Value is not an int16");
+    }
+    return var.toInt16();
+}
+
+uint16_t tpBluetoothService::Sequence::uint16ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isUint16()) {
+        throw std::runtime_error("Value is not a uint16");
+    }
+    return var.toUInt16();
+}
+
+int32_t tpBluetoothService::Sequence::int32ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isInt32()) {
+        throw std::runtime_error("Value is not an int32");
+    }
+    return var.toInt32();
+}
+
+uint32_t tpBluetoothService::Sequence::uint32ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isUint32()) {
+        throw std::runtime_error("Value is not a uint32");
+    }
+    return var.toUInt32();
+}
+
+int64_t tpBluetoothService::Sequence::int64ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isInt64()) {
+        throw std::runtime_error("Value is not an int64");
+    }
+    return var.toInt64();
+}
+
+uint64_t tpBluetoothService::Sequence::uint64ValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isUint64()) {
+        throw std::runtime_error("Value is not a uint64");
+    }
+    return var.toUint64();
+}
+
+float tpBluetoothService::Sequence::floatValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isFloat()) {
+        throw std::runtime_error("Value is not a float");
+    }
+    return var.toFloat();
+}
+
+double tpBluetoothService::Sequence::doubleValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isDouble()) {
+        throw std::runtime_error("Value is not a double");
+    }
+    return var.toDouble();
+}
+
+std::string tpBluetoothService::Sequence::stringValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isString()) {
+        throw std::runtime_error("Value is not a string");
+    }
+    return var.toString();
+}
+
+tpBluetoothService::Sequence tpBluetoothService::Sequence::sequenceValueAt(size_t index) const {
+    const tpVariant& var = at(index);
+    if (!var.isVector()) {
+        throw std::runtime_error("Value is not a vector");
+    }
+    
+    const std::vector<tpVariant>* vec = var.toVectorPtr();
+    if (!vec) {
+        throw std::runtime_error("Vector pointer is null");
+    }
+    
+    Sequence result;
+    // 使用 setValues() 设置私有成员
+    result.setValues(*vec);
+    return result;
+}
+
+// 通用 append 方法
+tpBluetoothService::Sequence& tpBluetoothService::Sequence::appendVariant(const tpVariant& value) {
+    m_values.push_back(value);
+    return *this;
+}
+
+const std::vector<tpVariant>& tpBluetoothService::Sequence::getValues() const {
+    return m_values;
+}
+
+void tpBluetoothService::Sequence::setValues(const std::vector<tpVariant>& values) {
+    m_values = values;
+}

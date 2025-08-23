@@ -23,6 +23,7 @@ public:
     void remove(uint32_t i);
 
     void insertData(uint32_t i, const T &value);
+	bool isEmpty() const;
 };
 
 template <typename T>
@@ -63,5 +64,12 @@ inline void tpVector<T>::insertData(uint32_t i, const T &value)
     else
         this->insert(this->begin() + i, value);
 }
+
+
+template <typename T>
+inline bool tpVector<T>::isEmpty() const {
+    return this->empty();
+}
+
 
 #endif

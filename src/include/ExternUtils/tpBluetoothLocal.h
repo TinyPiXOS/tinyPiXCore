@@ -6,7 +6,10 @@
 #include "tpBluetoothAddress.h"
 #include "tpBluetoothUuid.h"
 
+
 TP_DEF_VOID_TYPE_VAR(ItpBluetoothLocalData);
+
+class tpBluetoothDiscovery;
 
 /// @brief 可以对本地蓝牙设备进行管理
 class tpBluetoothLocal
@@ -22,6 +25,7 @@ public:
 public:
 	tpBluetoothLocal(int id, const char *address, const char *name);
 	tpBluetoothLocal(const char *name);
+	tpBluetoothLocal(const tpString& name);
 	tpBluetoothLocal(tpBluetoothLocal &other);	// 拷贝构造
 	tpBluetoothLocal(tpBluetoothLocal &&other); // 移动构造
 	~tpBluetoothLocal();
@@ -113,6 +117,7 @@ public:
 	int setHostMode();
 
 private:
+	friend class tpBluetoothDiscovery;
 	void *getAdapter();
 
 private:

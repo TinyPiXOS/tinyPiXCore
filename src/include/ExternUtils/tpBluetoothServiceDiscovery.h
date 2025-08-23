@@ -24,6 +24,8 @@ public:
 	tpString getUuidFilter() const;
 	tpList<tpBluetoothService> discoveredServices();
 private:
+
+private:
 	ItpBluetoothServiceDiscoveryData *data_;
 };
 
