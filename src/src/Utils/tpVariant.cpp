@@ -349,6 +349,7 @@ tpVariant::tpVariant(const tpVariant &other)
 }
 
 tpVariant::tpVariant(std::vector<tpVariant>* vectorVal) {
+	VariantValueInit(data_); // 确保初始化
     data_.m_vt = static_cast<uint16_t>(VariantType::tpVector);
     data_.data.m_vectorVal = vectorVal;
 }
@@ -511,6 +512,13 @@ tpVariant &tpVariant::operator=(const std::string &strChar)
         data_.data.m_strVal = nullptr;
     }
 
+    return *this;
+}
+
+tpVariant &tpVariant::operator=(std::vector<tpVariant>* vectorVal) {
+    VariantValueClear(data_);
+    data_.m_vt = static_cast<uint16_t>(VariantType::tpVector);
+    data_.data.m_vectorVal = vectorVal;
     return *this;
 }
 
@@ -1261,6 +1269,18 @@ bool tpVariant::Compare(const VariantValue &value)
         case VariantType::tpBool:
             bResult = VariantSetValueComplie(reinterpret_cast<std::set<bool> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<bool> *>(value.data.m_pSetVal));
             break;
+		case VariantType::tpInt1:
+            bResult = VariantSetValueComplie(reinterpret_cast<std::set<int8_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<int8_t> *>(value.data.m_pSetVal));
+            break;
+        case VariantType::tpUint1:
+            bResult = VariantSetValueComplie(reinterpret_cast<std::set<uint8_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<uint8_t> *>(value.data.m_pSetVal));
+            break;
+        case VariantType::tpInt2:
+            bResult = VariantSetValueComplie(reinterpret_cast<std::set<int16_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<int16_t> *>(value.data.m_pSetVal));
+            break;
+        case VariantType::tpUint2:
+		    bResult = VariantSetValueComplie(reinterpret_cast<std::set<uint16_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<uint16_t> *>(value.data.m_pSetVal));
+            break;
         case VariantType::tpInt4:
             bResult = VariantSetValueComplie(reinterpret_cast<std::set<int32_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<int32_t> *>(value.data.m_pSetVal));
             break;
@@ -1309,15 +1329,31 @@ bool tpVariant::Compare(const VariantValue &value)
 }
 
 
-// 添加类型检查方法
-bool tpVariant::isVector() const {
-    return data_.m_vt == static_cast<uint16_t>(VariantType::tpVector);
-}
-
 // 添加向量指针访问方法
 const std::vector<tpVariant>* tpVariant::toVectorPtr() const {
     if (isVector()) {
         return data_.data.m_vectorVal;
     }
     return nullptr;
+}
+
+
+uint16_t tpVariant::getVariantType() const {
+    return data_.m_vt;
+}
+
+const char* tpVariant::variantTypeName() const 
+{
+    switch (static_cast<VariantType>(data_.m_vt)) {
+        case VariantType::tpBool: return "bool";
+        case VariantType::tpInt4: return "int32";
+        case VariantType::tpUint4: return "uint32";
+        case VariantType::tpInt8: return "int64";
+        case VariantType::tpUint8: return "uint64";
+        case VariantType::tpReal4: return "float";
+        case VariantType::tpReal8: return "double";
+        case VariantType::tpBstr: return "string";
+        case VariantType::tpVector: return "vector";
+        default: return "unknown";
+	}
 }

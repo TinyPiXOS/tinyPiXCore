@@ -143,6 +143,7 @@ public:
     tpVariant &operator=(ItpPoint value);
     tpVariant &operator=(const char *pChar);
     tpVariant &operator=(const std::string &strChar);
+	tpVariant &operator=(std::vector<tpVariant>* vectorVal);
     tpVariant &operator=(const std::vector<bool> &valueVector);
 	tpVariant &operator=(const std::vector<int8_t> &valueVector);
     tpVariant &operator=(const std::vector<uint8_t> &valueVector);
@@ -293,7 +294,7 @@ public:
         return ItpPoint(data_.data.tpPointValue);
     }
 
-	bool isVector() const;
+	bool isVector() const { return data_.m_vt == static_cast<uint16_t>(VariantType::tpVector);}
 	const std::vector<tpVariant>* toVectorPtr() const;
 
     bool isBool() const { return (uint16_t)VariantType::tpBool == data_.m_vt; }
@@ -461,6 +462,10 @@ public:
     std::set<float> &ToFloatSet();
     std::set<double> &ToDoubleSet();
     std::set<std::string> &ToStringSet();
+
+	uint16_t getVariantType() const ;
+
+	const char* variantTypeName() const;
 
 private:
     bool Compare(const VariantValue &value);
