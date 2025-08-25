@@ -1,0 +1,192 @@
+#include "TpWeatherInfoPanel.h"
+#include "TpImage.h"
+#include "TpCanvas.h"
+#include "tpFont.h"
+
+SMART_DEVICE_GUI_NAMESPACE_BEGIN
+
+struct TpWeatherInfoPanelData
+{
+    int32_t count = 5;
+    int32_t selectIndex = 0;
+
+    tpFont titleFont;
+    tpFont subTextFont;
+
+    tpVector<TpWeatherInfoPanel::WeatherInfo> weatherInfoList;
+
+    TpWeatherInfoPanelData()
+    {
+    }
+};
+
+static inline tpString weatherIconPath(const TpWeatherInfoPanel::WeatherType &weatherType)
+{
+    tpString iconRootPath = "/usr/res/tinyPiX/SmartDeviceGUI/TpWeatherInfoPanel/";
+
+    switch (weatherType)
+    {
+    case TpWeatherInfoPanel::Sunny:
+        return iconRootPath + "晴天.png";
+    case TpWeatherInfoPanel::Cloudy:
+        return iconRootPath + "​​多云​​.png";
+    case TpWeatherInfoPanel::Overcast:
+        return iconRootPath + "​​阴天​​.png";
+    case TpWeatherInfoPanel::LightRain:
+        return iconRootPath + "​​小雨​​.png";
+    case TpWeatherInfoPanel::ModerateRain:
+        return iconRootPath + "​​中雨​​.png";
+    case TpWeatherInfoPanel::HeavyRain:
+        return iconRootPath + "​​大雨​​.png";
+    case TpWeatherInfoPanel::TorrentialRain:
+        return iconRootPath + "​​暴雨​​.png";
+    case TpWeatherInfoPanel::Thunderstorm:
+        return iconRootPath + "​​雷阵雨​​.png";
+    case TpWeatherInfoPanel::LightSnow:
+        return iconRootPath + "​​小雪​​.png";
+    case TpWeatherInfoPanel::ModerateSnow:
+        return iconRootPath + "​​中雪​​.png";
+    case TpWeatherInfoPanel::HeavySnow:
+        return iconRootPath + "​​大雪​​.png";
+    case TpWeatherInfoPanel::Blizzard:
+        return iconRootPath + "​​暴雪​​.png";
+    case TpWeatherInfoPanel::Sleet:
+        return iconRootPath + "​​雨夹雪​​.png";
+    case TpWeatherInfoPanel::Fog:
+        return iconRootPath + "​​雾​​.png";
+    case TpWeatherInfoPanel::Haze:
+        return iconRootPath + "​​雾霾​​.png";
+    case TpWeatherInfoPanel::Sandstorm:
+        return iconRootPath + "​​沙尘暴​​.png";
+    case TpWeatherInfoPanel::Hail:
+        return iconRootPath + "​​冰雹​​.png";
+        break;
+    default:
+        break;
+    }
+
+    return iconRootPath + "晴天.png";
+}
+
+TpWeatherInfoPanel::TpWeatherInfoPanel(tpChildWidget *parent)
+    : tpChildWidget(parent)
+{
+    TpWeatherInfoPanelData *weatherData = new TpWeatherInfoPanelData();
+    data_ = weatherData;
+
+    weatherData->titleFont.setFontColor(_RGB(160, 152, 174), _RGB(160, 152, 174));
+    weatherData->titleFont.setFontSize(13);
+
+    weatherData->subTextFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    weatherData->subTextFont.setFontSize(13);
+
+    // setBackGroundColor(_RGB(255, 255, 255));
+}
+
+TpWeatherInfoPanel::~TpWeatherInfoPanel()
+{
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+    if (weatherData)
+    {
+        delete weatherData;
+        weatherData = nullptr;
+        data_ = nullptr;
+    }
+}
+
+void TpWeatherInfoPanel::setCount(const int32_t &count)
+{
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+    weatherData->count = count;
+
+    if (weatherData->count < 1)
+        weatherData->count = 1;
+    else if (weatherData->count > 15)
+        weatherData->count = 15;
+    else
+    {
+    }
+
+    update();
+}
+
+void TpWeatherInfoPanel::setSelectIndex(const int32_t &index)
+{
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+    weatherData->selectIndex = index;
+    update();
+}
+
+int32_t TpWeatherInfoPanel::selectIndex()
+{
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+    return weatherData->selectIndex;
+}
+
+void TpWeatherInfoPanel::setWeatherList(const tpVector<TpWeatherInfoPanel::WeatherInfo> &weatherInfoList)
+{
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+    weatherData->weatherInfoList = weatherInfoList;
+    update();
+}
+
+bool TpWeatherInfoPanel::setWeatherInfo(const int32_t &index, const TpWeatherInfoPanel::WeatherInfo &weatherInfo)
+{
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+    if (index >= weatherData->weatherInfoList.size())
+        return false;
+    weatherData->weatherInfoList[index] = weatherInfo;
+    return true;
+}
+
+bool TpWeatherInfoPanel::onPaintEvent(tpObjectPaintEvent *event)
+{
+    tpChildWidget::onPaintEvent(event);
+
+    TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
+
+    int32_t weatherSize = weatherData->weatherInfoList.size();
+    if (weatherSize == 0)
+        return true;
+
+    int32_t paintWeatherCount = weatherData->count < weatherSize ? weatherData->count : weatherSize;
+
+    int32_t singleWeatherWidth = width() / paintWeatherCount;
+    if (singleWeatherWidth == 0)
+        return true;
+
+    TpCanvas *painter = event->canvas();
+    int32_t iconSize = singleWeatherWidth * 0.5;
+    int32_t iconX = (singleWeatherWidth - iconSize) / 2.0;
+    int32_t iconY = (height() - iconSize) / 2.0;
+
+    for (int i = 0; i < paintWeatherCount; ++i)
+    {
+        WeatherInfo weatherInfo = weatherData->weatherInfoList.at(i);
+
+        TpImage weatherIcon(weatherIconPath(weatherInfo.weatherType));
+
+        weatherData->titleFont.setText(weatherInfo.text);
+        int32_t titleTextX = (singleWeatherWidth - weatherData->titleFont.pixelWidth()) / 2.0;
+        int32_t titleTextY = ((height() - iconSize) / 2.0 - weatherData->titleFont.pixelHeight()) / 2.0;
+        painter->renderText(weatherData->titleFont, titleTextX + i * singleWeatherWidth, titleTextY, weatherInfo.text);
+
+        painter->paintImage(iconX + i * singleWeatherWidth, iconY, weatherIcon.scaled(iconSize, iconSize));
+
+        weatherData->subTextFont.setText(weatherInfo.subText);
+        int32_t subTitleTextX = (singleWeatherWidth - weatherData->subTextFont.pixelWidth()) / 2.0;
+        int32_t subTitleTextY = ((height() - iconSize) / 2.0 - weatherData->subTextFont.pixelHeight()) / 2.0;
+        painter->renderText(weatherData->subTextFont, subTitleTextX + i * singleWeatherWidth, iconY + subTitleTextY, weatherInfo.subText);
+    }
+
+    return true;
+}
+
+bool TpWeatherInfoPanel::onResizeEvent(tpObjectResizeEvent *event)
+{
+    tpChildWidget::onResizeEvent(event);
+
+    return true;
+}
+
+SMART_DEVICE_GUI_NAMESPACE_END

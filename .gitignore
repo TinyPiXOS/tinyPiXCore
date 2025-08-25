@@ -80,6 +80,6 @@ examples/SingleGUI/scrollpanel/scrollpanel
 examples/SingleGUI/tpCheckBox/checkbox
 examples/SingleGUI/tpLabel/label
 examplesApp/bin/examplesApp
-PiXGUIFramework/smartDeviceGUI/PiXSmartDeviceGUI_symlink.cmake
+PiXGUIFramework/SmartDeviceGUI/PiXSmartDeviceGUI_symlink.cmake
 examples/SingleGUI/tpBattery/battery
 examples/SingleGUI/thorVGTest/thorVGTest

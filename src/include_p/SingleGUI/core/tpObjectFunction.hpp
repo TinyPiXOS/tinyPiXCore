@@ -270,7 +270,7 @@ static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
         bool ret = child->onPaintEvent(&event);
 
         // 绘制完成刷新绘制
-        childPainter->paintTest();
+        childPainter->sync();
 
         if (ret)
         {

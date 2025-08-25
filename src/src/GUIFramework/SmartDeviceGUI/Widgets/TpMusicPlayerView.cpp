@@ -41,15 +41,15 @@ TpMusicPlayerView::TpMusicPlayerView(tpChildWidget *parent)
 
     musicData->previousBtn = new tpButton(this);
     musicData->previousBtn->setButtonStyle(tpButton::IconOnly);
-    musicData->previousBtn->setIcon("/usr/res/tinyPiX/smartDeviceGUI/上一首.png");
+    musicData->previousBtn->setIcon("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/上一首.png");
 
     musicData->playPauseBtn = new tpButton(this);
     musicData->playPauseBtn->setButtonStyle(tpButton::IconOnly);
-    musicData->playPauseBtn->setIcon("/usr/res/tinyPiX/smartDeviceGUI/播放.png");
+    musicData->playPauseBtn->setIcon("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/播放.png");
 
     musicData->nextBtn = new tpButton(this);
     musicData->nextBtn->setButtonStyle(tpButton::IconOnly);
-    musicData->nextBtn->setIcon("/usr/res/tinyPiX/smartDeviceGUI/下一首.png");
+    musicData->nextBtn->setIcon("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/下一首.png");
 
     setBackGroundColor(_RGB(255, 255, 255));
 }

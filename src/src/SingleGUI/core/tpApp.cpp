@@ -411,7 +411,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         bool ret = updateWidgetIter.first->onPaintEvent(&event);
 
         // 绘制完成刷新绘制
-        childPainter->paintTest();
+        childPainter->sync();
 
         if (ret)
         {
@@ -565,7 +565,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         bool ret = topScreen->onPaintEvent(&event);
 
         // 绘制完成刷新绘制
-        childPainter->paintTest();
+        childPainter->sync();
 
         if (ret)
         {

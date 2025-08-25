@@ -4,7 +4,7 @@
 #include "tpChildWidget.h"
 #include "tpSignalSlot.h"
 #include "tpString.h"
-#include "smartDeviceGUI/FrameworkGlobal.h"
+#include "SmartDeviceGUI/FrameworkGlobal.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 

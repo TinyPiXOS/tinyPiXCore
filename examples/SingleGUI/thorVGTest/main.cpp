@@ -9,9 +9,6 @@
 #include "tpTimer.h"
 #include "tpDialog.h"
 
-#include "smartDeviceGUI/widgets/TpCircularProgressBar.h"
-#include "smartDeviceGUI/widgets/TpMusicPlayerView.h"
-
 // class ThorVgPaintWidget : public tpChildWidget
 class ThorVgPaintWidget : public tpDialog
 {
@@ -22,36 +19,29 @@ public:
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
         // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png").rotate(45));
 
-        testBattery_ = new tpBattery(this);
-        testBattery_->setValue(100);
+        // testBattery_ = new tpBattery(this);
+        // testBattery_->setValue(100);
 
-        testLabel_ = new tpLabel(this);
-        testLabel_->setText("qqq");
+        // testLabel_ = new tpLabel(this);
+        // testLabel_->setText("qqq");
 
-        testBattery_->setRect(10, 100, 200, 80);
-        testLabel_->setRect(10, 200, 300, 150);
+        // testBattery_->setRect(10, 100, 200, 80);
+        // testLabel_->setRect(10, 200, 300, 150);
 
-        smartDeviceGUI::TpMusicPlayerView *testMusicView = new smartDeviceGUI::TpMusicPlayerView(this);
-        testMusicView->setRect(200, 50, 180, 180);
-        testMusicView->setName("音乐");
-        testMusicView->setAuthor("张三");
-        testMusicView->setImage(applicationDirPath() + "/../res/testMusic.png");
-        testMusicView->setLyric("北风毫不留情    把叶子吹落.");
+        // testTimer_ = new tpTimer(3000);
+        // connect(testTimer_, timeout, [=]()
+        //         {
+        //             int32_t batteryValue = testBattery_->value();
+        //             batteryValue -= 10;
+        //             if (batteryValue < 0)
+        //             batteryValue = 100;
 
-        testTimer_ = new tpTimer(3000);
-        connect(testTimer_, timeout, [=]()
-                {
-                    int32_t batteryValue = testBattery_->value();
-                    batteryValue -= 10;
-                    if (batteryValue < 0)
-                    batteryValue = 100;
+        //             std::cout << "刷新电量；当前值：" << batteryValue <<std::endl;
+        //             testBattery_->setValue(batteryValue);
 
-                    std::cout << "刷新电量；当前值：" << batteryValue <<std::endl;
-                    testBattery_->setValue(batteryValue);
+        //             testLabel_->setText(tpString::number(batteryValue)); });
 
-                    testLabel_->setText(tpString::number(batteryValue)); });
-
-        testTimer_->start();
+        // testTimer_->start();
     }
     ~ThorVgPaintWidget()
     {
@@ -59,13 +49,13 @@ public:
 
     virtual bool onMousePressEvent(tpMouseEvent *event) override
     {
-        int32_t batteryValue = testBattery_->value();
-        batteryValue -= 10;
-        if (batteryValue < 0)
-            batteryValue = 100;
-        testBattery_->setValue(batteryValue);
+        // int32_t batteryValue = testBattery_->value();
+        // batteryValue -= 10;
+        // if (batteryValue < 0)
+        //     batteryValue = 100;
+        // testBattery_->setValue(batteryValue);
 
-        testLabel_->setText(tpString::number(batteryValue));
+        // testLabel_->setText(tpString::number(batteryValue));
 
         update();
 
@@ -80,20 +70,20 @@ public:
 
     virtual bool onPaintEvent(tpObjectPaintEvent *event) override
     {
-        static uint64_t paintCount = 0;
-        std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
+        // static uint64_t paintCount = 0;
+        // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
 
         tpDialog::onPaintEvent(event);
 
         TpCanvas *painter = event->canvas();
-        // painter->paintTest();
+        painter->paintTest();
 
-        static int32_t width = 100;
-        painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));
+        // static int32_t width = 100;
+        // painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));
 
-        width -= 10;
-        if (width < 0)
-            width = 100;
+        // width -= 10;
+        // if (width < 0)
+        //     width = 100;
 
         // painter->hline(10, 490, 10, _RGB(255, 0, 0));
         // painter->vline(490, 10, 490, _RGB(0, 255, 0), 3);

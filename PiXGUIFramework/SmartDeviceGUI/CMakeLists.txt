@@ -13,8 +13,9 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
 
 # 定义源码路径宏
 set(SOURCE_FILES
-    ${SOURCE_PATH}/src/GUIFramework/smartDeviceGUI/widgets/TpCircularProgressBar.cpp
-    ${SOURCE_PATH}/src/GUIFramework/smartDeviceGUI/widgets/TpMusicPlayerView.cpp
+    ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpCircularProgressBar.cpp
+    ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpMusicPlayerView.cpp
+    ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpWeatherInfoPanel.cpp
 )
 
 include_directories(/usr/include/cairo)
@@ -23,8 +24,8 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/Utils)
 include_directories(${SOURCE_PATH}/include/ExternUtils)
 include_directories(${SOURCE_PATH}/include/GUIFramework)
-include_directories(${SOURCE_PATH}/include/GUIFramework/smartDeviceGUI)
-include_directories(${SOURCE_PATH}/include/GUIFramework/smartDeviceGUI/widgets)
+include_directories(${SOURCE_PATH}/include/GUIFramework/SmartDeviceGUI)
+include_directories(${SOURCE_PATH}/include/GUIFramework/SmartDeviceGUI/Widgets)
 include_directories(${SOURCE_PATH}/include/SingleGUI)
 include_directories(${SOURCE_PATH}/include/SingleGUI/core)
 include_directories(${SOURCE_PATH}/include/SingleGUI/screen)

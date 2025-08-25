@@ -98,6 +98,41 @@ TpCanvas::~TpCanvas()
     delete set;
 }
 
+void TpCanvas::paintTest()
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+    if (!set)
+        return;
+
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    // 加载字体文件
+    // tvg::Text::load("/home/hawk/Public/tinyPiXCore/src/data/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf");
+    tvg::Text::load("/home/hawk/Public/tinyPiXCore/src/data/fonts/Taipei Sans TC Beta.ttf");
+
+    // 创建文本对象
+    auto text = tvg::Text::gen();
+
+    // text->font("Source Han Sans CN", 32);     // 设置字体名称和大小
+    text->font("Taipei Sans TC Beta", 32); // 设置字体名称和大小
+    text->text("Hello ThorVG 哈哈哈!");     // 设置文本内容
+    text->fill(255, 0, 0);                 // 设置文本颜色 (红色)
+    text->translate(set->offsetX, set->offsetY);
+
+    float textX, textY, textWidth, textHeight;
+    text->bounds(&textX, &textY, &textWidth, &textHeight);
+
+    std::cout << "文本坐标信息： " << textX << "  " << textY << "  " << textWidth << "  " << textHeight << std::endl;
+
+    // 添加到 Canvas 并绘制
+    set->tvgScene->push(std::move(text));
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
+}
+
 tpShared<TpSurface> TpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_surface)
 {
     if (cairo_surface == nullptr)
@@ -159,59 +194,6 @@ tpShared<TpSurface> TpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_s
     }
 
     return surface;
-}
-
-void TpCanvas::addScene(void *canvas, void *scene)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set->swCanvas)
-    {
-        delete set->swCanvas;
-        set->swCanvas = nullptr;
-    }
-
-    tvg::SwCanvas *addCanvas = (tvg::SwCanvas *)canvas;
-    set->swCanvas = addCanvas;
-
-    // 如果已有 Scene，先移除
-    // if (set->tvgScene)
-    // {
-    //     set->swCanvas->remove(set->tvgScene);
-    //     set->tvgScene = nullptr;
-    // }
-
-    tvg::Scene *addScene = (tvg::Scene *)scene;
-    set->tvgScene = addScene;
-    // set->tvgScene = static_cast<tvg::Scene *>(addScene->duplicate());
-    // set->swCanvas->push(set->tvgScene);
-
-    // if (set->tvgScene == nullptr)
-    // {
-    //     tvg::Scene* addScene = (tvg::Scene*)scene;
-    //     set->tvgScene = static_cast<tvg::Scene*>(addScene->duplicate());
-    //     set->swCanvas->push(set->tvgScene);
-    // }
-}
-
-void TpCanvas::paintTest()
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    // 确保设置了渲染目标
-    // refreshCanvasTarget(set);
-
-    // 强制场景更新
-    // if (set->tvgScene)
-    // {
-    //     std::list<tvg::Paint *> paintsList = set->tvgScene->paints(); // 关键！更新场景状态
-    //     std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
-    // }
-
-    // 绘制并同步
-    // set->swCanvas->push(std::move(set->tvgScene));
-    set->swCanvas->draw();
-    set->swCanvas->sync();
 }
 
 bool TpCanvas::setTarget(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
@@ -1127,6 +1109,59 @@ void TpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text
 
         font.renderMarkUp(set->tpSurfacePtr, text, x, y);
     }
+}
+
+void TpCanvas::addScene(void *canvas, void *scene)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set->swCanvas)
+    {
+        delete set->swCanvas;
+        set->swCanvas = nullptr;
+    }
+
+    tvg::SwCanvas *addCanvas = (tvg::SwCanvas *)canvas;
+    set->swCanvas = addCanvas;
+
+    // 如果已有 Scene，先移除
+    // if (set->tvgScene)
+    // {
+    //     set->swCanvas->remove(set->tvgScene);
+    //     set->tvgScene = nullptr;
+    // }
+
+    tvg::Scene *addScene = (tvg::Scene *)scene;
+    set->tvgScene = addScene;
+    // set->tvgScene = static_cast<tvg::Scene *>(addScene->duplicate());
+    // set->swCanvas->push(set->tvgScene);
+
+    // if (set->tvgScene == nullptr)
+    // {
+    //     tvg::Scene* addScene = (tvg::Scene*)scene;
+    //     set->tvgScene = static_cast<tvg::Scene*>(addScene->duplicate());
+    //     set->swCanvas->push(set->tvgScene);
+    // }
+}
+
+void TpCanvas::sync()
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    // 确保设置了渲染目标
+    // refreshCanvasTarget(set);
+
+    // 强制场景更新
+    // if (set->tvgScene)
+    // {
+    //     std::list<tvg::Paint *> paintsList = set->tvgScene->paints(); // 关键！更新场景状态
+    //     std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
+    // }
+
+    // 绘制并同步
+    // set->swCanvas->push(std::move(set->tvgScene));
+    set->swCanvas->draw();
+    set->swCanvas->sync();
 }
 
 HollowMask::HollowMask()

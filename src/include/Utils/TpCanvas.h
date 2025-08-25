@@ -25,10 +25,8 @@ public:
     TpCanvas(tpShared<TpSurface> surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0);
     virtual ~TpCanvas();
 
-    void addScene(void* canvas, void* scene);
-
     void paintTest();
-
+    
 public:
     /// @brief 重设绘制画布
     /// @param surface 画布指针
@@ -246,6 +244,12 @@ public:
 
     virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &text);
     virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text);
+
+public:
+    void addScene(void *canvas, void *scene);
+
+    /// @brief 绘图同步；用户无需调用
+    void sync();
 
 public:
     static tpShared<TpSurface> convertFromCairoToSurface(cairo_surface_t *cairo_surface);

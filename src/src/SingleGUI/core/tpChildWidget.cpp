@@ -860,7 +860,7 @@ void tpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
     if (ret)
     {
         // tpApp::Inst()->postUpdateEvent(this, x, y, w, h, onlyBlit);
-        tpApp::Inst()->postUpdateEvent(childWidgetPtr, 0, 0, 1080, 720, onlyBlit);
+        tpApp::Inst()->postUpdateEvent(childWidgetPtr, 0, 0, childWidgetPtr->width(), childWidgetPtr->height(), onlyBlit);
 
         // if (set->top != this)
         // {
@@ -1266,7 +1266,7 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
         {
             if ((curCssData->backgroundColor() & 0xff) != 0xff)
             {
-                canvas->erase();
+                // canvas->erase();
             }
         }
 

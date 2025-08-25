@@ -86,7 +86,7 @@ bool mainWindowService::onPaintEvent(tpObjectPaintEvent *event)
 
     // TpCanvas *paintCanvas = event->canvas();
 
-    // paintCanvas->paintTest();
+    // paintCanvas->sync();
 
     return true;
 }

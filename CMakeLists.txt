@@ -30,7 +30,7 @@ add_subdirectory(PiXExternUtils)
 add_subdirectory(PiXSingleGUI)
 add_subdirectory(PiXGUIFramework/desktopGUI)
 add_subdirectory(PiXGUIFramework/exampleGUI)
-add_subdirectory(PiXGUIFramework/smartDeviceGUI)
+add_subdirectory(PiXGUIFramework/SmartDeviceGUI)
 add_subdirectory(PiXService)
 add_subdirectory(examplesApp)
 
