@@ -29,7 +29,8 @@ struct tpChildWidgetData
     tpShared<tpCssData> checkedCssData;
     tpShared<tpCssData> disabledCssData;
 
-    tvg::Scene* tvgScene = nullptr;
+    tvg::Scene *tvgScene = nullptr;
+    tvg::SwCanvas *swCanvas = nullptr;
 
     tpChildWidgetData()
     {
@@ -230,11 +231,27 @@ tpChildWidget::~tpChildWidget()
     }
 }
 
+void *tpChildWidget::testCanvasPtr()
+{
+    tpChildWidgetData *childData = static_cast<tpChildWidgetData *>(data_);
+    if (childData->swCanvas == nullptr)
+    {
+        childData->swCanvas = tvg::SwCanvas::gen();
+        childData->tvgScene = tvg::Scene::gen();
+        childData->swCanvas->push(std::move(childData->tvgScene));
+    }
+    return childData->swCanvas;
+}
+
 void *tpChildWidget::testScenePtr()
 {
     tpChildWidgetData *childData = static_cast<tpChildWidgetData *>(data_);
     if (childData->tvgScene == nullptr)
+    {
+        childData->swCanvas = tvg::SwCanvas::gen();
         childData->tvgScene = tvg::Scene::gen();
+        childData->swCanvas->push(std::move(childData->tvgScene));
+    }
     return childData->tvgScene;
 }
 
@@ -842,7 +859,8 @@ void tpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
 
     if (ret)
     {
-        tpApp::Inst()->postUpdateEvent(this, x, y, w, h, onlyBlit);
+        // tpApp::Inst()->postUpdateEvent(this, x, y, w, h, onlyBlit);
+        tpApp::Inst()->postUpdateEvent(childWidgetPtr, 0, 0, 1080, 720, onlyBlit);
 
         // if (set->top != this)
         // {
@@ -1244,6 +1262,14 @@ bool tpChildWidget::onPaintEvent(tpObjectPaintEvent *event)
 
     if (set->enableColor)
     {
+        if (objectType() == TP_FLOAT_OBJECT)
+        {
+            if ((curCssData->backgroundColor() & 0xff) != 0xff)
+            {
+                canvas->erase();
+            }
+        }
+
         if (minRad == 0)
         {
             canvas->box(0, 0, rect.w, rect.h, curCssData->backgroundColor());

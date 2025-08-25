@@ -1479,8 +1479,7 @@ bool tpObjectPaintEvent::construct(ItpEventData *eventData)
     set->updateRect = clipRect.get(); // input->updateRect;
     tpObject *top = input->object->topObject();
 
-    if (top &&
-        top->objectType() == TP_FLOAT_OBJECT)
+    if (top && top->objectType() == TP_FLOAT_OBJECT)
     {
         clipRect.setX0(clipRect.X0() - inputObjectChild->offsetX());
         clipRect.setY0(clipRect.Y0() - inputObjectChild->offsetY());

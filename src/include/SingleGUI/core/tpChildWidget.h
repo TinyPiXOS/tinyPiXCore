@@ -17,6 +17,7 @@ public:
     tpChildWidget(tpChildWidget *parent = nullptr);
     virtual ~tpChildWidget();
 
+    void* testCanvasPtr();
     void* testScenePtr();
     
 public:

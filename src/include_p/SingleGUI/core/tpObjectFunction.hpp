@@ -262,9 +262,10 @@ static inline void childPaint(ItpObjectSet *set, tpObjectPaintEvent *events)
         // 刷新前清除scene
         TpCanvas* childPainter = event.canvas();
 
+        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)child->testCanvasPtr();
         tvg::Scene* childScene = (tvg::Scene*)child->testScenePtr();
         childScene->remove();
-        childPainter->addScene(childScene);
+        childPainter->addScene(childCanvas, childScene);
 
         bool ret = child->onPaintEvent(&event);
 

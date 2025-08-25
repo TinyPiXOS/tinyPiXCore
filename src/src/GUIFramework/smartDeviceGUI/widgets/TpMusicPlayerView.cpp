@@ -114,7 +114,7 @@ void TpMusicPlayerView::setImage(TpImage image)
 
 bool TpMusicPlayerView::onPaintEvent(tpObjectPaintEvent *event)
 {
-    tpChildWidget::onPaintEvent(event);
+    // tpChildWidget::onPaintEvent(event);
 
     return true;
 }

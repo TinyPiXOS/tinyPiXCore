@@ -32,6 +32,7 @@ add_subdirectory(PiXGUIFramework/desktopGUI)
 add_subdirectory(PiXGUIFramework/exampleGUI)
 add_subdirectory(PiXGUIFramework/smartDeviceGUI)
 add_subdirectory(PiXService)
+add_subdirectory(examplesApp)
 
 # 平台不同拷贝资源文件到不同安装目录；以及准备不同平台的安装依赖库
 # 首选方案：使用 CMAKE_CROSSCOMPILING 和自定义变量

@@ -6,11 +6,17 @@
 #include "TpImage.h"
 #include "tpBattery.h"
 #include "tpLabel.h"
+#include "tpTimer.h"
+#include "tpDialog.h"
 
-class ThorVgPaintWidget : public tpChildWidget
+#include "smartDeviceGUI/widgets/TpCircularProgressBar.h"
+#include "smartDeviceGUI/widgets/TpMusicPlayerView.h"
+
+// class ThorVgPaintWidget : public tpChildWidget
+class ThorVgPaintWidget : public tpDialog
 {
 public:
-    ThorVgPaintWidget(tpChildWidget *parent) : tpChildWidget(parent)
+    ThorVgPaintWidget(tpChildWidget *parent) //: tpDialog(parent)
     {
         setBackGroundColor(_RGB(100, 100, 100));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
@@ -24,6 +30,28 @@ public:
 
         testBattery_->setRect(10, 100, 200, 80);
         testLabel_->setRect(10, 200, 300, 150);
+
+        smartDeviceGUI::TpMusicPlayerView *testMusicView = new smartDeviceGUI::TpMusicPlayerView(this);
+        testMusicView->setRect(200, 50, 180, 180);
+        testMusicView->setName("音乐");
+        testMusicView->setAuthor("张三");
+        testMusicView->setImage(applicationDirPath() + "/../res/testMusic.png");
+        testMusicView->setLyric("北风毫不留情    把叶子吹落.");
+
+        testTimer_ = new tpTimer(3000);
+        connect(testTimer_, timeout, [=]()
+                {
+                    int32_t batteryValue = testBattery_->value();
+                    batteryValue -= 10;
+                    if (batteryValue < 0)
+                    batteryValue = 100;
+
+                    std::cout << "刷新电量；当前值：" << batteryValue <<std::endl;
+                    testBattery_->setValue(batteryValue);
+
+                    testLabel_->setText(tpString::number(batteryValue)); });
+
+        testTimer_->start();
     }
     ~ThorVgPaintWidget()
     {
@@ -46,7 +74,7 @@ public:
 
     virtual bool onMouseRleaseEvent(tpMouseEvent *event) override
     {
-        tpChildWidget::onMouseRleaseEvent(event);
+        tpDialog::onMouseRleaseEvent(event);
         return true;
     }
 
@@ -55,7 +83,7 @@ public:
         static uint64_t paintCount = 0;
         std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
 
-        tpChildWidget::onPaintEvent(event);
+        tpDialog::onPaintEvent(event);
 
         TpCanvas *painter = event->canvas();
         // painter->paintTest();
@@ -124,6 +152,8 @@ public:
 private:
     tpBattery *testBattery_;
     tpLabel *testLabel_;
+
+    tpTimer *testTimer_;
 };
 
 int32_t main(int32_t argc, char *argv[])
@@ -137,6 +167,9 @@ int32_t main(int32_t argc, char *argv[])
 
     ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     thorVGPaint->setRect(100, 100, 500, 500);
+
+    // tpBattery* testBattery = new tpBattery(vScreen);
+    // testBattery->setRect(100, 100, 500, 500);
 
     vScreen->update();
 

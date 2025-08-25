@@ -71,7 +71,7 @@ TpCanvas::TpCanvas(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY
     set->beUsed = (surface != nullptr);
 
     // TODO判断是GPU环境还是CPU环境
-    set->swCanvas = tvg::SwCanvas::gen();
+    // set->swCanvas = tvg::SwCanvas::gen();
 
     // refreshCanvasTarget(set);
 
@@ -92,8 +92,8 @@ TpCanvas::~TpCanvas()
     set->tpSurfacePtr = nullptr;
     set->beUsed = false;
 
-    delete set->swCanvas;
-    delete set->glCanvas;
+    // delete set->swCanvas;
+    // delete set->glCanvas;
 
     delete set;
 }
@@ -161,19 +161,29 @@ tpShared<TpSurface> TpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_s
     return surface;
 }
 
-void TpCanvas::addScene(void *scene)
+void TpCanvas::addScene(void *canvas, void *scene)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
-    // 如果已有 Scene，先移除
-    if (set->tvgScene)
+    if (set->swCanvas)
     {
-        set->swCanvas->remove(set->tvgScene);
-        set->tvgScene = nullptr;
+        delete set->swCanvas;
+        set->swCanvas = nullptr;
     }
 
+    tvg::SwCanvas *addCanvas = (tvg::SwCanvas *)canvas;
+    set->swCanvas = addCanvas;
+
+    // 如果已有 Scene，先移除
+    // if (set->tvgScene)
+    // {
+    //     set->swCanvas->remove(set->tvgScene);
+    //     set->tvgScene = nullptr;
+    // }
+
     tvg::Scene *addScene = (tvg::Scene *)scene;
-    set->tvgScene = static_cast<tvg::Scene *>(addScene->duplicate());
+    set->tvgScene = addScene;
+    // set->tvgScene = static_cast<tvg::Scene *>(addScene->duplicate());
     // set->swCanvas->push(set->tvgScene);
 
     // if (set->tvgScene == nullptr)
@@ -192,14 +202,14 @@ void TpCanvas::paintTest()
     // refreshCanvasTarget(set);
 
     // 强制场景更新
-    if (set->tvgScene)
-    {
-        // std::list<tvg::Paint *> paintsList = set->tvgScene->paints(); // 关键！更新场景状态
-        // std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
-    }
+    // if (set->tvgScene)
+    // {
+    //     std::list<tvg::Paint *> paintsList = set->tvgScene->paints(); // 关键！更新场景状态
+    //     std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
+    // }
 
     // 绘制并同步
-    set->swCanvas->push(set->tvgScene);
+    // set->swCanvas->push(std::move(set->tvgScene));
     set->swCanvas->draw();
     set->swCanvas->sync();
 }
@@ -255,11 +265,34 @@ void TpCanvas::erase()
 
     if (set && set->beUsed)
     {
-        // 方法1：清除所有 Paint 对象
-        set->swCanvas->remove();
+        // // 方法1：清除所有 Paint 对象
+        // set->swCanvas->remove();
 
-        // 方法2：清除缓冲区并重新绘制
-        set->swCanvas->draw(true);
+        // // 方法2：清除缓冲区并重新绘制
+        // set->swCanvas->draw(true);
+        // set->swCanvas->sync();
+
+        TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+        if (!set || !set->swCanvas || !set->beUsed)
+            return;
+
+        // 获取裁剪矩形（类似 SDL_GetClipRect）
+        ItpRect clipRect = set->tpSurfacePtr->clipRect();
+
+        // 设置视口到裁剪区域
+        // <cite> inc / thorvg.h : 846 - 871 < / cite >
+        set->swCanvas->viewport(clipRect.x, clipRect.y, clipRect.w, clipRect.h);
+
+        // 清除该区域（相当于 CAIRO_OPERATOR_CLEAR）
+        // <cite> inc / thorvg.h : 825 - 843 < / cite >
+        set->swCanvas->draw(true); // true 参数会清除缓冲区
+
+        // 恢复完整视口
+        int32_t surfaceWidth = set->tpSurfacePtr->width();
+        int32_t surfaceHeight = set->tpSurfacePtr->height();
+        set->swCanvas->viewport(0, 0, surfaceWidth, surfaceHeight);
+
+        // 同步操作
         set->swCanvas->sync();
     }
 }

@@ -345,7 +345,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         }
         else
         {
-                pixwmMergeUpdateRect[topScreenSet->agent] = ItpRect(task.x, task.y, task.w, task.h);
+            pixwmMergeUpdateRect[topScreenSet->agent] = ItpRect(task.x, task.y, task.w, task.h);
         }
 
         if (mergeUpdateWidget.contains(task.updateObj))
@@ -403,9 +403,10 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         // 刷新前清除scene
         TpCanvas *childPainter = event.canvas();
 
+        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)updateWidgetIter.first->testCanvasPtr();
         tvg::Scene *childScene = (tvg::Scene *)updateWidgetIter.first->testScenePtr();
         childScene->remove();
-        childPainter->addScene(childScene);
+        childPainter->addScene(childCanvas, childScene);
 
         bool ret = updateWidgetIter.first->onPaintEvent(&event);
 
@@ -423,7 +424,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     for (const auto &updateInfo : pixwmMergeUpdateRect)
     {
         const ItpRect &updateRect = updateInfo.second;
-        tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
+        // tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
+        tinyPiX_wf_update(updateInfo.first, 0, 0, 1080, 720, true, false);
     }
 
 #elif 0
