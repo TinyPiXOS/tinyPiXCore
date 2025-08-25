@@ -94,7 +94,9 @@ void VariantValueInit(tpVariant::VariantValue &value)
 {
     memset(&value, 0, sizeof(value));
     value.m_vt = (uint16_t)tpVariant::VariantType::tpEmpty;
+	value.data.m_strVal = nullptr;
     value.data.m_pSetVal = nullptr;
+	value.data.m_vectorVal = nullptr; // 确保初始化为 nullptr
 }
 
 void VariantValueClear(tpVariant::VariantValue &value)
@@ -107,6 +109,18 @@ void VariantValueClear(tpVariant::VariantValue &value)
         {
         case tpVariant::VariantType::tpBool:
             VariantSetValueDelete(reinterpret_cast<std::set<bool> *>(value.data.m_pSetVal));
+            break;
+		case tpVariant::VariantType::tpInt1:
+            VariantSetValueDelete(reinterpret_cast<std::set<int8_t> *>(value.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpUint1:
+            VariantSetValueDelete(reinterpret_cast<std::set<uint8_t> *>(value.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpInt2:
+            VariantSetValueDelete(reinterpret_cast<std::set<int16_t> *>(value.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpUint2:
+            VariantSetValueDelete(reinterpret_cast<std::set<uint16_t> *>(value.data.m_pSetVal));
             break;
         case tpVariant::VariantType::tpInt4:
             VariantSetValueDelete(reinterpret_cast<std::set<int32_t> *>(value.data.m_pSetVal));
@@ -140,8 +154,10 @@ void VariantValueClear(tpVariant::VariantValue &value)
 		// 向量处理
 		else if (value.m_vt == static_cast<uint16_t>(tpVariant::VariantType::tpVector) && value.data.m_vectorVal) 
 		{
-        	delete value.data.m_vectorVal;
-        	value.data.m_vectorVal = nullptr;
+        	if (value.data.m_vectorVal) {
+                delete value.data.m_vectorVal;
+                value.data.m_vectorVal = nullptr;
+            }
     	}
     }
 
@@ -162,6 +178,22 @@ void VariantValueCopy(tpVariant::VariantValue &toValue, const tpVariant::Variant
         case tpVariant::VariantType::tpBool:
             toValue.m_vt = from.m_vt;
             VariantSetValueCopy(toValue, reinterpret_cast<std::set<bool> *>(from.data.m_pSetVal));
+            break;
+		case tpVariant::VariantType::tpInt1:
+            toValue.m_vt = from.m_vt;
+            VariantSetValueCopy(toValue, reinterpret_cast<std::set<int8_t> *>(from.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpUint1:
+            toValue.m_vt = from.m_vt;
+            VariantSetValueCopy(toValue, reinterpret_cast<std::set<uint8_t> *>(from.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpInt2:
+            toValue.m_vt = from.m_vt;
+            VariantSetValueCopy(toValue, reinterpret_cast<std::set<int32_t> *>(from.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpUint2:
+            toValue.m_vt = from.m_vt;
+            VariantSetValueCopy(toValue, reinterpret_cast<std::set<uint32_t> *>(from.data.m_pSetVal));
             break;
         case tpVariant::VariantType::tpInt4:
             toValue.m_vt = from.m_vt;
@@ -214,9 +246,14 @@ void VariantValueCopy(tpVariant::VariantValue &toValue, const tpVariant::Variant
             }
         }
 		 // 向量处理
-		else if (from.m_vt == static_cast<uint16_t>(tpVariant::VariantType::tpVector) && from.data.m_vectorVal) {
-			toValue.data.m_vectorVal = new std::vector<tpVariant>(*from.data.m_vectorVal);
-		}
+		else if (from.m_vt == static_cast<uint16_t>(tpVariant::VariantType::tpVector)) {
+            toValue.m_vt = from.m_vt; // 设置类型
+            if (from.data.m_vectorVal) {
+                toValue.data.m_vectorVal = new std::vector<tpVariant>(*from.data.m_vectorVal);
+            } else {
+                toValue.data.m_vectorVal = nullptr;
+            }
+        }
         else
         {
             memcpy(&toValue, &from, sizeof(from));
@@ -236,6 +273,18 @@ uint32_t VariantValueSetSize(const tpVariant::VariantValue &valueSet)
         {
         case tpVariant::VariantType::tpBool:
             uCount = VariantSetValueSize(reinterpret_cast<std::set<bool> *>(valueSet.data.m_pSetVal));
+            break;
+		case tpVariant::VariantType::tpInt1:
+            uCount = VariantSetValueSize(reinterpret_cast<std::set<int8_t> *>(valueSet.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpUint1:
+            uCount = VariantSetValueSize(reinterpret_cast<std::set<uint8_t> *>(valueSet.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpInt2:
+            uCount = VariantSetValueSize(reinterpret_cast<std::set<int16_t> *>(valueSet.data.m_pSetVal));
+            break;
+        case tpVariant::VariantType::tpUint2:
+            uCount = VariantSetValueSize(reinterpret_cast<std::set<uint16_t> *>(valueSet.data.m_pSetVal));
             break;
         case tpVariant::VariantType::tpInt4:
             uCount = VariantSetValueSize(reinterpret_cast<std::set<int32_t> *>(valueSet.data.m_pSetVal));
@@ -284,6 +333,18 @@ bool VariantValueSetAt(const tpVariant::VariantValue &valueSet, uint32_t uIndex,
         {
         case tpVariant::VariantType::tpBool:
             bResult = VariantSetValueAt(reinterpret_cast<std::set<bool> *>(valueSet.data.m_pSetVal), uIndex, value.data.m_bVal);
+            break;
+		case tpVariant::VariantType::tpInt1:
+            bResult = VariantSetValueAt(reinterpret_cast<std::set<int8_t> *>(valueSet.data.m_pSetVal), uIndex, value.data.m_i1Val);
+            break;
+        case tpVariant::VariantType::tpUint1:
+            bResult = VariantSetValueAt(reinterpret_cast<std::set<uint8_t> *>(valueSet.data.m_pSetVal), uIndex, value.data.m_ui1Val);
+            break;
+        case tpVariant::VariantType::tpInt2:
+            bResult = VariantSetValueAt(reinterpret_cast<std::set<int16_t> *>(valueSet.data.m_pSetVal), uIndex, value.data.m_i2Val);
+            break;
+        case tpVariant::VariantType::tpUint2:
+            bResult = VariantSetValueAt(reinterpret_cast<std::set<uint16_t> *>(valueSet.data.m_pSetVal), uIndex, value.data.m_ui2Val);
             break;
         case tpVariant::VariantType::tpInt4:
             bResult = VariantSetValueAt(reinterpret_cast<std::set<int32_t> *>(valueSet.data.m_pSetVal), uIndex, value.data.m_i4Val);
@@ -356,6 +417,26 @@ bool VariantValueSetAdd(tpVariant::VariantValue &valueSet, const tpVariant::Vari
             if (nullptr == valueSet.data.m_pSetVal)
                 valueSet.data.m_pSetVal = new std::set<bool>();
             bResult = VariantSetValueAdd(reinterpret_cast<std::set<bool> *>(valueSet.data.m_pSetVal), value.data.m_bVal);
+            break;
+		case tpVariant::VariantType::tpInt1:
+            if (nullptr == valueSet.data.m_pSetVal)
+                valueSet.data.m_pSetVal = new std::set<int8_t>();
+            bResult = VariantSetValueAdd(reinterpret_cast<std::set<int8_t> *>(valueSet.data.m_pSetVal), value.data.m_i1Val);
+            break;
+        case tpVariant::VariantType::tpUint1:
+            if (nullptr == valueSet.data.m_pSetVal)
+                valueSet.data.m_pSetVal = new std::set<uint8_t>();
+            bResult = VariantSetValueAdd(reinterpret_cast<std::set<uint8_t> *>(valueSet.data.m_pSetVal), value.data.m_ui1Val);
+            break;
+        case tpVariant::VariantType::tpInt2:
+            if (nullptr == valueSet.data.m_pSetVal)
+                valueSet.data.m_pSetVal = new std::set<int16_t>();
+            bResult = VariantSetValueAdd(reinterpret_cast<std::set<int16_t> *>(valueSet.data.m_pSetVal), value.data.m_i2Val);
+            break;
+        case tpVariant::VariantType::tpUint2:
+            if (nullptr == valueSet.data.m_pSetVal)
+                valueSet.data.m_pSetVal = new std::set<uint16_t>();
+            bResult = VariantSetValueAdd(reinterpret_cast<std::set<uint16_t> *>(valueSet.data.m_pSetVal), value.data.m_ui2Val);
             break;
         case tpVariant::VariantType::tpInt4:
             if (nullptr == valueSet.data.m_pSetVal)

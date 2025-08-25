@@ -145,7 +145,7 @@ int example_service()
     // 测试类型安全的取值方法
     try {
         std::cout << "Testing type-safe access methods:" << std::endl;
-        uint8_t u8Val = numberSeq.uint32ValueAt(0);
+        uint8_t u8Val = numberSeq.uint8ValueAt(0);
         uint16_t u16Val = numberSeq.uint16ValueAt(1);
         std::cout << "  uint8ValueAt(0): " << static_cast<int>(u8Val) << std::endl;
         std::cout << "  uint16ValueAt(1): " << u16Val << std::endl;
@@ -249,6 +249,7 @@ int example_service()
 int main()
 {
 	example_service();
+
 //	example_bluet_uuid();
 //	example_bluet_get_uuids();
 //	example_service_scan();

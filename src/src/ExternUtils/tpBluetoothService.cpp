@@ -484,7 +484,7 @@ tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(const std::st
 }
 
 tpBluetoothService::Sequence& tpBluetoothService::Sequence::append(const Sequence& value) {
-	std::vector<tpVariant>* newVec = new std::vector<tpVariant>(value.m_values);
+	std::vector<tpVariant>* newVec = new std::vector<tpVariant>(value.getValues());
     m_values.push_back(tpVariant(newVec));
     return *this;
 }
