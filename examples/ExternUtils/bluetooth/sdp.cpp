@@ -125,6 +125,168 @@ void printSequence(const TpBluetoothService::Sequence& seq, const std::string& n
     std::cout << std::endl;
 }
 
+void printServiceDescriptor(const TpBluetoothService& service) {
+    std::cout << "===== Service Descriptor =====" << std::endl;
+    
+    // 1. 基础信息
+    std::cout << "Service Name: " << service.getServiceName() << std::endl;
+    std::cout << "Service Description: " << service.getServiceDescription() << std::endl;
+    std::cout << "Service Provider: " << service.getServiceProvider() << std::endl;
+    
+    // 2. 服务类 UUID 列表
+    std::cout << "Service Class UUID List:" << std::endl;
+    TpList<TpBluetoothUuid> classList = service.getServiceClassUuids();
+    for (auto &it : classList) {
+        std::cout << "  " << it.toString() << " (" << it.toName() << ")" << std::endl;
+    }
+    
+    // 3. 协议描述符列表（专门处理）
+    std::cout << "Protocol Descriptor List:" << std::endl;
+    const TpBluetoothService::Sequence protocolList = service.getProtocolDescriptorList();
+    for (size_t i = 0; i < protocolList.size(); i++) {
+        TpBluetoothService::Sequence protocol = protocolList.sequenceValueAt(i);
+        if (!protocol.isEmpty()) {
+            // 协议 UUID
+            if (protocol.at(0).isCustom<TpBluetoothUuid>()) {
+                TpBluetoothUuid uuid = protocol.uuidValueAt(0);
+                std::cout << "  Protocol: " << uuid.toString() << std::endl;
+                
+                // 特定协议处理
+                if (uuid == TpBluetoothUuid(TpBluetoothUuid::TP_PROTOCOL_UUID_RFCOMM) && protocol.size() > 1) {
+                    if (protocol.at(1).isUint8()) {
+                        std::cout << "    RFCOMM Channel: " 
+                                  << static_cast<int>(protocol.uint8ValueAt(1)) << std::endl;
+                    }
+                } else if (uuid == TpBluetoothUuid(TpBluetoothUuid::TP_PROTOCOL_UUID_L2CAP) && protocol.size() > 1) {
+                    if (protocol.at(1).isUint16()) {
+                        std::cout << "    L2CAP PSM: 0x" 
+                                  << std::hex << protocol.uint16ValueAt(1) << std::dec << std::endl;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 4. 配置文件描述符列表
+    std::cout << "Profile Descriptor List:" << std::endl;
+    const TpBluetoothService::Sequence profileList = service.getProfileDescriptorList();
+    for (size_t i = 0; i < profileList.size(); i++) {
+        TpBluetoothService::Sequence profile = profileList.sequenceValueAt(i);
+        if (profile.size() >= 2) {
+            // 配置文件 UUID
+            if (profile.at(0).isCustom<TpBluetoothUuid>()) {
+                TpBluetoothUuid uuid = profile.uuidValueAt(0);
+                std::cout << "  Profile: " << uuid.toString() << " (" << uuid.toName() << ")" << std::endl;
+            }
+            
+            // 配置文件版本
+            if (profile.at(1).isUint16()) {
+                uint16_t version = profile.uint16ValueAt(1);
+                uint8_t major = (version >> 8) & 0xFF;
+                uint8_t minor = version & 0xFF;
+                std::cout << "    Version: " << static_cast<int>(major) << "." 
+                          << static_cast<int>(minor) << " (0x"
+                          << std::hex << version << std::dec << ")" << std::endl;
+            }
+        }
+    }
+    
+    // 5. 语言属性
+   std::cout << "Language Base Attribute ID List:" << std::endl;
+    const TpVariant& langAttrVar = service.getAttribute(
+        TpBluetoothService::LanguageBaseAttributeIdList);
+    
+    if (langAttrVar.isCustom<TpBluetoothService::Sequence>()) {
+        const TpBluetoothService::Sequence langList = langAttrVar.toCustom<TpBluetoothService::Sequence>();
+        
+        for (size_t i = 0; i < langList.size(); i++) {
+            const TpVariant& langVar = langList.at(i);
+            
+            if (langVar.isCustom<TpBluetoothService::Sequence>()) {
+                const TpBluetoothService::Sequence langAttr = langVar.toCustom<TpBluetoothService::Sequence>();
+                
+                if (langAttr.size() >= 3) {
+                    std::cout << "  Language ID: 0x" << std::hex << langAttr.uint16ValueAt(0) << std::dec << std::endl;
+                    std::cout << "    Encoding: 0x" << std::hex << langAttr.uint16ValueAt(1) << std::dec << std::endl;
+                    std::cout << "    Base Offset: 0x" << std::hex << langAttr.uint16ValueAt(2) << std::dec << std::endl;
+                }
+            }
+        }
+    } else {
+        std::cout << "  Language Base Attribute ID List is not a sequence" << std::endl;
+    }
+
+    // 6. 其他属性
+//    std::cout << "Service Record Handle: 0x" << std::hex << service.getServiceRecHandle() << std::dec << std::endl;
+    std::cout << "Service Availability: " << static_cast<int>(
+        service.getAttribute(TpBluetoothService::ServiceAvailability).toUInt8()) << std::endl;
+    
+    std::cout << "===== End of Service Descriptor =====" << std::endl;
+}
+
+void testServiceDescriptorPrinting() {
+	std::cout << "===== Bluetooth Service Descriptor Printing Test =====" << std::endl;
+    
+    // 创建蓝牙服务对象
+    TpBluetoothService service;
+    
+    // 设置服务记录句柄 (0x0000)
+    service.setServiceRecHandle(0x10013);
+    
+    // 设置服务名称 (0x0100)
+    service.setServiceName("Serial Port Profile");
+    
+    // 设置服务类 UUID 列表 (0x0001)
+   	TpList<TpBluetoothUuid> classIdList;
+   	classIdList.emplace_back(TpBluetoothUuid(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT));
+    service.setServiceClassUuids(classIdList);
+    
+    // 设置协议描述符列表 (0x0004)
+    TpBluetoothService::Sequence protocolList;
+    
+    // L2CAP 协议
+    TpBluetoothService::Sequence l2capProtocol;
+    l2capProtocol << TpBluetoothUuid(TpBluetoothUuid::TP_PROTOCOL_UUID_L2CAP)
+                 << static_cast<uint16_t>(0x0001); // PSM
+    
+    // RFCOMM 协议
+    TpBluetoothService::Sequence rfcommProtocol;
+    rfcommProtocol << TpBluetoothUuid(TpBluetoothUuid::TP_PROTOCOL_UUID_RFCOMM)
+                  << static_cast<uint8_t>(1); // 通道号
+    
+    protocolList << l2capProtocol << rfcommProtocol;
+    service.setProtocolDescriptorList(protocolList);
+    
+    // 设置配置文件描述符列表 (0x0009)
+    TpBluetoothService::Sequence profileList;
+    
+    // 串口配置文件
+    TpBluetoothService::Sequence sppProfile;
+    sppProfile << TpBluetoothUuid(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT)
+              << static_cast<uint16_t>(0x0102); // 版本号 1.2
+    
+    profileList << sppProfile;
+    service.setProfileDescriptorList(profileList);
+    
+    // 设置语言属性列表 (0x0006)
+    TpBluetoothService::Sequence langList;
+    TpBluetoothService::Sequence langAttr;
+    langAttr << static_cast<uint16_t>(0x656E) // 英语
+             << static_cast<uint16_t>(0x006A) // UTF-8 编码
+             << static_cast<uint16_t>(0x0100); // 基础偏移
+    langList << langAttr;
+    service.setAttribute(TpBluetoothService::LanguageBaseAttributeIdList, langList);
+    
+    // 设置服务可用性 (0x0008)
+    service.setAttribute(TpBluetoothService::ServiceAvailability, static_cast<uint8_t>(100));
+    
+    // 打印服务描述符
+    printServiceDescriptor(service);
+    
+    std::cout << "===== Test Completed =====" << std::endl;
+}
+
+
 int example_service()
 {
     std::cout << "===== Sequence Class Test =====" << std::endl;
@@ -249,7 +411,7 @@ int example_service()
 int main()
 {
 	example_service();
-
+	testServiceDescriptorPrinting();
 //	example_bluet_uuid();
 //	example_bluet_get_uuids();
 //	example_service_scan();
