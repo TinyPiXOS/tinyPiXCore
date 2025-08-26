@@ -133,69 +133,6 @@ void TpCanvas::paintTest()
     // set->swCanvas->sync();
 }
 
-tpShared<TpSurface> TpCanvas::convertFromCairoToSurface(cairo_surface_t *cairo_surface)
-{
-    if (cairo_surface == nullptr)
-    {
-        return nullptr;
-    }
-
-    void *addr = (void *)cairo_image_surface_get_data(cairo_surface);
-    cairo_format_t fmt = cairo_image_surface_get_format(cairo_surface);
-    int32_t width = cairo_image_surface_get_width(cairo_surface);
-    int32_t height = cairo_image_surface_get_height(cairo_surface);
-    int32_t stride = cairo_image_surface_get_stride(cairo_surface);
-
-    if (addr == nullptr)
-    {
-        return nullptr;
-    }
-
-    ItpFormat format = TP_RGB_UNKOWN;
-    int32_t Rmask = 0, Gmask = 0, Bmask = 0, Amask = 0;
-
-    switch (fmt)
-    {
-    case CAIRO_FORMAT_ARGB32:
-    case CAIRO_FORMAT_RGB24:
-    {
-        format = TP_RGB_32;
-
-        Rmask = 0x00ff0000;
-        Gmask = 0x0000ff00;
-        Bmask = 0x000000ff;
-        Amask = (fmt == CAIRO_FORMAT_RGB24) ? 0x00000000 : 0xff000000;
-    }
-    break;
-    case CAIRO_FORMAT_RGB16_565:
-    {
-        format = TP_RGB_16;
-
-        Rmask = 0x0000f800;
-        Gmask = 0x000007e0;
-        Bmask = 0x0000001f;
-    }
-    break;
-    case CAIRO_FORMAT_A8:
-    {
-        format = TP_RGB_8;
-    }
-    break;
-    default:
-        return nullptr;
-    }
-
-    tpShared<TpSurface> surface = tpMakeShared<TpSurface>();
-    bool ret = surface->create(addr, width, height, format, stride, Rmask, Gmask, Bmask, Amask);
-
-    if (ret == false)
-    {
-        return nullptr;
-    }
-
-    return surface;
-}
-
 bool TpCanvas::setTarget(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);

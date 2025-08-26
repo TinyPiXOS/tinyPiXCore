@@ -6,15 +6,12 @@
 #include "tpVector.h"
 #include "tpGlobal.h"
 #include "TpImage.h"
-#include <cairo.h>
 
 class TpCanvas;
 class TpSurface;
 class tpRect;
 class tpFont;
 class HollowMask;
-
-typedef void (*defDrawFunction)(TpCanvas *, cairo_t *cr, cairo_surface_t *cairo_surface, int32_t offsetX, int32_t offsetY, void *args);
 
 TP_DEF_VOID_TYPE_VAR(ITpCanvasData);
 /// @brief 绘制模块类，用于绘制各种形状。资源等
@@ -247,10 +244,6 @@ public:
 
     /// @brief 绘图同步；用户无需调用
     void sync();
-
-public:
-    static tpShared<TpSurface> convertFromCairoToSurface(cairo_surface_t *cairo_surface);
-    // static cairo_surface_t *convertFromSurfaceToCairo(tpShared<TpSurface>surface);
 
 private:
     ITpCanvasData *data_;
