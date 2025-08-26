@@ -113,7 +113,7 @@ static long calculate_directory_size(const char* dir_path) {
 //写入指令集类型
 const char *architecture_map[]={"none","amd64","i386","arm64","arm32","risc_v"};
 
-const char *get_architecture_string(tpEnumArchType arch)
+const char *get_architecture_string(TpEnumArchType arch)
 {
 	return architecture_map[arch];
 }

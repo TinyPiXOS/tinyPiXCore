@@ -1,12 +1,12 @@
 #ifndef __TP_IMAGE_PRIVATE_H
 #define __TP_IMAGE_PRIVATE_H
 
-#include "tpString.h"
+#include "TpString.h"
 #include "thorVG/thorvg.h"
 
 struct TpImageData
 {
-    tpString fileName = "";
+    TpString fileName = "";
     tvg::Picture *tvgPicture = nullptr;
 
     ~TpImageData()

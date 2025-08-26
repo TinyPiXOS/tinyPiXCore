@@ -1,22 +1,22 @@
-#include "tpDiskManage.h"
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include <tpString.h>
-#include <tpList.h>
+#include "TpDiskManage.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include <TpString.h>
+#include <TpList.h>
 #include <iostream>
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
 	app.bindVScreen(vScreen);
-	tpDiskManage diskManager(TP_TRUE,500);
+	TpDiskManage diskManager(TP_TRUE,500);
 	std::cout << "-------------------------------" << std::endl;
 	
 
-	tpList<tpDisk *> diskInfoList = diskManager.getList();
+	TpList<TpDisk *> diskInfoList = diskManager.getList();
 
 
 	uint32_t index = 0;
@@ -42,10 +42,10 @@ int32_t main(int32_t argc, char *argv[])
 	std::cout << "-------------------------------" << std::endl;
 	std::cout << "监测磁盘设备插拔" << std::endl;
 	
-	connect(&diskManager, diskRemove, [=](tpString name)
+	connect(&diskManager, diskRemove, [=](TpString name)
             { std::cout << "[Signal]设备弹出：" << name<< std::endl; });
 
-	connect(&diskManager, diskAdd, [=](tpDisk *disk)
+	connect(&diskManager, diskAdd, [=](TpDisk *disk)
             { std::cout << "[Signal]设备插入：" << disk->getName() << std::endl; });
 	
 	

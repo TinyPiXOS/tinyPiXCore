@@ -1,19 +1,19 @@
 #include <iostream>
 #include <stdio.h>
-#include "tpAppInstall.h"
+#include "TpAppInstall.h"
 
 
 int install_app()
 {
-	tpString package_path="/home/pix/AppManage/mytestAppPackage.pik";
-	tpAppInstall appmanage(package_path);
+	TpString package_path="/home/pix/AppManage/mytestAppPackage.pik";
+	TpAppInstall appmanage(package_path);
 
 
 	std::cout<< "icon:" << appmanage.getIcon()<<std::endl;
 	std::cout<< "uuid:" << appmanage.getAppUUID()<<std::endl;
 	std::cout<< "name:" << appmanage.getAppName()<<std::endl;
 
-/*	tpString pack_ver;
+/*	TpString pack_ver;
 	pack_ver=appmanage.getPackVersion();	//
 	std::cout<<"Pack Version: "<<pack_ver<<std::endl;
 	std::cout<<"Pack Arch: "<<appmanage.getPackArch() <<std::endl;
@@ -33,8 +33,8 @@ int install_app()
 
 int install_lib()
 {
-	tpString package_path="/home/pix/AppManage/mytestlib/systemlib.pik";
-	tpAppInstall appmanage(package_path);
+	TpString package_path="/home/pix/AppManage/mytestlib/systemlib.pik";
+	TpAppInstall appmanage(package_path);
 	
 	if(appmanage.completeCheck()!=1)
 		std::cout<<"MD5 Check error"<<std::endl;	
@@ -52,7 +52,7 @@ int install_lib()
 
 int remove_app()
 {
-	tpString uuid("f03c8f8c-dd9b-453f-b2d4-d049c073e252")
+	TpString uuid("f03c8f8c-dd9b-453f-b2d4-d049c073e252")
 	appmanage.remove(uuid);
 	return 0;
 }

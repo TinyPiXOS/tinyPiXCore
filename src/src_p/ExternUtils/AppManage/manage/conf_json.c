@@ -21,7 +21,7 @@
 
 #define BUFFER_SIZE 1024
 
-typedef int (*CallbackInstallConfRW)(tpAppID ,const char *);
+typedef int (*CallbackInstallConfRW)(TpAppID ,const char *);
 
 //提取json文件中某个对象的值
 
@@ -333,7 +333,7 @@ int creat_install_conf(const char *install_path)
 }
 
 //install.conf新增一个应用信息
-static int add_appuuid_install(tpAppID uuid,const char *install_path)
+static int add_appuuid_install(TpAppID uuid,const char *install_path)
 {
 	creat_install_conf(install_path);
 	struct json_object *root = json_object_from_file(install_path);
@@ -368,7 +368,7 @@ static int add_appuuid_install(tpAppID uuid,const char *install_path)
 }
 
 //install.conf删除一个应用信息
-static int del_appuuid_install(tpAppID uuid,const char *install_path)
+static int del_appuuid_install(TpAppID uuid,const char *install_path)
 {
 
 	struct json_object *root = json_object_from_file(install_path);
@@ -425,7 +425,7 @@ static int file_unlock(int fd)
     fcntl(fd, F_SETLK, &lock);
 }
 
-static int appuuid_install_safe_rw(tpAppID uuid,const char *install_path,CallbackInstallConfRW callback)
+static int appuuid_install_safe_rw(TpAppID uuid,const char *install_path,CallbackInstallConfRW callback)
 {
 	int origFd = open(install_path, O_RDWR);
 	if (origFd < 0) {
@@ -496,12 +496,12 @@ static int appuuid_install_safe_rw(tpAppID uuid,const char *install_path,Callbac
 }
 
 //安全新增应用到install文件
-int add_appuuid_install_safe(tpAppID uuid,const char *install_path)
+int add_appuuid_install_safe(TpAppID uuid,const char *install_path)
 {
 	return appuuid_install_safe_rw(uuid,install_path,add_appuuid_install);
 }
 //安全删除应用从install文件
-int del_appuuid_install_safe(tpAppID uuid,const char *install_path)
+int del_appuuid_install_safe(TpAppID uuid,const char *install_path)
 {
 	//del_appuuid_install(uuid,install_path);
 	return appuuid_install_safe_rw(uuid,install_path,del_appuuid_install);

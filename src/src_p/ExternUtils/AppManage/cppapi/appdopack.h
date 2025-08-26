@@ -20,81 +20,81 @@ int appm_creat_apppackage_config(const char *archive_name,struct AppPackageConfi
 }
 #endif
 
-#define tpString std::string
+#define TpString std::string
 
-class tpPackageInfo {
+class TpPackageInfo {
 public:
-	virtual ~tpPackageInfo();
-	tpPackageInfo();
+	virtual ~TpPackageInfo();
+	TpPackageInfo();
     
 public:
 	int SetPackageType(int type);
-	void SetAppID(const tpString& id);
-	void SetAppName(const tpString& name);
+	void SetAppID(const TpString& id);
+	void SetAppName(const TpString& name);
 	void SetVersion(uint8_t x,uint8_t y,uint8_t z);
-	void SetArchitecture(const tpString& architecture);
-	void SetSection(const tpString& section);
-	void SetPriority(const tpString& priority);
-	void SetEssential(const tpString& essential);
-	void SetAuthor(const tpString& author);
-	void SetContact(const tpString& contact);
-	void SetProvides(const tpString& provides);
+	void SetArchitecture(const TpString& architecture);
+	void SetSection(const TpString& section);
+	void SetPriority(const TpString& priority);
+	void SetEssential(const TpString& essential);
+	void SetAuthor(const TpString& author);
+	void SetContact(const TpString& contact);
+	void SetProvides(const TpString& provides);
 	void SetDiskSpace(int size);
-	int SetDescription(const tpString& description);
-	int SetSignature(const tpString& sig);
-	int AddDepend(const tpString& depend);
-	int AddLib(const tpString& lib);
-	int SetIcon(const tpString& icon);
-	int AddAssert(const tpString& assert);
-	int AddFile(const tpString& file);
-	int AddExtension(const tpString& type);
-	int SetStart(const tpString& start);
-	int SetRemove(const tpString& remove);
-	int SetAppPath(const tpString& app);
-//	int SetMyfile(const tpString& myfile);
-	int Save(const tpString& file);
-	int CreatPackage(const tpString& package);
+	int SetDescription(const TpString& description);
+	int SetSignature(const TpString& sig);
+	int AddDepend(const TpString& depend);
+	int AddLib(const TpString& lib);
+	int SetIcon(const TpString& icon);
+	int AddAssert(const TpString& assert);
+	int AddFile(const TpString& file);
+	int AddExtension(const TpString& type);
+	int SetStart(const TpString& start);
+	int SetRemove(const TpString& remove);
+	int SetAppPath(const TpString& app);
+//	int SetMyfile(const TpString& myfile);
+	int Save(const TpString& file);
+	int CreatPackage(const TpString& package);
 
 	void ClassFree();
 
 private:
-    tpString path_s;		//原始打包文件生成位置
+    TpString path_s;		//原始打包文件生成位置
     struct AppPackageConfig params;
 	TypePackage type;
 };
 
 
-class tpStartShInfo{
+class TpStartShInfo{
 public:
-	tpStartShInfo();
-	virtual ~tpStartShInfo();
+	TpStartShInfo();
+	virtual ~TpStartShInfo();
 
 public:
-    int AddEnvironmentVar(const tpString& key, const tpString& value) ;
-    int AddDependency(const tpString& lib);
-    int AddStartArg(const tpString& arg);
-    int SetLogFile(const tpString& log_file);
-    int SetConfigFile(const tpString& config_file);
-    int SetExecPath(const tpString& name);
+    int AddEnvironmentVar(const TpString& key, const TpString& value) ;
+    int AddDependency(const TpString& lib);
+    int AddStartArg(const TpString& arg);
+    int SetLogFile(const TpString& log_file);
+    int SetConfigFile(const TpString& config_file);
+    int SetExecPath(const TpString& name);
 
-	int Save(const tpString& path);
+	int Save(const TpString& path);
     void ClassFree();
 private:
     struct ScriptInfo config;
 };
 
 
-class tpLibPackageInfo{
+class TpLibPackageInfo{
 public:
-	tpLibPackageInfo();
-	virtual ~tpLibPackageInfo();
+	TpLibPackageInfo();
+	virtual ~TpLibPackageInfo();
 
 public:
-	void SetArchitecture(const tpString& architecture);
+	void SetArchitecture(const TpString& architecture);
 	void SetDiskSpace(int size);
-    int AddLibrary(const tpString& name,uint8_t ver_x,uint8_t ver_y,uint8_t ver_z);
-	int AddFile(const tpString& file);
-	int Save(const tpString& path);
+    int AddLibrary(const TpString& name,uint8_t ver_x,uint8_t ver_y,uint8_t ver_z);
+	int AddFile(const TpString& file);
+	int Save(const TpString& path);
 	void ClassFree();
 private:
 	struct LibPackageConfig params;

@@ -1,11 +1,11 @@
-#include <tpUtils.h>
+#include <TpUtils.h>
 #include <iostream>
 #include <cstring>
-#include "tpClipboard.h"
+#include "TpClipboard.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpClipboard *clipboard = tpClipboard::Inst();
+	TpClipboard *clipboard = TpClipboard::Inst();
 	
 	if(clipboard){
 		clipboard->setPlainText("I am a good boy!");
@@ -20,7 +20,7 @@ int32_t main(int32_t argc, char *argv[])
 		
 		getchar();
 		
-		tpImage *image = new tpImage();
+		TpImage *image = new TpImage();
 		
 		if(image){
 			ret = image->fromFile("1920x1080.bmp", true);

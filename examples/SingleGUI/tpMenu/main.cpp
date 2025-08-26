@@ -1,24 +1,24 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpFont.h"
-#include "tpMenu.h"
-#include "tpButton.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpFont.h"
+#include "TpMenu.h"
+#include "TpButton.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
+	TpApp app(argc, argv);
 
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpMenu *menu = new tpMenu();
+	TpMenu *menu = new TpMenu();
 	menu->addItem("Item1");
 	menu->addItem("Item2");
 	menu->addItem("Item3");
 
-	tpButton *showMenuBtn = new tpButton(vScreen);
+	TpButton *showMenuBtn = new TpButton(vScreen);
 	showMenuBtn->setText("显示弹出菜单");
 	showMenuBtn->setProperty("type", "ControlPanelPowerButton");
 	showMenuBtn->setSize(300, 64);

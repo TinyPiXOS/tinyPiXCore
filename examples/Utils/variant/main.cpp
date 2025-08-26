@@ -1,8 +1,8 @@
 
-#include <tpUtils.h>
+#include <TpUtils.h>
 #include <iostream>
 #include <cstring>
-#include "tpVariant.h"
+#include "TpVariant.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -10,9 +10,9 @@ int32_t main(int32_t argc, char *argv[])
 
 	int32_t testInt = 99;
 
-	tpVariant variantTest(testInt);
+	TpVariant variantTest(testInt);
 
-	tpVariant variantTest2(testStr);
+	TpVariant variantTest2(testStr);
 
 	int32_t resInt = int32_t(variantTest);
 	// std::string resString = (const char *)(variantTest);

@@ -1,18 +1,18 @@
 #include <iostream>
 #include <stdio.h>
-#include "tpBluetoothServiceDiscovery.h"
-#include "tpBluetoothService.h"
-#include "tpBluetoothUuid.h"
-#include "tpBluetoothLocal.h"
+#include "TpBluetoothServiceDiscovery.h"
+#include "TpBluetoothService.h"
+#include "TpBluetoothUuid.h"
+#include "TpBluetoothLocal.h"
 
 
 //获取蓝牙适配器的uuid列表
 int example_bluet_get_uuids()
 {
-	tpBluetoothUuid uuid_serial(tpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
+	TpBluetoothUuid uuid_serial(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
 
-	tpBluetoothLocal local("hci0");
-	tpList<tpBluetoothUuid> uuid_list=local.getUuids();
+	TpBluetoothLocal local("hci0");
+	TpList<TpBluetoothUuid> uuid_list=local.getUuids();
 	for(auto&it : uuid_list)
 	{
 		printf("uuid128:%s , Name:%s\n",it.toString().c_str(),it.toName().c_str());
@@ -27,11 +27,11 @@ int example_bluet_get_uuids()
 
 int example_service_registe()
 {
-	tpBluetoothService service_serial;
+	TpBluetoothService service_serial;
 	service_serial.setServiceChannel(1);
-	service_serial.setServiceUuid(tpBluetoothUuid(tpBluetoothUuid::TP_PROFILE_SERIAL_PORT));
-	service_serial.setServiceName(tpString("Serial Port Profile"));
-	tpBluetoothUuid uuid(tpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
+	service_serial.setServiceUuid(TpBluetoothUuid(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT));
+	service_serial.setServiceName(TpString("Serial Port Profile"));
+	TpBluetoothUuid uuid(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
 
 	service_serial.registerService();
 	while(1);
@@ -41,7 +41,7 @@ int example_service_registe()
 
 int example_service_scan()
 {
-	tpBluetoothServiceDiscovery scan(tpBluetoothAddress("00:11:22:33:44:55"));
+	TpBluetoothServiceDiscovery scan(TpBluetoothAddress("00:11:22:33:44:55"));
 	scan.start();
 	return 0;
 }
@@ -51,10 +51,10 @@ int example_bluet_uuid()
 	tpUInt16 num_other=0x1205;
 	tpUInt16 num_16=0x1101;
 	tpUInt32 num_32=0x00001101;
-	tpBluetoothUuid uuid_16(num_16);
-	tpBluetoothUuid uuid_32(num_32);
-	tpBluetoothUuid uuid_str(tpString("00001101-0000-1000-8000-00805F9B34FB"));
-	tpBluetoothUuid uuid_p(tpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
+	TpBluetoothUuid uuid_16(num_16);
+	TpBluetoothUuid uuid_32(num_32);
+	TpBluetoothUuid uuid_str(TpString("00001101-0000-1000-8000-00805F9B34FB"));
+	TpBluetoothUuid uuid_p(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
 	printf("ok\n");
 
 	printf("uuid_32:%08x\n",uuid_str.toUInt32());
@@ -77,10 +77,10 @@ int example_bluet_uuid()
 }
 
 //测试蓝牙服务的列表
-void printSequence(const tpBluetoothService::Sequence& seq, const std::string& name = "Sequence") {
+void printSequence(const TpBluetoothService::Sequence& seq, const std::string& name = "Sequence") {
     std::cout << name << " (" << seq.size() << " elements):" << std::endl;
     for (size_t i = 0; i < seq.size(); i++) {
-        const tpVariant& var = seq.at(i);
+        const TpVariant& var = seq.at(i);
         std::cout << "  [" << i << "]: ";
         
         if (var.isBool()) {
@@ -130,12 +130,12 @@ int example_service()
     std::cout << "===== Sequence Class Test =====" << std::endl;
     
     // 创建基本序列
-    tpBluetoothService::Sequence basicSeq;
+    TpBluetoothService::Sequence basicSeq;
     basicSeq << true << 42 << 3.14f << "Hello World";
     printSequence(basicSeq, "Basic Sequence");
     
     // 测试 uint8_t 和 uint16_t 支持
-    tpBluetoothService::Sequence numberSeq;
+    TpBluetoothService::Sequence numberSeq;
     numberSeq << static_cast<uint8_t>(8) 
               << static_cast<uint16_t>(16)
               << static_cast<uint8_t>(255)  // 测试边界值
@@ -164,14 +164,14 @@ int example_service()
     std::cout << std::endl;
     
     // 测试嵌套序列
-    tpBluetoothService::Sequence nestedSeq;
+    TpBluetoothService::Sequence nestedSeq;
     nestedSeq << "Top Level" << numberSeq << 3.14159;
     printSequence(nestedSeq, "Nested Sequence");
     
     // 测试序列取值方法
     try {
         std::cout << "Testing sequenceValueAt method:" << std::endl;
-        tpBluetoothService::Sequence extractedSeq = nestedSeq.sequenceValueAt(1);
+        TpBluetoothService::Sequence extractedSeq = nestedSeq.sequenceValueAt(1);
         printSequence(extractedSeq, "Extracted Sequence");
         
         // 测试嵌套序列中的值
@@ -188,22 +188,22 @@ int example_service()
     std::cout << "===== Bluetooth Protocol Descriptor Test =====" << std::endl;
     
     // 创建 L2CAP 协议描述符
-    tpBluetoothService::Sequence l2capProtocol;
+    TpBluetoothService::Sequence l2capProtocol;
     l2capProtocol << "L2CAP" << static_cast<uint16_t>(0x0001); // PSM
     
     // 创建 RFCOMM 协议描述符
-    tpBluetoothService::Sequence rfcommProtocol;
+    TpBluetoothService::Sequence rfcommProtocol;
     rfcommProtocol << "RFCOMM" << static_cast<uint8_t>(6); // 通道号
     
     // 创建协议描述符列表
-    tpBluetoothService::Sequence protocolList;
+    TpBluetoothService::Sequence protocolList;
     protocolList << l2capProtocol << rfcommProtocol;
     printSequence(protocolList, "Protocol Descriptor List");
     
     // 访问协议描述符
     try {
         // 获取 L2CAP 协议
-        tpBluetoothService::Sequence l2cap = protocolList.sequenceValueAt(0);
+        TpBluetoothService::Sequence l2cap = protocolList.sequenceValueAt(0);
         std::string protocolName = l2cap.stringValueAt(0);
         uint16_t psm = l2cap.uint16ValueAt(1);
         std::cout << "L2CAP Protocol:" << std::endl;
@@ -211,7 +211,7 @@ int example_service()
         std::cout << "  PSM: 0x" << std::hex << psm << std::dec << std::endl;
         
         // 获取 RFCOMM 协议
-        tpBluetoothService::Sequence rfcomm = protocolList.sequenceValueAt(1);
+        TpBluetoothService::Sequence rfcomm = protocolList.sequenceValueAt(1);
         protocolName = rfcomm.stringValueAt(0);
         uint8_t channel = rfcomm.uint8ValueAt(1);
         std::cout << "RFCOMM Protocol:" << std::endl;
@@ -223,14 +223,14 @@ int example_service()
     std::cout << std::endl;
     
     // 测试服务属性设置
-    tpBluetoothService service;
+    TpBluetoothService service;
     
     // 设置协议描述符列表
     service.setProtocolDescriptorList(protocolList);
     std::cout << "Protocol Descriptor List set in service" << std::endl;
     
     // 获取协议描述符列表
-    tpBluetoothService::Sequence retrievedList = service.getProtocolDescriptorList();
+    TpBluetoothService::Sequence retrievedList = service.getProtocolDescriptorList();
     printSequence(retrievedList, "Retrieved Protocol Descriptor List");
     
     // 比较原始和检索的序列

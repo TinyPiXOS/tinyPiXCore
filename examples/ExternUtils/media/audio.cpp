@@ -1,8 +1,8 @@
 #include <iostream>
-#include "tpAudioInterface.h"
+#include "TpAudioInterface.h"
 
 
-int my_sleep(uint16_t s,tpAudioInterface& audio)
+int my_sleep(uint16_t s,TpAudioInterface& audio)
 {
 	for(int i=0;i<s;i++)
 	{
@@ -14,14 +14,14 @@ int my_sleep(uint16_t s,tpAudioInterface& audio)
 
 int example_play_all()
 {
-	tpList<tpString> cards=tpAudioInterface::getDevices();
+	TpList<TpString> cards=TpAudioInterface::getDevices();
 	for(auto &it : cards)
 	{
 		printf("device:%s\n",it.c_str());
 	}
 
-	tpString device("hw:3,0 USB Audio");
-	tpAudioInterface audio(device);
+	TpString device("hw:3,0 USB Audio");
+	TpAudioInterface audio(device);
 	audio.setVolume(100);
 //	audio.addFile("https://gstreamer.freedesktop.org/data/media/medium/shoutout.mp3");		//添加网络的文件地址
 //	audio.addFile("/home/pix/Media/lvse_48000_L.wav");	
@@ -67,7 +67,7 @@ sleep(1);
 
 int example_general()
 {
-	tpAudioInterface audio;
+	TpAudioInterface audio;
 	audio.setVolume(100);
 //	audio.addFile("https://gstreamer.freedesktop.org/data/media/medium/shoutout.mp3");		//添加网络的文件地址
 	audio.addFile("/home/pix/Media/lvse_48000_L.wav");	

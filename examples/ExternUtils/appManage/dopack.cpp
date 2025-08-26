@@ -1,18 +1,18 @@
 #include <iostream>
 #include <stdio.h>
-#include "tpAppDopack.h"
-#include "tpLibDopack.h"
+#include "TpAppDopack.h"
+#include "TpLibDopack.h"
 
 
 int example_creat_app_pack()
 {
 	
 	printf("example package and start.sh\n");
-	tpAppDopack package;
+	TpAppDopack package;
 
 	//设置应用的相关信息
 	printf("set package type\n");
-	package.setPackageType(tpAppDopack::TP_PACKAGE_TYPE_APP);
+	package.setPackageType(TpAppDopack::TP_PACKAGE_TYPE_APP);
 	printf("set uuid\n");
 	package.setAppID("f03c8f8c-dd9b-453f-b2d4-d049c073e252");
 	package.setAppName("apptest");
@@ -60,8 +60,8 @@ int example_creat_app_pack()
 
 int example_creat_system_lib()
 {
-	tpLibDopack package;
-	package.setArchitecture(tpLibDopack::TP_ARCH_TYPE_AMD64);
+	TpLibDopack package;
+	package.setArchitecture(TpLibDopack::TP_ARCH_TYPE_AMD64);
 	package.setDiskSpace(10240);
 	package.addLibrary("/home/pix/AppManage/mytestlib/libjson-c.so",1,0,0);
 	package.addLibrary("/home/pix/AppManage/mytestlib/libmysum.so",1,0,8);
@@ -76,8 +76,8 @@ int example_creat_system_lib()
 //使用json文件的内容来自动生成安装包
 int example_creat_app_pack_json()
 {
-	tpAppDopack package;
-	package.setPackageType(tpAppDopack::TP_PACKAGE_TYPE_APP);
+	TpAppDopack package;
+	package.setPackageType(TpAppDopack::TP_PACKAGE_TYPE_APP);
 	package.getAllConfig("/home/pix/AppManage/mytestapp/dopack.json");
 	package.setPackageName("mytestappPackage");		//必须设置安装包名称，佛则不会打包，会自动拼接后缀
 	package.creatPackage("/home/pix/AppManage");

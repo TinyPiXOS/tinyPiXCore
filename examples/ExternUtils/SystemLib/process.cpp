@@ -10,19 +10,19 @@
 #include <sys/types.h>
 #include <array>
 #include <memory>
-#include "tpProcessManage.h"
-#include "tpAppDataDisk.h"
+#include "TpProcessManage.h"
+#include "TpAppDataDisk.h"
 
 
 int main()
 {
 	std::cout << "Hello, World!" << std::endl;
-	tpProcessManage process(false);
+	TpProcessManage process(false);
 	std::cout << "update process tree" << std::endl;
 	process.update();
-	tpProcessInfo *root=process.findProcess(1);	
+	TpProcessInfo *root=process.findProcess(1);	
 	process.printProcessTree(root);		//打印进程树
-	tpProcessInfo *app=process.findProcess(64953);	
+	TpProcessInfo *app=process.findProcess(64953);	
 	if (app) {
 		process.printProcessTree(app);
 	} else {
@@ -48,7 +48,7 @@ int main()
 		printf("\n");
 	}
 
-	tpAppDataDisk disk;		//磁盘占用
+	TpAppDataDisk disk;		//磁盘占用
 	std::string uuid="f03c8f8c-dd9b-453f-b2d4-d049c073e252";
 	std::cout<<"app data:"<<disk.getAppDiskSpace(uuid)<<"Byte"<<std::endl;
 	std::cout<<"app temp data:"<<disk.getAppDataDiskSpace(uuid)<<"Byte"<<std::endl;

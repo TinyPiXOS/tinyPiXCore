@@ -1,29 +1,29 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpBattery.h"
-#include "tpSlider.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpBattery.h"
+#include "TpSlider.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpBattery *battertWidget = new tpBattery(vScreen);
+	TpBattery *battertWidget = new TpBattery(vScreen);
 	battertWidget->setValue(50);
 	battertWidget->setWidth(600);
 	battertWidget->setHeight(400);
 	battertWidget->move(20, 200);
 
-	tpSlider *slider = new tpSlider(vScreen);
+	TpSlider *slider = new TpSlider(vScreen);
 	slider->setValue(50);
 	slider->setSize(500, 10);
 	slider->move(20, 20);
 
-	tpSlider *vSlider = new tpSlider(vScreen);
-	vSlider->setDirection(tpSlider::Vertical);
+	TpSlider *vSlider = new TpSlider(vScreen);
+	vSlider->setDirection(TpSlider::Vertical);
 	vSlider->setValue(50);
 	vSlider->setSize(10, 500);
 	vSlider->move(650, 20);

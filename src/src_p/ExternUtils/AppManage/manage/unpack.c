@@ -362,7 +362,7 @@ int package_config_handle_export(FILE *file,struct AppInstallInfo *app,char *lin
 }
 
 //读取包中的config文件内容到临时文件
-char *appm_get_package_config(struct tpAppInfo *info)
+char *appm_get_package_config(struct TpAppInfo *info)
 {
 	//【计划】后期优化功能
 }

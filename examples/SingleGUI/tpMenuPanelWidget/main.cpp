@@ -1,39 +1,39 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpOnOffButton.h"
-#include "tpMenuPanelWidget.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpOnOffButton.h"
+#include "TpMenuPanelWidget.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
 	app.bindVScreen(vScreen);
 
-	tpMenuPanelWidget *menuPanelWidget = new tpMenuPanelWidget(vScreen);
-	connect(menuPanelWidget, onClicked, [=](tpMenuPanelItem *)
+	TpMenuPanelWidget *menuPanelWidget = new TpMenuPanelWidget(vScreen);
+	connect(menuPanelWidget, onClicked, [=](TpMenuPanelItem *)
 			{ std::cout << "菜单面板被点击" << std::endl; });
 
-	tpMenuPanelItem *panelItem1 = new tpMenuPanelItem();
+	TpMenuPanelItem *panelItem1 = new TpMenuPanelItem();
 	panelItem1->setIcon(applicationDirPath() + "/蓝牙.png");
 	panelItem1->setTitle("蓝牙");
 
-	tpOnOffButton *onOffBtn1 = new tpOnOffButton();
+	TpOnOffButton *onOffBtn1 = new TpOnOffButton();
 	onOffBtn1->setFixedSize(45, 24);
 	panelItem1->setCustomizeWidget(onOffBtn1);
 	menuPanelWidget->addItem(panelItem1);
 
-	tpMenuPanelItem *panelItem2 = new tpMenuPanelItem();
+	TpMenuPanelItem *panelItem2 = new TpMenuPanelItem();
 	panelItem2->setIcon(applicationDirPath() + "/热点.png");
 	panelItem2->setTitle("热点");
 
-	tpOnOffButton *onOffBtn2 = new tpOnOffButton();
+	TpOnOffButton *onOffBtn2 = new TpOnOffButton();
 	onOffBtn2->setFixedSize(45, 24);
 	panelItem2->setCustomizeWidget(onOffBtn2);
 	menuPanelWidget->addItem(panelItem2);
 
-	tpMenuPanelItem *panelItem3 = new tpMenuPanelItem();
+	TpMenuPanelItem *panelItem3 = new TpMenuPanelItem();
 	panelItem3->setIcon(applicationDirPath() + "/以太网.png");
 	panelItem3->setTitle("以太网");
 	menuPanelWidget->addItem(panelItem3);

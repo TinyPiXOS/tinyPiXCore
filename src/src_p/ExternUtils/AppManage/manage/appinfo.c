@@ -18,7 +18,7 @@ void appm_free(void *ptr)
 }
 
 //获取安装的json文件的解密后的字符串
-char *appm_info_get_install_json(tpAppID *appid)
+char *appm_info_get_install_json(TpAppID *appid)
 {
 	char path[PATH_MAX_LENGTH];
 
@@ -28,7 +28,7 @@ char *appm_info_get_install_json(tpAppID *appid)
 }
 
 //把普通的字符串uuid转换成标准的appid
-int appm_info_get_appid(const char *uuid,tpAppID *appid)
+int appm_info_get_appid(const char *uuid,TpAppID *appid)
 {
 	if(is_valid_uuid(uuid)!=1)
 		return -1;
@@ -37,7 +37,7 @@ int appm_info_get_appid(const char *uuid,tpAppID *appid)
 }
 
 //获app对应的用户id
-char *appm_info_get_appuserid(tpAppID *appid)
+char *appm_info_get_appuserid(TpAppID *appid)
 {
 	char *userid=malloc(strlen(appid->value));
 	uuid_remove_hyphens(appid->value,userid);
@@ -46,7 +46,7 @@ char *appm_info_get_appuserid(tpAppID *appid)
 
 //int find_directory(const char *path, const char *target_directory) 
 //查找应用是否已安装(使用uuid)
-bool appm_info_is_install(tpAppID *appid)
+bool appm_info_is_install(TpAppID *appid)
 {
 	if(find_directory(APP_INSTALL_PATH,appid->value)>0)
 		return true;
@@ -55,7 +55,7 @@ bool appm_info_is_install(tpAppID *appid)
 
 
 //设置应用权限
-int appm_info_set_permission(tpAppID *appid)
+int appm_info_set_permission(TpAppID *appid)
 {
 	
 }

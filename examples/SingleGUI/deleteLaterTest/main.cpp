@@ -1,25 +1,25 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpDialog.h"
-#include "tpColors.h"
-#include "tpButton.h"
-#include "tpVariant.h"
-#include "tpLabel.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpDialog.h"
+#include "TpColors.h"
+#include "TpButton.h"
+#include "TpVariant.h"
+#include "TpLabel.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpButton *button1 = new tpButton("删除/创建", vScreen);
+	TpButton *button1 = new TpButton("删除/创建", vScreen);
 	button1->setProperty("type", "ControlPanelPowerButton");
 	button1->setSize(305, 64);
 	button1->move(150, 150);
 
-	tpButton *button2 = nullptr;
+	TpButton *button2 = nullptr;
 	connect(button1, onClicked, [&](bool)
 			{
 		if (button2)
@@ -29,9 +29,9 @@ int32_t main(int32_t argc, char *argv[])
 		}
 		else
 		{
-			button2 = new tpButton(vScreen);
+			button2 = new TpButton(vScreen);
 			button2->setRect(50, 250, 250, 50);
-			button2->setButtonStyle(tpButton::TextOnly);
+			button2->setButtonStyle(TpButton::TextOnly);
 			button2->setText("吉林省2");
 			vScreen->update();
 		} });

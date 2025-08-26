@@ -1,23 +1,23 @@
 
 
 #include <iostream>
-#include "tpCompress.h"
+#include "TpCompress.h"
 
 int main()
 {
-	tpCompress file;
+	TpCompress file;
 	//打包文件夹下所有子文件：/home/485_transform/
 	//打包文件夹：/home/485_transform
-	tpString file_s("/home/485_transform/");		
-	tpString file_t("/home/mytest.zip");
+	TpString file_s("/home/485_transform/");		
+	TpString file_t("/home/mytest.zip");
 	
-	file.addToCompress(file_s,tpString("/home/mytest.7z"),tpCompress::TP_7ZIP);
-	file.addToCompress(file_s,tpString("/home/mytest.zip"),tpCompress::TP_ZIP);
-	file.addToCompress(file_s,tpString("/home/mytest.tar.gz"),tpCompress::TP_TAR_GZIP);
+	file.addToCompress(file_s,TpString("/home/mytest.7z"),TpCompress::TP_7ZIP);
+	file.addToCompress(file_s,TpString("/home/mytest.zip"),TpCompress::TP_ZIP);
+	file.addToCompress(file_s,TpString("/home/mytest.tar.gz"),TpCompress::TP_TAR_GZIP);
 
-	file.extractfromCompress(tpString("/home/usb3.23.zip"),tpString("/home/usb3.23_zip"));
-	file.extractfromCompress(tpString("/home/usb3.23.rar"),tpString("/home/usb3.23_rar"));
-	file.extractfromCompress(tpString("/home/usb3.23.7z"),tpString("/home/usb3.23_7z"));
+	file.extractfromCompress(TpString("/home/usb3.23.zip"),TpString("/home/usb3.23_zip"));
+	file.extractfromCompress(TpString("/home/usb3.23.rar"),TpString("/home/usb3.23_rar"));
+	file.extractfromCompress(TpString("/home/usb3.23.7z"),TpString("/home/usb3.23_7z"));
 
 
 	/*file.addToZipCompress(file_s,file_t);

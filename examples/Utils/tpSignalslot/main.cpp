@@ -1,8 +1,8 @@
-#include "tpApp.h"
-#include "tpSignalSlot.h"
-#include "tpTimer.h"
-#include "tpFixScreen.h"
-#include "tpButton.h"
+#include "TpApp.h"
+#include "TpSignalSlot.h"
+#include "TpTimer.h"
+#include "TpFixScreen.h"
+#include "TpButton.h"
 
 #include <thread>
 
@@ -20,9 +20,9 @@ signals:
 
 int main(int argc, char *argv[])
 {
-	tpApp app(argc, argv);
+	TpApp app(argc, argv);
 
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
 	senderClass *sender = new senderClass();
 
-	tpButton *button1 = new tpButton("北京市", vScreen);
+	TpButton *button1 = new TpButton("北京市", vScreen);
 	button1->setProperty("type", "ControlPanelPowerButton");
 	button1->setSize(300, 64);
 	button1->move(150, 150);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 		{
 			std::cout << " 线程发送信号 " << std::endl;
 			sender->queueSignal.emit();
-			tpTimer::sleep(1000);
+			TpTimer::sleep(1000);
 		} });
 
 

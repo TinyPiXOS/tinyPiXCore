@@ -1,31 +1,31 @@
-#include "tpFile.h"
-#include "tpSignalSlot.h"
+#include "TpFile.h"
+#include "TpSignalSlot.h"
 #include <memory>
 #include <cstring>
-#include "tpDir.h"
+#include "TpDir.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	// tpFile testFile;
+	// TpFile testFile;
 
-	// tpString testFilePath = "/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/demo/Utils/fileDirTest/testFile";
-	// tpString testCopyFilePath = "/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/demo/Utils/fileDirTest/testFileCopy";
+	// TpString testFilePath = "/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/demo/Utils/fileDirTest/testFile";
+	// TpString testCopyFilePath = "/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/demo/Utils/fileDirTest/testFileCopy";
 
-	// bool testFileExists = tpFile::exists(testFilePath);
+	// bool testFileExists = TpFile::exists(testFilePath);
 	// std::cout << "testFileExists : " << testFileExists << std::endl;
 
-	// bool copyRest = tpFile::copy(testFilePath, testCopyFilePath);
+	// bool copyRest = TpFile::copy(testFilePath, testCopyFilePath);
 	// std::cout << "copyRest : " << copyRest << std::endl;
 
-	// bool renameRest = tpFile::rename(testCopyFilePath, testCopyFilePath + "2");
+	// bool renameRest = TpFile::rename(testCopyFilePath, testCopyFilePath + "2");
 	// std::cout << "renameRest : " << renameRest << std::endl;
 
-	// bool removeRest = tpFile::remove(testCopyFilePath + "2");
+	// bool removeRest = TpFile::remove(testCopyFilePath + "2");
 	// std::cout << "removeRest : " << removeRest << std::endl;
 
 	// testFile.setFileName(testFilePath);
 
-	// testFile.open(tpFile::Append);
+	// testFile.open(TpFile::Append);
 	// if (!testFile.isOpen())
 	// {
 	// 	std::cout << "OpenError !" << std::endl;
@@ -42,22 +42,22 @@ int32_t main(int32_t argc, char *argv[])
 	// char *readBuff = new char[5];
 	// testFile.read(readBuff, 5);
 
-	// tpString readBuffStr(readBuff);
+	// TpString readBuffStr(readBuff);
 	// std::cout << "readBuffStr :" << readBuffStr << std::endl;
 
-	// tpString readBufString = testFile.read(3);
+	// TpString readBufString = testFile.read(3);
 	// std::cout << "readBufString :" << readBufString << std::endl;
 
-	// tpString readLineStr = testFile.readLine();
+	// TpString readLineStr = testFile.readLine();
 	// std::cout << "readLineStr :" << readLineStr << std::endl;
 
 	// char *readLineBuff = new char[5];
 	// testFile.readLine(readLineBuff, 5);
 
-	// tpString readLineString(readLineBuff);
+	// TpString readLineString(readLineBuff);
 	// std::cout << "readLineString :" << readLineString << std::endl;
 
-	// tpString readAllString = testFile.readAll();
+	// TpString readAllString = testFile.readAll();
 	// std::cout << "readAllString :" << readAllString << std::endl;
 
 	// ****************************************************************************
@@ -65,7 +65,7 @@ int32_t main(int32_t argc, char *argv[])
 	// memcpy(writeBuff, "abcde", 5);
 	// testFile.write(writeBuff, 3);
 
-	// tpString writeString = "1122334455667788\n";
+	// TpString writeString = "1122334455667788\n";
 	// testFile.write(writeString);
 
 	// testFile.write(writeBuff);
@@ -73,28 +73,28 @@ int32_t main(int32_t argc, char *argv[])
 	// testFile.close();
 
 	// +++++++++++++++++++++++++DirTest+++++++++++++++++++++++++++++
-	// tpDir testDir;
+	// TpDir testDir;
 	// testDir.setPath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/demo/Utils/fileDirTest/");
 
-	// tpString pathStr = testDir.path();
+	// TpString pathStr = testDir.path();
 	// std::cout << "pathStr :" << pathStr << std::endl;
 
-	// tpString absolutePathStr = testDir.absolutePath();
+	// TpString absolutePathStr = testDir.absolutePath();
 	// std::cout << "absolutePathStr :" << absolutePathStr << std::endl;
 
-	// tpString canonicalPathStr = testDir.canonicalPath();
+	// TpString canonicalPathStr = testDir.canonicalPath();
 	// std::cout << "canonicalPath :" << canonicalPathStr << std::endl;
 
-	// tpString dirNameStr = testDir.dirName();
+	// TpString dirNameStr = testDir.dirName();
 	// std::cout << "dirName :" << dirNameStr << std::endl;
 
-	// tpString filePathStr = testDir.filePath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/DeskTop/bottomBar.cpp");
+	// TpString filePathStr = testDir.filePath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/DeskTop/bottomBar.cpp");
 	// std::cout << "filePath :" << filePathStr << std::endl;
 
-	// tpString absoluteFilePathStr = testDir.absoluteFilePath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/DeskTop/bottomBar.cpp");
+	// TpString absoluteFilePathStr = testDir.absoluteFilePath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/DeskTop/bottomBar.cpp");
 	// std::cout << "absoluteFilePath :" << absoluteFilePathStr << std::endl;
 
-	// tpString relativeFilePathStr = testDir.relativeFilePath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/DeskTop/bottomBar.cpp");
+	// TpString relativeFilePathStr = testDir.relativeFilePath("/home/hawk/Public/pix-singlegui/tinyPiX-V7.0.2/DeskTop/bottomBar.cpp");
 	// std::cout << "relativeFilePath :" << relativeFilePathStr << std::endl;
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -104,7 +104,7 @@ int32_t main(int32_t argc, char *argv[])
 	// bool mkpathRes = testDir.mkpath("/home/hawk/Public/testParentDir/testSonDir");
 	// std::cout << "mkpathRes :" << mkpathRes << std::endl;
 
-	// tpDir testDir2("/home/hawk/Public/testParentDir/");
+	// TpDir testDir2("/home/hawk/Public/testParentDir/");
 	// bool dirExists = testDir2.exists();
 	// std::cout << "dirExists :" << dirExists << std::endl;
 
@@ -116,8 +116,8 @@ int32_t main(int32_t argc, char *argv[])
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	// tpFileInfo fileInfo(applicationDirPath() + "/test.txt");
-	// tpFileInfo fileInfo(applicationDirPath() );
+	// TpFileInfo fileInfo(applicationDirPath() + "/test.txt");
+	// TpFileInfo fileInfo(applicationDirPath() );
 
     // std::cout << "File Path: " << fileInfo.filePath() << std::endl;
     // std::cout << "Absolute File Path: " << fileInfo.absoluteFilePath() << std::endl;
@@ -148,10 +148,10 @@ int32_t main(int32_t argc, char *argv[])
     // // std::cout << "created: " << fileInfo.created() << std::endl;
     // std::cout << "lastModified: " << fileInfo.lastModified() << std::endl;
 
-	tpDir showDir("/home/hawk/Public/tinyPiXOS/tinyPiXApp/fileManagement");
+	TpDir showDir("/home/hawk/Public/tinyPiXOS/tinyPiXApp/fileManagement");
 
-    // for (tpFileInfo fileInfo : showDir.entryInfoList(tpDir::NoDotAndDotDot, tpDir::Name))
-    for (const tpFileInfo& fileInfo : showDir.entryInfoList())
+    // for (TpFileInfo fileInfo : showDir.entryInfoList(TpDir::NoDotAndDotDot, TpDir::Name))
+    for (const TpFileInfo& fileInfo : showDir.entryInfoList())
     {
 
         std::cout << std::endl << std::endl;

@@ -1,4 +1,4 @@
-#include "tpThreadPool.h"
+#include "TpThreadPool.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -37,7 +37,7 @@ void fibonacciTask(int n)
 
 int main()
 {
-	tpThreadPool pool;
+	TpThreadPool pool;
 
 	// 阶段1：提交8个简单任务
 	std::cout << "===== 阶段1: 提交8个任务 =====" << std::endl;

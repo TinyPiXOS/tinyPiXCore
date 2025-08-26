@@ -1,16 +1,16 @@
 #ifndef __TP_CANVAS_H
 #define __TP_CANVAS_H
 
-#include "tpUtils.h"
-#include "tpString.h"
-#include "tpVector.h"
-#include "tpGlobal.h"
+#include "TpUtils.h"
+#include "TpString.h"
+#include "TpVector.h"
+#include "TpGlobal.h"
 #include "TpImage.h"
 
 class TpCanvas;
 class TpSurface;
-class tpRect;
-class tpFont;
+class TpRect;
+class TpFont;
 class HollowMask;
 
 TP_DEF_VOID_TYPE_VAR(ITpCanvasData);
@@ -181,11 +181,11 @@ public:
     /// @param pointList 所有顶点坐标；数量为1则画点，为2则画线
     /// @param color 颜色
     /// @param width 线宽
-    virtual void polygon(const tpVector<ItpPoint> &pointList, int32_t color, double width = 1.0);
+    virtual void polygon(const TpVector<ItpPoint> &pointList, int32_t color, double width = 1.0);
     /// @brief 绘制填充多边形
     /// @param pointList 所有顶点坐标；数量为1则画点，为2则画线
     /// @param color 颜色
-    virtual void filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color);
+    virtual void filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color);
 
 public:
     /// @brief 绘制镂空矩形
@@ -232,12 +232,12 @@ public:
     /// @param x X坐标
     /// @param y Y坐标
     /// @param text 文本字符串内容
-    virtual void renderText(tpFont &font, int32_t x, int32_t y, const tpString &text);
+    virtual void renderText(TpFont &font, int32_t x, int32_t y, const TpString &text);
     /// @brief 绘制文本
     /// @param font 文本字体；内部需设置文本字符串
     /// @param x X坐标
     /// @param y Y坐标
-    virtual void renderText(tpFont &font, int32_t x, int32_t y);
+    virtual void renderText(TpFont &font, int32_t x, int32_t y);
 
 public:
     void addScene(void *canvas, void *scene);
@@ -302,7 +302,7 @@ public:
     void addRectHollow(const ItpRect &region);
     /// @brief 获取所有矩形镂空数据
     /// @return 矩形镂空列表
-    tpVector<ItpRect> rectHollowList() const;
+    TpVector<ItpRect> rectHollowList() const;
 
     /// @brief 添加圆角矩形镂空
     /// @param region 矩形区域
@@ -313,7 +313,7 @@ public:
     void addRoundRectHollow(const RoundRectHollow &data);
     /// @brief 获取圆角矩形镂空列表
     /// @return 圆角矩形镂空列表
-    tpVector<RoundRectHollow> roundRectHollowList() const;
+    TpVector<RoundRectHollow> roundRectHollowList() const;
 
     /// @brief 添加圆形镂空
     /// @param x 圆心X坐标
@@ -325,7 +325,7 @@ public:
     void addCircleHollow(const CircleHollow &data);
     /// @brief 获取圆形镂空列表
     /// @return 圆形镂空列表
-    tpVector<CircleHollow> circleHollowList() const;
+    TpVector<CircleHollow> circleHollowList() const;
 
     /// @brief 添加扇形镂空
     /// @param x 圆心X坐标
@@ -339,16 +339,16 @@ public:
     void addPieHollow(const PieHollow &data);
     /// @brief 获取扇形镂空列表
     /// @return 扇形镂空列表
-    tpVector<PieHollow> pieHollowList() const;
+    TpVector<PieHollow> pieHollowList() const;
 
     // 通用多边形镂空（扩展用）
     // void addPolygonHollow(const Polygon& points);
 
 private:
-    tpVector<ItpRect> rectList_;
-    tpVector<RoundRectHollow> roundRectList_;
-    tpVector<CircleHollow> circleList_;
-    tpVector<PieHollow> pieList_;
+    TpVector<ItpRect> rectList_;
+    TpVector<RoundRectHollow> roundRectList_;
+    TpVector<CircleHollow> circleList_;
+    TpVector<PieHollow> pieList_;
 };
 
 #endif

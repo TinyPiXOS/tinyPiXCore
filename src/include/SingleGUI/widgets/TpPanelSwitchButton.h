@@ -1,0 +1,48 @@
+#ifndef __TP_PANEL_SWITCH_BUTTON_H
+#define __TP_PANEL_SWITCH_BUTTON_H
+
+#include "TpChildWidget.h"
+#include "TpSignalSlot.h"
+#include "TpEvent.h"
+
+TP_DEF_VOID_TYPE_VAR(ItpPanelSwitchButtonData);
+
+class TpPanelSwitchButton : public TpChildWidget
+{
+public:
+    TpPanelSwitchButton(TpChildWidget *parent);
+
+    virtual ~TpPanelSwitchButton();
+
+    /// @brief 设置图标全路径
+    /// @param iconPath icon路径
+    void setIcon(const TpString &iconPath);
+
+    /// @brief 设置文本内容
+    /// @param text 文本
+    void setText(const TpString &text);
+    /// @brief 获取当前按钮文本
+    /// @return 文本字符串
+    TpString text();
+
+public:
+    virtual TpString pluginType() { return TO_STRING(TpPanelSwitchButton); }
+
+public
+signals:
+    declare_signal(onClicked, bool);
+
+protected:
+    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+
+    virtual bool onMousePressEvent(TpMouseEvent *event) override;
+    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
+    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
+    virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
+
+private:
+    ItpPanelSwitchButtonData *data_;
+};
+
+#endif // __TP_COMBOX_H

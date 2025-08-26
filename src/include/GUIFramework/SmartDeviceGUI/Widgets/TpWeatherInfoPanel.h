@@ -1,17 +1,17 @@
 #ifndef __TP_SMART_GUI_WEATHER_INFO_PANEL_H
 #define __TP_SMART_GUI_WEATHER_INFO_PANEL_H
 
-#include "tpChildWidget.h"
-#include "tpSignalSlot.h"
-#include "tpString.h"
-#include "tpVector.h"
+#include "TpChildWidget.h"
+#include "TpSignalSlot.h"
+#include "TpString.h"
+#include "TpVector.h"
 #include "SmartDeviceGUI/FrameworkGlobal.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 TP_DEF_VOID_TYPE_VAR(ITpWeatherInfoPanelData);
 /// @brief 天气预报面板
-class TpWeatherInfoPanel : public tpChildWidget
+class TpWeatherInfoPanel : public TpChildWidget
 {
 public:
     /// @brief 天气类型
@@ -56,24 +56,24 @@ public:
     struct WeatherInfo
     {
         /// @brief 一般用于显示日期，可自定义显示内容；ex: 今天
-        tpString text;
+        TpString text;
         /// @brief 天气类型
         WeatherType weatherType;
         /// @brief 一般用于显示气温，可自定义显示内容；ex: 15°-30°
-        tpString subText;
+        TpString subText;
 
         WeatherInfo() : text(""), weatherType(TpWeatherInfoPanel::Sunny), subText("")
         {
         }
 
-        WeatherInfo(const tpString &text, const WeatherType &type, const tpString &subText)
+        WeatherInfo(const TpString &text, const WeatherType &type, const TpString &subText)
             : text(text), weatherType(type), subText(subText)
         {
         }
     };
 
 public:
-    TpWeatherInfoPanel(tpChildWidget *parent = nullptr);
+    TpWeatherInfoPanel(TpChildWidget *parent = nullptr);
 
     virtual ~TpWeatherInfoPanel();
 
@@ -91,7 +91,7 @@ public:
 
     /// @brief 设置天气信息列表；使用前需先设置天气数量
     /// @param weatherInfoList 若Size为0则设置失败，Size超过count值则只显示Count数
-    void setWeatherList(const tpVector<WeatherInfo>& weatherInfoList);
+    void setWeatherList(const TpVector<WeatherInfo>& weatherInfoList);
 
     /// @brief 指定索引设置天气信息
     /// @param index 索引值；取值范围[0, count - 1]
@@ -99,10 +99,10 @@ public:
     bool setWeatherInfo(const int32_t& index, const WeatherInfo& weatherInfo);
 
 public:
-    virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
-    virtual bool onResizeEvent(tpObjectResizeEvent *event) override;
+    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
 
-    virtual tpString pluginType() override { return TO_STRING(TpWeatherInfoPanel); }
+    virtual TpString pluginType() override { return TO_STRING(TpWeatherInfoPanel); }
 
 private:
     ITpWeatherInfoPanelData *data_;

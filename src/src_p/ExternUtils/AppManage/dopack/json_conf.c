@@ -89,7 +89,7 @@ static int json_conf_author(struct json_object *object,char *author,int author_m
 	return 0;
 }
 
-static int json_conf_version(struct json_object *object,struct tpVersion *ver)
+static int json_conf_version(struct json_object *object,struct TpVersion *ver)
 {
 	const char *str=json_object_get_string(object);
 	char *str_tok=strdup(str);

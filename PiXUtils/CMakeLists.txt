@@ -13,46 +13,46 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 
 # 定义源码路径宏
 set(SOURCE_FILES
-    ${SOURCE_PATH}/src/Utils/tpRect.cpp
-    ${SOURCE_PATH}/src/Utils/tpPoint.cpp
-    ${SOURCE_PATH}/src/Utils/tpSize.cpp
+    ${SOURCE_PATH}/src/Utils/TpRect.cpp
+    ${SOURCE_PATH}/src/Utils/TpPoint.cpp
+    ${SOURCE_PATH}/src/Utils/TpSize.cpp
     ${SOURCE_PATH}/src/Utils/TpSurface.cpp
-    ${SOURCE_PATH}/src/Utils/tpFont.cpp
+    ${SOURCE_PATH}/src/Utils/TpFont.cpp
     ${SOURCE_PATH}/src/Utils/TpCanvas.cpp
-    ${SOURCE_PATH}/src/Utils/tpRange.cpp
-    ${SOURCE_PATH}/src/Utils/tpUUID.cpp
-    ${SOURCE_PATH}/src/Utils/tpMD5.cpp
-    ${SOURCE_PATH}/src/Utils/tpClipboard.cpp
-    ${SOURCE_PATH}/src/Utils/tpConfig.cpp
-    ${SOURCE_PATH}/src/Utils/tpThread.cpp
-    ${SOURCE_PATH}/src/Utils/tpTimer.cpp
-    ${SOURCE_PATH}/src/Utils/tpVariant.cpp
-    ${SOURCE_PATH}/src/Utils/tpMap.cpp
-    ${SOURCE_PATH}/src/Utils/tpString.cpp
-    ${SOURCE_PATH}/src/Utils/tpVector.cpp
-    ${SOURCE_PATH}/src/Utils/tpStack.cpp
-    ${SOURCE_PATH}/src/Utils/tpColors.cpp
-    ${SOURCE_PATH}/src/Utils/tpFile.cpp
-    ${SOURCE_PATH}/src/Utils/tpDir.cpp
-    ${SOURCE_PATH}/src/Utils/tpFileInfo.cpp
-    ${SOURCE_PATH}/src/Utils/tpCursor.cpp
-    ${SOURCE_PATH}/src/Utils/tpRegex.cpp
-    ${SOURCE_PATH}/src/Utils/tpPipe.cpp
-    ${SOURCE_PATH}/src/Utils/tpGateway.cpp
-    ${SOURCE_PATH}/src/Utils/tpProcess.cpp
-    ${SOURCE_PATH}/src/Utils/tpDate.cpp
-    ${SOURCE_PATH}/src/Utils/tpTime.cpp
-    ${SOURCE_PATH}/src/Utils/tpDateTime.cpp
-    ${SOURCE_PATH}/src/Utils/tpInputMethod.cpp
-    ${SOURCE_PATH}/src/Utils/tpSystemApi.cpp
-    ${SOURCE_PATH}/src/Utils/tpCssParser.cpp
-	${SOURCE_PATH}/src/Utils/tpCssData.cpp
-	${SOURCE_PATH}/src/Utils/tpJsonDocument.cpp
-	${SOURCE_PATH}/src/Utils/tpJsonArray.cpp
-	${SOURCE_PATH}/src/Utils/tpJsonObject.cpp
-	${SOURCE_PATH}/src/Utils/tpJsonValue.cpp
-    ${SOURCE_PATH}/src/Utils/tpAppConfigIO.cpp
-    ${SOURCE_PATH}/src/Utils/tpThreadPool.cpp
+    ${SOURCE_PATH}/src/Utils/TpRange.cpp
+    ${SOURCE_PATH}/src/Utils/TpUUID.cpp
+    ${SOURCE_PATH}/src/Utils/TpMD5.cpp
+    ${SOURCE_PATH}/src/Utils/TpClipboard.cpp
+    ${SOURCE_PATH}/src/Utils/TpConfig.cpp
+    ${SOURCE_PATH}/src/Utils/TpThread.cpp
+    ${SOURCE_PATH}/src/Utils/TpTimer.cpp
+    ${SOURCE_PATH}/src/Utils/TpVariant.cpp
+    ${SOURCE_PATH}/src/Utils/TpMap.cpp
+    ${SOURCE_PATH}/src/Utils/TpString.cpp
+    ${SOURCE_PATH}/src/Utils/TpVector.cpp
+    ${SOURCE_PATH}/src/Utils/TpStack.cpp
+    ${SOURCE_PATH}/src/Utils/TpColors.cpp
+    ${SOURCE_PATH}/src/Utils/TpFile.cpp
+    ${SOURCE_PATH}/src/Utils/TpDir.cpp
+    ${SOURCE_PATH}/src/Utils/TpFileInfo.cpp
+    ${SOURCE_PATH}/src/Utils/TpCursor.cpp
+    ${SOURCE_PATH}/src/Utils/TpRegex.cpp
+    ${SOURCE_PATH}/src/Utils/TpPipe.cpp
+    ${SOURCE_PATH}/src/Utils/TpGateway.cpp
+    ${SOURCE_PATH}/src/Utils/TpProcess.cpp
+    ${SOURCE_PATH}/src/Utils/TpDate.cpp
+    ${SOURCE_PATH}/src/Utils/TpTime.cpp
+    ${SOURCE_PATH}/src/Utils/TpDateTime.cpp
+    ${SOURCE_PATH}/src/Utils/TpInputMethod.cpp
+    ${SOURCE_PATH}/src/Utils/TpSystemApi.cpp
+    ${SOURCE_PATH}/src/Utils/TpCssParser.cpp
+	${SOURCE_PATH}/src/Utils/TpCssData.cpp
+	${SOURCE_PATH}/src/Utils/TpJsonDocument.cpp
+	${SOURCE_PATH}/src/Utils/TpJsonArray.cpp
+	${SOURCE_PATH}/src/Utils/TpJsonObject.cpp
+	${SOURCE_PATH}/src/Utils/TpJsonValue.cpp
+    ${SOURCE_PATH}/src/Utils/TpAppConfigIO.cpp
+    ${SOURCE_PATH}/src/Utils/TpThreadPool.cpp
     ${SOURCE_PATH}/src/Utils/TpImage.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
@@ -90,7 +90,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/Utils/tweeny/tween.tcc
 	${SOURCE_PATH}/src_p/Utils/tweeny/tweenone.tcc
 	${SOURCE_PATH}/src_p/Utils/tweeny/tweenpoint.tcc
-    ${SOURCE_PATH}/src_p/Utils/tpMessage.cpp
+    ${SOURCE_PATH}/src_p/Utils/TpMessage.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/binding/lottieanimation_capi.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieitem.cpp
     ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieitem_capi.cpp

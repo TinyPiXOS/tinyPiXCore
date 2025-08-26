@@ -1,35 +1,35 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpEvent.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpEvent.h"
 #include "TpCanvas.h"
-#include "tpUtils.h"
+#include "TpUtils.h"
 #include "TpImage.h"
-#include "tpBattery.h"
-#include "tpLabel.h"
-#include "tpTimer.h"
-#include "tpDialog.h"
-#include "tpFont.h"
+#include "TpBattery.h"
+#include "TpLabel.h"
+#include "TpTimer.h"
+#include "TpDialog.h"
+#include "TpFont.h"
 
-// class ThorVgPaintWidget : public tpChildWidget
-class ThorVgPaintWidget : public tpDialog
+// class ThorVgPaintWidget : public TpChildWidget
+class ThorVgPaintWidget : public TpDialog
 {
 public:
-    ThorVgPaintWidget(tpChildWidget *parent) //: tpDialog(parent)
+    ThorVgPaintWidget(TpChildWidget *parent) //: TpDialog(parent)
     {
         setBackGroundColor(_RGB(100, 100, 100));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
         // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png").rotate(45));
 
-        // testBattery_ = new tpBattery(this);
+        // testBattery_ = new TpBattery(this);
         // testBattery_->setValue(100);
 
-        // testLabel_ = new tpLabel(this);
+        // testLabel_ = new TpLabel(this);
         // testLabel_->setText("qqq");
 
         // testBattery_->setRect(10, 100, 200, 80);
         // testLabel_->setRect(10, 200, 300, 150);
 
-        // testTimer_ = new tpTimer(3000);
+        // testTimer_ = new TpTimer(3000);
         // connect(testTimer_, timeout, [=]()
         //         {
         //             int32_t batteryValue = testBattery_->value();
@@ -40,7 +40,7 @@ public:
         //             std::cout << "刷新电量；当前值：" << batteryValue <<std::endl;
         //             testBattery_->setValue(batteryValue);
 
-        //             testLabel_->setText(tpString::number(batteryValue)); });
+        //             testLabel_->setText(TpString::number(batteryValue)); });
 
         // testTimer_->start();
     }
@@ -48,7 +48,7 @@ public:
     {
     }
 
-    virtual bool onMousePressEvent(tpMouseEvent *event) override
+    virtual bool onMousePressEvent(TpMouseEvent *event) override
     {
         // int32_t batteryValue = testBattery_->value();
         // batteryValue -= 10;
@@ -56,30 +56,30 @@ public:
         //     batteryValue = 100;
         // testBattery_->setValue(batteryValue);
 
-        // testLabel_->setText(tpString::number(batteryValue));
+        // testLabel_->setText(TpString::number(batteryValue));
 
         update();
 
         return true;
     }
 
-    virtual bool onMouseRleaseEvent(tpMouseEvent *event) override
+    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override
     {
-        tpDialog::onMouseRleaseEvent(event);
+        TpDialog::onMouseRleaseEvent(event);
         return true;
     }
 
-    virtual bool onPaintEvent(tpObjectPaintEvent *event) override
+    virtual bool onPaintEvent(TpObjectPaintEvent *event) override
     {
         // static uint64_t paintCount = 0;
         // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
 
-        tpDialog::onPaintEvent(event);
+        TpDialog::onPaintEvent(event);
 
         TpCanvas *painter = event->canvas();
         // painter->paintTest();
 
-        tpFont testFont;
+        TpFont testFont;
         testFont.setFontColor(_RGB(0, 255, 0), _RGB(0, 255, 0));
         testFont.setFontSize(30);
         painter->renderText(testFont, 10, 10, "你好tinyPiXOS");
@@ -113,12 +113,12 @@ public:
 
         // painter->arc(260, 270, 50, 135, 405, _RGB(150, 200, 168), 10, true);
 
-        // tpVector<ItpPoint> polygonPointList;
+        // TpVector<ItpPoint> polygonPointList;
         // polygonPointList.emplace_back(ItpPoint(10, 330));
         // polygonPointList.emplace_back(ItpPoint(110, 350));
         // polygonPointList.emplace_back(ItpPoint(60, 400));
 
-        // tpVector<ItpPoint> polygonPointList2;
+        // TpVector<ItpPoint> polygonPointList2;
         // polygonPointList2.emplace_back(ItpPoint(140, 330));
         // polygonPointList2.emplace_back(ItpPoint(170, 330));
         // polygonPointList2.emplace_back(ItpPoint(180, 360));
@@ -146,17 +146,17 @@ public:
     }
 
 private:
-    tpBattery *testBattery_;
-    tpLabel *testLabel_;
+    TpBattery *testBattery_;
+    TpLabel *testLabel_;
 
-    tpTimer *testTimer_;
+    TpTimer *testTimer_;
 };
 
 int32_t main(int32_t argc, char *argv[])
 {
-    tpApp app(argc, argv);
+    TpApp app(argc, argv);
 
-    tpFixScreen *vScreen = new tpFixScreen();
+    TpFixScreen *vScreen = new TpFixScreen();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
     vScreen->setVisible(true); // vScreen setvisible will be update display
     app.bindVScreen(vScreen);
@@ -164,7 +164,7 @@ int32_t main(int32_t argc, char *argv[])
     ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     thorVGPaint->setRect(100, 100, 500, 500);
 
-    // tpBattery* testBattery = new tpBattery(vScreen);
+    // TpBattery* testBattery = new TpBattery(vScreen);
     // testBattery->setRect(100, 100, 500, 500);
 
     vScreen->update();

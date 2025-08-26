@@ -1,17 +1,17 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpDialog.h"
-#include "tpComBox.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpDialog.h"
+#include "TpComBox.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpComBox* listCombox = new tpComBox(vScreen);
+	TpComBox* listCombox = new TpComBox(vScreen);
 	listCombox->setTitle("视图模式");
 	listCombox->addItem("测试1");
 	listCombox->addItem("测试2");

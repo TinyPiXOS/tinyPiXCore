@@ -1,4 +1,4 @@
-#include "gatewayServer.h"
+#include "TpGatewayServer.h"
 #include <iostream>
 #include <csignal>
 #include <atomic>

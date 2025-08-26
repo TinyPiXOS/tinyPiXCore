@@ -1,5 +1,5 @@
 #include <iostream>
-#include "tpVideoInterface.h"
+#include "TpVideoInterface.h"
 
 
 
@@ -20,7 +20,7 @@ auto callback_display = [](uint8_t** data, int* linesize, uint32_t format, void*
 };
 /*
 FrameStats stats;
-tpVideoInterface::UserCallback processFrame = [](uint8_t** data, int* linesize, uint32_t fmt, void* ctx) 
+TpVideoInterface::UserCallback processFrame = [](uint8_t** data, int* linesize, uint32_t fmt, void* ctx) 
 {
         auto* stats = static_cast<FrameStats*>(ctx);
         stats->frameCount++;
@@ -31,8 +31,8 @@ tpVideoInterface::UserCallback processFrame = [](uint8_t** data, int* linesize, 
 
 int main()
 {
-	tpString device("hw:0,1 USB Audio");
-	tpVideoInterface video(device);
+	TpString device("hw:0,1 USB Audio");
+	TpVideoInterface video(device);
 	video.setVolume(100);
 	video.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
 	video.addFile("/home/pix/Media/hahaha.mp4");
@@ -47,14 +47,14 @@ int main()
 	video.openDevice();
 /*	video.setWindowSize(1080,720);
 	video.setWindowCoordinates(200,200);
-	video.setScalingMode(tpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
-//	video.setScalingMode(tpVideoInterface::TP_VIDEO_SCALING_STRETCH);
+	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
+//	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_STRETCH);
 	video.playStart();
 	video.setSpeed(1.0);
 	sleep(2);
 	video.setWindowSize(400,600);
 	sleep(2);
-//	video.setScalingMode(tpVideoInterface::TP_VIDEO_SCALING_CROP);
+//	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_CROP);
 	video.setWindowCoordinates(600,600);
 	video.setWindowSize(500,500);
 	sleep(2);
@@ -71,10 +71,10 @@ int main()
 	printf("继续播放\n");
 	video.playContinue();
 	sleep(5);*/
-//	video.setScalingMode(tpVideoInterface::TP_VIDEO_SCALING_FIT);
+//	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);
 	video.setWindowCoordinates(0,0);
 	video.setWindowSize(1024,768);
-	video.setScalingMode(tpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
+	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
 	video.playStart();
 	video.setSpeed(1.0);
 	printf("文件时长%d\n",video.getDuration());

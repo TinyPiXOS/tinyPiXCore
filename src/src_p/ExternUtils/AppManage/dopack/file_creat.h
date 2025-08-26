@@ -41,7 +41,7 @@ int appm_generate_package_source(struct AppPackageConfig *config,char *path,Type
 int appm_generate_startup_script(struct ScriptInfo *config, const char *output_file);
 
 
-const char *get_architecture_string(tpEnumArchType arch);
+const char *get_architecture_string(TpEnumArchType arch);
 void init_script_config(struct ScriptInfo *config);
 void add_env_var(struct ScriptInfo *config, const char *key, const char *value);
 void add_dependency(struct ScriptInfo *config, const char *lib);

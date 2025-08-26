@@ -1,12 +1,12 @@
-#include "tpInputMethod.h"
+#include "TpInputMethod.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpInputMethod *inputMethod = new tpInputMethod();
+	TpInputMethod *inputMethod = new TpInputMethod();
 
 	inputMethod->inputKeySequence("zhangsan");
 
-	tpVector<tpString> curPageList = inputMethod->currentPageCandidates();
+	TpVector<TpString> curPageList = inputMethod->currentPageCandidates();
 	for (int i = 0; i < curPageList.size(); ++i)
 	{
 		std::cout << i << ": " << curPageList.at(i) << std::endl;
@@ -16,7 +16,7 @@ int32_t main(int32_t argc, char *argv[])
 	{
 		inputMethod->nextPage();
 
-		tpVector<tpString> curPageList = inputMethod->currentPageCandidates();
+		TpVector<TpString> curPageList = inputMethod->currentPageCandidates();
 		for (int i = 0; i < curPageList.size(); ++i)
 		{
 			std::cout << i << ": " << curPageList.at(i) << std::endl;

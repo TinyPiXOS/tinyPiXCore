@@ -1,25 +1,25 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpSignalSlot.h"
-#include "tpVirtualKeyboard.h"
-#include "tpLineEdit.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpSignalSlot.h"
+#include "TpVirtualKeyboard.h"
+#include "TpLineEdit.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
+	TpApp app(argc, argv);
 
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
 	app.bindVScreen(vScreen);
 
-	tpLineEdit *testEdit = new tpLineEdit(vScreen);
+	TpLineEdit *testEdit = new TpLineEdit(vScreen);
 
 	testEdit->setRect(30, 30, 300, 60);
 	testEdit->setVisible(true);
 	testEdit->update();
 
-	// tpVirtualKeyboard *virtualKeyboard = new tpVirtualKeyboard();
+	// TpVirtualKeyboard *virtualKeyboard = new TpVirtualKeyboard();
 	// virtualKeyboard->show();
 
 	// vScreen->update();

@@ -1,15 +1,15 @@
 #ifndef __TP_SURFACE_H
 #define __TP_SURFACE_H
 
-#include "tpUtils.h"
-#include <tpString.h>
-#include "tpGlobal.h"
+#include "TpUtils.h"
+#include <TpString.h>
+#include "TpGlobal.h"
 
 /**strage 32bits and ARGB**/
 TP_DEF_VOID_TYPE_VAR(ITpSurfaceData);
 TP_DEF_VOID_TYPE_VAR(IPiDSSurface);
 
-class tpRect;
+class TpRect;
 class TpSurface
 {
 public:
@@ -57,13 +57,13 @@ public:
 
 public:
     // virtual void clear();
-    // virtual void fill(tpRect *rect, int32_t color);
+    // virtual void fill(TpRect *rect, int32_t color);
 
 public:
     virtual bool hasSurface();
 
 public:
-    virtual tpShared<TpSurface> copy(tpRect &rect);                               // will be effected by clip rect
+    virtual tpShared<TpSurface> copy(TpRect &rect);                               // will be effected by clip rect
     virtual tpShared<TpSurface> copy(int32_t x, int32_t y, int32_t w, int32_t h); // will be effected by clip rect
 
 public:

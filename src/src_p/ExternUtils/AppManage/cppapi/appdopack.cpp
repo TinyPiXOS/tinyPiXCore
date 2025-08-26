@@ -26,7 +26,7 @@ void loop_free(void **data,int count)
 
 
 
-tpPackageInfo::tpPackageInfo() {
+TpPackageInfo::TpPackageInfo() {
 //	std::strncpy(params.app_id, appId.c_str(), sizeof(params.app_id) - 1);
 //	std::strncpy(params.app_name, appName.c_str(), sizeof(params.app_name) - 1);
 //	std::strncpy(params.version, version.c_str(), sizeof(params.version) - 1);
@@ -68,12 +68,12 @@ tpPackageInfo::tpPackageInfo() {
 	params.extension_count = 0;
 }
 
-tpPackageInfo::~tpPackageInfo() {
+TpPackageInfo::~TpPackageInfo() {
 	ClassFree();
 }
 
 //安装包类型
-int tpPackageInfo::SetPackageType(int pack_type) {
+int TpPackageInfo::SetPackageType(int pack_type) {
 	switch(pack_type) {
 		case TYPE_PACKAGE_APP:
 		case TYPE_PACKAGE_SAPP:
@@ -85,54 +85,54 @@ int tpPackageInfo::SetPackageType(int pack_type) {
 }
 
 //UUID/APPID
-void tpPackageInfo::SetAppID(const tpString& id){
+void TpPackageInfo::SetAppID(const TpString& id){
 	std::strncpy(params.app_id, id.c_str(), sizeof(params.app_id) - 1);
 }
 //APP NAME
-void tpPackageInfo::SetAppName(const tpString& name){
+void TpPackageInfo::SetAppName(const TpString& name){
 	std::strncpy(params.app_name, name.c_str(), sizeof(params.app_name) - 1);
 }
 //版本
-void tpPackageInfo::SetVersion(uint8_t x,uint8_t y,uint8_t z){
+void TpPackageInfo::SetVersion(uint8_t x,uint8_t y,uint8_t z){
 //	std::strncpy(params.version, version.c_str(), sizeof(params.version) - 1);
 	params.version.x=x;
 	params.version.y=y;
 	params.version.z=z;
 }
 //硬件平台
-void tpPackageInfo::SetArchitecture(const tpString& architecture) {
+void TpPackageInfo::SetArchitecture(const TpString& architecture) {
 	std::strncpy(params.architecture, architecture.c_str(), sizeof(params.architecture) - 1);
 }
 
-void tpPackageInfo::SetSection(const tpString& section) {
+void TpPackageInfo::SetSection(const TpString& section) {
 	std::strncpy(params.section, section.c_str(), sizeof(params.section) - 1);
 }
 
-void tpPackageInfo::SetPriority(const tpString& priority) {
+void TpPackageInfo::SetPriority(const TpString& priority) {
 	std::strncpy(params.priority, priority.c_str(), sizeof(params.priority) - 1);
 }
 
-void tpPackageInfo::SetEssential(const tpString& essential) {
+void TpPackageInfo::SetEssential(const TpString& essential) {
 	std::strncpy(params.essential, essential.c_str(), sizeof(params.essential) - 1);
 }
 //作者信息，Name
-void tpPackageInfo::SetAuthor(const tpString& author) {
+void TpPackageInfo::SetAuthor(const TpString& author) {
 	std::strncpy(params.author, author.c_str(), sizeof(params.author) - 1);
 }
 //作者联系方式,email
-void tpPackageInfo::SetContact(const tpString& contact) {
+void TpPackageInfo::SetContact(const TpString& contact) {
     std::strncpy(params.contact, contact.c_str(), sizeof(params.contact) - 1);
 }
 //组织，公司
-void tpPackageInfo::SetProvides(const tpString& provides) {
+void TpPackageInfo::SetProvides(const TpString& provides) {
 	std::strncpy(params.provides, provides.c_str(), sizeof(params.provides) - 1);
 }
 //安装所需空间
-void tpPackageInfo::SetDiskSpace(int size){
+void TpPackageInfo::SetDiskSpace(int size){
 	params.diskspace = size;
 }
 //应用描述
-int tpPackageInfo::SetDescription(const tpString& description) 
+int TpPackageInfo::SetDescription(const TpString& description) 
 {
 	if((params.description = (char *)malloc(description.size() + 1))==NULL)
 		return -1;
@@ -142,7 +142,7 @@ int tpPackageInfo::SetDescription(const tpString& description)
 }
 
 //数字签名
-int tpPackageInfo::SetSignature(const tpString& signature) 
+int TpPackageInfo::SetSignature(const TpString& signature) 
 {
     if((params.signature = (char *)malloc(signature.size() + 1))==NULL)
         return -1;
@@ -150,7 +150,7 @@ int tpPackageInfo::SetSignature(const tpString& signature)
     return 0;
 }
 //开源库：传入格式:libname@version
-int tpPackageInfo::AddDepend(const tpString& depend) 
+int TpPackageInfo::AddDepend(const TpString& depend) 
 {
 	if(params.depend_count==MAX_ITEMS)
 		return -1;
@@ -161,7 +161,7 @@ int tpPackageInfo::AddDepend(const tpString& depend)
 	return 0;
 }
 //私有库:传入路径
-int tpPackageInfo::AddLib(const tpString& lib) 
+int TpPackageInfo::AddLib(const TpString& lib) 
 {
 	if(params.lib_count==MAX_ITEMS)
 		return -1;
@@ -172,7 +172,7 @@ int tpPackageInfo::AddLib(const tpString& lib)
 	return 0;
 }
 //图标
-int tpPackageInfo::SetIcon(const tpString& icon) 
+int TpPackageInfo::SetIcon(const TpString& icon) 
 {
 	if((params.icon = (char *)malloc(icon.size() + 1))==NULL)
 	    return -1;
@@ -180,7 +180,7 @@ int tpPackageInfo::SetIcon(const tpString& icon)
 	return 0;
 }
 //可执行文件路径
-int tpPackageInfo::SetAppPath(const tpString& app) 
+int TpPackageInfo::SetAppPath(const TpString& app) 
 {
 	if((params.appexec_name = (char *)malloc(app.size() + 1))==NULL)
 		return -1;
@@ -188,7 +188,7 @@ int tpPackageInfo::SetAppPath(const tpString& app)
 	return 0;
 }
 //静态文件
-int tpPackageInfo::AddAssert(const tpString& assert)
+int TpPackageInfo::AddAssert(const TpString& assert)
 {
 	if(params.assert_count==MAX_ITEMS)
 		return -1;
@@ -199,7 +199,7 @@ int tpPackageInfo::AddAssert(const tpString& assert)
 	return 0;
 }
 //其他文件
-int tpPackageInfo::AddFile(const tpString& file)
+int TpPackageInfo::AddFile(const TpString& file)
 {
 	if(params.otherfile_count==MAX_ITEMS)
 		return -1;
@@ -210,7 +210,7 @@ int tpPackageInfo::AddFile(const tpString& file)
 	return 0;
 }
 //支持的文件后缀
-int tpPackageInfo::AddExtension(const tpString& type)
+int TpPackageInfo::AddExtension(const TpString& type)
 {
 	if(params.extension_count==MAX_ITEMS)
 		return -1;
@@ -233,7 +233,7 @@ void Configurator::setRemove(const std::string& remove) {
 */
 
 
-int tpPackageInfo::Save(const tpString& path) 
+int TpPackageInfo::Save(const TpString& path) 
 {
 	path_s=path;
 	char *path_c=(char*)malloc(path.size() +1);
@@ -248,7 +248,7 @@ int tpPackageInfo::Save(const tpString& path)
 	return 0;
 }
 
-int tpPackageInfo::CreatPackage(const tpString& package)
+int TpPackageInfo::CreatPackage(const TpString& package)
 {
 	char *pack_c=(char*)malloc(package.size() +1);
 	char *path_c=(char*)malloc(path_s.size() +1);
@@ -259,7 +259,7 @@ int tpPackageInfo::CreatPackage(const tpString& package)
 	free(pack_c);
 }
 
-void tpPackageInfo::ClassFree() 
+void TpPackageInfo::ClassFree() 
 {
     if(params.description)	free(params.description);
 	if(params.icon)	free(params.icon);
@@ -278,7 +278,7 @@ void tpPackageInfo::ClassFree()
 
 //启动文件部分==============================
 
-tpStartShInfo::tpStartShInfo()
+TpStartShInfo::TpStartShInfo()
 {
 	config.env_var_count=0;
 	config.dep_count=0;
@@ -286,13 +286,13 @@ tpStartShInfo::tpStartShInfo()
 	memset(&config,0,sizeof(config));
 }
 
-tpStartShInfo::~tpStartShInfo()
+TpStartShInfo::~TpStartShInfo()
 {
 	ClassFree();
 }
 
 // 添加环境变量
-int tpStartShInfo::AddEnvironmentVar(const tpString& key, const tpString& value) 
+int TpStartShInfo::AddEnvironmentVar(const TpString& key, const TpString& value) 
 {
 	if (config.env_var_count == MAX_ITEMS) 
 		return -1;
@@ -316,7 +316,7 @@ int tpStartShInfo::AddEnvironmentVar(const tpString& key, const tpString& value)
 
 // 添加依赖库（一般是系统通用的库）
 //库名字
-int tpStartShInfo::AddDependency(const tpString& lib) 
+int TpStartShInfo::AddDependency(const TpString& lib) 
 {
 	if (config.dep_count == MAX_ITEMS) 
 		return -1;
@@ -328,7 +328,7 @@ int tpStartShInfo::AddDependency(const tpString& lib)
 }
 
 // 添加启动参数
-int tpStartShInfo::AddStartArg(const tpString& arg)
+int TpStartShInfo::AddStartArg(const TpString& arg)
 {
 	if (config.arg_count == MAX_ITEMS)
 		return -1;
@@ -340,13 +340,13 @@ int tpStartShInfo::AddStartArg(const tpString& arg)
 }
 
 //添加可执行文件名称
-int tpStartShInfo::SetExecPath(const tpString& name)
+int TpStartShInfo::SetExecPath(const TpString& name)
 {
 	std::strncpy(config.exec_path, name.c_str(), sizeof(config.exec_path) - 1);
 	return 0;
 }
 
-int tpStartShInfo::Save(const tpString& path) {
+int TpStartShInfo::Save(const TpString& path) {
 
 	char *path_c=(char*)malloc(path.size() +1);
 	std::strcpy(path_c, path.c_str());
@@ -358,7 +358,7 @@ int tpStartShInfo::Save(const tpString& path) {
 }
 
 
-void tpStartShInfo::ClassFree()
+void TpStartShInfo::ClassFree()
 {
 	if(config.arg_count > 0){
 		loop_free((void**)config.args, config.arg_count);
@@ -380,27 +380,27 @@ void tpStartShInfo::ClassFree()
 
 //系统库打包===========================================================================
 
-tpLibPackageInfo::tpLibPackageInfo()
+TpLibPackageInfo::TpLibPackageInfo()
 {
 	params.lib_count=0;
 	params.file_count=0;
 }
 
-tpLibPackageInfo::~tpLibPackageInfo()
+TpLibPackageInfo::~TpLibPackageInfo()
 {
 
 }
 
-void tpLibPackageInfo::SetArchitecture(const tpString& architecture)
+void TpLibPackageInfo::SetArchitecture(const TpString& architecture)
 {
 	std::strncpy(params.architecture, architecture.c_str(), sizeof(params.architecture) - 1);
 }
-void tpLibPackageInfo::SetDiskSpace(int size)
+void TpLibPackageInfo::SetDiskSpace(int size)
 {
 	params.diskspace = size;
 }
 
-int tpLibPackageInfo::AddLibrary(const tpString& lib,uint8_t ver_x,uint8_t ver_y,uint8_t ver_z)
+int TpLibPackageInfo::AddLibrary(const TpString& lib,uint8_t ver_x,uint8_t ver_y,uint8_t ver_z)
 {
 	if (params.lib_count == MAX_ITEMS_LIB) 
 		return -1;
@@ -416,7 +416,7 @@ int tpLibPackageInfo::AddLibrary(const tpString& lib,uint8_t ver_x,uint8_t ver_y
 	return 0;
 }
 
-int tpLibPackageInfo::AddFile(const tpString& file)
+int TpLibPackageInfo::AddFile(const TpString& file)
 {
 	if (params.file_count == MAX_ITEMS_LIB) 
 		return -1;
@@ -428,7 +428,7 @@ int tpLibPackageInfo::AddFile(const tpString& file)
 
 }
 
-int tpLibPackageInfo::Save(const std::string& path)
+int TpLibPackageInfo::Save(const std::string& path)
 {
 	char *path_c=(char*)malloc(path.size() +1);
 	std::strcpy(path_c,path.c_str());
@@ -436,7 +436,7 @@ int tpLibPackageInfo::Save(const std::string& path)
 	free(path_c);
 }
 
-void tpLibPackageInfo::ClassFree()
+void TpLibPackageInfo::ClassFree()
 {
 	if(params.lib_count >0)
 		loop_free((void**)params.system_lib, params.lib_count);

@@ -1,23 +1,23 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpListCheckBoxGroup.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpListCheckBoxGroup.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpListCheckBoxGroup* checkBoxGroup = new tpListCheckBoxGroup(vScreen);
+	TpListCheckBoxGroup* checkBoxGroup = new TpListCheckBoxGroup(vScreen);
 
 	checkBoxGroup->addItem("测试1");
 	checkBoxGroup->addItem("测试2");
 	checkBoxGroup->addItem("测试3");
 
-	checkBoxGroup->addItem(new tpListCheckBoxGroupItem("测试4"));
-	checkBoxGroup->addItem(new tpListCheckBoxGroupItem("测试5"));
+	checkBoxGroup->addItem(new TpListCheckBoxGroupItem("测试4"));
+	checkBoxGroup->addItem(new TpListCheckBoxGroupItem("测试5"));
 
 	checkBoxGroup->move(15, 20);
 	checkBoxGroup->update();

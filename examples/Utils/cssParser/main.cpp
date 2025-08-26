@@ -9,15 +9,15 @@
  * @PiXOS
  */
 
-#include "tpCssParser.h"
-#include <tpString.h>
-#include <tpHash.h>
+#include "TpCssParser.h"
+#include <TpString.h>
+#include <TpHash.h>
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpCssParser cssParser(tpString("./test.css"));
+	TpCssParser cssParser(TpString("./test.css"));
 
-	tpVector<tpCssParser::BlockCssDataSPtr> cssList = cssParser.findUiCss("tpComBox");
+	TpVector<TpCssParser::BlockCssDataSPtr> cssList = cssParser.findUiCss("TpComBox");
 	for (const auto& cssData : cssList)
 	{
 		std::cout << cssData->attrName << " 	cssData->attrName" << std::endl;
@@ -30,13 +30,13 @@ int32_t main(int32_t argc, char *argv[])
 		std::cout << "_RGBA( ) : " << _RGB(255, 170, 255) << std::endl;;
 	}
 
-	// std::unordered_map<std::string, tpString> testHash;
-	// tpHash<std::string, tpString> testHash;
-	// tpHash<tpString, tpString> testHash;
+	// std::unordered_map<std::string, TpString> testHash;
+	// TpHash<std::string, TpString> testHash;
+	// TpHash<TpString, TpString> testHash;
 
-	// testHash["123"] = tpString("123");
+	// testHash["123"] = TpString("123");
 
-	// tpString findKey("123");
+	// TpString findKey("123");
 	// auto findIter = testHash.find(findKey);
 	// if (findIter == testHash.end())
 	// {
@@ -56,7 +56,7 @@ int32_t main(int32_t argc, char *argv[])
 	// 	int32_t a = 0;
 	// }
 
-	// tpString testString = "   \t \n TestString     \t\n Is QQQ \t\n   ";
+	// TpString testString = "   \t \n TestString     \t\n Is QQQ \t\n   ";
 	// testString = testString.simplified();
 	// std::cout << testString;
 

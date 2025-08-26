@@ -1,50 +1,50 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpRadioButton.h"
-#include "tpFont.h"
-#include "tpColors.h"
-#include "tpRadioButtonGroup.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpRadioButton.h"
+#include "TpFont.h"
+#include "TpColors.h"
+#include "TpRadioButtonGroup.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	app.setDisableEventType(tpApp::TP_DIS_KEYBOARD);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	app.setDisableEventType(TpApp::TP_DIS_KEYBOARD);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true);
 	app.bindVScreen(vScreen);
 
-	tpRadioButton *RadioButton1 = new tpRadioButton(vScreen);
+	TpRadioButton *RadioButton1 = new TpRadioButton(vScreen);
 	RadioButton1->font()->setFontSize(50);
 	RadioButton1->setAutoFit(true);
 	RadioButton1->setText("选我不会错的");
 	RadioButton1->setRect(20, 30, 200, 50);
 
-	tpRadioButton *RadioButton2 = new tpRadioButton(vScreen);
+	TpRadioButton *RadioButton2 = new TpRadioButton(vScreen);
 	RadioButton2->font()->setFontSize(20);
 	RadioButton2->setRect(20, 150, 0, 0);
 	RadioButton2->setAutoFit(true);
 	RadioButton2->setText("raidoGroup1");
 
-	tpRadioButton *RadioButton3 = new tpRadioButton(vScreen);
+	TpRadioButton *RadioButton3 = new TpRadioButton(vScreen);
 	RadioButton3->font()->setFontSize(20);
 	RadioButton3->setRect(220, 150, 0, 0);
 	RadioButton3->setAutoFit(true);
 	RadioButton3->setText("raidoGroup2");
 
-	tpRadioButton *RadioButton4 = new tpRadioButton(vScreen);
+	TpRadioButton *RadioButton4 = new TpRadioButton(vScreen);
 	RadioButton4->font()->setFontSize(20);
 	RadioButton4->setRect(420, 150, 0, 0);
 	RadioButton4->setAutoFit(true);
 	RadioButton4->setText("raidoGroup3");
 
-	tpRadioButton *RadioButton5 = new tpRadioButton(vScreen);
+	TpRadioButton *RadioButton5 = new TpRadioButton(vScreen);
 	RadioButton5->font()->setFontSize(20);
 	RadioButton5->setRect(620, 150, 0, 0);
 	RadioButton5->setAutoFit(true);
 	RadioButton5->setText("raidoGroup4");
 
-	tpRadioButtonGroup btnGroup;
+	TpRadioButtonGroup btnGroup;
 	btnGroup.addButton(RadioButton2);
 	btnGroup.addButton(RadioButton3);
 	btnGroup.addButton(RadioButton4);

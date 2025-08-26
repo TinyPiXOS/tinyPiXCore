@@ -1,12 +1,12 @@
 #include <iostream>
 #include <stdio.h>
-#include "tpAppInstall.h"
+#include "TpAppInstall.h"
 
 
 int install_app(const char *pack_path)
 {
-	tpString package_path(pack_path);
-	tpAppInstall appmanage(package_path);
+	TpString package_path(pack_path);
+	TpAppInstall appmanage(package_path);
 	std::cout<< "icon:" << appmanage.getIcon()<<std::endl;
 	std::cout<< "uuid:" << appmanage.getAppUUID()<<std::endl;
 	std::cout<< "name:" << appmanage.getAppName()<<std::endl;
@@ -24,8 +24,8 @@ int install_app(const char *pack_path)
 
 int install_lib()
 {
-	tpString package_path="/home/pix/AppManage/mytestlib/systemlib.pik";
-	tpAppInstall appmanage(package_path);
+	TpString package_path="/home/pix/AppManage/mytestlib/systemlib.pik";
+	TpAppInstall appmanage(package_path);
 	
 	if(appmanage.completeCheck()!=1)
 		std::cout<<"MD5 Check error"<<std::endl;	
@@ -47,7 +47,7 @@ int main(int argc,char **argv)
 {
 	if(argc!=2)
 	{
-		printf("命令格式：./tpInstall <安装包位置>\n");
+		printf("命令格式：./TpInstall <安装包位置>\n");
 		return -1;
 	}
 	install_app(argv[1]);

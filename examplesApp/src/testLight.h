@@ -1,20 +1,20 @@
 #ifndef __TEST_LIGHT_H
 #define __TEST_LIGHT_H
 
-#include "tpChildWidget.h"
-#include "tpEvent.h"
+#include "TpChildWidget.h"
+#include "TpEvent.h"
 
-class testLight : public tpChildWidget
+class testLight : public TpChildWidget
 {
 public:
-    testLight(tpChildWidget *parent);
+    testLight(TpChildWidget *parent);
 
     virtual ~testLight();
 
 public:
-    virtual bool onMousePressEvent(tpMouseEvent *event) override;
+    virtual bool onMousePressEvent(TpMouseEvent *event) override;
 
-    virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
 
 private:
     int maxCount_;

@@ -13,7 +13,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 #include <alsa/asoundlib.h>
-#include "tpAudioDevice.h"
+#include "TpAudioDevice.h"
 #include "hard.h"
 
 struct MediaVolumeHard{

@@ -18,7 +18,7 @@
 #include <libswscale/swscale.h>
 #include <libavutil/frame.h>
 #include <libavutil/opt.h>
-#include "tpAudioDevice.h"
+#include "TpAudioDevice.h"
 #include "filter.h"
 
 

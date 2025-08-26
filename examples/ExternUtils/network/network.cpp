@@ -1,15 +1,15 @@
 #include <iostream>
-#include "tpNetworkInterface.h"
-#include "tpWirelessInfo.h"
-#include "tpTcpServer.h"
-#include "tpTcpSocket.h"
-#include "tpUdpSocket.h"
-#include "tpString.h"
+#include "TpNetworkInterface.h"
+#include "TpWirelessInfo.h"
+#include "TpTcpServer.h"
+#include "TpTcpSocket.h"
+#include "TpUdpSocket.h"
+#include "TpString.h"
 
 
 int example_wireless()
 {
-	tpNetworkInterface device("wlx502b73e07098");
+	TpNetworkInterface device("wlx502b73e07098");
 	if(device.isWireless())
 		std::cout << "this is wireless" << std::endl;
 	else	
@@ -22,10 +22,10 @@ int example_wireless()
 	if(device.startScan()<0)
 		std::cout << "不能扫描\n";
 
-	connect(&device, wirelessRemove, [=](tpString name)
+	connect(&device, wirelessRemove, [=](TpString name)
             { std::cout << "[Signal]网络消失：" << name<< std::endl; });
 
-	connect(&device, wirelessAdd, [=](tpWirelessInfo wifi)
+	connect(&device, wirelessAdd, [=](TpWirelessInfo wifi)
             { std::cout << "[Signal]新添网络：" << wifi.getSsid() << "  \tLevel: "<< wifi.getLevel()<<std::endl; });
 
 	while(1);
@@ -40,15 +40,15 @@ int example_wireless()
 
 int32_t example_printf_device(void)
 {
-	auto interfaces = tpNetworkInterface::getAllDevice();
-	tpString addr;
+	auto interfaces = TpNetworkInterface::getAllDevice();
+	TpString addr;
 	for(auto &iface : interfaces)    //printf device name         
 	{
 		std::cout << "device name: " << iface.getName() << std::endl;
 	}
 
-	tpString ifname("ens33");
-    tpNetworkInterface network(ifname);
+	TpString ifname("ens33");
+    TpNetworkInterface network(ifname);
 	std::cout << "device Active:" << (network.isOpenDevice()==TP_TRUE ? "Yse" : "No") << std::endl;
     std::cout << "device name: " << network.getName() << std::endl;
 	std::cout << "device mac:"  << network.getMacAddr() << std::endl;
@@ -61,12 +61,12 @@ int32_t example_printf_device(void)
 
 int32_t example_udp()
 {
-    tpUdpSocket udp_s,udp_r;
+    TpUdpSocket udp_s,udp_r;
     tpUInt8 send_buf[20]="test data";
     tpUInt8 recv_buf[1024];
-    tpString addr_s="0.0.0.0";
-    tpString addr_d="192.168.1.32";
-    tpString addr_r="000.000.000.000";
+    TpString addr_s="0.0.0.0";
+    TpString addr_d="192.168.1.32";
+    TpString addr_r="000.000.000.000";
     uint16_t port_r;
     udp_r.bind(addr_s,8000);
     if(udp_s.sendTo(send_buf,10,addr_d,8001)<0)
@@ -81,7 +81,7 @@ int32_t example_udp()
         }
     }*/
 
-	connect(&udp_r, tpUdpSocket::readyRead, [&]() {
+	connect(&udp_r, TpUdpSocket::readyRead, [&]() {
         while (udp_r.hasPendingDatagrams()) {
             auto datagram = udp_r.recvDatagram(1024);
             std::cout << "Local " << datagram.destinationAddress()<< ":" << datagram.destinationPort()<<std::endl;
@@ -97,20 +97,20 @@ int32_t example_udp()
 
 int32_t example_tcp_server()
 {
-    tpTcpServer tcp_s;
-	tpList<tpTcpSocket *> client_list;
-    tpString addr_s="0.0.0.0";
+    TpTcpServer tcp_s;
+	TpList<TpTcpSocket *> client_list;
+    TpString addr_s="0.0.0.0";
     tpUInt8 recv_buf[1024];
     tpUInt8 send_buf[20]="recv data";
     tcp_s.listen(addr_s,8001);
 
-	connect(&tcp_s, tpTcpServer::newConnection, [&]() {
-		tpTcpSocket *tcp_c=tcp_s.nextPendingConnection();
+	connect(&tcp_s, TpTcpServer::newConnection, [&]() {
+		TpTcpSocket *tcp_c=tcp_s.nextPendingConnection();
 		if (tcp_c) 
 		{
 			std::cout << "New client from " << tcp_c->getPeerAddress() << ":" << tcp_c->getPeerAddress() << std::endl;
 
-			connect(tcp_c, tpTcpSocket::readyRead, [=](tpTcpSocket *client) {
+			connect(tcp_c, TpTcpSocket::readyRead, [=](TpTcpSocket *client) {
 				tpUInt8 buf[1024];
 				buf[20]='\0';
 				tpInt64 n = client->recv(buf, sizeof(buf));
@@ -118,7 +118,7 @@ int32_t example_tcp_server()
 					std::cout << "Received: " << buf << std::endl;
 				}
 			});
-			connect(tcp_c, tpTcpSocket::disconnected, [=](tpTcpSocket *client) {
+			connect(tcp_c, TpTcpSocket::disconnected, [=](TpTcpSocket *client) {
 				std::cout << "Client disconnected: "
 							<< client->getPeerAddress() << ":" << client->getPeerPort() << std::endl;
 			});
@@ -132,11 +132,11 @@ int32_t example_tcp_server()
 
 int32_t example_tcp_client()
 {
-    tpTcpSocket tcp_c;
-    tpString addr_s="192.168.1.32";
+    TpTcpSocket tcp_c;
+    TpString addr_s="192.168.1.32";
     tpUInt8 send_buf[20]="client data";
 	tcp_c.connectToHost(addr_s,8000);
-	connect(&tcp_c,tpTcpSocket::connected,[](){
+	connect(&tcp_c,TpTcpSocket::connected,[](){
 		std::cout << "Client connected ok" << std::endl;
 	});
 	
@@ -152,16 +152,16 @@ int32_t example_tcp_client()
 
 int example_dhcp()
 {
-	tpNetworkInterface network("ens33");
-	tpString ip("192.168.183.200");
-	tpString gatway("192.168.183.1");
-	tpString dns("192.168.183.2");
-	tpString netmsk("255.255.255.0");
+	TpNetworkInterface network("ens33");
+	TpString ip("192.168.183.200");
+	TpString gatway("192.168.183.1");
+	TpString dns("192.168.183.2");
+	TpString netmsk("255.255.255.0");
 
 
 	printf("DHCP状态%d\n",network.isDhcp()==TP_TRUE ? 1:0);
 	printf("\n\n设置DNS:\n");
-	tpList<tpString> dns_list;
+	TpList<TpString> dns_list;
 	dns_list.emplace_back("192.168.183.2");
 	dns_list.emplace_back("8.8.8.8");
 	dns_list.emplace_back("1.1.1.1");
@@ -181,8 +181,8 @@ int example_dhcp()
 	printf("gateway:%s\n",network.getGatway().c_str());
 	printf("netmask:%s\n",network.getNetmask().c_str());
 	printf("DNS:\n");
-	tpList<tpString> list_=network.getDns();
-	for(tpString &it:list_)
+	TpList<TpString> list_=network.getDns();
+	for(TpString &it:list_)
 	{
 		printf("\t%s\n",it.c_str());
 	}
@@ -190,22 +190,22 @@ int example_dhcp()
 
 int example_network()
 {
-	tpNetworkInterface network("ens33");
-	network.setAddr(tpString("192.168.1.200"));
-	tpString getAddr();
+	TpNetworkInterface network("ens33");
+	network.setAddr(TpString("192.168.1.200"));
+	TpString getAddr();
 	printf("Arrd:%s\n",network.getAddr().c_str());
 	
-	network.setNetmask(tpString("255.255.255.0"));
+	network.setNetmask(TpString("255.255.255.0"));
 	printf("Netmask:%s\n",network.getNetmask().c_str());
 
-	network.setBroadAddr(tpString("192.168.1.255"));
+	network.setBroadAddr(TpString("192.168.1.255"));
 	printf("BroadAddr:%s\n",network.getBroadAddr().c_str());
 
 }
 
 int example_is_net()
 {
-	tpNetworkInterface network("ens33");
+	TpNetworkInterface network("ens33");
 	std::cout << "网络状态？" << std::endl;
 	if(network.isOnlineInternet())
 	{
@@ -217,9 +217,9 @@ int example_is_net()
 
 int example_hotspot()
 {
-	tpNetworkInterface device("wlx502b73e07098");
-	tpString ssid("tinyPiX WIFI");
-	tpString pwd("tinyPiX");
+	TpNetworkInterface device("wlx502b73e07098");
+	TpString ssid("tinyPiX WIFI");
+	TpString pwd("tinyPiX");
 	printf("设置ssid\n");
 	device.setHotspotSsid(ssid);
 	printf("设置pwd\n");

@@ -21,7 +21,7 @@ struct ArchMapping{
 int appm_check_arch(struct PackageConfigInfo *conf);
 int appm_check_space(struct PackageConfigInfo *conf);
 int appm_check_version(struct PackageConfigInfo *conf);
-int appm_get_app_version(const char *uuid,struct tpVersion *version);
+int appm_get_app_version(const char *uuid,struct TpVersion *version);
 int Appm_Get_Arch_String();
 int extract_config_info(const char *file_config,struct PackageConfigInfo *conf);
 int free_AppPackageConfig(struct AppPackageConfig *conf);

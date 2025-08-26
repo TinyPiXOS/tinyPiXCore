@@ -1,19 +1,19 @@
 #ifndef __TP_SMART_GUI_CIRCULAR_PROGRESS_BAR_H
 #define __TP_SMART_GUI_CIRCULAR_PROGRESS_BAR_H
 
-#include "tpChildWidget.h"
-#include "tpSignalSlot.h"
-#include "tpString.h"
+#include "TpChildWidget.h"
+#include "TpSignalSlot.h"
+#include "TpString.h"
 #include "SmartDeviceGUI/FrameworkGlobal.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 TP_DEF_VOID_TYPE_VAR(ITpCircularProgressBarData);
 /// @brief 环形进度条
-class TpCircularProgressBar : public tpChildWidget
+class TpCircularProgressBar : public TpChildWidget
 {
 public:
-	TpCircularProgressBar(tpChildWidget *parent = nullptr);
+	TpCircularProgressBar(TpChildWidget *parent = nullptr);
 
 	virtual ~TpCircularProgressBar();
 
@@ -39,9 +39,9 @@ public:
     uint32_t lineWidth();
 
 public:
-	virtual bool onPaintEvent(tpObjectPaintEvent *event) override;
+	virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
 
-	virtual tpString pluginType() override { return TO_STRING(TpCircularProgressBar); }
+	virtual TpString pluginType() override { return TO_STRING(TpCircularProgressBar); }
 
 private:
 	ITpCircularProgressBarData *data_;

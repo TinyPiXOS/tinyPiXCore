@@ -1,12 +1,12 @@
 #include "TpImage.h"
 #include "thorVG/thorvg.h"
-#include "tpFileInfo.h"
+#include "TpFileInfo.h"
 #include "TpImage_p.h"
 
 #include <thread>
 #include <cmath>
 
-TpImage::TpImage(const tpString &fileName) : data_(nullptr)
+TpImage::TpImage(const TpString &fileName) : data_(nullptr)
 {
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -52,16 +52,16 @@ TpImage::~TpImage()
     }
 }
 
-bool TpImage::load(const tpString &filename)
+bool TpImage::load(const TpString &filename)
 {
     if (filename.empty())
         return false;
 
-    tpFileInfo loadFile(filename);
+    TpFileInfo loadFile(filename);
     if (!loadFile.exists())
         return false;
 
-    tpString fileSuffix = loadFile.suffix();
+    TpString fileSuffix = loadFile.suffix();
     if (fileSuffix.compare("svg") != 0 && fileSuffix.compare("webp") != 0 &&
         fileSuffix.compare("png") != 0 && fileSuffix.compare("PNG") != 0 &&
         fileSuffix.compare("jpg") != 0 && fileSuffix.compare("JPG") != 0 &&
@@ -203,7 +203,7 @@ TpImage TpImage::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     return newCopyImage;
 }
 
-bool TpImage::save(const tpString &filename, ImageType type, int32_t jpguality)
+bool TpImage::save(const TpString &filename, ImageType type, int32_t jpguality)
 {
     // TpImageData *imageData = static_cast<TpImageData *>(data_);
     // if (!imageData)

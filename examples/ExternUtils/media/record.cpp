@@ -1,11 +1,11 @@
 #include <iostream>
-#include "tpRecordInterface.h"
+#include "TpRecordInterface.h"
 
 
 int main()
 {
-	tpString card("hw:0,0");	//hw:0,0
-	tpRecordInterface record(card);
+	TpString card("hw:0,0");	//hw:0,0
+	TpRecordInterface record(card);
 
 	record.openDevice();
 

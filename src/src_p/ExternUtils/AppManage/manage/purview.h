@@ -8,8 +8,8 @@
 
 
 int Appm_Install_Purview_Init();
-int Appm_Install_Purview(tpAppID uuid,TypePackage type);
-int Appm_Remove_Purview(tpAppID uuid);
+int Appm_Install_Purview(TpAppID uuid,TypePackage type);
+int Appm_Remove_Purview(TpAppID uuid);
 
 
 

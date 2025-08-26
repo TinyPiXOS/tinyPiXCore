@@ -1,10 +1,10 @@
 #ifndef __TP_IMAGE_H
 #define __TP_IMAGE_H
 
-#include "tpUtils.h"
-#include "tpString.h"
-#include "tpVector.h"
-#include "tpGlobal.h"
+#include "TpUtils.h"
+#include "TpString.h"
+#include "TpVector.h"
+#include "TpGlobal.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpImageData);
 
@@ -22,7 +22,7 @@ public:
     friend class TpCanvas;
 
 public:
-    TpImage(const tpString &fileName = "");
+    TpImage(const TpString &fileName = "");
     TpImage(const TpImage& other);
     virtual ~TpImage();
 
@@ -30,7 +30,7 @@ public:
     /// @brief 加载图片资源文件，支持png, jpg, webp, SVG
     /// @param filename 资源文件路径
     /// @return 加载结果
-    virtual bool load(const tpString &filename);
+    virtual bool load(const TpString &filename);
 
     /// @brief 指定size对图片进行缩放
     /// @param size 缩放后的尺寸
@@ -76,7 +76,7 @@ public:
     /// @param type 新存储文件类型
     /// @param jpguality 存储质量,取值范围[0, 100]
     /// @return 保存结果
-    virtual bool save(const tpString &filename, ImageType type, int32_t jpguality = 100);
+    virtual bool save(const TpString &filename, ImageType type, int32_t jpguality = 100);
 
     /// @brief 旋转图片；返回新对象，不会修改原始对象
     /// @param angle 旋转角度；顺时针旋转，3点钟方向为0°

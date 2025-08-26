@@ -1,7 +1,7 @@
-#include "tpGateway.h"
+#include "TpGateway.h"
 #include <thread>
 
-class TestRecvDataClass : public tpGateway
+class TestRecvDataClass : public TpGateway
 {
 public:
 	virtual void recvData(const char *topic, const void *data, const uint32_t &size)

@@ -1,37 +1,37 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpButton.h"
-#include "tpVariant.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpButton.h"
+#include "TpVariant.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpButton *button1 = new tpButton("北京市", vScreen);
+	TpButton *button1 = new TpButton("北京市", vScreen);
 	button1->setProperty("type", "ControlPanelPowerButton");
 	button1->setSize(300, 64);
 	button1->move(150, 150);
 	connect(button1, onClicked, [=](bool checked)
 			{ std::cout << "按钮被点击" << std::endl; });
 
-	tpButton *buttonEnable = new tpButton("河北省", vScreen);
+	TpButton *buttonEnable = new TpButton("河北省", vScreen);
 	buttonEnable->setProperty("type", "VirtualKeyboardButton");
 	buttonEnable->setSize(305, 64);
 	buttonEnable->move(460, 150);
 
-	tpButton *button2 = new tpButton(vScreen);
-	button2->setButtonStyle(tpButton::TextBesideIcon);
+	TpButton *button2 = new TpButton(vScreen);
+	button2->setButtonStyle(TpButton::TextBesideIcon);
 	button2->setProperty("type", "FunctionButton");
 	button2->setIcon(applicationDirPath() + "/icon.png");
 	button2->setText("吉林省2");
 	button2->setRect(50, 250, 250, 50);
 
-	tpButton *button3 = new tpButton(vScreen);
-	button3->setButtonStyle(tpButton::IconOnly);
+	TpButton *button3 = new TpButton(vScreen);
+	button3->setButtonStyle(TpButton::IconOnly);
 	button3->setIcon(applicationDirPath() + "/icon2.png");
 	button3->setRoundCorners(13);
 	button3->setRect(200, 350, 200, 200);

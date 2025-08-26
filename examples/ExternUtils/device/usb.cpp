@@ -1,16 +1,16 @@
 //USB设备测试
 #include <iostream>
-#include "tpUsbManager.h"
-#include "tpUsbDeviceInfo.h"
+#include "TpUsbManager.h"
+#include "TpUsbDeviceInfo.h"
 
 int main()
 {
-	tpUsbManager usb_manager;
-	tpList<tpUsbDeviceInfo> usb_list=usb_manager.getDevices();
+	TpUsbManager usb_manager;
+	TpList<TpUsbDeviceInfo> usb_list=usb_manager.getDevices();
 	//获取设备列表
 	for(auto &it : usb_list)
 	{
-		tpUsbDeviceInfo::UsbDeviceClass type = it.getClass();
+		TpUsbDeviceInfo::UsbDeviceClass type = it.getClass();
 		printf("USB Class:0x%02x\n",type);
 		printf("USB SubClass:0x%02x\n",(uint8_t)(it.getSubClass()));
 		printf("USB 厂商ID:0x%04x\n",(uint16_t)(it.getVendorID()));

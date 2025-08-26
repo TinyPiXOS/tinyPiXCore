@@ -8,8 +8,8 @@
 #include <pthread.h>
 #include <alsa/asoundlib.h>
 #include "filter.h"
-#include "tpAudioDevice.h"
-#include "tpVideoDevice.h"
+#include "TpAudioDevice.h"
+#include "TpVideoDevice.h"
 #include "../media/media_file_list.h"
 
 struct MediaParams;

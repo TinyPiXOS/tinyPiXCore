@@ -15,11 +15,11 @@ extern "C" {                //  告诉编译器下列代码要以C链接约定�
 int appm_check_arch(struct PackageConfigInfo *conf);
 int appm_check_space(struct PackageConfigInfo *conf);
 int appm_check_version(struct PackageConfigInfo *conf);
-int appm_get_app_version(const char *uuid,struct tpVersion *version);
+int appm_get_app_version(const char *uuid,struct TpVersion *version);
 int appm_install_pik(const char *path_pik,TypePackage type,struct AppPackageConfig *conf,struct PackageUserParam *user);
 int appm_install_package(const char *path_pack,struct PackageConfigInfo *conf,struct PackageUserParam *user);
 int appm_install_get_schedule(struct PackageUserParam *user);
-int appm_app_unload(tpAppID uuid);
+int appm_app_unload(TpAppID uuid);
 int appm_get_package_info(const char *filename,struct PackageConfigInfo *conf);
 int appm_free_package_info(struct PackageConfigInfo *conf);
 
@@ -28,7 +28,7 @@ int appm_free_package_info(struct PackageConfigInfo *conf);
 #endif
 
 
-#define tpString	std::string
+#define TpString	std::string
 
 
 

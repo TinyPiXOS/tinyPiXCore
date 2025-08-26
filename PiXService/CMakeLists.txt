@@ -14,7 +14,7 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/PiXService/main.cpp
-    ${SOURCE_PATH}/src/PiXService/gatewayServer.cpp
+    ${SOURCE_PATH}/src/PiXService/TpGatewayServer.cpp
 )
 
 include_directories(/usr/include/PiXWM)

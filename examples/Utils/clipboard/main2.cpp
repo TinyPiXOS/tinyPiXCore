@@ -1,11 +1,11 @@
-#include <tpUtils.h>
+#include <TpUtils.h>
 #include <iostream>
 #include <cstring>
-#include "tpClipboard.h"
+#include "TpClipboard.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-    tpClipboard *clipboard = tpClipboard::Inst();
+    TpClipboard *clipboard = TpClipboard::Inst();
 
     if (clipboard)
     {

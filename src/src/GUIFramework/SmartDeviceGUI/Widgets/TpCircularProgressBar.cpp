@@ -1,6 +1,6 @@
 #include "TpCircularProgressBar.h"
 #include "TpCanvas.h"
-#include "tpFont.h"
+#include "TpFont.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
@@ -10,7 +10,7 @@ struct TpCircularProgressBarData
     int32_t maxValue = 100;
     int32_t curValue = 0;
 
-    // tpFont* percentTextFont;
+    // TpFont* percentTextFont;
     uint32_t lineWidth = 16;
 
     TpCircularProgressBarData()
@@ -18,12 +18,12 @@ struct TpCircularProgressBarData
     }
 };
 
-TpCircularProgressBar::TpCircularProgressBar(tpChildWidget *parent)
-    : tpChildWidget(parent)
+TpCircularProgressBar::TpCircularProgressBar(TpChildWidget *parent)
+    : TpChildWidget(parent)
 {
     TpCircularProgressBarData *progressData = new TpCircularProgressBarData();
 
-    // progressData->percentTextFont = new tpFont();
+    // progressData->percentTextFont = new TpFont();
 
     data_ = progressData;
 }
@@ -82,11 +82,11 @@ uint32_t TpCircularProgressBar::lineWidth()
     return progressData->lineWidth;
 }
 
-bool TpCircularProgressBar::onPaintEvent(tpObjectPaintEvent *event)
+bool TpCircularProgressBar::onPaintEvent(TpObjectPaintEvent *event)
 {
     TpCircularProgressBarData *progressData = static_cast<TpCircularProgressBarData *>(data_);
 
-    // tpChildWidget::onPaintEvent(event);
+    // TpChildWidget::onPaintEvent(event);
     TpCanvas *painter = event->canvas();
     // painter->arc(50, 50, 40, 140, 40, _RGBA(204, 179, 230, 204), 15, true);
 

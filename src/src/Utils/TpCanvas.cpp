@@ -1,8 +1,8 @@
 #include "TpCanvas.h"
 #include "TpSurface.h"
-#include "tpFont.h"
-#include "tpRect.h"
-#include "tpDef.h"
+#include "TpFont.h"
+#include "TpRect.h"
+#include "TpDef.h"
 #include "thorVG/thorvg.h"
 #include "TpImage_p.h"
 
@@ -14,7 +14,7 @@
 
 struct TpCanvasData
 {
-    tpShared<TpSurface> tpSurfacePtr;
+    tpShared<TpSurface> TpSurfacePtr;
     int32_t offsetX, offsetY;
     bool beUsed;
 
@@ -44,9 +44,9 @@ struct RoundSurfaceData
 // 重设canvas的target
 static inline void refreshCanvasTarget(TpCanvasData *set)
 {
-    int32_t surfaceWidth = set->tpSurfacePtr->width();
-    int32_t surfaceHeight = set->tpSurfacePtr->height();
-    set->swCanvas->target((uint32_t *)set->tpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+    int32_t surfaceWidth = set->TpSurfacePtr->width();
+    int32_t surfaceHeight = set->TpSurfacePtr->height();
+    set->swCanvas->target((uint32_t *)set->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
 }
 
 TpCanvas::TpCanvas(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
@@ -67,7 +67,7 @@ TpCanvas::TpCanvas(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY
     set->offsetX = offsetX;
     set->offsetY = offsetY;
 
-    set->tpSurfacePtr = surface;
+    set->TpSurfacePtr = surface;
     set->beUsed = (surface != nullptr);
 
     // TODO判断是GPU环境还是CPU环境
@@ -89,7 +89,7 @@ TpCanvas::~TpCanvas()
     if (!set->beUsed)
         return;
 
-    set->tpSurfacePtr = nullptr;
+    set->TpSurfacePtr = nullptr;
     set->beUsed = false;
 
     // delete set->swCanvas;
@@ -145,10 +145,10 @@ bool TpCanvas::setTarget(tpShared<TpSurface> surface, int32_t offsetX, int32_t o
 
     if (set->beUsed)
     {
-        set->tpSurfacePtr = nullptr;
+        set->TpSurfacePtr = nullptr;
     }
 
-    set->tpSurfacePtr = surface;
+    set->TpSurfacePtr = surface;
     set->offsetX = offsetX;
     set->offsetY = offsetY;
     set->beUsed = true;
@@ -162,7 +162,7 @@ tpShared<TpSurface> TpCanvas::surface()
 
     if (set && set->beUsed)
     {
-        return set->tpSurfacePtr;
+        return set->TpSurfacePtr;
     }
 
     return nullptr;
@@ -174,7 +174,7 @@ void TpCanvas::setClipRect(const ItpRect &rect)
 
     if (set && set->beUsed)
     {
-        set->tpSurfacePtr->setClipRect(rect);
+        set->TpSurfacePtr->setClipRect(rect);
     }
 }
 
@@ -196,7 +196,7 @@ void TpCanvas::erase()
             return;
 
         // 获取裁剪矩形（类似 SDL_GetClipRect）
-        ItpRect clipRect = set->tpSurfacePtr->clipRect();
+        ItpRect clipRect = set->TpSurfacePtr->clipRect();
 
         // 设置视口到裁剪区域
         // <cite> inc / thorvg.h : 846 - 871 < / cite >
@@ -207,8 +207,8 @@ void TpCanvas::erase()
         set->swCanvas->draw(true); // true 参数会清除缓冲区
 
         // 恢复完整视口
-        int32_t surfaceWidth = set->tpSurfacePtr->width();
-        int32_t surfaceHeight = set->tpSurfacePtr->height();
+        int32_t surfaceWidth = set->TpSurfacePtr->width();
+        int32_t surfaceHeight = set->TpSurfacePtr->height();
         set->swCanvas->viewport(0, 0, surfaceWidth, surfaceHeight);
 
         // 同步操作
@@ -744,7 +744,7 @@ void TpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32
     }
 }
 
-static inline void drawPolygon(TpCanvasData *set, const tpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill)
+static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill)
 {
     if (pointList.size() == 0)
         return;
@@ -799,7 +799,7 @@ static inline void drawPolygon(TpCanvasData *set, const tpVector<ItpPoint> &poin
     }
 }
 
-void TpCanvas::polygon(const tpVector<ItpPoint> &pointList, int32_t color, double width)
+void TpCanvas::polygon(const TpVector<ItpPoint> &pointList, int32_t color, double width)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -809,7 +809,7 @@ void TpCanvas::polygon(const tpVector<ItpPoint> &pointList, int32_t color, doubl
     }
 }
 
-void TpCanvas::filledPolygon(const tpVector<ItpPoint> &pointList, int32_t color)
+void TpCanvas::filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -834,7 +834,7 @@ static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
 
     // 矩形镂空
     auto clipper = tvg::Shape::gen();
-    tpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
+    TpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
     for (const auto &hollowData : rectHollow)
     {
         // 创建裁剪形状
@@ -842,7 +842,7 @@ static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
     }
 
     // 圆角矩形镂空
-    tpVector<HollowMask::RoundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
+    TpVector<HollowMask::RoundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
     for (const auto &hollowData : roundHollow)
     {
         // 创建裁剪形状
@@ -850,7 +850,7 @@ static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
     }
 
     // 圆形镂空
-    tpVector<HollowMask::CircleHollow> circleHollow = hollowMaskData.circleHollowList();
+    TpVector<HollowMask::CircleHollow> circleHollow = hollowMaskData.circleHollowList();
     for (const auto &hollowData : circleHollow)
     {
         // 创建裁剪形状
@@ -858,7 +858,7 @@ static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
     }
 
     // 扇形镂空
-    tpVector<HollowMask::PieHollow> pieHollowList = hollowMaskData.pieHollowList();
+    TpVector<HollowMask::PieHollow> pieHollowList = hollowMaskData.pieHollowList();
     for (const auto &hollowData : pieHollowList)
     {
         // 将角度转换为弧度
@@ -1004,7 +1004,7 @@ void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &ima
     // set->swCanvas->sync();
 }
 
-void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &text)
+void TpCanvas::renderText(TpFont &font, int32_t x, int32_t y, const TpString &text)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
     if (!set)
@@ -1030,7 +1030,7 @@ void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &te
     textBuffer = nullptr;
 }
 
-void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
+void TpCanvas::renderText(TpFont &font, int32_t x, int32_t y)
 {
     renderText(font, x, y, font.text());
 }
@@ -1101,7 +1101,7 @@ void HollowMask::addRectHollow(const ItpRect &region)
     rectList_.emplace_back(region);
 }
 
-tpVector<ItpRect> HollowMask::rectHollowList() const
+TpVector<ItpRect> HollowMask::rectHollowList() const
 {
     return rectList_;
 }
@@ -1116,7 +1116,7 @@ void HollowMask::addRoundRectHollow(const RoundRectHollow &data)
     roundRectList_.emplace_back(data);
 }
 
-tpVector<HollowMask::RoundRectHollow> HollowMask::roundRectHollowList() const
+TpVector<HollowMask::RoundRectHollow> HollowMask::roundRectHollowList() const
 {
     return roundRectList_;
 }
@@ -1131,7 +1131,7 @@ void HollowMask::addCircleHollow(const CircleHollow &data)
     circleList_.emplace_back(data);
 }
 
-tpVector<HollowMask::CircleHollow> HollowMask::circleHollowList() const
+TpVector<HollowMask::CircleHollow> HollowMask::circleHollowList() const
 {
     return circleList_;
 }
@@ -1146,7 +1146,7 @@ void HollowMask::addPieHollow(const PieHollow &data)
     pieList_.emplace_back(data);
 }
 
-tpVector<HollowMask::PieHollow> HollowMask::pieHollowList() const
+TpVector<HollowMask::PieHollow> HollowMask::pieHollowList() const
 {
     return pieList_;
 }

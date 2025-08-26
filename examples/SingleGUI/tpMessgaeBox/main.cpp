@@ -1,35 +1,35 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpButton.h"
-#include "tpMessageBox.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpButton.h"
+#include "TpMessageBox.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpButton *button1 = new tpButton("消息框", vScreen);
+	TpButton *button1 = new TpButton("消息框", vScreen);
 	button1->setRect(20, 20, 100, 50);
 	connect(button1, onClicked, [=](bool)
-			{ tpMessageBox::information("消息弹出框"); });
+			{ TpMessageBox::information("消息弹出框"); });
 
-	tpButton *button2 = new tpButton("警告框", vScreen);
+	TpButton *button2 = new TpButton("警告框", vScreen);
 	button2->setRect(20, 80, 100, 50);
 	connect(button2, onClicked, [=](bool)
-			{ tpMessageBox::warning("警告弹出框"); });
+			{ TpMessageBox::warning("警告弹出框"); });
 
-	tpButton *button3 = new tpButton("询问框", vScreen);
+	TpButton *button3 = new TpButton("询问框", vScreen);
 	button3->setRect(20, 140, 100, 50);
 	connect(button3, onClicked, [=](bool)
-			{ tpMessageBox::question("询问弹出框"); });
+			{ TpMessageBox::question("询问弹出框"); });
 
-	tpButton *button4 = new tpButton("错误框", vScreen);
+	TpButton *button4 = new TpButton("错误框", vScreen);
 	button4->setRect(20, 200, 100, 50);
 	connect(button4, onClicked, [=](bool)
-			{ tpMessageBox::error("错误弹出框"); });
+			{ TpMessageBox::error("错误弹出框"); });
 
 	vScreen->update();
 	return app.run();

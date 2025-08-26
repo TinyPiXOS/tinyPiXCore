@@ -1,25 +1,25 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpButton.h"
-#include "tpAnimation.h"
-#include "tpDialog.h"
-#include "tpLabel.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpButton.h"
+#include "TpAnimation.h"
+#include "TpDialog.h"
+#include "TpLabel.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
 	// 效果展示窗体
-	tpDialog *exampleWidget = new tpDialog();
-	// tpChildWidget *exampleWidget = new tpChildWidget(vScreen);
+	TpDialog *exampleWidget = new TpDialog();
+	// TpChildWidget *exampleWidget = new TpChildWidget(vScreen);
 	exampleWidget->setBackGroundColor(_RGB(255, 255, 255));
 	exampleWidget->setRect(350, 20, 100, 100);
 
-	tpButton *posMoveBtn = new tpButton("平移", vScreen);
+	TpButton *posMoveBtn = new TpButton("平移", vScreen);
 	posMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	posMoveBtn->setSize(150, 40);
 	posMoveBtn->move(20, 20);
@@ -27,13 +27,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(posMoveBtn, onClicked, [=](bool)
 			{
-				tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::Pos);
+				TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::Pos);
 				widgetAnimation->setStartValue(ItpPoint(350, 20));
 				widgetAnimation->setEndValue(ItpPoint(700, 300));
 				widgetAnimation->setDuration(1000);
 				widgetAnimation->start(); });
 
-	tpButton *returnMoveBtn = new tpButton("往返平移", vScreen);
+	TpButton *returnMoveBtn = new TpButton("往返平移", vScreen);
 	returnMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	returnMoveBtn->setSize(150, 40);
 	returnMoveBtn->move(180, 20);
@@ -41,7 +41,7 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(returnMoveBtn, onClicked, [=](bool)
 			{
-				tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::Pos);
+				TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::Pos);
 				widgetAnimation->setStartValue(ItpPoint(350, 20));
 				widgetAnimation->setKeyValueAt(0.5, ItpPoint(700, 300));
 				widgetAnimation->setEndValue(ItpPoint(350, 20));
@@ -49,24 +49,24 @@ int32_t main(int32_t argc, char *argv[])
 				widgetAnimation->setDuration(1500);
 				widgetAnimation->start(); });
 
-	tpButton *loopMoveBtn = new tpButton("循环往返", vScreen);
+	TpButton *loopMoveBtn = new TpButton("循环往返", vScreen);
 	loopMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	loopMoveBtn->setSize(150, 40);
 	loopMoveBtn->move(20, 80);
 	loopMoveBtn->update();
 
-	tpButton *stopLoopMoveBtn = new tpButton("停止", vScreen);
+	TpButton *stopLoopMoveBtn = new TpButton("停止", vScreen);
 	stopLoopMoveBtn->setProperty("type", "ControlPanelPowerButton");
 	stopLoopMoveBtn->setSize(150, 40);
 	stopLoopMoveBtn->move(180, 80);
 	stopLoopMoveBtn->setEnabled(false);
 	stopLoopMoveBtn->update();
 
-	tpAnimation *loopAnimation = nullptr;
+	TpAnimation *loopAnimation = nullptr;
 
 	connect(loopMoveBtn, onClicked, [&](bool)
 			{
-				loopAnimation = new tpAnimation(exampleWidget, tpAnimation::Pos);
+				loopAnimation = new TpAnimation(exampleWidget, TpAnimation::Pos);
 				loopAnimation->setStartValue(ItpPoint(350, 20));
 				loopAnimation->setKeyValueAt(0.5, ItpPoint(700, 300));
 				loopAnimation->setEndValue(ItpPoint(350, 20));
@@ -84,7 +84,7 @@ int32_t main(int32_t argc, char *argv[])
 				stopLoopMoveBtn->setEnabled(false);
 				loopMoveBtn->setEnabled(true); });
 
-	tpButton *hideBtn = new tpButton("淡入", vScreen);
+	TpButton *hideBtn = new TpButton("淡入", vScreen);
 	hideBtn->setProperty("type", "ControlPanelPowerButton");
 	hideBtn->setSize(150, 40);
 	hideBtn->move(20, 140);
@@ -92,13 +92,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(hideBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::WindowOpacity);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::WindowOpacity);
 		widgetAnimation->setStartValue(255);
 		widgetAnimation->setEndValue(50);
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
-	tpButton *showBtn = new tpButton("淡出", vScreen);
+	TpButton *showBtn = new TpButton("淡出", vScreen);
 	showBtn->setProperty("type", "ControlPanelPowerButton");
 	showBtn->setSize(150, 40);
 	showBtn->move(180, 140);
@@ -106,13 +106,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(showBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::WindowOpacity);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::WindowOpacity);
 		widgetAnimation->setStartValue(0);
 		widgetAnimation->setEndValue(255);
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
-	tpButton *widthResizeBtn = new tpButton("宽度变化", vScreen);
+	TpButton *widthResizeBtn = new TpButton("宽度变化", vScreen);
 	widthResizeBtn->setProperty("type", "ControlPanelPowerButton");
 	widthResizeBtn->setSize(150, 40);
 	widthResizeBtn->move(20, 200);
@@ -120,13 +120,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(widthResizeBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::Width);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::Width);
 		widgetAnimation->setStartValue(100);
 		widgetAnimation->setEndValue(300);
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
-	tpButton *heightResizeBtn = new tpButton("高度变化", vScreen);
+	TpButton *heightResizeBtn = new TpButton("高度变化", vScreen);
 	heightResizeBtn->setProperty("type", "ControlPanelPowerButton");
 	heightResizeBtn->setSize(150, 40);
 	heightResizeBtn->move(20, 260);
@@ -134,13 +134,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(heightResizeBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::Height);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::Height);
 		widgetAnimation->setStartValue(100);
 		widgetAnimation->setEndValue(300);
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
-	tpButton *resizeBtn = new tpButton("大小变化", vScreen);
+	TpButton *resizeBtn = new TpButton("大小变化", vScreen);
 	resizeBtn->setProperty("type", "ControlPanelPowerButton");
 	resizeBtn->setSize(150, 40);
 	resizeBtn->move(20, 320);
@@ -148,13 +148,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(resizeBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::Size);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::Size);
 		widgetAnimation->setStartValue(ItpSize(100, 100));
 		widgetAnimation->setEndValue(ItpSize(300, 500));
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
-	tpButton *posResizeBtn = new tpButton("平移&&大小", vScreen);
+	TpButton *posResizeBtn = new TpButton("平移&&大小", vScreen);
 	posResizeBtn->setProperty("type", "ControlPanelPowerButton");
 	posResizeBtn->setSize(150, 40);
 	posResizeBtn->move(20, 380);
@@ -162,13 +162,13 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(posResizeBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::Geometry);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::Geometry);
 		widgetAnimation->setStartValue(ItpRect(350, 20, 100, 100));
 		widgetAnimation->setEndValue(ItpRect(700, 300, 300, 300));
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
-	tpButton *bgColorBtn = new tpButton("背景颜色", vScreen);
+	TpButton *bgColorBtn = new TpButton("背景颜色", vScreen);
 	bgColorBtn->setProperty("type", "ControlPanelPowerButton");
 	bgColorBtn->setSize(150, 40);
 	bgColorBtn->move(20, 440);
@@ -176,7 +176,7 @@ int32_t main(int32_t argc, char *argv[])
 
 	connect(bgColorBtn, onClicked, [=](bool)
 			{
-		tpAnimation* widgetAnimation = new tpAnimation(exampleWidget, tpAnimation::BackgroundColor);
+		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::BackgroundColor);
 		widgetAnimation->setStartValue(_RGB(255, 255, 255));
 		widgetAnimation->setEndValue(_RGB(100, 255, 100));
 		widgetAnimation->setDuration(1000);

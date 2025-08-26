@@ -1,19 +1,19 @@
 #include <iostream>
-#include "tpDisplay.h"
-#include "tpDisplayManage.h"
+#include "TpDisplay.h"
+#include "TpDisplayManage.h"
 
 int main()
 {
-	tpDisplayManage devices;
+	TpDisplayManage devices;
 	std::cout<<"physics :"<<devices.getPhysicsWidth()<<"mm *" <<devices.getPhysicsHeight()<<"mm"<<std::endl;
 
 	std::cout<<"pixwm width"<<devices.getPiXWMPhysicsWidth()<<"mm"<<std::endl;
 	std::cout<<"pixwm height"<<devices.getPiXWMPhysicsHeight()<<"mm"<<std::endl;
 	
-	tpShared<tpDisplay> device=devices.getDevice(0);
+	tpShared<TpDisplay> device=devices.getDevice(0);
 	std::cout<<"deviceinfo:"<<std::endl;
 
-	tpList<tpDisplay::tpDisplayModeParam> modes=device->getDisplayMode();
+	TpList<TpDisplay::TpDisplayModeParam> modes=device->getDisplayMode();
 	for(auto &mode: modes) {
 		std::cout << "Width: " << mode.width << ", Height: " << mode.height << ", Refresh Rate: " << mode.refresh << std::endl;
 	}
@@ -29,9 +29,9 @@ int main()
 	//注意：修改分辨率后鼠标的对应坐标系和位置都需要重新计算！！！
 	/*std::cout<<"set resolution"<<std::endl;
 	device->setResolution(1440, 900);
-	device->setRotation(tpDisplay::tpRotate_90);
+	device->setRotation(TpDisplay::TpRotate_90);
 	sleep(2);
-	device->setRotation(tpDisplay::tpRotate_0);
+	device->setRotation(TpDisplay::TpRotate_0);
 	printf("ok\n");*/
 	return 0;
 }

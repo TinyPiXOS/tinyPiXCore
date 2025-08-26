@@ -13,10 +13,10 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
 
 # 定义源码路径宏
 set(SOURCE_FILES
-    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/tpProgressBar.cpp
-    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/tpTreeWidget.cpp
-    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/tpTreeWidgetItem.cpp
-    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/tpFileListWidget.cpp
+    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/TpProgressBar.cpp
+    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/TpTreeWidget.cpp
+    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/TpTreeWidgetItem.cpp
+    ${SOURCE_PATH}/src/GUIFramework/desktopGUI/widgets/TpFileListWidget.cpp
 )
 
 include_directories(/usr/include/cairo)

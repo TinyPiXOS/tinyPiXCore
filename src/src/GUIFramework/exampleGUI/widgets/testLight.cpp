@@ -13,8 +13,8 @@ struct testLightData
     }
 };
 
-testLight::testLight(tpChildWidget *parent)
-    : tpChildWidget(parent)
+testLight::testLight(TpChildWidget *parent)
+    : TpChildWidget(parent)
 {
     testLightData *lightData = new testLightData();
     lightData->maxCount_ = 4;
@@ -33,7 +33,7 @@ testLight::~testLight()
     }
 }
 
-bool testLight::onMousePressEvent(tpMouseEvent *event)
+bool testLight::onMousePressEvent(TpMouseEvent *event)
 {
     testLightData *lightData = static_cast<testLightData *>(data_);
 
@@ -44,9 +44,9 @@ bool testLight::onMousePressEvent(tpMouseEvent *event)
     return true;
 }
 
-bool testLight::onPaintEvent(tpObjectPaintEvent *event)
+bool testLight::onPaintEvent(TpObjectPaintEvent *event)
 {
-    tpChildWidget::onPaintEvent(event);
+    TpChildWidget::onPaintEvent(event);
 
     testLightData *lightData = static_cast<testLightData *>(data_);
 

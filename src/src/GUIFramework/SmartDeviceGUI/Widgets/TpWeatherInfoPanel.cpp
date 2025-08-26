@@ -1,7 +1,7 @@
 #include "TpWeatherInfoPanel.h"
 #include "TpImage.h"
 #include "TpCanvas.h"
-#include "tpFont.h"
+#include "TpFont.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
@@ -10,19 +10,19 @@ struct TpWeatherInfoPanelData
     int32_t count = 5;
     int32_t selectIndex = 0;
 
-    tpFont titleFont;
-    tpFont subTextFont;
+    TpFont titleFont;
+    TpFont subTextFont;
 
-    tpVector<TpWeatherInfoPanel::WeatherInfo> weatherInfoList;
+    TpVector<TpWeatherInfoPanel::WeatherInfo> weatherInfoList;
 
     TpWeatherInfoPanelData()
     {
     }
 };
 
-static inline tpString weatherIconPath(const TpWeatherInfoPanel::WeatherType &weatherType)
+static inline TpString weatherIconPath(const TpWeatherInfoPanel::WeatherType &weatherType)
 {
-    tpString iconRootPath = "/usr/res/tinyPiX/SmartDeviceGUI/TpWeatherInfoPanel/";
+    TpString iconRootPath = "/usr/res/tinyPiX/SmartDeviceGUI/TpWeatherInfoPanel/";
 
     switch (weatherType)
     {
@@ -68,8 +68,8 @@ static inline tpString weatherIconPath(const TpWeatherInfoPanel::WeatherType &we
     return iconRootPath + "晴天.png";
 }
 
-TpWeatherInfoPanel::TpWeatherInfoPanel(tpChildWidget *parent)
-    : tpChildWidget(parent)
+TpWeatherInfoPanel::TpWeatherInfoPanel(TpChildWidget *parent)
+    : TpChildWidget(parent)
 {
     TpWeatherInfoPanelData *weatherData = new TpWeatherInfoPanelData();
     data_ = weatherData;
@@ -123,7 +123,7 @@ int32_t TpWeatherInfoPanel::selectIndex()
     return weatherData->selectIndex;
 }
 
-void TpWeatherInfoPanel::setWeatherList(const tpVector<TpWeatherInfoPanel::WeatherInfo> &weatherInfoList)
+void TpWeatherInfoPanel::setWeatherList(const TpVector<TpWeatherInfoPanel::WeatherInfo> &weatherInfoList)
 {
     TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
     weatherData->weatherInfoList = weatherInfoList;
@@ -139,9 +139,9 @@ bool TpWeatherInfoPanel::setWeatherInfo(const int32_t &index, const TpWeatherInf
     return true;
 }
 
-bool TpWeatherInfoPanel::onPaintEvent(tpObjectPaintEvent *event)
+bool TpWeatherInfoPanel::onPaintEvent(TpObjectPaintEvent *event)
 {
-    tpChildWidget::onPaintEvent(event);
+    TpChildWidget::onPaintEvent(event);
 
     TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
 
@@ -182,9 +182,9 @@ bool TpWeatherInfoPanel::onPaintEvent(tpObjectPaintEvent *event)
     return true;
 }
 
-bool TpWeatherInfoPanel::onResizeEvent(tpObjectResizeEvent *event)
+bool TpWeatherInfoPanel::onResizeEvent(TpObjectResizeEvent *event)
 {
-    tpChildWidget::onResizeEvent(event);
+    TpChildWidget::onResizeEvent(event);
 
     return true;
 }

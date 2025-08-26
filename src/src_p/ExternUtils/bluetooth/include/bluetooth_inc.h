@@ -15,9 +15,9 @@ extern "C" {
 #define BLUEZ_DBUS_INTERFACE_PROPERTIES "org.freedesktop.DBus.Properties"
 
 
-#include "../../tpdbus/properties.h"
-#include "../../tpdbus/manager.h"
-#include "../../tpdbus/connect.h"
+#include "../../TpDbus/properties.h"
+#include "../../TpDbus/manager.h"
+#include "../../TpDbus/connect.h"
 #include "../../utils/utlist.h"
 #include "../../utils/utilslib.h"
 #include "../../utils/variable_array.h"

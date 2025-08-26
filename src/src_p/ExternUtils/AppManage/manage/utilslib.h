@@ -23,7 +23,7 @@
 void delete_end_space(char *str);
 void trim_newline(char *str);
 void delete_char_form_string(char *str,char ch);
-int string_to_version(const char *str,struct tpVersion *ver);
+int string_to_version(const char *str,struct TpVersion *ver);
 void string_char_replace(char *str,char ch_s,char ch_d);
 void string_to_lowercase(char *str) ;
 int string_to_number(const char *str,long int *num) ;

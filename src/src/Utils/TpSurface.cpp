@@ -1,8 +1,8 @@
 #include "TpSurface.h"
-#include "tpRect.h"
+#include "TpRect.h"
 #include <unistd.h>
 #include <iostream>
-#include "tpFileInfo.h"
+#include "TpFileInfo.h"
 
 #include <tinyPiXUtils.h>
 #include "thorVG/thorvg.h"
@@ -200,9 +200,9 @@ bool TpSurface::create(tpShared<TpSurface> surface, bool bShareMemoried)
 
     bool enable = true;
 
-    ItpRect tpr = surface->clipRect();
+    ItpRect TpR = surface->clipRect();
 
-    return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, tpr);
+    return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, TpR);
 }
 
 IPiDSSurface *TpSurface::surface()
@@ -369,7 +369,7 @@ ItpRect TpSurface::clipRect()
 //     this->fill(nullptr, _RGB(0, 0, 0));
 // }
 
-// void TpSurface::fill(tpRect *rect, int32_t color)
+// void TpSurface::fill(TpRect *rect, int32_t color)
 // {
 //     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 //     SDL_Rect *pFillRect = nullptr, fillRect;
@@ -405,7 +405,7 @@ bool TpSurface::hasSurface()
     return ret;
 }
 
-tpShared<TpSurface> TpSurface::copy(tpRect &rect)
+tpShared<TpSurface> TpSurface::copy(TpRect &rect)
 {
     return this->copy(rect.X0(), rect.Y0(), rect.width(), rect.height());
 }

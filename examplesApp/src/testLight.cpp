@@ -1,8 +1,8 @@
 #include "testLight.h"
 #include "TpCanvas.h"
 
-testLight::testLight(tpChildWidget *parent)
-    : tpChildWidget(parent), maxCount_(4), count_(0)
+testLight::testLight(TpChildWidget *parent)
+    : TpChildWidget(parent), maxCount_(4), count_(0)
 {
 }
 
@@ -10,7 +10,7 @@ testLight::~testLight()
 {
 }
 
-bool testLight::onMousePressEvent(tpMouseEvent *event)
+bool testLight::onMousePressEvent(TpMouseEvent *event)
 {
     count_++;
     if (count_ > maxCount_)
@@ -18,9 +18,9 @@ bool testLight::onMousePressEvent(tpMouseEvent *event)
     return true;
 }
 
-bool testLight::onPaintEvent(tpObjectPaintEvent *event)
+bool testLight::onPaintEvent(TpObjectPaintEvent *event)
 {
-    tpChildWidget::onPaintEvent(event);
+    TpChildWidget::onPaintEvent(event);
 
     TpCanvas *painter = event->canvas();
 

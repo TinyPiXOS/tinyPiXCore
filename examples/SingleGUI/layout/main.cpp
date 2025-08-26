@@ -1,48 +1,48 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpDialog.h"
-#include "tpButton.h"
-#include "tpHBoxLayout.h"
-#include "tpVBoxLayout.h"
-#include "tpVariant.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpDialog.h"
+#include "TpButton.h"
+#include "TpHBoxLayout.h"
+#include "TpVBoxLayout.h"
+#include "TpVariant.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 200));
 	app.bindVScreen(vScreen);
 
-	tpDialog *floatScreenH = new tpDialog();
+	TpDialog *floatScreenH = new TpDialog();
 	floatScreenH->setBackGroundColor(_RGBA(255, 255, 255, 200));
 	floatScreenH->setRect(0, 0, 900, 600);
 	floatScreenH->setAlpha(128);
 	floatScreenH->setBeMoved(true);
 
-	tpDialog *floatScreenV = new tpDialog();
+	TpDialog *floatScreenV = new TpDialog();
 	floatScreenV->setBackGroundColor(_RGBA(255, 255, 255, 200));
 	floatScreenV->setRect(10, 100, 400, 650);
 	floatScreenV->setAlpha(128);
 	floatScreenV->setBeMoved(true);
 
-	tpHBoxLayout *hLayout = new tpHBoxLayout();
-	hLayout->setDirection(tpBoxLayout::RightToLeft);
+	TpHBoxLayout *hLayout = new TpHBoxLayout();
+	hLayout->setDirection(TpBoxLayout::RightToLeft);
 
-	tpVBoxLayout *vLayout = new tpVBoxLayout();
-	vLayout->setDirection(tpBoxLayout::BottomToTop);
+	TpVBoxLayout *vLayout = new TpVBoxLayout();
+	vLayout->setDirection(TpBoxLayout::BottomToTop);
 
-	tpVBoxLayout *sonLayout = new tpVBoxLayout();
+	TpVBoxLayout *sonLayout = new TpVBoxLayout();
 	sonLayout->setContentsMargins(0, 0, 0, 0);
 
-	tpHBoxLayout *son2Layout = new tpHBoxLayout();
+	TpHBoxLayout *son2Layout = new TpHBoxLayout();
 	son2Layout->setContentsMargins(0, 0, 0, 0);
 
 	for (int i = 0; i < 4; ++i)
 	{
-		tpButton *testButton = new tpButton("测试按钮" + tpString::number(i));
-		tpButton *testButton2 = new tpButton("测试按钮" + tpString::number(i));
-		tpButton *testButton3 = new tpButton("子按钮" + tpString::number(i));
-		tpButton *testButton4 = new tpButton("二级子按钮" + tpString::number(i));
+		TpButton *testButton = new TpButton("测试按钮" + TpString::number(i));
+		TpButton *testButton2 = new TpButton("测试按钮" + TpString::number(i));
+		TpButton *testButton3 = new TpButton("子按钮" + TpString::number(i));
+		TpButton *testButton4 = new TpButton("二级子按钮" + TpString::number(i));
 
 		testButton->setMinimumSize(100, 40);
 		testButton2->setMinimumSize(100, 40);
@@ -61,8 +61,8 @@ int32_t main(int32_t argc, char *argv[])
 	sonLayout->addLayout(son2Layout);
 	hLayout->addLayout(sonLayout, 3);
 
-	hLayout->addSpacer(new tpSpacerItem(100, 20, tpSpacerItem::Expanding, tpSpacerItem::Minimum));
-	vLayout->addSpacer(new tpSpacerItem(100, 20, tpSpacerItem::Minimum, tpSpacerItem::Expanding));
+	hLayout->addSpacer(new TpSpacerItem(100, 20, TpSpacerItem::Expanding, TpSpacerItem::Minimum));
+	vLayout->addSpacer(new TpSpacerItem(100, 20, TpSpacerItem::Minimum, TpSpacerItem::Expanding));
 
 	floatScreenH->setLayout(hLayout);
 	floatScreenV->setLayout(vLayout);

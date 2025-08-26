@@ -3,15 +3,15 @@
 //适配器扫描，蓝牙扫描
 
 #include <iostream>
-#include "tpBluetoothLocal.h"
-#include "tpBluetoothDiscovery.h"
-#include "tpBluetoothDevice.h"
+#include "TpBluetoothLocal.h"
+#include "TpBluetoothDiscovery.h"
+#include "TpBluetoothDevice.h"
 #include "blt_service.h"
 
 //本地蓝牙设备获取
 int example_list_adapter()
 {
-	tpList<tpBluetoothLocal> adapter_list=tpBluetoothLocal::getAllDevice();
+	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::getAllDevice();
 	for(auto &it:adapter_list)
 	{
 		std::cout << "name=" << it.getName() << std::endl;
@@ -23,13 +23,13 @@ int example_list_adapter()
 //扫描蓝牙
 int example_list_device()
 {
-	tpBluetoothDiscovery discovery("hci0");
+	TpBluetoothDiscovery discovery("hci0");
 	discovery.start();
 	
-	connect(&discovery, bluetoothDeviceRemove, [=](tpBluetoothAddress address)
+	connect(&discovery, bluetoothDeviceRemove, [=](TpBluetoothAddress address)
             { std::cout << "[Signal]设备消失：" << address.toString() << std::endl; });
 
-	connect(&discovery, bluetoothDeviceAdd, [=](const tpBluetoothDevice &device)
+	connect(&discovery, bluetoothDeviceAdd, [=](const TpBluetoothDevice &device)
             { std::cout << "[Signal]设备新增：" << device.getAddress().toString() << std::endl; });
 
 	while(1);
@@ -38,16 +38,16 @@ int example_list_device()
 
 int example_pair()
 {
-	tpBluetoothLocal local("hci0");
-	tpBluetoothAddress remote(tpString("6C:D1:99:69:BF:F0"));
-	local.requestPairing(remote,tpBluetoothLocal::TP_LOCAL_UNPAIRED);
+	TpBluetoothLocal local("hci0");
+	TpBluetoothAddress remote(TpString("6C:D1:99:69:BF:F0"));
+	local.requestPairing(remote,TpBluetoothLocal::TP_LOCAL_UNPAIRED);
 	sleep(10);
 }
 
 //适配器电源开关
 int example_power()
 {
-	tpBluetoothLocal local("hci0");
+	TpBluetoothLocal local("hci0");
 	if(local.isPowerOn())
 		std::cout << "power is on" << std::endl;
 	local.powerOff();

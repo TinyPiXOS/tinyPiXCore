@@ -1,36 +1,36 @@
 
 
-// #include "tpJsonDocument.h"
-// #include "tpJsonObject.h"
-// #include "tpFile.h"
+// #include "TpJsonDocument.h"
+// #include "TpJsonObject.h"
+// #include "TpFile.h"
 
-// #include <tpString.h>
-// #include <tpHash.h>
+// #include <TpString.h>
+// #include <TpHash.h>
 
 // int32_t main(int32_t argc, char *argv[])
 // {
 // #if 0
-// 	tpString testJsonStr = "{ \"key1\": 110119, \"key3\": \"qweqweasd\", \"keyJson\": { \"sonKey\": \"zxcvvb\" }, \"keyArray\": [ 1, 2, 3], \"keyArrayStr\": [ \"att1\", \"att2\", \"att3\"] }";
+// 	TpString testJsonStr = "{ \"key1\": 110119, \"key3\": \"qweqweasd\", \"keyJson\": { \"sonKey\": \"zxcvvb\" }, \"keyArray\": [ 1, 2, 3], \"keyArrayStr\": [ \"att1\", \"att2\", \"att3\"] }";
 
-// 	tpJsonDocument testJsonDoc = tpJsonDocument::fromJson(testJsonStr);
-// 	tpString resJsonStr = testJsonDoc.toJson();
+// 	TpJsonDocument testJsonDoc = TpJsonDocument::fromJson(testJsonStr);
+// 	TpString resJsonStr = testJsonDoc.toJson();
 // 	std::cout << "resJsonStr: " << resJsonStr << std::endl;
 
-// 	tpJsonObject jsonObj = testJsonDoc.object();
+// 	TpJsonObject jsonObj = testJsonDoc.object();
 
 // 	int32_t key1Value = jsonObj.value("key1").toInt();
-// 	tpString key2Value = jsonObj.value("key2").toString();
-// 	tpString key3Value = jsonObj.value("key3").toString();
+// 	TpString key2Value = jsonObj.value("key2").toString();
+// 	TpString key3Value = jsonObj.value("key3").toString();
 
 // 	std::cout << "key1Value: " << key1Value << std::endl;
 // 	std::cout << "key2Value: " << key2Value << std::endl;
 // 	std::cout << "key3Value: " << key3Value << std::endl;
 
-// 	tpString sonKeyValue = jsonObj.value("keyJson").toObject().value("sonKey").toString();
+// 	TpString sonKeyValue = jsonObj.value("keyJson").toObject().value("sonKey").toString();
 // 	std::cout << "sonKeyValue: " << sonKeyValue << std::endl;
 
-// 	tpJsonArray jsonArray1 = jsonObj.value("keyArray").toArray();
-// 	tpJsonArray jsonArray2 = jsonObj.value("keyArrayStr").toArray();
+// 	TpJsonArray jsonArray1 = jsonObj.value("keyArray").toArray();
+// 	TpJsonArray jsonArray2 = jsonObj.value("keyArrayStr").toArray();
 
 // 	for (int32_t i = 0; i < jsonArray1.count(); ++i)
 // 	{
@@ -44,39 +44,39 @@
 
 // 	jsonObj.insert("key4", true);
 
-// 	tpJsonDocument testJsonDoc2(jsonObj);
-// 	tpString resJsonStr2 = testJsonDoc2.toJson();
+// 	TpJsonDocument testJsonDoc2(jsonObj);
+// 	TpString resJsonStr2 = testJsonDoc2.toJson();
 // 	std::cout << "resJsonStr2: " << resJsonStr2 << std::endl;
 // #endif
 
 // 	// 解析已安装APP配置信息文件
-// 	// tpFile installAppConfigFile("/System/conf/install.conf");
+// 	// TpFile installAppConfigFile("/System/conf/install.conf");
 
-// 	// installAppConfigFile.open(tpFile::ReadOnly);
+// 	// installAppConfigFile.open(TpFile::ReadOnly);
 // 	// if (!installAppConfigFile.isOpen())
 // 	// {
 // 	// 	std::cout << "System Install App ConfigFile Not Open!" << std::endl;
 // 	// 	return 0;
 // 	// }
 
-// 	// tpString installAppConfigJsonStr = installAppConfigFile.readAll();
+// 	// TpString installAppConfigJsonStr = installAppConfigFile.readAll();
 
 // 	// installAppConfigFile.close();
 
-// 	// tpJsonObject installAppConfigJson = tpJsonDocument::fromJson(installAppConfigJsonStr).object();
-// 	// tpJsonArray installAppArray = installAppConfigJson.value("appInstall").toArray();
+// 	// TpJsonObject installAppConfigJson = TpJsonDocument::fromJson(installAppConfigJsonStr).object();
+// 	// TpJsonArray installAppArray = installAppConfigJson.value("appInstall").toArray();
 // 	// for (int32_t i = 1; i < installAppArray.count(); ++i)
 // 	// {
-// 	// 	tpJsonObject appInstallInfoJson = installAppArray.at(i).toObject();
+// 	// 	TpJsonObject appInstallInfoJson = installAppArray.at(i).toObject();
 
-// 	// 	tpJsonDocument testDoc(appInstallInfoJson);
+// 	// 	TpJsonDocument testDoc(appInstallInfoJson);
 
 // 	// 	std::cout << "OneAppJson : " << testDoc.toJson() << std::endl
 // 	// 			  << std::endl;
 
 // 	// 	std::cout << "Hase Uuid Key : " << appInstallInfoJson.contains("uuid") << std::endl;
 
-// 	// 	tpString appUuid = appInstallInfoJson.value("uuid").toString();
+// 	// 	TpString appUuid = appInstallInfoJson.value("uuid").toString();
 // 	// 	uint32_t appPage = appInstallInfoJson.value("page").toUint();
 // 	// 	uint32_t appIndex = appInstallInfoJson.value("index").toUint();
 
@@ -86,31 +86,31 @@
 // 	// }
 	
 // 	// 添加子json对象测试
-// 	tpJsonObject parentJsonObj;
+// 	TpJsonObject parentJsonObj;
 
-// 	tpJsonObject childJsonObj;
+// 	TpJsonObject childJsonObj;
 // 	childJsonObj.insert("key1", "123");
 // 	childJsonObj.insert("key2", "456");
 // 	childJsonObj.insert("key3", "789");
 
-// 	tpJsonObject child2JsonObj;
+// 	TpJsonObject child2JsonObj;
 // 	child2JsonObj.insert("key44444", "asdfg");
 // 	childJsonObj.insert("key4", child2JsonObj);
 
 //  	// rapidjson::Document::AllocatorType &allocator = childJsonObj.doc_.GetAllocator();
 //     // rapidjson::Value jsonKey;
-//     // jsonKey.SetString("key4",tpString("key4").size(), allocator);
+//     // jsonKey.SetString("key4",TpString("key4").size(), allocator);
 //     // childJsonObj.doc_.AddMember(jsonKey, child2JsonObj.doc_, allocator);
 
 // 	parentJsonObj.insert("child", childJsonObj);
 //  	// rapidjson::Document::AllocatorType &allocator2 = parentJsonObj.doc_.GetAllocator();
 //     // rapidjson::Value jsonKey2;
-//     // jsonKey2.SetString("child",tpString("child").size(), allocator2);
+//     // jsonKey2.SetString("child",TpString("child").size(), allocator2);
 //     // parentJsonObj.doc_.AddMember(jsonKey2, childJsonObj.doc_, allocator2);
 
-//     tpJsonObject cssJsonObj;
+//     TpJsonObject cssJsonObj;
 
-//     tpHash<tpString, tpHash<tpString, tpHash<tpString, tpString>>> cssOriginDataMap;
+//     TpHash<TpString, TpHash<TpString, TpHash<TpString, TpString>>> cssOriginDataMap;
 
 // 	cssOriginDataMap["11111111"]["1111111"]["111111"] = "222222";
 // 	cssOriginDataMap["11111111"]["1111111"]["222222"] = "aaaaaaa";
@@ -123,10 +123,10 @@
 
 //     for (const auto& firstMapIter : cssOriginDataMap)
 //     {
-//         tpJsonObject typeObj;
+//         TpJsonObject typeObj;
 //         for (const auto& secondTypeIter : firstMapIter.second)
 //         {
-//             tpJsonObject cssValueObj;
+//             TpJsonObject cssValueObj;
 
 //             for (const auto& thirdCssNameIter : secondTypeIter.second)
 //             {
@@ -139,9 +139,9 @@
 //         cssJsonObj.insert(firstMapIter.first, typeObj);
 //     }
 
-//     tpJsonDocument jsonDoc(cssJsonObj);
-//     tpString jsonStr = jsonDoc.toJson();
-//     // tpString jsonStr = ret;
+//     TpJsonDocument jsonDoc(cssJsonObj);
+//     TpString jsonStr = jsonDoc.toJson();
+//     // TpString jsonStr = ret;
 
 // 	std::cout << jsonStr << std::endl;
 

@@ -9,7 +9,10 @@
 #include "media_timer.h"
 #include "media_config.h"
 
+#ifndef DEBUG
 #define DEBUG
+#endif
+
 //#define DEBUG_VIDEO
 #define DEBUG_VIDEO_INIT
 

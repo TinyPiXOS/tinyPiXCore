@@ -8,8 +8,8 @@ int example_creat_app_pack()
 {
 	
 	printf("example package and start.sh\n");
-	tpPackageInfo package;
-	tpStartShInfo start;
+	TpPackageInfo package;
+	TpStartShInfo start;
 
 	//设置应用的相关信息
 	printf("set package type\n");
@@ -60,7 +60,7 @@ int example_creat_app_pack()
 
 int example_creat_system_lib()
 {
-	tpLibPackageInfo package;
+	TpLibPackageInfo package;
 	package.SetArchitecture("amd64");
 	package.SetDiskSpace(10240);
 	package.AddLibrary("/home/pix/AppManage/mytestlib/libjson-c.so",1,0,0);

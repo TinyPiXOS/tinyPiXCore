@@ -79,7 +79,7 @@ int string_to_number(const char *str,long int *num) {
 }
 
 //字符串转版本号
-int string_to_version(const char *str,struct tpVersion *ver){
+int string_to_version(const char *str,struct TpVersion *ver){
 	unsigned int x,y,z;
 	int ret= sscanf(str, "%u.%u.%u", &x, &y, &z);
 	if(ret!=3)

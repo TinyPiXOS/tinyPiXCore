@@ -6,13 +6,13 @@
 #include <string>
 #include <sys/mount.h>
 #include <errno.h>
-#include "tpSystemInfo.h"
-#include "tpNetworkInfo.h"
-#include "tpDiskManage.h"
-#include "tpDisk.h"
-#include "tpCpu.h"
-#include "tpGpu.h"
-#include "tpMemory.h"
+#include "TpSystemInfo.h"
+#include "TpNetworkInfo.h"
+#include "TpDiskManage.h"
+#include "TpDisk.h"
+#include "TpCpu.h"
+#include "TpGpu.h"
+#include "TpMemory.h"
 
 std::atomic<bool> running;
 
@@ -42,7 +42,7 @@ void thread_disk_test()
 
 int main()
 {
-	tpSystemInfo system;
+	TpSystemInfo system;
 //	system.setMachineName("Ji-Yuchao Test Machine");
 	std::cout << "System Test" <<  std::endl;
 	std::cout << "设备名称：" << system.getMachineName() << std::endl;
@@ -63,14 +63,14 @@ int main()
 	std::cout << "产品版本号：" << system.getProductVersion() << std::endl;
 
 	std::cout << "CPU信息：" << std::endl;
-	tpList<tpCpuCore *> cpui=system.getCpuCoreInfo();
+	TpList<TpCpuCore *> cpui=system.getCpuCoreInfo();
 	for(auto &it : cpui){
 		std::cout << "	Core-" << (int)it->getCoreNum() << " " << it->getName() << " " << it->getFrequency() << std::endl;
 
 	}
 
 	std::cout << "内存信息：" << std::endl;
-	tpMemory mem;		//内存信息也可以使用system.getMemoryInfo()获取
+	TpMemory mem;		//内存信息也可以使用system.getMemoryInfo()获取
 	std::cout << "	内存总大小：" << mem.getTotalSize() << "kB" << std::endl;
 	std::cout << "	剩余内存：" << mem.getAvailableSize() << "kB" << std::endl;
 	std::cout << "	空闲内存：" << mem.getFreeSize() << "kB" << std::endl;
@@ -78,7 +78,7 @@ int main()
 	
 
 	std::cout << "磁盘信息：" << std::endl;
-	tpList<tpDisk *> disk_p=system.getDiskInfo();	//磁盘信息也可以使用DiskInfo("disk name")获取,但每次只能获取一个磁盘信息
+	TpList<TpDisk *> disk_p=system.getDiskInfo();	//磁盘信息也可以使用DiskInfo("disk name")获取,但每次只能获取一个磁盘信息
 	printf("信息：\n");
 	for(auto &it : disk_p)
 	{
@@ -98,13 +98,13 @@ int main()
 	}
 	//std::cout << "CPU使用：（第一个显示的cpu总利用率）" << std::endl;
 
-	tpString network("ens33");
-	tpString disk_name("sda");
+	TpString network("ens33");
+	TpString disk_name("sda");
 
-	tpCpu cpu(TP_TRUE);
-	tpNetworkInfo net(network,TP_TRUE);
-	tpList <tpCpuCore*> cpus=cpu.getState();
-	tpDisk disk(disk_name,TP_TRUE);
+	TpCpu cpu(TP_TRUE);
+	TpNetworkInfo net(network,TP_TRUE);
+	TpList <TpCpuCore*> cpus=cpu.getState();
+	TpDisk disk(disk_name,TP_TRUE);
 	printf("creat ok\n");
 	//std::thread thread_t(thread_disk_test);
 	running=true;

@@ -1,16 +1,16 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpCarouselButton.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpCarouselButton.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpCarouselButton* carouselButton = new tpCarouselButton(vScreen);
+	TpCarouselButton* carouselButton = new TpCarouselButton(vScreen);
 	carouselButton->setCount(3);
 	carouselButton->move(100, 100);
 

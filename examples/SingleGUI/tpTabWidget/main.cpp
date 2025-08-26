@@ -1,34 +1,34 @@
-#include "tpApp.h"
-#include "tpFixScreen.h"
-#include "tpDialog.h"
-#include "tpColors.h"
-#include "tpButton.h"
-#include "tpGridLayout.h"
-#include "tpVariant.h"
-#include "tpLabel.h"
-#include "tpFont.h"
-#include "tpTabWidget.h"
-#include "tpVBoxLayout.h"
-#include "tpDialog.h"
-#include "tpTabBar.h"
+#include "TpApp.h"
+#include "TpFixScreen.h"
+#include "TpDialog.h"
+#include "TpColors.h"
+#include "TpButton.h"
+#include "TpGridLayout.h"
+#include "TpVariant.h"
+#include "TpLabel.h"
+#include "TpFont.h"
+#include "TpTabWidget.h"
+#include "TpVBoxLayout.h"
+#include "TpDialog.h"
+#include "TpTabBar.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
-	tpFixScreen *vScreen = new tpFixScreen();
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true);//vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	tpTabWidget *tabWidget = new tpTabWidget(vScreen);
-	tabWidget->addTab(new tpChildWidget(), "Tab1");
-	tabWidget->addTab(new tpChildWidget(), "Tab2");
+	TpTabWidget *tabWidget = new TpTabWidget(vScreen);
+	tabWidget->addTab(new TpChildWidget(), "Tab1");
+	tabWidget->addTab(new TpChildWidget(), "Tab2");
 	
-	tpTabBar *tabBar = tabWidget->tabBar();
+	TpTabBar *tabBar = tabWidget->tabBar();
     tabBar->setIcon(0, applicationDirPath() + "/最近-normal.png", applicationDirPath() + "/最近-focus.png");
     tabBar->setIcon(1, applicationDirPath() + "/浏览-normal.png", applicationDirPath() + "/浏览-focus.png");
 
-	tpVBoxLayout *mainLayout = new tpVBoxLayout();
+	TpVBoxLayout *mainLayout = new TpVBoxLayout();
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
     mainLayout->addWidget(tabWidget);

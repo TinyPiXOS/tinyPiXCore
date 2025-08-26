@@ -323,7 +323,7 @@ static void _opIntersect(rle_view a, rle_view b, VRle::VRleSpanCb cb,
  * result    : will hold the result after the processing
  * NOTE: if the algorithm runs out of the result buffer list
  *       it will stop and update the tmp_obj with the span list
- *       that are yet to be processed as well as the tpm_clip object
+ *       that are yet to be processed as well as the TpM_clip object
  *       with the unprocessed clip spans.
  */
 

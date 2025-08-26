@@ -65,6 +65,11 @@
         "typeinfo": "cpp",
         "queue": "cpp",
         "future": "cpp",
-        "netfwd": "cpp"
+        "netfwd": "cpp",
+        "typesdef.h": "c",
+        "properties.h": "c",
+        "manager.h": "c",
+        "agent_manager.h": "c",
+        "obex_client.h": "c"
     }
 }
