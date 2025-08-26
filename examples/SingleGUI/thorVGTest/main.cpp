@@ -8,6 +8,7 @@
 #include "tpLabel.h"
 #include "tpTimer.h"
 #include "tpDialog.h"
+#include "tpFont.h"
 
 // class ThorVgPaintWidget : public tpChildWidget
 class ThorVgPaintWidget : public tpDialog
@@ -76,7 +77,12 @@ public:
         tpDialog::onPaintEvent(event);
 
         TpCanvas *painter = event->canvas();
-        painter->paintTest();
+        // painter->paintTest();
+
+        tpFont testFont;
+        testFont.setFontColor(_RGB(0, 255, 0), _RGB(0, 255, 0));
+        testFont.setFontSize(30);
+        painter->renderText(testFont, 10, 10, "你好tinyPiXOS");
 
         // static int32_t width = 100;
         // painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));

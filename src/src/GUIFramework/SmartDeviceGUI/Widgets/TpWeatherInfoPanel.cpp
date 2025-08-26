@@ -80,7 +80,7 @@ TpWeatherInfoPanel::TpWeatherInfoPanel(tpChildWidget *parent)
     weatherData->subTextFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
     weatherData->subTextFont.setFontSize(13);
 
-    // setBackGroundColor(_RGB(255, 255, 255));
+    setBackGroundColor(_RGB(255, 255, 255));
 }
 
 TpWeatherInfoPanel::~TpWeatherInfoPanel()

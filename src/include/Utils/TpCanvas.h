@@ -26,7 +26,7 @@ public:
     virtual ~TpCanvas();
 
     void paintTest();
-    
+
 public:
     /// @brief 重设绘制画布
     /// @param surface 画布指针
@@ -241,9 +241,6 @@ public:
     /// @param x X坐标
     /// @param y Y坐标
     virtual void renderText(tpFont &font, int32_t x, int32_t y);
-
-    virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &text);
-    virtual void renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text);
 
 public:
     void addScene(void *canvas, void *scene);

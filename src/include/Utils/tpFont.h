@@ -113,10 +113,12 @@ public:
     virtual void setMinimumSize(int32_t width, int32_t height);
     virtual void setBaseDirection(tpFontDirection direction = TINY_FONT_DIRECTION_WEAK_LTR);
 
+    /// @brief 设置字体内文本
+    /// @param text 文本
     virtual void setText(const tpString &text);
-
-public:
-    virtual void setMarkUp(const char *text);
+    /// @brief 获取文本字符串
+    /// @return 文本字符串
+    tpString text();
 
 public:
     virtual int32_t layoutWidth();
@@ -126,22 +128,13 @@ public:
     virtual ItpSize pixelSize();
 
 public:
-    virtual tpShared<TpSurface> createSurfaceDraw();
-    virtual void render(tpShared<TpSurface>surface, int32_t x, int32_t y);                                  // render style or content by setText or setMarkUp
-    virtual void renderText(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y);            // do not use markup
-    virtual void renderMarkUp(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y); // use markup
-
-public:
     static tpFontFamily *getSysFamilyFont();
 
-    // public
-    // signals:
-    // 	/// @brief 字体大小改变信号
-    // 	/// @param uint32_t 字体大小
-    // 	declare_signal(onFontSizeChanged, uint32_t);
+private:
+    /// @brief 指针需外部释放
+    virtual uint32_t *renderText(const tpString &text);
 
-public:
-    // tpFont& operator=(const tpFont &others) = delete;
+    friend class TpCanvas;
 
 private:
     ItpFontData *data_;

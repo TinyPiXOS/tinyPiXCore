@@ -118,7 +118,7 @@ void TpCanvas::paintTest()
 
     // text->font("Source Han Sans CN", 32);     // 设置字体名称和大小
     text->font("Taipei Sans TC Beta", 32); // 设置字体名称和大小
-    text->text("Hello ThorVG 哈哈哈!");     // 设置文本内容
+    text->text("Hello ThorVG 哈哈哈!");    // 设置文本内容
     text->fill(255, 0, 0);                 // 设置文本颜色 (红色)
     text->translate(set->offsetX, set->offsetY);
 
@@ -1070,45 +1070,32 @@ void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &ima
 void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y, const tpString &text)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+    if (!set)
+        return;
 
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
+    if (!set->beUsed)
+        return;
 
-        font.renderText(set->tpSurfacePtr, text.c_str(), x, y);
-    }
+    x = OFFSET_X(set, x);
+    y = OFFSET_Y(set, y);
+
+    uint32_t *textBuffer = font.renderText(text.c_str());
+
+    ItpSize pixelSize = font.pixelSize();
+    tvg::Picture *picture = tvg::Picture::gen();
+    picture->load(textBuffer, pixelSize.w, pixelSize.h, tvg::ColorSpace::ARGB8888, true);
+    picture->translate(x, y);
+
+    refreshCanvasTarget(set);
+    set->tvgScene->push(std::move(picture));
+
+    delete[] textBuffer;
+    textBuffer = nullptr;
 }
 
 void TpCanvas::renderText(tpFont &font, int32_t x, int32_t y)
 {
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        font.render(set->tpSurfacePtr, x, y);
-    }
-}
-
-void TpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const tpString &text)
-{
-    this->renderMarkUp(font, x, y, text.c_str());
-}
-
-void TpCanvas::renderMarkUp(tpFont &font, int32_t x, int32_t y, const char *text)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        font.renderMarkUp(set->tpSurfacePtr, text, x, y);
-    }
+    renderText(font, x, y, font.text());
 }
 
 void TpCanvas::addScene(void *canvas, void *scene)

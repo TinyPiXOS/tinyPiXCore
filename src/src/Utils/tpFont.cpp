@@ -6,7 +6,6 @@
 #include "TpCanvas.h"
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
-#include <cairo.h>
 #include <iostream>
 
 #define DEFAULT_FONT_SIZE 12
@@ -51,6 +50,8 @@ struct tpSurfaceArgs
 
 struct tpFontData
 {
+    tpString text = "";
+
     PangoContext *context = nullptr;
     PangoFontMap *font_map = nullptr;
     PangoFontDescription *font_desc = nullptr;
@@ -73,53 +74,11 @@ struct tpFontData
     int32_t ptsize = 12;
 
     std::mutex pangoMutex; // 递归锁支持重入
-    // std::mutex getSizeMutex;
 
     tpFontData()
     {
     }
-
-    // tpFontData &operator=(const tpFontData &others)
-    // {
-    // 	this->surface_args = others.surface_args;
-    // 	this->min_width = others.min_width;
-    // 	this->min_height = others.min_height;
-    // 	this->fgcolor = others.fgcolor;
-    // 	this->bgcolor = others.bgcolor;
-    // 	this->attrib = others.attrib;
-    // 	this->antialias = others.antialias;
-    // 	this->hinting = others.hinting;
-    // 	this->underline = others.underline;
-    // 	this->undercolor = others.undercolor;
-    // 	this->strokecolor = others.strokecolor;
-    // 	this->topcolor = others.topcolor;
-    // 	this->underwidth = others.underwidth;
-    // 	this->strokewidth = others.strokewidth;
-    // 	this->topwidth = others.topwidth;
-    // 	this->useMarkUp = others.useMarkUp;
-    // 	this->ptsize = others.ptsize;
-
-    // 	return *this;
-    // }
 };
-
-static inline unsigned int cal_stride(int width, int depth)
-{
-    std::cout << "-----------------------depth  " << depth << std::endl;
-    int bpp = depth / 8;
-    unsigned int stride = width * bpp;
-
-    switch (depth)
-    {
-    case 4:
-        stride = (stride + 1) / 2;
-        break;
-    default:
-        break;
-    }
-
-    return ((stride + 3) & ~3);
-}
 
 static inline void _setSurfaceCreateArgs(tpFontData *context, int32_t depth,
                                          int32_t Rmask, int32_t Gmask, int32_t Bmask, int32_t Amask)
@@ -257,15 +216,6 @@ static inline int32_t _getLayoutHeight(tpFontData *context)
     pango_layout_get_extents(context->layout, nullptr, &logical_rect);
 
     return PANGO_PIXELS(logical_rect.height);
-}
-
-static inline void _setMarkup(tpFontData *context, const char *markup, int32_t length)
-{
-    context->useMarkUp = true;
-    pango_layout_set_markup(context->layout, markup, length);
-    pango_layout_set_auto_dir(context->layout, true);
-    pango_layout_set_alignment(context->layout, PANGO_ALIGN_LEFT);
-    pango_layout_set_font_description(context->layout, context->font_desc);
 }
 
 static inline void _setText(tpFontData *context, const char *text, int32_t length)
@@ -459,230 +409,6 @@ static inline ItpSize _getPixelSize(tpFontData *context)
     return size;
 }
 
-static inline void _surfaceToSurface(tpShared<TpSurface> src, tpShared<TpSurface> dst, int x, int y)
-{
-    if (dst == nullptr)
-        return;
-
-    unsigned int sw = src->width(), sh = src->height();
-    unsigned int dw = dst->width(), dh = dst->height();
-    unsigned int final_w = 0, final_h = 0;
-    int sx = 0, sy = 0, dx = x, dy = y;
-
-    if (dx < 0)
-    {
-        sx -= dx;
-        sw += dx;
-        dx = 0;
-    }
-    else
-    {
-        dw -= dx;
-    }
-
-    if (dy < 0)
-    {
-        sy -= dy;
-        sh += dy;
-        dy = 0;
-    }
-    else
-    {
-        dh -= dy;
-    }
-
-    final_w = TP_MIN(sw, dw);
-    final_h = TP_MIN(sh, dh);
-
-    ItpRect srect(sx, sy, final_w, final_h);
-    ItpRect drect(dx, dy, final_w, final_h);
-
-    src->directBlitT(dst, srect, drect);
-}
-
-static inline void _complexDraw(tpFontData *context, tpShared<TpSurface> surface, int32_t x, int32_t y)
-{
-    ItpSize size = _getPixelSize(context);
-
-    if (size.w == 0 || size.h == 0)
-        return;
-
-    cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.w, size.h);
-    if (surf == nullptr)
-        return;
-
-    cairo_t *cr = cairo_create(surf);
-    if (!cr)
-        return;
-
-    cairo_font_options_t *options = cairo_font_options_create();
-
-    if (options)
-    {
-        cairo_antialias_t antialias_t = CAIRO_ANTIALIAS_DEFAULT;
-
-        switch (context->antialias)
-        {
-        case tpFont::TINY_FONT_ANTIALIAS_NONE:
-            antialias_t = CAIRO_ANTIALIAS_NONE;
-            break;
-        case tpFont::TINY_FONT_ANTIALIAS_GRAY:
-            antialias_t = CAIRO_ANTIALIAS_GRAY;
-            break;
-        case tpFont::TINY_FONT_ANTIALIAS_SUBPIXEL:
-            antialias_t = CAIRO_ANTIALIAS_SUBPIXEL;
-            break;
-        case tpFont::TINY_FONT_ANTIALIAS_FAST:
-            antialias_t = CAIRO_ANTIALIAS_FAST;
-            break;
-        case tpFont::TINY_FONT_ANTIALIAS_GOOD:
-            antialias_t = CAIRO_ANTIALIAS_GOOD;
-            break;
-        case tpFont::TINY_FONT_ANTIALIAS_BEST:
-            antialias_t = CAIRO_ANTIALIAS_BEST;
-            break;
-        }
-
-        cairo_hint_style_t hint_style_t = CAIRO_HINT_STYLE_DEFAULT;
-
-        switch (context->hinting)
-        {
-        case tpFont::TINY_FONT_HINT_STYLE_NONE:
-            hint_style_t = CAIRO_HINT_STYLE_NONE;
-            break;
-        case tpFont::TINY_FONT_HINT_STYLE_SLIGHT:
-            hint_style_t = CAIRO_HINT_STYLE_SLIGHT;
-            break;
-        case tpFont::TINY_FONT_HINT_STYLE_MEDIUM:
-            hint_style_t = CAIRO_HINT_STYLE_MEDIUM;
-            break;
-        case tpFont::TINY_FONT_HINT_STYLE_FULL:
-            hint_style_t = CAIRO_HINT_STYLE_FULL;
-            break;
-        }
-
-        cairo_font_options_set_antialias(options, antialias_t);
-        cairo_font_options_set_hint_style(options, hint_style_t);
-
-        pango_cairo_context_set_font_options(context->context, options);
-    }
-
-    double fr = _R(context->fgcolor) / 255.0;
-    double fg = _G(context->fgcolor) / 255.0;
-    double fb = _B(context->fgcolor) / 255.0;
-    double fa = _A(context->fgcolor) / 255.0;
-
-    if (context->useMarkUp == false)
-    {
-        double br = _R(context->bgcolor) / 255.0;
-        double bg = _G(context->bgcolor) / 255.0;
-        double bb = _B(context->bgcolor) / 255.0;
-        double ba = _A(context->bgcolor) / 255.0;
-
-        switch (context->attrib)
-        {
-        case tpFont::TINY_FONT_OPAQUE:
-        {
-            ba = 1.0;
-        }
-        break;
-        case tpFont::TINY_FONT_TRANSPARENCY:
-        {
-            ba = 0.0;
-        }
-        break;
-        }
-        cairo_set_source_rgba(cr, br, bg, bb, ba);
-        cairo_rectangle(cr, 0, 0, size.w, size.h);
-        cairo_fill(cr);
-    }
-
-    cairo_set_source_rgba(cr, fr, fg, fb, fa);
-    pango_cairo_update_context(cr, context->context);
-    pango_cairo_update_layout(cr, context->layout);
-    pango_cairo_show_layout(cr, context->layout);
-
-    // int32_t Rmask = 0x00ff0000;
-    // int32_t Gmask = 0x0000ff00;
-    // int32_t Bmask = 0x000000ff;
-    // int32_t Amask = 0xff000000;
-
-    tpShared<TpSurface> srcSurf = TpCanvas::convertFromCairoToSurface(surf);
-    // tpShared<TpSurface> srcSurf = tpMakeShared<TpSurface>();
-    // void *addr = (void *)cairo_image_surface_get_data(cairo_surface);
-    // srcSurf->create(nullptr, size.w, size.h, TP_RGB_32, 0, Rmask, Gmask, Bmask, Amask);
-
-    if (srcSurf == nullptr)
-    {
-        goto failed;
-    }
-
-    if (context->underline && context->useMarkUp == false)
-    {
-        TpCanvas *canvas = new TpCanvas(nullptr);
-        if (canvas)
-        {
-            canvas->setTarget(srcSurf);
-
-            if ((context->underline & TINY_FONT_UNDERLINE) == TINY_FONT_UNDERLINE)
-            {
-                int32_t bottom_x = 0, bottom_y = size.h - size.h / 6;
-                // canvas->thickLine(bottom_x, bottom_y, size.w, bottom_y - context->underwidth, context->underwidth, context->undercolor);
-            }
-
-            if ((context->underline & TINY_FONT_STROKELINE) == TINY_FONT_STROKELINE)
-            {
-                int32_t bottom_x = 0, bottom_y = size.h / 2;
-                // canvas->thickLine(bottom_x, bottom_y - context->strokewidth / 2, size.w, bottom_y + context->strokewidth / 2, context->strokewidth, context->strokecolor);
-            }
-
-            if ((context->underline & TINY_FONT_TOPLINE) == TINY_FONT_TOPLINE)
-            {
-                int32_t bottom_x = 0, bottom_y = size.h / 5;
-                // canvas->thickLine(bottom_x, bottom_y, size.w, bottom_y + context->topwidth, context->topwidth, context->topcolor);
-            }
-
-            delete canvas;
-        }
-    }
-
-    _surfaceToSurface(srcSurf, surface, x, y);
-
-failed:
-    cairo_font_options_destroy(options);
-    cairo_surface_destroy(surf);
-    cairo_destroy(cr);
-}
-
-static inline tpShared<TpSurface> _createSurfaceDraw(tpFontData *context)
-{
-    ItpSize size = _getPixelSize(context);
-
-    if (size.w == 0 || size.h == 0)
-    {
-        return nullptr;
-    }
-
-    tpShared<TpSurface> surface = tpMakeShared<TpSurface>();
-
-    if (surface)
-    {
-        unsigned int depth = (ItpFormat)context->surface_args.depth;
-        unsigned int stride = cal_stride(size.w, depth);
-        bool ret = surface->create(nullptr, size.w, size.h,
-                                   depth,
-                                   stride,
-                                   context->surface_args.Rmask,
-                                   context->surface_args.Gmask,
-                                   context->surface_args.Bmask,
-                                   context->surface_args.Amask);
-
-        _complexDraw(context, surface, 0, 0);
-    }
-
-    return surface;
-}
-
 tpFontFamily::tpFontFamily()
 {
     tpFontFamilySet *set = new tpFontFamilySet();
@@ -736,11 +462,6 @@ tpFontFamily::~tpFontFamily()
         delete set;
         set = nullptr;
     }
-}
-
-tpFontFamily *tpFont::getSysFamilyFont()
-{
-    return (new tpFontFamily());
 }
 
 tpFont::tpFont(const char *family, int32_t defaultPtSize) : data_(nullptr)
@@ -957,33 +678,25 @@ void tpFont::setBaseDirection(tpFont::tpFontDirection direction)
     }
 }
 
-void tpFont::setMarkUp(const char *text)
-{
-    tpFontData *set = (tpFontData *)this->data_;
-
-    if (set)
-    {
-        if (text == nullptr ||
-            strlen(text) == 0)
-        {
-            return;
-        }
-
-        _setMarkup(set, text, strlen(text));
-    }
-}
-
 void tpFont::setText(const tpString &text)
 {
     tpFontData *set = (tpFontData *)this->data_;
-
     if (!set)
         return;
 
     if (text.empty())
         return;
 
+    set->text = text;
     _setText(set, text.c_str(), text.length());
+}
+
+tpString tpFont::text()
+{
+    tpFontData *set = static_cast<tpFontData *>(data_);
+    if (!set)
+        return "";
+    return set->text;
 }
 
 int32_t tpFont::layoutWidth()
@@ -1053,59 +766,136 @@ ItpSize tpFont::pixelSize()
     return size;
 }
 
-tpShared<TpSurface> tpFont::createSurfaceDraw()
+tpFontFamily *tpFont::getSysFamilyFont()
 {
-    tpFontData *set = (tpFontData *)this->data_;
-    tpShared<TpSurface> surface = nullptr;
-
-    if (set)
-    {
-        surface = _createSurfaceDraw(set);
-    }
-
-    return surface;
+    return (new tpFontFamily());
 }
 
-void tpFont::render(tpShared<TpSurface> surface, int32_t x, int32_t y)
+uint32_t *tpFont::renderText(const tpString &text)
 {
-    tpFontData *set = (tpFontData *)this->data_;
+    tpFontData *set = static_cast<tpFontData *>(data_);
+    if (!set)
+        return nullptr;
 
-    if (set)
+    if (text.empty())
+        return nullptr;
+
+    _setText(set, text.c_str(), text.length());
+
+    ItpSize size = _getPixelSize(set);
+
+    if (size.w == 0 || size.h == 0)
+        return nullptr;
+
+    uint32_t *buffer = new uint32_t[size.w * size.h];
+    memset(buffer, 0, size.w * size.h * sizeof(uint32_t));
+
+    cairo_surface_t *surf = cairo_image_surface_create_for_data(
+        (unsigned char *)buffer,
+        CAIRO_FORMAT_ARGB32,
+        size.w, size.h,
+        size.w * 4);
+
+    // cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.w, size.h);
+    if (surf == nullptr)
+        return nullptr;
+
+    cairo_t *cr = cairo_create(surf);
+    if (!cr)
+        return nullptr;
+
+    cairo_font_options_t *options = cairo_font_options_create();
+
+    if (options)
     {
-        _complexDraw(set, surface, x, y);
-    }
-}
+        cairo_antialias_t antialias_t = CAIRO_ANTIALIAS_DEFAULT;
 
-void tpFont::renderText(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y)
-{
-    tpFontData *set = (tpFontData *)this->data_;
-
-    if (set)
-    {
-        if (text == nullptr || strlen(text) == 0)
+        switch (set->antialias)
         {
-            return;
+        case tpFont::TINY_FONT_ANTIALIAS_NONE:
+            antialias_t = CAIRO_ANTIALIAS_NONE;
+            break;
+        case tpFont::TINY_FONT_ANTIALIAS_GRAY:
+            antialias_t = CAIRO_ANTIALIAS_GRAY;
+            break;
+        case tpFont::TINY_FONT_ANTIALIAS_SUBPIXEL:
+            antialias_t = CAIRO_ANTIALIAS_SUBPIXEL;
+            break;
+        case tpFont::TINY_FONT_ANTIALIAS_FAST:
+            antialias_t = CAIRO_ANTIALIAS_FAST;
+            break;
+        case tpFont::TINY_FONT_ANTIALIAS_GOOD:
+            antialias_t = CAIRO_ANTIALIAS_GOOD;
+            break;
+        case tpFont::TINY_FONT_ANTIALIAS_BEST:
+            antialias_t = CAIRO_ANTIALIAS_BEST;
+            break;
         }
 
-        _setText(set, text, strlen(text));
-        _complexDraw(set, surface, x, y);
-    }
-}
+        cairo_hint_style_t hint_style_t = CAIRO_HINT_STYLE_DEFAULT;
 
-void tpFont::renderMarkUp(tpShared<TpSurface> surface, const char *text, int32_t x, int32_t y)
-{
-    tpFontData *set = (tpFontData *)this->data_;
-
-    if (set)
-    {
-        if (text == nullptr || strlen(text) == 0)
+        switch (set->hinting)
         {
-            return;
+        case tpFont::TINY_FONT_HINT_STYLE_NONE:
+            hint_style_t = CAIRO_HINT_STYLE_NONE;
+            break;
+        case tpFont::TINY_FONT_HINT_STYLE_SLIGHT:
+            hint_style_t = CAIRO_HINT_STYLE_SLIGHT;
+            break;
+        case tpFont::TINY_FONT_HINT_STYLE_MEDIUM:
+            hint_style_t = CAIRO_HINT_STYLE_MEDIUM;
+            break;
+        case tpFont::TINY_FONT_HINT_STYLE_FULL:
+            hint_style_t = CAIRO_HINT_STYLE_FULL;
+            break;
         }
 
-        _setMarkup(set, text, strlen(text));
-        _complexDraw(set, surface, x, y);
+        cairo_font_options_set_antialias(options, antialias_t);
+        cairo_font_options_set_hint_style(options, hint_style_t);
+
+        pango_cairo_context_set_font_options(set->context, options);
     }
+
+    double fr = _R(set->fgcolor) / 255.0;
+    double fg = _G(set->fgcolor) / 255.0;
+    double fb = _B(set->fgcolor) / 255.0;
+    double fa = _A(set->fgcolor) / 255.0;
+
+    if (set->useMarkUp == false)
+    {
+        double br = _R(set->bgcolor) / 255.0;
+        double bg = _G(set->bgcolor) / 255.0;
+        double bb = _B(set->bgcolor) / 255.0;
+        double ba = _A(set->bgcolor) / 255.0;
+
+        switch (set->attrib)
+        {
+        case tpFont::TINY_FONT_OPAQUE:
+        {
+            ba = 1.0;
+        }
+        break;
+        case tpFont::TINY_FONT_TRANSPARENCY:
+        {
+            ba = 0.0;
+        }
+        break;
+        }
+        cairo_set_source_rgba(cr, br, bg, bb, ba);
+        cairo_rectangle(cr, 0, 0, size.w, size.h);
+        cairo_fill(cr);
+    }
+
+    cairo_set_source_rgba(cr, fr, fg, fb, fa);
+    pango_cairo_update_context(cr, set->context);
+    pango_cairo_update_layout(cr, set->layout);
+    pango_cairo_show_layout(cr, set->layout);
+
+    cairo_font_options_destroy(options);
+    cairo_surface_destroy(surf);
+    cairo_destroy(cr);
+
+    return buffer;
 }
 
 tpFont::~tpFont()
