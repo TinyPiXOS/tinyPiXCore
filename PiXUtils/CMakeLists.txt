@@ -54,6 +54,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/TpAppConfigIO.cpp
     ${SOURCE_PATH}/src/Utils/TpThreadPool.cpp
     ${SOURCE_PATH}/src/Utils/TpImage.cpp
+    ${SOURCE_PATH}/src/Utils/TpGradient.cpp
+    ${SOURCE_PATH}/src/Utils/TpLinearGradient.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
 	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp
@@ -91,42 +93,6 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/Utils/tweeny/tweenone.tcc
 	${SOURCE_PATH}/src_p/Utils/tweeny/tweenpoint.tcc
     ${SOURCE_PATH}/src_p/Utils/TpMessage.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/binding/lottieanimation_capi.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieitem.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieitem_capi.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieloader.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottiemodel.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieproxymodel.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieparser.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottieanimation.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/lottiekeypath.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/lottie/zip/zip.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vrect.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdasher.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbrush.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbitmap.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vpainter.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper_common.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper_sse2.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawhelper_neon.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vrle.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vpath.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vpathmesure.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vmatrix.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/velapsedtimer.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdebug.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vinterpolator.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vbezier.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vraster.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vdrawable.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/vimageloader.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/varenaalloc.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/freetype/v_ft_math.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/freetype/v_ft_raster.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/freetype/v_ft_stroker.cpp
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/pixman/pixman-arm-neon-asm.S
-    ${SOURCE_PATH}/src_p/Utils/rlottie/vector/stb/stb_image.cpp
 )
 
 include_directories(/usr/include)
