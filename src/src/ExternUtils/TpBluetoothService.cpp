@@ -263,7 +263,7 @@ int TpBluetoothService::addServiceClassUuid(TpBluetoothUuid& uuid)
 }
 
 
-TpList<TpBluetoothUuid> TpBluetoothService::getServiceClassUuids()
+TpList<TpBluetoothUuid> TpBluetoothService::getServiceClassUuids() const
 {
 	TpBluetoothServiceData *data = static_cast<TpBluetoothServiceData *>(data_);
 	return data->class_uuids;
@@ -296,7 +296,7 @@ void TpBluetoothService::setAttribute(uint16_t attributeId, const Sequence& valu
     data->m_attributes[attributeId] = TpVariant(vec);
 }
 
-const TpVariant& TpBluetoothService::attribute(uint16_t attributeId) const {
+const TpVariant& TpBluetoothService::getAttribute(uint16_t attributeId) const {
 	TpBluetoothServiceData *data = static_cast<TpBluetoothServiceData *>(data_);
     auto it = data->m_attributes.find(attributeId);
     if (it == data->m_attributes.end()) {
@@ -305,7 +305,7 @@ const TpVariant& TpBluetoothService::attribute(uint16_t attributeId) const {
     return it->second;
 }
 
-const std::map<uint16_t, TpVariant>& TpBluetoothService::attributes() const {
+const std::map<uint16_t, TpVariant>& TpBluetoothService::getAttributes() const {
 	TpBluetoothServiceData *data = static_cast<TpBluetoothServiceData *>(data_);
     return data->m_attributes;
 }
@@ -326,7 +326,7 @@ int TpBluetoothService::setProfileDescriptorList(const Sequence& list) {
 // 获取协议描述符列表
 TpBluetoothService::Sequence TpBluetoothService::getProtocolDescriptorList() const {
     try {
-        const TpVariant& attr = attribute(ProtocolDescriptorList);
+        const TpVariant& attr = getAttribute(ProtocolDescriptorList);
         if (!attr.isVector()) {
             throw std::runtime_error("ProtocolDescriptorList is not a vector");
         }
@@ -349,7 +349,7 @@ TpBluetoothService::Sequence TpBluetoothService::getProtocolDescriptorList() con
 // 获取蓝牙配置文件描述符列表
 TpBluetoothService::Sequence TpBluetoothService::getProfileDescriptorList() const {
     try {
-        const TpVariant& attr = attribute(BluetoothProfileDescriptorList);
+        const TpVariant& attr = getAttribute(BluetoothProfileDescriptorList);
         if (!attr.isVector()) {
             throw std::runtime_error("BluetoothProfileDescriptorList is not a vector");
         }
@@ -483,6 +483,11 @@ TpBluetoothService::Sequence& TpBluetoothService::Sequence::append(const std::st
     return *this;
 }
 
+TpBluetoothService::Sequence& TpBluetoothService::Sequence::append(const TpBluetoothUuid& uuid) {
+	m_values.push_back(TpVariant(uuid));
+	return *this;
+} 
+
 TpBluetoothService::Sequence& TpBluetoothService::Sequence::append(const Sequence& value) {
 	std::vector<TpVariant>* newVec = new std::vector<TpVariant>(value.getValues());
     m_values.push_back(TpVariant(newVec));
@@ -540,6 +545,10 @@ TpBluetoothService::Sequence& TpBluetoothService::Sequence::operator<<(const cha
 
 TpBluetoothService::Sequence& TpBluetoothService::Sequence::operator<<(const std::string& value) {
     return append(value);
+}
+
+TpBluetoothService::Sequence& TpBluetoothService::Sequence::operator<<(const TpBluetoothUuid& uuid) {
+    return append(uuid);
 }
 
 TpBluetoothService::Sequence& TpBluetoothService::Sequence::operator<<(const Sequence& value) {
@@ -660,6 +669,15 @@ double TpBluetoothService::Sequence::doubleValueAt(size_t index) const {
         throw std::runtime_error("Value is not a double");
     }
     return var.toDouble();
+}
+
+TpBluetoothUuid TpBluetoothService::Sequence::uuidValueAt(size_t index) const 
+{
+	const TpVariant& var = at(index);
+	if (var.isCustom<TpBluetoothUuid>()) {
+		return var.toCustom<TpBluetoothUuid>();
+	}
+	throw std::runtime_error("Value is not a Bluetooth UUID");
 }
 
 std::string TpBluetoothService::Sequence::stringValueAt(size_t index) const {

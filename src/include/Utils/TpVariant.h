@@ -35,7 +35,7 @@ public:
         TpUint2 , //!< uint16_t 类型
 
 		TpVector, // 向量类型
-
+		tpCustom, // 自定义类型
 
         TpSet = 1 << 8 // 0x1000, //!< 集合类型，该类型的值需要用过特定函数获取，不能直接通过成员变量获取
     };
@@ -65,6 +65,7 @@ public:
             void *m_pSetVal;
 			
 			std::vector<TpVariant>* m_vectorVal; // 向量指针
+			void* m_customVal;
 
             InnerUnion() {}
         } data;
@@ -123,6 +124,14 @@ public:
     TpVariant(const TpVariant &other);
 	TpVariant(std::vector<TpVariant>* vectorVal);
 
+	template <typename T>
+    TpVariant(const T& value) {
+        // 分配内存存储自定义类型
+        T* copy = new T(value);
+        data_.m_vt = static_cast<uint16_t>(VariantType::tpCustom);
+        data_.data.m_customVal = copy;
+    }
+
 	~TpVariant();
 public:
     bool isNull();
@@ -170,6 +179,21 @@ public:
     TpVariant &operator=(const std::set<std::string> &valueSet);
     TpVariant &operator=(const VariantValue &value);
     TpVariant &operator=(const TpVariant &other);
+	//自定义类型
+	template <typename T>
+    TpVariant& operator=(const T& value) {
+        // 清理现有值
+        if (data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && 
+            data_.data.m_customVal != nullptr) {
+            delete static_cast<T*>(data_.data.m_customVal);
+        }
+        
+        // 分配新值
+        T* copy = new T(value);
+        data_.m_vt = static_cast<uint16_t>(VariantType::tpCustom);
+        data_.data.m_customVal = copy;
+        return *this;
+    }
 
     // bool operator==(const VariantValue &value);
     bool operator==(const TpVariant &value);
@@ -296,6 +320,19 @@ public:
 
 	bool isVector() const { return data_.m_vt == static_cast<uint16_t>(VariantType::TpVector);}
 	const std::vector<TpVariant>* toVectorPtr() const;
+	
+	// 自定义类型检查
+    template <typename T>
+    bool isCustom() const {return data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && data_.data.m_customVal != nullptr;}
+    
+    // 获取自定义类型值
+    template <typename T>
+    T toCustom() const {
+        if (isCustom<T>()) {
+            return *static_cast<T*>(data_.data.m_customVal);
+        }
+        throw std::bad_cast();
+    }
 
     bool isBool() const { return (uint16_t)VariantType::tpBool == data_.m_vt; }
 

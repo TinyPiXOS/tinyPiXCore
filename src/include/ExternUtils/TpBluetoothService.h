@@ -38,6 +38,7 @@ public:
         Sequence& append(double value);
         Sequence& append(const char* value);
         Sequence& append(const std::string& value);
+		Sequence& append(const TpBluetoothUuid& value);
         Sequence& append(const Sequence& value); // 嵌套序列支持
         
         // 流式操作符
@@ -54,6 +55,7 @@ public:
         Sequence& operator<<(double value);
         Sequence& operator<<(const char* value);
         Sequence& operator<<(const std::string& value);
+		Sequence& operator<<(const TpBluetoothUuid& value);
         Sequence& operator<<(const Sequence& value);
         
         // 访问元素
@@ -65,7 +67,7 @@ public:
         bool isEmpty() const;
         void clear();
         
-        // 类型安全的取值方法
+        // 类型安全的取值方法，index:在序列中的位置
         bool boolValueAt(size_t index) const;
 		int8_t int8ValueAt(size_t index) const;
         uint8_t uint8ValueAt(size_t index) const;
@@ -78,6 +80,7 @@ public:
         float floatValueAt(size_t index) const;
         double doubleValueAt(size_t index) const;
         std::string stringValueAt(size_t index) const;
+		TpBluetoothUuid uuidValueAt(size_t index) const;
         Sequence sequenceValueAt(size_t index) const; // 嵌套序列取值
 
 		const std::vector<TpVariant>& getValues() const;
@@ -174,49 +177,86 @@ public:
 	/// @return 
 	tpUInt16 getServerChannel();
 
-	/// @brief 设置 provider
+	/// @brief 设置服务提供者
 	/// @param provider 
 	/// @return 
 	int setServiceProvider(const TpString& provider);
 
-	/// @brief 获取设置 provider
+	/// @brief 获取服务提供者
 	/// @return 
 	TpString getServiceProvider() const;
 
-	/// @brief 
+	/// @brief 注册服务
 	/// @param address 
 	/// @return 
 	tpBool registerService(const TpBluetoothAddress& address= TpBluetoothAddress());
 
-	/// @brief 
+	/// @brief 是否注册
 	/// @return 
 	tpBool isRegisted();
 
-	/// @brief 
+	/// @brief 注销服务
 	/// @return 
 	tpBool unregisterService();
 
+	/// @brief 设置服务的所有UUID（会覆盖原来的设置），如果没有设置主UUID，会默认以第一个为主UUID
+	/// @param uuids 
+	/// @return 
 	int setServiceClassUuids(TpList<TpBluetoothUuid>& uuids);
 
+	/// @brief 新增uuid到服务的UUID列表
+	/// @param uuid 
+	/// @return 
 	int addServiceClassUuid(TpBluetoothUuid& uuid);
 
-	TpList<TpBluetoothUuid> getServiceClassUuids();
+	/// @brief 获取服务的所有UUID
+	/// @return 
+	TpList<TpBluetoothUuid> getServiceClassUuids()const ;
 
+	/// @brief 
+	/// @param handle 
+	/// @return 
 	int setServiceRecHandle(tpUInt32 handle);
 
+	/// @brief 
+	/// @return 
 	tpUInt32 getServiceRecHandle();
 
+	/// @brief 
+	/// @param attributeId 
+	/// @param value 
 	void setAttribute(uint16_t attributeId, const TpVariant& value);
+
+    /// @brief 
+    /// @param attributeId 
+    /// @param value 
     void setAttribute(uint16_t attributeId, const Sequence& value);
-	const TpVariant& attribute(uint16_t attributeId) const;
-	const std::map<uint16_t, TpVariant>& attributes() const;
 
+	/// @brief 
+	/// @param attributeId 
+	/// @return 
+	const TpVariant& getAttribute(uint16_t attributeId) const;
 
+	/// @brief 
+	/// @return 
+	const std::map<uint16_t, TpVariant>& getAttributes() const;
+
+	/// @brief 
+	/// @return 
 	Sequence getProtocolDescriptorList() const;
 
+	/// @brief 
+	/// @return 
 	Sequence getProfileDescriptorList() const;
 
+	/// @brief 
+	/// @param list 
+	/// @return 
 	int setProtocolDescriptorList(const Sequence& list);
+
+	/// @brief 
+	/// @param list 
+	/// @return 
 	int setProfileDescriptorList(const Sequence& list);
 
 private:
