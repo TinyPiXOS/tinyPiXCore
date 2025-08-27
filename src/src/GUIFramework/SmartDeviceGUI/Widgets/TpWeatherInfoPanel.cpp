@@ -2,6 +2,7 @@
 #include "TpImage.h"
 #include "TpCanvas.h"
 #include "TpFont.h"
+#include "TpLinearGradient.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
@@ -172,21 +173,16 @@ bool TpWeatherInfoPanel::onPaintEvent(TpObjectPaintEvent *event)
             titleTextFontColor = _RGB(255, 255, 255);
             subTextFontColor = _RGB(255, 255, 255);
 
+            // 设置渐变背景
+            TpLinearGradient lineGradient(i * singleWeatherWidth, 0, i * singleWeatherWidth + singleWeatherWidth, height());
+            lineGradient.setColorAt(0, _RGB(107, 80, 246));
+            lineGradient.setColorAt(1, _RGB(204, 143, 237));
+
+            painter->setGradient(&lineGradient);
             painter->roundedBox(i * singleWeatherWidth, 0, i * singleWeatherWidth + singleWeatherWidth, height(), 20, _RGB(204, 143, 237));
-            // painter->roundedBox(i * singleWeatherWidth, 0, i * singleWeatherWidth + singleWeatherWidth, height(), 20, _RGB(107, 80, 246));
-            // <shape xmlns:android="http://schemas.android.com/apk/res/android"
-            //   android:shape="rectangle"
-            // >
-            //   <size
-            //     android:width="0dp"
-            //     android:height="0dp"
-            //   />
-            //   <gradient android:type="linear"
-            //     android:angle="175.65535368820122"
-            //     android:startColor="#ff cc 8f ed"
-            //     android:endColor="#ff 6b 50 f6"
-            //   />
-            // </shape>
+
+            // 重置渐变效果
+            painter->setGradient(nullptr);
         }
 
         TpImage weatherIcon(weatherIconPath(weatherInfo.weatherType));

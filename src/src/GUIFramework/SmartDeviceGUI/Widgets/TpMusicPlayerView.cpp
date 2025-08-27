@@ -16,6 +16,8 @@ struct TpMusicPlayerViewData
     TpButton *previousBtn;
     TpButton *playPauseBtn;
     TpButton *nextBtn;
+
+    bool isPlaying = false;
 };
 
 TpMusicPlayerView::TpMusicPlayerView(TpChildWidget *parent)
@@ -41,17 +43,38 @@ TpMusicPlayerView::TpMusicPlayerView(TpChildWidget *parent)
 
     musicData->previousBtn = new TpButton(this);
     musicData->previousBtn->setButtonStyle(TpButton::IconOnly);
-    musicData->previousBtn->setIcon("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/上一首.png");
+    musicData->previousBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/上一首.png"));
+    musicData->previousBtn->setFixedSize(TpDisplay::dp2Px(19), TpDisplay::dp2Px(19));
+    connect(musicData->previousBtn, onClicked, [=](bool)
+            { onPreviousMusic.emit(); });
 
     musicData->playPauseBtn = new TpButton(this);
     musicData->playPauseBtn->setButtonStyle(TpButton::IconOnly);
-    musicData->playPauseBtn->setIcon("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/播放.png");
+    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/播放.png"));
+    musicData->playPauseBtn->setFixedSize(TpDisplay::dp2Px(19), TpDisplay::dp2Px(19));
+    connect(musicData->playPauseBtn, onClicked, [=](bool)
+            { 
+                if (musicData->isPlaying)
+                {
+                    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/暂停.png"));
+                    onPauseMusic.emit();
+                }
+                else
+                {
+                    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/播放.png"));
+                    onPlayingMusic.emit();
+                } 
+                musicData->isPlaying = !musicData->isPlaying; });
 
     musicData->nextBtn = new TpButton(this);
     musicData->nextBtn->setButtonStyle(TpButton::IconOnly);
-    musicData->nextBtn->setIcon("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/下一首.png");
+    musicData->nextBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/下一首.png"));
+    musicData->nextBtn->setFixedSize(TpDisplay::dp2Px(19), TpDisplay::dp2Px(19));
+    connect(musicData->nextBtn, onClicked, [=](bool)
+            { onNextMusic.emit(); });
 
     setBackGroundColor(_RGB(255, 255, 255));
+    setRoundCorners(20);
 }
 
 TpMusicPlayerView::~TpMusicPlayerView()
@@ -114,7 +137,7 @@ void TpMusicPlayerView::setImage(TpImage image)
 
 bool TpMusicPlayerView::onPaintEvent(TpObjectPaintEvent *event)
 {
-    // TpChildWidget::onPaintEvent(event);
+    TpChildWidget::onPaintEvent(event);
 
     return true;
 }
@@ -140,8 +163,20 @@ bool TpMusicPlayerView::onResizeEvent(TpObjectResizeEvent *event)
     musicData->authorLabel->setRect(nameX, authorY, width() - nameX, musicData->authorLabel->font()->fontSize());
 
     // 当前歌词位置
-    int32_t wordY = musicData->musicImageLabel->pos().y + musicData->musicImageLabel->height();
+    int32_t wordY = musicData->musicImageLabel->pos().y + musicData->musicImageLabel->height() + 10;
     musicData->curWordLabel->setRect(0, wordY, width(), musicData->curWordLabel->font()->fontSize());
+
+    // 操作按钮位置
+    // 播放/暂停按钮在水平中央位置；垂直在歌词下空白位置的中央位置
+    int32_t platBtnX = (width() - musicData->playPauseBtn->width()) / 2.0;
+    int32_t platBtnY = height() - musicData->curWordLabel->pos().y - musicData->curWordLabel->height();
+    platBtnY = (platBtnY - musicData->playPauseBtn->height()) / 2.0;
+    platBtnY = musicData->curWordLabel->pos().y + musicData->curWordLabel->height() + platBtnY;
+
+    musicData->playPauseBtn->move(platBtnX, platBtnY);
+
+    musicData->previousBtn->move(musicData->playPauseBtn->pos().x - musicData->previousBtn->width() - 30, platBtnY);
+    musicData->nextBtn->move(musicData->playPauseBtn->pos().x + musicData->playPauseBtn->width() + 30, platBtnY);
 
     return true;
 }
