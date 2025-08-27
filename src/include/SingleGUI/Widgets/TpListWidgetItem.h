@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 09:54:54
  * @LastEditors: hywang
  * @LastEditTime: 2024-06-17 10:59:49
- * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/widgets/TpListWidgetItem.h
+ * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/Widgets/TpListWidgetItem.h
  * @Description: 
  * @
  * @PiXOS
@@ -14,7 +14,7 @@
  * @Date: 2024-05-31 09:54:54
  * @LastEditors: hywang
  * @LastEditTime: 2024-05-31 10:00:47
- * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/widgets/TpListWidgetItem.h
+ * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/Widgets/TpListWidgetItem.h
  * @Description: ListWidget的单个条目
  * @
  * @PiXOS

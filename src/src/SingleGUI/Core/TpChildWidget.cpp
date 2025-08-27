@@ -10,7 +10,7 @@
 #include "TpCanvas.h"
 #include "TpPoint.h"
 #include "tinyPiXUtils.h"
-#include "core/TpObjectFunction.hpp"
+#include "Core/TpObjectFunction.hpp"
 #include "TpGlobal.h"
 #include "TpDefaultCss.h"
 #include "TpScreen.h"

@@ -25,9 +25,9 @@ include_directories(${SOURCE_PATH}/include/GUIFramework)
 include_directories(${SOURCE_PATH}/include/GUIFramework/exampleGUI)
 include_directories(${SOURCE_PATH}/include/GUIFramework/exampleGUI/widgets)
 include_directories(${SOURCE_PATH}/include/SingleGUI)
-include_directories(${SOURCE_PATH}/include/SingleGUI/core)
-include_directories(${SOURCE_PATH}/include/SingleGUI/screen)
-include_directories(${SOURCE_PATH}/include/SingleGUI/widgets)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Core)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Screen)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Widgets)
 
 # 添加动态库目标
 add_library(exampleGUI SHARED ${SOURCE_FILES})

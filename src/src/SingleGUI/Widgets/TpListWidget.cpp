@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 09:39:18
  * @LastEditors: hywang
  * @LastEditTime: 2024-06-03 15:08:47
- * @FilePath: /pix-singlegui/PixSingleGUI/src/SingleGUI/widgets/TpListWidget.cpp
+ * @FilePath: /pix-singlegui/PixSingleGUI/src/SingleGUI/Widgets/TpListWidget.cpp
  * @Description: listWidget的实现类
  * @
  * @PiXOS

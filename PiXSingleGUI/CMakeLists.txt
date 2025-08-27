@@ -13,66 +13,66 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 
 # 定义源码路径宏
 set(SOURCE_FILES
-    ${SOURCE_PATH}/src/SingleGUI/core/TpObject.cpp
-    ${SOURCE_PATH}/src/SingleGUI/core/TpChildWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/core/TpEvent.cpp
-    ${SOURCE_PATH}/src/SingleGUI/core/TpAutoObject.cpp
-    ${SOURCE_PATH}/src/SingleGUI/core/TpApp.cpp
-    ${SOURCE_PATH}/src/SingleGUI/screen/TpScreen.cpp
-    ${SOURCE_PATH}/src/SingleGUI/screen/TpFixScreen.cpp
-    ${SOURCE_PATH}/src/SingleGUI/screen/TpDialog.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpMenu.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpLabel.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpCheckBox.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpIconTopButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpLayout.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpLayoutItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpSpacerItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpBoxLayout.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpHBoxLayout.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpVBoxLayout.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpGridLayout.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpFlexLayout.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpRadioButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpProgressBar.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpSlider.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpLink.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpScroll.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpScrollBar.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpOnOffButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpScrollPanel.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpLineEdit.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpComBox.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpListWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpListWidgetItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpTreeWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpTreeWidgetItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpTabWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpTabBar.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpBattery.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpCarouselButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpSlideProgressBar.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpPanelSwitchButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpNotificationWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpNotificationItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpLine.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpCollapsibleFileWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpCollapsibleFileItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpMenuPanelWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpMenuPanelItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpMediaTileButton.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpFilePathWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpFilePathWidgetItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpListCheckBoxGroup.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpListCheckBoxGroupItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpMessageBox.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpPercentProgressBar.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpAnimation.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpVirtualKeyboard.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpImageWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/widgets/TpRadioButtonGroup.cpp
-    ${SOURCE_PATH}/src_p/SingleGUI/core/TpObjectStack.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Core/TpObject.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Core/TpChildWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Core/TpEvent.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Core/TpAutoObject.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Core/TpApp.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Screen/TpScreen.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Screen/TpFixScreen.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Screen/TpDialog.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpMenu.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLabel.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpCheckBox.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpIconTopButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLayout.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLayoutItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpSpacerItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpBoxLayout.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpHBoxLayout.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpVBoxLayout.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpGridLayout.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpFlexLayout.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpRadioButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpProgressBar.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpSlider.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLink.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpScroll.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpScrollBar.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpOnOffButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpScrollPanel.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLineEdit.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpComBox.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpListWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpListWidgetItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTreeWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTreeWidgetItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTabWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTabBar.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpBattery.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpCarouselButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpSlideProgressBar.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpPanelSwitchButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpNotificationWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpNotificationItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLine.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpCollapsibleFileWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpCollapsibleFileItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpMenuPanelWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpMenuPanelItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpMediaTileButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpFilePathWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpFilePathWidgetItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpListCheckBoxGroup.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpListCheckBoxGroupItem.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpMessageBox.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpPercentProgressBar.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpAnimation.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpVirtualKeyboard.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpImageWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpRadioButtonGroup.cpp
+    ${SOURCE_PATH}/src_p/SingleGUI/Core/TpObjectStack.cpp
 )
 
 include_directories(/usr/include/cairo)
@@ -81,13 +81,13 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/Utils)
 include_directories(${SOURCE_PATH}/include/ExternUtils)
 include_directories(${SOURCE_PATH}/include/SingleGUI)
-include_directories(${SOURCE_PATH}/include/SingleGUI/core)
-include_directories(${SOURCE_PATH}/include/SingleGUI/screen)
-include_directories(${SOURCE_PATH}/include/SingleGUI/widgets)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Core)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Screen)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Widgets)
 include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/SingleGUI)
-include_directories(${SOURCE_PATH}/include_p/SingleGUI/widgets)
-include_directories(${SOURCE_PATH}/include_p/SingleGUI/core)
+include_directories(${SOURCE_PATH}/include_p/SingleGUI/Widgets)
+include_directories(${SOURCE_PATH}/include_p/SingleGUI/Core)
 include_directories(${SOURCE_PATH}/include_p/Api)
 include_directories(${SOURCE_PATH}/include_p/Utils)
 

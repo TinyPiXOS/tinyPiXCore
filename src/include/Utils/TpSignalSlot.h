@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <tuple>
 #include "TpGlobal.h"
-#include "SingleGUI/core/TpApp.h"
+#include "SingleGUI/Core/TpApp.h"
 
 #ifndef signals
 #define signals

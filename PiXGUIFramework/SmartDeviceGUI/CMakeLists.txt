@@ -16,6 +16,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpCircularProgressBar.cpp
     ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpMusicPlayerView.cpp
     ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpWeatherInfoPanel.cpp
+    ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpButton.cpp
 )
 
 include_directories(/usr/include/cairo)
@@ -27,9 +28,9 @@ include_directories(${SOURCE_PATH}/include/GUIFramework)
 include_directories(${SOURCE_PATH}/include/GUIFramework/SmartDeviceGUI)
 include_directories(${SOURCE_PATH}/include/GUIFramework/SmartDeviceGUI/Widgets)
 include_directories(${SOURCE_PATH}/include/SingleGUI)
-include_directories(${SOURCE_PATH}/include/SingleGUI/core)
-include_directories(${SOURCE_PATH}/include/SingleGUI/screen)
-include_directories(${SOURCE_PATH}/include/SingleGUI/widgets)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Core)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Screen)
+include_directories(${SOURCE_PATH}/include/SingleGUI/Widgets)
 
 # 添加动态库目标
 add_library(PiXSmartDeviceGUI SHARED ${SOURCE_FILES})

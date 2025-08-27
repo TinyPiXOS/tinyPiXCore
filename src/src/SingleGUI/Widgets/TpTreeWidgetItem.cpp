@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 10:32:51
  * @LastEditors: hywang
  * @LastEditTime: 2024-06-15 14:48:26
- * @FilePath: /pix-singlegui/PixSingleGUI/src/SingleGUI/widgets/TpTreeWidgetItem.cpp
+ * @FilePath: /pix-singlegui/PixSingleGUI/src/SingleGUI/Widgets/TpTreeWidgetItem.cpp
  * @Description:
  * @
  * @PiXOS

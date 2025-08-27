@@ -15,7 +15,7 @@
 #include <TpHash.h>
 #include <TpString.h>
 #include <TpVariant.h>
-#include "core/TpObjectFunction.hpp"
+#include "Core/TpObjectFunction.hpp"
 
 #include <cstring>
 #include <mutex>
