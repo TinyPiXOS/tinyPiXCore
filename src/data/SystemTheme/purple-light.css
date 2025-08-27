@@ -1,17 +1,17 @@
 @charset "UTF-8";
 
-tpButton {
+TpButton {
   gap: 5dp;
   font-size: 15dp;
   color: rgb(38, 38, 38);
   background-color: rgb(255, 255, 255);
 }
 
-tpButton:hover {
+TpButton:hover {
   background-color: rgb(239, 239, 239);
 }
 
-tpButton[type="ControlPanelPowerButton"] {
+TpButton[type="ControlPanelPowerButton"] {
   height: 64dp;
   width: 305dp;
   font-size: 18dp;
@@ -20,44 +20,44 @@ tpButton[type="ControlPanelPowerButton"] {
   border-radius: 32;
 }
 
-tpButton[type="ControlPanelPowerButton"]:hover {
+TpButton[type="ControlPanelPowerButton"]:hover {
   background-color: rgb(239, 239, 239);
 }
 
-tpButton[type="VirtualKeyboardButton"] {
+TpButton[type="VirtualKeyboardButton"] {
   font-size: 16dp;
   color: rgb(38, 38, 38);
   background-color: rgb(255, 255, 255);
   border-radius: 13;
 }
 
-tpButton[type="VirtualKeyboardButton"]:active {
+TpButton[type="VirtualKeyboardButton"]:active {
   background-color: rgb(208, 215, 221);
 }
 
-tpButton[type="VirtualKeyboardButton"]:checked {
+TpButton[type="VirtualKeyboardButton"]:checked {
   background-color: rgb(208, 215, 221);
 }
 
-tpButton[type="VirtualKeyboardApplyButton"] {
+TpButton[type="VirtualKeyboardApplyButton"] {
   font-size: 13dp;
   color: rgb(255, 255, 255);
   background-color: rgb(20, 71, 255);
   border-radius: 13;
 }
 
-tpButton[type="VirtualKeyboardApplyButton"]:active {
+TpButton[type="VirtualKeyboardApplyButton"]:active {
   background-color: rgb(100, 135, 255);
 }
 
-tpButton[type="ControlPanelPowerCloseButton"] {
+TpButton[type="ControlPanelPowerCloseButton"] {
   height: 60dp;
   width: 60dp;
   background-color: rgb(255, 255, 255);
   border-radius: 32;
 }
 
-tpButton[type="FunctionButton"] {
+TpButton[type="FunctionButton"] {
   min-height: 56;
   min-width: 211;
   height: 56;
@@ -68,32 +68,33 @@ tpButton[type="FunctionButton"] {
   border-radius: 28;
 }
 
-tpButton[type="FunctionButton"]:hover {
+TpButton[type="FunctionButton"]:hover {
   background-color: rgb(224, 197, 250);
 }
 
-tpSlideProgressBar {
+TpSlideProgressBar {
   height: 64dp;
   width: 305dp;
   icon-size: 33dp;
-  background: rgba(0, 0, 0, 0.3);
+  /* background: rgba(0, 0, 0, 0.3); */
+  background: rgba(60, 60, 67, 0.3);
   color: rgba(255, 255, 255, 1);
   border-radius: 16;
 }
 
-tpLabel[type=controlPanelDateTimeLabel] {
+TpLabel[type=controlPanelDateTimeLabel] {
   color: rgb(255, 255, 255);
   font-size: 25dp;
   height: 53;
 }
 
-tpLabel[type=notifyLabel] {
+TpLabel[type=notifyLabel] {
   color: rgb(255, 255, 255);
   font-size: 18dp;
   height: 35;
 }
 
-tpPanelSwitchButton {
+TpPanelSwitchButton {
   color: rgb(255, 255, 255);
   height: 153dp;
   width: 153dp;
@@ -107,11 +108,11 @@ tpPanelSwitchButton {
   border-radius: 29;
 }
 
-tpPanelSwitchButton:checked {
+TpPanelSwitchButton:checked {
   background-color: rgb(140, 29, 235);
 }
 
-tpNotificationItem {
+TpNotificationItem {
   width: 508dp;
   height: 103dp;
   padding: 19dp;
@@ -120,7 +121,7 @@ tpNotificationItem {
   sub-color: rgb(89, 89, 89);
 }
 
-tpTabBar {
+TpTabBar {
   height: 80dp;
   padding-top: 16dp;
   padding-bottom: 16dp;
@@ -130,17 +131,17 @@ tpTabBar {
   font-size: 12;
 }
 
-tpTabBar:checked {
+TpTabBar:checked {
   color: rgb(162, 53, 255);
 }
 
-tpIconTopButton {
+TpIconTopButton {
   icon-size: 80dp;
   font-size: 12dp;
   color: rgb(255, 255, 255);
 }
 
-tpLineEdit {
+TpLineEdit {
   gap: 10dp;
   font-size: 13;
   padding-top: 5dp;
@@ -151,7 +152,7 @@ tpLineEdit {
   color: rgb(38, 38, 38);
 }
 
-tpLineEdit[type="fileManageEdit"] {
+TpLineEdit[type="fileManageEdit"] {
   gap: 10dp;
   font-size: 13;
   padding-top: 16dp;
@@ -165,7 +166,7 @@ tpLineEdit[type="fileManageEdit"] {
   color: rgb(38, 38, 38);
 }
 
-tpCollapsibleFileWidget {
+TpCollapsibleFileWidget {
   min-height: 60;
   height: 60;
   /* max-height: 60dp; */
@@ -179,7 +180,7 @@ tpCollapsibleFileWidget {
   background-color: rgb(255, 255, 255);
 }
 
-tpCollapsibleFileItem {
+TpCollapsibleFileItem {
   color: rgb(38, 38, 38);
   font-size: 9dp;
   icon-size: 75dp;
@@ -188,7 +189,7 @@ tpCollapsibleFileItem {
   min-height: 130;
 }
 
-tpMediaTileButton {
+TpMediaTileButton {
   icon-size: 34dp;
   min-width: 88dp;
   min-height: 88dp;
@@ -201,16 +202,16 @@ tpMediaTileButton {
   border-radius: 20; 
 }
 
-tpMediaTileButton:checked {
+TpMediaTileButton:checked {
   background-color: rgb(243, 230, 255);
 }
 
-tpMenuPanelWidget{
+TpMenuPanelWidget{
   background-color: rgb(255, 255, 255);
   border-radius: 20;
 }
 
-tpMenuPanelItem {
+TpMenuPanelItem {
   min-height: 65dp;
   max-height: 65dp;
   border-radius: 20;
@@ -225,17 +226,17 @@ tpMenuPanelItem {
   icon-size: 35dp;
 }
 
-tpMenuPanelItem:checked {
+TpMenuPanelItem:checked {
   background-color: rgb(247, 237, 255);
 }
 
-tpFilePathWidget {
+TpFilePathWidget {
   min-height: 31dp;
   background-color: rgb(255, 255, 255);
   gap: 5dp;
 }
 
-tpFilePathWidgetItem {
+TpFilePathWidgetItem {
   font-size: 12dp;
   background-color: rgb(241, 241, 241);
   color: rgb(140, 140, 140);
@@ -247,12 +248,12 @@ tpFilePathWidgetItem {
   min-width: 20;
 }
 
-tpFilePathWidgetItem:checked {
+TpFilePathWidgetItem:checked {
   background-color: rgb(243, 230, 255);
   color: rgb(140, 29, 235);
 }
 
-tpMenu {
+TpMenu {
   background-color: rgb(255, 255, 255);
   color: rgb(38, 38, 38);
   font-size: 13;
@@ -264,7 +265,7 @@ tpMenu {
   gap: 8;
 }
 
-tpComBox {
+TpComBox {
   width: 399;
   min-width: 120;
   min-height: 65;
@@ -278,7 +279,7 @@ tpComBox {
   gap: 8;
 }
 
-tpListCheckBoxGroup {
+TpListCheckBoxGroup {
   width: 399;
   /* min-width: 120; */
   border-radius: 20;
@@ -288,7 +289,7 @@ tpListCheckBoxGroup {
   padding-right: 20;
 }
 
-tpListCheckBoxGroupItem {
+TpListCheckBoxGroupItem {
   min-height: 65;
   height: 65;
   background-color: rgb(255, 255, 255);
@@ -297,11 +298,11 @@ tpListCheckBoxGroupItem {
   border-radius: 20;
 }
 
-tpListCheckBoxGroupItem:checked {
+TpListCheckBoxGroupItem:checked {
   color: rgb(140, 29, 235);
 }
 
-tpPercentProgressBar {
+TpPercentProgressBar {
   min-height: 60;
   min-width: 60;
   border-radius: 20;
@@ -312,7 +313,7 @@ tpPercentProgressBar {
   gap: 18;
 }
 
-tpCheckBox {
+TpCheckBox {
   min-height: 25;
   min-width: 25;
   /* max-height: 25; */
@@ -327,12 +328,12 @@ tpCheckBox {
   gap: 15;
 }
 
-tpCheckBox:checked {
+TpCheckBox:checked {
   border-color: rgb(140, 29, 235);
   background-color: rgb(140, 29, 235);
 }
 
-tpSlider {
+TpSlider {
   min-height: 32;
   min-width: 32;
   border-radius: 5;
@@ -340,7 +341,7 @@ tpSlider {
   sub-color: rgb(140, 29, 235);
 }
 
-tpRadioButton {
+TpRadioButton {
   color: rgb(38, 38, 38);
   border-color: rgb(38, 38, 38);
   background-color: rgb(38, 38, 38);

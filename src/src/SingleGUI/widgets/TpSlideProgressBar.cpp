@@ -205,7 +205,7 @@ bool TpSlideProgressBar::onPaintEvent(TpObjectPaintEvent *event)
         minRad *= (height() - 4 - 2);
 
         // paintCanvas->roundedBox(2, 2,  valueWidth - 4, height() - 4, minRad, curCssData->color());
-        paintCanvas->roundedBox(2, 2, 2 + valueWidth, height() - 4, minRad, curCssData->color());
+        paintCanvas->roundedBox(2, 2, 2 + valueWidth, height() - 2, minRad, curCssData->color());
     }
 
     // 绘制图标
