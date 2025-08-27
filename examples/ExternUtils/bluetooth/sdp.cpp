@@ -410,6 +410,7 @@ int example_service_scan(TpApp& app,bool signal)
 {
 
 	TpBluetoothServiceDiscovery scan(TpBluetoothAddress("00:11:22:33:44:55"));
+	scan.setRemoteAddress(TpBluetoothAddress(TpString("E4:5F:01:37:58:93")));
 	scan.discoveryServices();
 	if(signal)
 	{

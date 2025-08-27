@@ -267,14 +267,11 @@ TpBluetoothServiceDiscovery::~TpBluetoothServiceDiscovery()
 }
 
 
-
-
 void TpBluetoothServiceDiscovery::discoveryOnce()
 {
 	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
 
-	const char bt_addr[18]="E4:5F:01:37:58:93";//data->addr.toString().c_str()
-	scan_device_services(bt_addr,callback_service_discovery,&data->list);
+	scan_device_services(data->addr.toString().c_str(),callback_service_discovery,&data->list);
 
 	data->is_discovering=TP_FALSE;
 	finished.emit(data->list);
@@ -284,6 +281,12 @@ void TpBluetoothServiceDiscovery::discoveryOnce()
 int TpBluetoothServiceDiscovery::discoveryServices()
 {
 	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+
+	if(data->addr.isNull())
+	{
+		fprintf(stderr,"[Error]: 未设置目标地址\n");
+		return -1;
+	}
 
 	data->is_discovering=TP_TRUE;
 	data->thread_t=std::thread(&TpBluetoothServiceDiscovery::discoveryOnce, this);
