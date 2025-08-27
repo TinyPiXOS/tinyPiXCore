@@ -159,6 +159,16 @@ void VariantValueClear(TpVariant::VariantValue &value)
                 value.data.m_vectorVal = nullptr;
             }
     	}
+		else if (value.m_vt == static_cast<uint16_t>(TpVariant::VariantType::tpCustom) && value.data.custom.ptr) 
+		{
+			// 使用存储的析构函数
+			if (value.data.custom.ptr && value.data.custom.destroy) {
+				value.data.custom.destroy(value.data.custom.ptr);
+			}
+			value.data.custom.ptr = nullptr;
+			value.data.custom.destroy = nullptr;
+			value.data.custom.clone = nullptr;
+		}
     }
 
     memset(&value, 0, sizeof(value));
@@ -254,6 +264,13 @@ void VariantValueCopy(TpVariant::VariantValue &toValue, const TpVariant::Variant
                 toValue.data.m_vectorVal = nullptr;
             }
         }
+		else if (from.m_vt == static_cast<uint16_t>(TpVariant::VariantType::tpCustom) && from.data.custom.ptr && from.data.custom.clone) 
+		{
+			toValue.m_vt = from.m_vt;
+			toValue.data.custom.ptr = from.data.custom.clone(from.data.custom.ptr);
+			toValue.data.custom.destroy = from.data.custom.destroy;
+			toValue.data.custom.clone = from.data.custom.clone;
+		}
         else
         {
             memcpy(&toValue, &from, sizeof(from));

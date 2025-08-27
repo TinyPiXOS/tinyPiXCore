@@ -132,6 +132,7 @@ public:
 	TpBluetoothService& operator=(TpBluetoothService&& other) noexcept;
 	//移动构造
 	TpBluetoothService(TpBluetoothService&& other) noexcept;
+	//拷贝构造
 	TpBluetoothService(const TpBluetoothService &other);
 
 	~TpBluetoothService();

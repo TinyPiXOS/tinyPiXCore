@@ -65,7 +65,11 @@ public:
             void *m_pSetVal;
 			
 			std::vector<TpVariant>* m_vectorVal; // 向量指针
-			void* m_customVal;
+			struct CustomData {
+            	void* ptr;					//数据
+            	void (*destroy)(void*);		//释放操作
+				void* (*clone)(const void*); //拷贝操作
+        	} custom;	//自定义类型数据保存
 
             InnerUnion() {}
         } data;
@@ -124,13 +128,19 @@ public:
     TpVariant(const TpVariant &other);
 	TpVariant(std::vector<TpVariant>* vectorVal);
 
+	// 模板构造函数
 	template <typename T>
-    TpVariant(const T& value) {
-        // 分配内存存储自定义类型
-        T* copy = new T(value);
-        data_.m_vt = static_cast<uint16_t>(VariantType::tpCustom);
-        data_.data.m_customVal = copy;
-    }
+	TpVariant(const T& value) {
+		clear();
+		data_.m_vt = static_cast<uint16_t>(VariantType::tpCustom);
+		data_.data.custom.ptr = new T(value);
+		data_.data.custom.destroy = [](void* p) {
+			delete static_cast<T*>(p);
+		};
+		data_.data.custom.clone = [](const void* p) -> void* {
+			return new T(*static_cast<const T*>(p));
+		};
+	}
 
 	~TpVariant();
 public:
@@ -181,19 +191,27 @@ public:
     TpVariant &operator=(const TpVariant &other);
 	//自定义类型
 	template <typename T>
-    TpVariant& operator=(const T& value) {
-        // 清理现有值
-        if (data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && 
-            data_.data.m_customVal != nullptr) {
-            delete static_cast<T*>(data_.data.m_customVal);
-        }
-        
-        // 分配新值
-        T* copy = new T(value);
-        data_.m_vt = static_cast<uint16_t>(VariantType::tpCustom);
-        data_.data.m_customVal = copy;
-        return *this;
-    }
+	TpVariant& operator=(const T& value) {
+		// 清理现有值
+		if (data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && 
+			data_.data.custom.ptr != nullptr) {
+			// 使用存储的析构函数清理自定义类型
+			if (data_.data.custom.destroy) {
+				data_.data.custom.destroy(data_.data.custom.ptr);
+			}
+		}
+		
+		// 分配新值
+		data_.m_vt = static_cast<uint16_t>(VariantType::tpCustom);
+		data_.data.custom.ptr = new T(value);
+		data_.data.custom.destroy = [](void* p) {
+			delete static_cast<T*>(p);
+		};
+		data_.data.custom.clone = [](const void* p) -> void* {
+			return new T(*static_cast<const T*>(p));
+		};
+		return *this;
+	}
 
     // bool operator==(const VariantValue &value);
     bool operator==(const TpVariant &value);
@@ -323,13 +341,12 @@ public:
 	
 	// 自定义类型检查
     template <typename T>
-    bool isCustom() const {return data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && data_.data.m_customVal != nullptr;}
-    
+    bool isCustom() const {return data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && data_.data.custom.ptr != nullptr;}
     // 获取自定义类型值
     template <typename T>
     T toCustom() const {
         if (isCustom<T>()) {
-            return *static_cast<T*>(data_.data.m_customVal);
+            return *static_cast<T*>(data_.data.custom.ptr);
         }
         throw std::bad_cast();
     }
@@ -506,7 +523,7 @@ public:
 
 private:
     bool Compare(const VariantValue &value);
-
+	void clear();
 private:
     VariantValue data_;
 };
