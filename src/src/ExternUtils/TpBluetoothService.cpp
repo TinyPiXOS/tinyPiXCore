@@ -56,9 +56,13 @@ TpBluetoothService& TpBluetoothService::operator=(const TpBluetoothService& othe
         delete static_cast<TpBluetoothServiceData*>(data_);
         
         // 深拷贝数据
-        data_ = new TpBluetoothServiceData();
-        const TpBluetoothServiceData* otherData = static_cast<const TpBluetoothServiceData*>(other.data_);
-        *static_cast<TpBluetoothServiceData*>(data_) = *otherData;
+        if (other.data_ != nullptr) {
+            data_ = new TpBluetoothServiceData();
+            const TpBluetoothServiceData* otherData = static_cast<const TpBluetoothServiceData*>(other.data_);
+            *static_cast<TpBluetoothServiceData*>(data_) = *otherData;
+        } else {
+            data_ = nullptr;
+        }
     }
     return *this;
 }
@@ -68,6 +72,20 @@ TpBluetoothService::TpBluetoothService(TpBluetoothService&& other) noexcept
     : data_(other.data_)
 {
     other.data_ = nullptr;
+}
+
+//拷贝构造
+TpBluetoothService::TpBluetoothService(const TpBluetoothService &other)
+{
+    if (other.data_ == nullptr) {
+        data_ = nullptr;
+    } 
+	else {
+        // 深拷贝数据
+        const TpBluetoothServiceData* otherData = static_cast<const TpBluetoothServiceData*>(other.data_);
+        data_ = new TpBluetoothServiceData();
+        *static_cast<TpBluetoothServiceData*>(data_) = *otherData;
+    }
 }
 
 // 移动赋值运算符
@@ -87,6 +105,7 @@ TpBluetoothService::~TpBluetoothService()
 	if(!data)
 		return ;
 //	unregisterService();
+	data->class_uuids.clear();
 	delete(data);
 }
 
@@ -241,7 +260,7 @@ tpBool TpBluetoothService::unregisterService()
 int TpBluetoothService::setServiceClassUuids(TpList<TpBluetoothUuid>& uuids)
 {
 	TpBluetoothServiceData *data = static_cast<TpBluetoothServiceData *>(data_);
-	data->class_uuids.empty();
+	data->class_uuids.clear();
 	for(auto &it : uuids)
 	{
 		data->class_uuids.emplace_back(it);
@@ -277,7 +296,7 @@ int TpBluetoothService::setServiceRecHandle(tpUInt32 handle)
 	return 0;
 }
 
-tpUInt32 TpBluetoothService::getServiceRecHandle()
+tpUInt32 TpBluetoothService::getServiceRecHandle() const
 {
 	TpBluetoothServiceData *data = static_cast<TpBluetoothServiceData *>(data_);
 	return data->rec_handle;
@@ -300,7 +319,9 @@ const TpVariant& TpBluetoothService::getAttribute(uint16_t attributeId) const {
 	TpBluetoothServiceData *data = static_cast<TpBluetoothServiceData *>(data_);
     auto it = data->m_attributes.find(attributeId);
     if (it == data->m_attributes.end()) {
-        throw std::out_of_range("Attribute not found");
+        //throw std::out_of_range("Attribute not found");
+		static const TpVariant defaultVariant;
+        return defaultVariant;
     }
     return it->second;
 }

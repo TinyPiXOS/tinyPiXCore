@@ -220,7 +220,7 @@ public:
 
 	/// @brief 
 	/// @return 
-	tpUInt32 getServiceRecHandle();
+	tpUInt32 getServiceRecHandle() const;
 
 	/// @brief 
 	/// @param attributeId 
