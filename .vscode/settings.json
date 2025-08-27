@@ -71,6 +71,7 @@
         "manager.h": "c",
         "agent_manager.h": "c",
         "obex_client.h": "c",
-        "tpgradient_p": "c"
+        "tpgradient_p": "c",
+        "types.h": "c"
     }
 }

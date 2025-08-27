@@ -5,6 +5,8 @@
 #include "TpDef.h"
 #include "thorVG/thorvg.h"
 #include "TpImage_p.h"
+#include "TpGradient_p.h"
+#include "TpLinearGradient.h"
 
 #include <thread>
 #include <cmath>
@@ -17,6 +19,9 @@ struct TpCanvasData
     tpShared<TpSurface> TpSurfacePtr;
     int32_t offsetX, offsetY;
     bool beUsed;
+
+    // 渐变属性；如果有渐变属性则填充图形接口给入的颜色不再生效
+    TpGradient *gradientProperty = nullptr;
 
     // CPU绘制引擎
     tvg::SwCanvas *swCanvas = nullptr;
@@ -47,6 +52,57 @@ static inline void refreshCanvasTarget(TpCanvasData *set)
     int32_t surfaceWidth = set->TpSurfacePtr->width();
     int32_t surfaceHeight = set->TpSurfacePtr->height();
     set->swCanvas->target((uint32_t *)set->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+}
+
+// 解析渐变信息；无渐变则返回空指针
+static inline tvg::Fill *parseGradientPtr(TpCanvasData *set)
+{
+    if (!set->gradientProperty)
+        return nullptr;
+
+    TpList<std::pair<float, int32_t>> colorList = set->gradientProperty->getColors();
+    if (colorList.size() == 0)
+        return nullptr;
+
+    tvg::Fill *resGradientPtr = nullptr;
+
+    TpGradient::GradientType gradientType = set->gradientProperty->gradientType();
+    if (gradientType == TpGradient::LinearGradient)
+    {
+        // 创建线性渐变
+        TpLinearGradient *linearGrad = dynamic_cast<TpLinearGradient *>(set->gradientProperty);
+        if (!linearGrad)
+            return nullptr;
+
+        ItpPointF startPoint = linearGrad->start();
+        ItpPointF stopPoint = linearGrad->finalStop();
+
+        tvg::LinearGradient *linearGradient = tvg::LinearGradient::gen();
+        linearGradient->linear(set->offsetX + startPoint.x, set->offsetY + startPoint.y, set->offsetX + stopPoint.x, set->offsetY + stopPoint.y);
+
+        tvg::Fill::ColorStop colorStops[colorList.size()];
+        for (int i = 0; i < colorList.size(); ++i)
+        {
+            const auto &colorIter = colorList[i];
+            // 颜色 (offset, r, g, b, a)
+            colorStops[i].offset = colorIter.first;
+            colorStops[i].r = _R(colorIter.second);
+            colorStops[i].g = _G(colorIter.second);
+            colorStops[i].b = _B(colorIter.second);
+            colorStops[i].a = _A(colorIter.second);
+        };
+        linearGradient->colorStops(colorStops, colorList.size());
+
+        resGradientPtr = linearGradient;
+    }
+    else if (gradientType == TpGradient::RadialGradient)
+    {
+    }
+    else
+    {
+    }
+
+    return resGradientPtr;
 }
 
 TpCanvas::TpCanvas(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
@@ -216,6 +272,12 @@ void TpCanvas::erase()
     }
 }
 
+void TpCanvas::setGradient(TpGradient *gradient)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+    set->gradientProperty = gradient;
+}
+
 static inline void drawPixel(TpCanvasData *set, int32_t x, int32_t y, int32_t color)
 {
     if (!set->swCanvas)
@@ -225,7 +287,13 @@ static inline void drawPixel(TpCanvasData *set, int32_t x, int32_t y, int32_t co
 
     auto pixel = tvg::Shape::gen();
     pixel->appendCircle(x, y, 0.5, 0.5); // 半径 0.5 的圆形
-    pixel->fill(_R(color), _G(color), _B(color), _A(color));
+
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
+    if (gradientPtr)
+        pixel->fill(gradientPtr);
+    else
+        pixel->fill(_R(color), _G(color), _B(color), _A(color));
 
     set->tvgScene->push(std::move(pixel));
     // set->swCanvas->push(std::move(pixel));
@@ -261,7 +329,14 @@ static inline void drawLine(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
 
     // 设置描边属性
     line->strokeWidth(width); // 线宽
-    line->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
+    if (gradientPtr)
+        line->strokeFill(gradientPtr);
+    else
+        line->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
     line->strokeCap(tvg::StrokeCap::Round);   // 圆角线头
     line->strokeJoin(tvg::StrokeJoin::Round); // 圆角连接
 
@@ -330,13 +405,22 @@ static inline void drawRectangle(TpCanvasData *set, int32_t x1, int32_t y1, int3
     auto rect = tvg::Shape::gen();
     rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
 
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
     if (isFill)
     {
-        rect->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
+        if (gradientPtr)
+            rect->fill(gradientPtr);
+        else
+            rect->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
     }
     else
     {
-        rect->strokeFill(_R(color), _G(color), _B(color), _A(color));
+        if (gradientPtr)
+            rect->strokeFill(gradientPtr);
+        else
+            rect->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
         rect->strokeWidth(width);
     }
 
@@ -428,13 +512,22 @@ static inline void drawEllipse(TpCanvasData *set, const int32_t &x, const int32_
     auto circle = tvg::Shape::gen();
     circle->appendCircle(x, y, rx, ry);
 
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
     if (isFill)
     {
-        circle->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
+        if (gradientPtr)
+            circle->fill(gradientPtr);
+        else
+            circle->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
     }
     else
     {
-        circle->strokeFill(_R(color), _G(color), _B(color), _A(color));
+        if (gradientPtr)
+            circle->strokeFill(gradientPtr);
+        else
+            circle->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
         circle->strokeWidth(width);
     }
 
@@ -669,6 +762,8 @@ static inline void drawArc(TpCanvasData *set, const int32_t &x, const int32_t &y
     appendArcToPath(arc, startX, startY, endX, endY, rad, rad, 0.0f,
                     fabsf(angleDiff) > M_PI, true);
 
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
     if (isPie)
     {
         // 封口
@@ -677,17 +772,28 @@ static inline void drawArc(TpCanvasData *set, const int32_t &x, const int32_t &y
 
         if (isFill)
         {
-            arc->fill(_R(color), _G(color), _B(color), _A(color));
+            if (gradientPtr)
+                arc->fill(gradientPtr);
+            else
+                arc->fill(_R(color), _G(color), _B(color), _A(color));
         }
         else
         {
-            arc->strokeFill(_R(color), _G(color), _B(color), _A(color));
+            if (gradientPtr)
+                arc->strokeFill(gradientPtr);
+            else
+                arc->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
             arc->strokeWidth(width);
         }
     }
     else
     {
-        arc->strokeFill(_R(color), _G(color), _B(color), _A(color));
+        if (gradientPtr)
+            arc->strokeFill(gradientPtr);
+        else
+            arc->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
         arc->strokeWidth(width);
 
         if (isRound)
@@ -782,13 +888,22 @@ static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &poin
         // 闭合路径回到起点
         polygon->close();
 
+        tvg::Fill *gradientPtr = parseGradientPtr(set);
+
         if (isFill)
         {
-            polygon->fill(_R(color), _G(color), _B(color), _A(color));
+            if (gradientPtr)
+                polygon->fill(gradientPtr);
+            else
+                polygon->fill(_R(color), _G(color), _B(color), _A(color));
         }
         else
         {
-            polygon->strokeFill(_R(color), _G(color), _B(color), _A(color));
+            if (gradientPtr)
+                polygon->strokeFill(gradientPtr);
+            else
+                polygon->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
             polygon->strokeWidth(width);
         }
 
@@ -830,7 +945,12 @@ static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x
     // 创建底纹矩形
     tvg::Shape *rect = tvg::Shape::gen();
     rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
-    rect->fill(_R(color), _G(color), _B(color), _A(color));
+
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+    if (gradientPtr)
+        rect->fill(gradientPtr);
+    else
+        rect->fill(_R(color), _G(color), _B(color), _A(color));
 
     // 矩形镂空
     auto clipper = tvg::Shape::gen();

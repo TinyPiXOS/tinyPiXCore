@@ -2,16 +2,30 @@
 #define __TP_GRADIENT_H
 
 #include "TpUtils.h"
-#include "TpString.h"
 #include "TpColors.h"
+#include "TpList.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpGradientData);
 /// @brief 渐变处理工具类
 class TpGradient
 {
 public:
+    enum GradientType
+    {
+        /// @brief 线性渐变
+        LinearGradient,
+        /// @brief 径向渐变
+        RadialGradient
+    };
+
+public:
     TpGradient();
     virtual ~TpGradient();
+
+public:
+    /// @brief 获取当前渐变类型
+    /// @return 渐变类型枚举
+    GradientType gradientType();
 
 public:
     /// @brief 在给定位置使用给定颜色创建一个停止点。给定位置必须在0到1的范围内。
@@ -21,9 +35,16 @@ public:
     /// @brief 在给定位置使用给定颜色创建一个停止点。给定位置必须在0到1的范围内。
     /// @param position 给定位置；取值范围[0, 1]
     /// @param color 颜色对象
-    void setColorAt(float position, const TpColors& color);
+    void setColorAt(float position, const TpColors &color);
 
-private:
+    /// @brief 获取所有颜色停止点
+    /// @return 包含所有位置和颜色对的向量，按位置排序
+    TpList<std::pair<float, int32_t>> getColors() const;
+
+public:
+    const TpGradient &operator=(const TpGradient &others);
+
+protected:
     ITpGradientData *data_;
 };
 

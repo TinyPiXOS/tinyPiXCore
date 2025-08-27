@@ -6,6 +6,7 @@
 #include "TpVector.h"
 #include "TpGlobal.h"
 #include "TpImage.h"
+#include "TpGradient.h"
 
 class TpCanvas;
 class TpSurface;
@@ -36,6 +37,8 @@ public:
     virtual tpShared<TpSurface> surface();
 
 public:
+    /// @brief 设置裁剪矩形；只显示裁剪区域内容
+    /// @param rect 裁剪矩形
     virtual void setClipRect(const ItpRect &rect);
 
 public:
@@ -44,6 +47,10 @@ public:
 
 public:
     /**color all are RRGGBBAA**/
+
+    /// @brief 设置填充渐变；设置后绘制的所有形状颜色均为渐变色;绘制接口给入的颜色将失效
+    /// @param gradient 渐变属性类；取消渐变则传入nullptr
+    virtual void setGradient(TpGradient* gradient);
 
     /// @brief 绘制一个像素点
     /// @param x x坐标
