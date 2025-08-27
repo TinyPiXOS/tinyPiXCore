@@ -12,27 +12,32 @@ struct TpGradientData
     TpList<std::pair<float, int32_t>> colorInfo;
 
     // 线性渐变属性对象
-    // tvg::LinearGradient *linearGradient = nullptr;
     ItpPointF lineStartPos;
     ItpPointF lineStopPos;
 
     // 径向渐变属性对象
+    ItpPointF center;
+    float centerRadius;
+    ItpPointF focalPoint;
+    float focalRadius;
 
-    ~TpGradientData()
+    virtual ~TpGradientData()
     {
-        // if (linearGradient)
-        // {
-        //     delete linearGradient;
-        //     linearGradient = nullptr;
-        // }
     }
 
     const TpGradientData &operator=(const TpGradientData &others)
     {
         type = others.type;
         colorInfo = others.colorInfo;
+
         lineStartPos = others.lineStartPos;
         lineStopPos = others.lineStopPos;
+
+        center = others.center;
+        centerRadius = others.centerRadius;
+        focalPoint = others.focalPoint;
+        focalRadius = others.focalRadius;
+
         return *this;
     }
 };

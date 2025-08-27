@@ -10,12 +10,13 @@
 #include "TpDialog.h"
 #include "TpFont.h"
 #include "TpLinearGradient.h"
+#include "TpRadialGradient.h"
 
-// class ThorVgPaintWidget : public TpChildWidget
-class ThorVgPaintWidget : public TpDialog
+class ThorVgPaintWidget : public TpChildWidget
+// class ThorVgPaintWidget : public TpDialog
 {
 public:
-    ThorVgPaintWidget(TpChildWidget *parent) //: TpDialog(parent)
+    ThorVgPaintWidget(TpChildWidget *parent) : TpChildWidget(parent)
     {
         setBackGroundColor(_RGB(100, 100, 100));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
@@ -66,7 +67,7 @@ public:
 
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override
     {
-        TpDialog::onMouseRleaseEvent(event);
+        TpChildWidget::onMouseRleaseEvent(event);
         return true;
     }
 
@@ -75,7 +76,7 @@ public:
         // static uint64_t paintCount = 0;
         // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
 
-        TpDialog::onPaintEvent(event);
+        TpChildWidget::onPaintEvent(event);
 
         TpCanvas *painter = event->canvas();
         // painter->paintTest();
@@ -85,11 +86,17 @@ public:
         // testFont.setFontSize(30);
         // painter->renderText(testFont, 10, 10, "你好tinyPiXOS");
 
-        TpLinearGradient lineGradient(0, 0, 290, 90);
-        lineGradient.setColorAt(0, _RGB(204, 143, 237));
-        lineGradient.setColorAt(1,  _RGB(107, 80, 246));
+        // TpLinearGradient lineGradient(0, 0, 290, 90);
+        // lineGradient.setColorAt(0, _RGB(204, 143, 237));
+        // lineGradient.setColorAt(1, _RGB(107, 80, 246));
 
-        painter->setGradient(&lineGradient);
+        TpRadialGradient radialGradient(220, 220, 220);
+        radialGradient.setColorAt(0, _RGB(204, 143, 237));
+        radialGradient.setColorAt(1, _RGB(107, 80, 246));
+
+        painter->setGradient(&radialGradient);
+
+        painter->roundedBox(10, 10, 450, 450, 50, _RGB(0, 0, 0));
 
         // static int32_t width = 100;
         // painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));
@@ -100,23 +107,23 @@ public:
 
         // painter->hline(10, 490, 10, _RGB(255, 0, 0));
         // painter->vline(490, 10, 490, _RGB(0, 255, 0), 3);
-        painter->line(10, 10, 490, 490, _RGB(0, 0, 255), 4);
+        // painter->line(10, 10, 490, 490, _RGB(0, 0, 255), 4);
 
-        painter->roundedBox(10, 10, 100, 100, 50, _RGB(150, 200, 168));
+        // painter->roundedBox(10, 10, 100, 100, 50, _RGB(150, 200, 168));
 
         // for (int i = 0; i < 100; ++i)
         // {
         //     painter->pixel(150 + i, 150, _RGB(0, 255, 0));
         // }
 
-        painter->rectangle(120, 10, 220, 100, _RGB(150, 200, 168), 5);
-        painter->roundedRectangle(240, 10, 340, 100, 30, _RGB(150, 200, 168), 2);
+        // painter->rectangle(120, 10, 220, 100, _RGB(150, 200, 168), 5);
+        // painter->roundedRectangle(240, 10, 340, 100, 30, _RGB(150, 200, 168), 2);
 
-        painter->circle(50, 160, 50, _RGB(150, 200, 168));
-        painter->filledCircle(160, 160, 50, _RGB(150, 200, 168));
+        // painter->circle(50, 160, 50, _RGB(150, 200, 168));
+        // painter->filledCircle(160, 160, 50, _RGB(150, 200, 168));
 
-        painter->ellipse(320, 160, 100, 50, _RGB(150, 200, 168));
-        painter->filledEllipse(100, 270, 100, 50, _RGB(150, 200, 168));
+        // painter->ellipse(320, 160, 100, 50, _RGB(150, 200, 168));
+        // painter->filledEllipse(100, 270, 100, 50, _RGB(150, 200, 168));
 
         // painter->arc(260, 270, 50, 135, 405, _RGB(150, 200, 168), 10, true);
 

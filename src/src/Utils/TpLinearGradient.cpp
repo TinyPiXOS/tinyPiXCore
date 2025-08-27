@@ -7,7 +7,7 @@ TpLinearGradient::TpLinearGradient() : TpGradient()
     gradientData->type = TpGradient::LinearGradient;
 }
 
-TpLinearGradient::TpLinearGradient(float x1, float y1, float x2, float y2)
+TpLinearGradient::TpLinearGradient(float x1, float y1, float x2, float y2) : TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::LinearGradient;
@@ -18,11 +18,10 @@ TpLinearGradient::TpLinearGradient(float x1, float y1, float x2, float y2)
     gradientData->lineStopPos.y = y2;
 }
 
-TpLinearGradient::TpLinearGradient(const ItpPointF &start, const ItpPointF &finalStop)
+TpLinearGradient::TpLinearGradient(const ItpPointF &start, const ItpPointF &finalStop) : TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
-    if (!gradientData)
-        return;
+    gradientData->type = TpGradient::LinearGradient;
 
     gradientData->lineStartPos = start;
     gradientData->lineStopPos = finalStop;

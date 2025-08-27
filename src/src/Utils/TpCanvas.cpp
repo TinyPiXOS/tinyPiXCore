@@ -7,6 +7,7 @@
 #include "TpImage_p.h"
 #include "TpGradient_p.h"
 #include "TpLinearGradient.h"
+#include "TpRadialGradient.h"
 
 #include <thread>
 #include <cmath>
@@ -80,27 +81,47 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *set)
         tvg::LinearGradient *linearGradient = tvg::LinearGradient::gen();
         linearGradient->linear(set->offsetX + startPoint.x, set->offsetY + startPoint.y, set->offsetX + stopPoint.x, set->offsetY + stopPoint.y);
 
-        tvg::Fill::ColorStop colorStops[colorList.size()];
-        for (int i = 0; i < colorList.size(); ++i)
-        {
-            const auto &colorIter = colorList[i];
-            // 颜色 (offset, r, g, b, a)
-            colorStops[i].offset = colorIter.first;
-            colorStops[i].r = _R(colorIter.second);
-            colorStops[i].g = _G(colorIter.second);
-            colorStops[i].b = _B(colorIter.second);
-            colorStops[i].a = _A(colorIter.second);
-        };
-        linearGradient->colorStops(colorStops, colorList.size());
-
         resGradientPtr = linearGradient;
     }
     else if (gradientType == TpGradient::RadialGradient)
     {
+        // 创建径向渐变
+        TpRadialGradient *radialGrad = dynamic_cast<TpRadialGradient *>(set->gradientProperty);
+        if (!radialGrad)
+            return nullptr;
+
+        ItpPointF centerPoint = radialGrad->center();
+        float centerRadius = radialGrad->centerRadius();
+
+        ItpPointF focalPoint = radialGrad->focalPoint();
+        float focalRadius = radialGrad->focalRadius();
+
+        tvg::RadialGradient *radialGradient = tvg::RadialGradient::gen();
+        // 设置中心点和半径
+        radialGradient->radial(set->offsetX + centerPoint.x, set->offsetY + centerPoint.y, centerRadius,
+                               set->offsetX + focalPoint.x, set->offsetY + focalPoint.y, focalRadius);
+
+        resGradientPtr = radialGradient;
     }
     else
     {
     }
+
+    if (!resGradientPtr)
+        return resGradientPtr;
+
+    tvg::Fill::ColorStop colorStops[colorList.size()];
+    for (int i = 0; i < colorList.size(); ++i)
+    {
+        const auto &colorIter = colorList[i];
+        // 颜色 (offset, r, g, b, a)
+        colorStops[i].offset = colorIter.first;
+        colorStops[i].r = _R(colorIter.second);
+        colorStops[i].g = _G(colorIter.second);
+        colorStops[i].b = _B(colorIter.second);
+        colorStops[i].a = _A(colorIter.second);
+    };
+    resGradientPtr->colorStops(colorStops, colorList.size());
 
     return resGradientPtr;
 }
