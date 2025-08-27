@@ -1315,6 +1315,10 @@ bool TpVariant::Compare(const VariantValue &value)
         {
             return 0 == memcmp(this, &value, sizeof(value));
         }
+		else if (data_.m_vt == static_cast<uint16_t>(VariantType::tpCustom) && value.m_vt == static_cast<uint16_t>(VariantType::tpCustom))
+		{
+			return false;
+		}
         else
         {
             if ((nullptr == data_.data.m_strVal) && (nullptr == value.data.m_strVal))
@@ -1322,7 +1326,7 @@ bool TpVariant::Compare(const VariantValue &value)
 
             if ((nullptr == data_.data.m_strVal) || (nullptr == value.data.m_strVal))
                 return false;
-
+			
             return 0 == strcmp(data_.data.m_strVal, value.data.m_strVal);
         }
     }
@@ -1340,6 +1344,11 @@ const std::vector<TpVariant>* TpVariant::toVectorPtr() const {
 
 uint16_t TpVariant::getVariantType() const {
     return data_.m_vt;
+}
+
+void TpVariant::clear()
+{
+	VariantValueClear(data_);
 }
 
 const char* TpVariant::variantTypeName() const 

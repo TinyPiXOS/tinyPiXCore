@@ -54,8 +54,6 @@ bool setBlocking(int sock_fd, bool blocking) {
 	return true;
 }
 
-
-
 static int bluet_socket(TpBluetoothService::Protocol type)
 {
 	int sock = -1;
