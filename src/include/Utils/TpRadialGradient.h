@@ -23,7 +23,7 @@ public:
     /// @param radius 中心半径
     TpRadialGradient(float cx, float cy, float radius);
     TpRadialGradient(const ItpPointF &center, float radius);
-    /// @brief 构建径向渐变对象；焦点半径为0；如果焦点在圆心之外，则移动焦点至中心点与焦点连线与中心圆的交叉点
+    /// @brief 构建径向渐变对象；焦点半径为0；
     /// @param cx 中心点X坐标
     /// @param cy 中心点Y坐标
     /// @param radius 中心半径

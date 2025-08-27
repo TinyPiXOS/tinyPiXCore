@@ -10,6 +10,7 @@ struct TpGradientData
 {
     TpGradient::GradientType type;
     TpList<std::pair<float, int32_t>> colorInfo;
+    TpGradient::Spread spread = TpGradient::PadSpread;
 
     // 线性渐变属性对象
     ItpPointF lineStartPos;
@@ -29,6 +30,7 @@ struct TpGradientData
     {
         type = others.type;
         colorInfo = others.colorInfo;
+        spread = others.spread;
 
         lineStartPos = others.lineStartPos;
         lineStopPos = others.lineStopPos;

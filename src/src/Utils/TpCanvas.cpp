@@ -110,6 +110,10 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *set)
     if (!resGradientPtr)
         return resGradientPtr;
 
+    // 设置扩散模式
+    tvg::FillSpread spreadMode = (tvg::FillSpread)set->gradientProperty->spread();
+    resGradientPtr->spread(spreadMode);
+
     tvg::Fill::ColorStop colorStops[colorList.size()];
     for (int i = 0; i < colorList.size(); ++i)
     {

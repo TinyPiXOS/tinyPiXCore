@@ -89,6 +89,18 @@ TpList<std::pair<float, int32_t>> TpGradient::getColors() const
     return gradientData->colorInfo;
 }
 
+void TpGradient::setSpread(TpGradient::Spread spread)
+{
+    TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
+    gradientData->spread = spread;
+}
+
+TpGradient::Spread TpGradient::spread()
+{
+    TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
+    return gradientData->spread;
+}
+
 const TpGradient &TpGradient::operator=(const TpGradient &others)
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
