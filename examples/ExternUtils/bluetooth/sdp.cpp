@@ -1,5 +1,7 @@
 #include <iostream>
 #include <stdio.h>
+#include "TpApp.h"
+#include "TpFixScreen.h"
 #include "TpBluetoothServiceDiscovery.h"
 #include "TpBluetoothService.h"
 #include "TpBluetoothUuid.h"
@@ -38,13 +40,6 @@ int example_service_registe()
 	return 0;
 }
 
-
-int example_service_scan()
-{
-	TpBluetoothServiceDiscovery scan(TpBluetoothAddress("00:11:22:33:44:55"));
-	scan.start();
-	return 0;
-}
 
 int example_bluet_uuid()
 {
@@ -132,12 +127,12 @@ void printServiceDescriptor(const TpBluetoothService& service) {
     std::cout << "Service Name: " << service.getServiceName() << std::endl;
     std::cout << "Service Description: " << service.getServiceDescription() << std::endl;
     std::cout << "Service Provider: " << service.getServiceProvider() << std::endl;
-    
+    std::cout << "Service RecHandle: " << std::hex<< service.getServiceRecHandle() << std::endl;
     // 2. 服务类 UUID 列表
     std::cout << "Service Class UUID List:" << std::endl;
     TpList<TpBluetoothUuid> classList = service.getServiceClassUuids();
     for (auto &it : classList) {
-        std::cout << "  " << it.toString() << " (" << it.toName() << ")" << std::endl;
+        std::cout << "  0x" << std::hex << it.toUInt16() << " (" << it.toName() << ")" << std::endl;
     }
     
     // 3. 协议描述符列表（专门处理）
@@ -192,11 +187,12 @@ void printServiceDescriptor(const TpBluetoothService& service) {
     }
     
     // 5. 语言属性
-   std::cout << "Language Base Attribute ID List:" << std::endl;
+   	std::cout << "Language Base Attribute ID List:" << std::endl;
     const TpVariant& langAttrVar = service.getAttribute(
         TpBluetoothService::LanguageBaseAttributeIdList);
-    
-    if (langAttrVar.isCustom<TpBluetoothService::Sequence>()) {
+	TpVariant nonConstLangAttrVar = langAttrVar;
+
+    if (!nonConstLangAttrVar.isNull() && langAttrVar.isCustom<TpBluetoothService::Sequence>()) {
         const TpBluetoothService::Sequence langList = langAttrVar.toCustom<TpBluetoothService::Sequence>();
         
         for (size_t i = 0; i < langList.size(); i++) {
@@ -408,13 +404,51 @@ int example_service()
 }
 
 
-int main()
+
+
+int example_service_scan(TpApp& app,bool signal)
 {
-	example_service();
-	testServiceDescriptorPrinting();
+
+	TpBluetoothServiceDiscovery scan(TpBluetoothAddress("00:11:22:33:44:55"));
+	scan.discoveryServices();
+	if(signal)
+	{
+		connect(&scan,finished,[=](TpList<TpBluetoothService>& services){
+			std::cout << "扫描完成====================================================\n";
+			for(auto &it : services)
+			{
+				printServiceDescriptor(it);
+			}
+		});
+	}
+	else{
+		while(scan.isDiscovering())	//等待扫描完成
+		{
+			usleep(1000);
+		}
+		TpList<TpBluetoothService> services=scan.getDiscoveredServices();
+		printf("====================================================\n");
+		for(auto &it : services)
+		{
+			printServiceDescriptor(it);
+		}
+	}
+	app.run();
+	return 0;
+}
+
+int main(int argc,char *argv[])
+{
+	TpApp app(argc, argv);
+	TpFixScreen *vScreen = new TpFixScreen();
+	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
+	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
+	app.bindVScreen(vScreen);
+//	example_service();
+//	testServiceDescriptorPrinting();
 //	example_bluet_uuid();
 //	example_bluet_get_uuids();
-//	example_service_scan();
+	example_service_scan(app,true);
 //	example_service_registe();
 	return 0;
 }

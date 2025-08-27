@@ -205,7 +205,8 @@ int scan_device_services(const char *bt_addr,ServiceDiscoveryCallback callback,v
             sdp_record_t *rec = (sdp_record_t *)seq->data;  
               
             if (rec) {  
-                print_service_attr(rec);  
+                //print_service_attr(rec);  
+				callback(rec,userdata);
                 printf("\n");  
             }  
               

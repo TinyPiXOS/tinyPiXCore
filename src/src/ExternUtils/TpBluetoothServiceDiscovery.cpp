@@ -1,13 +1,16 @@
 
-
-#include "TpBluetoothServiceDiscovery.h"	
+#include <thread>
 #include "bluetooth/include/blt_sdp.h"
+#include "TpBluetoothServiceDiscovery.h"	
 
 struct TpBluetoothServiceDiscoveryData{
-	TpBluetoothAddress addr;
-	TpList<TpString> uuids_filter;
+	TpBluetoothAddress addr;		//远端主机地址
+	TpList<TpBluetoothUuid> uuids_filter;		//uuid过滤器列表,用于只扫描指定服务
+	TpList<TpBluetoothService> list;	//扫描结果
+	std::thread thread_t;		//扫描的线程
+	tpBool is_discovering;		//是否扫描中
 	TpBluetoothServiceDiscoveryData(const TpBluetoothAddress &addr_):addr(addr_){
-
+		
 	};
 };
 
@@ -153,6 +156,9 @@ static void bluet_access_protos(void *value, void *userData)
 static void bluet_service_class(void *value, void *userData)
 {
 	TpBluetoothService *service=(TpBluetoothService *)userData;
+	TpList<TpBluetoothUuid> *classIdList=(TpList<TpBluetoothUuid> *)classIdList;
+
+
 	TpBluetoothService::Sequence *classUuidSeq=(TpBluetoothService::Sequence *)userData;
 
 	char ServiceClassUUID_str[MAX_LEN_SERVICECLASS_UUID_STR];
@@ -171,13 +177,13 @@ static void bluet_service_class(void *value, void *userData)
 	}
 //以上为调试打印
 
-	*classUuidSeq << uuidToBluetoothUuid(uuid);
+	classIdList->emplace_back(uuidToBluetoothUuid(uuid));
 }
 
 static void callback_service_discovery(sdp_record_t *rec,void *userdata)
 {
 	TpList<TpBluetoothService> *list=(TpList<TpBluetoothService> *)userdata;
-
+	printf("callback_service_discovery\n");
 	TpBluetoothService service;
 	sdp_data_t *d = sdp_data_get(rec, SDP_ATTR_SVCNAME_PRIMARY);
 	if (d && SDP_IS_TEXT_STR(d->dtd))
@@ -204,26 +210,34 @@ static void callback_service_discovery(sdp_record_t *rec,void *userdata)
 	sdp_list_t *sdp_list = 0, *proto = 0;
 	if (sdp_get_service_classes(rec, &sdp_list) == 0) {
 		printf("Service Class ID List:\n");
-		sdp_list_foreach(sdp_list, bluet_service_class, &service);
+		TpList<TpBluetoothUuid> classIdList;
+		sdp_list_foreach(sdp_list, bluet_service_class, &classIdList);
+		service.setServiceClassUuids(classIdList);
 		sdp_list_free(sdp_list, free);
 	}
 	if (sdp_get_access_protos(rec, &proto) == 0) {
 		printf("Protocol Descriptor List:\n");
-		sdp_list_foreach(proto, bluet_access_protos, &service);
+		TpBluetoothService::Sequence protocolListSeq;
+		sdp_list_foreach(proto, bluet_access_protos, &protocolListSeq);
+		service.setProtocolDescriptorList(protocolListSeq);
 		sdp_list_foreach(proto, (sdp_list_func_t)sdp_list_free, 0);
 		sdp_list_free(proto, 0);
 	}
 	if (sdp_get_lang_attr(rec, &sdp_list) == 0) {
 		printf("Language Base Attr List:\n");
-		sdp_list_foreach(sdp_list, bluet_lang_attr, &service);
+		TpBluetoothService::Sequence langSeq;
+		sdp_list_foreach(sdp_list, bluet_lang_attr, &langSeq);
+		service.setAttribute(TpBluetoothService::LanguageBaseAttributeIdList, langSeq);
 		sdp_list_free(sdp_list, free);
 	}
 	if (sdp_get_profile_descs(rec, &sdp_list) == 0) {
 		printf("Profile Descriptor List:\n");
-		sdp_list_foreach(sdp_list, bluet_profile_desc, &service);
+		TpBluetoothService::Sequence profileSeq;
+		sdp_list_foreach(sdp_list, bluet_profile_desc, &profileSeq);
+		service.setProtocolDescriptorList(profileSeq);
 		sdp_list_free(sdp_list, free);
 	}
-
+	list->emplace_back(service);
 }
 
 	
@@ -244,78 +258,83 @@ TpBluetoothServiceDiscovery::~TpBluetoothServiceDiscovery()
 	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
 	if(!data)
 		return ;
-	
 
+	data->list.clear();
+
+	if (data->thread_t.joinable())
+		data->thread_t.join(); // 等待线程完成
 	delete(data);
 }
 
-//开始扫描
-int TpBluetoothServiceDiscovery::start()
+
+
+
+void TpBluetoothServiceDiscovery::discoveryOnce()
 {
 	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
-	struct SdpAttrValue *attr_data=(struct SdpAttrValue *)malloc(sizeof(struct SdpAttrValue)*16);
-	memset(attr_data,0,sizeof(struct SdpAttrValue)*16);
-	uint16_t uuid=0x0003;
-	const char bt_addr[18]="E4:5F:01:37:58:93";
 
-	printf("开始扫描\n");
-//	bluet_quere_profile_attr((const char *)bt_addr, uuid,  attr_data,16);
-	printf("开始扫描\n");
-//	scan_device_services((const char *)bt_addr);
-	scan_device_services(NULL,callback_service_discovery,this);
-	/*memset(attr_data,0,sizeof(struct SdpAttrValue)*16);	
-	int count = sdp_query_device(bt_addr, uuid, attr_data, 16);
-	if (count < 0) {
-        printf("查询失败或未找到服务。\n");
-    } 
-	else {
-        printf("查询到 %d 个属性:\n", count);		
+	const char bt_addr[18]="E4:5F:01:37:58:93";//data->addr.toString().c_str()
+	scan_device_services(bt_addr,callback_service_discovery,&data->list);
 
-    }*/
-
-    free(attr_data);
-
-
-
-	return 0;
+	data->is_discovering=TP_FALSE;
+	finished.emit(data->list);
 }
 
-//停止扫描
-int TpBluetoothServiceDiscovery::stop()
+//开始扫描
+int TpBluetoothServiceDiscovery::discoveryServices()
 {
+	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+
+	data->is_discovering=TP_TRUE;
+	data->thread_t=std::thread(&TpBluetoothServiceDiscovery::discoveryOnce, this);
+	
 	return 0;
 }
 
 
 int TpBluetoothServiceDiscovery::setRemoteAddress(const TpBluetoothAddress &addr)
 {
+	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+	data->addr=addr;
 	return 0;
 }
 
 TpBluetoothAddress TpBluetoothServiceDiscovery::getRemoteAddress() const
 {
-	return TpBluetoothAddress();
+	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+	return data->addr;
 }
 
-int TpBluetoothServiceDiscovery::setUuidFilter(const TpString &uuid)
+int TpBluetoothServiceDiscovery::setUuidFilter(const TpBluetoothUuid &uuid)
 {
+
 	return 0;
 }
 
-int TpBluetoothServiceDiscovery::setUuidFilter(const TpList<TpString> &uuid)
+int TpBluetoothServiceDiscovery::setUuidFilter(const TpList<TpBluetoothUuid> &uuid)
 {
+
 	return 0;
 }
 
-TpString TpBluetoothServiceDiscovery::getUuidFilter() const
+TpList<TpBluetoothUuid> TpBluetoothServiceDiscovery::getUuidFilter() const
 {
-	return nullptr;
+	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+	return data->uuids_filter;
 }
 
-TpList<TpBluetoothService> TpBluetoothServiceDiscovery::discoveredServices()
+tpBool TpBluetoothServiceDiscovery::isDiscovering() const 
 {
-	TpList<TpBluetoothService> list;
-	return list;
+	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+	return data->is_discovering;
+}
+
+TpList<TpBluetoothService> TpBluetoothServiceDiscovery::getDiscoveredServices() const
+{
+	TpBluetoothServiceDiscoveryData *data = static_cast<TpBluetoothServiceDiscoveryData *>(data_);
+	if(isDiscovering())
+		return TpList<TpBluetoothService>();		//扫描过程中不允许获取
+	return data->list;
 }
 
 
