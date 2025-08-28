@@ -97,6 +97,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/TpDbusConnectManage.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/TpSocketNotifier.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/TpSocketNotifierManager.cpp
+	${SOURCE_PATH}/src_p/ExternUtils/TpHardwareDevice.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpAppDataDisk.cpp
 #	${SOURCE_PATH}/src/ExternUtils/TpDisplayManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpDisplay.cpp
@@ -146,6 +147,8 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/TpUsbDeviceInfo.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpUsbManager.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpSound.cpp
+	${SOURCE_PATH}/src/ExternUtils/TpGpio.cpp
+	${SOURCE_PATH}/src/ExternUtils/TpHardwareI2c.cpp
 )
 
 include_directories(/usr/include)
