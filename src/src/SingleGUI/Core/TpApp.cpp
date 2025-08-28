@@ -350,22 +350,22 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         if (mergeUpdateWidget.contains(task.updateObj))
         {
-            ItpObjectPaintInput &paintInput = mergeUpdateWidget[task.updateObj];
+            // ItpObjectPaintInput &paintInput = mergeUpdateWidget[task.updateObj];
 
-            paintInput.updateRect.x = task.x < paintInput.updateRect.x ? task.x : paintInput.updateRect.x;
-            paintInput.updateRect.y = task.y < paintInput.updateRect.y ? task.y : paintInput.updateRect.y;
+            // paintInput.updateRect.x = task.x < paintInput.updateRect.x ? task.x : paintInput.updateRect.x;
+            // paintInput.updateRect.y = task.y < paintInput.updateRect.y ? task.y : paintInput.updateRect.y;
 
-            tpInt32 hasRectBottom = paintInput.updateRect.bottom();
-            tpInt32 hasRectRight = paintInput.updateRect.right();
+            // tpInt32 hasRectBottom = paintInput.updateRect.bottom();
+            // tpInt32 hasRectRight = paintInput.updateRect.right();
 
-            tpInt32 inputRectBottom = task.y + task.h;
-            tpInt32 inputRectRight = task.x + task.w;
+            // tpInt32 inputRectBottom = task.y + task.h;
+            // tpInt32 inputRectRight = task.x + task.w;
 
-            tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
-            tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
+            // tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
+            // tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
 
-            paintInput.updateRect.w = actualBottom - paintInput.updateRect.y;
-            paintInput.updateRect.h = actualRight - paintInput.updateRect.x;
+            // paintInput.updateRect.w = actualBottom - paintInput.updateRect.y;
+            // paintInput.updateRect.h = actualRight - paintInput.updateRect.x;
         }
         else
         {
@@ -397,6 +397,13 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         tinyPiX_wf_lock_mutex(topScreenSet->agent);
 
+        // std::cout << "局部刷新：刷新区域： " << updateWidgetIter.first << " : " << paintInput.updateRect.x << " , " << paintInput.updateRect.y << " , "
+        //           << paintInput.updateRect.w << " , " << paintInput.updateRect.h << std::endl;
+
+        // int32_t surfaceWidth = paintInput.surface->width();
+        // int32_t surfaceHeight = paintInput.surface->height();
+        // std::cout << "Surface尺寸： " << surfaceWidth << "  " << surfaceHeight << std::endl;
+
         TpObjectPaintEvent event;
         event.construct(&paintInput);
 
@@ -405,6 +412,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)updateWidgetIter.first->testCanvasPtr();
         tvg::Scene *childScene = (tvg::Scene *)updateWidgetIter.first->testScenePtr();
+
         childScene->remove();
         childPainter->addScene(childCanvas, childScene);
 
@@ -424,8 +432,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     for (const auto &updateInfo : pixwmMergeUpdateRect)
     {
         const ItpRect &updateRect = updateInfo.second;
-        // tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
-        tinyPiX_wf_update(updateInfo.first, 0, 0, 1080, 720, true, false);
+        tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
+        // tinyPiX_wf_update(updateInfo.first, 0, 0, 1080, 720, true, false);
     }
 
 #elif 0

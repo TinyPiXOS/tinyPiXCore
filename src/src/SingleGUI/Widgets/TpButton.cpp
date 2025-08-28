@@ -135,15 +135,6 @@ void TpButton::setButtonStyle(TpButton::ButtonTextStyle buttonStyle)
 	onResizeEvent(nullptr);
 }
 
-void TpButton::setRoundCorners(const uint32_t &roundPercent)
-{
-	TpChildWidget::setRoundCorners(roundPercent);
-
-	// TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
-	// buttonData->iconLabel->setRoundCorners(roundPercent);
-	// buttonData->textLabel->setRoundCorners(roundPercent);
-}
-
 bool TpButton::onMousePressEvent(TpMouseEvent *event)
 {
 	TpChildWidget::onMousePressEvent(event);

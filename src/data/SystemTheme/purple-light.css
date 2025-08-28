@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 TpButton {
-  gap: 5dp;
+  gap: 10dp;
   font-size: 15dp;
   color: rgb(38, 38, 38);
   background-color: rgb(255, 255, 255);

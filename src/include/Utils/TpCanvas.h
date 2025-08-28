@@ -41,6 +41,10 @@ public:
     /// @param rect 裁剪矩形
     virtual void setClipRect(const ItpRect &rect);
 
+    /// @brief 获取裁剪区域
+    /// @return 裁剪矩形
+    virtual ItpRect clipRect();
+
 public:
     /// @brief 清理画布；清除所有绘制对象
     virtual void erase();

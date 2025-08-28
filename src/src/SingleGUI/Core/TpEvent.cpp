@@ -1485,6 +1485,9 @@ bool TpObjectPaintEvent::construct(ItpEventData *eventData)
         clipRect.setY0(clipRect.Y0() - inputObjectChild->offsetY());
     }
 
+    // std::cout << "clipRect 区域： " << input->object << " : " << clipRect.get().x << " , " << clipRect.get().y << " , "
+    //           << clipRect.get().w << " , " << clipRect.get().h << std::endl;
+
     set->rect = inputObjectChild->rect();
     set->canvas->setClipRect(clipRect.get());
     set->type = EVENT_OBJECT_PAINT_TYPE;

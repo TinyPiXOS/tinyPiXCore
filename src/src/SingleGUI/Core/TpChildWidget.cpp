@@ -859,8 +859,13 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
 
     if (ret)
     {
-        // TpApp::Inst()->postUpdateEvent(this, x, y, w, h, onlyBlit);
-        TpApp::Inst()->postUpdateEvent(childWidgetPtr, 0, 0, childWidgetPtr->width(), childWidgetPtr->height(), onlyBlit);
+        TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(this->parent());
+        if (parentWidget)
+        {
+            ItpPoint parentPos = parentWidget->pos();
+            TpApp::Inst()->postUpdateEvent(parentWidget, parentPos.x, parentPos.y, parentWidget->width(), parentWidget->height(), onlyBlit);
+            // TpApp::Inst()->postUpdateEvent(childWidgetPtr, 0, 0, childWidgetPtr->width(), childWidgetPtr->height(), onlyBlit);
+        }
 
         // if (set->top != this)
         // {
@@ -1184,7 +1189,6 @@ bool TpChildWidget::onMouseRleaseEvent(TpMouseEvent *event)
     {
         if (checkable())
         {
-            std::cout << "当前选中状态： " << checked() << std::endl;
             setChecked(!checked());
             isUpdate = true;
         }

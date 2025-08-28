@@ -11,6 +11,8 @@
 #include "TpFont.h"
 #include "TpLinearGradient.h"
 #include "TpRadialGradient.h"
+#include "TpSlider.h"
+#include "SmartDeviceGUI/Widgets/TpButton.h"
 
 class ThorVgPaintWidget : public TpChildWidget
 // class ThorVgPaintWidget : public TpDialog
@@ -180,6 +182,18 @@ int32_t main(int32_t argc, char *argv[])
 
     // TpBattery* testBattery = new TpBattery(vScreen);
     // testBattery->setRect(100, 100, 500, 500);
+
+    TpSlider *vSlider = new TpSlider(vScreen);
+	vSlider->setDirection(TpSlider::Vertical);
+	vSlider->setValue(50);
+	vSlider->setSize(10, 500);
+	vSlider->move(950, 20);
+
+    smartDeviceGUI::TpButton* testButton = new smartDeviceGUI::TpButton(vScreen);
+    testButton->setCheckable(true);
+    testButton->setText("蓝牙");
+    testButton->setRect(10, 10, 150, 50);
+    // testButton->setRoundCorners(20);
 
     vScreen->update();
 

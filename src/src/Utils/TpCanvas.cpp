@@ -259,6 +259,12 @@ void TpCanvas::setClipRect(const ItpRect &rect)
     }
 }
 
+ItpRect TpCanvas::clipRect()
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+    return set->TpSurfacePtr->clipRect();
+}
+
 void TpCanvas::erase()
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
@@ -1227,10 +1233,24 @@ void TpCanvas::sync()
     //     std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
     // }
 
-    // 绘制并同步
-    // set->swCanvas->push(std::move(set->tvgScene));
+    // 使用viewport限制清除区域
+    // ItpRect clipRect = set->TpSurfacePtr->clipRect();
+
+    // std::cout << "clipRect 区域： " << clipRect.x << " , " << clipRect.y << " , "
+    //           << clipRect.w << " , " << clipRect.h << std::endl;
+
+    // set->swCanvas->sync();
+    // tvg::Result viewportRes = set->swCanvas->viewport(clipRect.x, clipRect.y, clipRect.w, clipRect.h); // 只影响小区域
+    // std::cout << "viewportRes 设置结果： " << (int32_t)viewportRes <<std::endl;
+
     set->swCanvas->draw();
     set->swCanvas->sync();
+
+    // 绘制并同步
+    // set->swCanvas->push(std::move(set->tvgScene));
+
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
 }
 
 HollowMask::HollowMask()

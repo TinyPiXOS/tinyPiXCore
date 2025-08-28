@@ -58,10 +58,6 @@ public:
 	/// @param buttonStyle 按钮样式枚举值
 	void setButtonStyle(TpButton::ButtonTextStyle buttonStyle = TpButton::TextOnly);
 
-	/// @brief 设置边框圆角
-	/// @param roundPercent 取值范围0-1，0.5为正圆，越小越接近矩形
-	virtual void setRoundCorners(const uint32_t &roundPercent) override;
-
 public
 signals:
 	/// @brief 按钮点击信号槽，鼠标释放时触发
