@@ -47,7 +47,8 @@ TpHardwareI2c::~TpHardwareI2c()
 	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
 	if(!data)
 		return ;
-
+	if(data->is_open)
+		close();
 	delete(data);
 }
 
