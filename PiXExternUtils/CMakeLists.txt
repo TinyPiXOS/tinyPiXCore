@@ -97,7 +97,6 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/ExternUtils/TpDbusConnectManage.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/TpSocketNotifier.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/TpSocketNotifierManager.cpp
-	${SOURCE_PATH}/src_p/ExternUtils/TpHardwareDevice.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpAppDataDisk.cpp
 #	${SOURCE_PATH}/src/ExternUtils/TpDisplayManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpDisplay.cpp

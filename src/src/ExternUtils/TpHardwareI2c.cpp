@@ -63,7 +63,7 @@ tpBool TpHardwareI2c::open()
 	}
 
 	if (ioctl(data->devfd, I2C_SLAVE, data->address) < 0) {
-		fprintf(stderr,"[Error]: Failed to set I2C slave address 0x%02X, %s\n",data->address,errno);
+		fprintf(stderr,"[Error]: Failed to set I2C slave address 0x%02X, %s\n",data->address,strerror(errno));
 		close();
 		return TP_FALSE;
 	}
@@ -88,7 +88,7 @@ ssize_t TpHardwareI2c::read(uint8_t* buffer, size_t size)
 	ssize_t result = ::read(data->devfd, buffer, size);
     
     if (result < 0) {
-		fprintf(stderr,"[Error]: I2C read error:%s\n",errno);
+		fprintf(stderr,"[Error]: I2C read error:%s\n",strerror(errno));
     }
     
     return result;
@@ -102,7 +102,7 @@ ssize_t TpHardwareI2c::write(const uint8_t* buffer, size_t size)
 
 	ssize_t result = ::write(data->devfd, data, size);
     if (result < 0) {
-		fprintf(stderr,"[Error]: I2C write error:%s\n",errno);
+		fprintf(stderr,"[Error]: I2C write error:%s\n",strerror(errno));
     }
 	return result;
 }
@@ -114,7 +114,7 @@ int TpHardwareI2c::setSlaveAddress(tpUInt8 address)
 	if(!data || !data->is_open)
 		return -1;
 	if (ioctl(data->devfd, I2C_SLAVE, data->address) < 0) {
-		fprintf(stderr,"[Error]: Failed to set I2C slave address 0x%02X, %s\n",data->address,errno);
+		fprintf(stderr,"[Error]: Failed to set I2C slave address 0x%02X, %s\n",data->address,strerror(errno));
 		return -1;
 	}
 	data->address=address;
