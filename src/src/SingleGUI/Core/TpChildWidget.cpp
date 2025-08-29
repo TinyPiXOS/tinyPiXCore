@@ -838,8 +838,8 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
     if (!set)
         return;
 
-    TpChildWidget *childWidgetPtr = static_cast<TpChildWidget *>(set->top);
-    if (!childWidgetPtr)
+    TpChildWidget *topScreenWidget = static_cast<TpChildWidget *>(set->top);
+    if (!topScreenWidget)
         return;
 
     ItpPoint point = selfToScreenPoint(this, x, y);
@@ -850,27 +850,20 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
 
     TpRect blitRect(x, y, w, h);
 
-    // if (clip)
-    {
-        ItpRect screenRect = childWidgetPtr->toScreen();
-        TpRect selfRect(screenRect);
-        ret = blitRect.intersect(selfRect);
-    }
+    ItpRect screenRect = topScreenWidget->toScreen();
+    TpRect selfRect(screenRect);
+    ret = blitRect.intersect(selfRect);
 
     if (ret)
     {
-        TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(this->parent());
-        if (parentWidget)
-        {
-            ItpPoint parentPos = parentWidget->pos();
-            TpApp::Inst()->postUpdateEvent(parentWidget, parentPos.x, parentPos.y, parentWidget->width(), parentWidget->height(), onlyBlit);
-            // TpApp::Inst()->postUpdateEvent(childWidgetPtr, 0, 0, childWidgetPtr->width(), childWidgetPtr->height(), onlyBlit);
-        }
-
-        // if (set->top != this)
+        // TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(this->parent());
+        // if (parentWidget)
         // {
-        //     childWidgetPtr->update(blitRect, onlyBlit);
+        //     ItpPoint parentPos = parentWidget->pos();
+        //     TpApp::Inst()->postUpdateEvent(parentWidget, parentPos.x, parentPos.y, parentWidget->width(), parentWidget->height(), onlyBlit);
         // }
+
+        TpApp::Inst()->postUpdateEvent(topScreenWidget, 0, 0, topScreenWidget->width(), topScreenWidget->height(), onlyBlit);
     }
 }
 

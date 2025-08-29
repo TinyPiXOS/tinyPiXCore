@@ -29,7 +29,7 @@ bool TpButton::onPaintEvent(TpObjectPaintEvent *event)
         lineGradient.setColorAt(1, _RGB(204, 143, 237));
 
         painter->setGradient(&lineGradient);
-        std::cout << "roundCorners( " << roundCorners() << std::endl;
+        // std::cout << "roundCorners( " << roundCorners() << std::endl;
         painter->roundedBox(0, 0, width(), height(), roundCorners(), _RGB(204, 143, 237));
 
         // 重置渐变效果

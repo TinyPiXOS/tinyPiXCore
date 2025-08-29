@@ -50,9 +50,14 @@ struct RoundSurfaceData
 // 重设canvas的target
 static inline void refreshCanvasTarget(TpCanvasData *set)
 {
-    int32_t surfaceWidth = set->TpSurfacePtr->width();
-    int32_t surfaceHeight = set->TpSurfacePtr->height();
-    set->swCanvas->target((uint32_t *)set->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+    // static bool test = true;
+    // if (test)
+    {
+        int32_t surfaceWidth = set->TpSurfacePtr->width();
+        int32_t surfaceHeight = set->TpSurfacePtr->height();
+        set->swCanvas->target((uint32_t *)set->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+    }
+    // test = false;
 }
 
 // 解析渐变信息；无渐变则返回空指针
@@ -425,203 +430,6 @@ void TpCanvas::line(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t colo
     }
 }
 
-static inline void drawRectangle(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width, int32_t rad, bool isFill)
-{
-    if (!set->swCanvas)
-        return;
-
-    refreshCanvasTarget(set);
-
-    // 绘制矩形填充
-    auto rect = tvg::Shape::gen();
-    rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
-
-    tvg::Fill *gradientPtr = parseGradientPtr(set);
-
-    if (isFill)
-    {
-        if (gradientPtr)
-            rect->fill(gradientPtr);
-        else
-            rect->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
-    }
-    else
-    {
-        if (gradientPtr)
-            rect->strokeFill(gradientPtr);
-        else
-            rect->strokeFill(_R(color), _G(color), _B(color), _A(color));
-
-        rect->strokeWidth(width);
-    }
-
-    set->tvgScene->push(std::move(rect));
-    // set->swCanvas->push(std::move(rect));
-
-    // 绘制并同步
-    // set->swCanvas->draw();
-    // set->swCanvas->sync();
-}
-
-void TpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x1 = OFFSET_X(set, x1);
-        y1 = OFFSET_Y(set, y1);
-        x2 = OFFSET_X(set, x2);
-        y2 = OFFSET_Y(set, y2);
-
-        drawRectangle(set, x1, y1, x2, y2, color, width, 0, false);
-    }
-}
-
-void TpCanvas::roundedRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, double width)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x1 = OFFSET_X(set, x1);
-        y1 = OFFSET_Y(set, y1);
-        x2 = OFFSET_X(set, x2);
-        y2 = OFFSET_Y(set, y2);
-
-        drawRectangle(set, x1, y1, x2, y2, color, width, rad, false);
-    }
-}
-
-void TpCanvas::box(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x1 = OFFSET_X(set, x1);
-        y1 = OFFSET_Y(set, y1);
-        x2 = OFFSET_X(set, x2);
-        y2 = OFFSET_Y(set, y2);
-
-        drawRectangle(set, x1, y1, x2, y2, color, 1, 0, true);
-    }
-}
-
-void TpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set &&
-        set->beUsed)
-    {
-        x1 = OFFSET_X(set, x1);
-        y1 = OFFSET_Y(set, y1);
-        x2 = OFFSET_X(set, x2);
-        y2 = OFFSET_Y(set, y2);
-
-        drawRectangle(set, x1, y1, x2, y2, color, 1, rad, true);
-    }
-}
-
-/// @brief 绘制圆形、椭圆；填充或线条
-/// @param set
-/// @param x 坐标
-/// @param y
-/// @param rx 长轴
-/// @param ry 短轴
-/// @param color 颜色
-/// @param width 线条宽度，当填充绘制时线宽无效
-/// @param isFill 是否是填充颜色图形
-static inline void drawEllipse(TpCanvasData *set, const int32_t &x, const int32_t &y, const int32_t &rx, const int32_t &ry, const int32_t &color, double width, const bool &isFill)
-{
-    if (!set->swCanvas)
-        return;
-
-    refreshCanvasTarget(set);
-
-    auto circle = tvg::Shape::gen();
-    circle->appendCircle(x, y, rx, ry);
-
-    tvg::Fill *gradientPtr = parseGradientPtr(set);
-
-    if (isFill)
-    {
-        if (gradientPtr)
-            circle->fill(gradientPtr);
-        else
-            circle->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
-    }
-    else
-    {
-        if (gradientPtr)
-            circle->strokeFill(gradientPtr);
-        else
-            circle->strokeFill(_R(color), _G(color), _B(color), _A(color));
-
-        circle->strokeWidth(width);
-    }
-
-    set->tvgScene->push(std::move(circle));
-    // set->swCanvas->push(std::move(circle));
-
-    // 绘制并同步
-    // set->swCanvas->draw();
-    // set->swCanvas->sync();
-}
-
-void TpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        drawEllipse(set, x, y, rad, rad, color, width, false);
-    }
-}
-
-void TpCanvas::filledCircle(int32_t x, int32_t y, int32_t rad, int32_t color)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        drawEllipse(set, x, y, rad, rad, color, 0, true);
-    }
-}
-
-void TpCanvas::ellipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, double width)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        drawEllipse(set, x, y, rx, ry, color, width, false);
-    }
-}
-
-void TpCanvas::filledEllipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-
-    if (set && set->beUsed)
-    {
-        x = OFFSET_X(set, x);
-        y = OFFSET_Y(set, y);
-
-        drawEllipse(set, x, y, rx, ry, color, 0, true);
-    }
-}
-
 // 核心圆弧转贝塞尔曲线算法（基于 _pathAppendArcTo）
 static void appendArcToPath(tvg::Shape *shape, float startX, float startY,
                             float endX, float endY, float rx, float ry,
@@ -744,9 +552,282 @@ static void appendArcToPath(tvg::Shape *shape, float startX, float startY,
     }
 }
 
+// 公共掏空操作函数
+static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, const HollowMask &hollowMaskData)
+{
+    if (!fillShapePtr)
+        return;
+
+    // 矩形镂空
+    auto clipper = tvg::Shape::gen();
+    TpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
+    for (const auto &hollowData : rectHollow)
+    {
+        // 创建裁剪形状
+        clipper->appendRect(hollowData.x + x, hollowData.y + y, hollowData.w, hollowData.h);
+    }
+
+    // 圆角矩形镂空
+    TpVector<HollowMask::RoundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
+    for (const auto &hollowData : roundHollow)
+    {
+        // 创建裁剪形状
+        clipper->appendRect(hollowData.region.x + x, hollowData.region.y + y, hollowData.region.w, hollowData.region.h, hollowData.round, hollowData.round);
+    }
+
+    // 圆形镂空
+    TpVector<HollowMask::CircleHollow> circleHollow = hollowMaskData.circleHollowList();
+    for (const auto &hollowData : circleHollow)
+    {
+        // 创建裁剪形状
+        clipper->appendCircle(hollowData.x + x, hollowData.y + y, hollowData.radius, hollowData.radius);
+    }
+
+    // 扇形镂空
+    TpVector<HollowMask::PieHollow> pieHollowList = hollowMaskData.pieHollowList();
+    for (const auto &hollowData : pieHollowList)
+    {
+        // 将角度转换为弧度
+        float startRad = hollowData.start * M_PI / 180.0f;
+        float endRad = hollowData.end * M_PI / 180.0f;
+
+        // 计算起点和终点
+        float startX = hollowData.x + x + hollowData.radius * cosf(startRad);
+        float startY = hollowData.y + y + hollowData.radius * sinf(startRad);
+        float endX = hollowData.x + x + hollowData.radius * cosf(endRad);
+        float endY = hollowData.y + y + hollowData.radius * sinf(endRad);
+
+        // 绘制扇形路径
+        clipper->moveTo(hollowData.x + x, hollowData.y + y); // 移动到圆心
+        clipper->lineTo(startX, startY);                     // 画线到起点
+
+        // 计算角度差
+        float angleDiff = endRad - startRad;
+
+        // 确保角度在正确范围内
+        while (angleDiff > 2 * M_PI)
+            angleDiff -= 2 * M_PI;
+        while (angleDiff < -2 * M_PI)
+            angleDiff += 2 * M_PI;
+
+        // 使用类似 _pathAppendArcTo 的算法
+        appendArcToPath(clipper, startX, startY, endX, endY, hollowData.radius, hollowData.radius, 0.0f,
+                        std::fabs(angleDiff) > M_PI, true);
+
+        // 封口
+        clipper->lineTo(hollowData.x + x, hollowData.y + y); // 画线到起点
+        clipper->close();                                    // 闭合路径回到圆心
+    }
+
+    // 应用反向Alpha遮罩实现镂空
+    clipper->fill(255, 255, 255, 255);
+    fillShapePtr->mask(clipper, tvg::MaskMethod::InvAlpha);
+}
+
+static inline void drawRectangle(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width, int32_t rad, bool isFill, const HollowMask &hollowMaskData = HollowMask())
+{
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    // 绘制矩形填充
+    auto rect = tvg::Shape::gen();
+    rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
+
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
+    if (isFill)
+    {
+        if (gradientPtr)
+            rect->fill(gradientPtr);
+        else
+            rect->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
+
+        applyHollowMask(rect, x1, y1, hollowMaskData);
+    }
+    else
+    {
+        if (gradientPtr)
+            rect->strokeFill(gradientPtr);
+        else
+            rect->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
+        rect->strokeWidth(width);
+    }
+
+    set->tvgScene->push(std::move(rect));
+    // set->swCanvas->push(std::move(rect));
+
+    // 绘制并同步
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
+}
+
+void TpCanvas::rectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, double width)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x1 = OFFSET_X(set, x1);
+        y1 = OFFSET_Y(set, y1);
+        x2 = OFFSET_X(set, x2);
+        y2 = OFFSET_Y(set, y2);
+
+        drawRectangle(set, x1, y1, x2, y2, color, width, 0, false);
+    }
+}
+
+void TpCanvas::roundedRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, double width)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x1 = OFFSET_X(set, x1);
+        y1 = OFFSET_Y(set, y1);
+        x2 = OFFSET_X(set, x2);
+        y2 = OFFSET_Y(set, y2);
+
+        drawRectangle(set, x1, y1, x2, y2, color, width, rad, false);
+    }
+}
+
+void TpCanvas::box(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x1 = OFFSET_X(set, x1);
+        y1 = OFFSET_Y(set, y1);
+        x2 = OFFSET_X(set, x2);
+        y2 = OFFSET_Y(set, y2);
+
+        drawRectangle(set, x1, y1, x2, y2, color, 1, 0, true, hollowMaskData);
+    }
+}
+
+void TpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set &&
+        set->beUsed)
+    {
+        x1 = OFFSET_X(set, x1);
+        y1 = OFFSET_Y(set, y1);
+        x2 = OFFSET_X(set, x2);
+        y2 = OFFSET_Y(set, y2);
+
+        drawRectangle(set, x1, y1, x2, y2, color, 1, rad, true, hollowMaskData);
+    }
+}
+
+/// @brief 绘制圆形、椭圆；填充或线条
+/// @param set
+/// @param x 坐标
+/// @param y
+/// @param rx 长轴半径
+/// @param ry 短轴半径
+/// @param color 颜色
+/// @param width 线条宽度，当填充绘制时线宽无效
+/// @param isFill 是否是填充颜色图形
+static inline void drawEllipse(TpCanvasData *set, const int32_t &x, const int32_t &y, const int32_t &rx, const int32_t &ry, const int32_t &color, double width, const bool &isFill, const HollowMask &hollowMaskData = HollowMask())
+{
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    auto circle = tvg::Shape::gen();
+    circle->appendCircle(x, y, rx, ry);
+
+    tvg::Fill *gradientPtr = parseGradientPtr(set);
+
+    if (isFill)
+    {
+        if (gradientPtr)
+            circle->fill(gradientPtr);
+        else
+            circle->fill(_R(color), _G(color), _B(color), _A(color)); // set its color (r, g, b)
+
+        applyHollowMask(circle, x - rx, y - ry, hollowMaskData);
+    }
+    else
+    {
+        if (gradientPtr)
+            circle->strokeFill(gradientPtr);
+        else
+            circle->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
+        circle->strokeWidth(width);
+    }
+
+    set->tvgScene->push(std::move(circle));
+    // set->swCanvas->push(std::move(circle));
+
+    // 绘制并同步
+    // set->swCanvas->draw();
+    // set->swCanvas->sync();
+}
+
+void TpCanvas::circle(int32_t x, int32_t y, int32_t rad, int32_t color, double width)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x = OFFSET_X(set, x);
+        y = OFFSET_Y(set, y);
+
+        drawEllipse(set, x, y, rad, rad, color, width, false);
+    }
+}
+
+void TpCanvas::filledCircle(int32_t x, int32_t y, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x = OFFSET_X(set, x);
+        y = OFFSET_Y(set, y);
+
+        drawEllipse(set, x, y, rad, rad, color, 0, true);
+    }
+}
+
+void TpCanvas::ellipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, double width)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x = OFFSET_X(set, x);
+        y = OFFSET_Y(set, y);
+
+        drawEllipse(set, x, y, rx, ry, color, width, false);
+    }
+}
+
+void TpCanvas::filledEllipse(int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t color, const HollowMask &hollowMaskData)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (set && set->beUsed)
+    {
+        x = OFFSET_X(set, x);
+        y = OFFSET_Y(set, y);
+
+        drawEllipse(set, x, y, rx, ry, color, 0, true);
+    }
+}
+
 static inline void drawArc(TpCanvasData *set, const int32_t &x, const int32_t &y, const int32_t &rad,
                            const double &start, const double &end, const int32_t &color, double width,
-                           const bool &isRound, bool isPie, bool isFill)
+                           const bool &isRound, bool isPie, bool isFill, const HollowMask &hollowMaskData = HollowMask())
 {
     if (!set->swCanvas)
         return;
@@ -807,6 +888,8 @@ static inline void drawArc(TpCanvasData *set, const int32_t &x, const int32_t &y
                 arc->fill(gradientPtr);
             else
                 arc->fill(_R(color), _G(color), _B(color), _A(color));
+
+            applyHollowMask(arc, x - rad, y - rad, hollowMaskData);
         }
         else
         {
@@ -868,7 +951,7 @@ void TpCanvas::pie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end
     }
 }
 
-void TpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color)
+void TpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_t end, int32_t color, const HollowMask &hollowMaskData)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -881,7 +964,7 @@ void TpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32
     }
 }
 
-static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill)
+static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill, const HollowMask &hollowMaskData = HollowMask())
 {
     if (pointList.size() == 0)
         return;
@@ -927,6 +1010,8 @@ static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &poin
                 polygon->fill(gradientPtr);
             else
                 polygon->fill(_R(color), _G(color), _B(color), _A(color));
+
+            applyHollowMask(polygon, pointList.front().x + set->offsetX, pointList.front().y + set->offsetY, hollowMaskData);
         }
         else
         {
@@ -955,7 +1040,7 @@ void TpCanvas::polygon(const TpVector<ItpPoint> &pointList, int32_t color, doubl
     }
 }
 
-void TpCanvas::filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color)
+void TpCanvas::filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color, const HollowMask &hollowMaskData)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -963,129 +1048,6 @@ void TpCanvas::filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color)
     {
         drawPolygon(set, pointList, color, 1, true);
     }
-}
-
-// 公共掏空操作函数
-static void applyHollowMask(TpCanvasData *set, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, int32_t rad, const HollowMask &hollowMaskData)
-{
-    if (!set->swCanvas)
-        return;
-
-    refreshCanvasTarget(set);
-
-    // 创建底纹矩形
-    tvg::Shape *rect = tvg::Shape::gen();
-    rect->appendRect(x1, y1, x2 - x1, y2 - y1, rad, rad);
-
-    tvg::Fill *gradientPtr = parseGradientPtr(set);
-    if (gradientPtr)
-        rect->fill(gradientPtr);
-    else
-        rect->fill(_R(color), _G(color), _B(color), _A(color));
-
-    // 矩形镂空
-    auto clipper = tvg::Shape::gen();
-    TpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
-    for (const auto &hollowData : rectHollow)
-    {
-        // 创建裁剪形状
-        clipper->appendRect(hollowData.x + x1, hollowData.y + y1, hollowData.w, hollowData.h);
-    }
-
-    // 圆角矩形镂空
-    TpVector<HollowMask::RoundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
-    for (const auto &hollowData : roundHollow)
-    {
-        // 创建裁剪形状
-        clipper->appendRect(hollowData.region.x + x1, hollowData.region.y + y1, hollowData.region.w, hollowData.region.h, hollowData.round, hollowData.round);
-    }
-
-    // 圆形镂空
-    TpVector<HollowMask::CircleHollow> circleHollow = hollowMaskData.circleHollowList();
-    for (const auto &hollowData : circleHollow)
-    {
-        // 创建裁剪形状
-        clipper->appendCircle(hollowData.x + x1, hollowData.y + y1, hollowData.radius, hollowData.radius);
-    }
-
-    // 扇形镂空
-    TpVector<HollowMask::PieHollow> pieHollowList = hollowMaskData.pieHollowList();
-    for (const auto &hollowData : pieHollowList)
-    {
-        // 将角度转换为弧度
-        float startRad = hollowData.start * M_PI / 180.0f;
-        float endRad = hollowData.end * M_PI / 180.0f;
-
-        // 计算起点和终点
-        float startX = hollowData.x + x1 + hollowData.radius * cosf(startRad);
-        float startY = hollowData.y + y1 + hollowData.radius * sinf(startRad);
-        float endX = hollowData.x + x1 + hollowData.radius * cosf(endRad);
-        float endY = hollowData.y + y1 + hollowData.radius * sinf(endRad);
-
-        // 绘制扇形路径
-        clipper->moveTo(hollowData.x + x1, hollowData.y + y1); // 移动到圆心
-        clipper->lineTo(startX, startY);                       // 画线到起点
-
-        // 计算角度差
-        float angleDiff = endRad - startRad;
-
-        // 确保角度在正确范围内
-        while (angleDiff > 2 * M_PI)
-            angleDiff -= 2 * M_PI;
-        while (angleDiff < -2 * M_PI)
-            angleDiff += 2 * M_PI;
-
-        // 使用类似 _pathAppendArcTo 的算法
-        appendArcToPath(clipper, startX, startY, endX, endY, hollowData.radius, hollowData.radius, 0.0f,
-                        std::fabs(angleDiff) > M_PI, true);
-
-        // 封口
-        clipper->lineTo(hollowData.x + x1, hollowData.y + y1); // 画线到起点
-        clipper->close();                                      // 闭合路径回到圆心
-    }
-
-    // 应用反向Alpha遮罩实现镂空
-    clipper->fill(255, 255, 255, 255);
-    rect->mask(clipper, tvg::MaskMethod::InvAlpha);
-
-    set->tvgScene->push(std::move(rect));
-    // set->swCanvas->push(std::move(rect));
-    // set->swCanvas->draw();
-    // set->swCanvas->sync();
-}
-
-void TpCanvas::hollowBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, const HollowMask &hollowMaskData)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-    if (!set)
-        return;
-
-    if (!set->beUsed)
-        return;
-
-    x1 = OFFSET_X(set, x1);
-    y1 = OFFSET_Y(set, y1);
-    x2 = OFFSET_X(set, x2);
-    y2 = OFFSET_Y(set, y2);
-
-    applyHollowMask(set, x1, y1, x2, y2, color, 0, hollowMaskData);
-}
-
-void TpCanvas::hollowRoundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rad, int32_t color, const HollowMask &hollowMaskData)
-{
-    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
-    if (!set)
-        return;
-
-    if (!set->beUsed)
-        return;
-
-    x1 = OFFSET_X(set, x1);
-    y1 = OFFSET_Y(set, y1);
-    x2 = OFFSET_X(set, x2);
-    y2 = OFFSET_Y(set, y2);
-
-    applyHollowMask(set, x1, y1, x2, y2, color, rad, hollowMaskData);
 }
 
 void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
