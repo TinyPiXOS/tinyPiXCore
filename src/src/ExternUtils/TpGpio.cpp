@@ -38,9 +38,9 @@ TpGpio::TpGpio(tpUInt16 number)
 	TpGpioData *data = static_cast<TpGpioData *>(data_);
 	data->number=number;
 	data->path=name;
-	data->direction_path=name+"direction";
-	data->edge_path=name+"edge";
-	data->value_path=name+"value";
+	data->direction_path=name+"/direction";
+	data->edge_path=name+"/edge";
+	data->value_path=name+"/value";
 
 }
 
@@ -59,6 +59,9 @@ tpBool TpGpio::open()
 	TpGpioData *data = static_cast<TpGpioData *>(data_);
 	if(data->is_open)
 		return TP_TRUE;
+	// 检查是否已导出
+	if(isExportGpio())
+		return TP_TRUE;
 	if(!exportGpio())
 		return TP_FALSE;
 	
@@ -66,15 +69,15 @@ tpBool TpGpio::open()
 	while(1)
 	{
 		struct stat st;
-		if (stat(data->value_path.c_str(), &st) != 0) {
-			fprintf(stderr,"[Error]: GPIO%d 打开失败:SysFS files not created\n", data->number);
-			usleep(10000);			
+		if(!isExportGpio())
+		{
+			usleep(10000);
 		}
 		else
 			break; 
 		err++;
 		if(err>10)
-			break;
+			return TP_FALSE;
 	}
     
 	data->is_open=TP_TRUE;
@@ -161,6 +164,16 @@ bool TpGpio::exportGpio()
 	return writeToFile("/sys/class/gpio/export", std::to_string(data->number));
 }
 
+//是否已经导出
+bool TpGpio::isExportGpio()
+{
+	TpGpioData *data = static_cast<TpGpioData *>(data_);
+	struct stat st;
+	if (stat(data->value_path.c_str(), &st) == 0) {
+		return true; // 已导出
+	}
+	return false;
+}
 
 //取消导出gpio端口
 bool TpGpio::unexportGpio()

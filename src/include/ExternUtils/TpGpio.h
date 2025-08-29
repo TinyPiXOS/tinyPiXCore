@@ -26,7 +26,7 @@ public:
 	/// @brief 
 	/// @param number gpio编号
 	TpGpio(tpUInt16 number);
-	
+
 	//每种芯片计算方式不一样暂时不支持
 	//TpGpio(tpUInt16 port,tpUInt16 pin);
 	~TpGpio();
@@ -72,6 +72,7 @@ public:
 private:	
 	bool exportGpio();
 	bool unexportGpio();
+	bool isExportGpio();
 	bool writeToFile(const TpString& path, const TpString& value);
 	TpString readFromFile(const TpString& path);
 private:
