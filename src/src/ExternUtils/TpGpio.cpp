@@ -140,13 +140,13 @@ TpGpio::GpioDirectionType TpGpio::getDirection()
 int TpGpio::setHeight()
 {
 	TpGpioData *data = static_cast<TpGpioData *>(data_);
-	return (writeToFile(data->direction_path,TpString("1"))? 0: -1);
+	return (writeToFile(data->value_path,TpString("1"))? 0: -1);
 }
 
 int TpGpio::setLow()
 {
 	TpGpioData *data = static_cast<TpGpioData *>(data_);
-	return (writeToFile(data->direction_path,TpString("0"))? 0: -1);
+	return (writeToFile(data->value_path,TpString("0"))? 0: -1);
 }
 
 tpBool TpGpio::getLevel()
