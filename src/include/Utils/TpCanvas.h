@@ -17,17 +17,19 @@ class TpFont;
 class HollowMask
 {
 public:
-    struct RoundRectHollow
+    /// @brief 矩形信息
+    struct RectHollow
     {
         ItpRect region;
         uint32_t round = 0;
 
-        RoundRectHollow(const ItpRect &region, const uint32_t &round)
+        RectHollow(const ItpRect &region, const uint32_t &round = 0)
             : region(region), round(round)
         {
         }
     };
 
+    /// @brief 圆形信息
     struct CircleHollow
     {
         int32_t x;
@@ -40,6 +42,7 @@ public:
         }
     };
 
+    /// @brief 扇形信息
     struct PieHollow
     {
         int32_t x;
@@ -57,27 +60,30 @@ public:
         }
     };
 
+    /// @brief 多边形信息
+    struct PolygonHollow
+    {
+        TpVector<ItpPoint> posintList;
+
+        PolygonHollow()
+        {
+        }
+    };
+
 public:
     HollowMask();
     ~HollowMask();
 
     /// @brief 添加矩形镂空
     /// @param region 矩形区域
-    void addRectHollow(const ItpRect &region);
-    /// @brief 获取所有矩形镂空数据
-    /// @return 矩形镂空列表
-    TpVector<ItpRect> rectHollowList() const;
-
-    /// @brief 添加圆角矩形镂空
-    /// @param region 矩形区域
     /// @param round 圆角值
-    void addRoundRectHollow(const ItpRect &region, const uint32_t &round);
-    /// @brief 添加圆角矩形镂空
+    void addRectHollow(const ItpRect &region, const uint32_t &round = 0);
+    /// @brief 添加矩形镂空
     /// @param data 矩形镂空参数
-    void addRoundRectHollow(const RoundRectHollow &data);
-    /// @brief 获取圆角矩形镂空列表
-    /// @return 圆角矩形镂空列表
-    TpVector<RoundRectHollow> roundRectHollowList() const;
+    void addRectHollow(const RectHollow &data);
+    /// @brief 获取矩形镂空列表
+    /// @return 矩形镂空列表
+    TpVector<RectHollow> rectHollowList() const;
 
     /// @brief 添加圆形镂空
     /// @param x 圆心X坐标
@@ -105,14 +111,18 @@ public:
     /// @return 扇形镂空列表
     TpVector<PieHollow> pieHollowList() const;
 
-    // 通用多边形镂空（扩展用）
-    // void addPolygonHollow(const Polygon& points);
+    /// @brief 添加多边形镂空
+    /// @param polygon 多边形镂空信息
+    void addPolygonHollow(const PolygonHollow &polygon);
+    /// @brief 获取多边形镂空列表
+    /// @return 多边形镂空列表
+    TpVector<PolygonHollow> polygonHollowList() const;
 
 private:
-    TpVector<ItpRect> rectList_;
-    TpVector<RoundRectHollow> roundRectList_;
+    TpVector<RectHollow> rectList_;
     TpVector<CircleHollow> circleList_;
     TpVector<PieHollow> pieList_;
+    TpVector<PolygonHollow> polygonList_;
 };
 
 TP_DEF_VOID_TYPE_VAR(ITpCanvasData);

@@ -197,7 +197,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpObjectPaintEvent *event)
         painter->paintImage(iconX + i * singleWeatherWidth, iconY, weatherIcon.scaled(iconSize, iconSize));
 
         weatherData->subTextFont.setText(weatherInfo.subText);
-        weatherData->titleFont.setFontColor(subTextFontColor, subTextFontColor);
+        weatherData->subTextFont.setFontColor(subTextFontColor, subTextFontColor);
 
         int32_t subTitleTextX = (singleWeatherWidth - weatherData->subTextFont.pixelWidth()) / 2.0;
         int32_t subTitleTextY = ((height() - iconSize) / 2.0 - weatherData->subTextFont.pixelHeight()) / 2.0;

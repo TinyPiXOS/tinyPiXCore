@@ -560,16 +560,10 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
 
     // 矩形镂空
     auto clipper = tvg::Shape::gen();
-    TpVector<ItpRect> rectHollow = hollowMaskData.rectHollowList();
-    for (const auto &hollowData : rectHollow)
-    {
-        // 创建裁剪形状
-        clipper->appendRect(hollowData.x + x, hollowData.y + y, hollowData.w, hollowData.h);
-    }
 
-    // 圆角矩形镂空
-    TpVector<HollowMask::RoundRectHollow> roundHollow = hollowMaskData.roundRectHollowList();
-    for (const auto &hollowData : roundHollow)
+    // 矩形镂空
+    TpVector<HollowMask::RectHollow> rectHollow = hollowMaskData.rectHollowList();
+    for (const auto &hollowData : rectHollow)
     {
         // 创建裁剪形状
         clipper->appendRect(hollowData.region.x + x, hollowData.region.y + y, hollowData.region.w, hollowData.region.h, hollowData.round, hollowData.round);
@@ -617,6 +611,36 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
         // 封口
         clipper->lineTo(hollowData.x + x, hollowData.y + y); // 画线到起点
         clipper->close();                                    // 闭合路径回到圆心
+    }
+
+    // 多边形镂空
+    TpVector<HollowMask::PolygonHollow> polygonHollowList = hollowMaskData.polygonHollowList();
+    for (const auto &hollowPolygon : polygonHollowList)
+    {
+        // 少于两个点的多边形不处理
+        if (polygonHollowList.size() <= 2)
+            continue;
+
+        for (int i = 0; i < hollowPolygon.posintList.size(); ++i)
+        {
+            ItpPoint polygonPoint = hollowPolygon.posintList.at(i);
+
+            if (i == 0)
+            {
+                // 移动到起始点
+                clipper->moveTo(polygonPoint.x, polygonPoint.y);
+            }
+            else if (i == (hollowPolygon.posintList.size() - 1))
+            {
+                // 闭合多边形
+                clipper->lineTo(polygonPoint.x, polygonPoint.y);
+                clipper->close();
+            }
+            else
+            {
+                clipper->lineTo(polygonPoint.x, polygonPoint.y);
+            }
+        }
     }
 
     // 应用反向Alpha遮罩实现镂空
@@ -1223,29 +1247,19 @@ HollowMask::~HollowMask()
 {
 }
 
-void HollowMask::addRectHollow(const ItpRect &region)
+void HollowMask::addRectHollow(const ItpRect &region, const uint32_t &round)
 {
-    rectList_.emplace_back(region);
+    addRectHollow(HollowMask::RectHollow(region, round));
 }
 
-TpVector<ItpRect> HollowMask::rectHollowList() const
+void HollowMask::addRectHollow(const RectHollow &data)
+{
+    rectList_.emplace_back(data);
+}
+
+TpVector<HollowMask::RectHollow> HollowMask::rectHollowList() const
 {
     return rectList_;
-}
-
-void HollowMask::addRoundRectHollow(const ItpRect &region, const uint32_t &round)
-{
-    addRoundRectHollow(HollowMask::RoundRectHollow(region, round));
-}
-
-void HollowMask::addRoundRectHollow(const RoundRectHollow &data)
-{
-    roundRectList_.emplace_back(data);
-}
-
-TpVector<HollowMask::RoundRectHollow> HollowMask::roundRectHollowList() const
-{
-    return roundRectList_;
 }
 
 void HollowMask::addCircleHollow(const int32_t &x, const int32_t &y, const uint32_t &radius)
@@ -1276,4 +1290,14 @@ void HollowMask::addPieHollow(const PieHollow &data)
 TpVector<HollowMask::PieHollow> HollowMask::pieHollowList() const
 {
     return pieList_;
+}
+
+void HollowMask::addPolygonHollow(const PolygonHollow &polygon)
+{
+    polygonList_.emplace_back(polygon);
+}
+
+TpVector<HollowMask::PolygonHollow> HollowMask::polygonHollowList() const
+{
+    return polygonList_;
 }
