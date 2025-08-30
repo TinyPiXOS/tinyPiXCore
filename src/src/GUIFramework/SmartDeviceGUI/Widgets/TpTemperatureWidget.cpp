@@ -1,12 +1,13 @@
 #include "TpTemperatureWidget.h"
 #include "TpCanvas.h"
 #include "TpLinearGradient.h"
+#include "TpFont.h"
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 struct TpTemperatureWidgetData
 {
-    TpString titleText = "";
+    TpString titleText = "温度";
 
     // 最大、最小温度；当前温度
     int32_t maxTemperature = 40;
@@ -16,6 +17,9 @@ struct TpTemperatureWidgetData
     int32_t lineWidth = 3;
 
     TpVector<int32_t> colorList;
+
+    TpFont curTempFont;
+    TpFont minMaxTemptFont;
 };
 
 TpTemperatureWidget::TpTemperatureWidget(TpChildWidget *parent) : TpChildWidget(parent)
@@ -23,10 +27,16 @@ TpTemperatureWidget::TpTemperatureWidget(TpChildWidget *parent) : TpChildWidget(
     TpTemperatureWidgetData *tempData = new TpTemperatureWidgetData();
     data_ = tempData;
 
-    tempData->colorList.emplace_back(_RGB(123, 1, 1));
-    tempData->colorList.emplace_back(_RGB(246, 130, 132));
-    tempData->colorList.emplace_back(_RGB(134, 226, 252));
     tempData->colorList.emplace_back(_RGB(160, 234, 255));
+    tempData->colorList.emplace_back(_RGB(134, 226, 252));
+    tempData->colorList.emplace_back(_RGB(246, 130, 132));
+    tempData->colorList.emplace_back(_RGB(123, 1, 1));
+
+    tempData->curTempFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    tempData->curTempFont.setFontSize(15);
+
+    tempData->minMaxTemptFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    tempData->minMaxTemptFont.setFontSize(13);
 }
 
 TpTemperatureWidget::~TpTemperatureWidget()
@@ -110,9 +120,11 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
 
     TpCanvas *painter = event->canvas();
 
+    // painter->box(0, 0, width(), height(), _RGB(255, 0, 0));
+
     // 宽度三分之一的位置绘制温度条
-    int32_t thermometerWidth = width() * 0.29;
-    int32_t thermometerHeight = height() * 0.93;
+    int32_t thermometerWidth = width() * 0.27;
+    int32_t thermometerHeight = height() * 0.88;
 
     // 矩形部分宽度
     int32_t rectangleWidth = thermometerWidth * 0.75;
@@ -141,7 +153,7 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
     TpLinearGradient lineGradient;
     for (int i = 0; i < colorListSize; ++i)
     {
-        lineGradient.setColorAt(i / (colorListSize - 1), tempData->colorList.at(i));
+        lineGradient.setColorAt(1.0 * i / (colorListSize - 1), tempData->colorList.at(i));
     }
 
     if (colorListSize > 0)
@@ -152,11 +164,15 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
     }
 
     // 计算填充高度
-    if (tempData->curTemperature == tempData->maxTemperature)
+    if (tempData->curTemperature >= tempData->maxTemperature)
     {
+        // 和最大温度相同；完全填充
+        painter->filledCircle(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, _RGB(0, 0, 0));
+        painter->roundedBox(rectangleX + tempData->lineWidth, rectangleY + tempData->lineWidth, rectangleX + rectangleWidth - tempData->lineWidth, rectangleY + rectangleHeight, rectangleWidth / 2.0, _RGB(0, 0, 0));
     }
-    else if (tempData->curTemperature == tempData->minTemperature)
+    else if (tempData->curTemperature <= tempData->minTemperature)
     {
+        // 和最小温度相同；什么都不绘制
     }
     else
     {
@@ -167,57 +183,132 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
         // 绘制圆形
         HollowMask hallowMask;
 
-        if (valueHeight == circleRadius)
+        if (valueHeight == fillCircleRadius)
         {
-            painter->filledPie(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, 0, 180, _RGB(0, 0, 0));
+            painter->filledPie(circleCenterX, circleCenterY, fillCircleRadius, 0, 180, _RGB(0, 0, 0));
         }
-        else if (valueHeight < circleRadius)
+        else if (valueHeight < (fillCircleRadius * 2))
         {
             // 先计算弦与圆相交的两个点坐标
             ItpPoint leftPoint, rightPoint;
 
             // 弦的一半长度
-            float lineW = std::sqrt(std::pow(fillCircleRadius, 2) - std::pow(fillCircleRadius - valueHeight, 2));
-
-            leftPoint.x = circleCenterX - lineW;
-            leftPoint.y = circleCenterY + fillCircleRadius - valueHeight;
-
-            rightPoint.x = circleCenterX + lineW;
-            rightPoint.y = circleCenterY + fillCircleRadius - valueHeight;
+            float lineW = 0;
 
             // 镂空一个三角形
             HollowMask::PolygonHollow polygonHollow;
-            polygonHollow.posintList.emplace_back(ItpPoint(circleCenterX, circleCenterY));
-            polygonHollow.posintList.emplace_back(ItpPoint(leftPoint.x, leftPoint.y));
-            polygonHollow.posintList.emplace_back(ItpPoint(rightPoint.x, rightPoint.y));
-            hallowMask.addPolygonHollow(polygonHollow);
 
-            // 余弦定理 计算弦两个顶点的角度
-            double cos_value = (std::pow(lineW, 2) + std::pow(fillCircleRadius - valueHeight, 2) - std::pow(fillCircleRadius, 2)) / (2.0 * lineW * (fillCircleRadius - valueHeight));
+            float startAngle = 0;
+            float endAngle = 0;
+
+            double cosValue = 0;
+            // 高度小于直径且小于半径；在下半圆
+            if (valueHeight < fillCircleRadius)
+            {
+                lineW = std::sqrt(std::pow(fillCircleRadius, 2) - std::pow(fillCircleRadius - valueHeight, 2));
+
+                leftPoint.x = circleCenterX - lineW;
+                leftPoint.y = circleCenterY + fillCircleRadius - valueHeight;
+
+                rightPoint.x = circleCenterX + lineW;
+                rightPoint.y = circleCenterY + fillCircleRadius - valueHeight;
+
+                // 在下半圆时是在扇形基础上镂空一个三角形
+                polygonHollow.posintList.emplace_back(ItpPoint(circleCenterX, circleCenterY));
+                polygonHollow.posintList.emplace_back(ItpPoint(leftPoint.x, leftPoint.y));
+                polygonHollow.posintList.emplace_back(ItpPoint(rightPoint.x, rightPoint.y));
+                hallowMask.addPolygonHollow(polygonHollow);
+
+                // 余弦定理 计算弦两个顶点的角度
+                cosValue = (std::pow(lineW, 2) + std::pow(fillCircleRadius - valueHeight, 2) - std::pow(fillCircleRadius, 2)) / (2.0 * lineW * (fillCircleRadius - valueHeight));
+                float angle = std::acos(cosValue) * 180.0 / M_PI;
+                startAngle = 90 - angle;
+                endAngle = 90 + angle;
+            }
+            else
+            {
+                lineW = std::sqrt(std::pow(fillCircleRadius, 2) - std::pow(valueHeight - fillCircleRadius, 2));
+
+                leftPoint.x = circleCenterX - lineW;
+                leftPoint.y = circleCenterY - (valueHeight - fillCircleRadius);
+
+                rightPoint.x = circleCenterX + lineW;
+                rightPoint.y = circleCenterY - (valueHeight - fillCircleRadius);
+
+                // 在下半圆，是在扇形基础上再绘制一个三角形
+                TpVector<ItpPoint> addPolygonPointList;
+                addPolygonPointList.emplace_back(ItpPoint(circleCenterX, circleCenterY));
+                addPolygonPointList.emplace_back(ItpPoint(leftPoint.x, leftPoint.y));
+                addPolygonPointList.emplace_back(ItpPoint(rightPoint.x, rightPoint.y));
+                painter->filledPolygon(addPolygonPointList, _RGB(0, 0, 0));
+
+                // 大于半径且小于执行，在上半圆
+                // 余弦定理 计算弦两个顶点的角度
+                cosValue = (std::pow(fillCircleRadius, 2) + std::pow(lineW, 2) - std::pow(fillCircleRadius - valueHeight, 2)) / (2.0 * lineW * fillCircleRadius);
+                float angle = std::acos(cosValue) * 180.0 / M_PI;
+                startAngle = -angle;
+                endAngle = 180 + angle;
+            }
+
             // 防止浮点误差超出范围
-            if (cos_value < -1.0)
-                cos_value = -1.0;
-            else if (cos_value > 1.0)
-                cos_value = 1.0;
+            if (cosValue < -1.0)
+                cosValue = -1.0;
+            else if (cosValue > 1.0)
+                cosValue = 1.0;
 
-            float angle = std::acos(cos_value) * 180.0 / M_PI;
-
-            painter->filledPie(circleCenterX, circleCenterY, fillCircleRadius, 90 - angle, 90 + angle, _RGB(0, 0, 0), hallowMask);
-        }
-        else if (valueHeight < (circleRadius * 2))
-        {
-            // 高度大于半径但小于直径
+            painter->filledPie(circleCenterX, circleCenterY, fillCircleRadius, startAngle, endAngle, _RGB(0, 0, 0), hallowMask);
         }
         else
         {
             painter->filledCircle(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, _RGB(0, 0, 0));
 
-            // 绘制圆角矩形
+            // 绘制圆角矩形; 矩形终止点与矩形边框相同；起始点Y通过 （值高度 - 圆半径）计算
+            int32_t rectLeftY = rectangleY + rectangleHeight - (valueHeight - fillCircleRadius);
+            painter->roundedBox(rectangleX + tempData->lineWidth, rectLeftY, rectangleX + rectangleWidth - tempData->lineWidth, rectangleY + rectangleHeight, rectangleWidth / 2.0, _RGB(0, 0, 0));
         }
-
-        // painter->filledPie(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, , , _RGB(0, 0, 0), hallowMask);
-        // painter->filledCircle(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, _RGB(0, 0, 0), hallowMask);
     }
+
+    // 重置渐变
+    painter->setGradient(nullptr);
+
+    // 绘制刻度线
+    // 将矩形区域去除圆角部分，然后五等分，绘制四根刻度线  (rectangleWidth / 2.0)为圆角值
+    int32_t singleLineHeight = (rectangleHeight - (rectangleWidth / 2.0 * 2.0)) / 5.0;
+    for (int i = 0; i < 4; ++i)
+    {
+        painter->hline(rectangleX, rectangleX + rectangleWidth * 0.65, rectangleY + (rectangleWidth / 2.0) + singleLineHeight + singleLineHeight * i, _RGB(116, 121, 150));
+    }
+
+    // 绘制文本
+    // 绘制最高温度
+    // 计算最高温度X坐标，左侧空白位置居中
+    tempData->minMaxTemptFont.setText(TpString::number(tempData->maxTemperature) + "°");
+    int32_t maxTempTextWidth = tempData->minMaxTemptFont.pixelWidth();
+    int32_t maxTempTextX = ((circleCenterX - circleRadius) - maxTempTextWidth) / 2.0;
+    painter->renderText(tempData->minMaxTemptFont, maxTempTextX, rectangleY * 2);
+
+    // 绘制最低温度
+    tempData->minMaxTemptFont.setText(TpString::number(tempData->minTemperature) + "°");
+    int32_t minTempTextWidth = tempData->minMaxTemptFont.pixelWidth();
+    int32_t minTempTextHeight = tempData->minMaxTemptFont.pixelHeight();
+    int32_t minTempTextX = ((circleCenterX - circleRadius) - maxTempTextWidth) / 2.0;
+    painter->renderText(tempData->minMaxTemptFont, minTempTextX, circleCenterY + circleRadius - minTempTextHeight);
+
+    // 绘制当前温度值
+    tempData->curTempFont.setText(TpString::number(tempData->curTemperature) + "°");
+    int32_t curTempTextWidth = tempData->curTempFont.pixelWidth();
+    int32_t curTempTextHeight = tempData->curTempFont.pixelHeight();
+    int32_t curTempTextX = (circleCenterX + circleRadius) + (width() - (circleCenterX + circleRadius) - maxTempTextWidth) / 2.0;
+    int32_t curTempTextY = rectangleY + ((circleCenterY + circleRadius) - rectangleY - curTempTextHeight) / 2.0;
+    painter->renderText(tempData->curTempFont, curTempTextX, curTempTextY);
+
+    // 绘制标题文本
+    tempData->minMaxTemptFont.setText(tempData->titleText);
+    int32_t titleTextWidth = tempData->minMaxTemptFont.pixelWidth();
+    int32_t titleTextHeight = tempData->minMaxTemptFont.pixelHeight();
+    int32_t titleTextX = (width() - titleTextWidth) / 2.0;
+    int32_t titleTextY = height() - titleTextHeight;
+    painter->renderText(tempData->minMaxTemptFont, titleTextX, titleTextY);
 
     return true;
 }
