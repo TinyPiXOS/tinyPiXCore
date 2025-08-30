@@ -1,5 +1,5 @@
-#ifndef __TP_SMART_GUI_TEMPERATURE_WIDGET_H
-#define __TP_SMART_GUI_TEMPERATURE_WIDGET_H
+#ifndef __TP_SMART_GUI_HUMIDITY_WIDGET_H
+#define __TP_SMART_GUI_HUMIDITY_WIDGET_H
 
 #include "TpChildWidget.h"
 #include "TpSignalSlot.h"
@@ -9,18 +9,18 @@
 
 SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
-TP_DEF_VOID_TYPE_VAR(ITpTemperatureWidgetData);
-/// @brief 温度计组件
-class TpTemperatureWidget : public TpChildWidget
+TP_DEF_VOID_TYPE_VAR(ITpHumidityWidgetData);
+/// @brief 湿度计组件
+class TpHumidityWidget : public TpChildWidget
 {
 public:
-    TpTemperatureWidget(TpChildWidget *parent = nullptr);
+    TpHumidityWidget(TpChildWidget *parent = nullptr);
 
-    virtual ~TpTemperatureWidget();
+    virtual ~TpHumidityWidget();
 
     /// @brief 设置标题文本
     /// @param title 文本字符串
-    void setTitle(const TpString& title);
+    void setTitle(const TpString &title);
     /// @brief 获取当前标题文本
     /// @return 文本字符串
     TpString title() const;
@@ -51,10 +51,10 @@ public:
 public:
     virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
 
-    virtual TpString pluginType() override { return TO_STRING(TpTemperatureWidget); }
+    virtual TpString pluginType() override { return TO_STRING(TpHumidityWidget); }
 
 private:
-    ITpTemperatureWidgetData *data_;
+    ITpHumidityWidgetData *data_;
 };
 
 SMART_DEVICE_GUI_NAMESPACE_END

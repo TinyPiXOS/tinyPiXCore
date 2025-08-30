@@ -313,11 +313,4 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpTemperatureWidget::onResizeEvent(TpObjectResizeEvent *event)
-{
-    TpChildWidget::onResizeEvent(event);
-
-    return true;
-}
-
 SMART_DEVICE_GUI_NAMESPACE_END

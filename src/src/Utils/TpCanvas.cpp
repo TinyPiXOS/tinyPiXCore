@@ -1074,6 +1074,41 @@ void TpCanvas::filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color,
     }
 }
 
+void TpCanvas::cubicTo(int32_t startX, int32_t startY, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t endX, int32_t endY, int32_t color, double width)
+{
+    TpCanvasData *set = static_cast<TpCanvasData *>(data_);
+
+    if (!set)
+        return;
+    if (!set->beUsed)
+        return;
+    if (!set->swCanvas)
+        return;
+
+    refreshCanvasTarget(set);
+
+    tvg::Shape *shape = tvg::Shape::gen();
+
+    // 移动到起始点
+    shape->moveTo(set->offsetX + startX, set->offsetY + startY);
+
+    // 绘制三次贝塞尔曲线
+    shape->cubicTo(set->offsetX + cx1, set->offsetY + cy1,    // 第一个控制点
+                   set->offsetX + cx2, set->offsetY + cy2,    // 第二个控制点
+                   set->offsetX + endX, set->offsetY + endY); // 终点
+
+    // 设置描边属性
+    shape->strokeWidth(width);
+    shape->strokeFill(_R(color), _G(color), _B(color), _A(color));
+
+    set->tvgScene->push(std::move(shape));
+}
+
+void TpCanvas::cubicTo(ItpPoint startPoint, ItpPoint cPoint, ItpPoint c2Point, ItpPoint endPoint, int32_t color, double width)
+{
+    cubicTo(startPoint.x, startPoint.y, cPoint.x, cPoint.y, c2Point.x, c2Point.y, endPoint.x, endPoint.y, color, width);
+}
+
 void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);

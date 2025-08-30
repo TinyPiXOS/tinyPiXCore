@@ -18,6 +18,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpWeatherInfoPanel.cpp
     ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpButton.cpp
     ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpTemperatureWidget.cpp
+    ${SOURCE_PATH}/src/GUIFramework/SmartDeviceGUI/Widgets/TpHumidityWidget.cpp
 )
 
 include_directories(/usr/include/cairo)

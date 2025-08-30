@@ -315,6 +315,27 @@ public:
     /// @param HollowMask 镂空形状数据；以第一个点为零点坐标
     virtual void filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color, const HollowMask &hollowMaskData = HollowMask());
 
+    /// @brief 绘制三次贝塞尔曲线
+    /// @param startX 起始点
+    /// @param startY
+    /// @param cx1 第一个控制点
+    /// @param cy1
+    /// @param cx2 第二个控制点
+    /// @param cy2
+    /// @param endX 终点
+    /// @param endY
+    /// @param color 颜色
+    /// @param width 线宽
+    virtual void cubicTo(int32_t startX, int32_t startY, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t endX, int32_t endY, int32_t color, double width = 1.0);
+    /// @brief 绘制三次贝塞尔曲线
+    /// @param startPoint 起始点
+    /// @param cPoint 第一个控制点
+    /// @param c2Point 第二个控制点
+    /// @param endPoint 终止点
+    /// @param color 颜色
+    /// @param width 线宽
+    virtual void cubicTo(ItpPoint startPoint, ItpPoint cPoint, ItpPoint c2Point, ItpPoint endPoint, int32_t color, double width = 1.0);
+
 public:
     /// @brief 绘制图片资源
     /// @param x 绘制X坐标
