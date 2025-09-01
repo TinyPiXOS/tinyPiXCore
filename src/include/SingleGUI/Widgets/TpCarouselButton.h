@@ -5,19 +5,49 @@
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpCarouselButtonData);
-
-/// @brief 轮播按钮,无需外部设置尺寸，setCount后会自动设置尺寸
+TP_DEF_VOID_TYPE_VAR(ITpCarouselButtonData);
+/// @brief 轮播按钮
 class TpCarouselButton : public TpChildWidget
 {
 public:
-    TpCarouselButton(TpChildWidget *parent);
+    /// @brief 显示模式
+    enum ShowMode
+    {
+        /// @brief 横向显示
+        Horizon,
+        /// @brief 纵向显示
+        Vertical
+    };
 
-    TpCarouselButton(const uint32_t &count, TpChildWidget *parent);
+public:
+    TpCarouselButton(TpChildWidget *parent = nullptr);
+
+    TpCarouselButton(const uint32_t &count, TpChildWidget *parent = nullptr);
 
     virtual ~TpCarouselButton();
 
 public:
+    /// @brief 设置显示模式
+    /// @param mode 显示模式枚举 
+    void setMode(const ShowMode& mode);
+    /// @brief 获取当前显示模式
+    /// @return 显示模式枚举
+    ShowMode mode();
+
+    /// @brief 设置选中节点颜色
+    /// @param color 颜色RGB值
+    void setSelectColor(int32_t color);
+    /// @brief 获取选中节点颜色
+    /// @return 颜色RGB值
+    int32_t selectColor();
+
+    /// @brief 设置默认节点颜色
+    /// @param color 颜色RGB
+    void setDefaultColor(int32_t color);
+    /// @brief 获取默认节点颜色
+    /// @return 颜色RGB
+    int32_t defaultColor();
+
     /// @brief 获取轮播按钮计数
     /// @return 计数
     uint32_t count();
@@ -32,14 +62,16 @@ public:
     /// @param index 下标
     void setCurrentIndex(const uint32_t &index);
 
-public:
-    virtual void setParent(TpObject *parent) override;
+    /// @brief 设置节点间间距
+    /// @param spacing 间距PX
+    void setSpacing(int32_t spacing);
+    /// @brief 获取节点间距
+    /// @return 节点间距px
+    int32_t spacing();
 
+public:
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
-    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
-    virtual void onThemeChangeEvent(TpThemeChangeEvent *event) override;
 
 protected:
     virtual TpString pluginType() override { return TO_STRING(TpCarouselButton); }
@@ -52,7 +84,7 @@ signals:
     declare_signal(onClicked, uint32_t);
 
 private:
-    ItpCarouselButtonData *data_;
+    ITpCarouselButtonData *data_;
 };
 
 #endif

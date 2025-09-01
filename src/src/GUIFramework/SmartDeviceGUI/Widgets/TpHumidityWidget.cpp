@@ -190,7 +190,7 @@ bool TpHumidityWidget::onPaintEvent(TpObjectPaintEvent *event)
     // 水滴总高度，用于计算填充绘制高度
     int32_t humidituAllHeight = startY + arcY + arcRadius;
     float valueHeight = percentValue * humidituAllHeight;
-    int32_t fillCircleRadius = arcRadius - tempData->lineWidth;
+    int32_t fillCircleRadius = arcRadius - tempData->lineWidth + 1;
 
     if (tempData->curValue <= tempData->minValue)
     {
