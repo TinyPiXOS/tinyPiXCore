@@ -9,6 +9,7 @@ TP_DEF_VOID_TYPE_VAR(ITpHardwareI2c);
 class TpHardwareI2c : public TpHardwareDevice
 {
 public:
+	TpHardwareI2c(const TpString& name);
 	/// @brief 
 	/// @param name 设备名
 	/// @param address 从设备地址
@@ -34,7 +35,31 @@ public:
 	/// @param length 
 	/// @return 
 	ssize_t write(const uint8_t* data, size_t length);
-	/// @brief 设置IIC从及地址
+
+	/// @brief 从指定寄存器开始读取
+	/// @param reg 起始寄存器
+	/// @param data 数据
+	/// @param length 数据长度
+	/// @param timeout_ms 
+	/// @return 
+	tpInt64 readReg(tpUInt8 reg, tpUInt8* data, size_t length, uint32_t timeout_ms = 1000);
+
+	/// @brief 从指定寄存器开始写入
+	/// @param reg 
+	/// @param data 
+	/// @param length 
+	/// @param timeout_ms 
+	/// @return 
+	tpInt64 writeReg(tpUInt8 reg, const tpUInt8* data, size_t length, uint32_t timeout_ms = 1000);
+
+	/// @brief 写命令
+	/// @param cmd 命令
+	/// @param data 数据
+	/// @param timeout_ms 超时时间
+	/// @return 
+	tpInt64 writeCmd(tpUInt8 cmd, uint32_t timeout_ms = 1000);
+
+	/// @brief 设置IIC从机地址
 	/// @param address 
 	/// @return 
 	int setSlaveAddress(tpUInt8 address);
@@ -44,7 +69,8 @@ public:
 	/// @brief 探测设备是否存在
 	/// @return 
 	tpBool probeDevice();
-	int setTimeout(int timeout_ms);
+
+
 
 private:
 	ITpHardwareI2c *data_;

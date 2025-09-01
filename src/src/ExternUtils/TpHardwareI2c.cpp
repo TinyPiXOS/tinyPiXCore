@@ -7,6 +7,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/ioctl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
@@ -27,6 +28,58 @@ struct TpHardwareI2cData{
 	}
 };
 
+
+
+static volatile sig_atomic_t i2c_timeout_flag = 0;
+static int default_timeout_ms = 1000; // 默认1秒
+
+void i2c_alarm_handler(int sig) {
+    i2c_timeout_flag = 1;
+}
+
+void i2c_set_default_timeout(int timeout_ms) {
+    default_timeout_ms = timeout_ms;
+}
+
+// 底层调用，信号 + ioctl 实现超时控制
+static int i2c_rdwr_with_timeout(int fd, struct i2c_rdwr_ioctl_data *packets, int timeout_ms)
+{
+	if(timeout_ms<=0)
+	{
+		return ioctl(fd, I2C_RDWR, packets);
+	}
+
+    struct sigaction sa_old, sa_new;
+    sa_new.sa_handler = i2c_alarm_handler;
+    sigemptyset(&sa_new.sa_mask);
+    sa_new.sa_flags = 0;
+
+    sigaction(SIGALRM, &sa_new, &sa_old);
+
+    i2c_timeout_flag = 0;
+    alarm((timeout_ms + 999) / 1000); // 转换为秒，向上取整
+
+    int ret = ioctl(fd, I2C_RDWR, packets);
+
+    alarm(0); // 取消定时器
+    sigaction(SIGALRM, &sa_old, NULL);
+
+    if (i2c_timeout_flag) {
+        fprintf(stderr, "I2C transaction timeout\n");
+        return -1;
+    }
+    if (ret < 0) {
+        perror("I2C_RDWR failed");
+        return -1;
+    }
+    return 0;
+}
+
+
+TpHardwareI2c::TpHardwareI2c(const TpString& name)
+{
+	TpHardwareI2c(name,0X00);
+}
 
 TpHardwareI2c::TpHardwareI2c(const TpString& name, tpUInt8 address)
 {
@@ -67,7 +120,6 @@ tpBool TpHardwareI2c::open()
 		close();
 		return TP_FALSE;
 	}
-	setTimeout(1000);
 
 	data->is_open=TP_TRUE;
 	return TP_TRUE;
@@ -106,6 +158,74 @@ ssize_t TpHardwareI2c::write(const uint8_t* buffer, size_t size)
     }
 	return result;
 }
+
+tpInt64 TpHardwareI2c::readReg(tpUInt8 reg, tpUInt8* buf, size_t length, uint32_t timeout_ms)
+{
+	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
+	if(!data || !data->is_open)
+		return -1;
+	struct i2c_rdwr_ioctl_data packets;
+	struct i2c_msg messages[2];
+
+	messages[0].addr  = data->address;
+	messages[0].flags = 0;     // 写
+	messages[0].len   = 1;
+	messages[0].buf   = &reg;
+
+	messages[1].addr  = data->address;
+	messages[1].flags = I2C_M_RD;  // 读
+	messages[1].len   = length;
+	messages[1].buf   = (uint8_t *)buf;
+
+	packets.msgs  = messages;
+	packets.nmsgs = 2;
+
+	return i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+}
+
+tpInt64 TpHardwareI2c::writeReg(tpUInt8 reg, const tpUInt8* buf, size_t length, uint32_t timeout_ms)
+{
+	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
+	if(!data || !data->is_open)
+		return -1;
+	struct i2c_rdwr_ioctl_data packets;
+	struct i2c_msg messages[2];
+
+	messages[0].addr  = data->address;       // 从设备地址
+	messages[0].flags = 0;          // 写
+	messages[0].len   = 1;
+	messages[0].buf   = &reg;
+
+	messages[1].addr  = data->address;
+	messages[1].flags = 0;     // 写
+	messages[1].len   = length;
+	messages[1].buf   = (uint8_t *)buf;
+
+	packets.msgs  = messages;
+	packets.nmsgs = 2;
+
+	return i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+}
+
+tpInt64 TpHardwareI2c::writeCmd(tpUInt8 cmd, uint32_t timeout_ms)
+{
+	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
+	if(!data || !data->is_open)
+		return -1;
+	struct i2c_rdwr_ioctl_data packets;
+	struct i2c_msg messages;
+
+	messages.addr  = data->address;       // 从设备地址
+	messages.flags = 0;          // 写
+	messages.len   = 1;
+	messages.buf   = &cmd;
+
+	packets.msgs  = &messages;
+	packets.nmsgs = 1;
+
+	return i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+}
+
 
 //设置从机地址
 int TpHardwareI2c::setSlaveAddress(tpUInt8 address)
@@ -149,19 +269,6 @@ tpBool TpHardwareI2c::probeDevice()
 	// 其他情况也认为设备存在
 	return TP_TRUE;
 }
-
-int TpHardwareI2c::setTimeout(int timeout_ms)
-{
-	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
-	if(!data || !data->is_open)
-		return -1;
-	if (ioctl(data->devfd, I2C_TIMEOUT, timeout_ms) < 0) {
-		fprintf(stderr,"[Error]: Failed to set I2C timeout\n");
-		return -1;
-	}
-	return 0;
-}
-
 
 
     
