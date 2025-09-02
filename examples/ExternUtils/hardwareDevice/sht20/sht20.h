@@ -16,6 +16,7 @@ public:
 
 public:
 	TpSht20(const TpString& name);
+	TpSht20(tpUInt8 bus);
 	~TpSht20();
 
 public:
@@ -25,10 +26,6 @@ public:
 	float getHumidity(tpBool *is_ok);
 	int setPrecision(TpSht20::PrecisionType type);
 	TpSht20::PrecisionType getPrecision();
-
-
-private:
-
 
 };
 
