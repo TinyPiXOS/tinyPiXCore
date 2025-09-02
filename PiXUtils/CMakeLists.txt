@@ -58,6 +58,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/TpLinearGradient.cpp
     ${SOURCE_PATH}/src/Utils/TpRadialGradient.cpp
     ${SOURCE_PATH}/src/Utils/TpHardwareDevice.cpp
+    ${SOURCE_PATH}/src/Utils/TpGraphicsEffect.cpp
+    ${SOURCE_PATH}/src/Utils/TpGraphicsBlurEffect.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp
