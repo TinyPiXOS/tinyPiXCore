@@ -8,13 +8,17 @@ struct TpCarouselButtonData
     uint32_t maxCount = 3;
     uint32_t curIndex = 0;
 
-    uint32_t spacing = TpDisplay::dp2Px(10);
-    uint32_t singleButtonRadius = TpDisplay::dp2Px(8);
+    uint32_t spacing = TpDisplay::dp2Px(14);
+    uint32_t singleBtnWH = TpDisplay::dp2Px(8);
 
     TpCarouselButton::ShowMode showMode = TpCarouselButton::Horizon;
 
     int32_t selectColor = _RGB(255, 255, 255);
     int32_t defaultColor = _RGB(110, 110, 110);
+
+    // 所有点的坐标区域
+    bool respond = false;
+    TpVector<ItpRect> pointRectList;
 };
 
 TpCarouselButton::TpCarouselButton(TpChildWidget *parent)
@@ -124,37 +128,103 @@ int32_t TpCarouselButton::spacing()
     return buttonData->spacing;
 }
 
+void TpCarouselButton::setRespondClick(bool respond)
+{
+    TpCarouselButtonData *buttonData = static_cast<TpCarouselButtonData *>(data_);
+    buttonData->respond = respond;
+}
+
 bool TpCarouselButton::onMousePressEvent(TpMouseEvent *event)
 {
     TpCarouselButtonData *buttonData = static_cast<TpCarouselButtonData *>(data_);
-    ItpPoint pressPoint = event->globalPos();
-    
+    if (!buttonData->respond)
+        return true;
+
+    ItpPoint pressPoint = event->pos();
+    for (int i = 0; i < buttonData->pointRectList.size(); ++i)
+    {
+        auto curRect = buttonData->pointRectList.at(i);
+
+        if (curRect.contains(pressPoint))
+        {
+            setCurrentIndex(i);
+            onClicked.emit(i);
+            break;
+        }
+    }
+
     return true;
 }
 
 bool TpCarouselButton::onPaintEvent(TpObjectPaintEvent *event)
 {
     TpCarouselButtonData *buttonData = static_cast<TpCarouselButtonData *>(data_);
+    buttonData->pointRectList.clear();
 
     TpCanvas *paintCanvas = event->canvas();
 
-    // 依次绘制色块
-    uint32_t startX = 0;
-
-    for (int i = 0; i < buttonData->maxCount; ++i)
+    if (buttonData->showMode == TpCarouselButton::Horizon)
     {
-        if (i == buttonData->curIndex)
-        {
-            paintCanvas->roundedBox(startX, 0, startX + buttonData->singleButtonRadius * 2 + buttonData->spacing, height(), buttonData->singleButtonRadius, _RGB(255, 255, 255));
+        // 依次绘制色块;因为选中节点占五个默认节点的宽度，所以 +4
+        uint32_t startX = (width() - ((buttonData->maxCount + 4) * buttonData->singleBtnWH + (buttonData->maxCount - 1) * buttonData->spacing)) / 2.0;
+        int32_t startY = (height() - buttonData->singleBtnWH) / 2.0;
 
-            startX += buttonData->singleButtonRadius * 2 + buttonData->spacing * 2;
+        for (int i = 0; i < buttonData->maxCount; ++i)
+        {
+            ItpRect curRect;
+            curRect.x = startX;
+            curRect.y = startY;
+            curRect.h = buttonData->singleBtnWH;
+
+            int32_t curColor;
+            if (i == buttonData->curIndex)
+            {
+                curRect.w = buttonData->singleBtnWH * 5;
+                startX += buttonData->singleBtnWH * 4;
+                curColor = buttonData->selectColor;
+            }
+            else
+            {
+                curRect.w = buttonData->singleBtnWH;
+                curColor = buttonData->defaultColor;
+            }
+
+            paintCanvas->roundedBox(curRect.x, curRect.y, curRect.x + curRect.w, curRect.y + curRect.h, buttonData->singleBtnWH / 2.0, curColor);
+            buttonData->pointRectList.emplace_back(curRect);
+
+            startX += buttonData->singleBtnWH + buttonData->spacing;
         }
-        else
-        {
-            paintCanvas->roundedBox(startX, 0, startX + buttonData->singleButtonRadius, height(), buttonData->singleButtonRadius, _RGBA(255, 255, 255, 51));
-            // paintCanvas->roundedBox(startX, 0, startX + buttonData->singleButtonRadius, height(), minRad, _RGBA(255, 0, 0, 255));
+    }
+    else
+    {
+        // 依次绘制色块;因为选中节点占五个默认节点的宽度，所以 +4
+        uint32_t startX = (width() - buttonData->singleBtnWH) / 2.0;
+        int32_t startY = (height() - ((buttonData->maxCount + 4) * buttonData->singleBtnWH + (buttonData->maxCount - 1) * buttonData->spacing)) / 2.0;
 
-            startX += buttonData->singleButtonRadius + buttonData->spacing;
+        for (int i = 0; i < buttonData->maxCount; ++i)
+        {
+            ItpRect curRect;
+            curRect.x = startX;
+            curRect.y = startY;
+            curRect.w = buttonData->singleBtnWH;
+
+            int32_t curColor;
+            if (i == buttonData->curIndex)
+            {
+                curRect.h = buttonData->singleBtnWH * 5;
+                startY += buttonData->singleBtnWH * 4;
+                curColor = buttonData->selectColor;
+            }
+            else
+            {
+                curRect.h = buttonData->singleBtnWH;
+                curColor = buttonData->defaultColor;
+            }
+
+            paintCanvas->roundedBox(curRect.x, curRect.y, curRect.x + curRect.w, curRect.y + curRect.h, buttonData->singleBtnWH / 2.0, curColor);
+            buttonData->pointRectList.emplace_back(curRect);
+
+            startY += buttonData->singleBtnWH + buttonData->spacing;
         }
     }
 

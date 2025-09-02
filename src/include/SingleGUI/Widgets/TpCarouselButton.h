@@ -69,6 +69,10 @@ public:
     /// @return 节点间距px
     int32_t spacing();
 
+    /// @brief 设置是否响应点击切换，默认为false，设置true后点击节点按钮会自动切换至对应节点；且发送点击信号
+    /// @param respond true点击节点后自动切换当前选中；false不处理
+    void setRespondClick(bool respond);
+
 public:
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
     virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
@@ -81,7 +85,7 @@ private:
 
 public
 signals:
-    declare_signal(onClicked, uint32_t);
+    declare_signal(onClicked, int32_t);
 
 private:
     ITpCarouselButtonData *data_;
