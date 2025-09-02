@@ -1,8 +1,9 @@
-#include "TpAppConfigIO.h"
+#include "Service/TpAppConfigIO.h"
 #include "TpJsonDocument.h"
 #include "TpJsonObject.h"
 #include "TpFile.h"
 #include "TpDir.h"
+#include "Service/TpAppConfigIO.h"
 
 static const TpString globalConfRootPath = "/System/conf/app/";
 static const TpString globalAppRootPath = "/System/app/";
@@ -134,4 +135,19 @@ TpString TpAppConfigIO::appName()
         return "";
 
     return configData->appStaticJsonObj.value("appName").toString();
+}
+
+TpVector<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetsInfo()
+{
+    return TpVector<AppWidgetInfo>();
+}
+
+TpAppConfigIO::AppWidgetInfo TpAppConfigIO::widgetInfo(const TpString &widgetUuid)
+{
+    return AppWidgetInfo();
+}
+
+tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::defaultWidgetInfo()
+{
+    return tpShared<AppWidgetInfo>();
 }

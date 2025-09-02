@@ -10,6 +10,18 @@ TP_DEF_VOID_TYPE_VAR(ItpAppConfigIOData);
 class TpAppConfigIO
 {
 public:
+    struct AppWidgetInfo
+    {
+        TpString widgetUuid;
+        TpString name;
+        TpString path;
+        TpString linkAppUuid;
+        AppWidgetInfo() : widgetUuid(""), name(""), path(""), linkAppUuid("")
+        {
+        }
+    };
+
+public:
     TpAppConfigIO();
     TpAppConfigIO(const TpString &appUuid);
     virtual ~TpAppConfigIO();
@@ -36,6 +48,19 @@ public:
     /// @brief 获取应用名称
     /// @return 应用名称
     TpString appName();
+
+    /// @brief 获取应用所有小组件信息列表
+    /// @return 小组件信息列表
+    TpVector<AppWidgetInfo> widgetsInfo();
+
+    /// @brief 指定小组件UUID获取小组件信息
+    /// @param widgetUuid 小组件UUID
+    /// @return 小组件信息
+    AppWidgetInfo widgetInfo(const TpString &widgetUuid);
+
+    /// @brief 获取默认小组件信息
+    /// @return 无默认小组件则返回 nullptr
+    tpShared<AppWidgetInfo> defaultWidgetInfo();
 
 private:
     ItpAppConfigIOData *data_;

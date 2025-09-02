@@ -13,6 +13,8 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 
 # 定义源码路径宏
 set(SOURCE_FILES
+    ${SOURCE_PATH}/src/Utils/Service/TpSystemApi.cpp
+    ${SOURCE_PATH}/src/Utils/Service/TpAppConfigIO.cpp
     ${SOURCE_PATH}/src/Utils/TpRect.cpp
     ${SOURCE_PATH}/src/Utils/TpPoint.cpp
     ${SOURCE_PATH}/src/Utils/TpSize.cpp
@@ -44,56 +46,54 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/TpTime.cpp
     ${SOURCE_PATH}/src/Utils/TpDateTime.cpp
     ${SOURCE_PATH}/src/Utils/TpInputMethod.cpp
-    ${SOURCE_PATH}/src/Utils/TpSystemApi.cpp
     ${SOURCE_PATH}/src/Utils/TpCssParser.cpp
-	${SOURCE_PATH}/src/Utils/TpCssData.cpp
-	${SOURCE_PATH}/src/Utils/TpJsonDocument.cpp
-	${SOURCE_PATH}/src/Utils/TpJsonArray.cpp
-	${SOURCE_PATH}/src/Utils/TpJsonObject.cpp
-	${SOURCE_PATH}/src/Utils/TpJsonValue.cpp
-    ${SOURCE_PATH}/src/Utils/TpAppConfigIO.cpp
+    ${SOURCE_PATH}/src/Utils/TpCssData.cpp
+    ${SOURCE_PATH}/src/Utils/TpJsonDocument.cpp
+    ${SOURCE_PATH}/src/Utils/TpJsonArray.cpp
+    ${SOURCE_PATH}/src/Utils/TpJsonObject.cpp
+    ${SOURCE_PATH}/src/Utils/TpJsonValue.cpp
     ${SOURCE_PATH}/src/Utils/TpThreadPool.cpp
     ${SOURCE_PATH}/src/Utils/TpImage.cpp
     ${SOURCE_PATH}/src/Utils/TpGradient.cpp
     ${SOURCE_PATH}/src/Utils/TpLinearGradient.cpp
     ${SOURCE_PATH}/src/Utils/TpRadialGradient.cpp
-	${SOURCE_PATH}/src/Utils/TpHardwareDevice.cpp
+    ${SOURCE_PATH}/src/Utils/TpHardwareDevice.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/ClassSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/PseudoSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/SelectorGroup.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/SignSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/CombineSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/AttributeSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/SelectorSequence.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/UniversalSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/TypeSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/Selector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/IdSelector.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Applicability/HTMLCSSRefAdaptor.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Applicability/PseudoSelectorRefChiefJudge.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/string_buffer.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/util.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/vector.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/attribute.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/UrlUtil.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/char_ref.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/utf8.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/error.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/tag.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/GumboInterface.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/parser.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/tokenizer.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/string_piece.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/gumbo_edit.c
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/Utils/ContainerUtil.cpp
-	${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/Utils/StringUtil.cpp
-	${SOURCE_PATH}/src_p/Utils/tweeny/tweeny.tcc
-	${SOURCE_PATH}/src_p/Utils/tweeny/tween.tcc
-	${SOURCE_PATH}/src_p/Utils/tweeny/tweenone.tcc
-	${SOURCE_PATH}/src_p/Utils/tweeny/tweenpoint.tcc
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/ClassSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/PseudoSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/SelectorGroup.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/SignSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/CombineSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/AttributeSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/SelectorSequence.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/UniversalSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/TypeSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/Selector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Selectors/IdSelector.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Applicability/HTMLCSSRefAdaptor.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Applicability/PseudoSelectorRefChiefJudge.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/string_buffer.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/util.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/vector.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/attribute.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/UrlUtil.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/char_ref.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/utf8.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/error.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/tag.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/GumboInterface.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/parser.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/tokenizer.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/string_piece.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/gumbo/gumbo_edit.c
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/Utils/ContainerUtil.cpp
+    ${SOURCE_PATH}/src_p/Utils/CSSParser/Vendor/Utils/StringUtil.cpp
+    ${SOURCE_PATH}/src_p/Utils/tweeny/tweeny.tcc
+    ${SOURCE_PATH}/src_p/Utils/tweeny/tween.tcc
+    ${SOURCE_PATH}/src_p/Utils/tweeny/tweenone.tcc
+    ${SOURCE_PATH}/src_p/Utils/tweeny/tweenpoint.tcc
     ${SOURCE_PATH}/src_p/Utils/TpMessage.cpp
 )
 
@@ -154,7 +154,7 @@ endif()
 
 # 将pthread库链接到可执行目标
 target_link_libraries(PiXUtils ${NANOMSG_STATIC_LIB} dl pthread PiXApi SDL2 SDL2_image SDL2_gfx
-    cairo pango-1.0 gobject-2.0  glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime thorvg
+    cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime thorvg
 )
 
 # 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
@@ -164,5 +164,5 @@ install(TARGETS PiXUtils LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 cmake_create_core_symlink(
     TARGET PiXUtils
     INSTALL_DIR ${INSTALL_LIB_DIR}
-    LINK_DIR ${LINK_LIB_DIR}             
+    LINK_DIR ${LINK_LIB_DIR}
 )
