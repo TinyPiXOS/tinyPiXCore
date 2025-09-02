@@ -96,7 +96,7 @@ int get_app_version_config(const char *uuid, struct TpVersion *ver)
         return 1;
     }
 
-    extract_key_value(path_conf, "Version:", ver_str);
+    extract_key_value(path_conf, "version:", ver_str);
     string_to_version((const char *)ver_str, ver);
     return 0;
 }
@@ -122,7 +122,7 @@ int get_app_version_json(const char *uuid, struct TpVersion *ver)
         free(path_conf);
         return 1;
     }
-    find_key_from_file(path_conf, "Version", ver_str);
+    find_key_from_file(path_conf, "version", ver_str);
     string_to_version((const char *)ver_str, ver);
     return 0;
 }
@@ -309,7 +309,7 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             {
                 strncpy(config->app_id, line + 6, sizeof(config->app_id));
             }
-            else if (strncmp(line, "Version:", 8) == 0)
+            else if (strncmp(line, "version:", 8) == 0)
             {
                 // struct TpVersion ver;
                 string_to_version((const char *)line + 8, &(config->version));
@@ -320,11 +320,11 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 config->appexec_name = malloc(len);
                 strncpy(config->appexec_name, line + 12, len);
             }
-            else if (strncmp(line, "Architecture:", 13) == 0)
+            else if (strncmp(line, "architecture:", 13) == 0)
             {
                 strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
-            else if (strncmp(line, "DiskSpace:", 10) == 0)
+            else if (strncmp(line, "diskSpace:", 10) == 0)
             {
                 long int size;
                 if (string_to_number(line + 10, &size) == 0)
@@ -359,11 +359,11 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 continue;
             // 移除换行符
             trim_newline(line);
-            if (strncmp(line, "Architecture:", 13) == 0)
+            if (strncmp(line, "architecture:", 13) == 0)
             {
                 strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
-            else if (strncmp(line, "DiskSpace:", 10) == 0)
+            else if (strncmp(line, "diskSpace:", 10) == 0)
             {
                 long int size;
                 if (string_to_number(line + 10, &size) == 0)

@@ -42,9 +42,14 @@ static tpUInt8 sht20_crc_check(tpUInt8 *data, tpUInt8 len, tpUInt8 checksum)
 	return (crc == checksum) ? 0 : 1;
 }
 
-TpSht20::TpSht20(const TpString& name)
+TpSht20::TpSht20(const TpString& name):TpHardwareI2c(name,SHT20_SLAVE_ADDR)
 {
-	TpHardwareI2c(name,SHT20_SLAVE_ADDR);
+	
+}
+
+TpSht20::TpSht20(tpUInt8 bus):TpHardwareI2c(bus,SHT20_SLAVE_ADDR)
+{
+
 }
 
 TpSht20::~TpSht20()
@@ -67,8 +72,6 @@ tpBool TpSht20::open()
 }
 void TpSht20::close()
 {
-
-
 	TpHardwareI2c::close();
 }
 
@@ -80,12 +83,12 @@ float TpSht20::getTemperature(tpBool *is_ok)
 	readReg(TRIG_TEMP_UNHOST,(tpUInt8 *)&data,3);
 	if(sht20_crc_check(data,2,data[2])!=1)
 	{
-		*is_ok=TP_FALSE;
+		if(is_ok) *is_ok=TP_FALSE;
 		return 0;
 	}
 		
 	uint16_t raw_data = (data[0] << 8) | (data[1] & 0xFC);
-	*is_ok=TP_TRUE;
+	if(is_ok) *is_ok=TP_TRUE;
     return  (-46.85f + 175.72f * raw_data / 65536.0f);
 }
 
@@ -95,12 +98,12 @@ float TpSht20::getHumidity(tpBool *is_ok)
 	readReg(TRIG_HUMI_UNHOST,(tpUInt8 *)&data,3);
 	if(sht20_crc_check(data,2,data[2])!=1)
 	{
-		*is_ok=TP_FALSE;
+		if(is_ok) *is_ok=TP_FALSE;
 		return 0;
 	}
 		
 	uint16_t raw_data = (data[0] << 8) | (data[1] & 0xFC);
-	*is_ok=TP_TRUE;
+	if(is_ok) *is_ok=TP_TRUE;
     return  (-6.0f + 125.0f * raw_data / 65536.0f);
 }
 

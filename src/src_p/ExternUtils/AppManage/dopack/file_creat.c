@@ -281,30 +281,30 @@ int file_config_creat(const char *path,struct AppPackageConfig *conf,TypePackage
 	fprintf(file, "appID:%s\n", conf->app_id);
 	fprintf(file, "appName:%s\n", conf->app_name);
 	fprintf(file, "organization:%s\n", conf->organization);
-	fprintf(file, "Version:%d.%d.%d\n", conf->version.x,conf->version.y,conf->version.z);
+	fprintf(file, "version:%d.%d.%d\n", conf->version.x,conf->version.y,conf->version.z);
 	if(conf->appexec_name){
 		char *str_p=strrchr(conf->appexec_name,'/')+1;
 		fprintf(file, "appexecName:%s\n", str_p);
 	}
-	fprintf(file, "DiskSpace:%u\n", conf->diskspace);
-	fprintf(file, "Architecture:%s\n", conf->architecture);
-	fprintf(file, "Section:%s\n", conf->section);
-	fprintf(file, "Priority:%s\n", conf->priority);
-	fprintf(file, "Essential:%s\n", conf->essential);
-	fprintf(file, "Author:%s <%s>\n", conf->author,conf->contact);
-	fprintf(file, "Provides:%s\n", conf->provides);
+	fprintf(file, "diskSpace:%u\n", conf->diskspace);
+	fprintf(file, "architecture:%s\n", conf->architecture);
+//	fprintf(file, "Section:%s\n", conf->section);
+//	fprintf(file, "Priority:%s\n", conf->priority);
+//	fprintf(file, "Essential:%s\n", conf->essential);
+	fprintf(file, "author:%s <%s>\n", conf->author,conf->contact);
+	fprintf(file, "provides:%s\n", conf->provides);
 	//支持的文件类型
 	if(conf->extension_count>0)
 	{
 		//printf("extension_count:%d\n", conf->extension_count);
-		fprintf(file, "FileExtension:");
+		fprintf(file, "fileExtension:");
 		for(int i=0;i<conf->extension_count;i++) {
 			fprintf(file, "%s ", conf->file_extension[i]);
 		}
 		fprintf(file,"\n");
 	}
 	if(conf->description)
-		fprintf(file, "Description:%s\n", conf->description);
+		fprintf(file, "description:%s\n", conf->description);
 	//图标
 	if(conf->icon){
 		char *str_p=strrchr(conf->icon,'/')+1;
@@ -512,9 +512,9 @@ int file_config_creat_lib(struct archive *a,const char *path,struct LibPackageCo
 	}
 	fprintf(file, "#TinyPix SystemLib\n");
 
-	fprintf(file, "Architecture:%s\n", conf->architecture);
-//	fprintf(file, "Architecture:%s\n", get_architecture_string(conf->arch));
-	fprintf(file, "DiskSpace:%u\n", conf->diskspace);
+	fprintf(file, "architecture:%s\n", conf->architecture);
+//	fprintf(file, "architecture:%s\n", get_architecture_string(conf->arch));
+	fprintf(file, "diskSpace:%u\n", conf->diskspace);
 	char buf[MAX_LEN_APP_NAME];
 	//库文件
 	if(conf->lib_count>0)

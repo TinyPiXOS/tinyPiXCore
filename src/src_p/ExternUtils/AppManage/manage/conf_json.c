@@ -171,7 +171,7 @@ int config_keyvalue_analysis_json(char *line,json_object *export_obj)
 	*value = '\0';
 	value++;
 
-	if(strcmp(key,"Author")==0)
+	if(strcmp(key,"author")==0)
 	{
 		struct json_object *obj=json_object_new_object();
 		char *end=strchr(value, '>');		//去掉结尾
@@ -180,7 +180,7 @@ int config_keyvalue_analysis_json(char *line,json_object *export_obj)
 		config_json_object_analysis(value, obj,(char *)" <",2,"name","email");
 		json_object_object_add(export_obj, key, obj);
 	}
-	else if(strcmp(key,"FileExtension")==0)
+	else if(strcmp(key,"fileExtension")==0)
 	{
 		struct json_object *array=json_object_new_array();
 		config_json_array_analysis(value, array," ",0);
