@@ -1220,24 +1220,9 @@ void TpCanvas::addScene(void *canvas, void *scene)
     tvg::SwCanvas *addCanvas = (tvg::SwCanvas *)canvas;
     set->swCanvas = addCanvas;
 
-    // 如果已有 Scene，先移除
-    // if (set->tvgScene)
-    // {
-    //     set->swCanvas->remove(set->tvgScene);
-    //     set->tvgScene = nullptr;
-    // }
-
     tvg::Scene *addScene = (tvg::Scene *)scene;
+    addScene->remove();
     set->tvgScene = addScene;
-    // set->tvgScene = static_cast<tvg::Scene *>(addScene->duplicate());
-    // set->swCanvas->push(set->tvgScene);
-
-    // if (set->tvgScene == nullptr)
-    // {
-    //     tvg::Scene* addScene = (tvg::Scene*)scene;
-    //     set->tvgScene = static_cast<tvg::Scene*>(addScene->duplicate());
-    //     set->swCanvas->push(set->tvgScene);
-    // }
 }
 
 void TpCanvas::sync()
@@ -1263,6 +1248,10 @@ void TpCanvas::sync()
     // set->swCanvas->sync();
     // tvg::Result viewportRes = set->swCanvas->viewport(clipRect.x, clipRect.y, clipRect.w, clipRect.h); // 只影响小区域
     // std::cout << "viewportRes 设置结果： " << (int32_t)viewportRes <<std::endl;
+
+    // 清除所有现有效果  
+    // set->tvgScene->push(tvg::SceneEffect::ClearAll);  
+    // set->tvgScene->push(tvg::SceneEffect::GaussianBlur, 5.0, 0, 0, 50);
 
     set->swCanvas->draw();
     set->swCanvas->sync();

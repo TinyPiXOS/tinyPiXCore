@@ -262,13 +262,21 @@ static inline void childPaint(ItpObjectSet *set, TpObjectPaintEvent *events)
         // 刷新前清除scene
         TpCanvas *childPainter = event.canvas();
 
-        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)child->testCanvasPtr();
-        tvg::Scene *childScene = (tvg::Scene *)child->testScenePtr();
+        auto canvasPair = child->canvasPtr();
+        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
+        tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
 
-        childScene->remove();
         childPainter->addScene(childCanvas, childScene);
 
         bool ret = child->onPaintEvent(&event);
+
+        // 清除所有现有效果
+        childScene->push(tvg::SceneEffect::ClearAll);
+        if (child->enableBlur())
+        {
+            TpGraphicsBlurEffect blurEffectObj = child->graphicsEffect();
+            childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
+        }
 
         // 绘制完成刷新绘制
         childPainter->sync();

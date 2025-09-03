@@ -19,6 +19,7 @@ public:
 
 public:
     TpGraphicsEffect();
+    TpGraphicsEffect(const TpGraphicsEffect &other);
     virtual ~TpGraphicsEffect();
 
 public:
@@ -27,7 +28,7 @@ public:
     EffectType gradientType();
 
 public:
-    const TpGraphicsEffect &operator=(const TpGraphicsEffect &others);
+    // const TpGraphicsEffect &operator=(const TpGraphicsEffect &others);
 
 protected:
     ITpGraphicsEffectData *data_;

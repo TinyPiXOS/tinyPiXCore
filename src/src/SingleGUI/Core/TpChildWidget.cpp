@@ -52,14 +52,6 @@ static void refreshCacheImage(ItpObjectSet *set)
         return;
 
     set->cacheImage = set->reserveImage.scaled(set->logicalRect.w, set->logicalRect.h, set->keepAspectRatio);
-    if (!set->cacheImage.isNull())
-    {
-        // 是否进行背景模糊
-        if (set->enableBlur)
-        {
-            set->cacheImage.gaussianBlur(set->blurRadius);
-        }
-    }
 }
 
 static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, const int32_t &x, const int32_t &y)
@@ -229,30 +221,6 @@ TpChildWidget::~TpChildWidget()
         childData = nullptr;
         data_ = nullptr;
     }
-}
-
-void *TpChildWidget::testCanvasPtr()
-{
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
-    if (childData->swCanvas == nullptr)
-    {
-        childData->swCanvas = tvg::SwCanvas::gen();
-        childData->tvgScene = tvg::Scene::gen();
-        childData->swCanvas->push(std::move(childData->tvgScene));
-    }
-    return childData->swCanvas;
-}
-
-void *TpChildWidget::testScenePtr()
-{
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
-    if (childData->tvgScene == nullptr)
-    {
-        childData->swCanvas = tvg::SwCanvas::gen();
-        childData->tvgScene = tvg::Scene::gen();
-        childData->swCanvas->push(std::move(childData->tvgScene));
-    }
-    return childData->tvgScene;
 }
 
 void TpChildWidget::setProperty(const TpString &_name, const TpVariant &_value)
@@ -1084,22 +1052,21 @@ void TpChildWidget::setEnabledBorderColor(bool enable)
     set->enableBorderColor = enable;
 }
 
-void TpChildWidget::setBlurRadius(const uint32_t &blurRadius)
+void TpChildWidget::setGraphicsEffect(const TpGraphicsBlurEffect &blurEffect)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
         return;
-
-    set->blurRadius = blurRadius;
+    set->enableBlur = true;
+    set->blurEffect = blurEffect;
 }
 
-uint32_t TpChildWidget::blurRadius()
+TpGraphicsBlurEffect TpChildWidget::graphicsEffect()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
-        return 5;
-
-    return set->blurRadius;
+        return TpGraphicsBlurEffect();
+    return set->blurEffect;
 }
 
 void TpChildWidget::setEnableBlur(const bool &enable)
@@ -1380,6 +1347,18 @@ tpShared<TpCssData> TpChildWidget::readCss(const TpString &_className, const TpC
     TpString uiType = property("type").toString();
 
     return TpApp::Inst()->cssParser()->readCss(_className, uiType, _status);
+}
+
+std::pair<void *, void *> TpChildWidget::canvasPtr()
+{
+    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    if (childData->swCanvas == nullptr)
+    {
+        childData->swCanvas = tvg::SwCanvas::gen();
+        childData->tvgScene = tvg::Scene::gen();
+        childData->swCanvas->push(std::move(childData->tvgScene));
+    }
+    return std::pair<void *, void *>(childData->swCanvas, childData->tvgScene);
 }
 
 tpShared<TpCssData> TpChildWidget::currentStatusCss()

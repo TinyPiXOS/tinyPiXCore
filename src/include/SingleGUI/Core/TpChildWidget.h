@@ -10,6 +10,8 @@
 #include <memory>
 
 TP_DEF_VOID_TYPE_VAR(ItpChildWidgetData);
+
+class TpGraphicsBlurEffect;
 class TpChildWidget
     : public TpObject
 {
@@ -17,9 +19,6 @@ public:
     TpChildWidget(TpChildWidget *parent = nullptr);
     virtual ~TpChildWidget();
 
-    void* testCanvasPtr();
-    void* testScenePtr();
-    
 public:
     /// @brief 设置属性值
     /// @param _name 属性名称
@@ -301,20 +300,19 @@ public:
     /// @brief 获取当前边框颜色RGBA
     /// @return RGBA值
     virtual uint32_t borderColor();
-    /// @brief
-    /// @return
+    /// @brief 获取当前是否启用边框线绘制
+    /// @return true启用，false禁用
     virtual bool enableBorderColor();
-    /// @brief
-    /// @param enable
+    /// @brief 设置启用/禁用边框线绘制
+    /// @param enable true为启用，false禁用
     virtual void setEnabledBorderColor(bool enable);
 
-    /// @brief 设置模糊半径
-    /// @param blurRadius 模糊半径(px)
-    virtual void setBlurRadius(const uint32_t &blurRadius);
-
-    /// @brief 获取当前设置的模糊半径
-    /// @return 模糊半径值(px)
-    uint32_t blurRadius();
+    /// @brief 设置窗口模糊特效;设置后会自动启用背景模糊
+    /// @param blurEffect 模糊特效对象
+    virtual void setGraphicsEffect(const TpGraphicsBlurEffect &blurEffect);
+    /// @brief 获取当前模糊特效属性；未设置则为默认模糊效果
+    /// @return 模糊特效对象
+    virtual TpGraphicsBlurEffect graphicsEffect();
 
     /// @brief 设置启用/禁用背景模糊
     /// @param enable 是否启用背景模糊
@@ -324,6 +322,8 @@ public:
     /// @return 是否启用背景模糊
     bool enableBlur();
 
+    /// @brief 重设当前窗体的父窗体
+    /// @param parent 父窗体指针
     virtual void setParent(TpObject *parent) override;
 
 public:
@@ -397,6 +397,10 @@ public:
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
     /// @return 类名字符串
     virtual TpString pluginType() { return TO_STRING(TpChildWidget); }
+
+public:
+    /// @brief 外部无需调用
+    std::pair<void *, void *> canvasPtr();
 
 protected:
     /// @brief 自动根据控件状态获取当前CSS（启用、悬停、选中、禁用等）
