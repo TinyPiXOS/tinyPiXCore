@@ -8,7 +8,7 @@
 
 </div>
 
-tinyPiXCore 提供tinyPiXOS的底层支撑库，包括GUI组件（PiXSingleGUI）、工具库（PiXUtil）、扩展库（PiXExternUtils）三大部分。
+tinyPiXCore 提供tinyPiXOS的底层支撑库，包括GUI组件（SingleGUI）、工具库（Util）、扩展库（ExternUtils）三大部分。
 
 ---
 
@@ -20,9 +20,9 @@ tinyPiXCore 提供tinyPiXOS的底层支撑库，包括GUI组件（PiXSingleGUI�
 
 **TinyPiXOS**，以硬核技术实力追求极致性能与效率！
 
-## PiXSingleGUI
+## SingleGUI
 
-PiXSingleGUI库是​​tiniPiXCore框架的核心GUI组件库​​，采用​​分层架构设计​​，致力于为应用提供一套​​完整的、高性能的图形用户界面解决方案​​。
+SingleGUI库是​​tiniPiXCore框架的核心GUI组件库​​，采用​​分层架构设计​​，致力于为应用提供一套​​完整的、高性能的图形用户界面解决方案​​。
 
 统一基类与核心机制​​
 ----------------
@@ -51,13 +51,13 @@ PiXSingleGUI库是​​tiniPiXCore框架的核心GUI组件库​​，采用​
 核心价值
 ----------------
 
-PiXSingleGUI库通过其​***​分层的架构***、***坚实的基类支撑***、***丰富的高性能标准控件***、***灵活强大的样式系统和扩展接口***​​，在***​​GUI开发效率***​​与​***​界面运行的灵活性及高效性​***​之间取得了理想的平衡点，是构建tiniPiXCore应用程序用户界面的可靠基石。
+SingleGUI库通过其​***​分层的架构***、***坚实的基类支撑***、***丰富的高性能标准控件***、***灵活强大的样式系统和扩展接口***​​，在***​​GUI开发效率***​​与​***​界面运行的灵活性及高效性​***​之间取得了理想的平衡点，是构建tiniPiXCore应用程序用户界面的可靠基石。
 
 ---
 
-## PiXUtils
+## Utils
 
-PiXUtils​​ 是 ​​tiniPiXCore​​ 框架的核心工具库，提供高效通用功能模块，涵盖数据序列化、文件操作、通信机制及常用数据结构等关键功能，大幅提升开发效率与代码复用性。
+Utils​​ 是 ​​tiniPiXCore​​ 框架的核心工具库，提供高效通用功能模块，涵盖数据序列化、文件操作、通信机制及常用数据结构等关键功能，大幅提升开发效率与代码复用性。
 
 ​核心功能模块​​
 ----------------
@@ -71,9 +71,9 @@ PiXUtils​​ 是 ​​tiniPiXCore​​ 框架的核心工具库，提供高�
 - ​**​信号槽系统​​**：基于观察者模式的事件驱动机制，支持松耦合组件交互。  
 - ​**​泛型封装**​​：提供类型安全的模板容器，如动态数组（tpVector）、双向链表（tpList）、哈希表（tpHash）及高性能字符串（tpString），优化内存与计算效率。  
 
-**PiXUtils 通过高度封装的工具链，显著降低底层开发复杂度，​模块化架构​​：各功能解耦设计，支持按需链接，降低最终程序体积。**
+**Utils 通过高度封装的工具链，显著降低底层开发复杂度，​模块化架构​​：各功能解耦设计，支持按需链接，降低最终程序体积。**
 
-## PiXExternUtils
+## ExternUtils
 
 PiXExternalUtils 提供系统级基础能力。
 
@@ -144,7 +144,7 @@ TinyPiXOS整体架构图
 
 **TinyPiXOS** 作为一款面向轻量化硬件平台的桌面操作系统，其架构设计复杂、功能模块众多。目前现有版本虽已实现基础能力，仍需要开发者社区的力量共同完善。我们选择将核心框架开源，旨在汇聚开发者智慧，共同打造国产嵌入式操作系统生态基座。
 
-🛠️共建国产基座：以PiXSingleGUI等三大模块为基座，联合打造自主可控的嵌入式开发生态
+🛠️共建国产基座：以SingleGUI等三大模块为基座，联合打造自主可控的嵌入式开发生态
 
 🤝包容共创：现有版本难免存在不足，请以开发者视角包容反馈，共同优化
 
@@ -318,17 +318,17 @@ make install
 # SingleGUI引入：
 include_directories(/usr/include/tinyPiX/SingleGUI)
 link_directories("/usr/lib")
-target_link_libraries(你的应用程序名称 PiXSingleGUI)
+target_link_libraries(你的应用程序名称 SingleGUI)
 
 # Utils引入：
 include_directories(/usr/include/tinyPiX/Utils)
 link_directories("/usr/lib")
-target_link_libraries(你的应用程序名称 PiXUtils)
+target_link_libraries(你的应用程序名称 Utils)
 
 # ExternUtils引入
 include_directories(/usr/include/tinyPiX/ExternUtils)
 link_directories("/usr/lib")
-target_link_libraries(你的应用程序名称 PiXExternUtils)
+target_link_libraries(你的应用程序名称 ExternUtils)
 
 # desktopGUI引入
 include_directories(/usr/include/tinyPiX/SingleGUI)
@@ -336,7 +336,7 @@ include_directories(/usr/include/tinyPiX/Utils)
 include_directories(/usr/include/tinyPiX/ExternUtils)
 include_directories(/usr/include/tinyPiX/GUIFramework/desktopGUI)
 link_directories("/usr/lib")
-target_link_libraries(你的应用程序名称 PiXDesktopGUI PiXSingleGUI PiXUtils PiXExternUtils)
+target_link_libraries(你的应用程序名称 PiXDesktopGUI SingleGUI Utils ExternUtils)
 ```
 
 ## 贡献代码
