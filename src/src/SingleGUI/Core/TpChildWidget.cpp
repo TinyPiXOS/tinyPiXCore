@@ -1254,8 +1254,38 @@ bool TpChildWidget::onPaintEvent(TpObjectPaintEvent *event)
 
     if (set->enableImage && !set->cacheImage.isNull())
     {
-        // canvas->paintImage(width() / 2.0, 0, set->cacheImage, minRad);
-        canvas->paintImage(0, 0, set->cacheImage, minRad);
+        int32_t imageX = 0;
+        int32_t imageY = 0;
+
+        // 如果保持了纵横比，保持图片居中显示
+        if (set->keepAspectRatio)
+        {
+            int32_t imageWidth = set->cacheImage.width();
+            int32_t imageHeight = set->cacheImage.height();
+
+            std::cout << "imageWidth " << imageWidth << "  " << imageHeight << std::endl;
+
+            if (imageWidth > width())
+            {
+                imageX = -(imageWidth - width()) / 2.0;
+            }
+            else
+            {
+                imageX = (width() - imageWidth) / 2.0;
+            }
+
+            if (imageHeight > height())
+            {
+                imageY = -(imageHeight - height()) / 2.0;
+            }
+            else
+            {
+                imageY = (height() - imageHeight) / 2.0;
+            }
+        }
+
+        std::cout << "imageX " << imageX << "  " << imageX << std::endl;
+        canvas->paintImage(imageX, imageY, set->cacheImage, minRad);
     }
 
     // 窗体更新，如果有布局更新布局

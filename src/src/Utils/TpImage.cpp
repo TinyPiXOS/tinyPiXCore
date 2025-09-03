@@ -33,6 +33,9 @@ TpImage::TpImage(const TpImage &other)
 
         // 深拷贝所有成员
         imageData->fileName = otherData->fileName;
+        imageData->actualWidth = otherData->actualWidth;
+        imageData->actualHeight = otherData->actualHeight;
+
         imageData->tvgPicture = static_cast<tvg::Picture *>(otherData->tvgPicture->duplicate());
     }
 
@@ -75,6 +78,8 @@ bool TpImage::load(const TpString &filename)
     imageData->fileName = filename;
     imageData->tvgPicture->load(filename.c_str());
 
+    imageData->tvgPicture->size(&imageData->actualWidth, &imageData->actualHeight);
+
     return true;
 }
 
@@ -102,19 +107,29 @@ TpImage TpImage::scaled(const int32_t &width, const int32_t &height, bool keepAs
 
     TpImageData *newImageData = static_cast<TpImageData *>(newImageObj.data_);
 
+    // 获取原始尺寸
+    float originalW, originalH;
+    newImageData->tvgPicture->size(&originalW, &originalH);
+
+    // 计算缩放因子
+    float scaleX = width / originalW;
+    float scaleY = height / originalH;
+
     if (keepAspectRatio)
     {
+        float actualScale = (scaleX < scaleY) ? scaleX : scaleY;
+
+        // 计算实际渲染尺寸
+        newImageData->actualWidth = originalW * actualScale;
+        newImageData->actualHeight = originalH * actualScale;
+
         newImageData->tvgPicture->size(width, height);
     }
     else
     {
-        // 获取原始尺寸
-        float originalW, originalH;
-        newImageData->tvgPicture->size(&originalW, &originalH);
-
-        // 计算缩放因子
-        float scaleX = width / originalW;
-        float scaleY = height / originalH;
+        // 计算实际渲染尺寸
+        newImageData->actualWidth = originalW * scaleX;
+        newImageData->actualHeight = originalH * scaleY;
 
         // 应用不同的 X 和 Y 缩放因子
         tvg::Matrix stretchMatrix = {scaleX, 0, 0, 0, scaleY, 0, 0, 0, 1};
@@ -124,22 +139,13 @@ TpImage TpImage::scaled(const int32_t &width, const int32_t &height, bool keepAs
     return newImageObj;
 }
 
-TpImage TpImage::gaussianBlur(const int32_t &radius)
-{
-    return TpImage();
-}
-
 int32_t TpImage::width() const
 {
     TpImageData *imageData = static_cast<TpImageData *>(data_);
     if (!imageData)
         return 0;
 
-    float width = 0;
-    float height = 0;
-
-    imageData->tvgPicture->size(&width, &height);
-    return width;
+    return imageData->actualWidth;
 }
 
 int32_t TpImage::height() const
@@ -148,11 +154,7 @@ int32_t TpImage::height() const
     if (!imageData)
         return 0;
 
-    float width = 0;
-    float height = 0;
-
-    imageData->tvgPicture->size(&width, &height);
-    return height;
+    return imageData->actualHeight;
 }
 
 bool TpImage::isNull()
@@ -188,10 +190,10 @@ TpImage TpImage::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     if (!imageData)
         return TpImage();
 
-    TpImage newCopyImage(imageData->fileName);
+    TpImage newCopyImage = *this;
     TpImageData *newImageData = static_cast<TpImageData *>(newCopyImage.data_);
 
-    newImageData->tvgPicture->translate(0, 0);
+    // newImageData->tvgPicture->translate(0, 0);
 
     // 创建裁剪形状
     auto clipper = tvg::Shape::gen();
@@ -268,6 +270,8 @@ TpImage &TpImage::operator=(const TpImage &others)
     TpImageData *imageData = static_cast<TpImageData *>(data_);
     TpImageData *othersImageData = static_cast<TpImageData *>(others.data_);
 
+    imageData->actualWidth = othersImageData->actualWidth;
+    imageData->actualHeight = othersImageData->actualHeight;
     imageData->fileName = othersImageData->fileName;
 
     if (imageData->tvgPicture)

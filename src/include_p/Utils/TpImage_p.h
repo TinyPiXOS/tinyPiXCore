@@ -9,6 +9,10 @@ struct TpImageData
     TpString fileName = "";
     tvg::Picture *tvgPicture = nullptr;
 
+    // 图片实际尺寸
+    float actualWidth = 0;
+    float actualHeight = 0;
+
     ~TpImageData()
     {
         delete tvgPicture;
