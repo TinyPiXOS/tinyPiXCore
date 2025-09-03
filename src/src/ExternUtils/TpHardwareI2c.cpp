@@ -76,9 +76,9 @@ static int i2c_rdwr_with_timeout(int fd, struct i2c_rdwr_ioctl_data *packets, in
 }
 
 
-TpHardwareI2c::TpHardwareI2c(const TpString& name)
+TpHardwareI2c::TpHardwareI2c(const TpString& name): TpHardwareI2c(
+        name,0X00)
 {
-	TpHardwareI2c(name,0X00);
 }
 
 TpHardwareI2c::TpHardwareI2c(const TpString& name, tpUInt8 address)
@@ -89,10 +89,10 @@ TpHardwareI2c::TpHardwareI2c(const TpString& name, tpUInt8 address)
 	data->path=name;
 }
 
-TpHardwareI2c::TpHardwareI2c(tpUInt8 bus, tpUInt8 address)
+TpHardwareI2c::TpHardwareI2c(tpUInt8 bus, tpUInt8 address): TpHardwareI2c(
+        TpString(PATH_I2C_DEVICE) + std::to_string(static_cast<int>(bus)),
+        address)
 {	
-	TpString name=PATH_I2C_DEVICE+std::to_string(static_cast<int>(bus));
-	TpHardwareI2c(name,address);
 }
 
 TpHardwareI2c::~TpHardwareI2c()
@@ -152,7 +152,7 @@ ssize_t TpHardwareI2c::write(const uint8_t* buffer, size_t size)
 	if(!data || !data->is_open)
 		return -1;
 
-	ssize_t result = ::write(data->devfd, data, size);
+	ssize_t result = ::write(data->devfd, buffer, size);
     if (result < 0) {
 		fprintf(stderr,"[Error]: I2C write error:%s\n",strerror(errno));
     }
