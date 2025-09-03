@@ -62,7 +62,7 @@ tpBool TpSht20::open()
 {
 	if(!TpHardwareI2c::open())
 		return TP_FALSE;
-
+	
 
 	uint8_t data=SHT20_SOFT_RESET;
 	writeCmd(SHT20_SOFT_RESET,1000);

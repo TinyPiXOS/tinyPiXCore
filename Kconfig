@@ -1,0 +1,61 @@
+mainmenu "tinyPiXCore Configuration"
+
+# ===== 一级：蓝牙使能配置 =====
+menu "Bluetooth Settings"
+
+config BUILD_BLUETOOTH_MODULE
+    bool "Build bluetooth module"
+    default y
+    help
+      Enable this to build the bluetooth module.
+
+if BUILD_BLUETOOTH_MODULE
+# ===== 二级：蓝牙功能配置 =====
+config BLUETOOTH_AUDIO
+    bool "Bluetooth audio"
+    default y
+
+config BLUETOOTH_TRANSFER
+    bool "Bluetooth file transfer"
+    default y
+
+config BLUETOOTH_SOCKET
+    bool "Bluetooth socket"
+    default y
+
+endif
+
+endmenu # Bluetooth Settings
+
+# ===== 一级：压缩解压模块配置 =====
+config BUILD_COMPRESS_MODULE
+    bool "Build compress module"
+    default y
+    help
+      Enable this to build the compress module.
+
+# ===== 一级：媒体模块配置 =====
+config BUILD_MEDIA_MODULE
+    bool "Build media module"
+    default y
+    help
+      Enable this to build the media module.
+
+# ===== 一级：网卡模块配置 =====
+config BUILD_NETWORK_MODULE
+    bool "Build network module"
+    default y
+    help
+      Enable this to build the network module.
+
+# ===== 一级：USB模块配置 =====
+config BUILD_USB_MODULE
+    bool "Build USB module"
+    default y
+    help
+      Enable this to build the USB module.
+
+# ===== 一级：其他 =====	  
+config PROJECT_VERSION
+    string "Project version"
+    default "v0.1.1"

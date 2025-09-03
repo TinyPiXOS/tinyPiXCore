@@ -66,9 +66,8 @@ TpBluetoothLocal::TpBluetoothLocal(int id, const char *address, const char *name
 		fprintf(stderr,"[Error]: Adapter does not exist\n");
 }
 
-TpBluetoothLocal::TpBluetoothLocal(const TpString& name)
+TpBluetoothLocal::TpBluetoothLocal(const TpString& name):TpBluetoothLocal(name.c_str())
 {
-	TpBluetoothLocal(name.c_str());
 }
 
 TpBluetoothLocal::TpBluetoothLocal(const char *name)

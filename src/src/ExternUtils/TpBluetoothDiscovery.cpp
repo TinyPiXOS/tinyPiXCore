@@ -108,12 +108,8 @@ extern "C" void deviceRemoveCallback(const BluetoothRemote *remote, void *user_d
 
 
 
-TpBluetoothDiscovery::TpBluetoothDiscovery(const TpString& local)
+TpBluetoothDiscovery::TpBluetoothDiscovery(const TpString& local):TpBluetoothDiscovery(local.c_str())
 {
-	char* ptr = new char[local.size() + 1];      // 分配内存
-	local.copy(ptr, local.size());                 // 复制内容
-	ptr[local.size()] = '\0';                    // 手动添加终止符
-	TpBluetoothDiscovery((const char *)ptr);
 }
 
 
