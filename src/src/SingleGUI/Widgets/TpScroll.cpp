@@ -118,8 +118,6 @@ TpScroll::TpScroll(TpChildWidget *parent, bool horizontal) : TpChildWidget(paren
         set->downBarColor = TpColors::DarkGoldenrod;
         set->barColor = TpColors::LightGray;
 
-        memset(&set->barRect, 0, sizeof(TpRect));
-
         this->setBackGroundColor(TpColors::White);
         this->scrollSet = set;
     }
