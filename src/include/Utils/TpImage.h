@@ -44,10 +44,6 @@ public:
     /// @return  缩放后的资源对象
     TpImage scaled(const int32_t &width, const int32_t &height, bool keepAspectRatio = true);
 
-    /// @brief 对图片资源进行高斯模糊处理;返回新对象(不会对原始数据进行更新)
-    /// @param radius 模糊半径
-    TpImage gaussianBlur(const int32_t &radius);
-
     /// @brief 获取surface的宽度
     /// @return 宽度值
     virtual int32_t width() const;

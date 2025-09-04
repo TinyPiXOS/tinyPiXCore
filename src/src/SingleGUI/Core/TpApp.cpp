@@ -326,8 +326,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         {
             ItpRect &hasRect = pixwmMergeUpdateRect[topScreenSet->agent];
 
-            // task.x, task.y, task.w, task.h
-
             hasRect.x = task.x < hasRect.x ? task.x : hasRect.x;
             hasRect.y = task.y < hasRect.y ? task.y : hasRect.y;
 
@@ -348,26 +346,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             pixwmMergeUpdateRect[topScreenSet->agent] = ItpRect(task.x, task.y, task.w, task.h);
         }
 
-        if (mergeUpdateWidget.contains(task.updateObj))
-        {
-            // ItpObjectPaintInput &paintInput = mergeUpdateWidget[task.updateObj];
-
-            // paintInput.updateRect.x = task.x < paintInput.updateRect.x ? task.x : paintInput.updateRect.x;
-            // paintInput.updateRect.y = task.y < paintInput.updateRect.y ? task.y : paintInput.updateRect.y;
-
-            // tpInt32 hasRectBottom = paintInput.updateRect.bottom();
-            // tpInt32 hasRectRight = paintInput.updateRect.right();
-
-            // tpInt32 inputRectBottom = task.y + task.h;
-            // tpInt32 inputRectRight = task.x + task.w;
-
-            // tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
-            // tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
-
-            // paintInput.updateRect.w = actualBottom - paintInput.updateRect.y;
-            // paintInput.updateRect.h = actualRight - paintInput.updateRect.x;
-        }
-        else
+        if (!mergeUpdateWidget.contains(task.updateObj))
         {
             ItpObjectPaintInput paintInput;
 
@@ -410,13 +389,21 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         // 刷新前清除scene
         TpCanvas *childPainter = event.canvas();
 
-        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)updateWidgetIter.first->testCanvasPtr();
-        tvg::Scene *childScene = (tvg::Scene *)updateWidgetIter.first->testScenePtr();
+        auto canvasPair = updateWidgetIter.first->canvasPtr();
+        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
+        tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
 
-        childScene->remove();
         childPainter->addScene(childCanvas, childScene);
 
         bool ret = updateWidgetIter.first->onPaintEvent(&event);
+
+        // 清除所有现有效果
+        childScene->push(tvg::SceneEffect::ClearAll);
+        if (updateWidgetIter.first->enableBlur())
+        {
+            TpGraphicsBlurEffect blurEffectObj = updateWidgetIter.first->graphicsEffect();
+            childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
+        }
 
         // 绘制完成刷新绘制
         childPainter->sync();
@@ -434,92 +421,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         const ItpRect &updateRect = updateInfo.second;
         tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
         // tinyPiX_wf_update(updateInfo.first, 0, 0, 1080, 720, true, false);
-    }
-
-#elif 0
-
-    // 遍历刷新指令，合并相邻和相同区域
-    while (!updateCommandQueue.empty())
-    {
-        UpdateCommand task = updateCommandQueue.front();
-        updateCommandQueue.pop();
-
-        TpScreen *topScreen = dynamic_cast<TpScreen *>(task.topScreen);
-        ItpObjectSet *set = static_cast<ItpObjectSet *>(topScreen->objectSets());
-
-        if (!set)
-            continue;
-
-        // printf("id=%d, visible=%d, actived=%d\n", this->objectSysID(), set->visible, this->actived());
-        if (!set->visible || !topScreen->actived())
-            continue;
-
-        TpRect updateRect(task.x, task.y, task.w, task.h);
-
-        tinyPiX_wf_lock_mutex(set->agent);
-
-        IPiDSSurface *surface_t = tinyPiX_wf_get_surface(set->agent);
-
-        if (surface_t == nullptr)
-            continue;
-
-        tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t);
-
-        ItpObjectPaintInput input;
-        TpObjectPaintEvent event;
-        input.object = topScreen;
-
-        input.surface = surface;
-
-        input.updateRect.x = updateRect.X0();
-        input.updateRect.y = updateRect.Y0();
-        input.updateRect.w = updateRect.width();
-        input.updateRect.h = updateRect.height();
-        event.construct(&input);
-
-        bool ret = topScreen->onPaintEvent(&event);
-
-        if (ret)
-        {
-            childPaint(set, &event);
-        }
-
-        tinyPiX_wf_unlock_mutex(set->agent);
-
-        if (task.onlyBlit == false)
-        {
-            if (mergeUpdateInfo.contains(set->agent))
-            {
-                ItpObjectPaintInput &hasInput = mergeUpdateInfo[set->agent];
-                hasInput.updateRect.x = input.updateRect.x < hasInput.updateRect.x ? input.updateRect.x : hasInput.updateRect.x;
-                hasInput.updateRect.y = input.updateRect.y < hasInput.updateRect.y ? input.updateRect.y : hasInput.updateRect.y;
-
-                tpInt32 hasRectBottom = hasInput.updateRect.bottom();
-                tpInt32 hasRectRight = hasInput.updateRect.right();
-
-                tpInt32 inputRectBottom = input.updateRect.bottom();
-                tpInt32 inputRectRight = input.updateRect.right();
-
-                tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
-                tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
-
-                hasInput.updateRect.w = actualBottom - hasInput.updateRect.y;
-                hasInput.updateRect.h = actualRight - hasInput.updateRect.x;
-            }
-            else
-            {
-                mergeUpdateInfo[set->agent] = input;
-            }
-        }
-    }
-
-    if (mergeUpdateInfo.size() > 0)
-    {
-        for (const auto &updateInfo : mergeUpdateInfo)
-        {
-            const ItpRect &updateRect = updateInfo.second.updateRect;
-            tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
-        }
     }
 
 #else

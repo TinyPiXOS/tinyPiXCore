@@ -17,6 +17,7 @@
 #include "TpVariant.h"
 #include "TpChildWidget.h"
 #include "TpImage.h"
+#include "TpGraphicsBlurEffect.h"
 
 #define OBJECT_MAX_TEXT_LENGTH 1024
 
@@ -127,7 +128,7 @@ struct ItpObjectSet
 
     // 是否启用背景模糊，模糊半径 px
     bool enableBlur = false;
-    uint32_t blurRadius = 8;
+    TpGraphicsBlurEffect blurEffect;
 
     bool isHover = false;
     bool isPress = false;

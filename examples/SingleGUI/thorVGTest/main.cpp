@@ -12,7 +12,8 @@
 #include "TpLinearGradient.h"
 #include "TpRadialGradient.h"
 #include "TpSlider.h"
-#include "SmartDeviceGUI/Widgets/TpButton.h"
+// #include "SmartDeviceGUI/Widgets/TpButton.h"
+#include "TpGraphicsBlurEffect.h"
 
 class ThorVgPaintWidget : public TpChildWidget
 // class ThorVgPaintWidget : public TpDialog
@@ -20,17 +21,17 @@ class ThorVgPaintWidget : public TpChildWidget
 public:
     ThorVgPaintWidget(TpChildWidget *parent) : TpChildWidget(parent)
     {
-        setBackGroundColor(_RGB(100, 100, 100));
+        setBackGroundColor(_RGBA(100, 100, 100, 200));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
-        // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png").rotate(45));
-
-        // testBattery_ = new TpBattery(this);
-        // testBattery_->setValue(100);
+        // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
+        setAlpha(150);
+        testBattery_ = new TpBattery(this);
+        testBattery_->setValue(100);
 
         // testLabel_ = new TpLabel(this);
         // testLabel_->setText("qqq");
 
-        // testBattery_->setRect(10, 100, 200, 80);
+        testBattery_->setRect(10, 100, 200, 80);
         // testLabel_->setRect(10, 200, 300, 150);
 
         // testTimer_ = new TpTimer(3000);
@@ -54,15 +55,21 @@ public:
 
     virtual bool onMousePressEvent(TpMouseEvent *event) override
     {
-        // int32_t batteryValue = testBattery_->value();
-        // batteryValue -= 10;
-        // if (batteryValue < 0)
-        //     batteryValue = 100;
-        // testBattery_->setValue(batteryValue);
+        int32_t batteryValue = testBattery_->value();
+        batteryValue -= 10;
+        if (batteryValue < 0)
+            batteryValue = 100;
+        testBattery_->setValue(batteryValue);
 
         // testLabel_->setText(TpString::number(batteryValue));
 
         update();
+
+        move(pos().x + 10, pos().y);
+        if (pos().x + width() > 1080)
+        {
+            move(150, pos().y);
+        }
 
         return true;
     }
@@ -98,7 +105,7 @@ public:
 
         painter->setGradient(&radialGradient);
 
-        painter->roundedBox(10, 10, 450, 450, 50, _RGB(0, 0, 0));
+        // painter->roundedBox(10, 10, 450, 450, 50, _RGB(0, 0, 0));
 
         // static int32_t width = 100;
         // painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));
@@ -177,22 +184,26 @@ int32_t main(int32_t argc, char *argv[])
     vScreen->setVisible(true); // vScreen setvisible will be update display
     app.bindVScreen(vScreen);
 
+    TpSlider *vSlider = new TpSlider(vScreen);
+    vSlider->setDirection(TpSlider::Vertical);
+    vSlider->setValue(50);
+    vSlider->setSize(10, 500);
+    vSlider->move(950, 20);
+
     ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    thorVGPaint->setRect(100, 100, 500, 500);
+    thorVGPaint->setRect(600, 100, 500, 500);
+    TpGraphicsBlurEffect btnBlurEffect;
+    btnBlurEffect.setBlurRadius(15);
+    thorVGPaint->setGraphicsEffect(btnBlurEffect);
 
     // TpBattery* testBattery = new TpBattery(vScreen);
     // testBattery->setRect(100, 100, 500, 500);
 
-    TpSlider *vSlider = new TpSlider(vScreen);
-	vSlider->setDirection(TpSlider::Vertical);
-	vSlider->setValue(50);
-	vSlider->setSize(10, 500);
-	vSlider->move(950, 20);
+    // smartDeviceGUI::TpButton* testButton = new smartDeviceGUI::TpButton(vScreen);
+    // testButton->setCheckable(true);
+    // testButton->setText("蓝牙");
+    // testButton->setRect(10, 10, 150, 50);
 
-    smartDeviceGUI::TpButton* testButton = new smartDeviceGUI::TpButton(vScreen);
-    testButton->setCheckable(true);
-    testButton->setText("蓝牙");
-    testButton->setRect(10, 10, 150, 50);
     // testButton->setRoundCorners(20);
 
     vScreen->update();
