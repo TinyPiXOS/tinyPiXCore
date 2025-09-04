@@ -9,6 +9,15 @@ TpGradient::TpGradient()
     data_ = gradientData;
 }
 
+TpGradient::TpGradient(const TpGradient &other)
+{
+    TpGradientData *gradientData = new TpGradientData();
+    TpGradientData *otherData = static_cast<TpGradientData *>(other.data_);
+
+    *gradientData = *otherData;
+    data_ = gradientData;
+}
+
 TpGradient::~TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);

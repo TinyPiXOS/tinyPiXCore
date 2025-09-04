@@ -74,8 +74,8 @@ public:
 
     // void setTextColor(const QColor &color);
 
-    // ItpSize sizeHint() const;
-    // void setSizeHint(const ItpSize &size);
+    // TpSize sizeHint() const;
+    // void setSizeHint(const TpSize &size);
 
     virtual TpVariant data(int role);
     virtual void setData(int role, const TpVariant &value);

@@ -73,9 +73,9 @@ TpMenu::~TpMenu()
 	}
 }
 
-void TpMenu::exec(const ItpPoint &globalPos)
+void TpMenu::exec(const TpPoint &globalPos)
 {
-	exec(globalPos.x, globalPos.y);
+	exec(globalPos.x(), globalPos.y());
 }
 
 void TpMenu::exec(const int32_t &globalPosX, const int32_t &globalPosY)
@@ -241,7 +241,7 @@ bool TpMenu::onMouseRleaseEvent(TpMouseEvent *event)
 
 	TpMenuData *menuData = static_cast<TpMenuData *>(data_);
 
-	int32_t clickY = event->pos().y;
+	int32_t clickY = event->pos().y();
 	uint32_t clickIndex = clickY / menuData->itemHeight;
 
 	onClicked.emit(clickIndex);
@@ -256,7 +256,7 @@ bool TpMenu::onMouseMoveEvent(TpMouseEvent *event)
 {
 	TpMenuData *menuData = static_cast<TpMenuData *>(data_);
 
-	int32_t motionY = event->pos().y;
+	int32_t motionY = event->pos().y();
 
 	menuData->hoverIndex = motionY / menuData->itemHeight;
 	update();

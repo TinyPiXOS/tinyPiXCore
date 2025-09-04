@@ -166,10 +166,10 @@ public:
 
     /// @brief 获取鼠标在窗口内坐标
     /// @return 坐标
-    virtual ItpPoint pos();
+    virtual TpPoint pos();
     /// @brief 获取鼠标相对于屏幕的全局坐标
     /// @return 坐标
-    virtual ItpPoint globalPos();
+    virtual TpPoint globalPos();
 };
 typedef std::function<void(TpMouseEvent *)> TpMouseEventListenerFunc;
 
@@ -436,9 +436,9 @@ public:
     virtual int32_t offsetY();
 
 public:
-    virtual ItpRect updateRect(); // update rect
-    virtual ItpRect rect();       // object logical rect, use this to canvas
-    virtual ItpRect absRect();    // object absolute rect, use this to canvas, not object absrect
+    virtual TpRect updateRect(); // update rect
+    virtual TpRect rect();       // object logical rect, use this to canvas
+    virtual TpRect absRect();    // object absolute rect, use this to canvas, not object absrect
 public:
     virtual bool isCanDraw();
 };

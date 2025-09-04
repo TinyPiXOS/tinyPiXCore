@@ -12,16 +12,14 @@ TpRadialGradient::TpRadialGradient(float cx, float cy, float centerRadius, float
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::RadialGradient;
 
-    gradientData->center.x = cx;
-    gradientData->center.y = cy;
+    gradientData->center = TpPointF(cx, cy);
     gradientData->centerRadius = centerRadius;
 
-    gradientData->focalPoint.x = fx;
-    gradientData->focalPoint.y = fy;
+    gradientData->focalPoint = TpPointF(fx, fy);
     gradientData->focalRadius = focalRadius;
 }
 
-TpRadialGradient::TpRadialGradient(const ItpPointF &center, float centerRadius, const ItpPointF &focalPoint, float focalRadius) : TpGradient()
+TpRadialGradient::TpRadialGradient(const TpPointF &center, float centerRadius, const TpPointF &focalPoint, float focalRadius) : TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::RadialGradient;
@@ -38,16 +36,14 @@ TpRadialGradient::TpRadialGradient(float cx, float cy, float radius) : TpGradien
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::RadialGradient;
 
-    gradientData->center.x = cx;
-    gradientData->center.y = cy;
+    gradientData->center = TpPointF(cx, cy);
     gradientData->centerRadius = radius;
 
-    gradientData->focalPoint.x = cx;
-    gradientData->focalPoint.y = cy;
+    gradientData->focalPoint = TpPointF(cx, cy);
     gradientData->focalRadius = 0;
 }
 
-TpRadialGradient::TpRadialGradient(const ItpPointF &center, float radius) : TpGradient()
+TpRadialGradient::TpRadialGradient(const TpPointF &center, float radius) : TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::RadialGradient;
@@ -64,16 +60,14 @@ TpRadialGradient::TpRadialGradient(float cx, float cy, float radius, float fx, f
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::RadialGradient;
 
-    gradientData->center.x = cx;
-    gradientData->center.y = cy;
+    gradientData->center = TpPointF(cx, cy);
     gradientData->centerRadius = radius;
 
-    gradientData->focalPoint.x = fx;
-    gradientData->focalPoint.y = fy;
+    gradientData->focalPoint = TpPointF(fx, fy);
     gradientData->focalRadius = 0;
 }
 
-TpRadialGradient::TpRadialGradient(const ItpPointF &center, float radius, const ItpPointF &focalPoint) : TpGradient()
+TpRadialGradient::TpRadialGradient(const TpPointF &center, float radius, const TpPointF &focalPoint) : TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::RadialGradient;
@@ -89,26 +83,25 @@ TpRadialGradient::~TpRadialGradient()
 {
 }
 
-ItpPointF TpRadialGradient::center() const
+TpPointF TpRadialGradient::center() const
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
-        return ItpPointF();
+        return TpPointF();
     return gradientData->center;
 }
 
-void TpRadialGradient::setCenter(const ItpPointF &center)
-{
-    setCenter(center.x, center.y);
-}
-
-void TpRadialGradient::setCenter(float x, float y)
+void TpRadialGradient::setCenter(const TpPointF &center)
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
         return;
-    gradientData->center.x = x;
-    gradientData->center.y = y;
+    gradientData->center = center;
+}
+
+void TpRadialGradient::setCenter(float x, float y)
+{
+    setCenter(TpPointF(x, y));
 }
 
 float TpRadialGradient::centerRadius() const
@@ -127,26 +120,25 @@ void TpRadialGradient::setCenterRadius(float radius)
     gradientData->centerRadius = radius;
 }
 
-ItpPointF TpRadialGradient::focalPoint() const
+TpPointF TpRadialGradient::focalPoint() const
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
-        return ItpPointF();
+        return TpPointF();
     return gradientData->focalPoint;
 }
 
-void TpRadialGradient::setFocalPoint(const ItpPointF &focalPoint)
-{
-    setFocalPoint(focalPoint.x, focalPoint.y);
-}
-
-void TpRadialGradient::setFocalPoint(float x, float y)
+void TpRadialGradient::setFocalPoint(const TpPointF &focalPoint)
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
         return;
-    gradientData->focalPoint.x = x;
-    gradientData->focalPoint.y = y;
+    gradientData->focalPoint = focalPoint;
+}
+
+void TpRadialGradient::setFocalPoint(float x, float y)
+{
+    setFocalPoint(TpPointF(x, y));
 }
 
 float TpRadialGradient::focalRadius() const

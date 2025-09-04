@@ -51,7 +51,7 @@ static void refreshCacheImage(ItpObjectSet *set)
     if (set->reserveImage.isNull())
         return;
 
-    set->cacheImage = set->reserveImage.scaled(set->logicalRect.w, set->logicalRect.h, set->keepAspectRatio);
+    set->cacheImage = set->reserveImage.scaled(set->logicalRect.width(), set->logicalRect.height(), set->keepAspectRatio);
 }
 
 static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, const int32_t &x, const int32_t &y)
@@ -59,18 +59,18 @@ static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, const int32_t &x
     if (!set)
         return;
 
-    int32_t ox = set->logicalRect.x;
-    int32_t oy = set->logicalRect.y;
+    int32_t ox = set->logicalRect.x();
+    int32_t oy = set->logicalRect.y();
 
     if (ox != x || oy != y)
     {
-        set->logicalRect.x = x;
-        set->logicalRect.y = y;
+        set->logicalRect.setX(x);
+        set->logicalRect.setY(y);
 
-        ItpPoint point = selfToScreenPoint(thisPtr, x, y);
+        TpPoint point = selfToScreenPoint(thisPtr, x, y);
 
-        set->absoluteRect.x = point.x;
-        set->absoluteRect.y = point.y;
+        set->absoluteRect.setX(point.x());
+        set->absoluteRect.setY(point.y());
 
         ItpObjectMoveSet input;
         input.object = thisPtr;
@@ -96,7 +96,7 @@ static void changeWidth(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_
     if (!set)
         return;
 
-    uint32_t ow = set->logicalRect.w;
+    uint32_t ow = set->logicalRect.width();
 
     uint32_t setW = w;
 
@@ -110,13 +110,13 @@ static void changeWidth(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_
 
     if (ow != setW)
     {
-        set->logicalRect.w = setW;
-        set->absoluteRect.w = setW;
+        set->logicalRect.setWidth(setW);
+        set->absoluteRect.setWidth(setW);
 
         ItpObjectResizeSet input;
         input.object = thisPtr;
         input.nw = setW;
-        input.nh = set->logicalRect.h;
+        input.nh = set->logicalRect.height();
         input.question = TpObjectResizeEvent::TP_NORMAL_CHANGE;
         TpObjectResizeEvent event;
         bool ret = event.construct(&input);
@@ -140,7 +140,7 @@ static void changeHeight(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32
     if (!set)
         return;
 
-    uint32_t oh = set->logicalRect.h;
+    uint32_t oh = set->logicalRect.height();
 
     uint32_t setH = h;
 
@@ -154,12 +154,12 @@ static void changeHeight(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32
 
     if (oh != setH)
     {
-        set->logicalRect.h = setH;
-        set->absoluteRect.h = setH;
+        set->logicalRect.setHeight(setH);
+        set->absoluteRect.setHeight(setH);
 
         ItpObjectResizeSet input;
         input.object = thisPtr;
-        input.nw = set->logicalRect.w;
+        input.nw = set->logicalRect.width();
         input.nh = setH;
         input.question = TpObjectResizeEvent::TP_NORMAL_CHANGE;
         TpObjectResizeEvent event;
@@ -404,28 +404,7 @@ int32_t TpChildWidget::offsetY()
 
 void TpChildWidget::setRect(const TpRect &rect)
 {
-    setRect(rect.X0(), rect.Y0(), rect.width(), rect.height());
-}
-
-void TpChildWidget::setRect(const TpRect *rect)
-{
-    if (!rect)
-        return;
-
-    setRect(rect->X0(), rect->Y0(), rect->width(), rect->height());
-}
-
-void TpChildWidget::setRect(const ItpRect &rect)
-{
-    setRect(rect.x, rect.y, rect.w, rect.h);
-}
-
-void TpChildWidget::setRect(const ItpRect *rect)
-{
-    if (!rect)
-        return;
-
-    setRect(rect->x, rect->y, rect->w, rect->h);
+    setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void TpChildWidget::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
@@ -439,32 +418,32 @@ void TpChildWidget::setRect(const int32_t &x, const int32_t &y, const uint32_t &
     setSize(w, h);
 }
 
-ItpRect TpChildWidget::toScreen()
+TpRect TpChildWidget::toScreen()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
-        return ItpRect();
+        return TpRect();
 
     return set->absoluteRect;
 }
 
-ItpRect TpChildWidget::rect()
+TpRect TpChildWidget::rect()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
-        return ItpRect();
+        return TpRect();
 
     return set->logicalRect;
 }
 
-ItpSize TpChildWidget::screenSize()
+TpSize TpChildWidget::screenSize()
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
     uint32_t sWidth = 0;
     uint32_t sHeight = 0;
     tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
 
-    return ItpSize(sWidth, sHeight);
+    return TpSize(sWidth, sHeight);
 }
 
 void TpChildWidget::setSize(const uint32_t &width, const uint32_t &height)
@@ -473,14 +452,14 @@ void TpChildWidget::setSize(const uint32_t &width, const uint32_t &height)
     setHeight(height);
 }
 
-void TpChildWidget::setSize(const ItpSize &size)
+void TpChildWidget::setSize(const TpSize &size)
 {
-    setSize(size.w, size.h);
+    setSize(size.width(), size.height());
 }
 
-ItpSize TpChildWidget::size()
+TpSize TpChildWidget::size()
 {
-    return ItpSize(width(), height());
+    return TpSize(width(), height());
 }
 
 void TpChildWidget::setWidth(const uint32_t &width)
@@ -507,7 +486,7 @@ uint32_t TpChildWidget::width()
     if (!set)
         return 0;
 
-    return set->logicalRect.w;
+    return set->logicalRect.width();
 }
 
 uint32_t TpChildWidget::height()
@@ -516,7 +495,7 @@ uint32_t TpChildWidget::height()
     if (!set)
         return 0;
 
-    return set->logicalRect.h;
+    return set->logicalRect.height();
 }
 
 void TpChildWidget::setMinimumSize(const uint32_t &width, const uint32_t &height)
@@ -525,17 +504,17 @@ void TpChildWidget::setMinimumSize(const uint32_t &width, const uint32_t &height
     setMinumumHeight(height);
 }
 
-void TpChildWidget::setMinimumSize(const ItpSize &minimumSize)
+void TpChildWidget::setMinimumSize(const TpSize &minimumSize)
 {
-    setMinimumSize(minimumSize.w, minimumSize.h);
+    setMinimumSize(minimumSize.width(), minimumSize.height());
 }
 
-ItpSize TpChildWidget::minimumSize()
+TpSize TpChildWidget::minimumSize()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
-        return ItpSize();
-    return ItpSize(set->minimumWidth, set->minimumHeight);
+        return TpSize();
+    return TpSize(set->minimumWidth, set->minimumHeight);
 }
 
 void TpChildWidget::setMinumumWidth(const uint32_t &width)
@@ -587,17 +566,17 @@ void TpChildWidget::setMaximumSize(const uint32_t &width, const uint32_t &height
     setMaxumumHeight(height);
 }
 
-void TpChildWidget::setMaximumSize(const ItpSize &maximumSize)
+void TpChildWidget::setMaximumSize(const TpSize &maximumSize)
 {
-    setMaximumSize(maximumSize.w, maximumSize.h);
+    setMaximumSize(maximumSize.width(), maximumSize.height());
 }
 
-ItpSize TpChildWidget::maximumSize()
+TpSize TpChildWidget::maximumSize()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
-        return ItpSize();
-    return ItpSize(set->maximumWidth, set->maximumHeight);
+        return TpSize();
+    return TpSize(set->maximumWidth, set->maximumHeight);
 }
 
 void TpChildWidget::setMaxumumWidth(const uint32_t &width)
@@ -704,17 +683,13 @@ void TpChildWidget::move(int32_t x, int32_t y)
     // update();
 }
 
-const ItpPoint TpChildWidget::pos()
+const TpPoint TpChildWidget::pos()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
-        return ItpPoint();
+        return TpPoint();
 
-    ItpPoint point = {-1, -1};
-
-    point.x = set->logicalRect.x;
-    point.y = set->logicalRect.y;
-
+    TpPoint point(set->logicalRect.x(), set->logicalRect.y());
     return point;
 }
 
@@ -782,22 +757,9 @@ TpLayout *TpChildWidget::layout()
     return set->layout;
 }
 
-void TpChildWidget::update(TpRect &rect, bool onlyBlit)
+void TpChildWidget::update(const TpRect &rect, bool onlyBlit)
 {
-    update(rect.X0(), rect.Y0(), rect.width(), rect.height(), onlyBlit);
-}
-
-void TpChildWidget::update(ItpRect &rect, bool onlyBlit)
-{
-    update(rect.x, rect.y, rect.w, rect.h, onlyBlit);
-}
-
-void TpChildWidget::update(ItpRect *rect, bool onlyBlit)
-{
-    if (!rect)
-        return;
-
-    update(rect->x, rect->y, rect->w, rect->h, onlyBlit);
+    update(rect.x(), rect.y(), rect.width(), rect.height(), onlyBlit);
 }
 
 void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
@@ -810,15 +772,15 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
     if (!topScreenWidget)
         return;
 
-    ItpPoint point = selfToScreenPoint(this, x, y);
+    TpPoint point = selfToScreenPoint(this, x, y);
     bool ret = true;
 
-    x = point.x;
-    y = point.y;
+    x = point.x();
+    y = point.y();
 
     TpRect blitRect(x, y, w, h);
 
-    ItpRect screenRect = topScreenWidget->toScreen();
+    TpRect screenRect = topScreenWidget->toScreen();
     TpRect selfRect(screenRect);
     ret = blitRect.intersect(selfRect);
 
@@ -827,7 +789,7 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
         // TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(this->parent());
         // if (parentWidget)
         // {
-        //     ItpPoint parentPos = parentWidget->pos();
+        //     TpPoint parentPos = parentWidget->pos();
         //     TpApp::Inst()->postUpdateEvent(parentWidget, parentPos.x, parentPos.y, parentWidget->width(), parentWidget->height(), onlyBlit);
         // }
 
@@ -841,7 +803,7 @@ void TpChildWidget::update(bool onlyBlit)
     if (!set)
         return;
 
-    update(set->logicalRect.x, set->logicalRect.y, set->logicalRect.w, set->logicalRect.h, onlyBlit);
+    update(set->logicalRect.x(), set->logicalRect.y(), set->logicalRect.width(), set->logicalRect.height(), onlyBlit);
 }
 
 void TpChildWidget::setCheckable(const bool &_checkable)
@@ -925,7 +887,7 @@ void TpChildWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
     set->enableImage = true;
     set->keepAspectRatio = keepAspectRatio;
 
-    if (set->logicalRect.w != 0 && set->logicalRect.h != 0)
+    if (set->logicalRect.width() != 0 && set->logicalRect.height() != 0)
     {
         refreshCacheImage(set);
     }
@@ -1142,10 +1104,10 @@ bool TpChildWidget::onMouseRleaseEvent(TpMouseEvent *event)
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     set->isPress = false;
 
-    ItpPoint mouseGlobalPos = event->globalPos();
+    TpPoint mouseGlobalPos = event->globalPos();
     bool isUpdate = false;
 
-    if ((std::abs(mouseGlobalPos.x - set->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - set->pressPoint.y) <= 5))
+    if ((std::abs(mouseGlobalPos.x() - set->pressPoint.x()) <= 5) && (std::abs(mouseGlobalPos.y() - set->pressPoint.y()) <= 5))
     {
         if (checkable())
         {
@@ -1213,7 +1175,7 @@ bool TpChildWidget::onPaintEvent(TpObjectPaintEvent *event)
     if (!set)
         return false;
 
-    ItpRect rect = event->rect();
+    TpRect rect = event->rect();
 
     if (!set->visible)
         return ret;
@@ -1236,20 +1198,20 @@ bool TpChildWidget::onPaintEvent(TpObjectPaintEvent *event)
 
         if (minRad == 0)
         {
-            canvas->box(0, 0, rect.w, rect.h, curCssData->backgroundColor());
+            canvas->box(0, 0, rect.width(), rect.height(), curCssData->backgroundColor());
         }
         else
         {
-            canvas->roundedBox(0, 0, rect.w, rect.h, minRad, curCssData->backgroundColor());
+            canvas->roundedBox(0, 0, rect.width(), rect.height(), minRad, curCssData->backgroundColor());
         }
     }
 
     if (set->enableBorderColor)
     {
         if (minRad == 0)
-            canvas->rectangle(0, 0, rect.w - 1, rect.h - 1, curCssData->borderColor());
+            canvas->rectangle(0, 0, rect.width() - 1, rect.height() - 1, curCssData->borderColor());
         else
-            canvas->roundedRectangle(0, 0, rect.w - 1, rect.h - 1, minRad, curCssData->borderColor());
+            canvas->roundedRectangle(0, 0, rect.width() - 1, rect.height() - 1, minRad, curCssData->borderColor());
     }
 
     if (set->enableImage && !set->cacheImage.isNull())
@@ -1262,8 +1224,6 @@ bool TpChildWidget::onPaintEvent(TpObjectPaintEvent *event)
         {
             int32_t imageWidth = set->cacheImage.width();
             int32_t imageHeight = set->cacheImage.height();
-
-            std::cout << "imageWidth " << imageWidth << "  " << imageHeight << std::endl;
 
             if (imageWidth > width())
             {
@@ -1284,7 +1244,6 @@ bool TpChildWidget::onPaintEvent(TpObjectPaintEvent *event)
             }
         }
 
-        std::cout << "imageX " << imageX << "  " << imageX << std::endl;
         canvas->paintImage(imageX, imageY, set->cacheImage, minRad);
     }
 
@@ -1322,17 +1281,9 @@ ItpObjectType TpChildWidget::objectType()
     return TP_CHILD_OBJECT;
 }
 
-TpChildWidget *TpChildWidget::find(TpPoint &point)
+TpChildWidget *TpChildWidget::find(const TpPoint &point)
 {
-    return find(point.get().x, point.get().x);
-}
-
-TpChildWidget *TpChildWidget::find(ItpPoint *point)
-{
-    if (!point)
-        return nullptr;
-
-    return find(point->x, point->y);
+    return find(point.x(), point.y());
 }
 
 TpChildWidget *TpChildWidget::find(int32_t x, int32_t y)
@@ -1345,7 +1296,7 @@ TpChildWidget *TpChildWidget::find(int32_t x, int32_t y)
 
     TpRect absRect(set->absoluteRect);
 
-    bool ret = absRect.in(x, y);
+    bool ret = absRect.contains(x, y);
 
     if (ret)
         object = this;

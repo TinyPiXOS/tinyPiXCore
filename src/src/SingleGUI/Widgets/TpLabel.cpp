@@ -10,406 +10,385 @@
 
 struct ItpTextLabelSet
 {
-	TpFont *font = nullptr;
-	tinyPiX::AlignmentFlag align;
-	bool enableFit;
+    TpFont *font = nullptr;
+    tinyPiX::AlignmentFlag align;
+    bool enableFit;
 
-	int textSpacing = 2;
+    int textSpacing = 2;
 
-	bool wrap = false;
+    bool wrap = false;
 };
 
 TpVector<TpString> wrapText(ItpTextLabelSet *data, const TpString &text, const uint32_t &winWidth)
 {
-	TpVector<TpString> subStrList;
+    TpVector<TpString> subStrList;
 
-	int curStartIndex = 0;
-	const int totalLength = text.logicalLength(); // 先获取总长度避免重复调用
+    int curStartIndex = 0;
+    const int totalLength = text.logicalLength(); // 先获取总长度避免重复调用
 
-	while (curStartIndex < totalLength)
-	{
-		int bestFit = 1; // 至少一个字符
-		bool foundFit = false;
+    while (curStartIndex < totalLength)
+    {
+        int bestFit = 1; // 至少一个字符
+        bool foundFit = false;
 
-		// 从1个字符开始尝试，找到最长可容纳的子串
-		for (int i = 1; (curStartIndex + i) <= totalLength; ++i)
-		{
-			TpString subStr = text.mid(curStartIndex, i);
-			data->font->setText(subStr);
+        // 从1个字符开始尝试，找到最长可容纳的子串
+        for (int i = 1; (curStartIndex + i) <= totalLength; ++i)
+        {
+            TpString subStr = text.mid(curStartIndex, i);
+            data->font->setText(subStr);
 
-			if (data->font->pixelWidth() > winWidth)
-			{
-				// 找到最佳分割点（上一个长度）
-				foundFit = true;
-				break;
-			}
+            if (data->font->pixelWidth() > winWidth)
+            {
+                // 找到最佳分割点（上一个长度）
+                foundFit = true;
+                break;
+            }
 
-			bestFit = i; // 更新最佳长度
-		}
+            bestFit = i; // 更新最佳长度
+        }
 
-		// 处理找到的分割点
-		if (foundFit && bestFit > 0)
-		{
-			TpString subStrRes = text.mid(curStartIndex, bestFit);
-			subStrList.emplace_back(subStrRes);
-			curStartIndex += bestFit;
-		}
-		// 处理最后一段（未超宽且剩余文本）
-		else if (bestFit > 0)
-		{
-			TpString subStrRes = text.mid(curStartIndex, bestFit);
-			subStrList.emplace_back(subStrRes);
-			curStartIndex += bestFit; // 确保退出循环
-		}
-		else // 安全防护：防止死循环
-		{
-			curStartIndex = totalLength;
-		}
-	}
+        // 处理找到的分割点
+        if (foundFit && bestFit > 0)
+        {
+            TpString subStrRes = text.mid(curStartIndex, bestFit);
+            subStrList.emplace_back(subStrRes);
+            curStartIndex += bestFit;
+        }
+        // 处理最后一段（未超宽且剩余文本）
+        else if (bestFit > 0)
+        {
+            TpString subStrRes = text.mid(curStartIndex, bestFit);
+            subStrList.emplace_back(subStrRes);
+            curStartIndex += bestFit; // 确保退出循环
+        }
+        else // 安全防护：防止死循环
+        {
+            curStartIndex = totalLength;
+        }
+    }
 
-	return subStrList;
+    return subStrList;
 }
 
 TpLabel::TpLabel(TpChildWidget *parent)
-	: TpChildWidget(parent)
+    : TpChildWidget(parent)
 {
-	ItpTextLabelSet *set = new ItpTextLabelSet();
-	this->textLabelSet = set;
+    ItpTextLabelSet *set = new ItpTextLabelSet();
+    this->textLabelSet = set;
 
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	set->font = new TpFont();
+    set->font = new TpFont();
 
-	if (set->font == nullptr)
-	{
-		std::cout << "font init error!" << std::endl;
-	}
+    if (set->font == nullptr)
+    {
+        std::cout << "font init error!" << std::endl;
+    }
 
-	set->align = tinyPiX::AlignLeft;
-	set->enableFit = false;
+    set->align = tinyPiX::AlignLeft;
+    set->enableFit = false;
 
-	this->setEnableBackGroundImage(false);
-	this->setEnableBackGroundColor(false);
+    this->setEnableBackGroundImage(false);
+    this->setEnableBackGroundColor(false);
 
-	// refreshBaseCss();
+    // refreshBaseCss();
 }
 
 TpLabel::TpLabel(const TpString &text, TpChildWidget *parent)
-	: TpChildWidget(parent)
+    : TpChildWidget(parent)
 {
-	ItpTextLabelSet *set = new ItpTextLabelSet();
+    ItpTextLabelSet *set = new ItpTextLabelSet();
 
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	set->font = new TpFont();
+    set->font = new TpFont();
 
-	if (set->font == nullptr)
-	{
-		std::cout << "font init error!" << std::endl;
-	}
+    if (set->font == nullptr)
+    {
+        std::cout << "font init error!" << std::endl;
+    }
 
-	set->align = tinyPiX::AlignLeft;
-	set->enableFit = false;
+    set->align = tinyPiX::AlignLeft;
+    set->enableFit = false;
 
-	this->setEnableBackGroundImage(false);
-	this->setEnableBackGroundColor(false);
-	this->textLabelSet = set;
+    this->setEnableBackGroundImage(false);
+    this->setEnableBackGroundColor(false);
+    this->textLabelSet = set;
 
-	setText(text);
+    setText(text);
 }
 
 TpLabel::~TpLabel()
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	if (set)
-	{
-		if (set->font)
-		{
-			delete set->font;
-		}
+    if (set)
+    {
+        if (set->font)
+        {
+            delete set->font;
+        }
 
-		delete set;
-	}
+        delete set;
+    }
 }
 
 void TpLabel::setAutoFit(bool enable)
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	if (set)
-	{
-		set->enableFit = enable;
-		if (enable)
-		{
-			ItpSize size = set->font->pixelSize();
-			this->setRect(this->rect().x, this->rect().y, size.w, size.h);
-		}
-	}
+    if (set)
+    {
+        set->enableFit = enable;
+        if (enable)
+        {
+            TpSize size = set->font->pixelSize();
+            this->setRect(this->rect().x(), this->rect().y(), size.width(), size.height());
+        }
+    }
 }
 
 void TpLabel::setText(const TpString &text)
 {
-	if (text.empty())
-		return;
+    if (text.empty())
+        return;
 
-	TpChildWidget::setText(text);
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpChildWidget::setText(text);
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	set->font->setText(text);
+    set->font->setText(text);
 
-	if (set->enableFit)
-	{
-		ItpSize size = set->font->pixelSize();
-		this->setRect(this->rect().x, this->rect().y, size.w, size.h);
-	}
+    if (set->enableFit)
+    {
+        TpSize size = set->font->pixelSize();
+        this->setRect(this->rect().x(), this->rect().y(), size.width(), size.height());
+    }
 
-	// 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
-	if (!isFixedWidth())
-	{
-		set->font->setText(this->text());
+    // 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
+    if (!isFixedWidth())
+    {
+        set->font->setText(this->text());
 
-		if (set->wrap)
-		{
-			TpVector<TpString> subStrList = wrapText(set, this->text(), width());
-			if (subStrList.size() != 0)
-				setMinumumHeight(set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1));
+        if (set->wrap)
+        {
+            TpVector<TpString> subStrList = wrapText(set, this->text(), width());
+            if (subStrList.size() != 0)
+                setMinumumHeight(set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1));
 
-			if (set->font->pixelWidth() > TpDisplay::dp2Px(131))
-			{
-				setMinumumWidth(TpDisplay::dp2Px(131));
-			}
-			else
-			{
-				setMinumumWidth(set->font->pixelWidth());
-			}
-		}
-		else
-		{
-			setMinumumWidth(set->font->pixelWidth());
-		}
-	}
-	if (!isFixedHeight())
-	{
-		setMinumumHeight(set->font->pixelHeight());
-	}
+            if (set->font->pixelWidth() > TpDisplay::dp2Px(131))
+            {
+                setMinumumWidth(TpDisplay::dp2Px(131));
+            }
+            else
+            {
+                setMinumumWidth(set->font->pixelWidth());
+            }
+        }
+        else
+        {
+            setMinumumWidth(set->font->pixelWidth());
+        }
+    }
+    if (!isFixedHeight())
+    {
+        setMinumumHeight(set->font->pixelHeight());
+    }
 
-	update();
+    update();
 }
 
 void TpLabel::setWordWrap(bool wrap)
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	set->wrap = wrap;
+    set->wrap = wrap;
 }
 
-void TpLabel::setRect(TpRect &rect)
+void TpLabel::setRect(const TpRect &rect)
 {
-	this->setRect(rect.X0(), rect.Y0(), rect.width(), rect.height());
-}
-
-void TpLabel::setRect(TpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->X0(), rect->Y0(), rect->width(), rect->height());
-	}
-}
-
-void TpLabel::setRect(ItpRect &rect)
-{
-	this->setRect(rect.x, rect.y, rect.w, rect.h);
-}
-
-void TpLabel::setRect(ItpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->x, rect->y, rect->w, rect->h);
-	}
+    this->setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void TpLabel::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	if (set)
-	{
-		if (set->enableFit)
-		{
-			ItpSize size = set->font->pixelSize();
-			TpChildWidget::setRect(x, y, size.w, size.h);
-			return;
-		}
+    if (set)
+    {
+        if (set->enableFit)
+        {
+            TpSize size = set->font->pixelSize();
+            TpChildWidget::setRect(x, y, size.width(), size.height());
+            return;
+        }
 
-		TpChildWidget::setRect(x, y, w, h);
-	}
+        TpChildWidget::setRect(x, y, w, h);
+    }
 }
 
 TpFont *TpLabel::font()
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
-	TpFont *font = nullptr;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpFont *font = nullptr;
 
-	if (set)
-	{
-		font = set->font;
-	}
+    if (set)
+    {
+        font = set->font;
+    }
 
-	return font;
+    return font;
 }
 
 void TpLabel::setAlign(const tinyPiX::AlignmentFlag align)
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	if (set)
-	{
-		set->align = align;
-	}
+    if (set)
+    {
+        set->align = align;
+    }
 }
 
 bool TpLabel::onPaintEvent(TpObjectPaintEvent *event)
 {
-	ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
-	if (!set)
-		return true;
+    if (!set)
+        return true;
 
-	TpVector<TpString> subStrList = wrapText(set, text(), width());
+    TpVector<TpString> subStrList = wrapText(set, text(), width());
 
-	// 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
-	if (!isFixedWidth())
-	{
-		set->font->setText(text());
+    // 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
+    if (!isFixedWidth())
+    {
+        set->font->setText(text());
 
-		if (set->wrap)
-		{
-			if (subStrList.size() != 0)
-				setMinumumHeight(set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1));
+        if (set->wrap)
+        {
+            if (subStrList.size() != 0)
+                setMinumumHeight(set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1));
 
-			if (set->font->pixelWidth() > TpDisplay::dp2Px(131))
-			{
-				setMinumumWidth(TpDisplay::dp2Px(131));
-			}
-			else
-			{
-				setMinumumWidth(set->font->pixelWidth());
-			}
-		}
-		else
-		{
-			if (!text().empty())
-				setMinumumWidth(set->font->pixelWidth());
-		}
-	}
-	// 下边计算完行数，设置最小高度
-	if (!isFixedHeight())
-	{
-		if (!text().empty())
-			setMinumumHeight(set->font->pixelHeight());
-	}
+            if (set->font->pixelWidth() > TpDisplay::dp2Px(131))
+            {
+                setMinumumWidth(TpDisplay::dp2Px(131));
+            }
+            else
+            {
+                setMinumumWidth(set->font->pixelWidth());
+            }
+        }
+        else
+        {
+            if (!text().empty())
+                setMinumumWidth(set->font->pixelWidth());
+        }
+    }
+    // 下边计算完行数，设置最小高度
+    if (!isFixedHeight())
+    {
+        if (!text().empty())
+            setMinumumHeight(set->font->pixelHeight());
+    }
 
-	TpChildWidget::onPaintEvent(event);
+    TpChildWidget::onPaintEvent(event);
 
-	TpCanvas *canvas = event->canvas();
-	TpString text = this->text();
+    TpCanvas *canvas = event->canvas();
+    TpString text = this->text();
 
-	if (text.empty())
-		return true;
+    if (text.empty())
+        return true;
 
-	ItpSize size = set->font->pixelSize();
-	int32_t cx = 0, cy = (int32_t)(event->rect().h - size.h) / 2;
+    TpSize size = set->font->pixelSize();
+    int32_t cx = 0, cy = (event->rect().height() - size.height()) / 2;
 
-	if (set->enableFit == false)
-	{
-		switch (set->align)
-		{
-		case tinyPiX::AlignLeft:
-		{
-			cx = 0;
-		}
-		break;
-		case tinyPiX::AlignRight:
-		{
-			cx = (int32_t)(event->rect().w - size.w);
-		}
-		break;
-		case tinyPiX::AlignHCenter:
-		case tinyPiX::AlignCenter:
-		{
-			cx = (int32_t)(event->rect().w - size.w) / 2;
-		}
-		break;
-		default:
-			return false;
-		}
-	}
+    if (set->enableFit == false)
+    {
+        switch (set->align)
+        {
+        case tinyPiX::AlignLeft:
+        {
+            cx = 0;
+        }
+        break;
+        case tinyPiX::AlignRight:
+        {
+            cx = event->rect().width() - size.width();
+        }
+        break;
+        case tinyPiX::AlignHCenter:
+        case tinyPiX::AlignCenter:
+        {
+            cx = (event->rect().width() - size.width()) / 2;
+        }
+        break;
+        default:
+            return false;
+        }
+    }
 
-	if (set->wrap)
-	{
-		// 如果没有超过边界正常画就行
-		if (subStrList.size() == 0)
-		{
-			set->font->setText(text);
-			canvas->renderText(*set->font, cx, cy);
-		}
-		else
-		{
-			// 重新计算起始Y坐标
-			cy = (height() - (set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1))) / 2.0;
+    if (set->wrap)
+    {
+        // 如果没有超过边界正常画就行
+        if (subStrList.size() == 0)
+        {
+            set->font->setText(text);
+            canvas->renderText(*set->font, cx, cy);
+        }
+        else
+        {
+            // 重新计算起始Y坐标
+            cy = (height() - (set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1))) / 2.0;
 
-			for (int i = 0; i < subStrList.size(); ++i)
-			{
-				TpString subText = subStrList.at(i);
-				set->font->setText(subText);
+            for (int i = 0; i < subStrList.size(); ++i)
+            {
+                TpString subText = subStrList.at(i);
+                set->font->setText(subText);
 
-				ItpSize size = set->font->pixelSize();
+                TpSize size = set->font->pixelSize();
 
-				switch (set->align)
-				{
-				case tinyPiX::AlignLeft:
-				{
-					cx = 0;
-				}
-				break;
-				case tinyPiX::AlignRight:
-				{
-					cx = (int32_t)(event->rect().w - size.w);
-				}
-				break;
-				case tinyPiX::AlignHCenter:
-				case tinyPiX::AlignCenter:
-				{
-					cx = (int32_t)(event->rect().w - size.w) / 2;
-				}
-				break;
-				default:
-					return false;
-				}
+                switch (set->align)
+                {
+                case tinyPiX::AlignLeft:
+                {
+                    cx = 0;
+                }
+                break;
+                case tinyPiX::AlignRight:
+                {
+                    cx = event->rect().width() - size.width();
+                }
+                break;
+                case tinyPiX::AlignHCenter:
+                case tinyPiX::AlignCenter:
+                {
+                    cx = (event->rect().width() - size.width()) / 2;
+                }
+                break;
+                default:
+                    return false;
+                }
 
-				// std::cout << " subText " << subText << std::endl;
-				canvas->renderText(*set->font, cx, cy + i * (size.h + set->textSpacing));
-			}
-		}
-	}
-	else
-	{
-		canvas->renderText(*set->font, cx, cy);
-	}
+                // std::cout << " subText " << subText << std::endl;
+                canvas->renderText(*set->font, cx, cy + i * (size.height() + set->textSpacing));
+            }
+        }
+    }
+    else
+    {
+        canvas->renderText(*set->font, cx, cy);
+    }
 
-	return true;
+    return true;
 }
 
 bool TpLabel::onLeaveEvent(TpObjectLeaveEvent *event)
 {
-	// std::cout << " TpLabel::onLeaveEvent " << event->leave() << std::endl;
+    // std::cout << " TpLabel::onLeaveEvent " << event->leave() << std::endl;
 
-	return true;
+    return true;
 }

@@ -59,11 +59,11 @@ static TpSpacerItem::TpSizePolicy effectivePolicy(
 }
 
 // 获取项的基准尺寸
-static ItpSize baseSize(const widgetItemData &item, bool isHorizontal)
+static TpSize baseSize(const widgetItemData &item, bool isHorizontal)
 {
 	if (item.widget)
 	{
-		return ItpSize(item.widget->width(), item.widget->height());
+		return TpSize(item.widget->width(), item.widget->height());
 	}
 	if (item.spacerItem)
 	{
@@ -71,9 +71,9 @@ static ItpSize baseSize(const widgetItemData &item, bool isHorizontal)
 	}
 	if (item.layoutWidget)
 	{
-		return ItpSize(item.layoutWidget->width(), item.layoutWidget->height());
+		return TpSize(item.layoutWidget->width(), item.layoutWidget->height());
 	}
-	return ItpSize();
+	return TpSize();
 }
 
 TpLayout::TpLayout(TpChildWidget *parent)
@@ -422,17 +422,17 @@ void TpLayout::update()
 			// item.spacerItem->sizeHint();
 
 			spacerCount++;
-			ItpSize spacerItemSize = item.spacerItem->sizeHint();
+			TpSize spacerItemSize = item.spacerItem->sizeHint();
 
 			if (isHorizon)
 			{
-				if (spacerItemSize.h > maxMinHeight)
-					maxMinHeight = spacerItemSize.h;
+				if (spacerItemSize.height() > maxMinHeight)
+					maxMinHeight = spacerItemSize.height();
 			}
 			else
 			{
-				if (spacerItemSize.w > maxMinWidth)
-					maxMinWidth = spacerItemSize.w;
+				if (spacerItemSize.width() > maxMinWidth)
+					maxMinWidth = spacerItemSize.width();
 			}
 		}
 		else
@@ -604,7 +604,7 @@ void TpLayout::update()
 				else
 				{
 					if (isOrder)
-						currentX += item.spacerItem->sizeHint().w + layoutData->spacing;
+						currentX += item.spacerItem->sizeHint().width() + layoutData->spacing;
 				}
 			}
 			else
@@ -616,7 +616,7 @@ void TpLayout::update()
 				else
 				{
 					if (isOrder)
-						currentY += item.spacerItem->sizeHint().h + layoutData->spacing;
+						currentY += item.spacerItem->sizeHint().height() + layoutData->spacing;
 				}
 			}
 
@@ -890,9 +890,9 @@ TpVector<TpObject*> TpLayout::children()
 	return childList;
 }
 
-ItpSize TpLayout::minumumSize()
+TpSize TpLayout::minumumSize()
 {
-	ItpSize miniSize;
+	TpSize miniSize;
 
 	TpBoxLayout *boxLayout = dynamic_cast<TpBoxLayout *>(this);
 	if (!boxLayout)
@@ -997,8 +997,8 @@ ItpSize TpLayout::minumumSize()
 		{
 			uint32_t minWidth = allWidgetMinWidth + totalSpacing + left + right;
 
-			miniSize.w = minWidth;
-			miniSize.h = maxFixedHeight + top + bottom;
+			miniSize.setWidth(minWidth);
+			miniSize.setHeight(maxFixedHeight + top + bottom);
 		}
 		else
 		{
@@ -1006,8 +1006,8 @@ ItpSize TpLayout::minumumSize()
 			uint32_t minWidth = allWidgetMinWidth + totalSpacing + left + right;
 			uint32_t minHeight = maxMinHeight + top + bottom;
 
-			miniSize.w = minWidth;
-			miniSize.h = minHeight;
+			miniSize.setWidth(minWidth);
+			miniSize.setHeight(minHeight);
 		}
 	}
 	else
@@ -1016,8 +1016,8 @@ ItpSize TpLayout::minumumSize()
 		{
 			uint32_t minHeight = allWidgetMinHeight + totalSpacing + top + bottom;
 
-			miniSize.w = maxFixedWidth + left + right;
-			miniSize.h = minHeight;
+			miniSize.setWidth(maxFixedWidth + left + right);
+			miniSize.setHeight(minHeight);
 		}
 		else
 		{
@@ -1025,8 +1025,8 @@ ItpSize TpLayout::minumumSize()
 			uint32_t minWidth = maxMinWidth + left + right;
 			uint32_t minHeight = allWidgetMinHeight + totalSpacing + top + bottom;
 
-			miniSize.w = minWidth;
-			miniSize.h = minHeight;
+			miniSize.setWidth(minWidth);
+			miniSize.setHeight(minHeight);
 		}
 	}
 

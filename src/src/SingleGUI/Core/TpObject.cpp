@@ -50,9 +50,6 @@ TpObject::TpObject(TpObject *parent)
 	set->visible = false;
 
 	memset(set->text, 0, OBJECT_MAX_TEXT_LENGTH);
-	memset(&set->absoluteRect, 0, sizeof(ItpRect));
-	memset(&set->logicalRect, 0, sizeof(ItpRect));
-	memset(&set->tmp, 0, sizeof(ItpTempDef));
 
 	this->objectSet = set;
 }

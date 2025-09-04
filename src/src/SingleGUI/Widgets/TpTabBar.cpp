@@ -171,7 +171,7 @@ void TpTabBar::setCurrentIndex(const uint32_t &buttonIndex)
 {
     TpTabBarData *menuData = static_cast<TpTabBarData *>(data_);
 
-    for (int i = 0; i < menuData->buttonGroup.size(); ++i)
+    for (int32_t i = 0; i < menuData->buttonGroup.size(); ++i)
     {
         singleButtonData &curButtonData = menuData->buttonGroup[i];
         if (i == buttonIndex)
@@ -187,7 +187,7 @@ uint32_t TpTabBar::currendIndex()
 {
     TpTabBarData *menuData = static_cast<TpTabBarData *>(data_);
 
-    for (int i = 0; i < menuData->buttonGroup.size(); ++i)
+    for (int32_t i = 0; i < menuData->buttonGroup.size(); ++i)
     {
         const singleButtonData &curData = menuData->buttonGroup[i];
         if (curData.isSelected)
@@ -261,7 +261,7 @@ bool TpTabBar::onMousePressEvent(TpMouseEvent *event)
         return true;
 
     // 鼠标按下，根据当前点击坐标，计算是否切换当前选中的按钮
-    uint32_t curPressX = event->globalPos().x;
+    uint32_t curPressX = event->globalPos().x();
 
     TpTabBarData *menuData = static_cast<TpTabBarData *>(data_);
     double singleButtonWidth = 1.0 * width() / menuData->buttonGroup.size();
@@ -270,7 +270,7 @@ bool TpTabBar::onMousePressEvent(TpMouseEvent *event)
     uint32_t pressButtonId = 0;
 
     bool isUpdate = false;
-    for (int i = 0; i < menuData->buttonGroup.size(); ++i)
+    for (int32_t i = 0; i < menuData->buttonGroup.size(); ++i)
     {
         auto &curButtonData = menuData->buttonGroup[i];
         if (i == pressIndex)
@@ -367,7 +367,7 @@ void TpTabBar::caculateButtonSize()
     uint32_t buttonX = (singleButtonWidth - iconWidthHeight) / 2.0;
 
     // 调整所有按钮布局
-    for (int i = 0; i < menuData->buttonGroup.size(); ++i)
+    for (int32_t i = 0; i < menuData->buttonGroup.size(); ++i)
     {
         singleButtonData curButtonData = menuData->buttonGroup.at(i);
 

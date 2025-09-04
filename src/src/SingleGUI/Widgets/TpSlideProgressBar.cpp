@@ -11,7 +11,7 @@ struct TpSlideProgressBarData
 
     TpImage iconSurface;
 
-    ItpPoint pressPoint;
+    TpPoint pressPoint;
     bool mouseLeftPress = false;
 
     TpSlideProgressBarData()
@@ -137,8 +137,8 @@ bool TpSlideProgressBar::onMouseMoveEvent(TpMouseEvent *event)
     TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
     if (progressData->mouseLeftPress)
     {
-        ItpPoint curPos = event->globalPos();
-        int32_t offsetX = curPos.x - progressData->pressPoint.x;
+        TpPoint curPos = event->globalPos();
+        int32_t offsetX = curPos.x() - progressData->pressPoint.x();
 
         progressData->pressPoint = curPos;
 
@@ -218,7 +218,7 @@ bool TpSlideProgressBar::onPaintEvent(TpObjectPaintEvent *event)
 
         TpCanvas *canvas = event->canvas();
 
-        int32_t cy = (rect().h - imageHeight) / 2;
+        int32_t cy = (rect().height() - imageHeight) / 2;
 
         paintCanvas->paintImage(cy, cy, drawSurface);
     }

@@ -639,7 +639,7 @@ static void *thread_video_codec(void *param)
 		{
 #ifdef MEDIA_SDL_ENABLE
 			if(stream->video.handle->is_sdl)
-				SDL_SetWindowPosition(stream->video.handle->window, show_param.rect.x, show_param.rect.y);
+				SDL_SetWindowPosition(stream->video.handle->window, show_param.rect.x(), show_param.rect.y);
 #endif
 			show_param_l.rect.x=show_param.rect.x;
 			show_param_l.rect.y=show_param.rect.y;

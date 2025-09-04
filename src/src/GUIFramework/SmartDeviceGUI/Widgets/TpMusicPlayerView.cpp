@@ -155,29 +155,29 @@ bool TpMusicPlayerView::onResizeEvent(TpObjectResizeEvent *event)
     musicData->musicImageLabel->move(TpDisplay::dp2Px(17), TpDisplay::dp2Px(17));
 
     // 调整标题位置
-    int32_t nameX = musicData->musicImageLabel->pos().x + musicData->musicImageLabel->width();
-    int32_t nameY = musicData->musicImageLabel->pos().y + (musicData->musicImageLabel->height() / 2.0 - musicData->nameLabel->font()->fontSize()) / 2.0;
+    int32_t nameX = musicData->musicImageLabel->pos().x() + musicData->musicImageLabel->width();
+    int32_t nameY = musicData->musicImageLabel->pos().y() + (musicData->musicImageLabel->height() / 2.0 - musicData->nameLabel->font()->fontSize()) / 2.0;
     musicData->nameLabel->setRect(nameX, nameY, width() - nameX, musicData->nameLabel->font()->fontSize());
 
     // 歌手位置
-    int32_t authorY = musicData->musicImageLabel->pos().y + (musicData->musicImageLabel->height() / 2.0) + 5;
+    int32_t authorY = musicData->musicImageLabel->pos().y() + (musicData->musicImageLabel->height() / 2.0) + 5;
     musicData->authorLabel->setRect(nameX, authorY, width() - nameX, musicData->authorLabel->font()->fontSize());
 
     // 当前歌词位置
-    int32_t wordY = musicData->musicImageLabel->pos().y + musicData->musicImageLabel->height() + 10;
+    int32_t wordY = musicData->musicImageLabel->pos().y() + musicData->musicImageLabel->height() + 10;
     musicData->curWordLabel->setRect(0, wordY, width(), musicData->curWordLabel->font()->fontSize());
 
     // 操作按钮位置
     // 播放/暂停按钮在水平中央位置；垂直在歌词下空白位置的中央位置
     int32_t platBtnX = (width() - musicData->playPauseBtn->width()) / 2.0;
-    int32_t platBtnY = height() - musicData->curWordLabel->pos().y - musicData->curWordLabel->height();
+    int32_t platBtnY = height() - musicData->curWordLabel->pos().y() - musicData->curWordLabel->height();
     platBtnY = (platBtnY - musicData->playPauseBtn->height()) / 2.0;
-    platBtnY = musicData->curWordLabel->pos().y + musicData->curWordLabel->height() + platBtnY;
+    platBtnY = musicData->curWordLabel->pos().y() + musicData->curWordLabel->height() + platBtnY;
 
     musicData->playPauseBtn->move(platBtnX, platBtnY);
 
-    musicData->previousBtn->move(musicData->playPauseBtn->pos().x - musicData->previousBtn->width() - 30, platBtnY);
-    musicData->nextBtn->move(musicData->playPauseBtn->pos().x + musicData->playPauseBtn->width() + 30, platBtnY);
+    musicData->previousBtn->move(musicData->playPauseBtn->pos().x() - musicData->previousBtn->width() - 30, platBtnY);
+    musicData->nextBtn->move(musicData->playPauseBtn->pos().x() + musicData->playPauseBtn->width() + 30, platBtnY);
 
     return true;
 }

@@ -231,12 +231,12 @@ void TpTreeWidgetItem::setCheckState(int32_t column, tinyPiX::CheckState state)
 {
 }
 
-ItpSize TpTreeWidgetItem::sizeHint(int32_t column)
+TpSize TpTreeWidgetItem::sizeHint(int32_t column)
 {
-    return ItpSize();
+    return TpSize();
 }
 
-void TpTreeWidgetItem::setSizeHint(int32_t column, const ItpSize &size)
+void TpTreeWidgetItem::setSizeHint(int32_t column, const TpSize &size)
 {
 }
 

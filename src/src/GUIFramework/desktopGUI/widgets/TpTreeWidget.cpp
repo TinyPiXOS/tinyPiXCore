@@ -31,7 +31,7 @@ static const uint32_t IconTextMargin = 10;
 
 struct treeItemRectInfo
 {
-    ItpRect itemRect;
+    TpRect itemRect;
     TpTreeWidgetItem *itemPtr;
 };
 
@@ -57,10 +57,10 @@ struct TpTreeWidgetData
     TpList<treeItemRectInfo> curShowItemList;
 
     bool isHover;
-    ItpRect hoverRect;
+    TpRect hoverRect;
 
     bool isSelect;
-    ItpRect selectRect;
+    TpRect selectRect;
 
     // 当前选中的item
     TpTreeWidgetItem *curSelectItem;
@@ -246,7 +246,7 @@ bool TpTreeWidget::onPaintEvent(TpObjectPaintEvent *event)
         // 配置标题栏, 文字居中向右偏移半个icon宽度
         uint32_t iconWidthHeight = widgetData->titleLabel->font()->pixelHeight();
 
-        uint32_t titleTextX = (rect().w - widgetData->titleLabel->font()->pixelWidth()) / 2.0 + iconWidthHeight / 2.0;
+        uint32_t titleTextX = (rect().width() - widgetData->titleLabel->font()->pixelWidth()) / 2.0 + iconWidthHeight / 2.0;
         uint32_t titleTextY = (TitleHeight - widgetData->titleLabel->font()->pixelHeight()) / 2.0;
 
         widgetData->titleLabel->setRect(titleTextX, titleTextY, widgetData->titleLabel->font()->pixelWidth(), widgetData->titleLabel->font()->pixelHeight());
@@ -259,13 +259,15 @@ bool TpTreeWidget::onPaintEvent(TpObjectPaintEvent *event)
     // 绘制选中框
     if (widgetData->isSelect)
     {
-        paintCanvas->box(widgetData->selectRect.x, widgetData->selectRect.y, widgetData->selectRect.x + widgetData->selectRect.w, widgetData->selectRect.y + widgetData->selectRect.h, _RGB(255, 255, 255));
+        paintCanvas->box(widgetData->selectRect.x(), widgetData->selectRect.y(),
+                         widgetData->selectRect.x() + widgetData->selectRect.width(), widgetData->selectRect.y() + widgetData->selectRect.height(), _RGB(255, 255, 255));
     }
 
     // 绘制悬停框
     if (widgetData->isHover)
     {
-        paintCanvas->box(widgetData->hoverRect.x, widgetData->hoverRect.y, widgetData->hoverRect.x + widgetData->hoverRect.w, widgetData->hoverRect.y + widgetData->hoverRect.h, _RGB(229, 243, 255));
+        paintCanvas->box(widgetData->hoverRect.x(), widgetData->hoverRect.y(),
+                         widgetData->hoverRect.x() + widgetData->hoverRect.width(), widgetData->hoverRect.y() + widgetData->hoverRect.height(), _RGB(229, 243, 255));
     }
 
     widgetData->curShowItemList.clear();
@@ -290,7 +292,7 @@ bool TpTreeWidget::onMousePressEvent(TpMouseEvent *event)
     if (!widgetData)
         return true;
 
-    ItpPoint mousePoint = event->pos();
+    TpPoint mousePoint = event->pos();
 
     // widgetData->curShowItemList
     int32_t pressIndex = queryPointIndex(mousePoint);
@@ -366,7 +368,7 @@ bool TpTreeWidget::onMouseMoveEvent(TpMouseEvent *event)
     if (!widgetData)
         return true;
 
-    ItpPoint curMousePoint = event->pos();
+    TpPoint curMousePoint = event->pos();
 
     int32_t hoverIndex = queryPointIndex(curMousePoint);
 
@@ -393,10 +395,10 @@ bool TpTreeWidget::onResizeEvent(TpObjectResizeEvent *event)
         return true;
 
     // 窗口大小变化，计算可显示item数量
-    uint32_t showHeight = rect().h - UpDownMargin * 2;
+    uint32_t showHeight = rect().height() - UpDownMargin * 2;
 
     if (widgetData->titleVisible)
-        showHeight = rect().h - TitleHeight - UpDownMargin;
+        showHeight = rect().height() - TitleHeight - UpDownMargin;
 
     widgetData->maxShowItemCount = std::ceil(1.0 * showHeight / TreeItemHeight);
 
@@ -419,15 +421,13 @@ void TpTreeWidget::drawItem(TpObjectPaintEvent *event, TpTreeWidgetItem *topItem
     // 记录节点rect
     treeItemRectInfo itemRectInfo;
     itemRectInfo.itemPtr = topItem;
-    itemRectInfo.itemRect.x = 0;
-    itemRectInfo.itemRect.y = drawY;
-    itemRectInfo.itemRect.w = rect().w;
-    itemRectInfo.itemRect.h = TreeItemHeight;
+
+    itemRectInfo.itemRect.setRect(0, drawY, rect().width(), TreeItemHeight);
 
     widgetData->curShowItemList.emplace_back(itemRectInfo);
 
     // 先绘制文字，文字要居中
-    uint32_t textX = (rect().w - topItem->font()->pixelWidth()) / 2.0;
+    uint32_t textX = (rect().width() - topItem->font()->pixelWidth()) / 2.0;
 
     // 根据节点层级添加偏移量
     textX += itemParentCount(topItem) * TreeItemXOffset;
@@ -515,7 +515,7 @@ uint32_t TpTreeWidget::itemParentCount(TpTreeWidgetItem *item)
     return resCount;
 }
 
-int32_t TpTreeWidget::queryPointIndex(const ItpPoint &point)
+int32_t TpTreeWidget::queryPointIndex(const TpPoint &point)
 {
     TpTreeWidgetData *widgetData = static_cast<TpTreeWidgetData *>(data_);
     if (!widgetData)
@@ -533,7 +533,7 @@ int32_t TpTreeWidget::queryPointIndex(const ItpPoint &point)
         {
             return mid;
         }
-        else if (point.y < itemInfo.itemRect.y)
+        else if (point.y() < itemInfo.itemRect.y())
         {
             right = mid - 1;
         }

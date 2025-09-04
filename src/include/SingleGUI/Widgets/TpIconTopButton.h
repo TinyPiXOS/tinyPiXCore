@@ -36,10 +36,10 @@ public:
     void setIconSize(const uint32_t &width, const uint32_t &height);
     /// @brief 设置图标大小
     /// @param size 图标尺寸
-    void setIconSize(const ItpSize &size);
+    void setIconSize(const TpSize &size);
     /// @brief 获取图标大小
     /// @return 图标尺寸
-    ItpSize iconSize();
+    TpSize iconSize();
 
     /// @brief 设置图标文本显隐，设置后控制标签显示/隐藏,需要在设置IconSize接口调用后使用
     /// @param visible true显示，false隐藏

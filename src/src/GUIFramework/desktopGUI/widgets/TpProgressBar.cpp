@@ -72,7 +72,7 @@ bool TpProgressBar::onPaintEvent(TpObjectPaintEvent *event)
     // 计算百分比
     double percentValue = 1.0 * (value_ - min_) / (max_ - min_);
 
-    uint32_t barWidth = rect().w - 2;
+    uint32_t barWidth = rect().width() - 2;
 
     // 文字显示，进度条宽度要短一点，流出文本位置
     if (textVisible_)
@@ -85,25 +85,25 @@ bool TpProgressBar::onPaintEvent(TpObjectPaintEvent *event)
         textFont.setText(percentText);
 
         barWidth -= textFont.pixelWidth();
-        uint32_t textY = (rect().h - 2 - textFont.pixelHeight()) / 2.0;
+        uint32_t textY = (rect().height() - 2 - textFont.pixelHeight()) / 2.0;
 
         // paintCanvas->renderText(textFont, barWidth, textY, percentText);
-        paintCanvas->renderText(textFont, rect().w - textFont.pixelWidth(), 0, percentText);
+        paintCanvas->renderText(textFont, rect().width() - textFont.pixelWidth(), 0, percentText);
     }
 
     // 绘制底色
-    paintCanvas->roundedBox(1, 1, barWidth - 1, rect().h - 2, (rect().h - 2) * 0.45, bgColor_);
+    paintCanvas->roundedBox(1, 1, barWidth - 1, rect().height() - 2, (rect().height() - 2) * 0.45, bgColor_);
 
     // 绘制填充色
     uint32_t fillWidth = barWidth * percentValue;
     if (fillWidth != 0)
-        paintCanvas->roundedBox(1, 1, fillWidth, rect().h - 2, (rect().h - 2) * 0.45, fillColor_);
+        paintCanvas->roundedBox(1, 1, fillWidth, rect().height() - 2, (rect().height() - 2) * 0.45, fillColor_);
 
     // 绘制边框
     if (!isNoBorder_)
     {
         // paintCanvas->rectangle(1, 1, barWidth - 1, rect().h - 1, borderColor_);
-        paintCanvas->roundedRectangle(0, 0, barWidth, rect().h - 1, (rect().h - 1) * 0.45, borderColor_);
+        paintCanvas->roundedRectangle(0, 0, barWidth, rect().height() - 1, (rect().height() - 1) * 0.45, borderColor_);
     }
 
     return true;

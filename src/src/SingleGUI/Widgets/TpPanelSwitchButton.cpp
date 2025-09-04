@@ -62,9 +62,9 @@ bool TpPanelSwitchButton::onResizeEvent(TpObjectResizeEvent *event)
     tpShared<TpCssData> curCssData = currentStatusCss();
 
     TpPanelSwitchButtonData *buttonData = static_cast<TpPanelSwitchButtonData *>(data_);
-    buttonData->textLabel->setSize(rect().w, buttonData->textLabel->font()->pixelHeight());
+    buttonData->textLabel->setSize(rect().width(), buttonData->textLabel->font()->pixelHeight());
 
-    buttonData->textLabel->move(0, rect().h - buttonData->textLabel->font()->pixelHeight() - curCssData->paddingBottom());
+    buttonData->textLabel->move(0, rect().height() - buttonData->textLabel->font()->pixelHeight() - curCssData->paddingBottom());
 
     // uint32_t iconSize = curCssData->iconSize();
     uint32_t iconSize = ((width() > height()) ? height() : width()) * 0.32679;

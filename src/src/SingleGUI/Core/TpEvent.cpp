@@ -66,7 +66,6 @@ TpKeyboardEvent::TpKeyboardEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpKeyboardSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -221,7 +220,6 @@ TpMouseEvent::TpMouseEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpMouseSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -308,20 +306,20 @@ bool TpMouseEvent::state()
     return state;
 }
 
-ItpPoint TpMouseEvent::pos()
+TpPoint TpMouseEvent::pos()
 {
     ItpMouseSet *set = (ItpMouseSet *)TpEvent::TpEventSet;
     if (!set)
-        return ItpPoint();
+        return TpPoint();
 
     return set->pos;
 }
 
-ItpPoint TpMouseEvent::globalPos()
+TpPoint TpMouseEvent::globalPos()
 {
     ItpMouseSet *set = (ItpMouseSet *)TpEvent::TpEventSet;
     if (!set)
-        return ItpPoint();
+        return TpPoint();
 
     return set->globalPos;
 }
@@ -333,7 +331,6 @@ TpWheelEvent::TpWheelEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpMouseSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -394,7 +391,6 @@ TpFingerEvent::TpFingerEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpFingerSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -568,7 +564,6 @@ TpDollAREvent::TpDollAREvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpDollarSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -714,7 +709,6 @@ TpMultiGestureEvent::TpMultiGestureEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpMultiGestureSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -873,7 +867,6 @@ TpObjectMoveEvent::TpObjectMoveEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectMoveSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -968,7 +961,6 @@ TpObjectResizeEvent::TpObjectResizeEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectResizeSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -1075,7 +1067,6 @@ TpObjectFocusEvent::TpObjectFocusEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectFocusSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -1157,7 +1148,6 @@ TpObjectLeaveEvent::TpObjectLeaveEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectLeaveSet));
         set->type = TpEvent::EVENT_OBJECT_LEAVE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -1239,7 +1229,6 @@ TpObjectVisibleEvent::TpObjectVisibleEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectVisibleSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -1321,7 +1310,6 @@ TpObjectRotateEvent::TpObjectRotateEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectRotateSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }
@@ -1403,7 +1391,6 @@ TpObjectPaintEvent::TpObjectPaintEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpObjectPaintSet));
         set->type = TpEvent::EVENT_NONE_TYPE;
         set->canDraw = false;
         TpEvent::TpEventSet = set;
@@ -1452,8 +1439,8 @@ bool TpObjectPaintEvent::construct(ItpEventData *eventData)
     }
     else
     {
-        set->offsetX = inputObjectChild->toScreen().x - inputObjectChild->offsetX();
-        set->offsetY = inputObjectChild->toScreen().y - inputObjectChild->offsetY();
+        set->offsetX = inputObjectChild->toScreen().x() - inputObjectChild->offsetX();
+        set->offsetY = inputObjectChild->toScreen().y() - inputObjectChild->offsetY();
     }
 
     set->surface = input->surface;
@@ -1466,7 +1453,7 @@ bool TpObjectPaintEvent::construct(ItpEventData *eventData)
     }
 
     TpRect clipRect = input->updateRect;
-    ItpRect objectAbsRect = inputObjectChild->toScreen();
+    TpRect objectAbsRect = inputObjectChild->toScreen();
     TpRect absRect(objectAbsRect);
 
     set->canDraw = clipRect.intersect(absRect);
@@ -1476,20 +1463,20 @@ bool TpObjectPaintEvent::construct(ItpEventData *eventData)
         return false;
     }
 
-    set->updateRect = clipRect.get(); // input->updateRect;
+    set->updateRect = clipRect;
     TpObject *top = input->object->topObject();
 
     if (top && top->objectType() == TP_FLOAT_OBJECT)
     {
-        clipRect.setX0(clipRect.X0() - inputObjectChild->offsetX());
-        clipRect.setY0(clipRect.Y0() - inputObjectChild->offsetY());
+        clipRect.setX(clipRect.x() - inputObjectChild->offsetX());
+        clipRect.setY(clipRect.y() - inputObjectChild->offsetY());
     }
 
     // std::cout << "clipRect 区域： " << input->object << " : " << clipRect.get().x << " , " << clipRect.get().y << " , "
     //           << clipRect.get().w << " , " << clipRect.get().h << std::endl;
 
     set->rect = inputObjectChild->rect();
-    set->canvas->setClipRect(clipRect.get());
+    set->canvas->setClipRect(clipRect);
     set->type = EVENT_OBJECT_PAINT_TYPE;
 
     return true;
@@ -1585,10 +1572,10 @@ int32_t TpObjectPaintEvent::offsetY()
     return offsetY;
 }
 
-ItpRect TpObjectPaintEvent::updateRect()
+TpRect TpObjectPaintEvent::updateRect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
-    ItpRect result = {0, 0, 0, 0};
+    TpRect result = {0, 0, 0, 0};
 
     if (set)
     {
@@ -1598,10 +1585,10 @@ ItpRect TpObjectPaintEvent::updateRect()
     return result;
 }
 
-ItpRect TpObjectPaintEvent::rect()
+TpRect TpObjectPaintEvent::rect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
-    ItpRect result = {0, 0, 0, 0};
+    TpRect result = {0, 0, 0, 0};
 
     if (set)
     {
@@ -1611,10 +1598,10 @@ ItpRect TpObjectPaintEvent::rect()
     return result;
 }
 
-ItpRect TpObjectPaintEvent::absRect()
+TpRect TpObjectPaintEvent::absRect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
-    ItpRect result;
+    TpRect result;
 
     TpChildWidget *chiildObject = static_cast<TpChildWidget *>(set->object);
 
@@ -1646,7 +1633,6 @@ TpObjectActiveEvent::TpObjectActiveEvent() : TpEvent()
 
     if (set)
     {
-        memset(set, 0, sizeof(TpObjectActiveEvent));
         set->type = TpEvent::EVENT_NONE_TYPE;
         TpEvent::TpEventSet = set;
     }

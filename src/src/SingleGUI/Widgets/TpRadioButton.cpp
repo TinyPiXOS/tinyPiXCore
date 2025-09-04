@@ -95,8 +95,8 @@ void TpRadioButton::setAutoFit(bool enable)
     set->enableFit = enable;
     if (enable)
     {
-        ItpSize size = set->font->pixelSize();
-        this->setRect(this->rect().x, this->rect().y, size.w + size.h / 2 + set->space, size.h);
+        TpSize size = set->font->pixelSize();
+        this->setRect(this->rect().x(), this->rect().y(), size.width() + size.height() / 2.0 + set->space, size.height());
     }
 }
 
@@ -119,8 +119,8 @@ void TpRadioButton::setRect(const int32_t &x, const int32_t &y, const uint32_t &
 
     if (set->enableFit)
     {
-        ItpSize size = set->font->pixelSize();
-        TpChildWidget::setRect(x, y, size.w + size.h / 2 + set->space, size.h);
+        TpSize size = set->font->pixelSize();
+        TpChildWidget::setRect(x, y, size.width() + size.height() / 2.0 + set->space, size.height());
         return;
     }
 
@@ -141,8 +141,8 @@ void TpRadioButton::setText(const TpString &text)
     set->font->setText(text);
     if (set->enableFit)
     {
-        ItpSize size = set->font->pixelSize();
-        this->setRect(this->rect().x, this->rect().y, size.w + size.h / 4 + set->space, size.h);
+        TpSize size = set->font->pixelSize();
+        this->setRect(this->rect().x(), this->rect().y(), size.width() + size.height() / 4.0 + set->space, size.height());
     }
 }
 
@@ -200,20 +200,20 @@ bool TpRadioButton::onPaintEvent(TpObjectPaintEvent *event)
     tpShared<TpCssData> curCssData = currentStatusCss();
 
     TpCanvas *canvas = event->canvas();
-    ItpSize size = set->font->pixelSize();
-    double rad = size.h / 4.0;
+    TpSize size = set->font->pixelSize();
+    double rad = size.height() / 4.0;
 
-    double cx = (width() - size.w) / 2.0;
-    double cy = (height() - size.h) / 2.0;
+    double cx = (width() - size.width()) / 2.0;
+    double cy = (height() - size.height()) / 2.0;
     cx = TP_MAX(cx, rad);
 
     int32_t lineWidth = TP_MAX(1, rad / 8);
 
-    canvas->circle(cx, cy + 9 * size.h / 16.0, rad, curCssData->borderColor(), lineWidth);
+    canvas->circle(cx, cy + 9 * size.height() / 16.0, rad, curCssData->borderColor(), lineWidth);
 
     if (checked())
     {
-        canvas->filledCircle(cx, cy + 9 * size.h / 16.0, rad / 2.0, curCssData->backgroundColor());
+        canvas->filledCircle(cx, cy + 9 * size.height() / 16.0, rad / 2.0, curCssData->backgroundColor());
     }
 
     canvas->renderText(*set->font, cx + rad + set->space, cy);

@@ -18,7 +18,7 @@ struct TpCarouselButtonData
 
     // 所有点的坐标区域
     bool respond = false;
-    TpVector<ItpRect> pointRectList;
+    TpVector<TpRect> pointRectList;
 };
 
 TpCarouselButton::TpCarouselButton(TpChildWidget *parent)
@@ -140,7 +140,7 @@ bool TpCarouselButton::onMousePressEvent(TpMouseEvent *event)
     if (!buttonData->respond)
         return true;
 
-    ItpPoint pressPoint = event->pos();
+    TpPoint pressPoint = event->pos();
     for (int i = 0; i < buttonData->pointRectList.size(); ++i)
     {
         auto curRect = buttonData->pointRectList.at(i);
@@ -171,25 +171,25 @@ bool TpCarouselButton::onPaintEvent(TpObjectPaintEvent *event)
 
         for (int i = 0; i < buttonData->maxCount; ++i)
         {
-            ItpRect curRect;
-            curRect.x = startX;
-            curRect.y = startY;
-            curRect.h = buttonData->singleBtnWH;
+            TpRect curRect;
+            curRect.setX(startX);
+            curRect.setY(startY);
+            curRect.setHeight(buttonData->singleBtnWH);
 
             int32_t curColor;
             if (i == buttonData->curIndex)
             {
-                curRect.w = buttonData->singleBtnWH * 5;
+                curRect.setWidth(buttonData->singleBtnWH * 5);
                 startX += buttonData->singleBtnWH * 4;
                 curColor = buttonData->selectColor;
             }
             else
             {
-                curRect.w = buttonData->singleBtnWH;
+                curRect.setWidth(buttonData->singleBtnWH);
                 curColor = buttonData->defaultColor;
             }
 
-            paintCanvas->roundedBox(curRect.x, curRect.y, curRect.x + curRect.w, curRect.y + curRect.h, buttonData->singleBtnWH / 2.0, curColor);
+            paintCanvas->roundedBox(curRect.x(), curRect.y(), curRect.x() + curRect.width(), curRect.y() + curRect.height(), buttonData->singleBtnWH / 2.0, curColor);
             buttonData->pointRectList.emplace_back(curRect);
 
             startX += buttonData->singleBtnWH + buttonData->spacing;
@@ -203,25 +203,25 @@ bool TpCarouselButton::onPaintEvent(TpObjectPaintEvent *event)
 
         for (int i = 0; i < buttonData->maxCount; ++i)
         {
-            ItpRect curRect;
-            curRect.x = startX;
-            curRect.y = startY;
-            curRect.w = buttonData->singleBtnWH;
+            TpRect curRect;
+            curRect.setX(startX);
+            curRect.setY(startY);
+            curRect.setWidth(buttonData->singleBtnWH);
 
             int32_t curColor;
             if (i == buttonData->curIndex)
             {
-                curRect.h = buttonData->singleBtnWH * 5;
+                curRect.setHeight(buttonData->singleBtnWH * 5);
                 startY += buttonData->singleBtnWH * 4;
                 curColor = buttonData->selectColor;
             }
             else
             {
-                curRect.h = buttonData->singleBtnWH;
+                curRect.setHeight(buttonData->singleBtnWH);
                 curColor = buttonData->defaultColor;
             }
 
-            paintCanvas->roundedBox(curRect.x, curRect.y, curRect.x + curRect.w, curRect.y + curRect.h, buttonData->singleBtnWH / 2.0, curColor);
+            paintCanvas->roundedBox(curRect.x(), curRect.y(), curRect.x() + curRect.width(), curRect.y() + curRect.height(), buttonData->singleBtnWH / 2.0, curColor);
             buttonData->pointRectList.emplace_back(curRect);
 
             startY += buttonData->singleBtnWH + buttonData->spacing;

@@ -16,7 +16,7 @@ public:
 
 	/// @brief 非模态顶层显示menu菜单
 	/// @param globalPos 屏幕全局X，Y坐标
-	void exec(const ItpPoint &globalPos);
+	void exec(const TpPoint &globalPos);
 
 	/// @brief 顶层显示menu菜单
 	/// @param globalPosX 屏幕全局X坐标

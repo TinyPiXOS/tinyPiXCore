@@ -88,7 +88,7 @@ public:
 
 	/// @brief 获取布局的最小尺寸；内部根据布局内子控件计算布局的最小尺寸
 	/// @return 最小尺寸
-	virtual ItpSize minumumSize();
+	virtual TpSize minumumSize();
 
 public
 signals:

@@ -1,196 +1,276 @@
-/* liucy has been here，but nothing to see and nothing left ^_^!*/
-
-/*
-** Copyright (c) 2007-2021 By Alexander.King.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and/or associated documentation files (the
-** "Materials"), to deal in the Materials without restriction, including
-** without limitation the rights to use, copy, modify, merge, publish,
-** distribute, sublicense, and/or sell copies of the Materials, and to
-** permit persons to whom the Materials are furnished to do so, subject to
-** the following conditions:
-**
-** The above copyright notice and this permission notice shall be included
-** in all copies or substantial portions of the Materials.
-**
-** THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
-*/
 #include "TpPoint.h"
+#include <cmath> // for fabs in division operations
 
-typedef struct{
-	int32_t x; 
-	int32_t y;
-}ItpPointSet;
+// 定义点数据结构体
+struct TpPointData
+{
+    int32_t x = 0;
+    int32_t y = 0;
+};
 
 TpPoint::TpPoint()
 {
-	ItpPointSet *set = new ItpPointSet();
-	
-	if(set){
-		set->x = 0;
-		set->y = 0;
-		
-		this->pointSet = set;
-	}
+    data_ = new TpPointData();
 }
 
-TpPoint::TpPoint(TpPoint &p)
+TpPoint::TpPoint(const TpPoint &other)
 {
-	ItpPointSet *set = new ItpPointSet();
-	
-	if(set){
-		ItpPoint point = p.get();
-		set->x = point.x;
-		set->y = point.y;
-		
-		this->pointSet = set;
-	}
+    TpPointData *pointData = new TpPointData();
+    pointData->x = other.x();
+    pointData->y = other.y();
+    data_ = pointData;
 }
 
-TpPoint::TpPoint(TpPoint *p)
+TpPoint::TpPoint(int32_t xpos, int32_t ypos)
 {
-	ItpPointSet *set = new ItpPointSet();
-	
-	if(set){
-		set->x = 0;
-		set->y = 0;
-		
-		this->pointSet = set;
-		
-		if(p){
-			ItpPoint point = p->get();
-			set->x = point.x;
-			set->y = point.y;			
-		}
-	}
-}
-
-TpPoint::TpPoint(ItpPoint &p)
-{
-	ItpPointSet *set = new ItpPointSet();
-	
-	if(set){
-		set->x = p.x;
-		set->y = p.y;
-		
-		this->pointSet = set;
-	}
-}
-
-TpPoint::TpPoint(ItpPoint *p)
-{
-	ItpPointSet *set = new ItpPointSet();
-	
-	if(set){
-		set->x = 0;
-		set->y = 0;
-		
-		this->pointSet = set;
-		
-		if(p){
-			set->x = p->x;
-			set->y = p->y;			
-		}
-	}
-}
-
-TpPoint::TpPoint(int32_t x, int32_t y)
-{
-	ItpPointSet *set = new ItpPointSet();
-	
-	if(set){
-		set->x = x;
-		set->y = y;
-		
-		this->pointSet = set;
-	}
+    TpPointData *pointData = new TpPointData();
+    pointData->x = xpos;
+    pointData->y = ypos;
+    data_ = pointData;
 }
 
 TpPoint::~TpPoint()
 {
-	ItpPointSet *set = (ItpPointSet*)this->pointSet;
-	
-	if(set){
-		delete set;
-	}
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    if (pointData)
+    {
+        delete pointData;
+        data_ = nullptr;
+    }
 }
 
-ItpPoint TpPoint::get()
+bool TpPoint::isNull() const
 {
-	ItpPointSet *set = (ItpPointSet*)this->pointSet;
-	ItpPoint point = {0, 0};
-	
-	if(set){
-		point.x = set->x;
-		point.y = set->y;
-	}
-	
-	return point;
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return (pointData->x == 0 && pointData->y == 0);
 }
 
-TpPoint TpPoint::operator = (TpPoint &p)
+int32_t TpPoint::x() const
 {
-	ItpPointSet *set = (ItpPointSet*)this->pointSet;
-	ItpPoint point = p.get();
-	
-	if(set){
-		set->x = point.x;
-		set->y = point.y;
-	}
-	
-	return *this;
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return pointData->x;
 }
 
-TpPoint TpPoint::operator = (ItpPoint &p)
+int32_t TpPoint::y() const
 {
-	ItpPointSet *set = (ItpPointSet*)this->pointSet;
-	
-	if(set){
-		set->x = p.x;
-		set->y = p.y;
-	}
-	
-	return *this;
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return pointData->y;
 }
 
-bool TpPoint::operator == (TpPoint &p)
+void TpPoint::setX(int32_t x)
 {
-	ItpPointSet *set = (ItpPointSet*)this->pointSet;
-	ItpPoint point = p.get();
-	bool ret = false;
-	
-	if(set){
-		ret = ((set->x == point.x) && (set->y == point.y));
-	}
-	
-	return ret;
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x = x;
 }
 
-bool TpPoint::operator == (ItpPoint &p)
+void TpPoint::setY(int32_t y)
 {
-	ItpPointSet *set = (ItpPointSet*)this->pointSet;
-	bool ret = false;
-	
-	if(set){
-		ret = ((set->x == p.x) && (set->y == p.y));
-	}
-	
-	return ret;
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->y = y;
 }
 
-bool TpPoint::operator != (TpPoint &p)
+int32_t TpPoint::manhattanLength() const
 {
-	return !(*this == p);
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return std::abs(pointData->x) + std::abs(pointData->y);
 }
 
-bool TpPoint::operator != (ItpPoint &p)
+TpPoint TpPoint::transposed() const noexcept
 {
-	return !(*this == p);
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return TpPoint(pointData->y, pointData->x);
+}
+
+int32_t &TpPoint::rx()
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return pointData->x;
+}
+
+int32_t &TpPoint::ry()
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    return pointData->y;
+}
+
+const TpPoint &TpPoint::operator=(const TpPoint &p)
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    TpPointData *otherData = static_cast<TpPointData *>(p.data_);
+    pointData->x = otherData->x;
+    pointData->y = otherData->y;
+    return *this;
+}
+
+TpPoint &TpPoint::operator+=(const TpPoint &p)
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    TpPointData *otherData = static_cast<TpPointData *>(p.data_);
+    pointData->x += otherData->x;
+    pointData->y += otherData->y;
+    return *this;
+}
+
+TpPoint &TpPoint::operator-=(const TpPoint &p)
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    TpPointData *otherData = static_cast<TpPointData *>(p.data_);
+    pointData->x -= otherData->x;
+    pointData->y -= otherData->y;
+    return *this;
+}
+
+TpPoint &TpPoint::operator*=(float factor)
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x = static_cast<int32_t>(pointData->x * factor);
+    pointData->y = static_cast<int32_t>(pointData->y * factor);
+    return *this;
+}
+
+TpPoint &TpPoint::operator*=(double factor)
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x = static_cast<int32_t>(pointData->x * factor);
+    pointData->y = static_cast<int32_t>(pointData->y * factor);
+    return *this;
+}
+
+TpPoint &TpPoint::operator*=(int32_t factor)
+{
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x *= factor;
+    pointData->y *= factor;
+    return *this;
+}
+
+TpPoint &TpPoint::operator/=(float divisor)
+{
+    if (divisor == 0.0f)
+        return *this; // Avoid division by zero
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x = static_cast<int32_t>(pointData->x / divisor);
+    pointData->y = static_cast<int32_t>(pointData->y / divisor);
+    return *this;
+}
+
+TpPoint &TpPoint::operator/=(double divisor)
+{
+    if (divisor == 0.0)
+        return *this; // Avoid division by zero
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x = static_cast<int32_t>(pointData->x / divisor);
+    pointData->y = static_cast<int32_t>(pointData->y / divisor);
+    return *this;
+}
+
+TpPoint &TpPoint::operator/=(int32_t divisor)
+{
+    if (divisor == 0)
+        return *this; // Avoid division by zero
+    TpPointData *pointData = static_cast<TpPointData *>(data_);
+    pointData->x /= divisor;
+    pointData->y /= divisor;
+    return *this;
+}
+
+int32_t TpPoint::dotProduct(const TpPoint &p1, const TpPoint &p2)
+{
+    TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
+    TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
+    return p1Data->x * p2Data->x + p1Data->y * p2Data->y;
+}
+
+inline bool operator==(const TpPoint &p1, const TpPoint &p2)
+{
+    TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
+    TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
+    return (p1Data->x == p2Data->x) && (p1Data->y == p2Data->y);
+}
+
+inline bool operator!=(const TpPoint &p1, const TpPoint &p2)
+{
+    return !(p1 == p2);
+}
+
+inline const TpPoint operator+(const TpPoint &p1, const TpPoint &p2)
+{
+    TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
+    TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
+    return TpPoint(p1Data->x + p2Data->x, p1Data->y + p2Data->y);
+}
+
+inline const TpPoint operator-(const TpPoint &p1, const TpPoint &p2)
+{
+    TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
+    TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
+    return TpPoint(p1Data->x - p2Data->x, p1Data->y - p2Data->y);
+}
+
+inline const TpPoint operator*(const TpPoint &p, float factor)
+{
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(static_cast<int32_t>(pData->x * factor), static_cast<int32_t>(pData->y * factor));
+}
+
+inline const TpPoint operator*(float factor, const TpPoint &p)
+{
+    return p * factor;
+}
+
+inline const TpPoint operator*(const TpPoint &p, double factor)
+{
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(static_cast<int32_t>(pData->x * factor), static_cast<int32_t>(pData->y * factor));
+}
+
+inline const TpPoint operator*(double factor, const TpPoint &p)
+{
+    return p * factor;
+}
+
+inline const TpPoint operator*(const TpPoint &p, int32_t factor)
+{
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(pData->x * factor, pData->y * factor);
+}
+
+inline const TpPoint operator*(int32_t factor, const TpPoint &p)
+{
+    return p * factor;
+}
+
+inline const TpPoint operator+(const TpPoint &p)
+{
+    return p;
+}
+
+inline const TpPoint operator-(const TpPoint &p)
+{
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(-pData->x, -pData->y);
+}
+
+inline const TpPoint operator/(const TpPoint &p, float divisor)
+{
+    if (divisor == 0.0f)
+        return p;
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(static_cast<int32_t>(pData->x / divisor), static_cast<int32_t>(pData->y / divisor));
+}
+
+inline const TpPoint operator/(const TpPoint &p, double divisor)
+{
+    if (divisor == 0.0)
+        return p;
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(static_cast<int32_t>(pData->x / divisor), static_cast<int32_t>(pData->y / divisor));
+}
+
+inline const TpPoint operator/(const TpPoint &p, int32_t divisor)
+{
+    if (divisor == 0)
+        return p;
+    TpPointData *pData = static_cast<TpPointData *>(p.data_);
+    return TpPoint(pData->x / divisor, pData->y / divisor);
 }

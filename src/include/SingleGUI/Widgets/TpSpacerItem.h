@@ -2,6 +2,7 @@
 #define TP_SPACER_ITEM_H
 
 #include "TpObject.h"
+#include "TpSize.h"
 
 class TpSpacerItem
     : public TpObject
@@ -16,7 +17,7 @@ public:
     };
 
 public:
-    TpSpacerItem(const ItpSize &sizeHint,
+    TpSpacerItem(const TpSize &sizeHint,
                  TpSizePolicy hPolicy = Minimum,
                  TpSizePolicy vPolicy = Minimum);
 
@@ -29,10 +30,10 @@ public:
     TpSizePolicy verticalPolicy() const { return vPolicy_; }
 
     // 尺寸约束访问器
-    ItpSize sizeHint() const { return sizeHint_; }
+    TpSize sizeHint() const { return sizeHint_; }
 
 private:
-    ItpSize sizeHint_;
+    TpSize sizeHint_;
     TpSizePolicy hPolicy_;
     TpSizePolicy vPolicy_;
 };

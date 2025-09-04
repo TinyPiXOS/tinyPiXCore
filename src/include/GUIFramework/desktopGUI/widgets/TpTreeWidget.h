@@ -88,7 +88,7 @@ private:
     // 获取item是第几级节点
     uint32_t itemParentCount(TpTreeWidgetItem *item);
 
-    int32_t queryPointIndex(const ItpPoint &point);
+    int32_t queryPointIndex(const TpPoint &point);
 
 private:
     ItpTreeWidgetData *data_;

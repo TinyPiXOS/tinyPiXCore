@@ -64,7 +64,7 @@ public:
     void setCurrentItem(TpTreeWidgetItem *item);
     void setCurrentItem(TpTreeWidgetItem *item, int32_t column);
 
-    TpTreeWidgetItem *itemAt(const ItpPoint &p) const;
+    TpTreeWidgetItem *itemAt(const TpPoint &p) const;
     TpTreeWidgetItem *itemAt(int32_t x, int32_t y) const;
 
     int32_t sortColumn() const;

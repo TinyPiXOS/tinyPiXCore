@@ -70,8 +70,8 @@ public:
     tinyPiX::CheckState checkState(int32_t column);
     void setCheckState(int32_t column, tinyPiX::CheckState state);
 
-    ItpSize sizeHint(int32_t column);
-    void setSizeHint(int32_t column, const ItpSize &size);
+    TpSize sizeHint(int32_t column);
+    void setSizeHint(int32_t column, const TpSize &size);
 
     virtual TpVariant data(int32_t column, int32_t role) const;
     virtual void setData(int32_t column, int32_t role, const TpVariant &value);

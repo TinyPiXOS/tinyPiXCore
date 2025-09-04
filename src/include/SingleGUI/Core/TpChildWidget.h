@@ -6,6 +6,7 @@
 #include "TpEvent.h"
 #include "Utils/TpCssParser.h"
 #include "TpImage.h"
+#include "TpRect.h"
 
 #include <memory>
 
@@ -76,22 +77,19 @@ public:
     /// @brief 设置widget矩形区域
     /// @param rect X、Y、W、H
     virtual void setRect(const TpRect &rect);
-    virtual void setRect(const TpRect *rect);
-    virtual void setRect(const ItpRect &rect);
-    virtual void setRect(const ItpRect *rect);
     virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h);
 
 public:
     /// @brief 获取widget相对于屏幕的矩形区域
     /// @return 矩形区域参数
-    virtual ItpRect toScreen();
+    virtual TpRect toScreen();
     /// @brief 获取widget自身的矩形区域
     /// @return 矩形区域参数
-    virtual ItpRect rect();
+    virtual TpRect rect();
 
     /// @brief 获取widget所在屏幕的屏幕尺寸
     /// @return 屏幕尺寸
-    virtual ItpSize screenSize();
+    virtual TpSize screenSize();
 
 public:
     /// @brief 设置窗口宽高
@@ -100,10 +98,10 @@ public:
     virtual void setSize(const uint32_t &width, const uint32_t &height);
     /// @brief 设置窗口宽高
     /// @param size 尺寸
-    virtual void setSize(const ItpSize &size);
+    virtual void setSize(const TpSize &size);
     /// @brief 获取窗口尺寸
     /// @return
-    ItpSize size();
+    TpSize size();
 
     /// @brief 设置窗口宽度
     /// @param width 宽度值，单位px
@@ -127,10 +125,10 @@ public:
     virtual void setMinimumSize(const uint32_t &width, const uint32_t &height);
     /// @brief 设置窗口最小尺寸
     /// @param minimumSize 最小尺寸
-    virtual void setMinimumSize(const ItpSize &minimumSize);
+    virtual void setMinimumSize(const TpSize &minimumSize);
     /// @brief 获取窗口的最小尺寸
     /// @return 最小尺寸
-    virtual ItpSize minimumSize();
+    virtual TpSize minimumSize();
 
     /// @brief 设置窗口最小宽度
     /// @param width 最小宽度
@@ -151,10 +149,10 @@ public:
     virtual void setMaximumSize(const uint32_t &width, const uint32_t &height);
     /// @brief 设置窗口最大尺寸
     /// @param maximumSize 最大尺寸
-    virtual void setMaximumSize(const ItpSize &maximumSize);
+    virtual void setMaximumSize(const TpSize &maximumSize);
     /// @brief 获取窗口的最大尺寸
     /// @return 最大尺寸
-    virtual ItpSize maximumSize();
+    virtual TpSize maximumSize();
 
     /// @brief 设置窗口最大宽度
     /// @param width 最大宽度
@@ -199,7 +197,7 @@ public:
 
     /// @brief 获取窗口当前坐标
     /// @return 返回窗口当前坐标
-    virtual const ItpPoint pos();
+    virtual const TpPoint pos();
 
 public:
     /// @brief 设置窗体透明度，窗体及内部组件均会被影响
@@ -220,14 +218,7 @@ public:
     TpLayout *layout();
 
 public:
-    // virtual void update(TpRect &rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-    // virtual void update(ItpRect &rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-    // virtual void update(ItpRect *rect, bool clip = true, bool onlyBlit = false, bool sync = false);								 // must override
-    // virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool clip = true, bool onlyBlit = false, bool sync = false); // must override
-    // virtual void update(bool clip = true, bool onlyBlit = false, bool sync = false);
-    virtual void update(TpRect &rect, bool onlyBlit = false);
-    virtual void update(ItpRect &rect, bool onlyBlit = false);
-    virtual void update(ItpRect *rect, bool onlyBlit = false);
+    virtual void update(const TpRect &rect, bool onlyBlit = false);
     virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit = false);
     virtual void update(bool onlyBlit = false);
 
@@ -374,8 +365,7 @@ public:
 
     virtual bool appChange(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require) { return true; }
 
-    virtual TpChildWidget *find(TpPoint &point);
-    virtual TpChildWidget *find(ItpPoint *point);
+    virtual TpChildWidget *find(const TpPoint &point);
     virtual TpChildWidget *find(int32_t x, int32_t y);
 
 public:

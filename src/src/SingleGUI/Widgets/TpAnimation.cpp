@@ -325,13 +325,13 @@ void TpAnimation::AnimationRun()
     {
         if (startValue.isRect() && endValue.isRect())
         {
-            const ItpRect start = startValue.toRect();
-            const ItpRect end = endValue.toRect();
-            const ItpRect current = ItpRect(
-                lerp(start.x, end.x, keyProgress),
-                lerp(start.y, end.y, keyProgress),
-                lerp(start.w, end.w, keyProgress),
-                lerp(start.h, end.h, keyProgress));
+            const TpRect start = startValue.toRect();
+            const TpRect end = endValue.toRect();
+            const TpRect current = TpRect(
+                lerp(start.x(), end.x(), keyProgress),
+                lerp(start.y(), end.y(), keyProgress),
+                lerp(start.width(), end.width(), keyProgress),
+                lerp(start.height(), end.height(), keyProgress));
             animationData->targetWidget->setRect(current);
         }
         break;
@@ -340,22 +340,22 @@ void TpAnimation::AnimationRun()
     {
         if (startValue.isPoint() && endValue.isPoint())
         {
-            const ItpPoint start = startValue.toPoint();
-            const ItpPoint end = endValue.toPoint();
+            const TpPoint start = startValue.toPoint();
+            const TpPoint end = endValue.toPoint();
             animationData->targetWidget->move(
-                lerp(start.x, end.x, keyProgress),
-                lerp(start.y, end.y, keyProgress));
+                lerp(start.x(), end.x(), keyProgress),
+                lerp(start.y(), end.y(), keyProgress));
         }
         break;
     }
     case Size:
         if (startValue.isSize() && endValue.isSize())
         {
-            const ItpSize start = startValue.toSize();
-            const ItpSize end = endValue.toSize();
+            const TpSize start = startValue.toSize();
+            const TpSize end = endValue.toSize();
             animationData->targetWidget->setSize(
-                lerp(start.w, end.w, keyProgress),
-                lerp(start.h, end.h, keyProgress));
+                lerp(start.width(), end.width(), keyProgress),
+                lerp(start.height(), end.height(), keyProgress));
         }
         break;
     case Height:

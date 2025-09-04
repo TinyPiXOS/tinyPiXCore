@@ -14,11 +14,11 @@ class TpAnimation : public TpObject
 public:
     enum AnimationType
     {
-        /// @brief 几何属性；位置和大小 ItpRect
+        /// @brief 几何属性；位置和大小 TpRect
         Geometry,
-        /// @brief 位置​​   ItpPoint
+        /// @brief 位置​​   TpPoint
         Pos,
-        /// @brief 大小​​   ItpSize
+        /// @brief 大小​​   TpSize
         Size,
         /// @brief 窗体高度 int32_t
         Height,

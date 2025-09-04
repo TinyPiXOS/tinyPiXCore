@@ -7,790 +7,765 @@
 
 typedef struct
 {
-	TpRange range;
-	TpRange rectRange;
-	TpRange mapRange;
+    TpRange range;
+    TpRange rectRange;
+    TpRange mapRange;
 
-	struct
-	{
-		bool direction;
-		bool down;
-	};
+    struct
+    {
+        bool direction;
+        bool down;
+    };
 
-	ItpRect barRect;
+    TpRect barRect;
 
-	struct
-	{
-		int32_t normalBarColor;
-		int32_t hoverBarColor;
-		int32_t downBarColor;
-	};
+    struct
+    {
+        int32_t normalBarColor;
+        int32_t hoverBarColor;
+        int32_t downBarColor;
+    };
 
-	struct
-	{
-		int32_t lineColor;
-		int32_t barColor;
-	};
+    struct
+    {
+        int32_t lineColor;
+        int32_t barColor;
+    };
 
-	int32_t lines;
-	int32_t delta;
-	int32_t lastBarPos;
+    int32_t lines;
+    int32_t delta;
+    int32_t lastBarPos;
 } ItpScrollSet;
 
 static inline void adjustBar(TpScroll *scroll, ItpScrollSet *set)
 {
-	double percent = set->range.percent();
-	int32_t barW = TP_MIN(scroll->width(), scroll->height()) - 2;
-	int32_t barLength = (int32_t)(set->lines * set->rectRange.length() / (double)set->range.length());
+    double percent = set->range.percent();
+    int32_t barW = TP_MIN(scroll->width(), scroll->height()) - 2;
+    int32_t barLength = (int32_t)(set->lines * set->rectRange.length() / (double)set->range.length());
 
-	if (barLength < TP_MIN(scroll->width() - 1, scroll->height() - 1))
-	{
-		barLength = TP_MIN(scroll->width() - 1, scroll->height() - 1);
-	}
+    if (barLength < TP_MIN(scroll->width() - 1, scroll->height() - 1))
+    {
+        barLength = TP_MIN(scroll->width() - 1, scroll->height() - 1);
+    }
 
-	switch (set->direction)
-	{
-	case false:
-	{
-		set->barRect.x = (int32_t)(percent * set->rectRange.length());
+    switch (set->direction)
+    {
+    case false:
+    {
+        set->barRect.setX(percent * set->rectRange.length());
 
-		if ((set->barRect.x + barLength) > (scroll->width() - 1))
-		{
-			set->barRect.x = (int32_t)(scroll->width() - barLength - 1);
-		}
+        if ((set->barRect.x() + barLength) > (scroll->width() - 1))
+        {
+            set->barRect.setX(scroll->width() - barLength - 1);
+        }
 
-		if (set->barRect.x < 1)
-		{
-			set->barRect.x = 1;
-		}
+        if (set->barRect.x() < 1)
+        {
+            set->barRect.setX(1);
+        }
 
-		set->barRect.y = 1;
-		set->barRect.w = barLength;
-		set->barRect.h = barW;
+        set->barRect.setY(1);
+        set->barRect.setWidth(barLength);
+        set->barRect.setHeight(barW);
 
-		set->mapRange.setRange(1, scroll->width() - barLength - 1);
-	}
-	break;
-	case true:
-	{
-		set->barRect.y = (int32_t)(percent * set->rectRange.length());
+        set->mapRange.setRange(1, scroll->width() - barLength - 1);
+    }
+    break;
+    case true:
+    {
+        set->barRect.setY(percent * set->rectRange.length());
 
-		if ((set->barRect.y + barLength) > (scroll->height() - 1))
-		{
-			set->barRect.y = (int32_t)(scroll->height() - barLength - 1);
-		}
+        if ((set->barRect.y() + barLength) > (scroll->height() - 1))
+        {
+            set->barRect.setY(scroll->height() - barLength - 1);
+        }
 
-		if (set->barRect.y < 1)
-		{
-			set->barRect.y = 1;
-		}
+        if (set->barRect.y() < 1)
+        {
+            set->barRect.setY(1);
+        }
 
-		set->barRect.x = 1;
-		set->barRect.w = barW;
-		set->barRect.h = barLength;
+        set->barRect.setX(1);
+        set->barRect.setWidth(barW);
+        set->barRect.setHeight(barLength);
 
-		set->mapRange.setRange(1, scroll->height() - barLength - 1);
-	}
-	break;
-	}
+        set->mapRange.setRange(1, scroll->height() - barLength - 1);
+    }
+    break;
+    }
 
-	set->mapRange.setPercent(percent);
+    set->mapRange.setPercent(percent);
 }
 
 TpScroll::TpScroll(TpChildWidget *parent, bool horizontal) : TpChildWidget(parent)
 {
-	ItpScrollSet *set = new ItpScrollSet();
+    ItpScrollSet *set = new ItpScrollSet();
 
-	if (set)
-	{
-		set->range.setRange(0, 100);
-		set->rectRange.setRange(0, 100);
-		set->mapRange.setRange(1, 99);
-		set->direction = horizontal;
-		set->down = false;
-		set->lineColor = TpColors::White;
-		set->lines = 20;
-		set->delta = 0;
-		set->lastBarPos = 1;
+    if (set)
+    {
+        set->range.setRange(0, 100);
+        set->rectRange.setRange(0, 100);
+        set->mapRange.setRange(1, 99);
+        set->direction = horizontal;
+        set->down = false;
+        set->lineColor = TpColors::White;
+        set->lines = 20;
+        set->delta = 0;
+        set->lastBarPos = 1;
 
-		set->normalBarColor = TpColors::LightGray;
-		set->hoverBarColor = TpColors::Grey;
-		set->downBarColor = TpColors::DarkGoldenrod;
-		set->barColor = TpColors::LightGray;
+        set->normalBarColor = TpColors::LightGray;
+        set->hoverBarColor = TpColors::Grey;
+        set->downBarColor = TpColors::DarkGoldenrod;
+        set->barColor = TpColors::LightGray;
 
-		memset(&set->barRect, 0, sizeof(ItpRect));
+        memset(&set->barRect, 0, sizeof(TpRect));
 
-		this->setBackGroundColor(TpColors::White);
-		this->scrollSet = set;
-	}
+        this->setBackGroundColor(TpColors::White);
+        this->scrollSet = set;
+    }
 }
 
 TpScroll::~TpScroll()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		delete set;
-	}
+    if (set)
+    {
+        delete set;
+    }
 }
 
 bool TpScroll::direction()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	bool direction = false;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    bool direction = false;
 
-	if (set)
-	{
-		direction = set->direction;
-	}
+    if (set)
+    {
+        direction = set->direction;
+    }
 
-	return direction;
+    return direction;
 }
 
 void TpScroll::setLinePerPage(int32_t lines)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		if (lines <= 0)
-		{
-			lines = 1;
-		}
+    if (set)
+    {
+        if (lines <= 0)
+        {
+            lines = 1;
+        }
 
-		if (lines >= set->range.length())
-		{
-			lines = set->range.length();
-		}
+        if (lines >= set->range.length())
+        {
+            lines = set->range.length();
+        }
 
-		set->lines = lines;
-		adjustBar(this, set);
-	}
+        set->lines = lines;
+        adjustBar(this, set);
+    }
 }
 
 int32_t TpScroll::pages()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	int32_t page = 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    int32_t page = 0;
 
-	if (set)
-	{
-		int32_t mod = set->range.length() % set->lines;
-		page = set->range.length() / set->lines;
+    if (set)
+    {
+        int32_t mod = set->range.length() % set->lines;
+        page = set->range.length() / set->lines;
 
-		if (mod)
-		{
-			page++;
-		}
-	}
+        if (mod)
+        {
+            page++;
+        }
+    }
 
-	return page;
+    return page;
 }
 
 int32_t TpScroll::pageIndex()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	int32_t index = 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    int32_t index = 0;
 
-	if (set)
-	{
-		int32_t mod = set->range.length() % set->lines;
-		int32_t page = set->range.length() / set->lines - 1;
+    if (set)
+    {
+        int32_t mod = set->range.length() % set->lines;
+        int32_t page = set->range.length() / set->lines - 1;
 
-		if (mod)
-		{
-			page++;
-		}
+        if (mod)
+        {
+            page++;
+        }
 
-		index = (int32_t)(page * set->range.percent());
-	}
+        index = (int32_t)(page * set->range.percent());
+    }
 
-	return index;
+    return index;
 }
 
 int32_t TpScroll::linesPerPage()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	if (!set)
-		return 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    if (!set)
+        return 0;
 
-	return set->lines;
+    return set->lines;
 }
 
 int32_t TpScroll::min()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	if (!set)
-		return 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    if (!set)
+        return 0;
 
-	return set->range.min();
+    return set->range.min();
 }
 
 int32_t TpScroll::max()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	if (!set)
-		return 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    if (!set)
+        return 0;
 
-	return set->range.max();
+    return set->range.max();
 }
 
 void TpScroll::setMaxRange(int32_t max)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		if (max < 0)
-		{
-			max = 0;
-		}
+    if (set)
+    {
+        if (max < 0)
+        {
+            max = 0;
+        }
 
-		double percent = set->range.percent();
-		set->range.setRange(0, max);
-		set->range.setPercent(percent);
-		set->rectRange.setPercent(percent);
+        double percent = set->range.percent();
+        set->range.setRange(0, max);
+        set->range.setPercent(percent);
+        set->rectRange.setPercent(percent);
 
-		adjustBar(this, set);
-	}
+        adjustBar(this, set);
+    }
 }
 
 void TpScroll::zoomRange(int32_t delta)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		int32_t max = set->range.max() + delta;
+    if (set)
+    {
+        int32_t max = set->range.max() + delta;
 
-		if (max < 0)
-		{
-			max = 0;
-		}
+        if (max < 0)
+        {
+            max = 0;
+        }
 
-		double percent = set->range.percent();
-		set->range.setRange(0, max);
-		set->range.setPercent(percent);
-		set->rectRange.setPercent(percent);
+        double percent = set->range.percent();
+        set->range.setRange(0, max);
+        set->range.setPercent(percent);
+        set->rectRange.setPercent(percent);
 
-		adjustBar(this, set);
-	}
+        adjustBar(this, set);
+    }
 }
 
 void TpScroll::setDirection(bool horizontal)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		set->direction = horizontal;
-		int32_t w = this->width(), h = this->height();
+    if (set)
+    {
+        set->direction = horizontal;
+        int32_t w = this->width(), h = this->height();
 
-		switch (set->direction)
-		{
-		case false:
-		{
-			set->rectRange.setRange(0, w);
-		}
-		break;
-		case true:
-		{
-			set->rectRange.setRange(0, h);
-		}
-		break;
-		}
+        switch (set->direction)
+        {
+        case false:
+        {
+            set->rectRange.setRange(0, w);
+        }
+        break;
+        case true:
+        {
+            set->rectRange.setRange(0, h);
+        }
+        break;
+        }
 
-		adjustBar(this, set);
-	}
+        adjustBar(this, set);
+    }
 }
 
 void TpScroll::setPosition(int32_t position)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	if (position < set->range.min())
-	{
-		position = set->range.min();
-	}
+    if (position < set->range.min())
+    {
+        position = set->range.min();
+    }
 
-	if (position > set->range.max())
-	{
-		position = set->range.max();
-	}
+    if (position > set->range.max())
+    {
+        position = set->range.max();
+    }
 
-	if (position == set->range.position())
-	{
-		return;
-	}
+    if (position == set->range.position())
+    {
+        return;
+    }
 
-	set->range.setPosition(position);
-	double percent = set->range.percent();
-	set->rectRange.setPercent(percent);
-	set->mapRange.setPercent(percent);
+    set->range.setPosition(position);
+    double percent = set->range.percent();
+    set->rectRange.setPercent(percent);
+    set->mapRange.setPercent(percent);
 
-	switch (set->direction)
-	{
-	case false:
-	{
-		set->barRect.x = set->mapRange.position();
-		onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
-	}
-	break;
-	case true:
-	{
-		set->barRect.y = set->mapRange.position();
-		onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
-	}
-	break;
-	}
+    switch (set->direction)
+    {
+    case false:
+    {
+        set->barRect.setX(set->mapRange.position());
+        onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
+    }
+    break;
+    case true:
+    {
+        set->barRect.setY(set->mapRange.position());
+        onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
+    }
+    break;
+    }
 }
 
 void TpScroll::setPercent(double percent)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		set->range.setPercent(percent);
-		percent = set->range.percent();
-		set->rectRange.setPercent(percent);
-		set->mapRange.setPercent(percent);
-		switch (set->direction)
-		{
-		case false:
-		{
-			set->barRect.x = set->mapRange.position();
-			onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
-		}
-		break;
-		case true:
-		{
-			set->barRect.y = set->mapRange.position();
-			onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
-		}
-		break;
-		}
-	}
+    if (set)
+    {
+        set->range.setPercent(percent);
+        percent = set->range.percent();
+        set->rectRange.setPercent(percent);
+        set->mapRange.setPercent(percent);
+        switch (set->direction)
+        {
+        case false:
+        {
+            set->barRect.setX(set->mapRange.position());
+            onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
+        }
+        break;
+        case true:
+        {
+            set->barRect.setY(set->mapRange.position());
+            onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
+        }
+        break;
+        }
+    }
 }
 
 int32_t TpScroll::position()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	int32_t position = 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    int32_t position = 0;
 
-	if (set)
-	{
-		position = set->range.position();
-	}
+    if (set)
+    {
+        position = set->range.position();
+    }
 
-	return position;
+    return position;
 }
 
 double TpScroll::percent()
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	double percent = 0;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    double percent = 0;
 
-	if (set)
-	{
-		percent = set->range.percent();
-	}
+    if (set)
+    {
+        percent = set->range.percent();
+    }
 
-	return percent;
+    return percent;
 }
 
-void TpScroll::setRect(TpRect &rect)
+void TpScroll::setRect(const TpRect &rect)
 {
-	this->setRect(rect.X0(), rect.Y0(), rect.width(), rect.height());
-}
-
-void TpScroll::setRect(TpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->X0(), rect->Y0(), rect->width(), rect->height());
-	}
-}
-
-void TpScroll::setRect(ItpRect &rect)
-{
-	this->setRect(rect.x, rect.y, rect.w, rect.h);
-}
-
-void TpScroll::setRect(ItpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->x, rect->y, rect->w, rect->h);
-	}
+    this->setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void TpScroll::setRect(int32_t x, int32_t y, uint32_t w, uint32_t h)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		int32_t bar = TP_MIN(w, h);
-		double percent = set->range.percent();
+    if (set)
+    {
+        int32_t bar = TP_MIN(w, h);
+        double percent = set->range.percent();
 
-		switch (set->direction)
-		{
-		case false:
-		{
-			set->rectRange.setRange(0, w);
-		}
-		break;
-		case true:
-		{
-			set->rectRange.setRange(0, h);
-		}
-		break;
-		}
+        switch (set->direction)
+        {
+        case false:
+        {
+            set->rectRange.setRange(0, w);
+        }
+        break;
+        case true:
+        {
+            set->rectRange.setRange(0, h);
+        }
+        break;
+        }
 
-		set->rectRange.setPercent(percent);
-		TpChildWidget::setRect(x, y, w, h);
-		adjustBar(this, set);
-	}
+        set->rectRange.setPercent(percent);
+        TpChildWidget::setRect(x, y, w, h);
+        adjustBar(this, set);
+    }
 }
 
 void TpScroll::setNormalBarColor(uint32_t color)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		set->normalBarColor = color;
-	}
+    if (set)
+    {
+        set->normalBarColor = color;
+    }
 }
 
 void TpScroll::setNormalBarColor(TpColors &color)
 {
-	this->setNormalBarColor(color.rgba());
+    this->setNormalBarColor(color.rgba());
 }
 
 void TpScroll::setHoverBarColor(uint32_t color)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		set->hoverBarColor = color;
-	}
+    if (set)
+    {
+        set->hoverBarColor = color;
+    }
 }
 
 void TpScroll::setHoverBarColor(TpColors &color)
 {
-	this->setHoverBarColor(color.rgba());
+    this->setHoverBarColor(color.rgba());
 }
 
 void TpScroll::setDownBarColor(uint32_t color)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		set->downBarColor = color;
-	}
+    if (set)
+    {
+        set->downBarColor = color;
+    }
 }
 
 void TpScroll::setDownBarColor(TpColors &color)
 {
-	this->setDownBarColor(color.rgba());
+    this->setDownBarColor(color.rgba());
 }
 
 void TpScroll::setLineColor(uint32_t color)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (set)
-	{
-		set->lineColor = color;
-	}
+    if (set)
+    {
+        set->lineColor = color;
+    }
 }
 
 void TpScroll::setLineColor(TpColors &color)
 {
-	this->setLineColor(color.rgba());
+    this->setLineColor(color.rgba());
 }
 
 bool TpScroll::onMouseMoveEvent(TpMouseEvent *event)
 {
-	bool ret = TpChildWidget::onMouseMoveEvent(event);
+    bool ret = TpChildWidget::onMouseMoveEvent(event);
 
-	if (!ret)
-		return ret;
+    if (!ret)
+        return ret;
 
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	if (!set)
-		return ret;
+    if (!set)
+        return ret;
 
-	int32_t nBarPos = 0, position = 0;
-	int32_t barLength = 0;
+    int32_t nBarPos = 0, position = 0;
+    int32_t barLength = 0;
 
-	if (event->state())
-	{
-		if (set->down)
-		{
-			switch (set->direction)
-			{
-			case false:
-			{
-				if (this->width() == set->barRect.w)
-				{
-					return false;
-				}
+    if (event->state())
+    {
+        if (set->down)
+        {
+            switch (set->direction)
+            {
+            case false:
+            {
+                if (this->width() == set->barRect.width())
+                {
+                    return false;
+                }
 
-				nBarPos = event->pos().x - set->delta;
+                nBarPos = event->pos().x() - set->delta;
 
-				if (nBarPos <= 1)
-				{
-					nBarPos = 1;
-				}
-				else if (nBarPos >= (this->width() - set->barRect.w - 1))
-				{
-					nBarPos = this->width() - set->barRect.w - 1;
-				}
+                if (nBarPos <= 1)
+                {
+                    nBarPos = 1;
+                }
+                else if (nBarPos >= (this->width() - set->barRect.width() - 1))
+                {
+                    nBarPos = this->width() - set->barRect.width() - 1;
+                }
 
-				barLength = set->barRect.w;
-				set->barRect.x = nBarPos;
-			}
-			break;
-			case true:
-			{
-				if (this->height() == set->barRect.h)
-				{
-					return false;
-				}
+                barLength = set->barRect.width();
+                set->barRect.setX(nBarPos);
+            }
+            break;
+            case true:
+            {
+                if (this->height() == set->barRect.height())
+                {
+                    return false;
+                }
 
-				nBarPos = event->pos().y - set->delta;
+                nBarPos = event->pos().y() - set->delta;
 
-				if (nBarPos <= 1)
-				{
-					nBarPos = 1;
-				}
-				else if (nBarPos >= (this->height() - set->barRect.h - 1))
-				{
-					nBarPos = this->height() - set->barRect.h - 1;
-				}
+                if (nBarPos <= 1)
+                {
+                    nBarPos = 1;
+                }
+                else if (nBarPos >= (this->height() - set->barRect.height() - 1))
+                {
+                    nBarPos = this->height() - set->barRect.height() - 1;
+                }
 
-				barLength = set->barRect.h;
-				set->barRect.y = nBarPos;
-			}
-			break;
-			}
+                barLength = set->barRect.height();
+                set->barRect.setY(nBarPos);
+            }
+            break;
+            }
 
-			if (set->lastBarPos != nBarPos)
-			{
-				set->mapRange.setPosition(nBarPos);
-				double percent = set->mapRange.percent();
-				set->rectRange.setPercent(percent);
-				set->range.setPercent(percent);
-				position = set->range.position();
-				onScroll.emit(this, position, this->pages(), this->pageIndex(), percent);
-				set->lastBarPos = nBarPos;
-			}
-		}
-		else
-		{
-			ItpPoint point = event->pos();
-			TpRect barRRect(set->barRect);
+            if (set->lastBarPos != nBarPos)
+            {
+                set->mapRange.setPosition(nBarPos);
+                double percent = set->mapRange.percent();
+                set->rectRange.setPercent(percent);
+                set->range.setPercent(percent);
+                position = set->range.position();
+                onScroll.emit(this, position, this->pages(), this->pageIndex(), percent);
+                set->lastBarPos = nBarPos;
+            }
+        }
+        else
+        {
+            TpPoint point = event->pos();
+            TpRect barRRect(set->barRect);
 
-			if (barRRect.in(point))
-			{
-				set->barColor = set->hoverBarColor;
-			}
+            if (barRRect.contains(point))
+            {
+                set->barColor = set->hoverBarColor;
+            }
 
-			set->down = false;
-		}
-	}
-	else
-	{
-		ItpPoint point = event->pos();
-		TpRect barRRect(set->barRect);
+            set->down = false;
+        }
+    }
+    else
+    {
+        TpPoint point = event->pos();
+        TpRect barRRect(set->barRect);
 
-		if (barRRect.in(point))
-		{
-			set->barColor = set->hoverBarColor;
-		}
-		else
-		{
-			set->barColor = set->normalBarColor;
-		}
+        if (barRRect.contains(point))
+        {
+            set->barColor = set->hoverBarColor;
+        }
+        else
+        {
+            set->barColor = set->normalBarColor;
+        }
 
-		set->down = false;
-	}
+        set->down = false;
+    }
 
-	this->update();
+    this->update();
 
-	return ret;
+    return ret;
 }
 
 bool TpScroll::onMousePressEvent(TpMouseEvent *event)
 {
-	TpChildWidget::onMousePressEvent(event);
+    TpChildWidget::onMousePressEvent(event);
 
-	if (event->button() != BUTTON_LEFT)
-		return true;
+    if (event->button() != BUTTON_LEFT)
+        return true;
 
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	set->down = true;
-	set->barColor = set->downBarColor;
-	TpRect barRRect(set->barRect);
+    set->down = true;
+    set->barColor = set->downBarColor;
+    TpRect barRRect(set->barRect);
 
-	switch (set->direction)
-	{
-	case false:
-	{
-		ItpPoint point;
-		point.x = event->pos().x;
-		point.y = 1;
+    switch (set->direction)
+    {
+    case false:
+    {
+        TpPoint point(event->pos().x(), 1);
 
-		if (barRRect.in(point) == false)
-		{
-			set->rectRange.setPosition(event->pos().x);
-			double percent = set->rectRange.percent();
-			set->range.setPercent(percent);
-			set->mapRange.setPercent(percent);
-			set->barRect.x = set->mapRange.position();
-			onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
-		}
-		else
-		{
-			set->delta = event->pos().x - set->barRect.x;
-		}
-	}
-	break;
-	case true:
-	{
-		ItpPoint point;
-		point.x = 1;
-		point.y = event->pos().y;
+        if (barRRect.contains(point) == false)
+        {
+            set->rectRange.setPosition(event->pos().x());
+            double percent = set->rectRange.percent();
+            set->range.setPercent(percent);
+            set->mapRange.setPercent(percent);
+            set->barRect.setX(set->mapRange.position());
+            onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
+        }
+        else
+        {
+            set->delta = event->pos().x() - set->barRect.x();
+        }
+    }
+    break;
+    case true:
+    {
+        TpPoint point(1, event->pos().y());
 
-		if (barRRect.in(point) == false)
-		{
-			set->rectRange.setPosition(event->pos().y);
-			double percent = set->rectRange.percent();
-			set->range.setPercent(percent);
-			set->mapRange.setPercent(percent);
-			set->barRect.y = set->mapRange.position();
-			onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
-		}
-		else
-		{
-			set->delta = event->pos().y - set->barRect.y;
-		}
-	}
-	break;
-	}
+        if (barRRect.contains(point) == false)
+        {
+            set->rectRange.setPosition(event->pos().y());
+            double percent = set->rectRange.percent();
+            set->range.setPercent(percent);
+            set->mapRange.setPercent(percent);
+            set->barRect.setY(set->mapRange.position());
+            onScroll.emit(this, set->range.position(), this->pages(), this->pageIndex(), percent);
+        }
+        else
+        {
+            set->delta = event->pos().y() - set->barRect.y();
+        }
+    }
+    break;
+    }
 
-	return true;
+    return true;
 }
 
 bool TpScroll::onMouseRleaseEvent(TpMouseEvent *event)
 {
-	TpChildWidget::onMouseRleaseEvent(event);
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    TpChildWidget::onMouseRleaseEvent(event);
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
 
-	set->down = false;
-	set->barColor = set->hoverBarColor;
-	update();
+    set->down = false;
+    set->barColor = set->hoverBarColor;
+    update();
 
-	return true;
+    return true;
 }
 
 bool TpScroll::onFocusEvent(TpObjectFocusEvent *event)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	bool ret = false;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    bool ret = false;
 
-	if (set)
-	{
-		ret = TpChildWidget::onFocusEvent(event);
+    if (set)
+    {
+        ret = TpChildWidget::onFocusEvent(event);
 
-		if (ret)
-		{
-			if (event->focused() == false)
-			{
-				set->down = false;
-				set->barColor = set->normalBarColor;
-				this->update();
-			}
-		}
-	}
+        if (ret)
+        {
+            if (event->focused() == false)
+            {
+                set->down = false;
+                set->barColor = set->normalBarColor;
+                this->update();
+            }
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 bool TpScroll::onLeaveEvent(TpObjectLeaveEvent *event)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	bool ret = false;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    bool ret = false;
 
-	if (!set)
-		return ret;
+    if (!set)
+        return ret;
 
-	ret = TpChildWidget::onLeaveEvent(event);
+    ret = TpChildWidget::onLeaveEvent(event);
 
-	if (!ret)
-		return ret;
+    if (!ret)
+        return ret;
 
-	if (event->leave() == false)
-	{
-		if (set->down == false)
-		{
-			set->barColor = set->normalBarColor;
-			this->update();
-		}
-	}
+    if (event->leave() == false)
+    {
+        if (set->down == false)
+        {
+            set->barColor = set->normalBarColor;
+            this->update();
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 bool TpScroll::onPaintEvent(TpObjectPaintEvent *event)
 {
-	ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
-	bool ret = false;
+    ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
+    bool ret = false;
 
-	if (!set)
-		return ret;
+    if (!set)
+        return ret;
 
-	ret = TpChildWidget::onPaintEvent(event);
+    ret = TpChildWidget::onPaintEvent(event);
 
-	if (!ret)
-		return ret;
+    if (!ret)
+        return ret;
 
-	TpCanvas *canvas = event->canvas();
-	uint8_t alpha = mapAlpha((uint8_t)(set->barColor & 0x000000ff), this->alpha());
-	int32_t x0 = 0, y0 = 0, x1 = 0, y1 = 0;
-	switch (set->direction)
-	{
-	case false:
-	{
-		x0 = set->barRect.x;
-		y0 = set->barRect.y;
-		x1 = x0 + set->barRect.w - 1;
-		y1 = set->barRect.h;
-	}
-	break;
-	case true:
-	{
-		x0 = set->barRect.x;
-		y0 = set->barRect.y;
-		x1 = set->barRect.w;
-		y1 = y0 + set->barRect.h - 1;
-	}
-	break;
-	}
+    TpCanvas *canvas = event->canvas();
+    uint8_t alpha = mapAlpha((uint8_t)(set->barColor & 0x000000ff), this->alpha());
+    int32_t x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+    switch (set->direction)
+    {
+    case false:
+    {
+        x0 = set->barRect.x();
+        y0 = set->barRect.y();
+        x1 = x0 + set->barRect.width() - 1;
+        y1 = set->barRect.height();
+    }
+    break;
+    case true:
+    {
+        x0 = set->barRect.x();
+        y0 = set->barRect.y();
+        x1 = set->barRect.width();
+        y1 = y0 + set->barRect.height() - 1;
+    }
+    break;
+    }
 
-	canvas->box(x0, y0, x1, y1, (set->barColor & 0xffffff00) | alpha);
-	canvas->rectangle(0, 0, this->width(), this->height(), (set->lineColor & 0xffffff00) | alpha);
+    canvas->box(x0, y0, x1, y1, (set->barColor & 0xffffff00) | alpha);
+    canvas->rectangle(0, 0, this->width(), this->height(), (set->lineColor & 0xffffff00) | alpha);
 
-	return ret;
+    return ret;
 }

@@ -136,35 +136,30 @@ bool TpHumidityWidget::onPaintEvent(TpObjectPaintEvent *event)
     // 绘制左侧曲线（从圆弧左端点到水滴底部尖点）
     // 顶点坐标（arcX, startY）
     // 绘制左侧曲线：从圆弧左端点到顶点
-    ItpPoint leftCPoint1;
-    leftCPoint1.x = arcX - arcRadius;       // 控制点1 X坐标
-    leftCPoint1.y = arcY - arcRadius * 0.6; // 控制点1 Y坐标
 
-    ItpPoint leftCPoint2;
-    leftCPoint2.x = arcX - arcRadius * 0.6;   // 控制点2 X坐标
-    leftCPoint2.y = startY + arcRadius * 0.5; // 控制点2 Y坐标
+    // // 控制点1坐标
+    TpPoint leftCPoint1(arcX - arcRadius, arcY - arcRadius * 0.6);
+    // 控制点2坐标
+    TpPoint leftCPoint2(arcX - arcRadius * 0.6, startY + arcRadius * 0.5);
 
     painter->cubicTo(
-        arcX - arcRadius, arcY,       // 起点：圆弧左端点
-        leftCPoint1.x, leftCPoint1.y, // 控制点1
-        leftCPoint2.x, leftCPoint2.y, // 控制点2
-        arcX, startY,                 // 终点：顶点
+        arcX - arcRadius, arcY,           // 起点：圆弧左端点
+        leftCPoint1.x(), leftCPoint1.y(), // 控制点1
+        leftCPoint2.x(), leftCPoint2.y(), // 控制点2
+        arcX, startY,                     // 终点：顶点
         _RGB(116, 121, 150), tempData->lineWidth);
 
     // 绘制右侧曲线：从顶点到圆弧右端点
-    ItpPoint rightCPoint1;
-    rightCPoint1.x = arcX + arcRadius * 0.6;   // 控制点1 X坐标
-    rightCPoint1.y = startY + arcRadius * 0.5; // 控制点1 Y坐标
-
-    ItpPoint rightCPoint2;
-    rightCPoint2.x = arcX + arcRadius;       // 控制点2 X坐标
-    rightCPoint2.y = arcY - arcRadius * 0.6; // 控制点2 Y坐标
+    // // 控制点1坐标
+    TpPoint rightCPoint1(arcX + arcRadius * 0.6, startY + arcRadius * 0.5);
+    // 控制点2坐标
+    TpPoint rightCPoint2(arcX + arcRadius, arcY - arcRadius * 0.6);
 
     painter->cubicTo(
-        arcX, startY,                   // 起点：顶点
-        rightCPoint1.x, rightCPoint1.y, // 控制点1
-        rightCPoint2.x, rightCPoint2.y, // 控制点2
-        arcX + arcRadius, arcY,         // 终点：圆弧右端点
+        arcX, startY,                       // 起点：顶点
+        rightCPoint1.x(), rightCPoint1.y(), // 控制点1
+        rightCPoint2.x(), rightCPoint2.y(), // 控制点2
+        arcX + arcRadius, arcY,             // 终点：圆弧右端点
         _RGB(116, 121, 150), tempData->lineWidth);
 
     // 计算填充值百分比
@@ -208,7 +203,7 @@ bool TpHumidityWidget::onPaintEvent(TpObjectPaintEvent *event)
         if (valueHeight < arcRadius)
         {
             // 先计算弦与圆相交的两个点坐标
-            ItpPoint leftPoint, rightPoint;
+            TpPoint leftPoint, rightPoint;
 
             // 弦的一半长度
             float lineW = 0;
@@ -223,16 +218,16 @@ bool TpHumidityWidget::onPaintEvent(TpObjectPaintEvent *event)
 
             lineW = std::sqrt(std::pow(fillCircleRadius, 2) - std::pow(fillCircleRadius - valueHeight, 2));
 
-            leftPoint.x = arcX - lineW;
-            leftPoint.y = arcY + fillCircleRadius - valueHeight;
+            leftPoint.setX(arcX - lineW);
+            leftPoint.setY(arcY + fillCircleRadius - valueHeight);
 
-            rightPoint.x = arcX + lineW;
-            rightPoint.y = arcY + fillCircleRadius - valueHeight;
+            rightPoint.setX(arcX + lineW);
+            rightPoint.setY(arcY + fillCircleRadius - valueHeight);
 
             // 在扇形基础上镂空一个三角形
-            polygonHollow.posintList.emplace_back(ItpPoint(arcX, arcY));
-            polygonHollow.posintList.emplace_back(ItpPoint(leftPoint.x, leftPoint.y));
-            polygonHollow.posintList.emplace_back(ItpPoint(rightPoint.x, rightPoint.y));
+            polygonHollow.posintList.emplace_back(TpPoint(arcX, arcY));
+            polygonHollow.posintList.emplace_back(TpPoint(leftPoint.x(), leftPoint.y()));
+            polygonHollow.posintList.emplace_back(TpPoint(rightPoint.x(), rightPoint.y()));
             hollowMask.addPolygonHollow(polygonHollow);
 
             // 余弦定理 计算弦两个顶点的角度

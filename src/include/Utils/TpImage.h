@@ -5,9 +5,10 @@
 #include "TpString.h"
 #include "TpVector.h"
 #include "TpGlobal.h"
+#include "TpSize.h"
+#include "TpRect.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpImageData);
-
 /// @brief 图像处理类；用于加载图片资源，提供缩放、模糊等功能
 class TpImage
 {
@@ -36,7 +37,7 @@ public:
     /// @param size 缩放后的尺寸
     /// @param keepAspectRatio 是否保持纵横比
     /// @return 缩放后的资源对象
-    TpImage scaled(const ItpSize &size, bool keepAspectRatio = true);
+    TpImage scaled(const TpSize &size, bool keepAspectRatio = true);
     /// @brief 指定size对图片进行缩放
     /// @param width 缩放后的宽度
     /// @param height 缩放后的高度
@@ -58,7 +59,7 @@ public:
     /// @brief 指定矩形拷贝对象
     /// @param rect 拷贝矩形，将原始图片裁剪此矩形后返回新对象
     /// @return 新的图像管理对象
-    virtual TpImage copy(const ItpRect &rect);
+    virtual TpImage copy(const TpRect &rect);
     /// @brief 指定矩形拷贝对象
     /// @param x 裁剪X坐标
     /// @param y 裁剪Y坐标

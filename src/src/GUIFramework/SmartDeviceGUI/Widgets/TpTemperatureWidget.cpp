@@ -142,7 +142,7 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
 
     // 绘制上半部分圆角矩形;使用遮罩圆角box绘制，实现遮挡圆和矩形交接处的线条  - tempData->lineWidth * 2
     HollowMask hollowMask;
-    hollowMask.addRectHollow(HollowMask::RectHollow(ItpRect(tempData->lineWidth, tempData->lineWidth, rectangleWidth - tempData->lineWidth * 2, rectangleY + rectangleHeight), rectangleWidth / 2.0));
+    hollowMask.addRectHollow(HollowMask::RectHollow(TpRect(tempData->lineWidth, tempData->lineWidth, rectangleWidth - tempData->lineWidth * 2, rectangleY + rectangleHeight), rectangleWidth / 2.0));
     hollowMask.addCircleHollow(circleCenterX - rectangleX, rectangleHeight, circleRadius - tempData->lineWidth + 1);
     painter->roundedBox(rectangleX, rectangleY, rectangleX + rectangleWidth, rectangleY + rectangleHeight, rectangleWidth / 2.0, _RGB(116, 121, 150), hollowMask);
 
@@ -190,7 +190,7 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
         else if (valueHeight < (fillCircleRadius * 2))
         {
             // 先计算弦与圆相交的两个点坐标
-            ItpPoint leftPoint, rightPoint;
+            TpPoint leftPoint, rightPoint;
 
             // 弦的一半长度
             float lineW = 0;
@@ -207,16 +207,16 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
             {
                 lineW = std::sqrt(std::pow(fillCircleRadius, 2) - std::pow(fillCircleRadius - valueHeight, 2));
 
-                leftPoint.x = circleCenterX - lineW;
-                leftPoint.y = circleCenterY + fillCircleRadius - valueHeight;
+                leftPoint.setX(circleCenterX - lineW);
+                leftPoint.setY(circleCenterY + fillCircleRadius - valueHeight);
 
-                rightPoint.x = circleCenterX + lineW;
-                rightPoint.y = circleCenterY + fillCircleRadius - valueHeight;
+                rightPoint.setX(circleCenterX + lineW);
+                rightPoint.setY(circleCenterY + fillCircleRadius - valueHeight);
 
                 // 在下半圆时是在扇形基础上镂空一个三角形
-                polygonHollow.posintList.emplace_back(ItpPoint(circleCenterX, circleCenterY));
-                polygonHollow.posintList.emplace_back(ItpPoint(leftPoint.x, leftPoint.y));
-                polygonHollow.posintList.emplace_back(ItpPoint(rightPoint.x, rightPoint.y));
+                polygonHollow.posintList.emplace_back(TpPoint(circleCenterX, circleCenterY));
+                polygonHollow.posintList.emplace_back(TpPoint(leftPoint.x(), leftPoint.y()));
+                polygonHollow.posintList.emplace_back(TpPoint(rightPoint.x(), rightPoint.y()));
                 hallowMask.addPolygonHollow(polygonHollow);
 
                 // 余弦定理 计算弦两个顶点的角度
@@ -229,17 +229,17 @@ bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
             {
                 lineW = std::sqrt(std::pow(fillCircleRadius, 2) - std::pow(valueHeight - fillCircleRadius, 2));
 
-                leftPoint.x = circleCenterX - lineW;
-                leftPoint.y = circleCenterY - (valueHeight - fillCircleRadius);
+                leftPoint.setX(circleCenterX - lineW);
+                leftPoint.setY(circleCenterY - (valueHeight - fillCircleRadius));
 
-                rightPoint.x = circleCenterX + lineW;
-                rightPoint.y = circleCenterY - (valueHeight - fillCircleRadius);
+                rightPoint.setX(circleCenterX + lineW);
+                rightPoint.setY(circleCenterY - (valueHeight - fillCircleRadius));
 
                 // 在下半圆，是在扇形基础上再绘制一个三角形
-                TpVector<ItpPoint> addPolygonPointList;
-                addPolygonPointList.emplace_back(ItpPoint(circleCenterX, circleCenterY));
-                addPolygonPointList.emplace_back(ItpPoint(leftPoint.x, leftPoint.y));
-                addPolygonPointList.emplace_back(ItpPoint(rightPoint.x, rightPoint.y));
+                TpVector<TpPoint> addPolygonPointList;
+                addPolygonPointList.emplace_back(TpPoint(circleCenterX, circleCenterY));
+                addPolygonPointList.emplace_back(TpPoint(leftPoint.x(), leftPoint.y()));
+                addPolygonPointList.emplace_back(TpPoint(rightPoint.x(), rightPoint.y()));
                 painter->filledPolygon(addPolygonPointList, _RGB(0, 0, 0));
 
                 // 大于半径且小于执行，在上半圆

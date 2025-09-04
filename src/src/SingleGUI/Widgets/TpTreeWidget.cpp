@@ -37,7 +37,7 @@
 
 struct PiTreeWidgetPrivData
 {
-    ItpSize defaultSize;
+    TpSize defaultSize;
 
     // 显示区域，从哪个item的下标开始显示
     uint32_t showMinIndex;
@@ -84,8 +84,8 @@ struct PiTreeWidgetPrivData
         TpFont defaultFont;
         defaultFont.setText("Test Text");
 
-        defaultSize.w = -1;
-        defaultSize.h = defaultFont.pixelHeight();
+        defaultSize.setWidth(-1);
+        defaultSize.setHeight(defaultFont.pixelHeight());
     }
 
     virtual ~PiTreeWidgetPrivData()
@@ -332,7 +332,7 @@ void TpTreeWidget::setCurrentItem(TpTreeWidgetItem *item, int32_t column)
     }
 }
 
-TpTreeWidgetItem *TpTreeWidget::itemAt(const ItpPoint &p) const
+TpTreeWidgetItem *TpTreeWidget::itemAt(const TpPoint &p) const
 {
     return nullptr;
 }
@@ -580,7 +580,7 @@ bool TpTreeWidget::onMousePressEvent(TpMouseEvent *event)
     if (event->button() != BUTTON_LEFT)
     {
         // 右键或滚轮键，清空所有选择项，选中当前项
-        uint32_t curIndex = getItemIndex(event->pos().x, event->pos().y);
+        uint32_t curIndex = getItemIndex(event->pos().x(), event->pos().y());
         if (curIndex < privData->curShowItemList.size())
         {
             privData->selectIndexList.clear();
@@ -593,7 +593,7 @@ bool TpTreeWidget::onMousePressEvent(TpMouseEvent *event)
 
     // 鼠标左键
     // 根据点击下标，获取当前item
-    uint32_t curIndex = getItemIndex(event->pos().x, event->pos().y);
+    uint32_t curIndex = getItemIndex(event->pos().x(), event->pos().y());
 
     if (curIndex >= privData->curShowItemList.size())
         return true;
@@ -608,7 +608,7 @@ bool TpTreeWidget::onMousePressEvent(TpMouseEvent *event)
     int32_t characterMax = TOP_ITEM_EX_X + 10 + parentCount * ITEM_OFFSET;
 
     // 点击箭头位置，切换展开状态
-    if (event->pos().x < characterMax && event->pos().x > characterMin)
+    if (event->pos().x() < characterMax && event->pos().x() > characterMin)
     {
         curItem->setExpanded(!curItem->isExpanded());
         if (curItem->isExpanded())
@@ -632,7 +632,7 @@ bool TpTreeWidget::onMouseRleaseEvent(TpMouseEvent *event)
         return false;
 
     // 根据点击下标，获取当前item
-    uint32_t curIndex = getItemIndex(event->pos().x, event->pos().y);
+    uint32_t curIndex = getItemIndex(event->pos().x(), event->pos().y());
 
     if (curIndex >= privData->curShowItemList.size())
         return true;
@@ -647,7 +647,7 @@ bool TpTreeWidget::onMouseRleaseEvent(TpMouseEvent *event)
     int32_t characterMax = TOP_ITEM_EX_X + 10 + parentCount * ITEM_OFFSET;
 
     // 释放
-    if (event->pos().x > characterMax)
+    if (event->pos().x() > characterMax)
     {
         static uint32_t lastIndex = -1;
         if (curIndex != lastIndex)
@@ -805,12 +805,12 @@ bool TpTreeWidget::onPaintEvent(TpObjectPaintEvent *event)
     if (!paint)
         return false;
 
-    ItpRect editBound = this->rect();
+    TpRect editBound = this->rect();
 
-    paint->line(0, 0, editBound.w, 0, borderColor);
-    paint->line(0, 0, 0, editBound.h, borderColor);
-    paint->line(editBound.w - 1, 0, editBound.w - 1, editBound.h, borderColor);
-    paint->line(0, editBound.h - 1, editBound.w, editBound.h - 1, borderColor);
+    paint->line(0, 0, editBound.width(), 0, borderColor);
+    paint->line(0, 0, 0, editBound.height(), borderColor);
+    paint->line(editBound.width() - 1, 0, editBound.width() - 1, editBound.height(), borderColor);
+    paint->line(0, editBound.height() - 1, editBound.width(), editBound.height() - 1, borderColor);
 
     // 绘制所有item
     // 最大显示数量, i为所有层级Item索引,topIndex为顶层节点索引
@@ -842,14 +842,14 @@ bool TpTreeWidget::onPaintEvent(TpObjectPaintEvent *event)
                 scrollBarHeightPersent = 1;
 
             // 使用百分比 * 窗口显示高度，得出进度条长度
-            uint32_t scrollBarHeight = scrollBarHeightPersent * editBound.h;
+            uint32_t scrollBarHeight = scrollBarHeightPersent * editBound.height();
 
             // 根据当前的最小索引值，决定进度条绘制在什么位置
-            uint32_t scrollBarY = (1.0 * privData->showMinIndex / showMinIndexMax) * (editBound.h - scrollBarHeight);
+            uint32_t scrollBarY = (1.0 * privData->showMinIndex / showMinIndexMax) * (editBound.height() - scrollBarHeight);
 
             int32_t scrollBarColor = _RGB(200, 0, 0);
 
-            paint->roundedBox(editBound.w - 2, scrollBarY, editBound.w - 1, scrollBarY + scrollBarHeight, 0.5, scrollBarColor);
+            paint->roundedBox(editBound.width() - 2, scrollBarY, editBound.width() - 1, scrollBarY + scrollBarHeight, 0.5, scrollBarColor);
         }
     }
 
@@ -900,8 +900,8 @@ void TpTreeWidget::RefreshShowIndex()
     if (!privData)
         return;
 
-    ItpRect editBound = this->rect();
-    privData->maxShowCount = std::ceil(editBound.h / (privData->defaultSize.h + 2 * ITEM_V_PIX));
+    TpRect editBound = this->rect();
+    privData->maxShowCount = std::ceil(editBound.height() / (privData->defaultSize.height() + 2 * ITEM_V_PIX));
 
     // 顶层节点是必须显示的
     uint32_t resShowCount = 0;
@@ -938,7 +938,7 @@ void TpTreeWidget::DrawItem(TpCanvas *paint, TpTreeWidgetItem *item, uint32_t &f
     if ((findIndex >= privData->showMinIndex) && (findIndex - privData->showMinIndex) > indexMax)
         return;
 
-    ItpRect editBound = this->rect();
+    TpRect editBound = this->rect();
 
     auto DrawItemFunc = [&](TpTreeWidgetItem *drawItem)
     {
@@ -974,7 +974,7 @@ void TpTreeWidget::DrawItem(TpCanvas *paint, TpTreeWidgetItem *item, uint32_t &f
         {
             // 鼠标选中项绘制选中背景
             uint32_t startY = globalCount * (2 * ITEM_V_PIX + testItemFont->pixelHeight());
-            uint32_t endX = editBound.w - 1;
+            uint32_t endX = editBound.width() - 1;
             uint32_t endY = globalCount * (2 * ITEM_V_PIX + testItemFont->pixelHeight()) + (2 * ITEM_V_PIX + testItemFont->pixelHeight());
 
             paint->rectangle(0, startY, endX, endY, _RGB(255, 10, 10));

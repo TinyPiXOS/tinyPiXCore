@@ -106,11 +106,11 @@ bool TpNotificationWidget::onPaintEvent(TpObjectPaintEvent *event)
 
     TpCanvas *canvas = event->canvas();
 
-    ItpRect widgetRect = this->rect();
+    TpRect widgetRect = this->rect();
 
     // 初始化绘制参数
     int yPos = -widgetData->m_scroll_offset; // 起始位置考虑滚动偏移
-    const int itemWidth = widgetRect.w - 10; // 左右留边5px
+    const int itemWidth = widgetRect.width() - 10; // 左右留边5px
 
     // canvas->save();
     // canvas->setClipRect(&widgetRect);
@@ -138,7 +138,7 @@ bool TpNotificationWidget::onPaintEvent(TpObjectPaintEvent *event)
     //     const int itemHeight = isExpanded ? EXPAND_HEIGHT : COLLAPSE_HEIGHT;
 
     //     // 计算项的实际显示区域
-    //     ItpRect itemRect(5, yPos, itemWidth, itemHeight);
+    //     TpRect itemRect(5, yPos, itemWidth, itemHeight);
 
     //     // 只绘制可见项
     //     if (itemRect.bottom() > 0 && itemRect.top() < widgetRect.h)
@@ -186,12 +186,12 @@ bool TpNotificationWidget::onPaintEvent(TpObjectPaintEvent *event)
     //         }
 
     //         // 更新关闭按钮点击区域（相对控件坐标）
-    //         const ItpRect closeArea(
+    //         const TpRect closeArea(
     //             itemRect.right() - CLOSE_BTN_SIZE - TITLE_PADDING,
     //             itemRect.y() + TITLE_PADDING,
     //             CLOSE_BTN_SIZE,
     //             CLOSE_BTN_SIZE);
-    //         item->setCloseHitArea(closeArea - ItpPoint(0, widgetData->m_scroll_offset)); // 转换到控件坐标系
+    //         item->setCloseHitArea(closeArea - TpPoint(0, widgetData->m_scroll_offset)); // 转换到控件坐标系
 
     //         // 绘制关闭按钮
     //         canvas->drawLine(

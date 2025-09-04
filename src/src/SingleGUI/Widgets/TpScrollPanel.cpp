@@ -20,7 +20,7 @@ struct TpScrollPanelData
     TpScroll *scroll[TP_SCROLL_NUM];
     TpChildWidget *panel;
     TpVector<TpChildWidget *> objectList;
-    TpMap<TpChildWidget *, ItpRect> objectRect;
+    TpMap<TpChildWidget *, TpRect> objectRect;
 
     // 滚动窗口
     TpChildWidget *centralWidget = nullptr;
@@ -32,8 +32,8 @@ struct TpScrollPanelData
     // 滚轮滚动模式,true为垂直滚动
     bool isVertical = true;
 
-    ItpPoint ltPoint;
-    ItpPoint rbPoint;
+    TpPoint ltPoint;
+    TpPoint rbPoint;
 
     int32_t offsetX;
     int32_t offsetY;
@@ -41,9 +41,9 @@ struct TpScrollPanelData
     // 鼠标左键是否按下
     bool mouseLeftPress = false;
     // 鼠标点击坐标
-    ItpPoint originPressPoint_;
+    TpPoint originPressPoint_;
     // 鼠标拖拽更新坐标
-    ItpPoint updatePoint_;
+    TpPoint updatePoint_;
 };
 
 TpScrollPanel::TpScrollPanel(TpChildWidget *parent)
@@ -71,11 +71,11 @@ TpScrollPanel::TpScrollPanel(TpChildWidget *parent)
     set->HScrollBarVisible = false;
     set->VScrollBarVisible = false;
 
-    set->ltPoint.x = INT_MAX;
-    set->rbPoint.y = INT_MAX;
+    set->ltPoint.setX(INT_MAX);
+    set->ltPoint.setY(INT_MAX);
 
-    set->rbPoint.x = INT_MIN;
-    set->rbPoint.y = INT_MIN;
+    set->rbPoint.setX(INT_MIN);
+    set->rbPoint.setY(INT_MIN);
 
     set->offsetX = 0;
     set->offsetY = 0;
@@ -146,16 +146,16 @@ void TpScrollPanel::setHorizontalScrollBarValue(const uint32_t &value)
 
     if (set->centralWidget)
     {
-        int32_t x = set->centralWidget->pos().x;
-        int32_t y = set->centralWidget->pos().y;
+        int32_t x = set->centralWidget->pos().x();
+        int32_t y = set->centralWidget->pos().y();
 
         set->centralWidget->move(-newPosion, y);
         set->centralWidget->broadSetTop();
     }
     else
     {
-        int32_t x = set->panel->pos().x;
-        int32_t y = set->panel->pos().y;
+        int32_t x = set->panel->pos().x();
+        int32_t y = set->panel->pos().y();
 
         set->panel->move(-newPosion, y);
         set->panel->broadSetTop();
@@ -198,16 +198,16 @@ void TpScrollPanel::setVerticalScrollBarValue(const uint32_t &value)
     {
         // std::cout << "set->centralWidget Height  " << set->centralWidget->height() << std::endl;
 
-        int32_t x = set->centralWidget->pos().x;
-        int32_t y = set->centralWidget->pos().y;
+        int32_t x = set->centralWidget->pos().x();
+        int32_t y = set->centralWidget->pos().y();
 
         set->centralWidget->move(x, -newPosion);
         set->centralWidget->broadSetTop();
     }
     else
     {
-        int32_t x = set->panel->pos().x;
-        int32_t y = set->panel->pos().y;
+        int32_t x = set->panel->pos().x();
+        int32_t y = set->panel->pos().y();
 
         set->panel->move(x, -newPosion);
         set->panel->broadSetTop();
@@ -223,9 +223,9 @@ int32_t TpScrollPanel::horizontalPostion()
         return 0;
 
     if (set->centralWidget)
-        return set->centralWidget->pos().x;
+        return set->centralWidget->pos().x();
 
-    return set->panel->pos().x;
+    return set->panel->pos().x();
 }
 
 void TpScrollPanel::setHorizontalPostion(const int32_t &value)
@@ -239,16 +239,16 @@ void TpScrollPanel::setHorizontalPostion(const int32_t &value)
 
     if (set->centralWidget)
     {
-        int32_t x = set->centralWidget->pos().x;
-        int32_t y = set->centralWidget->pos().y;
+        int32_t x = set->centralWidget->pos().x();
+        int32_t y = set->centralWidget->pos().y();
 
         set->centralWidget->move(value, y);
         set->centralWidget->broadSetTop();
     }
     else
     {
-        int32_t x = set->panel->pos().x;
-        int32_t y = set->panel->pos().y;
+        int32_t x = set->panel->pos().x();
+        int32_t y = set->panel->pos().y();
 
         set->panel->move(value, y);
         set->panel->broadSetTop();
@@ -264,9 +264,9 @@ int32_t TpScrollPanel::verticalPostion()
         return 0;
 
     if (set->centralWidget)
-        return set->centralWidget->pos().y;
+        return set->centralWidget->pos().y();
 
-    return set->panel->pos().y;
+    return set->panel->pos().y();
 }
 
 void TpScrollPanel::setVerticalPostion(const int32_t &value)
@@ -280,16 +280,16 @@ void TpScrollPanel::setVerticalPostion(const int32_t &value)
 
     if (set->centralWidget)
     {
-        int32_t x = set->centralWidget->pos().x;
-        int32_t y = set->centralWidget->pos().y;
+        int32_t x = set->centralWidget->pos().x();
+        int32_t y = set->centralWidget->pos().y();
 
         set->centralWidget->move(x, value);
         set->centralWidget->broadSetTop();
     }
     else
     {
-        int32_t x = set->panel->pos().x;
-        int32_t y = set->panel->pos().y;
+        int32_t x = set->panel->pos().x();
+        int32_t y = set->panel->pos().y();
 
         set->panel->move(x, value);
         set->panel->broadSetTop();
@@ -388,8 +388,8 @@ bool TpScrollPanel::delObject(TpChildWidget *object)
         set->objectList.erase(iter);
     }
 
-    ItpRect rect = set->objectRect[object];
-    object->setRect(&rect);
+    TpRect rect = set->objectRect[object];
+    object->setRect(rect);
 
     auto mapIter = set->objectRect.find(object);
 
@@ -457,8 +457,8 @@ bool TpScrollPanel::clearObject()
 
     for (auto iter = set->objectList.begin(); iter != set->objectList.end(); iter++)
     {
-        ItpRect rect = set->objectRect[*iter];
-        (*iter)->setRect(&rect);
+        TpRect rect = set->objectRect[*iter];
+        (*iter)->setRect(rect);
 
         auto mapIter = set->objectRect.find(*iter);
 
@@ -535,40 +535,41 @@ bool TpScrollPanel::recal(bool enableOffset)
         if (size == 0)
             return false;
 
-        ItpPoint tltPoint, trbPoint;
+        TpPoint tltPoint, trbPoint;
 
-        tltPoint.x = set->objectList.at(0)->rect().x;
-        tltPoint.y = set->objectList.at(0)->rect().y;
+        tltPoint.setX(set->objectList.at(0)->rect().x());
+        tltPoint.setY(set->objectList.at(0)->rect().y());
 
-        trbPoint.x = set->objectList.at(0)->rect().x + set->objectList.at(0)->rect().w;
-        trbPoint.y = set->objectList.at(0)->rect().y + set->objectList.at(0)->rect().h;
+        trbPoint.setX(set->objectList.at(0)->rect().x() + set->objectList.at(0)->rect().width());
+        trbPoint.setY(set->objectList.at(0)->rect().y() + set->objectList.at(0)->rect().height());
 
         for (int32_t i = 1; i < size; i++)
         {
-            tltPoint.x = TP_MIN(tltPoint.x, set->objectList.at(i)->pos().x);
-            tltPoint.y = TP_MIN(tltPoint.y, set->objectList.at(i)->pos().y);
-            trbPoint.x = TP_MAX(trbPoint.x, set->objectList.at(i)->pos().x + set->objectList.at(i)->width());
-            trbPoint.y = TP_MAX(trbPoint.x, set->objectList.at(i)->pos().y + set->objectList.at(i)->height());
+            tltPoint.setX(TP_MIN(tltPoint.x(), set->objectList.at(i)->pos().x()));
+            tltPoint.setY(TP_MIN(tltPoint.y(), set->objectList.at(i)->pos().y()));
+
+            trbPoint.setX(TP_MAX(trbPoint.x(), set->objectList.at(i)->pos().x() + set->objectList.at(i)->width()));
+            trbPoint.setY(TP_MAX(trbPoint.x(), set->objectList.at(i)->pos().y() + set->objectList.at(i)->height()));
             set->objectRect[set->objectList.at(i)] = set->objectList.at(i)->rect();
         }
 
         set->ltPoint = tltPoint;
         set->rbPoint = trbPoint;
 
-        uint32_t firstObjectX = set->ltPoint.x;
-        uint32_t firstObjectY = set->ltPoint.y;
+        uint32_t firstObjectX = set->ltPoint.x();
+        uint32_t firstObjectY = set->ltPoint.y();
 
-        uint32_t realWidth = set->rbPoint.x - set->ltPoint.x;
-        uint32_t realHeight = set->rbPoint.y - set->ltPoint.y;
+        uint32_t realWidth = set->rbPoint.x() - set->ltPoint.x();
+        uint32_t realHeight = set->rbPoint.y() - set->ltPoint.y();
 
-        if (set->ltPoint.x < 0)
+        if (set->ltPoint.x() < 0)
         {
-            set->offsetX = TP_ABS(set->ltPoint.x);
+            set->offsetX = TP_ABS(set->ltPoint.x());
         }
 
-        if (set->ltPoint.y < 0)
+        if (set->ltPoint.y() < 0)
         {
-            set->offsetY = TP_ABS(set->ltPoint.y);
+            set->offsetY = TP_ABS(set->ltPoint.y());
         }
 
         if (realWidth < rectWidth)
@@ -581,14 +582,14 @@ bool TpScrollPanel::recal(bool enableOffset)
             realHeight = rectHeight;
         }
 
-        if (set->ltPoint.x > 0)
+        if (set->ltPoint.x() > 0)
         {
-            set->ltPoint.x = 0;
+            set->ltPoint.setX(0);
         }
 
-        if (set->ltPoint.y > 0)
+        if (set->ltPoint.y() > 0)
         {
-            set->ltPoint.y = 0;
+            set->ltPoint.setY(0);
         }
 
         // 最后panel的宽度高度要叠加上第一个成员的X偏移量 WHY
@@ -609,7 +610,7 @@ bool TpScrollPanel::recal(bool enableOffset)
 
             for (; iter != set->objectList.end(); iter++)
             {
-                (*iter)->move(set->offsetX + (*iter)->pos().x, set->offsetY + (*iter)->pos().y);
+                (*iter)->move(set->offsetX + (*iter)->pos().x(), set->offsetY + (*iter)->pos().y());
             }
         }
 
@@ -652,8 +653,8 @@ void TpScrollPanel::doFlip(TpScroll *scroll, int32_t position, int32_t page, int
     std::cout << "TpScrollPanel::doFlip " << std::endl;
 
     TpScrollPanelData *set = static_cast<TpScrollPanelData *>(data_);
-    int32_t x = set->panel->pos().x;
-    int32_t y = set->panel->pos().y;
+    int32_t x = set->panel->pos().x();
+    int32_t y = set->panel->pos().y();
 
     if (!set)
         return;
@@ -795,13 +796,13 @@ bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
 
     if (set->mouseLeftPress)
     {
-        ItpPoint curPoint = event->globalPos();
+        TpPoint curPoint = event->globalPos();
 
         int32_t offset = 0;
         if (scrollMode())
         {
             // 纵向
-            offset = curPoint.y - set->updatePoint_.y;
+            offset = curPoint.y() - set->updatePoint_.y();
 
             // std::cout << "******* this  " << this << std::endl;
             // std::cout << " *******curPoint.y " << curPoint.y << "   set->updatePoint_.y " << set->updatePoint_.y << std::endl;
@@ -813,7 +814,7 @@ bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
         else
         {
             // 横向
-            offset = curPoint.x - set->updatePoint_.x;
+            offset = curPoint.x() - set->updatePoint_.x();
 
             // std::cout << "horizontalPostion() " << horizontalPostion() << " offset" << std::endl;
             setHorizontalPostion(horizontalPostion() + offset);

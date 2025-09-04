@@ -6,8 +6,8 @@
 #include <atomic>
 #include <limits>
 #include <cmath>
-#include "typesDef.h"
-#include "keyboard.h"
+#include <unistd.h> 
+#include <cstring> 
 #include "event.h"
 #include "TpString.h"
 #include "TpAlphaTable.h"

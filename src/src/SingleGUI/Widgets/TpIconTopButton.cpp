@@ -75,12 +75,12 @@ void TpIconTopButton::setIconSize(const uint32_t &width, const uint32_t &height)
     setHeight(height + buttonData->textLabel->font()->pixelHeight() + TpDisplay::dp2Px(6));
 }
 
-void TpIconTopButton::setIconSize(const ItpSize &size)
+void TpIconTopButton::setIconSize(const TpSize &size)
 {
-    setIconSize(size.w, size.h);
+    setIconSize(size.width(), size.height());
 }
 
-ItpSize TpIconTopButton::iconSize()
+TpSize TpIconTopButton::iconSize()
 {
     TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
     return buttonData->iconLabel->size();
@@ -133,7 +133,7 @@ bool TpIconTopButton::onMouseRleaseEvent(TpMouseEvent *event)
     if (event->button() != BUTTON_LEFT)
         return true;
 
-    ItpPoint mouseGlobalPos = event->globalPos();
+    TpPoint mouseGlobalPos = event->globalPos();
 
     if (toScreen().contains(mouseGlobalPos))
     {

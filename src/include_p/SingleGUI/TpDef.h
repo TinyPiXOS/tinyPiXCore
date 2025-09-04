@@ -35,11 +35,15 @@ struct ItpTempDef
     // TpChildWidget *dragObject = nullptr;
 
     // 鼠标移动前的上一个坐标
-    ItpPoint lastPoint;
+    TpPoint lastPoint;
 
     // 新增悬停链状态
     // TpVector<TpChildWidget *> prevHoverChain; // 上一帧悬停链
     // TpVector<TpChildWidget *> currHoverChain; // 当前悬停链
+
+    ItpTempDef()
+    {
+    }
 
     /// @brief 移除对象时，如果缓存了obj，需要同步置空
     /// @param delObj
@@ -94,9 +98,9 @@ struct ItpObjectSet
     int32_t offsetY;
 
     /// @brief 绝对坐标
-    ItpRect absoluteRect;
+    TpRect absoluteRect;
     /// @brief 逻辑坐标
-    ItpRect logicalRect;
+    TpRect logicalRect;
 
     // 窗口最小宽高
     uint32_t minimumWidth = 0;
@@ -132,7 +136,7 @@ struct ItpObjectSet
 
     bool isHover = false;
     bool isPress = false;
-    ItpPoint pressPoint;
+    TpPoint pressPoint;
 
     // 圆角值，单位px
     uint32_t round = 0;
@@ -163,8 +167,8 @@ struct ItpMouseSet
     MouseEventType button;
     bool state;
 
-    ItpPoint pos;
-    ItpPoint globalPos;
+    TpPoint pos;
+    TpPoint globalPos;
 
     ItpMouseSet() : type(TpEvent::EVENT_NONE_TYPE), which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
     {
@@ -172,153 +176,131 @@ struct ItpMouseSet
 };
 
 /// @brief 键盘事件数据
-typedef struct
+struct ItpKeyboardSet
 {
     /// @brief 事件类型
     TpEvent::ItpEventType type;
-    struct
-    {
-        /// @brief 测试注释
-        uint8_t which;
-        bool state;
-        uint32_t scancode;
-        uint32_t virtualKey;
-        uint32_t symbol;
-        char shortCut[KEYBOARD_STRING_LEN];
-        KeyModeType keyMod;
-    };
-} ItpKeyboardSet;
+    /// @brief 测试注释
+    uint8_t which;
+    bool state;
+    uint32_t scancode;
+    uint32_t virtualKey;
+    uint32_t symbol;
+    char shortCut[KEYBOARD_STRING_LEN];
+    KeyModeType keyMod;
+};
 
-typedef struct
+struct ItpFingerSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        int32_t touchFingerType;
-        uint32_t timestamp;
-        int64_t fingerID;
-        int64_t touchID;
-        int32_t x;
-        int32_t y;
-        int32_t dx;
-        int32_t dy;
-        float pressure;
-    };
-} ItpFingerSet;
+    int32_t touchFingerType;
+    uint32_t timestamp;
+    int64_t fingerID;
+    int64_t touchID;
+    int32_t x;
+    int32_t y;
+    int32_t dx;
+    int32_t dy;
+    float pressure;
+};
 
-typedef struct
+struct ItpDollarSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        int32_t dollarType;
-        uint32_t timestamp;
-        int64_t touchID;
-        int64_t GestureID;
-        uint32_t numFingers;
-        int32_t x;
-        int32_t y;
-    };
-} ItpDollarSet;
+    int32_t dollarType;
+    uint32_t timestamp;
+    int64_t touchID;
+    int64_t GestureID;
+    uint32_t numFingers;
+    int32_t x;
+    int32_t y;
 
-typedef struct
+    ItpDollarSet()
+    {
+    }
+};
+
+struct ItpMultiGestureSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        uint32_t timestamp;
-        int64_t touchID;
-        float dtheta;
-        float ddist;
-        int32_t x, y;
-        uint16_t numfingers;
-        uint16_t padding;
-    };
-} ItpMultiGestureSet;
+    uint32_t timestamp;
+    int64_t touchID;
+    float dtheta;
+    float ddist;
+    int32_t x, y;
+    uint16_t numfingers;
+    uint16_t padding;
 
-typedef struct
+    ItpMultiGestureSet()
+    {
+    }
+};
+
+struct ItpObjectMoveSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        TpObject *object;
-        struct
-        {
-            int32_t nx;
-            int32_t ny;
-        };
-    };
-} ItpObjectMoveSet;
+    TpObject *object;
+    int32_t nx;
+    int32_t ny;
 
-typedef struct
+    ItpObjectMoveSet()
+    {
+    }
+};
+
+struct ItpObjectResizeSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        TpObject *object;
-        struct
-        {
-            int32_t nw;
-            int32_t nh;
-        };
-        int32_t question;
-    };
-} ItpObjectResizeSet;
+    TpObject *object;
+    int32_t nw;
+    int32_t nh;
+    int32_t question;
 
-typedef struct
+    ItpObjectResizeSet()
+    {
+    }
+};
+
+struct ItpObjectFocusSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        TpObject *object;
-        struct
-        {
-            bool focused;
-        };
-    };
-} ItpObjectFocusSet;
+    TpObject *object;
+    bool focused;
 
-typedef struct
+    ItpObjectFocusSet()
+    {
+    }
+};
+
+struct ItpObjectLeaveSet
 {
     TpEvent::ItpEventType type;
     TpObject *object;
     bool leaved;
-} ItpObjectLeaveSet;
+};
 
-typedef struct
+struct ItpObjectVisibleSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        TpObject *object;
-        struct
-        {
-            bool visible;
-        };
-    };
-} ItpObjectVisibleSet;
+    TpObject *object;
+    bool visible;
+};
 
-typedef struct
+struct ItpObjectRotateSet
 {
     TpEvent::ItpEventType type;
-    struct
-    {
-        TpObject *object;
-        struct
-        {
-            ItpRotateType rotate;
-        };
-    };
-} ItpObjectRotateSet;
+    TpObject *object;
+    ItpRotateType rotate;
+};
 
-typedef struct
+struct ItpObjectPaintInput
 {
     TpObject *object;
     tpShared<TpSurface> surface;
-    ItpRect updateRect;
-} ItpObjectPaintInput;
+    TpRect updateRect;
+};
 
-typedef struct
+struct ItpObjectPaintSet
 {
     TpEvent::ItpEventType type;
 
@@ -331,11 +313,16 @@ typedef struct
     int32_t offsetX;
     int32_t offsetY;
 
-    ItpRect updateRect;
-    ItpRect rect;
+    TpRect updateRect;
+    TpRect rect;
 
     bool canDraw;
-} ItpObjectPaintSet;
+
+    ItpObjectPaintSet()
+    {
+        int a = 0;
+    }
+};
 
 typedef struct
 {

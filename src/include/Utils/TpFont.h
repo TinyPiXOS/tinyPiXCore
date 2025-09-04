@@ -125,7 +125,7 @@ public:
     virtual int32_t layoutHeight();
     virtual int32_t pixelWidth();
     virtual int32_t pixelHeight();
-    virtual ItpSize pixelSize();
+    virtual TpSize pixelSize();
 
 public:
     static TpFontFamily *getSysFamilyFont();

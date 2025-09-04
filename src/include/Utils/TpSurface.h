@@ -4,6 +4,7 @@
 #include "TpUtils.h"
 #include <TpString.h>
 #include "TpGlobal.h"
+#include "TpRect.h"
 
 /**strage 32bits and ARGB**/
 TP_DEF_VOID_TYPE_VAR(ITpSurfaceData);
@@ -21,7 +22,7 @@ public:
     // if format not be 32, or Amask = 0, canvas will be ineffective
     virtual bool create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
                         int32_t rmask = 0, int32_t gmask = 0, int32_t bmask = 0, int32_t amask = 0,
-                        uint8_t alpha = 0xff, bool enableColroKey = false, uint32_t colorKey = 0, const ItpRect &clip = ItpRect());
+                        uint8_t alpha = 0xff, bool enableColroKey = false, uint32_t colorKey = 0, const TpRect &clip = TpRect());
     virtual bool create(tpShared<TpSurface> surface, bool bShareMemoried = true); // if false, can not copy source data, only copy other parameters
 
 public:
@@ -52,8 +53,8 @@ public:
     virtual int32_t amask();
 
 public:
-    virtual void setClipRect(const ItpRect &rect);
-    virtual ItpRect clipRect();
+    virtual void setClipRect(const TpRect &rect);
+    virtual TpRect clipRect();
 
 public:
     // virtual void clear();
@@ -67,17 +68,17 @@ public:
     virtual tpShared<TpSurface> copy(int32_t x, int32_t y, int32_t w, int32_t h); // will be effected by clip rect
 
 public:
-    virtual void directBlitF(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst); // from other surface
+    virtual void directBlitF(tpShared<TpSurface> surface, const TpRect &src, const TpRect &dst); // from other surface
 
     /// @brief 将自己的surface数据拷贝至目标surface
     /// @param surface
     /// @param src
     /// @param dst
-    virtual void directBlitT(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst);
+    virtual void directBlitT(tpShared<TpSurface> surface, const TpRect &src, const TpRect &dst);
 
 public:
-    virtual void strenchBlitF(TpSurface &surface, const ItpRect &src, const ItpRect &dst); // from other surface, can strench, have to zoom out will be effective
-    virtual void strenchBlitT(TpSurface &surface, const ItpRect &src, const ItpRect &dst); // to other surface, can strench, have to zoom out will be effective
+    virtual void strenchBlitF(TpSurface &surface, const TpRect &src, const TpRect &dst); // from other surface, can strench, have to zoom out will be effective
+    virtual void strenchBlitT(TpSurface &surface, const TpRect &src, const TpRect &dst); // to other surface, can strench, have to zoom out will be effective
 
 public:
     /// @brief 释放内部所有资源，释放后Surface即无效

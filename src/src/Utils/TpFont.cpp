@@ -399,13 +399,13 @@ static inline int32_t _getPixelHeight(TpFontData *context)
     return height;
 }
 
-static inline ItpSize _getPixelSize(TpFontData *context)
+static inline TpSize _getPixelSize(TpFontData *context)
 {
     std::lock_guard<std::mutex> lock(context->pangoMutex);
 
-    ItpSize size;
+    TpSize size;
     pango_layout_set_font_description(context->layout, context->font_desc);
-    pango_layout_get_pixel_size(context->layout, (int32_t *)&size.w, (int32_t *)&size.h);
+    pango_layout_get_pixel_size(context->layout, (int32_t *)&size.rwidth(), (int32_t *)&size.rheight());
     return size;
 }
 
@@ -753,10 +753,10 @@ int32_t TpFont::pixelHeight()
     return height;
 }
 
-ItpSize TpFont::pixelSize()
+TpSize TpFont::pixelSize()
 {
     TpFontData *set = (TpFontData *)this->data_;
-    ItpSize size = {0, 0};
+    TpSize size = {0, 0};
 
     if (set)
     {
@@ -782,19 +782,19 @@ uint32_t *TpFont::renderText(const TpString &text)
 
     _setText(set, text.c_str(), text.length());
 
-    ItpSize size = _getPixelSize(set);
+    TpSize size = _getPixelSize(set);
 
-    if (size.w == 0 || size.h == 0)
+    if (size.width() == 0 || size.height() == 0)
         return nullptr;
 
-    uint32_t *buffer = new uint32_t[size.w * size.h];
-    memset(buffer, 0, size.w * size.h * sizeof(uint32_t));
+    uint32_t *buffer = new uint32_t[size.width() * size.height()];
+    memset(buffer, 0, size.width() * size.height() * sizeof(uint32_t));
 
     cairo_surface_t *surf = cairo_image_surface_create_for_data(
         (unsigned char *)buffer,
         CAIRO_FORMAT_ARGB32,
-        size.w, size.h,
-        size.w * 4);
+        size.width(), size.height(),
+        size.width() * 4);
 
     // cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.w, size.h);
     if (surf == nullptr)
@@ -882,7 +882,7 @@ uint32_t *TpFont::renderText(const TpString &text)
         break;
         }
         cairo_set_source_rgba(cr, br, bg, bb, ba);
-        cairo_rectangle(cr, 0, 0, size.w, size.h);
+        cairo_rectangle(cr, 0, 0, size.width(), size.height());
         cairo_fill(cr);
     }
 

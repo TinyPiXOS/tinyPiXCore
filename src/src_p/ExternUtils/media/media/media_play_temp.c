@@ -261,8 +261,8 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 		case MEDIA_VIDEO_SCALING_STRETCH:	//拉伸显示，图像可能变形，通过渲染窗口拉伸实现
 			rect_d->x=0;
 			rect_d->y=0;
-			rect_d->w=user_->rect.w;
-			rect_d->h=user_->rect.h;
+			rect_d->w=user_->rect.width();
+			rect_d->h=user_->rect.height();
 			rect_s->x=0;
 			rect_s->y=0;
 			rect_s->w=codec_ctx->width;
@@ -270,11 +270,11 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 			break;
 		case MEDIA_VIDEO_SCALING_FILL:		//保持原始比例并填充显示，可能会裁剪，通过纹理大小实现
 		{
-			double scale=count_scaling_larger(codec_ctx->width,codec_ctx->height,user_->rect.w,user_->rect.h);
+			double scale=count_scaling_larger(codec_ctx->width,codec_ctx->height,user_->rect.width(),user_->rect.height());
 			rect_d->w=(int16_t)((double)codec_ctx->width*scale);
 			rect_d->h=(int16_t)((double)codec_ctx->height*scale);
-			rect_d->x=count_coordinate_displsy(user_->rect.w,rect_d->w,0,INT_MAX);
-			rect_d->y=count_coordinate_displsy(user_->rect.h,rect_d->h,0,INT_MAX);
+			rect_d->x=count_coordinate_displsy(user_->rect.width(),rect_d->w,0,INT_MAX);
+			rect_d->y=count_coordinate_displsy(user_->rect.height(),rect_d->h,0,INT_MAX);
 			rect_s->x=0;
 			rect_s->y=0;
 			rect_s->w=codec_ctx->width;
@@ -283,11 +283,11 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 		}
 		case MEDIA_VIDEO_SCALING_FIT:		//保持原始比例并适应屏幕，可能添加黑边,
 		{
-			double scale=count_scaling_smaller(codec_ctx->width,codec_ctx->height,user_->rect.w,user_->rect.h);
+			double scale=count_scaling_smaller(codec_ctx->width,codec_ctx->height,user_->rect.width(),user_->rect.height());
 			rect_d->w=(int16_t)((double)codec_ctx->width*scale);
 			rect_d->h=(int16_t)((double)codec_ctx->height*scale);
-			rect_d->x=count_coordinate_displsy(user_->rect.w,rect_d->w,0,INT_MAX);
-			rect_d->y=count_coordinate_displsy(user_->rect.h,rect_d->h,0,INT_MAX);
+			rect_d->x=count_coordinate_displsy(user_->rect.width(),rect_d->w,0,INT_MAX);
+			rect_d->y=count_coordinate_displsy(user_->rect.height(),rect_d->h,0,INT_MAX);
 			rect_s->x=0;
 			rect_s->y=0;
 			rect_s->w=codec_ctx->width;
@@ -298,14 +298,14 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 			
 			break;
 		case MEDIA_VIDEO_SCALING_CROP:		//裁剪画面（画面尺寸达不到则不用裁减）以填充屏幕
-			rect_d->x=count_coordinate_displsy(user_->rect.w,codec_ctx->width,0,INT_MAX);
-			rect_d->y=count_coordinate_displsy(user_->rect.h,codec_ctx->height,0,INT_MAX);
-			rect_d->w=get_smaller_value(user_->rect.w,codec_ctx->width);
-			rect_d->h=get_smaller_value(user_->rect.h,codec_ctx->height);
-			rect_s->x=count_coordinate_displsy(codec_ctx->width,user_->rect.w,0,INT_MAX);
-			rect_s->y=count_coordinate_displsy(codec_ctx->height,user_->rect.h,0,INT_MAX);
-			rect_s->w=get_smaller_value(user_->rect.w,codec_ctx->width);
-			rect_s->h=get_smaller_value(user_->rect.h,codec_ctx->height);
+			rect_d->x=count_coordinate_displsy(user_->rect.width(),codec_ctx->width,0,INT_MAX);
+			rect_d->y=count_coordinate_displsy(user_->rect.height(),codec_ctx->height,0,INT_MAX);
+			rect_d->w=get_smaller_value(user_->rect.width(),codec_ctx->width);
+			rect_d->h=get_smaller_value(user_->rect.height(),codec_ctx->height);
+			rect_s->x=count_coordinate_displsy(codec_ctx->width,user_->rect.width(),0,INT_MAX);
+			rect_s->y=count_coordinate_displsy(codec_ctx->height,user_->rect.height(),0,INT_MAX);
+			rect_s->w=get_smaller_value(user_->rect.width(),codec_ctx->width);
+			rect_s->h=get_smaller_value(user_->rect.height(),codec_ctx->height);
 			break;
 		case MEDIA_VIDEO_SCALING_LETTERBOX:	//保持原始比例，上下左右添加黑边
 
@@ -321,10 +321,10 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 	if(!video_params)
 		return -1;
 	video_params_get_all(user,video_params);
-	if(video_params->rect.w==0 || video_params->rect.h==0)		//宽高不符合则使用视频默认参数
+	if(video_params->rect.width()==0 || video_params->rect.height()==0)		//宽高不符合则使用视频默认参数
 	{
-		video_params->rect.w=codec_ctx->width;
-		video_params->rect.h=codec_ctx->height;
+		video_params->rect.width()=codec_ctx->width;
+		video_params->rect.height()=codec_ctx->height;
 	}
 	return 0;
 }*/

@@ -22,10 +22,7 @@ public:
 	void setWordWrap(bool wrap);
 
 public:
-	virtual void setRect(TpRect &rect);
-	virtual void setRect(TpRect *rect);
-	virtual void setRect(ItpRect &rect);
-	virtual void setRect(ItpRect *rect);
+	virtual void setRect(const TpRect &rect);
 	virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h);
 
 public:

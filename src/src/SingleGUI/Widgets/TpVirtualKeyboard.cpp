@@ -206,17 +206,17 @@ private:
     // 候选词偏移量
     int32_t curWordOffset_;
 
-    ItpPoint mousePressPos_;
+    TpPoint mousePressPos_;
 
     const uint32_t bgLeftRightMargin_ = 12;
     const uint32_t bgTopBottomMargin_ = 5;
 
     // 所有候选词区域，用于判定点击
-    TpVector<ItpRect> allWordRect_;
+    TpVector<TpRect> allWordRect_;
 
     // 是否鼠标按到候选词以及候选词背景rect
     bool isPressWordRect_ = false;
-    ItpRect pressWordRect_;
+    TpRect pressWordRect_;
 };
 
 struct TpVirtualKeyboardData
@@ -860,11 +860,8 @@ bool TpCandidateWidget::onPaintEvent(TpObjectPaintEvent *event)
             }
             painter->renderText(*textFont_, curX, pinyinHeight + 5);
 
-            ItpRect curCandidateWordRect;
-            curCandidateWordRect.x = curX - bgLeftRightMargin_;
-            curCandidateWordRect.y = pinyinHeight + 5;
-            curCandidateWordRect.w = textFont_->pixelWidth() + bgLeftRightMargin_ * 2;
-            curCandidateWordRect.h = textFont_->pixelHeight();
+            TpRect curCandidateWordRect(curX - bgLeftRightMargin_, pinyinHeight + 5,
+                                        textFont_->pixelWidth() + bgLeftRightMargin_ * 2, textFont_->pixelHeight());
 
             allWordRect_.emplace_back(curCandidateWordRect);
 
@@ -893,15 +890,15 @@ bool TpCandidateWidget::onMouseRleaseEvent(TpMouseEvent *event)
     isPressWordRect_ = false;
     if (allWordRect_.size() > 0)
     {
-        ItpPoint curPos = event->pos();
-        curPos.x += curWordOffset_;
+        TpPoint curPos = event->pos();
+        curPos.setX(curPos.x() + curWordOffset_);
 
         int findRight = allWordRect_.size() - 1;
         int findLeft = 0;
 
         for (int i = findRight / 2; i >= findLeft, i <= findRight;)
         {
-            ItpRect curRect = allWordRect_.at(i);
+            TpRect curRect = allWordRect_.at(i);
             if (curRect.contains(curPos))
             {
                 findIndex = i;
@@ -913,7 +910,7 @@ bool TpCandidateWidget::onMouseRleaseEvent(TpMouseEvent *event)
             }
 
             // 比当前矩形靠后，继续二分
-            if (curPos.x > (curRect.x + curRect.w))
+            if (curPos.x() > (curRect.x() + curRect.width()))
             {
                 findLeft = i;
 
@@ -954,8 +951,8 @@ bool TpCandidateWidget::onMouseRleaseEvent(TpMouseEvent *event)
         update();
     }
 
-    ItpPoint curPos = event->pos();
-    if (isPressWordRect_ && std::abs(curPos.x - mousePressPos_.x) < 5 && std::abs(curPos.y - mousePressPos_.y) < 5)
+    TpPoint curPos = event->pos();
+    if (isPressWordRect_ && std::abs(curPos.x() - mousePressPos_.x()) < 5 && std::abs(curPos.y() - mousePressPos_.y()) < 5)
     {
         // 计算点击坐标对应的候选词
         TpString candidateWord = wordList_.at(findIndex);
@@ -980,8 +977,8 @@ bool TpCandidateWidget::onMouseMoveEvent(TpMouseEvent *event)
 
     if (event->state())
     {
-        ItpPoint curPos = event->pos();
-        curWordOffset_ = curPos.x - mousePressPos_.x;
+        TpPoint curPos = event->pos();
+        curWordOffset_ = curPos.x() - mousePressPos_.x();
         isPressWordRect_ = false;
         update();
     }

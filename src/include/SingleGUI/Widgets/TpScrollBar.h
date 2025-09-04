@@ -36,10 +36,7 @@ public:
 	virtual ~TpScrollBar();
 
 public:
-	virtual void setRect(TpRect &rect);
-	virtual void setRect(TpRect *rect);
-	virtual void setRect(ItpRect &rect);
-	virtual void setRect(ItpRect *rect);
+	virtual void setRect(const TpRect &rect);
 	virtual void setRect(int32_t x, int32_t y, uint32_t w, uint32_t h);
 
 public:

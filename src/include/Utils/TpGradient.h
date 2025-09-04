@@ -23,15 +23,16 @@ public:
     enum Spread
     {
         /// @brief 剩余区域将填充最接近的停止色;默认模式
-        PadSpread = 0, 
+        PadSpread = 0,
         /// @brief 渐变图案会延伸到渐变区域之外，直到填充到预期区域
-        ReflectSpread, 
+        ReflectSpread,
         /// @brief 渐变图案在渐变区域之外持续重复，直至填充预期区域
-        RepeatSpread   
+        RepeatSpread
     };
 
 public:
     TpGradient();
+    TpGradient(const TpGradient &other);
     virtual ~TpGradient();
 
 public:

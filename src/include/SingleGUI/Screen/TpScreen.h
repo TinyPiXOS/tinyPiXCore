@@ -75,7 +75,7 @@ public:
     virtual bool returns();
 
 public:
-    virtual ItpSize screenSize();
+    virtual TpSize screenSize();
     virtual int32_t screenWidth();
     virtual int32_t screenHeight();
 

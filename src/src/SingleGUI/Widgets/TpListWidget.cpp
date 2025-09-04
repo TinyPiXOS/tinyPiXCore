@@ -24,7 +24,7 @@
 struct PiListWidgetPrivData
 {
     // 默认item大小
-    ItpSize defaultSize;
+    TpSize defaultSize;
 
     // 显示区域，从哪个item的下标开始显示
     uint32_t showMinIndex;
@@ -53,8 +53,8 @@ struct PiListWidgetPrivData
         TpFont defaultFont;
         defaultFont.setText("Test Text");
 
-        defaultSize.w = -1;
-        defaultSize.h = defaultFont.pixelHeight();
+        defaultSize.setWidth(-1);
+        defaultSize.setHeight(defaultFont.pixelHeight());
     }
 
     virtual ~PiListWidgetPrivData()
@@ -296,13 +296,13 @@ void TpListWidget::setCurrentRow(int32_t row)
     update();
 }
 
-TpListWidgetItem *TpListWidget::itemAt(const ItpPoint &p)
+TpListWidgetItem *TpListWidget::itemAt(const TpPoint &p)
 {
     PiListWidgetPrivData *privData = (PiListWidgetPrivData *)this->privData;
     if (!privData)
         return nullptr;
 
-    uint32_t pointIndex = getItemIndex(p.x, p.y);
+    uint32_t pointIndex = getItemIndex(p.x(), p.y());
     return privData->allItemList.at(pointIndex);
 }
 
@@ -455,12 +455,12 @@ void TpListWidget::clear()
     privData->showMinIndex = 0;
 }
 
-inline ItpSize TpListWidget::sizeHint() const
+inline TpSize TpListWidget::sizeHint() const
 {
-    return ItpSize();
+    return TpSize();
 }
 
-inline void TpListWidget::setSizeHint(const ItpSize &size)
+inline void TpListWidget::setSizeHint(const TpSize &size)
 {
 }
 
@@ -484,10 +484,10 @@ bool TpListWidget::onResizeEvent(TpObjectResizeEvent *event)
     if (!privData)
         return false;
 
-    ItpRect editBound = this->rect();
+    TpRect editBound = this->rect();
 
     // std::cout << editBound.h << "--" << privData->defaultSize.h << std::endl;
-    privData->maxCount = std::ceil(editBound.h / (privData->defaultSize.h + 2 * ITEM_V_PIX));
+    privData->maxCount = std::ceil(editBound.height() / (privData->defaultSize.height() + 2 * ITEM_V_PIX));
 
     return true;
 }
@@ -540,7 +540,7 @@ bool TpListWidget::onMousePressEvent(TpMouseEvent *event)
     {
         // 鼠标左键
         // 根据点击下标，获取当前item
-        uint32_t curIndex = getItemIndex(event->pos().x, event->pos().y);
+        uint32_t curIndex = getItemIndex(event->pos().x(), event->pos().y());
 
         if (curIndex >= privData->allItemList.size())
             return true;
@@ -553,7 +553,7 @@ bool TpListWidget::onMousePressEvent(TpMouseEvent *event)
     else
     {
         // 右键或滚轮键，清空所有选择项，选中当前项
-        uint32_t curIndex = getItemIndex(event->pos().x, event->pos().y);
+        uint32_t curIndex = getItemIndex(event->pos().x(), event->pos().y());
         if (curIndex < privData->allItemList.size())
         {
             privData->selectIndexList.clear();
@@ -574,7 +574,7 @@ bool TpListWidget::onMouseRleaseEvent(TpMouseEvent *event)
 
     if (event->button() == BUTTON_LEFT)
     {
-        uint32_t curIndex = getItemIndex(event->pos().x, event->pos().y);
+        uint32_t curIndex = getItemIndex(event->pos().x(), event->pos().y());
         if (curIndex >= privData->allItemList.size())
             return true;
 
@@ -740,12 +740,12 @@ bool TpListWidget::onPaintEvent(TpObjectPaintEvent *event)
     if (!paint)
         return false;
 
-    ItpRect editBound = this->rect();
+    TpRect editBound = this->rect();
 
-    paint->line(0, 0, editBound.w, 0, borderColor);
-    paint->line(0, 0, 0, editBound.h, borderColor);
-    paint->line(editBound.w - 1, 0, editBound.w - 1, editBound.h, borderColor);
-    paint->line(0, editBound.h - 1, editBound.w, editBound.h - 1, borderColor);
+    paint->line(0, 0, editBound.width(), 0, borderColor);
+    paint->line(0, 0, 0, editBound.height(), borderColor);
+    paint->line(editBound.width() - 1, 0, editBound.width() - 1, editBound.height(), borderColor);
+    paint->line(0, editBound.height() - 1, editBound.width(), editBound.height() - 1, borderColor);
 
     // 绘制所有item
     //  最大显示数量
@@ -779,7 +779,7 @@ bool TpListWidget::onPaintEvent(TpObjectPaintEvent *event)
 
             // 鼠标悬停项绘制选中背景
             uint32_t startY = relativeIndex * (2 * ITEM_V_PIX + testItemFont->pixelHeight());
-            uint32_t endX = editBound.w - 1;
+            uint32_t endX = editBound.width() - 1;
             uint32_t endY = relativeIndex * (2 * ITEM_V_PIX + testItemFont->pixelHeight()) + (2 * ITEM_V_PIX + testItemFont->pixelHeight());
 
             paint->rectangle(0, startY, endX, endY, _RGB(255, 10, 10));
@@ -802,14 +802,14 @@ bool TpListWidget::onPaintEvent(TpObjectPaintEvent *event)
                 scrollBarHeightPersent = 1;
 
             // 使用百分比 * 窗口显示高度，得出进度条长度
-            uint32_t scrollBarHeight = scrollBarHeightPersent * editBound.h;
+            uint32_t scrollBarHeight = scrollBarHeightPersent * editBound.height();
 
             // 根据当前的最小索引值，决定进度条绘制在什么位置
-            uint32_t scrollBarY = (1.0 * privData->showMinIndex / showMinIndexMax) * (editBound.h - scrollBarHeight);
+            uint32_t scrollBarY = (1.0 * privData->showMinIndex / showMinIndexMax) * (editBound.height() - scrollBarHeight);
 
             int32_t scrollBarColor = _RGB(200, 0, 0);
 
-            paint->roundedBox(editBound.w - 2, scrollBarY, editBound.w - 1, scrollBarY + scrollBarHeight, 0.5, scrollBarColor);
+            paint->roundedBox(editBound.width() - 2, scrollBarY, editBound.width() - 1, scrollBarY + scrollBarHeight, 0.5, scrollBarColor);
         }
     }
 
@@ -845,8 +845,8 @@ void TpListWidget::RefreshShowIndex()
     if (!privData)
         return;
 
-    ItpRect editBound = this->rect();
-    privData->maxCount = std::ceil(editBound.h / (privData->defaultSize.h + 2 * ITEM_V_PIX));
+    TpRect editBound = this->rect();
+    privData->maxCount = std::ceil(editBound.height() / (privData->defaultSize.height() + 2 * ITEM_V_PIX));
 
     if (privData->allItemList.size() <= privData->maxCount)
     {

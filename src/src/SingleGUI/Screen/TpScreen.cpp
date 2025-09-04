@@ -129,11 +129,11 @@ static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, 
     if (childObj)
     {
         // motion, and state = true
-        mInput.pos.x = events->mouseMotionEvent.x - childObj->toScreen().x;
-        mInput.pos.y = events->mouseMotionEvent.y - childObj->toScreen().y;
+        mInput.pos.setX(events->mouseMotionEvent.x - childObj->toScreen().x());
+        mInput.pos.setY(events->mouseMotionEvent.y - childObj->toScreen().y());
 
-        mInput.globalPos.x = events->mouseMotionEvent.x;
-        mInput.globalPos.y = events->mouseMotionEvent.y;
+        mInput.globalPos.setX(events->mouseMotionEvent.x);
+        mInput.globalPos.setY(events->mouseMotionEvent.y);
 
         mInput.state = true;
         motionEvent.construct(&mInput);
@@ -148,11 +148,11 @@ static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, 
     if (childMotionObj && curMotionObject != dragObject)
     {
         // motion, and dragObject is not null, then state = false; otherwise state = true
-        mInput.pos.x = events->mouseMotionEvent.x - childMotionObj->toScreen().x;
-        mInput.pos.y = events->mouseMotionEvent.y - childMotionObj->toScreen().y;
+        mInput.pos.setX(events->mouseMotionEvent.x - childMotionObj->toScreen().x());
+        mInput.pos.setY(events->mouseMotionEvent.y - childMotionObj->toScreen().y());
 
-        mInput.globalPos.x = events->mouseMotionEvent.x;
-        mInput.globalPos.y = events->mouseMotionEvent.y;
+        mInput.globalPos.setX(events->mouseMotionEvent.x);
+        mInput.globalPos.setY(events->mouseMotionEvent.y);
 
         mInput.state = dragObject ? false : events->mouseMotionEvent.state;
         motionEvent.construct(&mInput);
@@ -187,11 +187,11 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
     }
 
     // mouse down and up
-    mInput.pos.x = events->mouseButtonEvent.x - childObj->toScreen().x;
-    mInput.pos.y = events->mouseButtonEvent.y - childObj->toScreen().y;
+    mInput.pos.setX(events->mouseButtonEvent.x - childObj->toScreen().x());
+    mInput.pos.setY(events->mouseButtonEvent.y - childObj->toScreen().y());
 
-    mInput.globalPos.x = events->mouseButtonEvent.x;
-    mInput.globalPos.y = events->mouseButtonEvent.y;
+    mInput.globalPos.setX(events->mouseButtonEvent.x);
+    mInput.globalPos.setY(events->mouseButtonEvent.y);
 
     // 滚轮事件
     if (mInput.button == BUTTON_WHEELUP || mInput.button == BUTTON_WHEELDOWN)
@@ -287,8 +287,8 @@ static inline void broadFinger(ItpObjectSet *set, ItpFingerSet &input, TpObject 
     event.construct(&input);
     std::list<TpObject *>::iterator iter = list.begin();
 
-    input.x = events->fingerEvent.x * rW - childObj->toScreen().x;
-    input.y = events->fingerEvent.y * rH - childObj->toScreen().y;
+    input.x = events->fingerEvent.x * rW - childObj->toScreen().x();
+    input.y = events->fingerEvent.y * rH - childObj->toScreen().y();
     event.construct(&input);
 
     // 如果该对象安装了事件过滤器，先将事件传给事件过滤器
@@ -316,8 +316,8 @@ static inline void broaDollar(ItpObjectSet *set, ItpDollarSet &input, TpObject *
 
     std::list<TpObject *>::iterator iter = list.begin();
 
-    input.x = events->dollarEvent.x * rW - childObj->toScreen().x;
-    input.y = events->dollarEvent.y * rH - childObj->toScreen().y;
+    input.x = events->dollarEvent.x * rW - childObj->toScreen().x();
+    input.y = events->dollarEvent.y * rH - childObj->toScreen().y();
     event.construct(&input);
 
     // 如果该对象安装了事件过滤器，先将事件传给事件过滤器
@@ -348,8 +348,8 @@ static inline void broadMultiGesture(ItpObjectSet *set, ItpMultiGestureSet &inpu
     TpChildWidget *setCurChildObj = static_cast<TpChildWidget *>(set->tmp.curObject);
     if (setCurChildObj)
     {
-        input.x = events->gestrueEvent.x * rW - setCurChildObj->toScreen().x;
-        input.y = events->gestrueEvent.y * rH - setCurChildObj->toScreen().y;
+        input.x = events->gestrueEvent.x * rW - setCurChildObj->toScreen().x();
+        input.y = events->gestrueEvent.y * rH - setCurChildObj->toScreen().y();
         event.construct(&input);
     }
 
@@ -357,42 +357,42 @@ static inline void broadMultiGesture(ItpObjectSet *set, ItpMultiGestureSet &inpu
     IssueObjEvent(childObj, event, onMultiGestureEvent, childObj->enabled());
 }
 
-static inline bool splitTouchMousePoint(ItpEvent *event, ItpPoint *point)
+static inline bool splitTouchMousePoint(ItpEvent *event, TpPoint *point)
 {
     switch (event->type)
     {
     case TP_MOUSEMOTION:
     {
-        point->x = event->mouseMotionEvent.x;
-        point->y = event->mouseMotionEvent.y;
+        point->setX(event->mouseMotionEvent.x);
+        point->setY(event->mouseMotionEvent.y);
     }
     break;
     case TP_MOUSEBUTTONDOWN:
     case TP_MOUSEBUTTONUP:
     {
-        point->x = event->mouseButtonEvent.x;
-        point->y = event->mouseButtonEvent.y;
+        point->setX(event->mouseButtonEvent.x);
+        point->setY(event->mouseButtonEvent.y);
     }
     break;
     case TP_FINGERMOTION:
     case TP_FINGERUP:
     case TP_FINGERDOWN:
     {
-        point->x = event->fingerEvent.x;
-        point->y = event->fingerEvent.y;
+        point->setX(event->fingerEvent.x);
+        point->setY(event->fingerEvent.y);
     }
     break;
     case TP_DOLLARGESTURE:
     case TP_DOLLARRECORD:
     {
-        point->x = event->dollarEvent.x;
-        point->y = event->dollarEvent.y;
+        point->setX(event->dollarEvent.x);
+        point->setY(event->dollarEvent.y);
     }
     break;
     case TP_MULTIGESTURE:
     {
-        point->x = event->gestrueEvent.x;
-        point->y = event->gestrueEvent.y;
+        point->setX(event->gestrueEvent.x);
+        point->setY(event->gestrueEvent.y);
     }
     break;
     default:
@@ -481,15 +481,8 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
     ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
 
 #if 1
-    set->absoluteRect.x = 0;
-    set->absoluteRect.y = 0;
-    set->absoluteRect.w = nw;
-    set->absoluteRect.h = nh;
-
-    set->logicalRect.x = 0;
-    set->logicalRect.y = 0;
-    set->logicalRect.w = nw;
-    set->logicalRect.h = nh;
+    set->absoluteRect.setRect(0, 0, nw, nh);
+    set->logicalRect.setRect(0, 0, nw, nh);
 #endif
 
     if (!set->reserveImage.isNull())
@@ -549,8 +542,8 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
     {
         ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
 
-        set->absoluteRect.x = nx;
-        set->absoluteRect.y = ny;
+        set->absoluteRect.setX(nx);
+        set->absoluteRect.setY(ny);
 
         object->broadSetTop();
         object->onMoveEvent(&event);
@@ -629,15 +622,8 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
         set->offsetX = x;
         set->offsetY = y;
 
-        set->absoluteRect.x = x;
-        set->absoluteRect.y = y;
-        set->absoluteRect.w = w;
-        set->absoluteRect.h = h;
-
-        set->logicalRect.x = 0;
-        set->logicalRect.y = 0;
-        set->logicalRect.w = w;
-        set->logicalRect.h = h;
+        set->absoluteRect.setRect(x, y, w, h);
+        set->logicalRect.setRect(0, 0, w, h);
 
         if (set->top)
         {
@@ -791,10 +777,11 @@ void TpScreen::move(int32_t x, int32_t y)
             set->offsetX = x;
             set->offsetY = y;
 
-            set->logicalRect.x = 0;
-            set->logicalRect.y = 0;
-            set->absoluteRect.x = x;
-            set->absoluteRect.y = y;
+            set->logicalRect.setX(0);
+            set->logicalRect.setY(0);
+
+            set->absoluteRect.setX(x);
+            set->absoluteRect.setY(y);
 
             this->broadSetTop();
         }
@@ -867,7 +854,7 @@ void TpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
 
 void TpScreen::update(bool onlyBlit)
 {
-    update(this->toScreen().x, this->toScreen().y, this->width(), this->height(), onlyBlit);
+    update(this->toScreen().x(), this->toScreen().y(), this->width(), this->height(), onlyBlit);
 }
 
 ItpObjectType TpScreen::objectType()
@@ -1012,7 +999,7 @@ bool TpScreen::returns()
     return returns;
 }
 
-ItpSize TpScreen::screenSize()
+TpSize TpScreen::screenSize()
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
     uint32_t sWidth = 0;
@@ -1023,7 +1010,7 @@ ItpSize TpScreen::screenSize()
         tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
     }
 
-    return ItpSize(sWidth, sHeight);
+    return TpSize(sWidth, sHeight);
 }
 
 int32_t TpScreen::screenWidth()
@@ -1052,16 +1039,17 @@ int32_t TpScreen::screenHeight()
     return sHeight;
 }
 
-void ParentLeaveOutFunc(TpChildWidget *parent, const ItpRect &curMotionRect, ItpObjectLeaveSet input)
+void ParentLeaveOutFunc(TpChildWidget *parent, const TpRect &curMotionRect, ItpObjectLeaveSet input)
 {
     if (!parent)
         return;
 
-    ItpRect parentnRect = parent->toScreen();
+    TpRect parentnRect = parent->toScreen();
     // std::cout << "parentnRect " << parentnRect.x << " " << parentnRect.y << "  " << parentnRect.w << " " << parentnRect.h << std::endl;
     // std::cout << "curMotionRect " << curMotionRect.x << " " << curMotionRect.y << "  " << curMotionRect.w << " " << curMotionRect.h << std::endl;
 
-    if (!parentnRect.contains(curMotionRect.x, curMotionRect.y) || !parentnRect.contains(curMotionRect.x + curMotionRect.w, curMotionRect.y + curMotionRect.h))
+    if (!parentnRect.contains(curMotionRect.x(), curMotionRect.y()) ||
+        !parentnRect.contains(curMotionRect.x() + curMotionRect.width(), curMotionRect.y() + curMotionRect.height()))
     {
         TpObjectLeaveEvent leaveEvent;
         leaveEvent.construct(&input);
@@ -1075,7 +1063,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 {
     ItpEvent *eventPtr = (ItpEvent *)events;
 
-    ItpPoint point;
+    TpPoint point;
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
 
     bool ret = false;
@@ -1128,7 +1116,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         return true;
     }
 
-    set->tmp.curObject = this->find(&point);
+    set->tmp.curObject = this->find(point);
 
     switch (eventPtr->type)
     {
@@ -1157,7 +1145,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                 // 但是如果鼠标上一针坐标已经在当前对象了，就不需要重复触发
                 if (set->tmp.lstmotion)
                 {
-                    ItpRect curMotionRect = set->tmp.curmotion->toScreen();
+                    TpRect curMotionRect = set->tmp.curmotion->toScreen();
                     if (!curMotionRect.contains(set->tmp.lastPoint))
                     {
                         IssueObjEvent(set->tmp.curmotion, leaveEvent, onLeaveEvent, set->tmp.curmotion->enabled());
@@ -1172,7 +1160,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                 TpChildWidget *curParent = dynamic_cast<TpChildWidget *>(set->tmp.curmotion->parent());
                 while (curParent)
                 {
-                    ItpRect curParentRect = curParent->toScreen();
+                    TpRect curParentRect = curParent->toScreen();
 
                     /*  如果上一个对象为空，说明是程序刚启动，第一次进入，直接触发所有的leaveIn即可
                         如果不为空，则需要判断，如果上一个鼠标坐标不在该窗口，当前坐标在该窗口则触发leaveIn，否则不触发*/
@@ -1202,7 +1190,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                 TpChildWidget *curParent = set->tmp.lstmotion;
                 while (curParent)
                 {
-                    ItpRect curParentRect = curParent->toScreen();
+                    TpRect curParentRect = curParent->toScreen();
 
                     /*  如果当前鼠标也离开了上一个对象的父对象，则也触发上一个对象的父对象的leaveOut事件 */
                     if (!curParentRect.contains(point))
@@ -1236,7 +1224,7 @@ int32_t TpScreen::dispatchEvent(void *events)
             return false;
         }
 
-        this->find(&point);
+        this->find(point);
 
         std::list<TpObject *> keyList;
         set->tmp.curfocus = set->tmp.curObject;

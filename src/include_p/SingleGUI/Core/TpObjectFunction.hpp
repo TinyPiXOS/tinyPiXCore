@@ -6,9 +6,9 @@
 #include "TpCanvas.h"
 #include "thorVG/thorvg.h"
 
-static inline ItpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
+static inline TpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
 {
-    ItpPoint point(x, y);
+    TpPoint point(x, y);
 
     ItpObjectSet *set = static_cast<ItpObjectSet *>(object->objectSets());
     if (!set)
@@ -18,9 +18,9 @@ static inline ItpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
     if (!parentWidget)
         return point;
 
-    ItpRect rect = parentWidget->toScreen();
-    point.x += rect.x;
-    point.y += rect.y;
+    TpRect rect = parentWidget->toScreen();
+    point.setX(point.x() + rect.x());
+    point.setY(point.y() + rect.y());
 
     return point;
 }
@@ -40,15 +40,15 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear t
         if (parent)
         {
             ItpObjectSet *parent_set = (ItpObjectSet *)parent->objectSets();
-            set->absoluteRect.x = set->logicalRect.x + parent_set->absoluteRect.x;
-            set->absoluteRect.y = set->logicalRect.y + parent_set->absoluteRect.y;
+            set->absoluteRect.setX(set->logicalRect.x() + parent_set->absoluteRect.x());
+            set->absoluteRect.setY(set->logicalRect.y() + parent_set->absoluteRect.y());
         }
 
         TpChildWidget *parentWidget = static_cast<TpChildWidget *>(set->top);
         if (parentWidget)
         {
-            set->offsetX = parentWidget->toScreen().x;
-            set->offsetY = parentWidget->toScreen().y;
+            set->offsetX = parentWidget->toScreen().x();
+            set->offsetY = parentWidget->toScreen().y();
 
             if (set->objectList.size())
             {
@@ -139,9 +139,9 @@ static inline TpObject *findObject(ItpObjectSet *set, int32_t id)
     return object;
 }
 
-static inline ItpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
+static inline TpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
 {
-    ItpPoint point = {x, y};
+    TpPoint point = {x, y};
 
     ItpObjectSet *set = static_cast<ItpObjectSet *>(object->objectSets());
     if (!set)
@@ -151,9 +151,9 @@ static inline ItpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
     if (!parentWidget)
         return point;
 
-    ItpRect rect = parentWidget->toScreen();
-    point.x -= rect.x;
-    point.y -= rect.y;
+    TpRect rect = parentWidget->toScreen();
+    point.setX(point.x() - rect.x());
+    point.setY(point.y() - rect.y());
 
     return point;
 }
@@ -182,7 +182,7 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
         bool ret = false;
 
         TpRect absRect(child_set->absoluteRect);
-        ret = absRect.in(x, y);
+        ret = absRect.contains(x, y);
 
         if (ret)
         {
@@ -235,15 +235,13 @@ static inline void childPaint(ItpObjectSet *set, TpObjectPaintEvent *events)
         if (!child)
             continue;
 
-        ItpRect updateIRect = events->updateRect();
-        TpRect updateRect(&updateIRect);
+        TpRect updateIRect = events->updateRect();
+        TpRect updateRect(updateIRect);
 
-        ItpRect childRect = child->toScreen();
+        TpRect childRect = child->toScreen();
 
-        if (!updateRect.intersect(&childRect))
-        {
+        if (!updateRect.intersect(childRect))
             continue;
-        }
 
         if (!child->visible())
             continue;

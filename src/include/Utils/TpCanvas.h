@@ -20,10 +20,10 @@ public:
     /// @brief 矩形信息
     struct RectHollow
     {
-        ItpRect region;
+        TpRect region;
         uint32_t round = 0;
 
-        RectHollow(const ItpRect &region, const uint32_t &round = 0)
+        RectHollow(const TpRect &region, const uint32_t &round = 0)
             : region(region), round(round)
         {
         }
@@ -63,7 +63,7 @@ public:
     /// @brief 多边形信息
     struct PolygonHollow
     {
-        TpVector<ItpPoint> posintList;
+        TpVector<TpPoint> posintList;
 
         PolygonHollow()
         {
@@ -77,7 +77,7 @@ public:
     /// @brief 添加矩形镂空
     /// @param region 矩形区域
     /// @param round 圆角值
-    void addRectHollow(const ItpRect &region, const uint32_t &round = 0);
+    void addRectHollow(const TpRect &region, const uint32_t &round = 0);
     /// @brief 添加矩形镂空
     /// @param data 矩形镂空参数
     void addRectHollow(const RectHollow &data);
@@ -150,11 +150,11 @@ public:
 public:
     /// @brief 设置裁剪矩形；只显示裁剪区域内容
     /// @param rect 裁剪矩形
-    virtual void setClipRect(const ItpRect &rect);
+    virtual void setClipRect(const TpRect &rect);
 
     /// @brief 获取裁剪区域
     /// @return 裁剪矩形
-    virtual ItpRect clipRect();
+    virtual TpRect clipRect();
 
 public:
     /// @brief 清理画布；清除所有绘制对象
@@ -308,12 +308,12 @@ public:
     /// @param pointList 所有顶点坐标；数量为1则画点，为2则画线
     /// @param color 颜色
     /// @param width 线宽
-    virtual void polygon(const TpVector<ItpPoint> &pointList, int32_t color, double width = 1.0);
+    virtual void polygon(const TpVector<TpPoint> &pointList, int32_t color, double width = 1.0);
     /// @brief 绘制填充多边形
     /// @param pointList 所有顶点坐标；数量为1则画点，为2则画线
     /// @param color 颜色
     /// @param HollowMask 镂空形状数据；以第一个点为零点坐标
-    virtual void filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color, const HollowMask &hollowMaskData = HollowMask());
+    virtual void filledPolygon(const TpVector<TpPoint> &pointList, int32_t color, const HollowMask &hollowMaskData = HollowMask());
 
     /// @brief 绘制三次贝塞尔曲线
     /// @param startX 起始点
@@ -334,7 +334,7 @@ public:
     /// @param endPoint 终止点
     /// @param color 颜色
     /// @param width 线宽
-    virtual void cubicTo(ItpPoint startPoint, ItpPoint cPoint, ItpPoint c2Point, ItpPoint endPoint, int32_t color, double width = 1.0);
+    virtual void cubicTo(TpPoint startPoint, TpPoint cPoint, TpPoint c2Point, TpPoint endPoint, int32_t color, double width = 1.0);
 
 public:
     /// @brief 绘制图片资源

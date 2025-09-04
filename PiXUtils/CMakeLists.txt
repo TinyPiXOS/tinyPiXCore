@@ -16,8 +16,11 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/Service/TpSystemApi.cpp
     ${SOURCE_PATH}/src/Utils/Service/TpAppConfigIO.cpp
     ${SOURCE_PATH}/src/Utils/TpRect.cpp
+    ${SOURCE_PATH}/src/Utils/TpRectF.cpp
     ${SOURCE_PATH}/src/Utils/TpPoint.cpp
+    ${SOURCE_PATH}/src/Utils/TpPointF.cpp
     ${SOURCE_PATH}/src/Utils/TpSize.cpp
+    ${SOURCE_PATH}/src/Utils/TpSizeF.cpp
     ${SOURCE_PATH}/src/Utils/TpSurface.cpp
     ${SOURCE_PATH}/src/Utils/TpFont.cpp
     ${SOURCE_PATH}/src/Utils/TpCanvas.cpp
@@ -60,6 +63,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/TpHardwareDevice.cpp
     ${SOURCE_PATH}/src/Utils/TpGraphicsEffect.cpp
     ${SOURCE_PATH}/src/Utils/TpGraphicsBlurEffect.cpp
+    ${SOURCE_PATH}/src/Utils/TpPainterPath.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp

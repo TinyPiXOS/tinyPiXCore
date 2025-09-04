@@ -10,7 +10,7 @@ struct TpMessageBoxData
     TpMessageBox::MessageType type = TpMessageBox::Information;
 
     TpVector<TpString> btnList;
-    TpVector<ItpRect> btnRect;
+    TpVector<TpRect> btnRect;
 
     TpFont *font = new TpFont();
     TpFont *btnFont = new TpFont();
@@ -247,11 +247,7 @@ bool TpMessageBox::onPaintEvent(TpObjectPaintEvent *event)
         paintCanvas->renderText(*messageData->btnFont, btnTextX, btnTextY);
 
         // 记录按钮rect
-        ItpRect btnRect;
-        btnRect.x = btnTextX;
-        btnRect.y = msgY + titleHeight;
-        btnRect.w = btnWidth;
-        btnRect.h = btnHeight;
+        TpRect btnRect(btnTextX, msgY + titleHeight, btnWidth, btnHeight);
 
         messageData->btnRect.emplace_back(btnRect);
 

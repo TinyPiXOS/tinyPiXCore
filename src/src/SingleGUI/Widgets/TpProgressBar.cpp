@@ -201,30 +201,9 @@ void TpProgressBar::setRightBottomLineColor(TpColors &color)
 	this->setRightBottomLineColor(color.rgba());
 }
 
-void TpProgressBar::setRect(TpRect &rect)
+void TpProgressBar::setRect(const TpRect &rect)
 {
-	this->setRect(rect.X0(), rect.Y0(), rect.width(), rect.height());
-}
-
-void TpProgressBar::setRect(TpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->X0(), rect->Y0(), rect->width(), rect->height());
-	}
-}
-
-void TpProgressBar::setRect(ItpRect &rect)
-{
-	this->setRect(rect.x, rect.y, rect.w, rect.h);
-}
-
-void TpProgressBar::setRect(ItpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->x, rect->y, rect->w, rect->h);
-	}
+	this->setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void TpProgressBar::setRect(int32_t x, int32_t y, uint32_t w, uint32_t h)
@@ -258,14 +237,14 @@ bool TpProgressBar::onPaintEvent(TpObjectPaintEvent *event)
 
 		if (ret)
 		{
-			ItpRect rect = event->rect();
+			TpRect rect = event->rect();
 			TpCanvas *canvas = event->canvas();
 
 			uint8_t alpha1 = mapAlpha((uint8_t)(set->topLeftColor & 0x000000ff), this->alpha());
 			uint8_t alpha2 = mapAlpha((uint8_t)(set->bottomRightColor & 0x000000ff), this->alpha());
 			uint8_t alpha3 = mapAlpha((uint8_t)(set->bkColor & 0x000000ff), this->alpha());
 
-			int32_t x0 = 0, y0 = 0, x1 = rect.w - 1, y1 = rect.h - 1;
+			int32_t x0 = 0, y0 = 0, x1 = rect.width() - 1, y1 = rect.height() - 1;
 
 			canvas->line(x0, y0, x0, y1, (set->topLeftColor & 0xffffff00) | alpha1);
 			canvas->line(x0, y0, x1, y0, (set->topLeftColor & 0xffffff00) | alpha1);
@@ -283,9 +262,9 @@ bool TpProgressBar::onPaintEvent(TpObjectPaintEvent *event)
 			TpString perString = TpString::number(percent);
 			perString += "%";
 			set->font->setText(perString.c_str());
-			ItpSize size = set->font->pixelSize();
+			TpSize size = set->font->pixelSize();
 
-			int32_t cx = (rect.w - size.w) / 2, cy = (rect.h - size.h) / 2;
+			int32_t cx = (rect.width() - size.width()) / 2.0, cy = (rect.height() - size.height()) / 2.0;
 			canvas->renderText(*set->font, cx, cy);
 		}
 	}

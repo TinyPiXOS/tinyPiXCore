@@ -36,126 +36,104 @@
 
 struct TpFixScreenData
 {
-	uint8_t alpha;
-	uint32_t color;
-	int32_t attr;
+    uint8_t alpha;
+    uint32_t color;
+    int32_t attr;
 
-	// std::shared_ptr<TpCssParser> TpCssParser_;
+    // std::shared_ptr<TpCssParser> TpCssParser_;
 
-	TpFixScreenData()
-		: alpha(0), color(0), attr(0)
-	{
-		// TpCssParser_ = std::make_shared<TpCssParser>(defaultCssStr());
-	}
+    TpFixScreenData()
+        : alpha(0), color(0), attr(0)
+    {
+        // TpCssParser_ = std::make_shared<TpCssParser>(defaultCssStr());
+    }
 };
 
 TpFixScreen::TpFixScreen(const char *type)
-	: TpScreen(type)
+    : TpScreen(type)
 {
-	TpFixScreenData *screenData = new TpFixScreenData();
-	data_ = screenData;
+    TpFixScreenData *screenData = new TpFixScreenData();
+    data_ = screenData;
 
-	// TpApp::Inst()->sendRegister(this);
+    // TpApp::Inst()->sendRegister(this);
 
-	if (this->objectType() != TP_TOP_OBJECT)
-	{
-		TpApp::Inst()->sendDelete(this);
-	}
+    if (this->objectType() != TP_TOP_OBJECT)
+    {
+        TpApp::Inst()->sendDelete(this);
+    }
 
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSets();
-	if (set)
-	{
-		uint32_t rW = 0, rH = 0;
-		tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
+    ItpObjectSet *set = (ItpObjectSet *)this->objectSets();
+    if (set)
+    {
+        uint32_t rW = 0, rH = 0;
+        tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 
-		set->absoluteRect.x = 0;
-		set->absoluteRect.y = 0;
-		set->absoluteRect.w = rW;
-		set->absoluteRect.h = rH;
+        set->absoluteRect.setRect(0, 0, rW, rH);
 
-		set->logicalRect.x = 0;
-		set->logicalRect.y = 0;
-		set->logicalRect.w = rW;
-		set->logicalRect.h = rH;
+        set->logicalRect.setRect(0, 0, rW, rH);
 
-		screenData->alpha = 0xff;
-		screenData->color = TpColors::Black;
-		screenData->attr = TpFixScreen::ITP_POP_STYLE;
+        screenData->alpha = 0xff;
+        screenData->color = TpColors::Black;
+        screenData->attr = TpFixScreen::ITP_POP_STYLE;
 
-		this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
-	}
+        this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
+    }
 
-	set->top = this->topObject();
+    set->top = this->topObject();
 }
 
 TpFixScreen::~TpFixScreen()
 {
-	TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
-	if (screenData)
-	{
-		delete screenData;
-		screenData = nullptr;
-		data_ = nullptr;
-	}
+    TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
+    if (screenData)
+    {
+        delete screenData;
+        screenData = nullptr;
+        data_ = nullptr;
+    }
 }
 
 ItpObjectType TpFixScreen::objectType()
 {
-	return TP_TOP_OBJECT;
+    return TP_TOP_OBJECT;
 }
 
 int32_t TpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr)
 {
-	TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
-	if (!screenData)
-		return false;
+    TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
+    if (!screenData)
+        return false;
 
-	switch (screenAttr)
-	{
-	case TpFixScreen::ITP_FULL_STYLE:
-	case TpFixScreen::ITP_POP_STYLE:
-	{
-	}
-	break;
-	default:
-		return false;
-	}
+    switch (screenAttr)
+    {
+    case TpFixScreen::ITP_FULL_STYLE:
+    case TpFixScreen::ITP_POP_STYLE:
+    {
+    }
+    break;
+    default:
+        return false;
+    }
 
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSets();
+    ItpObjectSet *set = (ItpObjectSet *)this->objectSets();
 
-	if (set)
-	{
-		screenData->alpha = alpha;
-		screenData->color = color;
-		screenData->attr = screenAttr;
+    if (set)
+    {
+        screenData->alpha = alpha;
+        screenData->color = color;
+        screenData->attr = screenAttr;
 
-		return tinyPiX_wf_send_app_state(set->agent, TP_INVALIDATE_VALUE, this->visible(), this->objectActive(), color, alpha, screenAttr);
-	}
+        return tinyPiX_wf_send_app_state(set->agent, TP_INVALIDATE_VALUE, this->visible(), this->objectActive(), color, alpha, screenAttr);
+    }
 
-	return false;
+    return false;
 }
 
-void TpFixScreen::setRect(TpRect &rect)
-{
-}
-
-void TpFixScreen::setRect(TpRect *rect)
-{
-}
-
-void TpFixScreen::setRect(ItpRect &rect)
-{
-}
-
-void TpFixScreen::setRect(ItpRect *rect)
+void TpFixScreen::setRect(const TpRect &rect)
 {
 }
 
 void TpFixScreen::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
-{
-}
-
-void TpFixScreen::setPosition(int32_t x, int32_t y)
 {
 }
 
@@ -165,7 +143,7 @@ void TpFixScreen::setBeMoved(bool moved)
 
 bool TpFixScreen::moved()
 {
-	return false;
+    return false;
 }
 
 void TpFixScreen::setAlpha(const uint8_t &alpha)
@@ -174,14 +152,14 @@ void TpFixScreen::setAlpha(const uint8_t &alpha)
 
 uint8_t TpFixScreen::alpha()
 {
-	return 0xff;
+    return 0xff;
 }
 
 bool TpFixScreen::onActiveEvent(TpObjectActiveEvent *event)
 {
-	TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
-	if (!screenData)
-		return false;
+    TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
+    if (!screenData)
+        return false;
 
-	return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
+    return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
 }

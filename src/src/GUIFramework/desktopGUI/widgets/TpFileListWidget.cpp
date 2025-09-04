@@ -32,7 +32,7 @@ struct ListItemData
 // 当前绘制的item信息
 struct ItemRectInfo
 {
-    ItpRect itemRect;
+    TpRect itemRect;
     ListItemData itemData;
 };
 
@@ -343,7 +343,7 @@ bool TpFileListWidget::onResizeEvent(TpObjectResizeEvent *event)
         return true;
 
     // 计算窗口内一次最多能显示多少条数据
-    widgetData->maxShowCount = (rect().h - widgetData->titleHeight) / (widgetData->itemHeight + RowMargin);
+    widgetData->maxShowCount = (rect().height() - widgetData->titleHeight) / (widgetData->itemHeight + RowMargin);
 
     return true;
 }
@@ -562,7 +562,7 @@ bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
         return true;
 
     // 绘制标题栏
-    paintCanvas->box(LeftRightMargin, 0, rect().w - LeftRightMargin, widgetData->titleHeight, widgetData->headerBgColor);
+    paintCanvas->box(LeftRightMargin, 0, rect().width() - LeftRightMargin, widgetData->titleHeight, widgetData->headerBgColor);
 
     // 绘制标题文本
     if (widgetData->headerList.size() > 0)
@@ -578,7 +578,7 @@ bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
                 break;
 
             // 当前列占比宽度
-            uint32_t curColumnWidth = 1.0 * widgetData->columnStrech.at(i) / columnStrechTotal * (rect().w - ItemContenMargin * 2);
+            uint32_t curColumnWidth = 1.0 * widgetData->columnStrech.at(i) / columnStrechTotal * (rect().width() - ItemContenMargin * 2);
 
             auto headText = widgetData->headerList.at(i);
             widgetData->titleFont->setText(headText);
@@ -605,25 +605,22 @@ bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
         // 如果鼠标悬停绘制悬停色
         if (widgetData->hoverItem == curItemData.data)
         {
-            paintCanvas->box(LeftRightMargin, curItemStartY, rect().w - LeftRightMargin, curItemStartY + widgetData->itemHeight, widgetData->itemHoverColor);
+            paintCanvas->box(LeftRightMargin, curItemStartY, rect().width() - LeftRightMargin, curItemStartY + widgetData->itemHeight, widgetData->itemHoverColor);
         }
         else
         {
             // 鼠标没有悬停的，如果选中绘制选中色，否则绘制默认背景色
             auto selectFind = std::find(widgetData->selectItemList.begin(), widgetData->selectItemList.end(), curItemData.data);
             if (selectFind == widgetData->selectItemList.end())
-                paintCanvas->box(LeftRightMargin, curItemStartY, rect().w - LeftRightMargin, curItemStartY + widgetData->itemHeight, widgetData->itemBgColor);
+                paintCanvas->box(LeftRightMargin, curItemStartY, rect().width() - LeftRightMargin, curItemStartY + widgetData->itemHeight, widgetData->itemBgColor);
             else
-                paintCanvas->box(LeftRightMargin, curItemStartY, rect().w - LeftRightMargin, curItemStartY + widgetData->itemHeight, widgetData->itemPressColor);
+                paintCanvas->box(LeftRightMargin, curItemStartY, rect().width() - LeftRightMargin, curItemStartY + widgetData->itemHeight, widgetData->itemPressColor);
         }
 
         // 记录当前item的rect数据和item数据
         // !!这个地方因为box使用的是两个xy坐标，rect使用的一个坐标+宽高，所以赋值不太一样
         ItemRectInfo itemRectInfo;
-        itemRectInfo.itemRect.x = LeftRightMargin;
-        itemRectInfo.itemRect.y = curItemStartY;
-        itemRectInfo.itemRect.w = rect().w - LeftRightMargin * 2;
-        itemRectInfo.itemRect.h = widgetData->itemHeight;
+        itemRectInfo.itemRect.setRect(LeftRightMargin, curItemStartY, rect().width() - LeftRightMargin * 2, widgetData->itemHeight);
 
         itemRectInfo.itemData = curItemData;
         widgetData->curShowItemList.emplace_back(itemRectInfo);
@@ -640,7 +637,7 @@ bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
             TpString curColumnText = curItemData.dataStrList.at(j);
             widgetData->itemFont->setText(curColumnText);
 
-            uint32_t curColumnWidth = 1.0 * widgetData->columnStrech.at(j) / columnStrechTotal * (rect().w - ItemContenMargin * 2);
+            uint32_t curColumnWidth = 1.0 * widgetData->columnStrech.at(j) / columnStrechTotal * (rect().width() - ItemContenMargin * 2);
 
             uint32_t curStartX = LeftRightMargin + ItemContenMargin + forwardWidth;
 
@@ -648,9 +645,9 @@ bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
             if (curItemData.iconMap.contains(j))
             {
                 auto drawSurface = curItemData.iconMap[j].scaled(widgetData->itemHeight * 0.6, widgetData->itemHeight * 0.6);
-               
+
                 uint32_t iconY = curItemStartY + (widgetData->itemHeight - drawSurface.height()) / 2.0;
-                
+
                 paintCanvas->paintImage(curStartX, iconY, drawSurface);
 
                 curStartX += drawSurface.width() + 10;
@@ -672,7 +669,7 @@ bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-TpVariant TpFileListWidget::queryPointIndex(const ItpPoint &point)
+TpVariant TpFileListWidget::queryPointIndex(const TpPoint &point)
 {
     FileListWidgetData *widgetData = static_cast<FileListWidgetData *>(privData);
     if (!widgetData)
@@ -690,7 +687,7 @@ TpVariant TpFileListWidget::queryPointIndex(const ItpPoint &point)
         {
             return itemInfo.itemData.data;
         }
-        else if (point.y < itemInfo.itemRect.y)
+        else if (point.y() < itemInfo.itemRect.y())
         {
             right = mid - 1;
         }

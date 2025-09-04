@@ -89,8 +89,8 @@ void TpLink::setAutoFit(bool enable)
 		set->enableFit = enable;
 		if (enable)
 		{
-			ItpSize size = set->font->pixelSize();
-			this->setRect(this->rect().x, this->rect().y, size.w, size.h);
+			TpSize size = set->font->pixelSize();
+			this->setRect(this->rect().x(), this->rect().y(), size.width(), size.height());
 		}
 	}
 }
@@ -156,8 +156,8 @@ void TpLink::setText(const char *text)
 		set->font->setText(text);
 		if (set->enableFit)
 		{
-			ItpSize size = set->font->pixelSize();
-			this->setRect(this->rect().x, this->rect().y, size.w, size.h);
+			TpSize size = set->font->pixelSize();
+			this->setRect(this->rect().x(), this->rect().y(), size.width(), size.height());
 		}
 	}
 }
@@ -180,30 +180,9 @@ TpFont *TpLink::font()
 	return font;
 }
 
-void TpLink::setRect(TpRect &rect)
+void TpLink::setRect(const TpRect &rect)
 {
-	this->setRect(rect.X0(), rect.Y0(), rect.width(), rect.height());
-}
-
-void TpLink::setRect(TpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->X0(), rect->Y0(), rect->width(), rect->height());
-	}
-}
-
-void TpLink::setRect(ItpRect &rect)
-{
-	this->setRect(rect.x, rect.y, rect.w, rect.h);
-}
-
-void TpLink::setRect(ItpRect *rect)
-{
-	if (rect)
-	{
-		this->setRect(rect->x, rect->y, rect->w, rect->h);
-	}
+	this->setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void TpLink::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
@@ -214,8 +193,8 @@ void TpLink::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 	{
 		if (set->enableFit)
 		{
-			ItpSize size = set->font->pixelSize();
-			TpChildWidget::setRect(x, y, size.w, size.h);
+			TpSize size = set->font->pixelSize();
+			TpChildWidget::setRect(x, y, size.width(), size.height());
 			return;
 		}
 
@@ -308,8 +287,8 @@ bool TpLink::onPaintEvent(TpObjectPaintEvent *event)
 		if (set)
 		{
 			TpCanvas *canvas = event->canvas();
-			ItpSize size = set->font->pixelSize();
-			int32_t cx = 0, cy = (int32_t)(event->rect().h - size.h) / 2;
+			TpSize size = set->font->pixelSize();
+			int32_t cx = 0, cy = (int32_t)(event->rect().height() - size.height()) / 2.0;
 			canvas->renderText(*set->font, cx, cy);
 		}
 	}

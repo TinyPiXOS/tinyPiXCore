@@ -10315,7 +10315,7 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_recover(sqlite3 *db, const c
 SQLITE_API unsigned char *sqlite3_serialize(
   sqlite3 *db,           /* The database connection */
   const char *zSchema,   /* Which DB to serialize. ex: "main", "temp", ... */
-  sqlite3_int64 *ItpSize, /* Write size of the DB here, if not NULL */
+  sqlite3_int64 *TpSize, /* Write size of the DB here, if not NULL */
   unsigned int mFlags    /* Zero or more SQLITE_SERIALIZE_* flags */
 );
 

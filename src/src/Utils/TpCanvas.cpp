@@ -80,11 +80,12 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *set)
         if (!linearGrad)
             return nullptr;
 
-        ItpPointF startPoint = linearGrad->start();
-        ItpPointF stopPoint = linearGrad->finalStop();
+        TpPointF startPoint = linearGrad->start();
+        TpPointF stopPoint = linearGrad->finalStop();
 
         tvg::LinearGradient *linearGradient = tvg::LinearGradient::gen();
-        linearGradient->linear(set->offsetX + startPoint.x, set->offsetY + startPoint.y, set->offsetX + stopPoint.x, set->offsetY + stopPoint.y);
+        linearGradient->linear(set->offsetX + startPoint.x(), set->offsetY + startPoint.y(),
+                               set->offsetX + stopPoint.x(), set->offsetY + stopPoint.y());
 
         resGradientPtr = linearGradient;
     }
@@ -95,16 +96,16 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *set)
         if (!radialGrad)
             return nullptr;
 
-        ItpPointF centerPoint = radialGrad->center();
+        TpPointF centerPoint = radialGrad->center();
         float centerRadius = radialGrad->centerRadius();
 
-        ItpPointF focalPoint = radialGrad->focalPoint();
+        TpPointF focalPoint = radialGrad->focalPoint();
         float focalRadius = radialGrad->focalRadius();
 
         tvg::RadialGradient *radialGradient = tvg::RadialGradient::gen();
         // 设置中心点和半径
-        radialGradient->radial(set->offsetX + centerPoint.x, set->offsetY + centerPoint.y, centerRadius,
-                               set->offsetX + focalPoint.x, set->offsetY + focalPoint.y, focalRadius);
+        radialGradient->radial(set->offsetX + centerPoint.x(), set->offsetY + centerPoint.y(), centerRadius,
+                               set->offsetX + focalPoint.x(), set->offsetY + focalPoint.y(), focalRadius);
 
         resGradientPtr = radialGradient;
     }
@@ -254,7 +255,7 @@ tpShared<TpSurface> TpCanvas::surface()
     return nullptr;
 }
 
-void TpCanvas::setClipRect(const ItpRect &rect)
+void TpCanvas::setClipRect(const TpRect &rect)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -264,7 +265,7 @@ void TpCanvas::setClipRect(const ItpRect &rect)
     }
 }
 
-ItpRect TpCanvas::clipRect()
+TpRect TpCanvas::clipRect()
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
     return set->TpSurfacePtr->clipRect();
@@ -288,11 +289,11 @@ void TpCanvas::erase()
             return;
 
         // 获取裁剪矩形（类似 SDL_GetClipRect）
-        ItpRect clipRect = set->TpSurfacePtr->clipRect();
+        TpRect clipRect = set->TpSurfacePtr->clipRect();
 
         // 设置视口到裁剪区域
         // <cite> inc / thorvg.h : 846 - 871 < / cite >
-        set->swCanvas->viewport(clipRect.x, clipRect.y, clipRect.w, clipRect.h);
+        set->swCanvas->viewport(clipRect.x(), clipRect.y(), clipRect.width(), clipRect.height());
 
         // 清除该区域（相当于 CAIRO_OPERATOR_CLEAR）
         // <cite> inc / thorvg.h : 825 - 843 < / cite >
@@ -566,7 +567,8 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
     for (const auto &hollowData : rectHollow)
     {
         // 创建裁剪形状
-        clipper->appendRect(hollowData.region.x + x, hollowData.region.y + y, hollowData.region.w, hollowData.region.h, hollowData.round, hollowData.round);
+        clipper->appendRect(hollowData.region.x() + x, hollowData.region.y() + y,
+                            hollowData.region.width(), hollowData.region.height(), hollowData.round, hollowData.round);
     }
 
     // 圆形镂空
@@ -623,22 +625,22 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
 
         for (int i = 0; i < hollowPolygon.posintList.size(); ++i)
         {
-            ItpPoint polygonPoint = hollowPolygon.posintList.at(i);
+            TpPoint polygonPoint = hollowPolygon.posintList.at(i);
 
             if (i == 0)
             {
                 // 移动到起始点
-                clipper->moveTo(polygonPoint.x, polygonPoint.y);
+                clipper->moveTo(polygonPoint.x(), polygonPoint.y());
             }
             else if (i == (hollowPolygon.posintList.size() - 1))
             {
                 // 闭合多边形
-                clipper->lineTo(polygonPoint.x, polygonPoint.y);
+                clipper->lineTo(polygonPoint.x(), polygonPoint.y());
                 clipper->close();
             }
             else
             {
-                clipper->lineTo(polygonPoint.x, polygonPoint.y);
+                clipper->lineTo(polygonPoint.x(), polygonPoint.y());
             }
         }
     }
@@ -988,7 +990,7 @@ void TpCanvas::filledPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32
     }
 }
 
-static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &pointList, int32_t color, double width, bool isFill, const HollowMask &hollowMaskData = HollowMask())
+static inline void drawPolygon(TpCanvasData *set, const TpVector<TpPoint> &pointList, int32_t color, double width, bool isFill, const HollowMask &hollowMaskData = HollowMask())
 {
     if (pointList.size() == 0)
         return;
@@ -999,14 +1001,14 @@ static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &poin
     // 只有一个点，绘制一个像素点
     if (pointList.size() == 1)
     {
-        drawPixel(set, pointList.front().x + set->offsetX, pointList.front().y + set->offsetY, color);
+        drawPixel(set, pointList.front().x() + set->offsetX, pointList.front().y() + set->offsetY, color);
     }
     else if (pointList.size() == 2)
     {
         // 两个点，绘制线
         const auto &firstPoint = pointList[0];
         const auto &secondPoint = pointList[1];
-        drawLine(set, firstPoint.x + set->offsetX, firstPoint.y + set->offsetY, secondPoint.x + set->offsetX, secondPoint.y + set->offsetY, color, width);
+        drawLine(set, firstPoint.x() + set->offsetX, firstPoint.y() + set->offsetY, secondPoint.x() + set->offsetX, secondPoint.y() + set->offsetY, color, width);
     }
     else
     {
@@ -1016,12 +1018,12 @@ static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &poin
         auto polygon = tvg::Shape::gen();
 
         // 移动到第一个顶点
-        polygon->moveTo(pointList.front().x + set->offsetX, pointList.front().y + set->offsetY);
+        polygon->moveTo(pointList.front().x() + set->offsetX, pointList.front().y() + set->offsetY);
 
         for (int i = 1; i < pointList.size(); ++i)
         {
             const auto &curPoint = pointList[i];
-            polygon->lineTo(curPoint.x + set->offsetX, curPoint.y + set->offsetY);
+            polygon->lineTo(curPoint.x() + set->offsetX, curPoint.y() + set->offsetY);
         }
         // 闭合路径回到起点
         polygon->close();
@@ -1035,7 +1037,7 @@ static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &poin
             else
                 polygon->fill(_R(color), _G(color), _B(color), _A(color));
 
-            applyHollowMask(polygon, pointList.front().x + set->offsetX, pointList.front().y + set->offsetY, hollowMaskData);
+            applyHollowMask(polygon, pointList.front().x() + set->offsetX, pointList.front().y() + set->offsetY, hollowMaskData);
         }
         else
         {
@@ -1054,7 +1056,7 @@ static inline void drawPolygon(TpCanvasData *set, const TpVector<ItpPoint> &poin
     }
 }
 
-void TpCanvas::polygon(const TpVector<ItpPoint> &pointList, int32_t color, double width)
+void TpCanvas::polygon(const TpVector<TpPoint> &pointList, int32_t color, double width)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -1064,7 +1066,7 @@ void TpCanvas::polygon(const TpVector<ItpPoint> &pointList, int32_t color, doubl
     }
 }
 
-void TpCanvas::filledPolygon(const TpVector<ItpPoint> &pointList, int32_t color, const HollowMask &hollowMaskData)
+void TpCanvas::filledPolygon(const TpVector<TpPoint> &pointList, int32_t color, const HollowMask &hollowMaskData)
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
@@ -1104,9 +1106,9 @@ void TpCanvas::cubicTo(int32_t startX, int32_t startY, int32_t cx1, int32_t cy1,
     set->tvgScene->push(std::move(shape));
 }
 
-void TpCanvas::cubicTo(ItpPoint startPoint, ItpPoint cPoint, ItpPoint c2Point, ItpPoint endPoint, int32_t color, double width)
+void TpCanvas::cubicTo(TpPoint startPoint, TpPoint cPoint, TpPoint c2Point, TpPoint endPoint, int32_t color, double width)
 {
-    cubicTo(startPoint.x, startPoint.y, cPoint.x, cPoint.y, c2Point.x, c2Point.y, endPoint.x, endPoint.y, color, width);
+    cubicTo(startPoint.x(), startPoint.y(), cPoint.x(), cPoint.y(), c2Point.x(), c2Point.y(), endPoint.x(), endPoint.y(), color, width);
 }
 
 void TpCanvas::paintImage(const int32_t &x, const int32_t &y, const TpImage &image, int32_t roundRad)
@@ -1190,9 +1192,9 @@ void TpCanvas::renderText(TpFont &font, int32_t x, int32_t y, const TpString &te
 
     uint32_t *textBuffer = font.renderText(text.c_str());
 
-    ItpSize pixelSize = font.pixelSize();
+    TpSize pixelSize = font.pixelSize();
     tvg::Picture *picture = tvg::Picture::gen();
-    picture->load(textBuffer, pixelSize.w, pixelSize.h, tvg::ColorSpace::ARGB8888, true);
+    picture->load(textBuffer, pixelSize.width(), pixelSize.height(), tvg::ColorSpace::ARGB8888, true);
     picture->translate(x, y);
 
     refreshCanvasTarget(set);
@@ -1240,7 +1242,7 @@ void TpCanvas::sync()
     // }
 
     // 使用viewport限制清除区域
-    // ItpRect clipRect = set->TpSurfacePtr->clipRect();
+    // TpRect clipRect = set->TpSurfacePtr->clipRect();
 
     // std::cout << "clipRect 区域： " << clipRect.x << " , " << clipRect.y << " , "
     //           << clipRect.w << " , " << clipRect.h << std::endl;
@@ -1249,8 +1251,8 @@ void TpCanvas::sync()
     // tvg::Result viewportRes = set->swCanvas->viewport(clipRect.x, clipRect.y, clipRect.w, clipRect.h); // 只影响小区域
     // std::cout << "viewportRes 设置结果： " << (int32_t)viewportRes <<std::endl;
 
-    // 清除所有现有效果  
-    // set->tvgScene->push(tvg::SceneEffect::ClearAll);  
+    // 清除所有现有效果
+    // set->tvgScene->push(tvg::SceneEffect::ClearAll);
     // set->tvgScene->push(tvg::SceneEffect::GaussianBlur, 5.0, 0, 0, 50);
 
     set->swCanvas->draw();
@@ -1271,7 +1273,7 @@ HollowMask::~HollowMask()
 {
 }
 
-void HollowMask::addRectHollow(const ItpRect &region, const uint32_t &round)
+void HollowMask::addRectHollow(const TpRect &region, const uint32_t &round)
 {
     addRectHollow(HollowMask::RectHollow(region, round));
 }

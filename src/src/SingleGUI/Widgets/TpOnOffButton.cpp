@@ -86,22 +86,22 @@ void TpOnOffButton::setOnOff(bool onOff)
 		{
 			if (btnData->onOff)
 			{
-				swtichAnimation->setEndValue(ItpPoint(width() - btnData->onOffRectLabel->width() - RectMargin, RectMargin));
+				swtichAnimation->setEndValue(TpPoint(width() - btnData->onOffRectLabel->width() - RectMargin, RectMargin));
 			}
 			else
 			{
-				swtichAnimation->setEndValue(ItpPoint(RectMargin, RectMargin));
+				swtichAnimation->setEndValue(TpPoint(RectMargin, RectMargin));
 			}
 		}
 		else
 		{
 			if (btnData->onOff)
 			{
-				swtichAnimation->setEndValue(ItpPoint(RectMargin, height() - btnData->onOffRectLabel->height() - RectMargin));
+				swtichAnimation->setEndValue(TpPoint(RectMargin, height() - btnData->onOffRectLabel->height() - RectMargin));
 			}
 			else
 			{
-				swtichAnimation->setEndValue(ItpPoint(RectMargin, RectMargin));
+				swtichAnimation->setEndValue(TpPoint(RectMargin, RectMargin));
 			}
 		}
 

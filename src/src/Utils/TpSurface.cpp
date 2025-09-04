@@ -130,14 +130,14 @@ bool TpSurface::create(IPiDSSurface *surface)
 
     tinyPiX_surface_get_cliprect(surface, &x, &y, &w, &h);
 
-    ItpRect clipRect(x, y, w, h);
+    TpRect clipRect(TpPoint(x, y), TpSize(w, h));
 
     return this->create(matrix, width, height, depth, pitch, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, clipRect);
 }
 
 bool TpSurface::create(void *address, int32_t width, int32_t height, int32_t format, int32_t stride,
                        int32_t rmask, int32_t gmask, int32_t bmask, int32_t amask,
-                       uint8_t alpha, bool enableColroKey, uint32_t colorKey, const ItpRect &clip)
+                       uint8_t alpha, bool enableColroKey, uint32_t colorKey, const TpRect &clip)
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     if (!set)
@@ -160,9 +160,9 @@ bool TpSurface::create(void *address, int32_t width, int32_t height, int32_t for
     tinyPiX_surface_set_colorkey_enable(tmpSurface2, enableColroKey);
     tinyPiX_surface_set_colorkey(tmpSurface2, colorKey);
 
-    if (clip.w > 0 && clip.h > 0)
+    if (clip.width() > 0 && clip.height() > 0)
     {
-        tinyPiX_surface_set_cliprect(tmpSurface2, clip.x, clip.y, clip.w, clip.h);
+        tinyPiX_surface_set_cliprect(tmpSurface2, clip.x(), clip.y(), clip.width(), clip.height());
     }
 
     if (set->beUsed)
@@ -200,7 +200,7 @@ bool TpSurface::create(tpShared<TpSurface> surface, bool bShareMemoried)
 
     bool enable = true;
 
-    ItpRect TpR = surface->clipRect();
+    TpRect TpR = surface->clipRect();
 
     return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, TpR);
 }
@@ -331,7 +331,7 @@ int32_t TpSurface::amask()
     return tinyPiX_surface_get_amask(set->pixWFSurface);
 }
 
-void TpSurface::setClipRect(const ItpRect &rect)
+void TpSurface::setClipRect(const TpRect &rect)
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     if (!set)
@@ -340,20 +340,20 @@ void TpSurface::setClipRect(const ItpRect &rect)
     if (!set->beUsed)
         return;
 
-    if (rect.w == 0 || rect.h == 0)
+    if (rect.width() == 0 || rect.height() == 0)
         return;
 
-    tinyPiX_surface_set_cliprect(set->pixWFSurface, rect.x, rect.y, rect.w, rect.h);
+    tinyPiX_surface_set_cliprect(set->pixWFSurface, rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-ItpRect TpSurface::clipRect()
+TpRect TpSurface::clipRect()
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     if (!set)
-        return ItpRect();
+        return TpRect();
 
     if (!set->beUsed)
-        return ItpRect();
+        return TpRect();
 
     int32_t x = 0;
     int32_t y = 0;
@@ -361,7 +361,7 @@ ItpRect TpSurface::clipRect()
     uint32_t height = 0;
     tinyPiX_surface_get_cliprect(set->pixWFSurface, &x, &y, &width, &height);
 
-    return ItpRect(x, y, width, height);
+    return TpRect(TpPoint(x, y), TpSize(width, height));
 }
 
 // void TpSurface::clear()
@@ -376,8 +376,8 @@ ItpRect TpSurface::clipRect()
 
 //     if (rect)
 //     {
-//         fillRect.x = rect->X0();
-//         fillRect.y = rect->Y0();
+//         fillRect.x = rect->x();
+//         fillRect.y = rect->y();
 //         fillRect.w = rect->width();
 //         fillRect.h = rect->height();
 
@@ -407,7 +407,7 @@ bool TpSurface::hasSurface()
 
 tpShared<TpSurface> TpSurface::copy(TpRect &rect)
 {
-    return this->copy(rect.X0(), rect.Y0(), rect.width(), rect.height());
+    return this->copy(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 tpShared<TpSurface> TpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
@@ -446,13 +446,13 @@ tpShared<TpSurface> TpSurface::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     if (ret == false)
         return nullptr;
 
-    // newSurf->setClipRect(ItpRect(x, y, w, h));
+    // newSurf->setClipRect(TpRect(x, y, w, h));
     return newSurf;
 }
 
 bool thorvgBlitSurfaceWithAlpha(uint32_t *srcData, int srcW, int srcH,
-                                const ItpRect &srcRect, uint32_t *dstData,
-                                int dstW, int dstH, const ItpRect &dstRect,
+                                const TpRect &srcRect, uint32_t *dstData,
+                                int dstW, int dstH, const TpRect &dstRect,
                                 uint8_t alpha = 255,
                                 tvg::BlendMethod blendMode = tvg::BlendMethod::Overlay)
 {
@@ -492,10 +492,10 @@ bool thorvgBlitSurfaceWithAlpha(uint32_t *srcData, int srcW, int srcH,
     //     picture->clip(clipper);
     // }
 
-    if (dstRect.w > 0 && dstRect.h > 0)
+    if (dstRect.width() > 0 && dstRect.height() > 0)
     {
-        picture->size(dstRect.w, dstRect.h);
-        picture->translate(dstRect.x, dstRect.y);
+        picture->size(dstRect.width(), dstRect.height());
+        picture->translate(dstRect.x(), dstRect.y());
         // picture->translate(0, 0);
     }
 
@@ -508,7 +508,7 @@ bool thorvgBlitSurfaceWithAlpha(uint32_t *srcData, int srcW, int srcH,
     return true;
 }
 
-void TpSurface::directBlitF(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst)
+void TpSurface::directBlitF(tpShared<TpSurface> surface, const TpRect &src, const TpRect &dst)
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
     if (set && set->beUsed)
@@ -519,7 +519,7 @@ void TpSurface::directBlitF(tpShared<TpSurface> surface, const ItpRect &src, con
     }
 }
 
-void TpSurface::directBlitT(tpShared<TpSurface> surface, const ItpRect &src, const ItpRect &dst)
+void TpSurface::directBlitT(tpShared<TpSurface> surface, const TpRect &src, const TpRect &dst)
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
@@ -531,7 +531,7 @@ void TpSurface::directBlitT(tpShared<TpSurface> surface, const ItpRect &src, con
     }
 }
 
-void TpSurface::strenchBlitF(TpSurface &surface, const ItpRect &src, const ItpRect &dst)
+void TpSurface::strenchBlitF(TpSurface &surface, const TpRect &src, const TpRect &dst)
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 
@@ -541,7 +541,7 @@ void TpSurface::strenchBlitF(TpSurface &surface, const ItpRect &src, const ItpRe
     }
 }
 
-void TpSurface::strenchBlitT(TpSurface &surface, const ItpRect &src, const ItpRect &dst)
+void TpSurface::strenchBlitT(TpSurface &surface, const TpRect &src, const TpRect &dst)
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
 

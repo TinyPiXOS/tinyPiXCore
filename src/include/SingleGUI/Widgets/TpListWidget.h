@@ -45,7 +45,7 @@ public:
     int currentRow() const;
     void setCurrentRow(int row);
 
-    TpListWidgetItem *itemAt(const ItpPoint &p);
+    TpListWidgetItem *itemAt(const TpPoint &p);
     TpListWidgetItem *itemAt(int x, int y);
 
     void sortItems(tinyPiX::SortOrder order = tinyPiX::AscendingOrder);
@@ -69,8 +69,8 @@ public:
 
     void clear();
 
-    ItpSize sizeHint() const;
-    void setSizeHint(const ItpSize &size);
+    TpSize sizeHint() const;
+    void setSizeHint(const TpSize &size);
 
     void setSelectionModel(tinyPiX::ItemSelectionMode selectMode);
 

@@ -99,9 +99,9 @@ signals:
     declare_signal(itemContext, TpVariant);
 
     /// @brief 窗口右键事件
-    /// @param ItpPoint 窗口内部坐标
-    /// @param ItpPoint 全局坐标
-    declare_signal(widgetContext, ItpPoint, ItpPoint);
+    /// @param TpPoint 窗口内部坐标
+    /// @param TpPoint 全局坐标
+    declare_signal(widgetContext, TpPoint, TpPoint);
 
     /// @brief item切换
     /// @param TpVariant 上一个item的数据
@@ -125,7 +125,7 @@ protected:
     virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
 
 private:
-    TpVariant queryPointIndex(const ItpPoint &point);
+    TpVariant queryPointIndex(const TpPoint &point);
 
 private:
     IFileListWidgetData *privData;

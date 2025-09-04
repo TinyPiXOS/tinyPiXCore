@@ -18,7 +18,7 @@ struct TpMenuPanelItemData
 
     TpHBoxLayout *mainLayout;
 
-    ItpPoint pressPoint;
+    TpPoint pressPoint;
 };
 
 TpMenuPanelItem::TpMenuPanelItem(TpChildWidget *parent)
@@ -188,8 +188,8 @@ bool TpMenuPanelItem::onMouseRleaseEvent(TpMouseEvent *event)
 
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
 
-    ItpPoint mouseGlobalPos = event->globalPos();
-    if ((std::abs(mouseGlobalPos.x - itemData->pressPoint.x) <= 5) && (std::abs(mouseGlobalPos.y - itemData->pressPoint.y) <= 5))
+    TpPoint mouseGlobalPos = event->globalPos();
+    if ((std::abs(mouseGlobalPos.x() - itemData->pressPoint.x()) <= 5) && (std::abs(mouseGlobalPos.y() - itemData->pressPoint.y()) <= 5))
     {
         onClicked.emit(checked());
     }

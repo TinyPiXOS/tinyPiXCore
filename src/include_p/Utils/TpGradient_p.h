@@ -5,6 +5,7 @@
 #include "TpString.h"
 #include "TpList.h"
 #include "thorVG/thorvg.h"
+#include "TpPointF.h"
 
 struct TpGradientData
 {
@@ -13,34 +14,17 @@ struct TpGradientData
     TpGradient::Spread spread = TpGradient::PadSpread;
 
     // 线性渐变属性对象
-    ItpPointF lineStartPos;
-    ItpPointF lineStopPos;
+    TpPointF lineStartPos;
+    TpPointF lineStopPos;
 
     // 径向渐变属性对象
-    ItpPointF center;
+    TpPointF center;
     float centerRadius;
-    ItpPointF focalPoint;
+    TpPointF focalPoint;
     float focalRadius;
 
     virtual ~TpGradientData()
     {
-    }
-
-    const TpGradientData &operator=(const TpGradientData &others)
-    {
-        type = others.type;
-        colorInfo = others.colorInfo;
-        spread = others.spread;
-
-        lineStartPos = others.lineStartPos;
-        lineStopPos = others.lineStopPos;
-
-        center = others.center;
-        centerRadius = others.centerRadius;
-        focalPoint = others.focalPoint;
-        focalRadius = others.focalRadius;
-
-        return *this;
     }
 };
 

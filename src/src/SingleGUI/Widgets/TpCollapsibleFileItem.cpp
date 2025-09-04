@@ -190,7 +190,7 @@ void TpCollapsibleFileItem::setName(const TpString &name)
     itemData->nameLabel->setText(name);
     // itemData->nameLabel->update();
 
-    setMinumumHeight(itemData->mainLayout->minumumSize().h);
+    setMinumumHeight(itemData->mainLayout->minumumSize().height());
 
     update();
 }
@@ -316,8 +316,8 @@ bool TpCollapsibleFileItem::onResizeEvent(TpObjectResizeEvent *event)
 
     itemData->selectCbx->setSize(minSize, minSize);
 
-    int32_t cbxX = itemData->iconLabel->pos().x + itemData->iconLabel->width() - itemData->selectCbx->width() - 9;
-    int32_t cbxY = itemData->iconLabel->pos().y + itemData->iconLabel->height() - itemData->selectCbx->height() - 8;
+    int32_t cbxX = itemData->iconLabel->pos().x() + itemData->iconLabel->width() - itemData->selectCbx->width() - 9;
+    int32_t cbxY = itemData->iconLabel->pos().y() + itemData->iconLabel->height() - itemData->selectCbx->height() - 8;
 
     // std::cout << "selectCbx Move " << cbxX << " " << cbxY << std::endl;
 

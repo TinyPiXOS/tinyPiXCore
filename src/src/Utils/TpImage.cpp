@@ -83,13 +83,13 @@ bool TpImage::load(const TpString &filename)
     return true;
 }
 
-TpImage TpImage::scaled(const ItpSize &size, bool keepAspectRatio)
+TpImage TpImage::scaled(const TpSize &size, bool keepAspectRatio)
 {
     TpImageData *imageData = static_cast<TpImageData *>(data_);
     if (!imageData)
         return TpImage(imageData->fileName);
 
-    return scaled(size.w, size.h, keepAspectRatio);
+    return scaled(size.width(), size.height(), keepAspectRatio);
 }
 
 TpImage TpImage::scaled(const int32_t &width, const int32_t &height, bool keepAspectRatio)
@@ -179,9 +179,9 @@ bool TpImage::isNull()
     }
 }
 
-TpImage TpImage::copy(const ItpRect &rect)
+TpImage TpImage::copy(const TpRect &rect)
 {
-    return copy(rect.x, rect.y, rect.w, rect.h);
+    return copy(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 TpImage TpImage::copy(int32_t x, int32_t y, int32_t w, int32_t h)

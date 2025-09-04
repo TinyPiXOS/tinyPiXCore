@@ -1,6 +1,6 @@
 #include "TpSpacerItem.h"
 
-TpSpacerItem::TpSpacerItem(const ItpSize &sizeHint, TpSizePolicy hPolicy, TpSizePolicy vPolicy)
+TpSpacerItem::TpSpacerItem(const TpSize &sizeHint, TpSizePolicy hPolicy, TpSizePolicy vPolicy)
     : sizeHint_(sizeHint), hPolicy_(hPolicy), vPolicy_(vPolicy)
 {
 }

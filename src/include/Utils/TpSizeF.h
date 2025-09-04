@@ -1,24 +1,24 @@
-#ifndef __TP_SIZE_H
-#define __TP_SIZE_H
+#ifndef __TP_SIZEF_H
+#define __TP_SIZEF_H
 
 #include "TpUtils.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpSizeData);
+TP_DEF_VOID_TYPE_VAR(ITpSizeFData);
 /// @brief 尺寸处理工具类
-class TpSize
+class TpSizeF
 {
 public:
     /// @brief 默认构造函数
-    TpSize() noexcept;
+    TpSizeF() noexcept;
     /// @brief 拷贝构造
     /// @param other 拷贝对象
-    TpSize(const TpSize& other) noexcept;
+    TpSizeF(const TpSizeF &other) noexcept;
     /// @brief 带参数的构造函数
     /// @param w 宽度
     /// @param h 高度
-    TpSize(int32_t w, int32_t h) noexcept;
+    TpSizeF(double w, double h) noexcept;
     /// @brief 析构函数
-    ~TpSize();
+    ~TpSizeF();
 
     /// @brief 判断尺寸是否为空（宽高均为0）
     /// @return true-空尺寸，false-非空尺寸
@@ -34,77 +34,77 @@ public:
 
     /// @brief 获取宽度
     /// @return 宽度值
-    int32_t width() const noexcept;
+    double width() const noexcept;
 
     /// @brief 获取高度
     /// @return 高度值
-    int32_t height() const noexcept;
+    double height() const noexcept;
 
     ///  @brief 设置宽度
     ///  @param w 新的宽度值
-    void setWidth(int32_t w) noexcept;
+    void setWidth(double w) noexcept;
 
     /// @brief 设置高度
     /// @param h 新的高度值
-    void setHeight(int32_t h) noexcept;
+    void setHeight(double h) noexcept;
 
     /// @brief 返回交换宽高后的尺寸
     /// @return 交换后的尺寸
-    TpSize transposed() const noexcept;
+    TpSizeF transposed() const noexcept;
 
     /// @brief 扩展当前尺寸至指定尺寸（取宽高的最大值）
     /// @param otherSize 指定尺寸
     /// @return 扩展后的尺寸
-    TpSize expandedTo(const TpSize &otherSize) const noexcept;
+    TpSizeF expandedTo(const TpSizeF &otherSize) const noexcept;
 
     /// @brief 限制当前尺寸至指定尺寸（取宽高的最小值）
     /// @param otherSize 指定尺寸
     /// @return 限制后的尺寸
-    TpSize boundedTo(const TpSize &otherSize) const noexcept;
+    TpSizeF boundedTo(const TpSizeF &otherSize) const noexcept;
 
     /// @brief 获取宽度的引用（可修改）
     /// @return 宽度的引用
-    int32_t &rwidth() noexcept;
+    double &rwidth() noexcept;
 
     /// @brief 获取高度的引用（可修改）
     /// @return 高度的引用
-    int32_t &rheight() noexcept;
+    double &rheight() noexcept;
 
     /// @brief 拷贝运算符
     /// @param others 要拷贝的对象
     /// @return 当前引用
-    const TpSize &operator=(const TpSize &other) noexcept;
+    const TpSizeF &operator=(const TpSizeF &other) noexcept;
 
     /// @brief 尺寸加法赋值
     /// @param other 要加的尺寸
     /// @return 当前尺寸的引用
-    TpSize &operator+=(const TpSize &other) noexcept;
+    TpSizeF &operator+=(const TpSizeF &other) noexcept;
 
     /// @brief 尺寸减法赋值
     /// @param other 要减的尺寸
     /// @return 当前尺寸的引用
-    TpSize &operator-=(const TpSize &other) noexcept;
+    TpSizeF &operator-=(const TpSizeF &other) noexcept;
 
     /// @brief 尺寸乘以浮点数因子（赋值）
     /// @param c 因子
     /// @return 当前尺寸的引用
-    TpSize &operator*=(float c) noexcept;
+    TpSizeF &operator*=(float c) noexcept;
 
     /// @brief 尺寸除以浮点数（赋值）
     /// @param c 除数
     /// @return 当前尺寸的引用
-    TpSize &operator/=(float c);
+    TpSizeF &operator/=(float c);
 
-    friend bool operator==(const TpSize &, const TpSize &) noexcept;
-    friend bool operator!=(const TpSize &, const TpSize &) noexcept;
-    friend const TpSize operator+(const TpSize &, const TpSize &) noexcept;
-    friend const TpSize operator-(const TpSize &, const TpSize &) noexcept;
-    friend const TpSize operator*(const TpSize &, float) noexcept;
-    friend const TpSize operator*(float, const TpSize &) noexcept;
-    friend const TpSize operator/(const TpSize &, float);
+    friend bool operator==(const TpSizeF &, const TpSizeF &) noexcept;
+    friend bool operator!=(const TpSizeF &, const TpSizeF &) noexcept;
+    friend const TpSizeF operator+(const TpSizeF &, const TpSizeF &) noexcept;
+    friend const TpSizeF operator-(const TpSizeF &, const TpSizeF &) noexcept;
+    friend const TpSizeF operator*(const TpSizeF &, float) noexcept;
+    friend const TpSizeF operator*(float, const TpSizeF &) noexcept;
+    friend const TpSizeF operator/(const TpSizeF &, float);
 
 private:
-    ITpSizeData *data_;
+    ITpSizeFData *data_;
 };
 
 #endif

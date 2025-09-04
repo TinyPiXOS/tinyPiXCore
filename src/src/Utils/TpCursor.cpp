@@ -8,7 +8,7 @@ TpCursor::~TpCursor()
 {
 }
 
-ItpPoint TpCursor::pos()
+TpPoint TpCursor::pos()
 {
-    return ItpPoint();
+    return TpPoint();
 }

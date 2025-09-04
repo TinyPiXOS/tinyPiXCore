@@ -47,7 +47,7 @@ public:
 
 	/// @brief 设置图标大小，只有ButtonTextStyle==IconOnly模式下有效；默认是充满整个按钮；图标会居中显示
 	/// @param size 图标尺寸
-	void setIconSize(const ItpSize &size);
+	void setIconSize(const TpSize &size);
 
 	/// @brief 设置图标大小，只有ButtonTextStyle==IconOnly模式下有效；默认是充满整个按钮；图标会居中显示
 	/// @param width 图标宽度

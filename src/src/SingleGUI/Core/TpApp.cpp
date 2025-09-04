@@ -311,7 +311,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         return;
 
 #if 1
-    TpMap<IPiWFApiAgent *, ItpRect> pixwmMergeUpdateRect;
+    TpMap<IPiWFApiAgent *, TpRect> pixwmMergeUpdateRect;
     TpMap<TpChildWidget *, ItpObjectPaintInput> mergeUpdateWidget;
 
     while (!updateCommandQueue.empty())
@@ -324,26 +324,14 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         if (pixwmMergeUpdateRect.contains(topScreenSet->agent))
         {
-            ItpRect &hasRect = pixwmMergeUpdateRect[topScreenSet->agent];
+            TpRect taskRect(task.x, task.y, task.w, task.h);
 
-            hasRect.x = task.x < hasRect.x ? task.x : hasRect.x;
-            hasRect.y = task.y < hasRect.y ? task.y : hasRect.y;
-
-            tpInt32 hasRectBottom = hasRect.bottom();
-            tpInt32 hasRectRight = hasRect.right();
-
-            tpInt32 inputRectBottom = task.y + task.h;
-            tpInt32 inputRectRight = task.x + task.w;
-
-            tpInt32 actualBottom = hasRectBottom > inputRectBottom ? hasRectBottom : inputRectBottom;
-            tpInt32 actualRight = hasRectRight > inputRectRight ? hasRectRight : inputRectRight;
-
-            hasRect.w = actualBottom - hasRect.y;
-            hasRect.h = actualRight - hasRect.x;
+            TpRect &hasRect = pixwmMergeUpdateRect[topScreenSet->agent];
+            hasRect.unions(taskRect);
         }
         else
         {
-            pixwmMergeUpdateRect[topScreenSet->agent] = ItpRect(task.x, task.y, task.w, task.h);
+            pixwmMergeUpdateRect[topScreenSet->agent] = TpRect(task.x, task.y, task.w, task.h);
         }
 
         if (!mergeUpdateWidget.contains(task.updateObj))
@@ -358,10 +346,10 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
             paintInput.object = task.updateObj;
             paintInput.surface = surface;
-            paintInput.updateRect.x = task.x;
-            paintInput.updateRect.y = task.y;
-            paintInput.updateRect.w = task.w;
-            paintInput.updateRect.h = task.h;
+            paintInput.updateRect.setX(task.x);
+            paintInput.updateRect.setY(task.y);
+            paintInput.updateRect.setWidth(task.w);
+            paintInput.updateRect.setHeight( task.h);
 
             mergeUpdateWidget[task.updateObj] = paintInput;
         }
@@ -418,8 +406,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
     for (const auto &updateInfo : pixwmMergeUpdateRect)
     {
-        const ItpRect &updateRect = updateInfo.second;
-        tinyPiX_wf_update(updateInfo.first, updateRect.x, updateRect.y, updateRect.w, updateRect.h, true, false);
+        const TpRect &updateRect = updateInfo.second;
+        tinyPiX_wf_update(updateInfo.first, updateRect.x(), updateRect.y(), updateRect.width(), updateRect.height(), true, false);
         // tinyPiX_wf_update(updateInfo.first, 0, 0, 1080, 720, true, false);
     }
 
@@ -458,8 +446,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         input.surface = surface;
 
-        input.updateRect.x = updateRect.X0();
-        input.updateRect.y = updateRect.Y0();
+        input.updateRect.x = updateRect.x();
+        input.updateRect.y = updateRect.y();
         input.updateRect.w = updateRect.width();
         input.updateRect.h = updateRect.height();
         event.construct(&input);

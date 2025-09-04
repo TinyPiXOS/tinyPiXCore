@@ -72,7 +72,7 @@ protected:
 private:
     void insertCharacter(const TpString& insertStr);
 
-    int mousePosToCursorPos(int mouseX);
+    int32_t mousePosToCursorPos(int32_t mouseX);
 
     void copySelectedText();
 

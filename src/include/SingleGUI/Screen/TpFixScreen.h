@@ -27,17 +27,11 @@ public:
 	/// @param color 
 	/// @param screenAttr 
 	/// @return 
-	virtual int setVScreenAttribute(uint8_t alpha, uint32_t color, int screenAttr);
+	virtual int setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr);
 
 private:
-	virtual void setRect(TpRect &rect) final;
-	virtual void setRect(TpRect *rect) final;
-	virtual void setRect(ItpRect &rect) final;
-	virtual void setRect(ItpRect *rect) final;
-	virtual void setRect(int x, int y, int w, int h) final;
-
-private:
-	virtual void setPosition(int x, int y) final;
+	virtual void setRect(const TpRect &rect) final;
+	virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) final;
 
 private:
 	virtual void setBeMoved(bool moved = false) final;

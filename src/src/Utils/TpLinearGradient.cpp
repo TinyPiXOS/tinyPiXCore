@@ -12,13 +12,13 @@ TpLinearGradient::TpLinearGradient(float x1, float y1, float x2, float y2) : TpG
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::LinearGradient;
 
-    gradientData->lineStartPos.x = x1;
-    gradientData->lineStartPos.y = y1;
-    gradientData->lineStopPos.x = x2;
-    gradientData->lineStopPos.y = y2;
+    gradientData->lineStartPos.rx() = x1;
+    gradientData->lineStartPos.ry() = y1;
+    gradientData->lineStopPos.rx() = x2;
+    gradientData->lineStopPos.ry() = y2;
 }
 
-TpLinearGradient::TpLinearGradient(const ItpPointF &start, const ItpPointF &finalStop) : TpGradient()
+TpLinearGradient::TpLinearGradient(const TpPointF &start, const TpPointF &finalStop) : TpGradient()
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     gradientData->type = TpGradient::LinearGradient;
@@ -31,7 +31,7 @@ TpLinearGradient::~TpLinearGradient()
 {
 }
 
-void TpLinearGradient::setStart(const ItpPointF &start)
+void TpLinearGradient::setStart(const TpPointF &start)
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
@@ -46,20 +46,19 @@ void TpLinearGradient::setStart(float x, float y)
     if (!gradientData)
         return;
 
-    gradientData->lineStartPos.x = x;
-    gradientData->lineStartPos.y = y;
+    setStart(TpPointF(x, y));
 }
 
-ItpPointF TpLinearGradient::start() const
+TpPointF TpLinearGradient::start() const
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
-        return ItpPointF();
+        return TpPointF();
 
     return gradientData->lineStartPos;
 }
 
-void TpLinearGradient::setFinalStop(const ItpPointF &stop)
+void TpLinearGradient::setFinalStop(const TpPointF &stop)
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
@@ -74,15 +73,14 @@ void TpLinearGradient::setFinalStop(float x, float y)
     if (!gradientData)
         return;
 
-    gradientData->lineStopPos.x = x;
-    gradientData->lineStopPos.y = y;
+    setFinalStop(TpPointF(x, y));
 }
 
-ItpPointF TpLinearGradient::finalStop() const
+TpPointF TpLinearGradient::finalStop() const
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     if (!gradientData)
-        return ItpPointF();
+        return TpPointF();
 
     return gradientData->lineStopPos;
 }
