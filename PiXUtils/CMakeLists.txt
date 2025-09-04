@@ -64,6 +64,12 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/TpGraphicsEffect.cpp
     ${SOURCE_PATH}/src/Utils/TpGraphicsBlurEffect.cpp
     ${SOURCE_PATH}/src/Utils/TpPainterPath.cpp
+	${SOURCE_PATH}/src/Utils/TpThreadManage.cpp
+	${SOURCE_PATH}/src/Utils/TpNetworkDatagram.cpp
+	${SOURCE_PATH}/src/Utils/TpSocket.cpp
+	${SOURCE_PATH}/src/Utils/TpTcpSocket.cpp
+	${SOURCE_PATH}/src/Utils/TpTcpServer.cpp
+	${SOURCE_PATH}/src/Utils/TpUdpSocket.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp
@@ -101,6 +107,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/Utils/tweeny/tweenone.tcc
     ${SOURCE_PATH}/src_p/Utils/tweeny/tweenpoint.tcc
     ${SOURCE_PATH}/src_p/Utils/TpMessage.cpp
+	${SOURCE_PATH}/src_p/Utils/TpHostAddress.cpp
+	${SOURCE_PATH}/src_p/Utils/TpSocketNotifier.cpp
+	${SOURCE_PATH}/src_p/Utils/TpSocketNotifierManager.cpp
 )
 
 include_directories(/usr/include)

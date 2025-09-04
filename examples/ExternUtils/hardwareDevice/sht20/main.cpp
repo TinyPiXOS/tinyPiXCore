@@ -9,5 +9,5 @@ int main()
 	float t=sht20.getTemperature(NULL);
 	float h=sht20.getHumidity(NULL);
 
-	printf("温度：%fC  湿度：%f%\n",t,h);
+	printf("温度：%fC  湿度：%f\n",t,h);
 }
