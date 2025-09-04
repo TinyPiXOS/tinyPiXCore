@@ -81,8 +81,19 @@ float TpSht20::getTemperature(tpBool *is_ok)
 {
 	tpUInt8 data[3];
 	writeCmd(TRIG_TEMP_UNHOST);
-	sleep(1);
-	TpHardwareI2c::read(data,3);
+	int err=0;
+	while(1)
+	{
+		usleep(10000);
+		if(TpHardwareI2c::read(data,3)==3)
+			break;
+		err++;
+		if(err>100)
+		{
+			if(is_ok) *is_ok=TP_FALSE;
+			return 0;
+		}	
+	}
 
 	if(sht20_crc_check(data,2,data[2])!=0)
 	{
@@ -99,8 +110,20 @@ float TpSht20::getHumidity(tpBool *is_ok)
 {
 	tpUInt8 data[3];
 	writeCmd(TRIG_HUMI_UNHOST);
-	sleep(1);
-	TpHardwareI2c::read(data,3);
+	int err=0;
+	while(1)
+	{
+		usleep(10000);
+		if(TpHardwareI2c::read(data,3)==3)
+			break;
+		err++;
+		if(err>100)
+		{
+			if(is_ok) *is_ok=TP_FALSE;
+			return 0;
+		}	
+	}
+	
 	if(sht20_crc_check(data,2,data[2])!=0)
 	{
 		if(is_ok) *is_ok=TP_FALSE;
