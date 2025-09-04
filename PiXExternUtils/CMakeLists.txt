@@ -93,10 +93,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/ExternUtils/TpSystemDataManage.cpp
     ${SOURCE_PATH}/src_p/ExternUtils/TpFileInfoWR.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/TpNetPcap.cpp
-	${SOURCE_PATH}/src_p/ExternUtils/TpHostAddress.cpp
 	${SOURCE_PATH}/src_p/ExternUtils/TpDbusConnectManage.cpp
-	${SOURCE_PATH}/src_p/ExternUtils/TpSocketNotifier.cpp
-	${SOURCE_PATH}/src_p/ExternUtils/TpSocketNotifierManager.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpAppDataDisk.cpp
 #	${SOURCE_PATH}/src/ExternUtils/TpDisplayManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpDisplay.cpp
@@ -112,14 +109,8 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/TpProcessInfo.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpProcessManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpSystemInfo.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpThreadManage.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpNetworkInterface.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpWirelessInfo.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpNetworkDatagram.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpSocket.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpTcpSocket.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpTcpServer.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpUdpSocket.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpAudioInterface.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpVideoInterface.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpMediaFile.cpp
@@ -128,7 +119,6 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/TpLibDopack.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpAppDopack.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpSystemBatteryInfo.cpp
-	${SOURCE_PATH}/src/ExternUtils/TpLogin.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpBluetoothAddress.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpBluetoothUuid.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpBluetoothLocal.cpp
@@ -148,6 +138,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/TpSound.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpGpio.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpHardwareI2c.cpp
+	${SOURCE_PATH}/src/ExternUtils/TpLogin.cpp
 )
 
 include_directories(/usr/include)
