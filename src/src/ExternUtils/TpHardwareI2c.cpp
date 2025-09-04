@@ -16,6 +16,13 @@
 
 #define PATH_I2C_DEVICE	"/dev/i2c-"
 
+
+enum I2cTransferError{
+	I2C_TRANSFER_ERROR_NONE=0,
+	I2C_TRANSFER_ERROR_TIMEOUT=-1,	//超时
+	I2C_TRANSFER_ERROR_IO=-2,		//io读写错误
+};
+
 struct TpHardwareI2cData{
 	TpString path;
 	tpUInt8 address;		//从机地址
@@ -66,11 +73,11 @@ static int i2c_rdwr_with_timeout(int fd, struct i2c_rdwr_ioctl_data *packets, in
 
     if (i2c_timeout_flag) {
         fprintf(stderr, "I2C transaction timeout\n");
-        return -1;
+        return I2C_TRANSFER_ERROR_TIMEOUT;
     }
     if (ret < 0) {
         perror("I2C_RDWR failed");
-        return -1;
+        return I2C_TRANSFER_ERROR_IO;
     }
     return 0;
 }
@@ -180,7 +187,11 @@ tpInt64 TpHardwareI2c::readReg(tpUInt8 reg, tpUInt8* buf, size_t length, uint32_
 	packets.msgs  = messages;
 	packets.nmsgs = 2;
 
-	return i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+	tpInt64 ret = i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+
+	if(ret==0)
+		ret=length;
+	return ret;
 }
 
 tpInt64 TpHardwareI2c::writeReg(tpUInt8 reg, const tpUInt8* buf, size_t length, uint32_t timeout_ms)
@@ -204,7 +215,10 @@ tpInt64 TpHardwareI2c::writeReg(tpUInt8 reg, const tpUInt8* buf, size_t length, 
 	packets.msgs  = messages;
 	packets.nmsgs = 2;
 
-	return i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+	tpInt64 ret = i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+	if(ret==0)
+		ret=length;
+	return ret;
 }
 
 tpInt64 TpHardwareI2c::writeCmd(tpUInt8 cmd, uint32_t timeout_ms)
@@ -223,7 +237,33 @@ tpInt64 TpHardwareI2c::writeCmd(tpUInt8 cmd, uint32_t timeout_ms)
 	packets.msgs  = &messages;
 	packets.nmsgs = 1;
 
-	return i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+	int ret = i2c_rdwr_with_timeout(data->devfd, &packets, timeout_ms);
+	if(ret==0)
+		ret=1;
+	return ret;
+}
+
+tpInt64 TpHardwareI2c::readData(tpUInt8* buf, size_t length, uint32_t timeout_ms)
+{
+    TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
+    if (!data || !data->is_open || !buf || length == 0)
+        return -1;
+
+    struct i2c_rdwr_ioctl_data packets;
+    struct i2c_msg message;
+
+    message.addr  = data->address;
+    message.flags = I2C_M_RD;   // 只读
+    message.len   = static_cast<__u16>(length);
+    message.buf   = buf;
+
+    packets.msgs  = &message;
+    packets.nmsgs = 1;
+
+    tpInt64 ret = i2c_rdwr_with_timeout(data->devfd, &packets, (int)timeout_ms);
+	if(ret==0)
+		ret=length;
+	return ret;
 }
 
 
@@ -233,8 +273,8 @@ int TpHardwareI2c::setSlaveAddress(tpUInt8 address)
 	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
 	if(!data || !data->is_open)
 		return -1;
-	if (ioctl(data->devfd, I2C_SLAVE, data->address) < 0) {
-		fprintf(stderr,"[Error]: Failed to set I2C slave address 0x%02X, %s\n",data->address,strerror(errno));
+	if (ioctl(data->devfd, I2C_SLAVE, address) < 0) {
+		fprintf(stderr,"[Error]: Failed to set I2C slave address 0x%02X, %s\n",address,strerror(errno));
 		return -1;
 	}
 	data->address=address;

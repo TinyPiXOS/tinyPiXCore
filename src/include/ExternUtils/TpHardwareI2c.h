@@ -36,7 +36,7 @@ public:
 	/// @return 
 	ssize_t write(const uint8_t* data, size_t length);
 
-	/// @brief 从指定寄存器开始读取
+	/// @brief 从指定寄存器开始读取，适合于存储设备
 	/// @param reg 起始寄存器
 	/// @param data 数据
 	/// @param length 数据长度
@@ -58,6 +58,13 @@ public:
 	/// @param timeout_ms 超时时间
 	/// @return 
 	tpInt64 writeCmd(tpUInt8 cmd, uint32_t timeout_ms = 1000);
+
+	/// @brief 读数据，通常和writeCmd搭配使用，适合于传感器，ADC等采集的接口
+	/// @param buf 
+	/// @param length 
+	/// @param timeout_ms 
+	/// @return 
+	tpInt64 readData(tpUInt8* buf, size_t length, uint32_t timeout_ms=1000);
 
 	/// @brief 设置IIC从机地址
 	/// @param address 
