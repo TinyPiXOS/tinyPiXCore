@@ -69,6 +69,36 @@ TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const
     return TpSystemApi::Succsssful;
 }
 
+void TpSystemApi::notifyWidgetsResize(const TpString &widgetUuid, const TpSize &widgetSize)
+{
+    TpString notifyTopic = widgetUuid + "_WidgetGateway2W";
+
+    TpInitWidgets paintEvent;
+    paintEvent.width = widgetSize.width();
+    paintEvent.height = widgetSize.height();
+    paintEvent.depth = 32;
+    paintEvent.Rmask = 0x00ff0000;
+    paintEvent.Gmask = 0x0000ff00;
+    paintEvent.Bmask = 0x000000ff;
+    paintEvent.Amask = 0xff000000;
+
+    PStructPackager sPack;
+    paintEvent.StructSerialize(sPack);
+
+    publishGatewayData(notifyTopic.c_str(), sPack.data(), sPack.size());
+}
+
+void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
+{
+    TpString notifyTopic = widgetUuid + "_WidgetGateway2W";
+
+    TpPaintWidgets paintEvent;
+    PStructPackager sPack;
+    paintEvent.StructSerialize(sPack);
+
+    publishGatewayData(notifyTopic.c_str(), sPack.data(), sPack.size());
+}
+
 TpSystemApi::TpSystemApi()
 {
     initializeGateway();

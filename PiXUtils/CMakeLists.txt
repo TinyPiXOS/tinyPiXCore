@@ -15,6 +15,7 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/Service/TpSystemApi.cpp
     ${SOURCE_PATH}/src/Utils/Service/TpAppConfigIO.cpp
+    ${SOURCE_PATH}/src/Utils/Service/TpWidgetsGateway.cpp
     ${SOURCE_PATH}/src/Utils/TpRect.cpp
     ${SOURCE_PATH}/src/Utils/TpRectF.cpp
     ${SOURCE_PATH}/src/Utils/TpPoint.cpp
@@ -110,6 +111,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/Utils/TpHostAddress.cpp
 	${SOURCE_PATH}/src_p/Utils/TpSocketNotifier.cpp
 	${SOURCE_PATH}/src_p/Utils/TpSocketNotifierManager.cpp
+    ${SOURCE_PATH}/src_p/Utils/TpShareTrans.cpp
 )
 
 include_directories(/usr/include)

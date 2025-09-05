@@ -10,13 +10,15 @@ TP_DEF_VOID_TYPE_VAR(ItpAppConfigIOData);
 class TpAppConfigIO
 {
 public:
+    /// @brief 应用组件信息
     struct AppWidgetInfo
     {
+        TpString appUuid;
+        TpString linkAppUuid;
         TpString widgetUuid;
         TpString name;
         TpString path;
-        TpString linkAppUuid;
-        AppWidgetInfo() : widgetUuid(""), name(""), path(""), linkAppUuid("")
+        AppWidgetInfo() : appUuid(""), linkAppUuid(""), widgetUuid(""), name(""), path("")
         {
         }
     };
@@ -55,8 +57,8 @@ public:
 
     /// @brief 指定小组件UUID获取小组件信息
     /// @param widgetUuid 小组件UUID
-    /// @return 小组件信息
-    AppWidgetInfo widgetInfo(const TpString &widgetUuid);
+    /// @return 小组件信息;未找到则返回nullptr
+    tpShared<AppWidgetInfo> widgetInfo(const TpString &widgetUuid);
 
     /// @brief 获取默认小组件信息
     /// @return 无默认小组件则返回 nullptr
