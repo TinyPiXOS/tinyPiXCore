@@ -87,6 +87,8 @@ tpBool TpGpio::open()
 void TpGpio::close()
 {
 	TpGpioData *data = static_cast<TpGpioData *>(data_);
+	if(!data->is_open)
+		return ;
 	unexportGpio();
 }
 
@@ -181,36 +183,3 @@ bool TpGpio::unexportGpio()
 	TpGpioData *data = static_cast<TpGpioData *>(data_);
 	return writeToFile("/sys/class/gpio/unexport", std::to_string(data->number));
 }
-
-//向文件中写入值
-bool TpGpio::writeToFile(const TpString& path, const TpString& value)
-{
-	std::ofstream file(path);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << path << std::endl;
-		return false;
-	}
-
-	file << value;
-	file.close();
-
-	return !file.fail();
-}
-
-//从文件中读取值
-TpString TpGpio::readFromFile(const TpString& path)
-{
-	std::ifstream file(path);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << path << std::endl;
-		return "";
-	}
-
-	std::string value;
-	file >> value;
-	file.close();
-
-	return value;
-}
-
-    

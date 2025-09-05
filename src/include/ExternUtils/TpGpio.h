@@ -73,8 +73,6 @@ private:
 	bool exportGpio();
 	bool unexportGpio();
 	bool isExportGpio();
-	bool writeToFile(const TpString& path, const TpString& value);
-	TpString readFromFile(const TpString& path);
 private:
 	ITpGpioData *data_;
 };

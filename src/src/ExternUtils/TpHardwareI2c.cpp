@@ -12,6 +12,8 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <cerrno>
+#include <dirent.h>
+#include <algorithm>
 #include "TpHardwareI2c.h"
 
 #define PATH_I2C_DEVICE	"/dev/i2c-"
@@ -110,6 +112,50 @@ TpHardwareI2c::~TpHardwareI2c()
 	if(data->is_open)
 		close();
 	delete(data);
+}
+
+TpList<tpUInt8> TpHardwareI2c::getI2cBuss()
+{
+	const std::string pwm_dir = "/dev/";
+	TpList<tpUInt8> controllers;
+
+	// 打开 PWM 目录
+	DIR* dir = opendir(pwm_dir.c_str());
+	if (!dir) {
+		fprintf(stderr,"[Error]: get i2c buss error\n");
+		return controllers;
+	}
+
+	// 遍历目录项
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != nullptr) {
+		std::string name(entry->d_name);
+		
+		// 检查是否是 i2c 设备
+		if (name.find("i2c-") == 0) {
+			// 提取编号部分
+			std::string num_str = name.substr(4); // 
+			
+			// 验证是否为纯数字
+			if (!num_str.empty() && 
+				std::all_of(num_str.begin(), num_str.end(), ::isdigit)) {
+				try {
+					int controller_num = std::stoi(num_str);
+					controllers.push_back((tpUInt8)controller_num);
+				} catch (const std::exception& e) {
+					// 忽略转换失败的项目
+					std::cerr << "Warning: Invalid controller number in " 
+								<< name << ": " << e.what() << std::endl;
+				}
+			}
+		}
+	}
+
+	// 关闭目录
+	closedir(dir);
+
+	return controllers;
+
 }
 
 tpBool TpHardwareI2c::open()
