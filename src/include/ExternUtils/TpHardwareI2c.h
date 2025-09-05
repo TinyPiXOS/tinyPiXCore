@@ -20,6 +20,10 @@ public:
 	TpHardwareI2c(tpUInt8 bus, tpUInt8 address);	
 	~TpHardwareI2c();
 public:
+	/// @brief 获取本机上内核已开启的I2C的bus号列表，但不保证全部可用。
+	/// @return 
+	static TpList<tpUInt8> getI2cBuss();
+public:
 	/// @brief 打开设备
 	/// @return 
 	tpBool open();

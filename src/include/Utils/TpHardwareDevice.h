@@ -19,6 +19,17 @@ public:
     // 可选：配置接口
     // virtual void setSpeed(uint32_t frequency_hz) { /* 默认实现可为空 */ }
     // virtual bool probeAddress(uint8_t address) = 0; // 可选：地址探测功能
+
+protected:
+	/// @brief 向文件中写入值
+	/// @param path 
+	/// @param value 
+	/// @return 
+	bool writeToFile(const TpString& path, const TpString& value);
+	/// @brief 从文件中读取值
+	/// @param path 
+	/// @return 
+	TpString readFromFile(const TpString& path);
 };
 
 
