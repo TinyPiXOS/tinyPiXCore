@@ -6,6 +6,7 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
 
 #include <dirent.h>
+#include <fstream>
 #include <algorithm>
 #include "TpHardwarePwm.h"
 
@@ -18,6 +19,7 @@ struct TpHardwarePwmData{
 	tpBool is_open;
 	TpString period_path;
 	TpString duty_path;
+	TpString enable_path;
 	tpUInt32 period;
 	float duty_cycle;
 	TpHardwarePwmData(){
@@ -35,6 +37,7 @@ TpHardwarePwm::TpHardwarePwm(const TpString& name, tpUInt8 channel)
 	data->path=name;
 	data->duty_path=data->path+"/duty_cycle";
 	data->period_path=data->path+"/period";
+	data->enable_path=data->path+"/enable";
 }
 
 /// @brief 
@@ -95,6 +98,22 @@ TpList<tpUInt8> TpHardwarePwm::getPwmNumbers()
 	return controllers;
 }
 
+int TpHardwarePwm::getAvailableChannels(tpUInt8 num)
+{
+	TpString path=TpString(PATH_PWM_DEVICE)+ std::to_string(static_cast<int>(num));
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open file: " << path << std::endl;
+		return -1;
+	}
+
+	TpString value;
+	file >> value;
+	file.close();
+
+	return value.toUInt();
+}
+
 /// @brief 打开设备
 /// @return 
 tpBool TpHardwarePwm::open()
@@ -122,7 +141,9 @@ tpBool TpHardwarePwm::open()
 		if(err>10)
 			return TP_FALSE;
 	}
-    
+	
+	writeToFile(data->enable_path, std::to_string(1));
+
 	data->is_open=TP_TRUE;
 	return TP_TRUE;
 }
@@ -133,12 +154,14 @@ void TpHardwarePwm::close()
 	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
 	if(!data->is_open)
 		return ;
+	writeToFile(data->enable_path, std::to_string(0));
 	unexportPwm();
 }
 
 int TpHardwarePwm::setDutyCycle(float duty)
 {
 	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
+
 	tpUInt32 duty_cycle=(tpUInt32)(duty*data->period/100.0);
 	if(!writeToFile(data->period_path,std::to_string(duty_cycle)))
 		return -1;
@@ -152,10 +175,15 @@ int TpHardwarePwm::setPeriod(tpUInt32 ns)
 	if(!writeToFile(data->period_path,std::to_string(ns)))
 		return -1;
 	data->period=ns;
-	return 0;
+	return setDutyCycle(data->duty_cycle);
 }
 
-
+int TpHardwarePwm::setEnable(tpBool enable)
+{
+	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
+	int state=(enable==TP_TRUE? 1:0);
+	return writeToFile(data->enable_path, std::to_string(state));
+}
 
 //导出gpio端口
 bool TpHardwarePwm::exportPwm()
