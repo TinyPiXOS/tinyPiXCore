@@ -97,15 +97,15 @@ public:
 
     /// @brief 计算到目标日期的天数差
     /// @param other 目标日期时间
-    /// @return 间隔天数（this早于other时为负）
+    /// @return 间隔天数
     int64_t daysTo(const TpDateTime &other) const;
     /// @brief 计算到目标时间的秒数差
     /// @param other 目标日期时间
-    /// @return 间隔秒数（this早于other时为负）
+    /// @return 间隔秒数
     int64_t secsTo(const TpDateTime &other) const;
     /// @brief 计算到目标时间的毫秒数差
     /// @param other 目标日期时间
-    /// @return 间隔毫秒数（this早于other时为负）
+    /// @return 间隔毫秒数
     int64_t msecsTo(const TpDateTime &other) const;
 
 public:
