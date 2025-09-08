@@ -63,6 +63,9 @@ public:
     /// @param _filePath CSS文件路径或CSS字符串
     TpCssParser(const TpString &_filePath);
  
+    /// @brief 清空当前缓存的所有CSS数据；一般用于完全重置UI样式时使用
+    void clearCss();
+
     /// @brief 指定文件路径或者CSS字符串解析CSS数据，解析时只会覆盖给入CSs的key值，原有CSS数据不会被移除
     /// @param _filePath 文件路径或字符串
     void parseCss(const TpString &_filePath);
@@ -84,9 +87,6 @@ private:
 
     // 解析CSS字符串
     void ParseCssStr(const TpString &_cssStr, BlockCssDataSPtr _blockCssData);
-
-    // 将颜色字符串转换为Color对象
-    int32_t TranslateColor(const TpString &_colorStr);
 
 private:
     // 根据属性名字，找到Data中变量赋值

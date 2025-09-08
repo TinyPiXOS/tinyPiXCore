@@ -119,8 +119,10 @@ namespace tinyPiX
     /// @brief 系统主题
     enum SystemTheme
     {
+        /// @brief 默认GUI风格
         Default,
-        PurpleLight
+        /// @brief 智能设备GUI风格
+        SmartDeviceGUIStyle
     };
 
     /// @brief 虚拟键盘输入类型

@@ -21,14 +21,14 @@ static TpString parseThemeFile(const tinyPiX::SystemTheme &style)
 	switch (style)
 	{
 	case tinyPiX::Default:
-		return "/usr/data/tinyPiX/SystemTheme/purple-light.css";
-	case tinyPiX::PurpleLight:
-		return "/usr/data/tinyPiX/SystemTheme/purple-light.css";
+		return "/usr/data/tinyPiX/SystemTheme/DefaultStyle.css";
+	case tinyPiX::SmartDeviceGUIStyle:
+		return "/usr/data/tinyPiX/SystemTheme/SmartDeviceGUI.css";
 	default:
-		return "/usr/data/tinyPiX/SystemTheme/purple-light.css";
+		return "/usr/data/tinyPiX/SystemTheme/DefaultStyle.css";
 	}
 
-	return "/usr/data/tinyPiX/SystemTheme/purple-light.css";
+	return "/usr/data/tinyPiX/SystemTheme/DefaultStyle.css";
 }
 
 #endif

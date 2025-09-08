@@ -747,6 +747,10 @@ void TpCanvas::roundedBox(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
         x2 = OFFSET_X(set, x2);
         y2 = OFFSET_Y(set, y2);
 
+        int32_t minWH = TP_MIN(x2 - x1, y2 - y1);
+        if (rad > (minWH / 2.0))
+            rad = minWH / 2.0;
+
         drawRectangle(set, x1, y1, x2, y2, color, 1, rad, true, hollowMaskData);
     }
 }

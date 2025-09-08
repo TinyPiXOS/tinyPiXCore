@@ -94,6 +94,18 @@ TpCssParser::TpCssParser(const TpString &_filePath)
     parseCss(_filePath);
 }
 
+void TpCssParser::clearCss()
+{
+    TpCssParserData *cssParserData = static_cast<TpCssParserData *>(data_);
+    if (!cssParserData)
+        return;
+
+    cssParserData->cssStr = "";
+
+    cssParserData->cssDataMap.clear();
+    cssParserData->cssOriginDataMap.clear();
+}
+
 void TpCssParser::parseCss(const TpString &_filePath)
 {
     TpCssParserData *cssParserData = static_cast<TpCssParserData *>(data_);
@@ -336,68 +348,6 @@ void TpCssParser::ParseCssStr(const TpString &_cssStr, BlockCssDataSPtr _blockCs
     cssParserData->cssOriginDataMap[_blockCssData->uiType][typeStr] = cssValueMap;
 }
 
-int32_t TpCssParser::TranslateColor(const TpString &_colorStr)
-{
-    // 颜色有两种机制
-    int32_t resColor = 0;
-
-    TpString colorDealStr = _colorStr.simplified();
-    colorDealStr = colorDealStr.replace(" ", "");
-
-    uint8_t red, green, blue;
-    uint8_t alpha = 255;
-    if (colorDealStr.contains("#"))
-    {
-        // 十六进制字符串
-        if (colorDealStr.logicalLength() < 7)
-            return resColor;
-
-        // std::cout << "colorDealStr : " << colorDealStr << std::endl;
-
-        red = colorDealStr.mid(1, 2).toInt(16);
-        green = colorDealStr.mid(3, 2).toInt(16);
-        blue = colorDealStr.mid(5, 2).toInt(16);
-
-        // std::cout << "RGB : " << red << "  " << green << "  " << blue << "  " << std::endl;
-
-        if (colorDealStr.logicalLength() > 8)
-            alpha = colorDealStr.mid(7, 2).toInt(16);
-
-        // 放在这设置，为了确保如果格式不匹配，color对象为null
-        // resColor.setRgba(red, green, blue, alpha);
-        resColor = _RGBA(red, green, blue, alpha);
-    }
-    else
-    {
-        // rgba rgb(1, 1, 1, 1)
-        // 去除前缀，和后缀的右括号
-        // std::cout << colorDealStr << std::endl;
-
-        TpString resColorStr = colorDealStr.mid(colorDealStr.find("(") + 1, colorDealStr.find(")") - colorDealStr.find("(") - 1);
-        // std::cout << resColorStr << std::endl;
-
-        TpList<TpString> rgbaList = resColorStr.split(',');
-        if (rgbaList.size() < 3)
-            return resColor;
-
-        // std::cout << rgbaList.at(0) << "-" << rgbaList.at(1) << "-" << rgbaList.at(2) << std::endl;
-
-        red = rgbaList.at(0).toInt();
-        green = rgbaList.at(1).toInt();
-        blue = rgbaList.at(2).toInt();
-
-        if (rgbaList.size() > 3)
-        {
-            alpha = rgbaList.at(3).toDouble() * 255;
-        }
-
-        resColor = _RGBA(red, green, blue, alpha);
-        // resColor.setRgba(red, green, blue, alpha);
-    }
-
-    return resColor;
-}
-
 void TpCssParser::RegistCssParseFunc()
 {
     TpCssParserData *cssParserData = static_cast<TpCssParserData *>(data_);
@@ -456,7 +406,64 @@ TpString TpCssParser::DpPxCssFunc(const TpString &_attrValue)
 
 TpString TpCssParser::ColorCssFunc(const TpString &_attrValue)
 {
-    return TpString::number(TranslateColor(_attrValue));
+    // 颜色有两种机制
+    int32_t resColor = 0;
+
+    TpString colorDealStr = _attrValue.simplified();
+    colorDealStr = colorDealStr.replace(" ", "");
+
+    uint8_t red, green, blue;
+    uint8_t alpha = 255;
+    if (colorDealStr.contains("#"))
+    {
+        // 十六进制字符串
+        if (colorDealStr.logicalLength() < 7)
+            return resColor;
+
+        // std::cout << "colorDealStr : " << colorDealStr << std::endl;
+
+        red = colorDealStr.mid(1, 2).toInt(16);
+        green = colorDealStr.mid(3, 2).toInt(16);
+        blue = colorDealStr.mid(5, 2).toInt(16);
+
+        // std::cout << "RGB : " << red << "  " << green << "  " << blue << "  " << std::endl;
+
+        if (colorDealStr.logicalLength() > 8)
+            alpha = colorDealStr.mid(7, 2).toInt(16);
+
+        // 放在这设置，为了确保如果格式不匹配，color对象为null
+        // resColor.setRgba(red, green, blue, alpha);
+        resColor = _RGBA(red, green, blue, alpha);
+    }
+    else
+    {
+        // rgba rgb(1, 1, 1, 1)
+        // 去除前缀，和后缀的右括号
+        // std::cout << colorDealStr << std::endl;
+
+        TpString resColorStr = colorDealStr.mid(colorDealStr.find("(") + 1, colorDealStr.find(")") - colorDealStr.find("(") - 1);
+        // std::cout << resColorStr << std::endl;
+
+        TpList<TpString> rgbaList = resColorStr.split(',');
+        if (rgbaList.size() < 3)
+            return resColor;
+
+        // std::cout << rgbaList.at(0) << "-" << rgbaList.at(1) << "-" << rgbaList.at(2) << std::endl;
+
+        red = rgbaList.at(0).toInt();
+        green = rgbaList.at(1).toInt();
+        blue = rgbaList.at(2).toInt();
+
+        if (rgbaList.size() > 3)
+        {
+            alpha = rgbaList.at(3).toDouble() * 255;
+        }
+
+        resColor = _RGBA(red, green, blue, alpha);
+        // resColor.setRgba(red, green, blue, alpha);
+    }
+
+    return TpString::number(resColor);
 }
 
 TpString TpCssParser::StrTypeCssFunc(const TpString &_attrValue)
@@ -468,19 +475,8 @@ TpString TpCssParser::StrTypeCssFunc(const TpString &_attrValue)
 
 TpString TpCssParser::BorderRadiusTypeCssFunc(const TpString &_attrValue)
 {
-    // if (_attrValue.compare("circle") == 0)
-    //     return "0.5";
-
-    // if (_attrValue.contains("%"))
-    // {
-    //     TpString dealValue = _attrValue.replace("%", "");
-    //     dealValue = TpString::number(dealValue.toDouble() / 100.0);
-    //     return dealValue;
-    // }
     TpString valueStr = _attrValue;
     valueStr = valueStr.simplified();
 
     return valueStr;
-
-    // return "0";
 }

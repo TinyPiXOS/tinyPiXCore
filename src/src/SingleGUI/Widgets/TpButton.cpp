@@ -267,7 +267,6 @@ bool TpButton::eventFilter(TpObject *watched, TpEvent *event)
     else if (event->eventType() == TpEvent::EVENT_OBJECT_LEAVE_TYPE)
     {
         // std::cout << " TpButton::eventFilter "  << std::endl;
-
         // onLeaveEvent((TpObjectLeaveEvent *)event);
     }
     else

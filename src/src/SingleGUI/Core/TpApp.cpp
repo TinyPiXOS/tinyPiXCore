@@ -349,7 +349,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             paintInput.updateRect.setX(task.x);
             paintInput.updateRect.setY(task.y);
             paintInput.updateRect.setWidth(task.w);
-            paintInput.updateRect.setHeight( task.h);
+            paintInput.updateRect.setHeight(task.h);
 
             mergeUpdateWidget[task.updateObj] = paintInput;
         }
@@ -615,6 +615,7 @@ static void SendThemeChangedEvent(ItpAppSet *setData, const tinyPiX::SystemTheme
     TpThemeChangeEvent *themeEvent = new TpThemeChangeEvent();
 
     TpString cssFilePath = parseThemeFile(sysTheme);
+    setData->cssParser_->parseCss(cssFilePath);
 
     // 在 app的run函数中，调用主题改变事件函数，通知所有组件
     TpChildWidget *screenWidget = dynamic_cast<TpChildWidget *>(setData->vScreen);
@@ -886,9 +887,13 @@ void TpApp::setStyle(const tinyPiX::SystemTheme &style)
     {
         set->systemTheme = style;
 
+        TpString cssFilePath = parseThemeFile(style);
+        set->cssParser_->clearCss();
+        set->cssParser_->parseCss(cssFilePath);
+
         // app run起来之后才下发主题切换事件，在run的时候已经解析过了
-        if (set->waitRun)
-            SendThemeChangedEvent(set, style);
+        // if (set->waitRun)
+        //     SendThemeChangedEvent(set, style);
     }
 }
 

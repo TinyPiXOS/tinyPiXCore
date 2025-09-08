@@ -1150,14 +1150,10 @@ bool TpChildWidget::onResizeEvent(TpObjectResizeEvent *event)
 
 bool TpChildWidget::onLeaveEvent(TpObjectLeaveEvent *event)
 {
-    if (event->eventType() == TpEvent::EVENT_OBJECT_LEAVE_TYPE)
-    {
-        ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
-
-        set->isHover = event->leave();
-        set->isPress = false;
-        update();
-    }
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
+    set->isHover = event->leave();
+    set->isPress = false;
+    update();
 
     return true;
 }
@@ -1360,10 +1356,9 @@ tpShared<TpCssData> TpChildWidget::currentStatusCss()
             if (set->isHover)
             {
                 curCssData = hoveredCss();
-
-                if (set->isPress)
-                    curCssData = pressedCss();
             }
+            if (set->isPress)
+                curCssData = pressedCss();
         }
     }
 

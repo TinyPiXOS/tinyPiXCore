@@ -70,7 +70,7 @@ uint32_t TpDialog::exec()
 	TpScreen::setVisible(true);
 
 	// setVisible(true);
-	// update();
+	update();
 
 	dialogData->sema.wait();
 

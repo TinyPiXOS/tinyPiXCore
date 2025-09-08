@@ -22,11 +22,11 @@
 // static TpChildWidget *pressObject = nullptr;
 
 // 鼠标左键长按回调
-static std::function<void(TpChildWidget *, ItpMouseSet *)> longPressCallback = [](TpChildWidget *obj, ItpMouseSet *mouseSet)
+static std::function<void(TpChildWidget *, ItpMouseSet)> longPressCallback = [](TpChildWidget *obj, ItpMouseSet mouseSet)
 {
     // std::cout << " onLongPress ***********" << std::endl;
 
-    ItpMouseSet longPressData = *mouseSet;
+    ItpMouseSet longPressData = mouseSet;
     longPressData.type = TpEvent::EVENT_MOUSE_LONG_PRESS_TYPE;
 
     TpMouseEvent keyEvent;
@@ -72,7 +72,7 @@ static inline void generateParentList(TpObject *object, std::list<TpObject *> &l
     }
 }
 
-static inline void startLongPressCheck(TpChildWidget *object, ItpMouseSet *mouseSet)
+static inline void startLongPressCheck(TpChildWidget *object, const ItpMouseSet &mouseSet)
 {
     std::lock_guard<std::mutex> lock(pressThreadMutex);
     if (pressThread || longPressActive)
@@ -251,7 +251,7 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
             IssueObjEvent(childObj, keyEvent, onMousePressEvent, childObj->enabled());
 
             // 计时，判断是否是长按
-            startLongPressCheck(childObj, &mInput);
+            startLongPressCheck(childObj, mInput);
         }
         else
         {
@@ -1039,26 +1039,6 @@ int32_t TpScreen::screenHeight()
     return sHeight;
 }
 
-void ParentLeaveOutFunc(TpChildWidget *parent, const TpRect &curMotionRect, ItpObjectLeaveSet input)
-{
-    if (!parent)
-        return;
-
-    TpRect parentnRect = parent->toScreen();
-    // std::cout << "parentnRect " << parentnRect.x << " " << parentnRect.y << "  " << parentnRect.w << " " << parentnRect.h << std::endl;
-    // std::cout << "curMotionRect " << curMotionRect.x << " " << curMotionRect.y << "  " << curMotionRect.w << " " << curMotionRect.h << std::endl;
-
-    if (!parentnRect.contains(curMotionRect.x(), curMotionRect.y()) ||
-        !parentnRect.contains(curMotionRect.x() + curMotionRect.width(), curMotionRect.y() + curMotionRect.height()))
-    {
-        TpObjectLeaveEvent leaveEvent;
-        leaveEvent.construct(&input);
-
-        IssueObjEvent(parent, leaveEvent, onLeaveEvent, parent->enabled());
-        ParentLeaveOutFunc((TpChildWidget *)parent->parent(), curMotionRect, input);
-    }
-};
-
 int32_t TpScreen::dispatchEvent(void *events)
 {
     ItpEvent *eventPtr = (ItpEvent *)events;
@@ -1122,6 +1102,7 @@ int32_t TpScreen::dispatchEvent(void *events)
     {
     case TP_MOUSEMOTION:
     {
+        // std::cout << "TP_MOUSEMOTION " << std::endl;
         if ((eventMask & TpApp::TP_DIS_MOTION) == TpApp::TP_DIS_MOTION)
         {
             return false;
