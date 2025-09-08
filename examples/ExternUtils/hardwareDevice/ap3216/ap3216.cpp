@@ -52,7 +52,8 @@ TpAp3216::TpAp3216()
 TpAp3216::~TpAp3216()
 {
 	TpAp3216Data *data = static_cast<TpAp3216Data *>(data_);
-	delete(data);
+	if(data)
+		delete(data);
 }
 
 // 拷贝赋值
@@ -140,22 +141,36 @@ static float als_resolution_by_range(uint8_t range) {
 TpAp3216Manager::TpAp3216Manager(const TpString& name):TpHardwareI2c(name,AP3216C_SLAVE_ADDR)
 {
 	data_ = new TpAp3216ManagerData();
-	TpAp3216ManagerData *data = static_cast<TpAp3216ManagerData *>(data_);
 }
 TpAp3216Manager::TpAp3216Manager(tpUInt8 bus):TpHardwareI2c(bus,AP3216C_SLAVE_ADDR)
 {
-	TpAp3216ManagerData *data = static_cast<TpAp3216ManagerData *>(data_);
-	delete(data);
+	data_ = new TpAp3216ManagerData();
 }
 TpAp3216Manager::~TpAp3216Manager()
 {
-
+	TpAp3216ManagerData *data = static_cast<TpAp3216ManagerData *>(data_);
+	if(data)
+		delete(data);
 }
 tpBool TpAp3216Manager::open()
 {
 	TpAp3216ManagerData *data = static_cast<TpAp3216ManagerData *>(data_);
 
 	if(!TpHardwareI2c::open())
+		return TP_FALSE;
+
+	if (reset() < 0) {
+		fprintf(stderr,"[Error]: AP3216 reset failed!\n");
+		return TP_FALSE;
+	}
+
+	// 设置模式为ALS+PS连续测量模式
+	if (setMode(TpAp3216Manager::FUNCTION_ALS_PS_IR) < 0) {  // 使用正确的枚举值
+		fprintf(stderr,"AP3216 set mode failed!\n");
+		return TP_FALSE;
+	}
+	usleep(10000);
+	if(getMode()!=TpAp3216Manager::FUNCTION_ALS_PS_IR)
 		return TP_FALSE;
 
 	int ret=getAlsRange_();
@@ -218,9 +233,9 @@ tpInt8 TpAp3216Manager::getAlsRange_()
 
 int TpAp3216Manager::reset()
 {
-	if (writeOneReg(REG_SYS_CONF, 0x04) < 0) 
+	if (writeOneReg(REG_SYS_CONF, TpAp3216Manager::FUNCTION_RESET) < 0) 
 		return -1;
-    usleep(10000); // 10ms per datasheet typical
+    usleep(15000); // 10ms per datasheet typical
     return 0;
 }
 
@@ -258,18 +273,5 @@ TpAp3216 TpAp3216Manager::getSampleData()
 
 	return TpAp3216(ir_value,lux,ps_value,is_closer,ir_ps_of);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
