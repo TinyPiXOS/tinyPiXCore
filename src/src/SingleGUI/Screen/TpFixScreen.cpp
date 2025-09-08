@@ -129,32 +129,6 @@ int32_t TpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t 
     return false;
 }
 
-void TpFixScreen::setRect(const TpRect &rect)
-{
-}
-
-void TpFixScreen::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
-{
-}
-
-void TpFixScreen::setBeMoved(bool moved)
-{
-}
-
-bool TpFixScreen::moved()
-{
-    return false;
-}
-
-void TpFixScreen::setAlpha(const uint8_t &alpha)
-{
-}
-
-uint8_t TpFixScreen::alpha()
-{
-    return 0xff;
-}
-
 bool TpFixScreen::onActiveEvent(TpObjectActiveEvent *event)
 {
     TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
