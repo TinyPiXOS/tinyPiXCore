@@ -257,9 +257,13 @@ void TpLabel::setAlign(const tinyPiX::AlignmentFlag align)
 bool TpLabel::onPaintEvent(TpObjectPaintEvent *event)
 {
     ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
-
     if (!set)
         return true;
+
+    // // 设置CSS
+    // tpShared<TpCssData> curCssData = currentStatusCss();
+    // set->font->setFontColor(curCssData->color(), curCssData->color());
+    // set->font->setFontSize(curCssData->fontSize());
 
     TpVector<TpString> subStrList = wrapText(set, text(), width());
 

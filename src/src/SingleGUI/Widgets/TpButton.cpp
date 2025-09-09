@@ -200,8 +200,8 @@ bool TpButton::onResizeEvent(TpObjectResizeEvent *event)
         uint32_t iconWidth = (buttonData->iconSize.width() == 0) ? (rect().width() - curCssData->paddingLeft() - curCssData->paddingRight()) : buttonData->iconSize.width();
         uint32_t iconHeight = (buttonData->iconSize.height() == 0) ? (rect().height() - curCssData->paddingTop() - curCssData->paddingBottom()) : buttonData->iconSize.height();
 
-        int32_t iconX = (buttonData->iconSize.width() == 0) ? curCssData->paddingLeft() : (width() - iconWidth) / 2.0;
-        int32_t iconY = (buttonData->iconSize.height() == 0) ? curCssData->paddingTop() : (height() - iconHeight) / 2.0;
+        int32_t iconX = (width() - iconWidth) / 2.0;
+        int32_t iconY = (height() - iconHeight) / 2.0;
 
         buttonData->iconLabel->setWidth(iconWidth);
         buttonData->iconLabel->setHeight(iconHeight);

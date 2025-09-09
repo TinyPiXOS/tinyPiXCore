@@ -76,7 +76,7 @@ void TpSlideProgressBar::setValue(const int32_t &value)
     {
     }
 
-    onValueChanged.emit(progressData->curValue);
+    // onValueChanged.emit(progressData->curValue);
 
     update();
 }
