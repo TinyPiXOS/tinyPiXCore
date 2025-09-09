@@ -860,8 +860,8 @@ uint16_t TpMultiGestureEvent::padding()
     return padding;
 }
 
-//--------------------------TpObjectMoveEvent------------------------------/
-TpObjectMoveEvent::TpObjectMoveEvent() : TpEvent()
+//--------------------------TpMoveEvent------------------------------/
+TpMoveEvent::TpMoveEvent() : TpEvent()
 {
     ItpObjectMoveSet *set = new ItpObjectMoveSet();
 
@@ -872,7 +872,7 @@ TpObjectMoveEvent::TpObjectMoveEvent() : TpEvent()
     }
 }
 
-TpObjectMoveEvent::~TpObjectMoveEvent()
+TpMoveEvent::~TpMoveEvent()
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::TpEventSet;
 
@@ -882,7 +882,7 @@ TpObjectMoveEvent::~TpObjectMoveEvent()
     }
 }
 
-bool TpObjectMoveEvent::construct(ItpEventData *eventData)
+bool TpMoveEvent::construct(ItpEventData *eventData)
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::TpEventSet;
 
@@ -902,7 +902,7 @@ bool TpObjectMoveEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectMoveEvent::eventType()
+TpEvent::ItpEventType TpMoveEvent::eventType()
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -915,7 +915,7 @@ TpEvent::ItpEventType TpObjectMoveEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectMoveEvent::object()
+TpObject *TpMoveEvent::object()
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -928,7 +928,7 @@ TpObject *TpObjectMoveEvent::object()
     return object;
 }
 
-int32_t TpObjectMoveEvent::newX()
+int32_t TpMoveEvent::newX()
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::TpEventSet;
     int32_t newX = TP_INVALIDATE_VALUE;
@@ -941,7 +941,7 @@ int32_t TpObjectMoveEvent::newX()
     return newX;
 }
 
-int32_t TpObjectMoveEvent::newY()
+int32_t TpMoveEvent::newY()
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::TpEventSet;
     int32_t newY = TP_INVALIDATE_VALUE;
@@ -954,8 +954,8 @@ int32_t TpObjectMoveEvent::newY()
     return newY;
 }
 
-//--------------------------TpObjectResizeEvent------------------------------/
-TpObjectResizeEvent::TpObjectResizeEvent() : TpEvent()
+//--------------------------TpResizeEvent------------------------------/
+TpResizeEvent::TpResizeEvent() : TpEvent()
 {
     ItpObjectResizeSet *set = new ItpObjectResizeSet(); // EVENT_OBJECT_RESIZE_TYPE
 
@@ -966,7 +966,7 @@ TpObjectResizeEvent::TpObjectResizeEvent() : TpEvent()
     }
 }
 
-TpObjectResizeEvent::~TpObjectResizeEvent()
+TpResizeEvent::~TpResizeEvent()
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
 
@@ -976,7 +976,7 @@ TpObjectResizeEvent::~TpObjectResizeEvent()
     }
 }
 
-bool TpObjectResizeEvent::construct(ItpEventData *eventData)
+bool TpResizeEvent::construct(ItpEventData *eventData)
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
 
@@ -995,7 +995,7 @@ bool TpObjectResizeEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectResizeEvent::eventType()
+TpEvent::ItpEventType TpResizeEvent::eventType()
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1008,7 +1008,7 @@ TpEvent::ItpEventType TpObjectResizeEvent::eventType()
     return type;
 }
 
-int32_t TpObjectResizeEvent::question()
+int32_t TpResizeEvent::question()
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
     int32_t question = TP_UNKOWN_CHANGE;
@@ -1021,7 +1021,7 @@ int32_t TpObjectResizeEvent::question()
     return question;
 }
 
-TpObject *TpObjectResizeEvent::object()
+TpObject *TpResizeEvent::object()
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1034,7 +1034,7 @@ TpObject *TpObjectResizeEvent::object()
     return object;
 }
 
-int32_t TpObjectResizeEvent::nWidth()
+int32_t TpResizeEvent::nWidth()
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
     int32_t newWidth = TP_INVALIDATE_VALUE;
@@ -1047,7 +1047,7 @@ int32_t TpObjectResizeEvent::nWidth()
     return newWidth;
 }
 
-int32_t TpObjectResizeEvent::nHeight()
+int32_t TpResizeEvent::nHeight()
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::TpEventSet;
     int32_t newHeight = TP_INVALIDATE_VALUE;
@@ -1060,8 +1060,8 @@ int32_t TpObjectResizeEvent::nHeight()
     return newHeight;
 }
 
-//--------------------------TpObjectFocusEvent------------------------------/
-TpObjectFocusEvent::TpObjectFocusEvent() : TpEvent()
+//--------------------------TpFocusEvent------------------------------/
+TpFocusEvent::TpFocusEvent() : TpEvent()
 {
     ItpObjectFocusSet *set = new ItpObjectFocusSet(); // EVENT_OBJECT_FOCUS_TYPE
 
@@ -1072,7 +1072,7 @@ TpObjectFocusEvent::TpObjectFocusEvent() : TpEvent()
     }
 }
 
-TpObjectFocusEvent::~TpObjectFocusEvent()
+TpFocusEvent::~TpFocusEvent()
 {
     ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::TpEventSet;
 
@@ -1082,7 +1082,7 @@ TpObjectFocusEvent::~TpObjectFocusEvent()
     }
 }
 
-bool TpObjectFocusEvent::construct(ItpEventData *eventData)
+bool TpFocusEvent::construct(ItpEventData *eventData)
 {
     ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::TpEventSet;
 
@@ -1102,7 +1102,7 @@ bool TpObjectFocusEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectFocusEvent::eventType()
+TpEvent::ItpEventType TpFocusEvent::eventType()
 {
     ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1115,7 +1115,7 @@ TpEvent::ItpEventType TpObjectFocusEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectFocusEvent::object()
+TpObject *TpFocusEvent::object()
 {
     ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1128,7 +1128,7 @@ TpObject *TpObjectFocusEvent::object()
     return object;
 }
 
-bool TpObjectFocusEvent::focused()
+bool TpFocusEvent::focused()
 {
     ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::TpEventSet;
     bool focused = false;
@@ -1141,8 +1141,8 @@ bool TpObjectFocusEvent::focused()
     return focused;
 }
 
-//--------------------------TpObjectLeaveEvent------------------------------/
-TpObjectLeaveEvent::TpObjectLeaveEvent() : TpEvent()
+//--------------------------TpLeaveEvent------------------------------/
+TpLeaveEvent::TpLeaveEvent() : TpEvent()
 {
     ItpObjectLeaveSet *set = new ItpObjectLeaveSet(); // EVENT_OBJECT_LEAVE_TYPE
 
@@ -1153,7 +1153,7 @@ TpObjectLeaveEvent::TpObjectLeaveEvent() : TpEvent()
     }
 }
 
-TpObjectLeaveEvent::~TpObjectLeaveEvent()
+TpLeaveEvent::~TpLeaveEvent()
 {
     ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::TpEventSet;
 
@@ -1163,7 +1163,7 @@ TpObjectLeaveEvent::~TpObjectLeaveEvent()
     }
 }
 
-bool TpObjectLeaveEvent::construct(ItpEventData *eventData)
+bool TpLeaveEvent::construct(ItpEventData *eventData)
 {
     ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::TpEventSet;
 
@@ -1183,7 +1183,7 @@ bool TpObjectLeaveEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectLeaveEvent::eventType()
+TpEvent::ItpEventType TpLeaveEvent::eventType()
 {
     ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1196,7 +1196,7 @@ TpEvent::ItpEventType TpObjectLeaveEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectLeaveEvent::object()
+TpObject *TpLeaveEvent::object()
 {
     ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1209,7 +1209,7 @@ TpObject *TpObjectLeaveEvent::object()
     return object;
 }
 
-bool TpObjectLeaveEvent::leave()
+bool TpLeaveEvent::leave()
 {
     ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::TpEventSet;
     bool leaved = false;
@@ -1222,8 +1222,8 @@ bool TpObjectLeaveEvent::leave()
     return leaved;
 }
 
-//--------------------------TpObjectVisibleEvent------------------------------/
-TpObjectVisibleEvent::TpObjectVisibleEvent() : TpEvent()
+//--------------------------TpVisibleEvent------------------------------/
+TpVisibleEvent::TpVisibleEvent() : TpEvent()
 {
     ItpObjectVisibleSet *set = new ItpObjectVisibleSet(); // EVENT_OBJECT_VISIBLE_TYPE
 
@@ -1234,7 +1234,7 @@ TpObjectVisibleEvent::TpObjectVisibleEvent() : TpEvent()
     }
 }
 
-TpObjectVisibleEvent::~TpObjectVisibleEvent()
+TpVisibleEvent::~TpVisibleEvent()
 {
     ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::TpEventSet;
 
@@ -1244,7 +1244,7 @@ TpObjectVisibleEvent::~TpObjectVisibleEvent()
     }
 }
 
-bool TpObjectVisibleEvent::construct(ItpEventData *eventData)
+bool TpVisibleEvent::construct(ItpEventData *eventData)
 {
     ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::TpEventSet;
 
@@ -1264,7 +1264,7 @@ bool TpObjectVisibleEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectVisibleEvent::eventType()
+TpEvent::ItpEventType TpVisibleEvent::eventType()
 {
     ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1277,7 +1277,7 @@ TpEvent::ItpEventType TpObjectVisibleEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectVisibleEvent::object()
+TpObject *TpVisibleEvent::object()
 {
     ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1290,7 +1290,7 @@ TpObject *TpObjectVisibleEvent::object()
     return object;
 }
 
-bool TpObjectVisibleEvent::visible()
+bool TpVisibleEvent::visible()
 {
     ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::TpEventSet;
     bool visible = false;
@@ -1303,8 +1303,8 @@ bool TpObjectVisibleEvent::visible()
     return visible;
 }
 
-//--------------------------TpObjectRotateEvent------------------------------/
-TpObjectRotateEvent::TpObjectRotateEvent() : TpEvent()
+//--------------------------TpRotateEvent------------------------------/
+TpRotateEvent::TpRotateEvent() : TpEvent()
 {
     ItpObjectRotateSet *set = new ItpObjectRotateSet(); // EVENT_OBJECT_ROTATE_TYPE
 
@@ -1315,7 +1315,7 @@ TpObjectRotateEvent::TpObjectRotateEvent() : TpEvent()
     }
 }
 
-TpObjectRotateEvent::~TpObjectRotateEvent()
+TpRotateEvent::~TpRotateEvent()
 {
     ItpObjectRotateSet *set = (ItpObjectRotateSet *)TpEvent::TpEventSet;
 
@@ -1325,7 +1325,7 @@ TpObjectRotateEvent::~TpObjectRotateEvent()
     }
 }
 
-bool TpObjectRotateEvent::construct(ItpEventData *eventData)
+bool TpRotateEvent::construct(ItpEventData *eventData)
 {
     ItpObjectRotateSet *set = (ItpObjectRotateSet *)TpEvent::TpEventSet;
 
@@ -1345,7 +1345,7 @@ bool TpObjectRotateEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectRotateEvent::eventType()
+TpEvent::ItpEventType TpRotateEvent::eventType()
 {
     ItpObjectRotateSet *set = (ItpObjectRotateSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1358,7 +1358,7 @@ TpEvent::ItpEventType TpObjectRotateEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectRotateEvent::object()
+TpObject *TpRotateEvent::object()
 {
     ItpObjectRotateSet *set = (ItpObjectRotateSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1371,7 +1371,7 @@ TpObject *TpObjectRotateEvent::object()
     return object;
 }
 
-ItpRotateType TpObjectRotateEvent::rotate()
+ItpRotateType TpRotateEvent::rotate()
 {
     ItpObjectRotateSet *set = (ItpObjectRotateSet *)TpEvent::TpEventSet;
     ItpRotateType rotate = TP_ROT_0;
@@ -1384,8 +1384,8 @@ ItpRotateType TpObjectRotateEvent::rotate()
     return rotate;
 }
 
-//--------------------------TpObjectPaintEvent------------------------------/
-TpObjectPaintEvent::TpObjectPaintEvent() : TpEvent()
+//--------------------------TpPaintEvent------------------------------/
+TpPaintEvent::TpPaintEvent() : TpEvent()
 {
     ItpObjectPaintSet *set = new ItpObjectPaintSet(); // EVENT_OBJECT_ROTATE_TYPE
 
@@ -1397,7 +1397,7 @@ TpObjectPaintEvent::TpObjectPaintEvent() : TpEvent()
     }
 }
 
-TpObjectPaintEvent::~TpObjectPaintEvent()
+TpPaintEvent::~TpPaintEvent()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
 
@@ -1412,7 +1412,7 @@ TpObjectPaintEvent::~TpObjectPaintEvent()
     }
 }
 
-bool TpObjectPaintEvent::construct(ItpEventData *eventData)
+bool TpPaintEvent::construct(ItpEventData *eventData)
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
 
@@ -1482,7 +1482,7 @@ bool TpObjectPaintEvent::construct(ItpEventData *eventData)
     return true;
 }
 
-TpEvent::ItpEventType TpObjectPaintEvent::eventType()
+TpEvent::ItpEventType TpPaintEvent::eventType()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1495,7 +1495,7 @@ TpEvent::ItpEventType TpObjectPaintEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectPaintEvent::object()
+TpObject *TpPaintEvent::object()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1508,7 +1508,7 @@ TpObject *TpObjectPaintEvent::object()
     return object;
 }
 
-TpCanvas *TpObjectPaintEvent::canvas()
+TpCanvas *TpPaintEvent::canvas()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpCanvas *canvas = nullptr;
@@ -1521,7 +1521,7 @@ TpCanvas *TpObjectPaintEvent::canvas()
     return canvas;
 }
 
-tpShared<TpSurface> TpObjectPaintEvent::surface()
+tpShared<TpSurface> TpPaintEvent::surface()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
 
@@ -1533,7 +1533,7 @@ tpShared<TpSurface> TpObjectPaintEvent::surface()
     return nullptr;
 }
 
-ItpSufaceData *TpObjectPaintEvent::itpSurface()
+ItpSufaceData *TpPaintEvent::itpSurface()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     ItpSufaceData *itpSurface = nullptr;
@@ -1546,7 +1546,7 @@ ItpSufaceData *TpObjectPaintEvent::itpSurface()
     return itpSurface;
 }
 
-int32_t TpObjectPaintEvent::offsetX()
+int32_t TpPaintEvent::offsetX()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     int32_t offsetX = 0;
@@ -1559,7 +1559,7 @@ int32_t TpObjectPaintEvent::offsetX()
     return offsetX;
 }
 
-int32_t TpObjectPaintEvent::offsetY()
+int32_t TpPaintEvent::offsetY()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     int32_t offsetY = 0;
@@ -1572,7 +1572,7 @@ int32_t TpObjectPaintEvent::offsetY()
     return offsetY;
 }
 
-TpRect TpObjectPaintEvent::updateRect()
+TpRect TpPaintEvent::updateRect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpRect result = {0, 0, 0, 0};
@@ -1585,7 +1585,7 @@ TpRect TpObjectPaintEvent::updateRect()
     return result;
 }
 
-TpRect TpObjectPaintEvent::rect()
+TpRect TpPaintEvent::rect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpRect result = {0, 0, 0, 0};
@@ -1598,7 +1598,7 @@ TpRect TpObjectPaintEvent::rect()
     return result;
 }
 
-TpRect TpObjectPaintEvent::absRect()
+TpRect TpPaintEvent::absRect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpRect result;
@@ -1613,7 +1613,7 @@ TpRect TpObjectPaintEvent::absRect()
     return result;
 }
 
-bool TpObjectPaintEvent::isCanDraw()
+bool TpPaintEvent::isCanDraw()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     bool canDraw = false;
@@ -1627,7 +1627,7 @@ bool TpObjectPaintEvent::isCanDraw()
 }
 
 //--------------------------TpObjectActivedEvent------------------------------/
-TpObjectActiveEvent::TpObjectActiveEvent() : TpEvent()
+TpActiveEvent::TpActiveEvent() : TpEvent()
 {
     ItpObjectActiveSet *set = new ItpObjectActiveSet(); // EVENT_OBJECT_ROTATE_TYPE
 
@@ -1638,7 +1638,7 @@ TpObjectActiveEvent::TpObjectActiveEvent() : TpEvent()
     }
 }
 
-TpObjectActiveEvent::~TpObjectActiveEvent()
+TpActiveEvent::~TpActiveEvent()
 {
     ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::TpEventSet;
 
@@ -1648,7 +1648,7 @@ TpObjectActiveEvent::~TpObjectActiveEvent()
     }
 }
 
-bool TpObjectActiveEvent::construct(ItpEventData *eventData)
+bool TpActiveEvent::construct(ItpEventData *eventData)
 {
     ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::TpEventSet;
 
@@ -1668,7 +1668,7 @@ bool TpObjectActiveEvent::construct(ItpEventData *eventData)
     return false;
 }
 
-TpEvent::ItpEventType TpObjectActiveEvent::eventType()
+TpEvent::ItpEventType TpActiveEvent::eventType()
 {
     ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::TpEventSet;
     TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
@@ -1681,7 +1681,7 @@ TpEvent::ItpEventType TpObjectActiveEvent::eventType()
     return type;
 }
 
-TpObject *TpObjectActiveEvent::object()
+TpObject *TpActiveEvent::object()
 {
     ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::TpEventSet;
     TpObject *object = nullptr;
@@ -1694,7 +1694,7 @@ TpObject *TpObjectActiveEvent::object()
     return object;
 }
 
-bool TpObjectActiveEvent::isActived()
+bool TpActiveEvent::isActived()
 {
     ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::TpEventSet;
     bool actived = false;

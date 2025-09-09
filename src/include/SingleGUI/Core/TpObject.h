@@ -18,14 +18,14 @@ class TpFingerEvent;
 class TpDollAREvent;
 class TpMultiGestureEvent;
 
-class TpObjectMoveEvent;
-class TpObjectResizeEvent;
-class TpObjectFocusEvent;
-class TpObjectLeaveEvent;
-class TpObjectVisibleEvent;
-class TpObjectRotateEvent;
-class TpObjectPaintEvent;
-class TpObjectActiveEvent;
+class TpMoveEvent;
+class TpResizeEvent;
+class TpFocusEvent;
+class TpLeaveEvent;
+class TpVisibleEvent;
+class TpRotateEvent;
+class TpPaintEvent;
+class TpActiveEvent;
 class TpThemeChangeEvent;
 
 class TpObjectList;

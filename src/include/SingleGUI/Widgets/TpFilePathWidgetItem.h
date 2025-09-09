@@ -16,7 +16,7 @@ public:
     virtual void setText(const TpString &text) override;
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
     virtual TpString pluginType() override { return TO_STRING(TpFilePathWidgetItem); }
 

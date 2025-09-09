@@ -158,7 +158,7 @@ bool TpOnOffButton::onMousePressEvent(TpMouseEvent *event)
 	return true;
 }
 
-bool TpOnOffButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpOnOffButton::onPaintEvent(TpPaintEvent *event)
 {
 	TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
 	if (!btnData)
@@ -175,7 +175,7 @@ bool TpOnOffButton::onPaintEvent(TpObjectPaintEvent *event)
 	return true;
 }
 
-bool TpOnOffButton::onResizeEvent(TpObjectResizeEvent *event)
+bool TpOnOffButton::onResizeEvent(TpResizeEvent *event)
 {
 	TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
 	if (!btnData)

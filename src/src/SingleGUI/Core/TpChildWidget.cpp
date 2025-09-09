@@ -76,7 +76,7 @@ static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, const int32_t &x
         input.object = thisPtr;
         input.nx = x;
         input.ny = y;
-        TpObjectMoveEvent event;
+        TpMoveEvent event;
         bool ret = event.construct(&input);
 
         if (ret)
@@ -117,8 +117,8 @@ static void changeWidth(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_
         input.object = thisPtr;
         input.nw = setW;
         input.nh = set->logicalRect.height();
-        input.question = TpObjectResizeEvent::TP_NORMAL_CHANGE;
-        TpObjectResizeEvent event;
+        input.question = TpResizeEvent::TP_NORMAL_CHANGE;
+        TpResizeEvent event;
         bool ret = event.construct(&input);
 
         if (ret)
@@ -161,8 +161,8 @@ static void changeHeight(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32
         input.object = thisPtr;
         input.nw = set->logicalRect.width();
         input.nh = setH;
-        input.question = TpObjectResizeEvent::TP_NORMAL_CHANGE;
-        TpObjectResizeEvent event;
+        input.question = TpResizeEvent::TP_NORMAL_CHANGE;
+        TpResizeEvent event;
         bool ret = event.construct(&input);
 
         // std::cout << "Change Height " << setH << std::endl;
@@ -311,7 +311,7 @@ void TpChildWidget::setVisible(bool visible)
     input.object = this;
     input.visible = visible;
 
-    TpObjectVisibleEvent event;
+    TpVisibleEvent event;
     bool ret = event.construct(&input);
 
     if (ret)
@@ -1122,7 +1122,7 @@ bool TpChildWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpChildWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpChildWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpObject *object = event->object();
 
@@ -1148,7 +1148,7 @@ bool TpChildWidget::onResizeEvent(TpObjectResizeEvent *event)
     return true;
 }
 
-bool TpChildWidget::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpChildWidget::onLeaveEvent(TpLeaveEvent *event)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     set->isHover = event->leave();
@@ -1158,7 +1158,7 @@ bool TpChildWidget::onLeaveEvent(TpObjectLeaveEvent *event)
     return true;
 }
 
-bool TpChildWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
 {
     bool ret = event->isCanDraw();
     uint8_t alpha = 0xff;

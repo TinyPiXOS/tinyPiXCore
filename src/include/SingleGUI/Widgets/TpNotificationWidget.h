@@ -17,10 +17,10 @@ public:
     void addItem(TpNotificationItem *item);
 
 public:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
 private:
     ItpNotificationWidgetData *data_;

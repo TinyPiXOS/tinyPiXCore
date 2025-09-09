@@ -680,7 +680,7 @@ void TpScrollPanel::doFlip(TpScroll *scroll, int32_t position, int32_t page, int
     // set->scroll[TP_LTSCR_INDEX]
 }
 
-bool TpScrollPanel::onPaintEvent(TpObjectPaintEvent *event)
+bool TpScrollPanel::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
     // recal(true);
@@ -862,7 +862,7 @@ bool TpScrollPanel::onWheelEvent(TpWheelEvent *event)
     return true;
 }
 
-bool TpScrollPanel::onResizeEvent(TpObjectResizeEvent *event)
+bool TpScrollPanel::onResizeEvent(TpResizeEvent *event)
 {
     TpScrollPanelData *set = static_cast<TpScrollPanelData *>(data_);
     if (!set)
@@ -877,7 +877,7 @@ bool TpScrollPanel::onResizeEvent(TpObjectResizeEvent *event)
     return true;
 }
 
-bool TpScrollPanel::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpScrollPanel::onLeaveEvent(TpLeaveEvent *event)
 {
     TpScrollPanelData *set = static_cast<TpScrollPanelData *>(data_);
     if (!set)

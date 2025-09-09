@@ -71,19 +71,19 @@ signals:
     declare_signal(currentItemChanged, TpTreeWidgetItem *, TpTreeWidgetItem *);
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
     virtual bool onWheelEvent(TpWheelEvent *event) override;
 
-    virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
+    virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
 
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
 private:
-    void drawItem(TpObjectPaintEvent *event, TpTreeWidgetItem *topItem, const uint32_t &drawItemStartY, uint32_t &curIndex);
+    void drawItem(TpPaintEvent *event, TpTreeWidgetItem *topItem, const uint32_t &drawItemStartY, uint32_t &curIndex);
 
     // 获取item是第几级节点
     uint32_t itemParentCount(TpTreeWidgetItem *item);

@@ -156,7 +156,7 @@ bool TpCarouselButton::onMousePressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpCarouselButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpCarouselButton::onPaintEvent(TpPaintEvent *event)
 {
     TpCarouselButtonData *buttonData = static_cast<TpCarouselButtonData *>(data_);
     buttonData->pointRectList.clear();

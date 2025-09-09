@@ -107,7 +107,7 @@ void TpListCheckBoxGroupItem::setData(const TpVariant &data)
     setProperty("TpListCheckBoxGroupItemData", data);
 }
 
-bool TpListCheckBoxGroupItem::onPaintEvent(TpObjectPaintEvent *event)
+bool TpListCheckBoxGroupItem::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -139,7 +139,7 @@ bool TpListCheckBoxGroupItem::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpListCheckBoxGroupItem::onResizeEvent(TpObjectResizeEvent *event)
+bool TpListCheckBoxGroupItem::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

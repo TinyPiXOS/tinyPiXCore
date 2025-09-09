@@ -136,14 +136,14 @@ void TpMusicPlayerView::setImage(TpImage image)
     musicData->musicImageLabel->setBackGroundImage(image);
 }
 
-bool TpMusicPlayerView::onPaintEvent(TpObjectPaintEvent *event)
+bool TpMusicPlayerView::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
     return true;
 }
 
-bool TpMusicPlayerView::onResizeEvent(TpObjectResizeEvent *event)
+bool TpMusicPlayerView::onResizeEvent(TpResizeEvent *event)
 {
     // 重新计算子组件布局
     TpMusicPlayerViewData *musicData = static_cast<TpMusicPlayerViewData *>(data_);

@@ -215,7 +215,7 @@ TpString TpMenu::itemText(const uint32_t &index)
 	return menuData->itemList.at(index).text;
 }
 
-bool TpMenu::onFocusEvent(TpObjectFocusEvent *event)
+bool TpMenu::onFocusEvent(TpFocusEvent *event)
 {
 	std::cout << "TpMenu::onFocusEvent " << std::endl;
 	// if (!event->focused())
@@ -264,7 +264,7 @@ bool TpMenu::onMouseMoveEvent(TpMouseEvent *event)
 	return true;
 }
 
-bool TpMenu::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpMenu::onLeaveEvent(TpLeaveEvent *event)
 {
 	TpMenuData *menuData = static_cast<TpMenuData *>(data_);
 	menuData->isHover = event->leave();
@@ -274,7 +274,7 @@ bool TpMenu::onLeaveEvent(TpObjectLeaveEvent *event)
 	return true;
 }
 
-bool TpMenu::onPaintEvent(TpObjectPaintEvent *event)
+bool TpMenu::onPaintEvent(TpPaintEvent *event)
 {
 	TpChildWidget::onPaintEvent(event);
 

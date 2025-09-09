@@ -138,7 +138,7 @@ bool TpWeatherInfoPanel::setWeatherInfo(const int32_t &index, const TpWeatherInf
     return true;
 }
 
-bool TpWeatherInfoPanel::onPaintEvent(TpObjectPaintEvent *event)
+bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -207,7 +207,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpWeatherInfoPanel::onResizeEvent(TpObjectResizeEvent *event)
+bool TpWeatherInfoPanel::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

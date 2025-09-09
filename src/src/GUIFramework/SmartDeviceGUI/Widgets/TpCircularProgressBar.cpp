@@ -82,7 +82,7 @@ uint32_t TpCircularProgressBar::lineWidth()
     return progressData->lineWidth;
 }
 
-bool TpCircularProgressBar::onPaintEvent(TpObjectPaintEvent *event)
+bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
 {
     TpCircularProgressBarData *progressData = static_cast<TpCircularProgressBarData *>(data_);
 

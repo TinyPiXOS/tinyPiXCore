@@ -174,21 +174,21 @@ bool TpMenuPanelWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpMenuPanelWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpMenuPanelWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
     return true;
 }
 
-bool TpMenuPanelWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpMenuPanelWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 
     return true;
 }
 
-bool TpMenuPanelWidget::onFocusEvent(TpObjectFocusEvent *event)
+bool TpMenuPanelWidget::onFocusEvent(TpFocusEvent *event)
 {
     TpChildWidget::onFocusEvent(event);
 
@@ -214,7 +214,7 @@ bool TpMenuPanelWidget::eventFilter(TpObject *watched, TpEvent *event)
     }
     else if (event->eventType() == TpEvent::EVENT_OBJECT_FOCUS_TYPE)
     {
-        TpObjectFocusEvent *focusEvent = dynamic_cast<TpObjectFocusEvent *>(event);
+        TpFocusEvent *focusEvent = dynamic_cast<TpFocusEvent *>(event);
         onFocusEvent(focusEvent);
     }
     else

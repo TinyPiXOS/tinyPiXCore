@@ -336,7 +336,7 @@ void TpFileListWidget::clear()
     widgetData->showMinIndex = 0;
 }
 
-bool TpFileListWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpFileListWidget::onResizeEvent(TpResizeEvent *event)
 {
     FileListWidgetData *widgetData = static_cast<FileListWidgetData *>(privData);
     if (!widgetData)
@@ -530,12 +530,12 @@ bool TpFileListWidget::onWheelEvent(TpWheelEvent *event)
     return true;
 }
 
-bool TpFileListWidget::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpFileListWidget::onLeaveEvent(TpLeaveEvent *event)
 {
     return true;
 }
 
-bool TpFileListWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpFileListWidget::onPaintEvent(TpPaintEvent *event)
 {
     FileListWidgetData *widgetData = static_cast<FileListWidgetData *>(privData);
     if (!widgetData)

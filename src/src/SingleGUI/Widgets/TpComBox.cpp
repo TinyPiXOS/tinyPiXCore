@@ -181,7 +181,7 @@ void TpComBox::setMinumumHeight(const uint32_t &height)
     TpChildWidget::setMinumumHeight(height);
 }
 
-bool TpComBox::onResizeEvent(TpObjectResizeEvent *event)
+bool TpComBox::onResizeEvent(TpResizeEvent *event)
 {
     // std::cout << "TpListComBox Resize " << width() << "  height  " << height() << std::endl;
 

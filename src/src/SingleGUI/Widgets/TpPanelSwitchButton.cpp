@@ -57,7 +57,7 @@ TpString TpPanelSwitchButton::text()
     return buttonData->textLabel->text();
 }
 
-bool TpPanelSwitchButton::onResizeEvent(TpObjectResizeEvent *event)
+bool TpPanelSwitchButton::onResizeEvent(TpResizeEvent *event)
 {
     tpShared<TpCssData> curCssData = currentStatusCss();
 
@@ -95,7 +95,7 @@ bool TpPanelSwitchButton::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpPanelSwitchButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpPanelSwitchButton::onPaintEvent(TpPaintEvent *event)
 {
     TpPanelSwitchButtonData *buttonData = static_cast<TpPanelSwitchButtonData *>(data_);
 
@@ -123,7 +123,7 @@ bool TpPanelSwitchButton::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpPanelSwitchButton::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpPanelSwitchButton::onLeaveEvent(TpLeaveEvent *event)
 {
     TpChildWidget::onLeaveEvent(event);
     // std::cout << " TpPanelSwitchButton::onLeaveEvent " << event->leave() << std::endl;

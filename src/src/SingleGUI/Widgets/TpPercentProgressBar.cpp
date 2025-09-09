@@ -134,7 +134,7 @@ void TpPercentProgressBar::setItemValue(const uint32_t &index, const double &val
     update();
 }
 
-bool TpPercentProgressBar::onPaintEvent(TpObjectPaintEvent *event)
+bool TpPercentProgressBar::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -225,7 +225,7 @@ bool TpPercentProgressBar::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpPercentProgressBar::onResizeEvent(TpObjectResizeEvent *event)
+bool TpPercentProgressBar::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

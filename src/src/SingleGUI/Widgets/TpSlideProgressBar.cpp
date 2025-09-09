@@ -163,7 +163,7 @@ bool TpSlideProgressBar::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpSlideProgressBar::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpSlideProgressBar::onLeaveEvent(TpLeaveEvent *event)
 {
     // TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
     // progressData->mouseLeftPress = false;
@@ -173,14 +173,14 @@ bool TpSlideProgressBar::onLeaveEvent(TpObjectLeaveEvent *event)
     return true;
 }
 
-bool TpSlideProgressBar::onResizeEvent(TpObjectResizeEvent *event)
+bool TpSlideProgressBar::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 
     return true;
 }
 
-bool TpSlideProgressBar::onPaintEvent(TpObjectPaintEvent *event)
+bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 

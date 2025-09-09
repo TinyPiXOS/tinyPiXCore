@@ -112,7 +112,7 @@ int32_t TpHumidityWidget::lineWidth() const
     return tempData->lineWidth;
 }
 
-bool TpHumidityWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpHumidityWidgetData *tempData = static_cast<TpHumidityWidgetData *>(data_);
 

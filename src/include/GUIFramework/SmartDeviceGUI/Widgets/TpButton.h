@@ -17,7 +17,7 @@ public:
 	virtual ~TpButton();
 
 public:
-	virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+	virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 	virtual TpString pluginType() override { return TO_STRING(TpButton); }
 

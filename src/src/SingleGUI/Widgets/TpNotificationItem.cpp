@@ -64,7 +64,7 @@ const TpNotificationItem::NotificationItemData &TpNotificationItem::itemData()
     return itemData->itemInfo;
 }
 
-bool TpNotificationItem::onPaintEvent(TpObjectPaintEvent *event)
+bool TpNotificationItem::onPaintEvent(TpPaintEvent *event)
 {
     return true;
 }
@@ -79,7 +79,7 @@ bool TpNotificationItem::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpNotificationItem::onResizeEvent(TpObjectResizeEvent *event)
+bool TpNotificationItem::onResizeEvent(TpResizeEvent *event)
 {
     return true;
 }

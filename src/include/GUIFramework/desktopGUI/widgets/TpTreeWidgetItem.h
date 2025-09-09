@@ -62,7 +62,7 @@ public:
     TpList<TpTreeWidgetItem *> takeChildren();
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 private:
     ItpTreeWidgetItemData *data_;

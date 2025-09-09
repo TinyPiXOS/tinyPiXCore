@@ -71,12 +71,12 @@ signals:
 	declare_signal(onClicked, uint32_t);
 
 protected:
-	virtual bool onFocusEvent(TpObjectFocusEvent *event) override;
+	virtual bool onFocusEvent(TpFocusEvent *event) override;
 	virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
 	virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
-	virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
-	virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
+	virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 protected:
 	virtual TpString pluginType() override { return TO_STRING(TpMenu); }

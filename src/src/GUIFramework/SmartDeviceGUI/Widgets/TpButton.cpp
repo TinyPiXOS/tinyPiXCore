@@ -16,7 +16,7 @@ TpButton::~TpButton()
 {
 }
 
-bool TpButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpButton::onPaintEvent(TpPaintEvent *event)
 {
     TpCanvas *painter = event->canvas();
 

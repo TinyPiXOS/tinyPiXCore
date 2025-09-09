@@ -74,9 +74,9 @@ public:
     void setCurrentWidget(TpChildWidget *widget);
 
 public:
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
-    virtual bool onMoveEvent(TpObjectMoveEvent *event) override;
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
+    virtual bool onMoveEvent(TpMoveEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 protected:

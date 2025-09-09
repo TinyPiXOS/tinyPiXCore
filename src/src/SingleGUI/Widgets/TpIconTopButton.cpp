@@ -149,14 +149,14 @@ bool TpIconTopButton::onMouseLongPressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpIconTopButton::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpIconTopButton::onLeaveEvent(TpLeaveEvent *event)
 {
     TpChildWidget::onLeaveEvent(event);
 
     return true;
 }
 
-bool TpIconTopButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpIconTopButton::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -171,7 +171,7 @@ bool TpIconTopButton::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpIconTopButton::onResizeEvent(TpObjectResizeEvent *event)
+bool TpIconTopButton::onResizeEvent(TpResizeEvent *event)
 {
     // TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
     // buttonData->iconButton->setRect(0, 0, rect().w, rect().h * 0.8);

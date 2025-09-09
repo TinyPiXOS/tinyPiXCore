@@ -254,7 +254,7 @@ void TpLabel::setAlign(const tinyPiX::AlignmentFlag align)
     }
 }
 
-bool TpLabel::onPaintEvent(TpObjectPaintEvent *event)
+bool TpLabel::onPaintEvent(TpPaintEvent *event)
 {
     ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
     if (!set)
@@ -390,7 +390,7 @@ bool TpLabel::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpLabel::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpLabel::onLeaveEvent(TpLeaveEvent *event)
 {
     // std::cout << " TpLabel::onLeaveEvent " << event->leave() << std::endl;
 

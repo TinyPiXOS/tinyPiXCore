@@ -7,54 +7,54 @@
 class Semaphore
 {
 public:
-	explicit Semaphore(unsigned int initCount = 0)
-	{
-		sem_init(&m_sem, 0, initCount);
-	}
-	~Semaphore()
-	{
-		sem_destroy(&m_sem);
-	}
+    explicit Semaphore(unsigned int initCount = 0)
+    {
+        sem_init(&m_sem, 0, initCount);
+    }
+    ~Semaphore()
+    {
+        sem_destroy(&m_sem);
+    }
 
-	bool wait()
-	{
-		return (sem_wait(&m_sem) == 0);
-	}
-	bool post(int n = 1)
-	{
-		while (n-- > 0)
-		{
-			if (sem_post(&m_sem) != 0)
-				return false;
-		}
-		return true;
-	}
+    bool wait()
+    {
+        return (sem_wait(&m_sem) == 0);
+    }
+    bool post(int n = 1)
+    {
+        while (n-- > 0)
+        {
+            if (sem_post(&m_sem) != 0)
+                return false;
+        }
+        return true;
+    }
 
 private:
-	sem_t m_sem;
+    sem_t m_sem;
 };
 
 struct TpDialogData
 {
-	// 对话框阻塞信号量
-	Semaphore sema;
+    // 对话框阻塞信号量
+    Semaphore sema;
 };
 
 TpDialog::TpDialog(const char *type) : TpScreen(type)
 {
-	TpDialogData *dialogData = new TpDialogData();
-	data_ = dialogData;
-	// TpApp::Inst()->sendRegister(this);
+    TpDialogData *dialogData = new TpDialogData();
+    data_ = dialogData;
+    // TpApp::Inst()->sendRegister(this);
 
-	if (this->objectType() != TP_FLOAT_OBJECT)
-	{
-		TpApp::Inst()->sendDelete(this);
-	}
+    if (this->objectType() != TP_FLOAT_OBJECT)
+    {
+        TpApp::Inst()->sendDelete(this);
+    }
 
-	ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
-	set->top = this->topObject();
+    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    set->top = this->topObject();
 
-	refreshBaseCss();
+    refreshBaseCss();
 }
 
 TpDialog::~TpDialog()
@@ -63,34 +63,41 @@ TpDialog::~TpDialog()
 
 uint32_t TpDialog::exec()
 {
-	TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
-	if (!dialogData)
-		return 0;
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (!dialogData)
+        return 0;
 
-	TpScreen::setVisible(true);
+    // 调整窗口到居中位置
+    TpScreen *mainScreen = TpApp::Inst()->vScreen();
+    move((mainScreen->width() - width()) / 2.0, (mainScreen->height() - height()) / 2.0);
 
-	// setVisible(true);
-	update();
+    std::cout << "主窗口尺寸 ： " << mainScreen->width() << " " << mainScreen->height() << std::endl;
+    std::cout << "Dialog尺寸 ： " << width() << " " << height() << std::endl;
 
-	dialogData->sema.wait();
+    TpScreen::setVisible(true);
 
-	return 1;
+    // setVisible(true);
+    update();
+
+    dialogData->sema.wait();
+
+    return 1;
 }
 
 void TpDialog::close()
 {
-	TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
-	if (!dialogData)
-		return;
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (!dialogData)
+        return;
 
-	TpScreen::setVisible(false);
-	// setVisible(false);
-	// update();
+    TpScreen::setVisible(false);
+    // setVisible(false);
+    // update();
 
-	dialogData->sema.post();
+    dialogData->sema.post();
 }
 
 ItpObjectType TpDialog::objectType()
 {
-	return TP_FLOAT_OBJECT;
+    return TP_FLOAT_OBJECT;
 }

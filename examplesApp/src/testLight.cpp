@@ -18,7 +18,7 @@ bool testLight::onMousePressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool testLight::onPaintEvent(TpObjectPaintEvent *event)
+bool testLight::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 

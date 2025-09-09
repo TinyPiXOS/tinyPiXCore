@@ -425,7 +425,7 @@ static inline int32_t transferEvent(int32_t id, void *event, void *args)
 static inline int32_t transferFocus(int32_t id, int32_t focused, void *args)
 {
     TpChildWidget *object = (TpChildWidget *)args;
-    TpObjectFocusEvent event;
+    TpFocusEvent event;
     ItpObjectFocusSet input;
     input.object = object;
     input.focused = focused;
@@ -437,7 +437,7 @@ static inline int32_t transferFocus(int32_t id, int32_t focused, void *args)
 static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int mouseY, void *args)
 {
     TpChildWidget *object = (TpChildWidget *)args;
-    TpObjectLeaveEvent event;
+    TpLeaveEvent event;
     ItpObjectLeaveSet input;
     input.object = nullptr;
     input.leaved = leaved;
@@ -470,12 +470,12 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
 static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32_t question, void *args) // only for resolution
 {
     TpChildWidget *object = (TpChildWidget *)args;
-    TpObjectResizeEvent event;
+    TpResizeEvent event;
     ItpObjectResizeSet input;
     input.object = object;
     input.nw = nw;
     input.nh = nh;
-    input.question = TpObjectResizeEvent::TP_RESOLUTION_CHANGE;
+    input.question = TpResizeEvent::TP_RESOLUTION_CHANGE;
     event.construct(&input);
 
     ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
@@ -509,7 +509,7 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
 static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
 {
     TpChildWidget *object = (TpChildWidget *)args;
-    TpObjectVisibleEvent event;
+    TpVisibleEvent event;
     ItpObjectVisibleSet input;
     input.object = object;
     input.visible = visible;
@@ -531,7 +531,7 @@ static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
 static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t question, void *args)
 {
     TpChildWidget *object = (TpChildWidget *)args;
-    TpObjectMoveEvent event;
+    TpMoveEvent event;
     ItpObjectMoveSet input;
     input.object = object;
     input.nx = nx;
@@ -557,7 +557,7 @@ static inline int32_t transferActive(int32_t id, int32_t actived, void *args)
     TpChildWidget *object = (TpChildWidget *)args;
     TpApp::Inst()->sendActive(object, actived);
 
-    TpObjectActiveEvent event;
+    TpActiveEvent event;
     ItpObjectActiveSet input;
     input.object = object;
     input.actived = actived;
@@ -1111,7 +1111,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         std::list<TpObject *> motionList;
 
         set->tmp.curmotion = set->tmp.curObject;
-        TpObjectLeaveEvent leaveEvent;
+        TpLeaveEvent leaveEvent;
         ItpObjectLeaveSet lInput;
 
         if (set->tmp.curmotion != set->tmp.lstmotion)
@@ -1209,7 +1209,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         std::list<TpObject *> keyList;
         set->tmp.curfocus = set->tmp.curObject;
-        TpObjectFocusEvent focusEvent;
+        TpFocusEvent focusEvent;
         ItpObjectFocusSet fInput;
 
         if (set->tmp.curfocus != set->tmp.lstfocus)

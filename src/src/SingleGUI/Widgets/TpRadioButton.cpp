@@ -189,7 +189,7 @@ bool TpRadioButton::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpRadioButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpRadioButton::onPaintEvent(TpPaintEvent *event)
 {
     TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
     if (!set)

@@ -100,7 +100,7 @@ void TpNotificationWidget::addItem(TpNotificationItem *item)
     }
 }
 
-bool TpNotificationWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpNotificationWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpNotificationWidgetData *widgetData = static_cast<TpNotificationWidgetData *>(data_);
 
@@ -238,7 +238,7 @@ bool TpNotificationWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpNotificationWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpNotificationWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpNotificationWidgetData *widgetData = new TpNotificationWidgetData();
     widgetData->mainScrollPanel->setRect(0, 0, width(), height());

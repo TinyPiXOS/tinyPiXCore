@@ -77,14 +77,14 @@ bool TpMediaTileButton::onMouseRleaseEvent(TpMouseEvent *event)
     return false;
 }
 
-bool TpMediaTileButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpMediaTileButton::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
     return true;
 }
 
-bool TpMediaTileButton::onResizeEvent(TpObjectResizeEvent *event)
+bool TpMediaTileButton::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

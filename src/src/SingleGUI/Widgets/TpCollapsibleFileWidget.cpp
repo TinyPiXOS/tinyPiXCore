@@ -234,7 +234,7 @@ void TpCollapsibleFileWidget::addFileItem(TpCollapsibleFileItem *item)
     update();
 }
 
-bool TpCollapsibleFileWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpCollapsibleFileWidget::onResizeEvent(TpResizeEvent *event)
 {
     // std::cout << "TpCollapsibleFileWidget::onResizeEvent " << width() << "  "<< height() <<std::endl;
     return true;
@@ -293,7 +293,7 @@ bool TpCollapsibleFileWidget::onMouseLongPressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpCollapsibleFileWidget::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpCollapsibleFileWidget::onLeaveEvent(TpLeaveEvent *event)
 {
     TpCollapsibleFileWidgetData *widgetData = static_cast<TpCollapsibleFileWidgetData *>(data_);
     if (!widgetData)
@@ -302,7 +302,7 @@ bool TpCollapsibleFileWidget::onLeaveEvent(TpObjectLeaveEvent *event)
     return true;
 }
 
-bool TpCollapsibleFileWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpCollapsibleFileWidget::onPaintEvent(TpPaintEvent *event)
 {
     // std::cout << "TpCollapsibleFileWidget::onPaintEvent " << std::endl;
 

@@ -25,14 +25,14 @@ public:
     friend class TpDollAREvent;
     friend class TpMultiGestureEvent;
 
-    friend class TpObjectMoveEvent;
-    friend class TpObjectResizeEvent;
-    friend class TpObjectFocusEvent;
-    friend class TpObjectLeaveEvent;
-    friend class TpObjectVisibleEvent;
-    friend class TpObjectRotateEvent;
-    friend class TpObjectPaintEvent;
-    friend class TpObjectActiveEvent;
+    friend class TpMoveEvent;
+    friend class TpResizeEvent;
+    friend class TpFocusEvent;
+    friend class TpLeaveEvent;
+    friend class TpVisibleEvent;
+    friend class TpRotateEvent;
+    friend class TpPaintEvent;
+    friend class TpActiveEvent;
 
 public:
     /// @brief 事件类型枚举
@@ -284,11 +284,11 @@ public:
     virtual uint16_t padding();
 };
 
-class TpObjectMoveEvent : public TpEvent
+class TpMoveEvent : public TpEvent
 {
 public:
-    TpObjectMoveEvent();
-    virtual ~TpObjectMoveEvent();
+    TpMoveEvent();
+    virtual ~TpMoveEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -304,7 +304,7 @@ public:
     virtual int32_t newY();
 };
 
-class TpObjectResizeEvent : public TpEvent
+class TpResizeEvent : public TpEvent
 {
 public:
     enum
@@ -315,8 +315,8 @@ public:
     };
 
 public:
-    TpObjectResizeEvent();
-    virtual ~TpObjectResizeEvent();
+    TpResizeEvent();
+    virtual ~TpResizeEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -333,11 +333,11 @@ public:
     virtual int32_t nHeight();
 };
 
-class TpObjectFocusEvent : public TpEvent
+class TpFocusEvent : public TpEvent
 {
 public:
-    TpObjectFocusEvent();
-    virtual ~TpObjectFocusEvent();
+    TpFocusEvent();
+    virtual ~TpFocusEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -352,11 +352,11 @@ public:
     virtual bool focused();
 };
 
-class TpObjectLeaveEvent : public TpEvent
+class TpLeaveEvent : public TpEvent
 {
 public:
-    TpObjectLeaveEvent();
-    virtual ~TpObjectLeaveEvent();
+    TpLeaveEvent();
+    virtual ~TpLeaveEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -373,11 +373,11 @@ public:
     virtual bool leave();
 };
 
-class TpObjectVisibleEvent : public TpEvent
+class TpVisibleEvent : public TpEvent
 {
 public:
-    TpObjectVisibleEvent();
-    virtual ~TpObjectVisibleEvent();
+    TpVisibleEvent();
+    virtual ~TpVisibleEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -392,11 +392,11 @@ public:
     virtual bool visible();
 };
 
-class TpObjectRotateEvent : public TpEvent
+class TpRotateEvent : public TpEvent
 {
 public:
-    TpObjectRotateEvent();
-    virtual ~TpObjectRotateEvent();
+    TpRotateEvent();
+    virtual ~TpRotateEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -411,11 +411,11 @@ public:
     virtual ItpRotateType rotate();
 };
 
-class TpObjectPaintEvent : public TpEvent
+class TpPaintEvent : public TpEvent
 {
 public:
-    TpObjectPaintEvent();
-    virtual ~TpObjectPaintEvent();
+    TpPaintEvent();
+    virtual ~TpPaintEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);
@@ -443,11 +443,11 @@ public:
     virtual bool isCanDraw();
 };
 
-class TpObjectActiveEvent : public TpEvent
+class TpActiveEvent : public TpEvent
 {
 public:
-    TpObjectActiveEvent();
-    virtual ~TpObjectActiveEvent();
+    TpActiveEvent();
+    virtual ~TpActiveEvent();
 
 public:
     virtual bool construct(ItpEventData *eventData);

@@ -102,7 +102,7 @@ int32_t TpBattery::alamColor()
     return batteryData->alarmColor;
 }
 
-bool TpBattery::onPaintEvent(TpObjectPaintEvent *event)
+bool TpBattery::onPaintEvent(TpPaintEvent *event)
 {
     static uint64_t paintCount = 0;
     // std::cout << "TpBattery::onPaintEvent " << paintCount++ << std::endl;

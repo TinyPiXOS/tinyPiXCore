@@ -229,7 +229,7 @@ TpTreeWidgetItem *TpTreeWidget::topLevelItem(int32_t index) const
     return nullptr;
 }
 
-bool TpTreeWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpTreeWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpTreeWidgetData *widgetData = static_cast<TpTreeWidgetData *>(data_);
     if (!widgetData)
@@ -351,7 +351,7 @@ bool TpTreeWidget::onWheelEvent(TpWheelEvent *event)
     return true;
 }
 
-bool TpTreeWidget::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpTreeWidget::onLeaveEvent(TpLeaveEvent *event)
 {
     TpTreeWidgetData *widgetData = static_cast<TpTreeWidgetData *>(data_);
     if (!widgetData)
@@ -388,7 +388,7 @@ bool TpTreeWidget::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpTreeWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpTreeWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpTreeWidgetData *widgetData = static_cast<TpTreeWidgetData *>(data_);
     if (!widgetData)
@@ -405,7 +405,7 @@ bool TpTreeWidget::onResizeEvent(TpObjectResizeEvent *event)
     return true;
 }
 
-void TpTreeWidget::drawItem(TpObjectPaintEvent *event, TpTreeWidgetItem *topItem, const uint32_t &drawItemStartY, uint32_t &curIndex)
+void TpTreeWidget::drawItem(TpPaintEvent *event, TpTreeWidgetItem *topItem, const uint32_t &drawItemStartY, uint32_t &curIndex)
 {
     TpTreeWidgetData *widgetData = static_cast<TpTreeWidgetData *>(data_);
     if (!widgetData)

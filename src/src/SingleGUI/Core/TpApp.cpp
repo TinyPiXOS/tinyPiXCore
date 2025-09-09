@@ -371,7 +371,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         // int32_t surfaceHeight = paintInput.surface->height();
         // std::cout << "Surface尺寸： " << surfaceWidth << "  " << surfaceHeight << std::endl;
 
-        TpObjectPaintEvent event;
+        TpPaintEvent event;
         event.construct(&paintInput);
 
         // 刷新前清除scene
@@ -441,7 +441,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t);
 
         ItpObjectPaintInput input;
-        TpObjectPaintEvent event;
+        TpPaintEvent event;
         input.object = topScreen;
 
         input.surface = surface;

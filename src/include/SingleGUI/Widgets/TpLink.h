@@ -48,8 +48,8 @@ public:
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
 	virtual bool onMouseMoveEvent(TpMouseEvent *event);
-	virtual bool onLeaveEvent(TpObjectLeaveEvent *event);
-	virtual bool onPaintEvent(TpObjectPaintEvent *event);
+	virtual bool onLeaveEvent(TpLeaveEvent *event);
+	virtual bool onPaintEvent(TpPaintEvent *event);
 
 private:
 	IPitpLinkSet *linkSet;

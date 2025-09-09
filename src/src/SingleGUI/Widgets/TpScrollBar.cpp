@@ -102,7 +102,7 @@ public:
         return true;
     }
 
-    virtual bool onLeaveEvent(TpObjectLeaveEvent *event)
+    virtual bool onLeaveEvent(TpLeaveEvent *event)
     {
         if (event->leave() == false)
         {

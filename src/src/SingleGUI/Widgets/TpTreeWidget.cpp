@@ -520,7 +520,7 @@ void TpTreeWidget::clear()
     privData->topItemList.clear();
 }
 
-bool TpTreeWidget::onMoveEvent(TpObjectMoveEvent *event)
+bool TpTreeWidget::onMoveEvent(TpMoveEvent *event)
 {
     return false;
 }
@@ -563,7 +563,7 @@ bool TpTreeWidget::onKeyReleaseEvent(TpKeyboardEvent *event)
     return true;
 }
 
-bool TpTreeWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpTreeWidget::onResizeEvent(TpResizeEvent *event)
 {
     RefreshShowIndex();
     update();
@@ -779,17 +779,17 @@ bool TpTreeWidget::onMouseMoveEvent(TpMouseEvent *event)
     return false;
 }
 
-bool TpTreeWidget::onFocusEvent(TpObjectFocusEvent *event)
+bool TpTreeWidget::onFocusEvent(TpFocusEvent *event)
 {
     return false;
 }
 
-bool TpTreeWidget::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpTreeWidget::onLeaveEvent(TpLeaveEvent *event)
 {
     return false;
 }
 
-bool TpTreeWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpTreeWidget::onPaintEvent(TpPaintEvent *event)
 {
     uint8_t alpha = 100;
 

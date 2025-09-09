@@ -191,7 +191,7 @@ public:
     void setSlectCandidateFunc(SelectCandidateWordFunc func);
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
@@ -412,7 +412,7 @@ bool TpVirtualKeyboard::eventFilter(TpObject *watched, TpEvent *event)
     return false;
 }
 
-bool TpVirtualKeyboard::onPaintEvent(TpObjectPaintEvent *event)
+bool TpVirtualKeyboard::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -429,7 +429,7 @@ bool TpVirtualKeyboard::onKeyReleaseEvent(TpKeyboardEvent *event)
     return true;
 }
 
-bool TpVirtualKeyboard::onResizeEvent(TpObjectResizeEvent *event)
+bool TpVirtualKeyboard::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 
@@ -827,7 +827,7 @@ void TpCandidateWidget::setSlectCandidateFunc(SelectCandidateWordFunc func)
     selectCandidateDealFunc_ = func;
 }
 
-bool TpCandidateWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpCandidateWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 

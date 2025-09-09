@@ -226,7 +226,7 @@ void TpProgressBar::setRect(int32_t x, int32_t y, uint32_t w, uint32_t h)
 	}
 }
 
-bool TpProgressBar::onPaintEvent(TpObjectPaintEvent *event)
+bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
 {
 	ItpProgressSet *set = (ItpProgressSet *)this->progressSet;
 	bool ret = false;

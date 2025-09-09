@@ -102,7 +102,7 @@ bool TpCheckBox::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpCheckBox::onResizeEvent(TpObjectResizeEvent *event)
+bool TpCheckBox::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 
@@ -124,7 +124,7 @@ bool TpCheckBox::onResizeEvent(TpObjectResizeEvent *event)
     return true;
 }
 
-bool TpCheckBox::onPaintEvent(TpObjectPaintEvent *event)
+bool TpCheckBox::onPaintEvent(TpPaintEvent *event)
 {
     // return true;
     // TpChildWidget::onPaintEvent(event);

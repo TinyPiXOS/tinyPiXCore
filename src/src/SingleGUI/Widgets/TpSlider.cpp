@@ -192,14 +192,14 @@ bool TpSlider::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpSlider::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpSlider::onLeaveEvent(TpLeaveEvent *event)
 {
     // TpSliderData *sliderData = static_cast<TpSliderData *>(data_);
     // sliderData->isPressVertex = false;
     return true;
 }
 
-bool TpSlider::onPaintEvent(TpObjectPaintEvent *event)
+bool TpSlider::onPaintEvent(TpPaintEvent *event)
 {
     TpSliderData *sliderData = static_cast<TpSliderData *>(data_);
 

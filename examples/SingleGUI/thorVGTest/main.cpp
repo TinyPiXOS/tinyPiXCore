@@ -80,7 +80,7 @@ public:
         return true;
     }
 
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override
+    virtual bool onPaintEvent(TpPaintEvent *event) override
     {
         // static uint64_t paintCount = 0;
         // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;

@@ -40,10 +40,10 @@ signals:
     declare_signal(onStatusChanged, TpListCheckBoxGroupItem *);
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 protected:

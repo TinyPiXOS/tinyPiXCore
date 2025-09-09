@@ -34,7 +34,7 @@ void TpFilePathWidgetItem::setText(const TpString &text)
     setWidth(fontWidth + curCssData->paddingLeft() + curCssData->paddingRight());
 }
 
-bool TpFilePathWidgetItem::onPaintEvent(TpObjectPaintEvent *event)
+bool TpFilePathWidgetItem::onPaintEvent(TpPaintEvent *event)
 {
     TpLabel::onPaintEvent(event);
 

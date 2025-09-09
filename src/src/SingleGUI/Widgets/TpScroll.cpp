@@ -678,7 +678,7 @@ bool TpScroll::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpScroll::onFocusEvent(TpObjectFocusEvent *event)
+bool TpScroll::onFocusEvent(TpFocusEvent *event)
 {
     ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
     bool ret = false;
@@ -701,7 +701,7 @@ bool TpScroll::onFocusEvent(TpObjectFocusEvent *event)
     return ret;
 }
 
-bool TpScroll::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpScroll::onLeaveEvent(TpLeaveEvent *event)
 {
     ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
     bool ret = false;
@@ -726,7 +726,7 @@ bool TpScroll::onLeaveEvent(TpObjectLeaveEvent *event)
     return ret;
 }
 
-bool TpScroll::onPaintEvent(TpObjectPaintEvent *event)
+bool TpScroll::onPaintEvent(TpPaintEvent *event)
 {
     ItpScrollSet *set = (ItpScrollSet *)this->scrollSet;
     bool ret = false;

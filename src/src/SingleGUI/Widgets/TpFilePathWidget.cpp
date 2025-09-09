@@ -188,7 +188,7 @@ bool TpFilePathWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpFilePathWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpFilePathWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -247,7 +247,7 @@ bool TpFilePathWidget::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpFilePathWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpFilePathWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

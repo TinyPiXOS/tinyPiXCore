@@ -129,7 +129,7 @@ int32_t TpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t 
     return false;
 }
 
-bool TpFixScreen::onActiveEvent(TpObjectActiveEvent *event)
+bool TpFixScreen::onActiveEvent(TpActiveEvent *event)
 {
     TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
     if (!screenData)

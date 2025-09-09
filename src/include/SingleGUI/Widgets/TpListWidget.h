@@ -86,9 +86,9 @@ signals:
     declare_signal(currentRowChanged, uint32_t); // 行号，从0开始
 
 protected:
-    virtual bool onMoveEvent(TpObjectMoveEvent *event) override;
+    virtual bool onMoveEvent(TpMoveEvent *event) override;
 
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
     virtual bool onKeyPressEvent(TpKeyboardEvent *event) override;
     virtual bool onKeyReleaseEvent(TpKeyboardEvent *event) override;
@@ -98,10 +98,10 @@ protected:
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
     virtual bool onWheelEvent(TpWheelEvent *event) override;
 
-    virtual bool onFocusEvent(TpObjectFocusEvent *event) override;
-    virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
+    virtual bool onFocusEvent(TpFocusEvent *event) override;
+    virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 private:
     uint32_t getItemIndex(const uint32_t &_x, const uint32_t &_y);

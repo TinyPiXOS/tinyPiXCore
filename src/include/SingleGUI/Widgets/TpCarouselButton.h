@@ -75,7 +75,7 @@ public:
 
 public:
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 protected:
     virtual TpString pluginType() override { return TO_STRING(TpCarouselButton); }

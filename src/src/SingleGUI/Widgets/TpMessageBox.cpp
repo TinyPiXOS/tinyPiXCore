@@ -172,7 +172,7 @@ bool TpMessageBox::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpMessageBox::onPaintEvent(TpObjectPaintEvent *event)
+bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
 {
     TpDialog::onPaintEvent(event);
 
@@ -261,7 +261,7 @@ bool TpMessageBox::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpMessageBox::onResizeEvent(TpObjectResizeEvent *event)
+bool TpMessageBox::onResizeEvent(TpResizeEvent *event)
 {
     return true;
 }

@@ -283,7 +283,7 @@ bool TpCollapsibleFileItem::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpCollapsibleFileItem::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpCollapsibleFileItem::onLeaveEvent(TpLeaveEvent *event)
 {
     TpChildWidget::onLeaveEvent(event);
 
@@ -293,7 +293,7 @@ bool TpCollapsibleFileItem::onLeaveEvent(TpObjectLeaveEvent *event)
     return true;
 }
 
-bool TpCollapsibleFileItem::onMoveEvent(TpObjectMoveEvent *event)
+bool TpCollapsibleFileItem::onMoveEvent(TpMoveEvent *event)
 {
     TpChildWidget::onMoveEvent(event);
 
@@ -303,7 +303,7 @@ bool TpCollapsibleFileItem::onMoveEvent(TpObjectMoveEvent *event)
     return true;
 }
 
-bool TpCollapsibleFileItem::onResizeEvent(TpObjectResizeEvent *event)
+bool TpCollapsibleFileItem::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

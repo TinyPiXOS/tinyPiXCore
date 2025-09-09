@@ -163,7 +163,7 @@ bool TpButton::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpButton::onPaintEvent(TpObjectPaintEvent *event)
+bool TpButton::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -182,7 +182,7 @@ bool TpButton::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpButton::onResizeEvent(TpObjectResizeEvent *event)
+bool TpButton::onResizeEvent(TpResizeEvent *event)
 {
     TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
 
@@ -267,7 +267,7 @@ bool TpButton::eventFilter(TpObject *watched, TpEvent *event)
     else if (event->eventType() == TpEvent::EVENT_OBJECT_LEAVE_TYPE)
     {
         // std::cout << " TpButton::eventFilter "  << std::endl;
-        // onLeaveEvent((TpObjectLeaveEvent *)event);
+        // onLeaveEvent((TpLeaveEvent *)event);
     }
     else
     {

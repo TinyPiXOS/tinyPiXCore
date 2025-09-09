@@ -49,8 +49,8 @@ public:
     void setLineWidth(const uint32_t& width = 1);
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
     virtual void onThemeChangeEvent(TpThemeChangeEvent *event) override;
 
 protected:

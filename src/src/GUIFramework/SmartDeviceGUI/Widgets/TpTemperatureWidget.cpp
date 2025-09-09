@@ -114,7 +114,7 @@ int32_t TpTemperatureWidget::lineWidth() const
     return tempData->lineWidth;
 }
 
-bool TpTemperatureWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpTemperatureWidgetData *tempData = static_cast<TpTemperatureWidgetData *>(data_);
 

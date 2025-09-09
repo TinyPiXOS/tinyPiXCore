@@ -41,8 +41,8 @@ public:
 	virtual void setAlign(const tinyPiX::AlignmentFlag align = tinyPiX::AlignLeft);
 
 public:
-	virtual bool onPaintEvent(TpObjectPaintEvent *event);
-	virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
+	virtual bool onPaintEvent(TpPaintEvent *event);
+	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
 protected:
 	/// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式

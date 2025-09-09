@@ -57,12 +57,12 @@ signals:
 protected:
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
     virtual bool onKeyPressEvent(TpKeyboardEvent *event) override;
     virtual bool onKeyReleaseEvent(TpKeyboardEvent *event) override;
 
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
 private:
     void configWindowLayout();

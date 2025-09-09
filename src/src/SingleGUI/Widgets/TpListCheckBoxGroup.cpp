@@ -236,7 +236,7 @@ void TpListCheckBoxGroup::clear()
     cbxData->itemList.clear();
 }
 
-bool TpListCheckBoxGroup::onPaintEvent(TpObjectPaintEvent *event)
+bool TpListCheckBoxGroup::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -258,7 +258,7 @@ bool TpListCheckBoxGroup::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpListCheckBoxGroup::onResizeEvent(TpObjectResizeEvent *event)
+bool TpListCheckBoxGroup::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
 

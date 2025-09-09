@@ -255,7 +255,7 @@ bool TpLink::onMouseMoveEvent(TpMouseEvent *event)
 	return ret;
 }
 
-bool TpLink::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpLink::onLeaveEvent(TpLeaveEvent *event)
 {
 	bool ret = TpChildWidget::onLeaveEvent(event);
 
@@ -276,7 +276,7 @@ bool TpLink::onLeaveEvent(TpObjectLeaveEvent *event)
 	return ret;
 }
 
-bool TpLink::onPaintEvent(TpObjectPaintEvent *event)
+bool TpLink::onPaintEvent(TpPaintEvent *event)
 {
 	bool ret = TpChildWidget::onPaintEvent(event);
 

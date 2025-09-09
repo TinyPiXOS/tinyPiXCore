@@ -222,7 +222,7 @@ static void paintEnabledBox(TpChildWidget *child, TpCanvas *paintCanvas)
     }
 }
 
-static inline void childPaint(ItpObjectSet *set, TpObjectPaintEvent *events)
+static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
 {
     if (!set)
         return;
@@ -250,7 +250,7 @@ static inline void childPaint(ItpObjectSet *set, TpObjectPaintEvent *events)
             continue;
 
         ItpObjectSet *childSet = (ItpObjectSet *)child->objectSets();
-        TpObjectPaintEvent event;
+        TpPaintEvent event;
         ItpObjectPaintInput input;
         input.object = child;
         input.updateRect = events->updateRect();

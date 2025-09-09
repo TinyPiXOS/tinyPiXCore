@@ -65,7 +65,7 @@ void TpProgressBar::setBorderColor(const int32_t &color)
     borderColor_ = color;
 }
 
-bool TpProgressBar::onPaintEvent(TpObjectPaintEvent *event)
+bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
 {
     TpCanvas *paintCanvas = event->canvas();
 

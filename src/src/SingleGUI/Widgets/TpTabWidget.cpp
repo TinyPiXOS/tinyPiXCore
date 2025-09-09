@@ -175,7 +175,7 @@ void TpTabWidget::setCurrentWidget(TpChildWidget *widget)
 {
 }
 
-bool TpTabWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpTabWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
 
@@ -187,12 +187,12 @@ bool TpTabWidget::onResizeEvent(TpObjectResizeEvent *event)
     return true;
 }
 
-bool TpTabWidget::onMoveEvent(TpObjectMoveEvent *event)
+bool TpTabWidget::onMoveEvent(TpMoveEvent *event)
 {
     return true;
 }
 
-bool TpTabWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpTabWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 

@@ -45,7 +45,7 @@ signals:
 protected:
 	virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-	virtual bool onPaintEvent(TpObjectPaintEvent *event);
+	virtual bool onPaintEvent(TpPaintEvent *event);
 
 private:
 	ItpRadioButtonData *data_;

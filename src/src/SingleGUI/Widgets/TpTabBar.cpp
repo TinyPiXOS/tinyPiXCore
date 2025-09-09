@@ -298,7 +298,7 @@ bool TpTabBar::onMousePressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpTabBar::onResizeEvent(TpObjectResizeEvent *event)
+bool TpTabBar::onResizeEvent(TpResizeEvent *event)
 {
     // TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(parent());
 
@@ -312,7 +312,7 @@ bool TpTabBar::onResizeEvent(TpObjectResizeEvent *event)
     return true;
 }
 
-bool TpTabBar::onPaintEvent(TpObjectPaintEvent *event)
+bool TpTabBar::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 

@@ -99,8 +99,8 @@ public:
     bool setWeatherInfo(const int32_t& index, const WeatherInfo& weatherInfo);
 
 public:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
     virtual TpString pluginType() override { return TO_STRING(TpWeatherInfoPanel); }
 

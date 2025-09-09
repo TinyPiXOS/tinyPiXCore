@@ -39,7 +39,7 @@ public:
     void setBorderColor(const int32_t &color);
 
 protected:
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 private:
     bool textVisible_;

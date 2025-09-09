@@ -345,16 +345,16 @@ public:
     virtual bool onFingerEvent(TpFingerEvent *event) { return true; }
     virtual bool onDollAREvent(TpDollAREvent *event) { return true; }
     virtual bool onMultiGestureEvent(TpMultiGestureEvent *event) { return true; }
-    virtual bool onMoveEvent(TpObjectMoveEvent *event) { return true; }
-    virtual bool onResizeEvent(TpObjectResizeEvent *event);
-    virtual bool onFocusEvent(TpObjectFocusEvent *event) { return true; }
-    virtual bool onLeaveEvent(TpObjectLeaveEvent *event);
-    virtual bool onVisibleEvent(TpObjectVisibleEvent *event) { return true; }
+    virtual bool onMoveEvent(TpMoveEvent *event) { return true; }
+    virtual bool onResizeEvent(TpResizeEvent *event);
+    virtual bool onFocusEvent(TpFocusEvent *event) { return true; }
+    virtual bool onLeaveEvent(TpLeaveEvent *event);
+    virtual bool onVisibleEvent(TpVisibleEvent *event) { return true; }
     /// @brief 绘制事件，禁止在该函数调用 paint和update函数
     /// @param event 绘制事件指针
     /// @return 返回true继续执行子控件绘制
-    virtual bool onPaintEvent(TpObjectPaintEvent *event);
-    virtual bool onActiveEvent(TpObjectActiveEvent *event) { return true; }
+    virtual bool onPaintEvent(TpPaintEvent *event);
+    virtual bool onActiveEvent(TpActiveEvent *event) { return true; }
 
     virtual void onThemeChangeEvent(TpThemeChangeEvent *event);
 

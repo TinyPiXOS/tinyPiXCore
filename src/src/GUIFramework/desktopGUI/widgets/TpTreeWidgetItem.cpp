@@ -338,7 +338,7 @@ TpList<TpTreeWidgetItem *> TpTreeWidgetItem::takeChildren()
     return childList;
 }
 
-bool TpTreeWidgetItem::onPaintEvent(TpObjectPaintEvent *event)
+bool TpTreeWidgetItem::onPaintEvent(TpPaintEvent *event)
 {
     // TpTreeWidgetItemData *itemData = static_cast<TpTreeWidgetItemData *>(data_);
     // if (!itemData)

@@ -473,12 +473,12 @@ void TpListWidget::setSelectionModel(tinyPiX::ItemSelectionMode selectMode)
     privData->selectMode = selectMode;
 }
 
-bool TpListWidget::onMoveEvent(TpObjectMoveEvent *event)
+bool TpListWidget::onMoveEvent(TpMoveEvent *event)
 {
     return false;
 }
 
-bool TpListWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpListWidget::onResizeEvent(TpResizeEvent *event)
 {
     PiListWidgetPrivData *privData = (PiListWidgetPrivData *)this->privData;
     if (!privData)
@@ -703,12 +703,12 @@ bool TpListWidget::onWheelEvent(TpWheelEvent *event)
     return true;
 }
 
-bool TpListWidget::onFocusEvent(TpObjectFocusEvent *event)
+bool TpListWidget::onFocusEvent(TpFocusEvent *event)
 {
     return false;
 }
 
-bool TpListWidget::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpListWidget::onLeaveEvent(TpLeaveEvent *event)
 {
     PiListWidgetPrivData *privData = (PiListWidgetPrivData *)this->privData;
 
@@ -724,7 +724,7 @@ bool TpListWidget::onLeaveEvent(TpObjectLeaveEvent *event)
     return true;
 }
 
-bool TpListWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpListWidget::onPaintEvent(TpPaintEvent *event)
 {
     uint8_t alpha = 100;
 

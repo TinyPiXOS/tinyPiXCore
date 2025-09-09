@@ -55,7 +55,7 @@ bool TpImageWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpImageWidget::onPaintEvent(TpObjectPaintEvent *event)
+bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpImageWidgetData *imageData = static_cast<TpImageWidgetData *>(data_);
 
@@ -143,7 +143,7 @@ bool TpImageWidget::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpImageWidget::onResizeEvent(TpObjectResizeEvent *event)
+bool TpImageWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpDialog::onResizeEvent(event);
     return true;

@@ -94,9 +94,9 @@ public:
 	virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
 	virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-	virtual bool onFocusEvent(TpObjectFocusEvent *event) override;
-	virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
-	virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+	virtual bool onFocusEvent(TpFocusEvent *event) override;
+	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
+	virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 private:
 	IPitpScrollSet *scrollSet;

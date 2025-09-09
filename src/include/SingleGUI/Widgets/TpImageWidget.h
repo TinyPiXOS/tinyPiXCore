@@ -20,8 +20,8 @@ public:
 
 protected:
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
 protected:
     virtual TpString pluginType() override { return TO_STRING(TpImageWidget); }

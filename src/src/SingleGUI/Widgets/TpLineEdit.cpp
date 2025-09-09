@@ -245,7 +245,7 @@ void TpLineEdit::virtualKeyboardInput(const tinyPiX::VirtualKeyboardInputType &t
     }
 }
 
-bool TpLineEdit::onPaintEvent(TpObjectPaintEvent *event)
+bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
 {
     TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
     if (!editData)
@@ -416,7 +416,7 @@ bool TpLineEdit::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpLineEdit::onLeaveEvent(TpObjectLeaveEvent *event)
+bool TpLineEdit::onLeaveEvent(TpLeaveEvent *event)
 {
     TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
     if (!editData)
@@ -430,7 +430,7 @@ bool TpLineEdit::onLeaveEvent(TpObjectLeaveEvent *event)
     return true;
 }
 
-bool TpLineEdit::onFocusEvent(TpObjectFocusEvent *event)
+bool TpLineEdit::onFocusEvent(TpFocusEvent *event)
 {
     TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
     if (!editData)
@@ -629,7 +629,7 @@ bool TpLineEdit::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpLineEdit::onResizeEvent(TpObjectResizeEvent *event)
+bool TpLineEdit::onResizeEvent(TpResizeEvent *event)
 {
     caculateIconPos();
 

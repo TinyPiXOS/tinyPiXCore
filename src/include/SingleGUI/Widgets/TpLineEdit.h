@@ -51,11 +51,11 @@ public:
 protected:
 	virtual void virtualKeyboardInput(const tinyPiX::VirtualKeyboardInputType& type, const TpString& text) override;
 
-    virtual bool onPaintEvent(TpObjectPaintEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
-    virtual bool onLeaveEvent(TpObjectLeaveEvent *event) override;
+    virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
-    virtual bool onFocusEvent(TpObjectFocusEvent *event) override;
+    virtual bool onFocusEvent(TpFocusEvent *event) override;
 
     virtual bool onKeyPressEvent(TpKeyboardEvent *event) override;
 
@@ -64,7 +64,7 @@ protected:
 
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
 
-    virtual bool onResizeEvent(TpObjectResizeEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
 
 protected:
     virtual TpString pluginType() override { return TO_STRING(TpLineEdit); }

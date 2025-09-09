@@ -42,7 +42,7 @@ private:
     virtual uint8_t alpha() final { return 0xff; };
 
 public:
-    virtual bool onActiveEvent(TpObjectActiveEvent *event);
+    virtual bool onActiveEvent(TpActiveEvent *event);
 
 private:
     ItpFixScreenData *data_;

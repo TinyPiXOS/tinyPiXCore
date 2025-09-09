@@ -124,7 +124,7 @@ void TpLine::setLineWidth(const uint32_t &width)
     lineData->width = width;
 }
 
-bool TpLine::onPaintEvent(TpObjectPaintEvent *event)
+bool TpLine::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
@@ -271,7 +271,7 @@ bool TpLine::onPaintEvent(TpObjectPaintEvent *event)
     return true;
 }
 
-bool TpLine::onResizeEvent(TpObjectResizeEvent *event)
+bool TpLine::onResizeEvent(TpResizeEvent *event)
 {
     TpChildWidget::onResizeEvent(event);
     TpLineData *lineData = static_cast<TpLineData *>(data_);
