@@ -396,6 +396,23 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         // 绘制完成刷新绘制
         childPainter->sync();
 
+        // 如果您的Canvas包含Scene或Picture对象
+        // static uint64_t saveIndex = 0;
+        // TpString savePath = "/home/hawk/Public/tinyPiXCore/examples/SingleGUI/tpDialog/" + TpString::number(saveIndex) + "-output.gif";
+        // std::cout << "savePath : " << savePath << std::endl;
+        // auto saver = tvg::Saver::gen();
+        // auto result = saver->save(childScene, savePath.c_str(), 100); // 目前主要支持GIF格式
+        // if (result != tvg::Result::Success)
+        // {
+        //     // 处理错误，打印错误信息
+        //     std::cout << "保存失败，错误码: " << (int)result << std::endl;
+        // }
+        // auto syncResult = saver->sync();
+        // if (syncResult != tvg::Result::Success)
+        // {
+        //     std::cout << "同步失败，错误码: " << (int)syncResult << std::endl;
+        // }
+
         if (ret)
         {
             childPaint(updateObjSet, &event);

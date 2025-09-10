@@ -71,15 +71,10 @@ uint32_t TpDialog::exec()
     TpScreen *mainScreen = TpApp::Inst()->vScreen();
     move((mainScreen->width() - width()) / 2.0, (mainScreen->height() - height()) / 2.0);
 
-    std::cout << "主窗口尺寸 ： " << mainScreen->width() << " " << mainScreen->height() << std::endl;
-    std::cout << "Dialog尺寸 ： " << width() << " " << height() << std::endl;
-
-    TpScreen::setVisible(true);
-
-    // setVisible(true);
+    setVisible(true);
     update();
 
-    dialogData->sema.wait();
+    // dialogData->sema.wait();
 
     return 1;
 }

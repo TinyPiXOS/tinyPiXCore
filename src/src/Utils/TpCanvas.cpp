@@ -1235,38 +1235,9 @@ void TpCanvas::sync()
 {
     TpCanvasData *set = static_cast<TpCanvasData *>(data_);
 
-    // 确保设置了渲染目标
-    // refreshCanvasTarget(set);
-
-    // 强制场景更新
-    // if (set->tvgScene)
-    // {
-    //     std::list<tvg::Paint *> paintsList = set->tvgScene->paints(); // 关键！更新场景状态
-    //     std::cout << "绘制对象数量： " << paintsList.size() << std::endl;
-    // }
-
-    // 使用viewport限制清除区域
-    // TpRect clipRect = set->TpSurfacePtr->clipRect();
-
-    // std::cout << "clipRect 区域： " << clipRect.x << " , " << clipRect.y << " , "
-    //           << clipRect.w << " , " << clipRect.h << std::endl;
-
-    // set->swCanvas->sync();
-    // tvg::Result viewportRes = set->swCanvas->viewport(clipRect.x, clipRect.y, clipRect.w, clipRect.h); // 只影响小区域
-    // std::cout << "viewportRes 设置结果： " << (int32_t)viewportRes <<std::endl;
-
-    // 清除所有现有效果
-    // set->tvgScene->push(tvg::SceneEffect::ClearAll);
-    // set->tvgScene->push(tvg::SceneEffect::GaussianBlur, 5.0, 0, 0, 50);
-
+    // 绘制并同步
     set->swCanvas->draw();
     set->swCanvas->sync();
-
-    // 绘制并同步
-    // set->swCanvas->push(std::move(set->tvgScene));
-
-    // set->swCanvas->draw();
-    // set->swCanvas->sync();
 }
 
 HollowMask::HollowMask()
