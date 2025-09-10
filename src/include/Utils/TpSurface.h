@@ -14,7 +14,10 @@ class TpRect;
 class TpSurface
 {
 public:
-    TpSurface(IPiDSSurface *surface = nullptr); // only for tinypix, otherwise use nullptr
+    // TpSurface(IPiDSSurface *surface = nullptr); // only for tinypix, otherwise use nullptr
+    // only for tinypix, otherwise use nullptr
+    TpSurface(IPiDSSurface *surface = nullptr, const TpRect& rect = TpRect()); 
+
     virtual ~TpSurface();
 
 public:
@@ -31,6 +34,8 @@ public:
     virtual IPiDSSurface *surface();
 
 public:
+    /// @brief 获取画布指针
+    /// @return uint32_t*
     virtual void *matrix();
 
     virtual int32_t stride();

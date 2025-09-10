@@ -790,10 +790,12 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
         // if (parentWidget)
         // {
         //     TpPoint parentPos = parentWidget->pos();
-        //     TpApp::Inst()->postUpdateEvent(parentWidget, parentPos.x, parentPos.y, parentWidget->width(), parentWidget->height(), onlyBlit);
+        //     TpApp::Inst()->postUpdateEvent(parentWidget, parentPos.x(), parentPos.y(), parentWidget->width(), parentWidget->height(), onlyBlit);
         // }
 
-        TpApp::Inst()->postUpdateEvent(topScreenWidget, 0, 0, topScreenWidget->width(), topScreenWidget->height(), onlyBlit);
+        // TpApp::Inst()->postUpdateEvent(this, x, y, width(), height(), onlyBlit);
+
+        TpApp::Inst()->postUpdateEvent(topScreenWidget, topScreenWidget->toScreen().x(), topScreenWidget->toScreen().y(), topScreenWidget->width(), topScreenWidget->height(), onlyBlit);
     }
 }
 

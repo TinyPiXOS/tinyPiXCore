@@ -55,6 +55,10 @@ static inline void refreshCanvasTarget(TpCanvasData *set)
     {
         int32_t surfaceWidth = set->TpSurfacePtr->width();
         int32_t surfaceHeight = set->TpSurfacePtr->height();
+        // std::cout << "surfaceWidth " << surfaceWidth << "  " << surfaceHeight << std::endl;
+
+        // set->swCanvas->target((uint32_t *)set->TpSurfacePtr->matrix(), 1080, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+
         set->swCanvas->target((uint32_t *)set->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
     }
     // test = false;
@@ -153,6 +157,9 @@ TpCanvas::TpCanvas(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY
     set->beUsed = false;
     set->offsetX = offsetX;
     set->offsetY = offsetY;
+
+    // set->offsetX = 0;
+    // set->offsetY = 0;
 
     set->TpSurfacePtr = surface;
     set->beUsed = (surface != nullptr);

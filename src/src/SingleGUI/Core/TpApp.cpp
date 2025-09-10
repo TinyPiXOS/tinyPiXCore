@@ -342,7 +342,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             if (surface_t == nullptr)
                 continue;
 
-            tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t);
+            tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t, task.updateObj->rect());
 
             paintInput.object = task.updateObj;
             paintInput.surface = surface;
@@ -424,6 +424,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     for (const auto &updateInfo : pixwmMergeUpdateRect)
     {
         const TpRect &updateRect = updateInfo.second;
+        // std::cout << "111PiXWM 更新区域 " << updateRect.x() << " " << updateRect.y() << " " << updateRect.width() << " " << updateRect.height() << std::endl;
         tinyPiX_wf_update(updateInfo.first, updateRect.x(), updateRect.y(), updateRect.width(), updateRect.height(), true, false);
         // tinyPiX_wf_update(updateInfo.first, 0, 0, 1080, 720, true, false);
     }

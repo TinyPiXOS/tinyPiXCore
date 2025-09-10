@@ -21,6 +21,9 @@ struct TpSurfaceData
     IPiWFSurface *pixWFSurface = nullptr;
 
     bool beUsed = false;
+
+    // 画布矩形
+    TpRect surfaceRect;
 };
 
 static int32_t useRef = 0;
@@ -43,7 +46,25 @@ static inline int32_t cal_stride(int32_t width, int32_t depth)
     return ((stride + 3) & ~3);
 }
 
-TpSurface::TpSurface(IPiDSSurface *surface)
+// TpSurface::TpSurface(IPiDSSurface *surface)
+// {
+//     TpSurfaceData *set = new TpSurfaceData();
+//     set->beUsed = false;
+//     this->data_ = set;
+
+//     if (surface)
+//     {
+//         bool ret = this->create(surface);
+
+//         if (ret == false)
+//         {
+//             std::cout << "TpSurface creates failed!" << std::endl;
+//             std::exit(0);
+//         }
+//     }
+// }
+
+TpSurface::TpSurface(IPiDSSurface *surface, const TpRect &rect)
 {
     TpSurfaceData *set = new TpSurfaceData();
     set->beUsed = false;
@@ -58,6 +79,8 @@ TpSurface::TpSurface(IPiDSSurface *surface)
             std::cout << "TpSurface creates failed!" << std::endl;
             std::exit(0);
         }
+
+        set->surfaceRect = rect;
     }
 }
 
@@ -221,16 +244,22 @@ IPiDSSurface *TpSurface::surface()
 void *TpSurface::matrix()
 {
     TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
-    void *matrix = nullptr;
+    // void *matrix = nullptr;
 
     if (!set)
-        return matrix;
+        return nullptr;
 
     if (!set->beUsed)
-        return matrix;
+        return nullptr;
 
-    matrix = tinyPiX_surface_get_matrix(set->pixWFSurface);
-    // matrix = set->surface->pixels;
+    // std::cout << "Martix 偏移量 " << set->surfaceRect.x() << "  " << set->surfaceRect.y() << std::endl;
+
+    // 原始buffer尺寸
+    // uint32_t *matrix = (uint32_t *)tinyPiX_surface_get_matrix(set->pixWFSurface);
+    // 偏移
+    // matrix = matrix + (set->surfaceRect.x() + set->surfaceRect.y() * 1080);
+
+    void * matrix = tinyPiX_surface_get_matrix(set->pixWFSurface);
 
     return matrix;
 }
@@ -256,6 +285,7 @@ int32_t TpSurface::width()
     if (!set->beUsed)
         return 0;
 
+    // return set->surfaceRect.width();
     return tinyPiX_surface_get_width(set->pixWFSurface);
 }
 
@@ -268,6 +298,7 @@ int32_t TpSurface::height()
     if (!set->beUsed)
         return 0;
 
+    // return set->surfaceRect.height();
     return tinyPiX_surface_get_height(set->pixWFSurface);
 }
 
