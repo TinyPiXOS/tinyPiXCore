@@ -11,9 +11,6 @@ class TpHardwarePwm : public TpHardwareDevice
 {
 public:
 	/// @brief 
-	/// @param name 设备名
-	TpHardwarePwm(const TpString& name, tpUInt8 channel=0);
-	/// @brief 
 	/// @param num pwm控制器号
 	TpHardwarePwm(tpUInt8 num, tpUInt8 channel=0);	
 	~TpHardwarePwm();

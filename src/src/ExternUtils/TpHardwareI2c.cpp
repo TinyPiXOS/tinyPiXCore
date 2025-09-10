@@ -356,5 +356,31 @@ tpBool TpHardwareI2c::probeDevice()
 	return TP_TRUE;
 }
 
-
+TpList<tpUInt8> TpHardwareI2c::getSlaveDevices(tpUInt8 bus)
+{
+	TpList<tpUInt8> list;
+	TpString device=TpString(PATH_I2C_DEVICE) + std::to_string(static_cast<int>(bus));
+	int file = ::open(device.c_str(), O_RDWR);
+	if (file < 0) {
+		fprintf(stderr,"[Error]: 总线不存在\n");
+	}
+	for (tpUInt8 addr = 0x03; addr <= 0x77; addr++)
+	{
+		if (ioctl(file, I2C_SLAVE, addr) < 0) {
+            continue;
+        }
+		uint8_t dummy;
+		if (::read(file, &dummy, 1) < 0) 
+		{
+			if (errno == EIO) {
+				// EIO表示设备无响应，但地址有效
+				list.push_back(addr);
+			} else if (errno == ENXIO) {
+				// ENXIO表示地址无效或设备不存在
+				continue;
+			}
+		}
+	}
+	return list;
+}
     
