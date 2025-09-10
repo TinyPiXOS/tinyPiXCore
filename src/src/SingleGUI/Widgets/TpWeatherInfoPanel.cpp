@@ -4,8 +4,6 @@
 #include "TpFont.h"
 #include "TpLinearGradient.h"
 
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
-
 struct TpWeatherInfoPanelData
 {
     int32_t count = 5;
@@ -213,5 +211,3 @@ bool TpWeatherInfoPanel::onResizeEvent(TpResizeEvent *event)
 
     return true;
 }
-
-SMART_DEVICE_GUI_NAMESPACE_END

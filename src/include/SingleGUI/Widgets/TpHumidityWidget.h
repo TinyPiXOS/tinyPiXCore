@@ -1,13 +1,10 @@
-#ifndef __TP_SMART_GUI_HUMIDITY_WIDGET_H
-#define __TP_SMART_GUI_HUMIDITY_WIDGET_H
+#ifndef __TP_HUMIDITY_WIDGET_H
+#define __TP_HUMIDITY_WIDGET_H
 
 #include "TpChildWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVector.h"
-#include "SmartDeviceGUI/FrameworkGlobal.h"
-
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 TP_DEF_VOID_TYPE_VAR(ITpHumidityWidgetData);
 /// @brief 湿度计组件
@@ -56,7 +53,5 @@ public:
 private:
     ITpHumidityWidgetData *data_;
 };
-
-SMART_DEVICE_GUI_NAMESPACE_END
 
 #endif

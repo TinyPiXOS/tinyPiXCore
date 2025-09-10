@@ -1,13 +1,10 @@
-#ifndef __TP_SMART_GUI_WEATHER_INFO_PANEL_H
-#define __TP_SMART_GUI_WEATHER_INFO_PANEL_H
+#ifndef __TP_WEATHER_INFO_PANEL_H
+#define __TP_WEATHER_INFO_PANEL_H
 
 #include "TpChildWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVector.h"
-#include "SmartDeviceGUI/FrameworkGlobal.h"
-
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 TP_DEF_VOID_TYPE_VAR(ITpWeatherInfoPanelData);
 /// @brief 天气预报面板
@@ -107,7 +104,5 @@ public:
 private:
     ITpWeatherInfoPanelData *data_;
 };
-
-SMART_DEVICE_GUI_NAMESPACE_END
 
 #endif

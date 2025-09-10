@@ -1,12 +1,9 @@
-#ifndef __TP_SMART_GUI_CIRCULAR_PROGRESS_BAR_H
-#define __TP_SMART_GUI_CIRCULAR_PROGRESS_BAR_H
+#ifndef __TP_CIRCULAR_PROGRESS_BAR_H
+#define __TP_CIRCULAR_PROGRESS_BAR_H
 
 #include "TpChildWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
-#include "SmartDeviceGUI/FrameworkGlobal.h"
-
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 TP_DEF_VOID_TYPE_VAR(ITpCircularProgressBarData);
 /// @brief 环形进度条
@@ -46,7 +43,5 @@ public:
 private:
 	ITpCircularProgressBarData *data_;
 };
-
-SMART_DEVICE_GUI_NAMESPACE_END
 
 #endif

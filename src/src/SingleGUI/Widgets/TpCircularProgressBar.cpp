@@ -2,8 +2,6 @@
 #include "TpCanvas.h"
 #include "TpFont.h"
 
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
-
 struct TpCircularProgressBarData
 {
     int32_t minValue = 0;
@@ -106,4 +104,3 @@ bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
     return true;
 }
 
-SMART_DEVICE_GUI_NAMESPACE_END

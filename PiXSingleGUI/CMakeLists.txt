@@ -72,6 +72,12 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpVirtualKeyboard.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpImageWidget.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpRadioButtonGroup.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpCircularProgressBar.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpMusicPlayerView.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpWeatherInfoPanel.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpButton.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTemperatureWidget.cpp
+    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpHumidityWidget.cpp
     ${SOURCE_PATH}/src_p/SingleGUI/Core/TpObjectStack.cpp
 )
 

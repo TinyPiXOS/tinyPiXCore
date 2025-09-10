@@ -47,14 +47,6 @@ PiXSingleGUI/cmake_install.cmake
 PiXSingleGUI/Makefile
 PiXSingleGUI/CMakeFiles/
 
-PiXGUIFramework/desktopGUI/cmake_install.cmake
-PiXGUIFramework/desktopGUI/Makefile
-PiXGUIFramework/desktopGUI/CMakeFiles/
-
-PiXGUIFramework/exampleGUI/cmake_install.cmake
-PiXGUIFramework/exampleGUI/Makefile
-PiXGUIFramework/exampleGUI/CMakeFiles/
-
 examples/Utils/tpThreadPool/threadPool
 examples/Utils/cssParser/cssParser
 examples/Utils/cssParser/main
@@ -70,8 +62,6 @@ examples/Utils/variant/variant
 examples/SingleGUI/tpButton/button
 PiXExternUtils/PiXExternUtils_symlink.cmake
 install_manifest.txt
-PiXGUIFramework/desktopGUI/PiXDesktopGUI_symlink.cmake
-PiXGUIFramework/exampleGUI/exampleGUI_symlink.cmake
 PiXService/PiXService_symlink.cmake
 PiXSingleGUI/PiXSingleGUI_symlink.cmake
 PiXUtils/PiXUtils_symlink.cmake
@@ -80,7 +70,6 @@ examples/SingleGUI/scrollpanel/scrollpanel
 examples/SingleGUI/tpCheckBox/checkbox
 examples/SingleGUI/tpLabel/label
 examplesApp/bin/examplesApp
-PiXGUIFramework/SmartDeviceGUI/PiXSmartDeviceGUI_symlink.cmake
 examples/SingleGUI/tpBattery/battery
 examples/SingleGUI/thorVGTest/thorVGTest
 examples/SingleGUI/tpDialog/dialog

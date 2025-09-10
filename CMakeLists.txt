@@ -1,144 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(tinyPiXCore VERSION 1.0.0 LANGUAGES C CXX)
 
-#[[
-# 1. 确保构建目录存在
-set(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/build")
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR})
-
-# 2. 设置 .config 文件路径
-set(CONFIG_FILE "${CMAKE_BINARY_DIR}/.config")
-
-# 3. 如果 .config 不存在，创建默认配置
-
-# 4. 检测配置工具（放在创建默认配置之后）
-
-# ---- nconfig (Python/kconfiglib) 检测 ----
-find_program(PYTHON NAMES python python3)
-if(PYTHON)
-    execute_process(
-        COMMAND ${PYTHON} -c "import kconfiglib; print('found')"
-        OUTPUT_VARIABLE KCONFIGLIB_OUTPUT
-        ERROR_QUIET
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    if(KCONFIGLIB_OUTPUT STREQUAL "found")
-        set(HAVE_NCONFIG TRUE)
-        message(STATUS "支持 nconfig (Python, kconfiglib)")
-    else()
-        set(HAVE_NCONFIG FALSE)
-    endif()
-else()
-    set(HAVE_NCONFIG FALSE)
-endif()
-
-# ---- menuconfig (C 工具) 检测 ----
-set(HAVE_MENUCONFIG FALSE)
-
-# 按优先顺序查找：kconfig-mconf -> mconf -> menuconfig
-find_program(MENUCONFIG kconfig-mconf)
-if(MENUCONFIG)
-    set(HAVE_MENUCONFIG TRUE)
-else()
-    find_program(MENUCONFIG mconf)
-    if(MENUCONFIG)
-        set(HAVE_MENUCONFIG TRUE)
-    else()
-        find_program(MENUCONFIG menuconfig)
-        if(MENUCONFIG)
-            set(HAVE_MENUCONFIG TRUE)
-        endif()
-    endif()
-endif()
-
-if(HAVE_MENUCONFIG)
-    message(STATUS "支持 menuconfig: ${MENUCONFIG}")
-else()
-    message(STATUS "未找到 menuconfig 工具")
-endif()
-
-# 5. 添加配置目标
-# 构建命令变量
-if(HAVE_NCONFIG OR HAVE_MENUCONFIG)
-    # 构建命令列表
-    if(HAVE_NCONFIG)
-        set(config_cmd_list ${PYTHON} -m menuconfig ${CMAKE_SOURCE_DIR}/Kconfig)
-    else()
-        set(config_cmd_list ${MENUCONFIG} ${CMAKE_SOURCE_DIR}/Kconfig)
-    endif()
-
-    # 尝试用独立终端运行
-    find_program(XTERM xterm)
-    if(XTERM)
-        add_custom_target(config
-            COMMAND ${XTERM} -e ${config_cmd_list}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMENT "在独立终端运行配置工具"
-        )
-    else()
-        # 没有 xterm，就在当前终端运行
-        add_custom_target(config
-            COMMAND ${config_cmd_list}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMENT "运行配置工具 (当前终端)"
-        )
-    endif()
-else()
-    add_custom_target(config
-        COMMAND ${CMAKE_COMMAND} -E echo "错误：未找到配置工具"
-        COMMENT "配置工具不可用"
-    )
-endif()
-
-# 6. 解析 .config 文件（增强版）
-if(EXISTS "${CONFIG_FILE}")
-    file(STRINGS "${CONFIG_FILE}" CONFIG_LINES)
-    foreach(LINE ${CONFIG_LINES})
-        # 跳过空行和注释行
-        if(LINE MATCHES "^[ \t]*$" OR LINE MATCHES "^#")
-            continue()
-        endif()
-        
-        # 处理有效配置行
-        if(LINE MATCHES "^CONFIG_([A-Za-z0-9_]+)=(.+)$")
-            set(CONFIG_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}")
-            # 处理字符串值（移除引号）
-            if(CMAKE_MATCH_2 MATCHES "^\"(.*)\"$")
-                set(CONFIG_${CMAKE_MATCH_1} "${CMAKE_MATCH_1}")
-            endif()
-            message(STATUS "配置项: CONFIG_${CMAKE_MATCH_1} = ${CONFIG_${CMAKE_MATCH_1}}")
-        else()
-            message(WARNING "忽略无效配置行: ${LINE}")
-        endif()
-    endforeach()
-else()
-    message(WARNING ".config 文件不存在！")
-endif()
-
-# 7. 确保 config.h.in 存在
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/config.h.in")
-    file(WRITE "${CMAKE_SOURCE_DIR}/config.h.in" "#pragma once\n")
-    message(STATUS "已创建默认的 config.h.in 文件")
-endif()
-
-# 8. 生成 config.h
-configure_file(
-    ${CMAKE_SOURCE_DIR}/config.h.in
-    ${CMAKE_BINARY_DIR}/config.h
-)
-
-# 9. 添加重新配置目标
-add_custom_target(reconfigure
-    COMMAND ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "重新运行 CMake 应用新配置"
-)
-
-# 添加依赖关系
-add_dependencies(reconfigure config)
-]]
-
-
 # 将包含目录添加到编译器搜索路径
 include_directories(${CMAKE_BINARY_DIR})
 
@@ -174,9 +36,6 @@ add_custom_target(test_config
 add_subdirectory(PiXUtils)
 add_subdirectory(PiXExternUtils)
 add_subdirectory(PiXSingleGUI)
-add_subdirectory(PiXGUIFramework/desktopGUI)
-add_subdirectory(PiXGUIFramework/exampleGUI)
-add_subdirectory(PiXGUIFramework/SmartDeviceGUI)
 add_subdirectory(PiXService)
 # add_subdirectory(examplesApp)
 
@@ -265,8 +124,6 @@ install(TARGETS PiXService RUNTIME DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/bin)
 install(TARGETS PiXSingleGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 install(TARGETS PiXExternUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 install(TARGETS PiXUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
-install(TARGETS PiXDesktopGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
-install(TARGETS exampleGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 
 # 拷贝依赖库到/usr/lib
 file(GLOB_RECURSE INSTALL_SO_FILES "${INSTALL_LIB_DIR}/*.so*")
@@ -370,5 +227,3 @@ add_dependencies(PiXUtils create_symlinks)
 add_dependencies(PiXExternUtils create_symlinks)
 add_dependencies(PiXSingleGUI create_symlinks)
 add_dependencies(PiXService create_symlinks)
-add_dependencies(PiXDesktopGUI create_symlinks)
-add_dependencies(exampleGUI create_symlinks)

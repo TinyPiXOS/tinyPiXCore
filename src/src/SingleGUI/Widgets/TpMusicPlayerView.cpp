@@ -4,8 +4,6 @@
 #include "TpDisplay.h"
 #include "TpFont.h"
 
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
-
 struct TpMusicPlayerViewData
 {
     TpLabel *musicImageLabel;
@@ -13,9 +11,9 @@ struct TpMusicPlayerViewData
     TpLabel *authorLabel;
     TpLabel *curWordLabel;
 
-    ::TpButton *previousBtn;
-    ::TpButton *playPauseBtn;
-    ::TpButton *nextBtn;
+    TpButton *previousBtn;
+    TpButton *playPauseBtn;
+    TpButton *nextBtn;
 
     bool isPlaying = false;
 };
@@ -181,5 +179,3 @@ bool TpMusicPlayerView::onResizeEvent(TpResizeEvent *event)
 
     return true;
 }
-
-SMART_DEVICE_GUI_NAMESPACE_END

@@ -3,8 +3,6 @@
 #include "TpLinearGradient.h"
 #include "TpFont.h"
 
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
-
 struct TpTemperatureWidgetData
 {
     TpString titleText = "温度";
@@ -312,5 +310,3 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
 
     return true;
 }
-
-SMART_DEVICE_GUI_NAMESPACE_END

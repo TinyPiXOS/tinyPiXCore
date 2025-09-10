@@ -1,13 +1,10 @@
-#ifndef __TP_SMART_GUI_MUSIC_PLAYER_VIEW_H
-#define __TP_SMART_GUI_MUSIC_PLAYER_VIEW_H
+#ifndef __TP_MUSIC_PLAYER_VIEW_H
+#define __TP_MUSIC_PLAYER_VIEW_H
 
 #include "TpChildWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpImage.h"
-#include "SmartDeviceGUI/FrameworkGlobal.h"
-
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
 
 TP_DEF_VOID_TYPE_VAR(ITpMusicPlayerViewData);
 /// @brief 音乐播放视图
@@ -66,7 +63,5 @@ public:
 private:
     ITpMusicPlayerViewData *data_;
 };
-
-SMART_DEVICE_GUI_NAMESPACE_END
 
 #endif

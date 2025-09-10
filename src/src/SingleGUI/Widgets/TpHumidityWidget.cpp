@@ -3,8 +3,6 @@
 #include "TpLinearGradient.h"
 #include "TpFont.h"
 
-SMART_DEVICE_GUI_NAMESPACE_BEGIN
-
 struct TpHumidityWidgetData
 {
     TpString titleText = "湿度";
@@ -277,5 +275,3 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
 
     return true;
 }
-
-SMART_DEVICE_GUI_NAMESPACE_END
