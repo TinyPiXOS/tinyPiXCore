@@ -29,7 +29,7 @@ public:
 
     /// @brief 使用渐变创建画刷
     /// @param gradient 渐变对象
-    explicit TpBrush(const TpGradient &gradient);
+    explicit TpBrush(TpGradient *gradient);
 
     /// @brief 析构函数
     ~TpBrush();
@@ -57,7 +57,7 @@ public:
 
     /// @brief 获取渐变对象
     /// @return 指向渐变对象的指针（如果不是渐变画刷则返回nullptr）
-    const TpGradient &gradient() const;
+    TpGradient *gradient() const;
 
 private:
     ITpBrushData *data_; // 画刷数据实现

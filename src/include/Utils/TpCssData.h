@@ -3,6 +3,7 @@
 
 #include "TpHash.h"
 #include "TpString.h"
+#include "TpGradient.h"
 
 /// @brief 所有距离、宽度等单位全为px
 class TpCssData
@@ -38,10 +39,15 @@ public:
     /// @brief 字体颜色
     /// @return
     int32_t color();
+    /// @brief 字体颜色是否为渐变色
+    /// @return 
+    // bool colorIsGradient();
+    // TpGradient colorGradiant();
 
     /// @brief 如果有子标题，子字体颜色
     /// @return 
     int32_t subColor();
+    bool subColorIsGradient();
 
     /// @brief 背景颜色
     /// @return

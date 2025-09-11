@@ -163,7 +163,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     {
         lineGradient.setStart(circleCenterX, circleCenterY + circleRadius);
         lineGradient.setFinalStop(circleCenterX, rectangleY);
-        painter->setBrush(TpBrush(lineGradient));
+        painter->setBrush(TpBrush(&lineGradient));
     }
 
     // 计算填充高度
