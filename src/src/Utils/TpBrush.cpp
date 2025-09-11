@@ -5,7 +5,7 @@ struct TpBrushData
 {
     tinyPiX::BrushStyle style; // 画刷样式
     TpColors color;            // 画刷颜色
-    TpGradient gradient;       // 渐变对象指针（如果是渐变画刷）
+    TpGradient *gradient;      // 渐变对象指针（如果是渐变画刷）
 
     /// @brief 默认构造函数
     TpBrushData()
@@ -25,7 +25,7 @@ struct TpBrushData
 
     /// @brief 渐变画刷构造函数
     /// @param g 渐变对象
-    TpBrushData(const TpGradient &g)
+    TpBrushData(TpGradient *g)
         : style(tinyPiX::LinearGradientPattern),
           gradient(g)
     {
@@ -80,7 +80,7 @@ TpBrush::TpBrush(const TpBrush &brush)
 }
 
 // 使用渐变创建画刷
-TpBrush::TpBrush(const TpGradient &gradient)
+TpBrush::TpBrush(TpGradient *gradient)
     : data_(new TpBrushData(gradient))
 {
 }
@@ -140,7 +140,7 @@ void TpBrush::setColor(const TpColors &color)
 }
 
 // 获取渐变对象
-const TpGradient &TpBrush::gradient() const
+TpGradient *TpBrush::gradient() const
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);
     return brushData->gradient;

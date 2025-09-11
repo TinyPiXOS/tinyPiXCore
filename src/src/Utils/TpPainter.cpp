@@ -231,7 +231,7 @@ void TpPainter::drawPie(const TpPoint &center, int32_t rad, int32_t start, int32
     if (painterData && painterData->beUsed)
     {
         TpPoint actualPoint(OFFSET_X(painterData, center.x()), OFFSET_Y(painterData, center.y()));
-        renderArc(painterData, center, rad, start, end, true, hollowMaskData);
+        renderArc(painterData, actualPoint, rad, start, end, true, hollowMaskData);
     }
 }
 
