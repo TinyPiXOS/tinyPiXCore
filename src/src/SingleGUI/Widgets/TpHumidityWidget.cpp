@@ -178,7 +178,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     {
         lineGradient.setStart(arcX, arcY + arcRadius);
         lineGradient.setFinalStop(arcX, startY);
-        painter->setBrush(TpBrush(lineGradient));
+        painter->setBrush(TpBrush(&lineGradient));
     }
 
     // 水滴总高度，用于计算填充绘制高度
