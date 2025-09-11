@@ -64,22 +64,22 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *painterData)
         gradientBrush.style() != tinyPiX::RadialGradientPattern)
         return nullptr;
 
-    const TpGradient &brushGradientPtr = gradientBrush.gradient();
+    TpGradient *brushGradientPtr = gradientBrush.gradient();
 
-    TpList<std::pair<float, int32_t>> colorList = brushGradientPtr.getColors();
+    TpList<std::pair<float, int32_t>> colorList = brushGradientPtr->getColors();
     if (colorList.size() == 0)
         return nullptr;
 
     tvg::Fill *resGradientPtr = nullptr;
 
-    TpGradient::GradientType gradientType = brushGradientPtr.gradientType();
+    TpGradient::GradientType gradientType = brushGradientPtr->gradientType();
     if (gradientType == TpGradient::LinearGradient)
     {
         // 创建线性渐变
-        const TpLinearGradient &linearGrad = dynamic_cast<const TpLinearGradient &>(brushGradientPtr);
+        TpLinearGradient *linearGrad = dynamic_cast<TpLinearGradient *>(brushGradientPtr);
 
-        TpPointF startPoint = linearGrad.start();
-        TpPointF stopPoint = linearGrad.finalStop();
+        TpPointF startPoint = linearGrad->start();
+        TpPointF stopPoint = linearGrad->finalStop();
 
         tvg::LinearGradient *linearGradient = tvg::LinearGradient::gen();
         linearGradient->linear(painterData->offsetX + startPoint.x(), painterData->offsetY + startPoint.y(),
@@ -90,13 +90,13 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *painterData)
     else if (gradientType == TpGradient::RadialGradient)
     {
         // 创建径向渐变
-        const TpRadialGradient &radialGrad = dynamic_cast<const TpRadialGradient &>(brushGradientPtr);
+        TpRadialGradient *radialGrad = dynamic_cast<TpRadialGradient *>(brushGradientPtr);
 
-        TpPointF centerPoint = radialGrad.center();
-        float centerRadius = radialGrad.centerRadius();
+        TpPointF centerPoint = radialGrad->center();
+        float centerRadius = radialGrad->centerRadius();
 
-        TpPointF focalPoint = radialGrad.focalPoint();
-        float focalRadius = radialGrad.focalRadius();
+        TpPointF focalPoint = radialGrad->focalPoint();
+        float focalRadius = radialGrad->focalRadius();
 
         tvg::RadialGradient *radialGradient = tvg::RadialGradient::gen();
         // 设置中心点和半径
@@ -113,7 +113,7 @@ static inline tvg::Fill *parseGradientPtr(TpCanvasData *painterData)
         return resGradientPtr;
 
     // 设置扩散模式
-    tvg::FillSpread spreadMode = (tvg::FillSpread)brushGradientPtr.spread();
+    tvg::FillSpread spreadMode = (tvg::FillSpread)brushGradientPtr->spread();
     resGradientPtr->spread(spreadMode);
 
     tvg::Fill::ColorStop colorStops[colorList.size()];

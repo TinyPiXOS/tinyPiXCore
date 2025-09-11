@@ -176,7 +176,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
             lineGradient.setColorAt(0, _RGB(107, 80, 246));
             lineGradient.setColorAt(1, _RGB(204, 143, 237));
 
-            painter->setBrush(TpBrush(lineGradient));
+            painter->setBrush(TpBrush(&lineGradient));
 
             painter->drawRect(i * singleWeatherWidth, 0, singleWeatherWidth, height(), 20);
 
