@@ -3,7 +3,7 @@
 
 #include "TpObject.h"
 #include "TpChildWidget.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "thorVG/thorvg.h"
 
 static inline TpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
@@ -211,14 +211,14 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
     return object;
 }
 
-static void paintEnabledBox(TpChildWidget *child, TpCanvas *paintCanvas)
+static void paintEnabledBox(TpChildWidget *child, TpPainter *paintCanvas)
 {
     if (!child->enabled())
     {
-        if (child->roundCorners() != 0)
-            paintCanvas->roundedBox(0, 0, child->width(), child->height(), child->roundCorners(), _RGBA(192, 192, 192, 125));
-        else
-            paintCanvas->box(0, 0, child->width(), child->height(), _RGBA(192, 192, 192, 125));
+        paintCanvas->setBrush(TpBrush(_RGBA(192, 192, 192, 125)));
+        paintCanvas->setPen(_RGBA(192, 192, 192, 125));
+
+        paintCanvas->drawRect(0, 0, child->width(), child->height(), child->roundCorners());
     }
 }
 
@@ -258,7 +258,7 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         event.construct(&input);
 
         // 刷新前清除scene
-        TpCanvas *childPainter = event.canvas();
+        TpPainter *childPainter = event.canvas();
 
         auto canvasPair = child->canvasPtr();
         tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;

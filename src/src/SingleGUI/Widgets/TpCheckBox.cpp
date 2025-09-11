@@ -1,5 +1,5 @@
 #include "TpCheckBox.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpEvent.h"
 #include "TpImage.h"
 
@@ -129,7 +129,7 @@ bool TpCheckBox::onPaintEvent(TpPaintEvent *event)
     // return true;
     // TpChildWidget::onPaintEvent(event);
 
-    TpCanvas *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->canvas();
 
     TpCheckBoxData *cbxData = static_cast<TpCheckBoxData *>(data_);
 
@@ -147,37 +147,26 @@ bool TpCheckBox::onPaintEvent(TpPaintEvent *event)
     uint32_t iconX = (height() - cbxData->checkIcon.width()) / 2.0;
     uint32_t iconY = (height() - cbxData->checkIcon.height()) / 2.0;
 
-    if (minRad == 0)
+    // 选中态只绘制背景，未选中只绘制边框
+    if (checked())
     {
-        // 选中态只绘制背景，未选中只绘制边框
-        if (checked())
-        {
-            paintCanvas->box(0, 0, height(), height(), normalCss->backgroundColor());
-            paintCanvas->paintImage(iconX, iconY, cbxData->checkIcon);
-        }
-        else
-        {
-            paintCanvas->rectangle(0, 0, height(), height(), normalCss->borderColor(), normalCss->borderWidth());
-        }
+        paintCanvas->setBrush(TpBrush(normalCss->backgroundColor()));
+        paintCanvas->drawRect(0, 0, height(), height(), minRad);
+        paintCanvas->drawImage(iconX, iconY, cbxData->checkIcon);
     }
     else
     {
-        if (checked())
-        {
-            paintCanvas->roundedBox(0, 0, height(), height(), minRad, normalCss->backgroundColor());
-            paintCanvas->paintImage(iconX, iconY, cbxData->checkIcon);
-        }
-        else
-        {
-            paintCanvas->roundedRectangle(1, 1, height(), height() - 1, minRad, normalCss->borderColor(), normalCss->borderWidth());
-        }
+        paintCanvas->setBrush(TpBrush(tinyPiX::NoBrush));
+        paintCanvas->setPen(normalCss->borderColor());
+        paintCanvas->pen().setWidth(normalCss->borderWidth());
+        paintCanvas->drawRect(0, 0, height(), height(), minRad);
     }
 
     if (!cbxData->text.empty())
     {
         cbxData->textFont->setText(cbxData->text);
         uint32_t fontY = (height() - cbxData->textFont->pixelHeight()) / 2.0;
-        paintCanvas->renderText(*cbxData->textFont, height() + normalCss->gap(), fontY);
+        paintCanvas->drawText(*cbxData->textFont, height() + normalCss->gap(), fontY);
     }
 
     return true;

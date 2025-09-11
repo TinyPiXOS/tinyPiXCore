@@ -24,7 +24,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/Utils/TpSizeF.cpp
     ${SOURCE_PATH}/src/Utils/TpSurface.cpp
     ${SOURCE_PATH}/src/Utils/TpFont.cpp
-    ${SOURCE_PATH}/src/Utils/TpCanvas.cpp
+    ${SOURCE_PATH}/src/Utils/TpPainter.cpp
     ${SOURCE_PATH}/src/Utils/TpRange.cpp
     ${SOURCE_PATH}/src/Utils/TpUUID.cpp
     ${SOURCE_PATH}/src/Utils/TpMD5.cpp
@@ -71,6 +71,8 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/Utils/TpTcpSocket.cpp
 	${SOURCE_PATH}/src/Utils/TpTcpServer.cpp
 	${SOURCE_PATH}/src/Utils/TpUdpSocket.cpp
+	${SOURCE_PATH}/src/Utils/TpPen.cpp
+	${SOURCE_PATH}/src/Utils/TpBrush.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp

@@ -1,6 +1,6 @@
 #include "TpWeatherInfoPanel.h"
 #include "TpImage.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpFont.h"
 #include "TpLinearGradient.h"
 
@@ -152,7 +152,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
     if (singleWeatherWidth == 0)
         return true;
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
     int32_t iconSize = singleWeatherWidth * 0.5;
     int32_t iconX = (singleWeatherWidth - iconSize) / 2.0;
     int32_t iconY = (height() - iconSize) / 2.0;
@@ -176,11 +176,12 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
             lineGradient.setColorAt(0, _RGB(107, 80, 246));
             lineGradient.setColorAt(1, _RGB(204, 143, 237));
 
-            painter->setGradient(&lineGradient);
-            painter->roundedBox(i * singleWeatherWidth, 0, i * singleWeatherWidth + singleWeatherWidth, height(), 20, _RGB(204, 143, 237));
+            painter->setBrush(TpBrush(lineGradient));
+
+            painter->drawRect(i * singleWeatherWidth, 0, singleWeatherWidth, height(), 20);
 
             // 重置渐变效果
-            painter->setGradient(nullptr);
+            painter->setBrush(TpBrush(tinyPiX::NoBrush));
         }
 
         TpImage weatherIcon(weatherIconPath(weatherInfo.weatherType));
@@ -190,16 +191,16 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
 
         int32_t titleTextX = (singleWeatherWidth - weatherData->titleFont.pixelWidth()) / 2.0;
         int32_t titleTextY = ((height() - iconSize) / 2.0 - weatherData->titleFont.pixelHeight()) / 2.0;
-        painter->renderText(weatherData->titleFont, titleTextX + i * singleWeatherWidth, titleTextY, weatherInfo.text);
+        painter->drawText(weatherData->titleFont, titleTextX + i * singleWeatherWidth, titleTextY, weatherInfo.text);
 
-        painter->paintImage(iconX + i * singleWeatherWidth, iconY, weatherIcon.scaled(iconSize, iconSize));
+        painter->drawImage(iconX + i * singleWeatherWidth, iconY, weatherIcon.scaled(iconSize, iconSize));
 
         weatherData->subTextFont.setText(weatherInfo.subText);
         weatherData->subTextFont.setFontColor(subTextFontColor, subTextFontColor);
 
         int32_t subTitleTextX = (singleWeatherWidth - weatherData->subTextFont.pixelWidth()) / 2.0;
         int32_t subTitleTextY = ((height() - iconSize) / 2.0 - weatherData->subTextFont.pixelHeight()) / 2.0;
-        painter->renderText(weatherData->subTextFont, subTitleTextX + i * singleWeatherWidth, iconY + iconSize + subTitleTextY, weatherInfo.subText);
+        painter->drawText(weatherData->subTextFont, subTitleTextX + i * singleWeatherWidth, iconY + iconSize + subTitleTextY, weatherInfo.subText);
     }
 
     return true;

@@ -1,5 +1,5 @@
 #include "TpInputMethod.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpChildWidget.h"
 #include "TpApp.h"
 #include "rime/rime_api.h"

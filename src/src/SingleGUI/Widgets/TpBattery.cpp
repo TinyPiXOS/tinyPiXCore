@@ -1,5 +1,5 @@
 #include "TpBattery.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpEvent.h"
 #include "TpFont.h"
 #include "TpPointF.h"
@@ -115,7 +115,7 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
     int32_t borderColor = batteryData->style == TpBattery::White ? batteryData->whiteBorderColor : batteryData->blackBorderColor;
     int32_t fontColor = batteryData->style == TpBattery::White ? batteryData->blackColor : batteryData->whiteColor;
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
     double linew = batteryData->borderWidth;
 
     double headWidth = width() / 12;
@@ -125,9 +125,11 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
 
     // 边框
     double borderRadius = batteryRect.height() * 0.3;
-    painter->roundedRectangle(batteryRect.x(), batteryRect.y(),
-                              batteryRect.x() + batteryRect.width(), batteryRect.y() + batteryRect.height(),
-                               borderRadius, borderColor, linew);
+
+    painter->pen().setColor(borderColor);
+    painter->pen().setWidth(linew);
+
+    painter->drawRect(batteryRect.x(), batteryRect.y(), batteryRect.width(), batteryRect.height(), borderRadius);
 
     // 电量
     if (batteryData->value != 0)
@@ -143,8 +145,11 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
         TpRectF rect(topLeft, bottomRight);
 
         double bgRadius = rect.height() * 0.3;
-        // painter->setBrush(powerColoer);
-        painter->roundedBox(rect.x(), rect.y(), rect.x() + rect.width(), rect.y() + rect.height(), bgRadius, powerColoer);
+
+        painter->pen().setColor(powerColoer);
+        painter->setBrush(TpBrush(powerColoer));
+
+        painter->drawRect(rect.x(), rect.y(), rect.width(), rect.height(), bgRadius);
     }
 
     // 绘制数值
@@ -157,16 +162,18 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
     font.setFontColor(fontColor, fontColor);
     uint32_t textX = (batteryRect.width() - font.pixelWidth()) / 2.0;
     uint32_t textY = (batteryRect.height() - font.pixelHeight()) / 2.0 + 1;
-    painter->renderText(font, textX, textY, text);
+    painter->drawText(font, textX, textY, text);
 
     // 绘制头部
     TpPointF headRectTopLeft(batteryRect.right(), height() / 3);
     TpPointF headRectBottomRight(width(), height() - height() / 3);
     TpRectF headRect(headRectTopLeft, headRectBottomRight);
     double headRadius = headRect.height() / 30;
-    // painter->setPen(Qt::NoPen);
-    // painter->setBrush(m_dPtr->borderColor);
-    painter->roundedBox(headRect.x(), headRect.y(), headRect.x() + headRect.width(), headRect.y() + headRect.height(), headRadius, borderColor);
+
+    painter->pen().setColor(borderColor);
+    painter->setBrush(TpBrush(borderColor));
+
+    painter->drawRect(headRect.x(), headRect.y(), headRect.width(), headRect.height(), headRadius);
 
     return true;
 }

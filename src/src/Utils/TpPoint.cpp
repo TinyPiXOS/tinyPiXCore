@@ -181,77 +181,77 @@ int32_t TpPoint::dotProduct(const TpPoint &p1, const TpPoint &p2)
     return p1Data->x * p2Data->x + p1Data->y * p2Data->y;
 }
 
-inline bool operator==(const TpPoint &p1, const TpPoint &p2)
+bool operator==(const TpPoint &p1, const TpPoint &p2)
 {
     TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
     TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
     return (p1Data->x == p2Data->x) && (p1Data->y == p2Data->y);
 }
 
-inline bool operator!=(const TpPoint &p1, const TpPoint &p2)
+bool operator!=(const TpPoint &p1, const TpPoint &p2)
 {
     return !(p1 == p2);
 }
 
-inline const TpPoint operator+(const TpPoint &p1, const TpPoint &p2)
+const TpPoint operator+(const TpPoint &p1, const TpPoint &p2)
 {
     TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
     TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
     return TpPoint(p1Data->x + p2Data->x, p1Data->y + p2Data->y);
 }
 
-inline const TpPoint operator-(const TpPoint &p1, const TpPoint &p2)
+const TpPoint operator-(const TpPoint &p1, const TpPoint &p2)
 {
     TpPointData *p1Data = static_cast<TpPointData *>(p1.data_);
     TpPointData *p2Data = static_cast<TpPointData *>(p2.data_);
     return TpPoint(p1Data->x - p2Data->x, p1Data->y - p2Data->y);
 }
 
-inline const TpPoint operator*(const TpPoint &p, float factor)
+const TpPoint operator*(const TpPoint &p, float factor)
 {
     TpPointData *pData = static_cast<TpPointData *>(p.data_);
     return TpPoint(static_cast<int32_t>(pData->x * factor), static_cast<int32_t>(pData->y * factor));
 }
 
-inline const TpPoint operator*(float factor, const TpPoint &p)
+const TpPoint operator*(float factor, const TpPoint &p)
 {
     return p * factor;
 }
 
-inline const TpPoint operator*(const TpPoint &p, double factor)
+const TpPoint operator*(const TpPoint &p, double factor)
 {
     TpPointData *pData = static_cast<TpPointData *>(p.data_);
     return TpPoint(static_cast<int32_t>(pData->x * factor), static_cast<int32_t>(pData->y * factor));
 }
 
-inline const TpPoint operator*(double factor, const TpPoint &p)
+const TpPoint operator*(double factor, const TpPoint &p)
 {
     return p * factor;
 }
 
-inline const TpPoint operator*(const TpPoint &p, int32_t factor)
+const TpPoint operator*(const TpPoint &p, int32_t factor)
 {
     TpPointData *pData = static_cast<TpPointData *>(p.data_);
     return TpPoint(pData->x * factor, pData->y * factor);
 }
 
-inline const TpPoint operator*(int32_t factor, const TpPoint &p)
+const TpPoint operator*(int32_t factor, const TpPoint &p)
 {
     return p * factor;
 }
 
-inline const TpPoint operator+(const TpPoint &p)
+const TpPoint operator+(const TpPoint &p)
 {
     return p;
 }
 
-inline const TpPoint operator-(const TpPoint &p)
+const TpPoint operator-(const TpPoint &p)
 {
     TpPointData *pData = static_cast<TpPointData *>(p.data_);
     return TpPoint(-pData->x, -pData->y);
 }
 
-inline const TpPoint operator/(const TpPoint &p, float divisor)
+const TpPoint operator/(const TpPoint &p, float divisor)
 {
     if (divisor == 0.0f)
         return p;
@@ -259,7 +259,7 @@ inline const TpPoint operator/(const TpPoint &p, float divisor)
     return TpPoint(static_cast<int32_t>(pData->x / divisor), static_cast<int32_t>(pData->y / divisor));
 }
 
-inline const TpPoint operator/(const TpPoint &p, double divisor)
+const TpPoint operator/(const TpPoint &p, double divisor)
 {
     if (divisor == 0.0)
         return p;
@@ -267,7 +267,7 @@ inline const TpPoint operator/(const TpPoint &p, double divisor)
     return TpPoint(static_cast<int32_t>(pData->x / divisor), static_cast<int32_t>(pData->y / divisor));
 }
 
-inline const TpPoint operator/(const TpPoint &p, int32_t divisor)
+const TpPoint operator/(const TpPoint &p, int32_t divisor)
 {
     if (divisor == 0)
         return p;

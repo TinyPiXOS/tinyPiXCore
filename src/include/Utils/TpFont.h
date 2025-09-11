@@ -132,9 +132,9 @@ public:
 
 private:
     /// @brief 指针需外部释放
-    virtual uint32_t *renderText(const TpString &text);
+    virtual uint32_t *drawText(const TpString &text);
 
-    friend class TpCanvas;
+    friend class TpPainter;
 
 private:
     ItpFontData *data_;

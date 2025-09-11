@@ -38,7 +38,7 @@ public:
 public:
     /// @brief 获取当前渐变类型
     /// @return 渐变类型枚举
-    GradientType gradientType();
+    GradientType gradientType() const;
 
 public:
     /// @brief 在给定位置使用给定颜色创建一个停止点。给定位置必须在0到1的范围内。
@@ -57,7 +57,7 @@ public:
     /// @brief 指定此渐变应使用的扩散方法;仅对线性渐变和径向渐变有效
     /// @param spread 扩散方法枚举
     void setSpread(Spread spread);
-    Spread spread();
+    Spread spread() const;
 
 public:
     const TpGradient &operator=(const TpGradient &others);

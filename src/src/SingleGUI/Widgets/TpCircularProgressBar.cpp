@@ -1,5 +1,5 @@
 #include "TpCircularProgressBar.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpFont.h"
 
 struct TpCircularProgressBarData
@@ -85,12 +85,16 @@ bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
     TpCircularProgressBarData *progressData = static_cast<TpCircularProgressBarData *>(data_);
 
     // TpChildWidget::onPaintEvent(event);
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
     // painter->arc(50, 50, 40, 140, 40, _RGBA(204, 179, 230, 204), 15, true);
 
     int32_t circlePoint = (width() < height() ? width() : height()) / 2.0;
+
+    painter->setPen(_RGB(217, 217, 217));
+    painter->pen().setWidth(progressData->lineWidth);
+
     // 半径要减去线宽的一半
-    painter->circle(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, _RGB(217, 217, 217), progressData->lineWidth);
+    painter->drawEllipse(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, circlePoint - progressData->lineWidth / 2.0);
 
     // 根据进度绘制填充
     if (progressData->curValue != 0)
@@ -98,9 +102,12 @@ bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
         // 计算百分比
         double percent = 1.0 * (progressData->curValue - progressData->minValue) / (progressData->maxValue - progressData->minValue);
         double percentAngle = -90 + 360.0 * percent;
-        painter->arc(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, -90, percentAngle, _RGB(128, 94, 243), progressData->lineWidth, true);
+
+        painter->setPen(_RGB(128, 94, 243));
+        painter->pen().setWidth(progressData->lineWidth);
+
+        painter->drawArc(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, -90, percentAngle);
     }
 
     return true;
 }
-

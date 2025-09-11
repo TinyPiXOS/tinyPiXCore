@@ -1,5 +1,5 @@
 #include "TpCarouselButton.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpEvent.h"
 #include "TpDisplay.h"
 
@@ -161,7 +161,7 @@ bool TpCarouselButton::onPaintEvent(TpPaintEvent *event)
     TpCarouselButtonData *buttonData = static_cast<TpCarouselButtonData *>(data_);
     buttonData->pointRectList.clear();
 
-    TpCanvas *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->canvas();
 
     if (buttonData->showMode == TpCarouselButton::Horizon)
     {
@@ -189,7 +189,10 @@ bool TpCarouselButton::onPaintEvent(TpPaintEvent *event)
                 curColor = buttonData->defaultColor;
             }
 
-            paintCanvas->roundedBox(curRect.x(), curRect.y(), curRect.x() + curRect.width(), curRect.y() + curRect.height(), buttonData->singleBtnWH / 2.0, curColor);
+            paintCanvas->setPen(curColor);
+            paintCanvas->setBrush(TpBrush(curColor));
+
+            paintCanvas->drawRect(curRect.x(), curRect.y(), curRect.width(), curRect.height(), buttonData->singleBtnWH / 2.0);
             buttonData->pointRectList.emplace_back(curRect);
 
             startX += buttonData->singleBtnWH + buttonData->spacing;
@@ -221,7 +224,10 @@ bool TpCarouselButton::onPaintEvent(TpPaintEvent *event)
                 curColor = buttonData->defaultColor;
             }
 
-            paintCanvas->roundedBox(curRect.x(), curRect.y(), curRect.x() + curRect.width(), curRect.y() + curRect.height(), buttonData->singleBtnWH / 2.0, curColor);
+            paintCanvas->setPen(curColor);
+            paintCanvas->setBrush(TpBrush(curColor));
+
+            paintCanvas->drawRect(curRect.x(), curRect.y(), curRect.width(), curRect.height(), buttonData->singleBtnWH / 2.0);
             buttonData->pointRectList.emplace_back(curRect);
 
             startY += buttonData->singleBtnWH + buttonData->spacing;

@@ -1,5 +1,5 @@
 #include "TpNotificationWidget.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include <math.h>
 #include "TpScrollPanel.h"
 
@@ -104,7 +104,7 @@ bool TpNotificationWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpNotificationWidgetData *widgetData = static_cast<TpNotificationWidgetData *>(data_);
 
-    TpCanvas *canvas = event->canvas();
+    TpPainter *canvas = event->canvas();
 
     TpRect widgetRect = this->rect();
 
@@ -148,7 +148,7 @@ bool TpNotificationWidget::onPaintEvent(TpPaintEvent *event)
 
     //         // 应用名称（左对齐）
     //         const int textY = itemRect.y + TITLE_PADDING;
-    //         canvas->renderText(
+    //         canvas->drawText(
     //             item->itemData().appName.c_str(),
     //             itemRect.x() + TITLE_PADDING,
     //             textY,

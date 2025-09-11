@@ -1,6 +1,6 @@
 #include "mainWindowService.h"
 #include "testLight.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpTimer.h"
 
 mainWindowService::mainWindowService()
@@ -84,7 +84,7 @@ bool mainWindowService::onPaintEvent(TpPaintEvent *event)
 {
     TpFixScreen::onPaintEvent(event);
 
-    // TpCanvas *paintCanvas = event->canvas();
+    // TpPainter *paintCanvas = event->canvas();
 
     // paintCanvas->sync();
 

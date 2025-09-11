@@ -1,5 +1,5 @@
 #include "TpLabel.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpFont.h"
 #include "TpEvent.h"
 #include "TpRect.h"
@@ -301,7 +301,7 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
 
     TpChildWidget::onPaintEvent(event);
 
-    TpCanvas *canvas = event->canvas();
+    TpPainter *canvas = event->canvas();
     TpString text = this->text();
 
     if (text.empty())
@@ -341,7 +341,7 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
         if (subStrList.size() == 0)
         {
             set->font->setText(text);
-            canvas->renderText(*set->font, cx, cy);
+            canvas->drawText(*set->font, cx, cy);
         }
         else
         {
@@ -378,13 +378,13 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
                 }
 
                 // std::cout << " subText " << subText << std::endl;
-                canvas->renderText(*set->font, cx, cy + i * (size.height() + set->textSpacing));
+                canvas->drawText(*set->font, cx, cy + i * (size.height() + set->textSpacing));
             }
         }
     }
     else
     {
-        canvas->renderText(*set->font, cx, cy);
+        canvas->drawText(*set->font, cx, cy);
     }
 
     return true;

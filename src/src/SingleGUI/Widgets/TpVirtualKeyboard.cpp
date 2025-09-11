@@ -5,7 +5,7 @@
 #include "TpVBoxLayout.h"
 #include "TpHBoxLayout.h"
 #include "TpApp.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpButton.h"
 
 #ifndef TOP_MARGIN
@@ -831,14 +831,14 @@ bool TpCandidateWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
 
     int32_t pinyinHeight = 0;
     if (!cachePinyin_.empty())
     {
         // 绘制拼音
         textFont_->setText(cachePinyin_);
-        painter->renderText(*textFont_, 0, 0);
+        painter->drawText(*textFont_, 0, 0);
         pinyinHeight = textFont_->pixelHeight();
     }
 
@@ -856,9 +856,11 @@ bool TpCandidateWidget::onPaintEvent(TpPaintEvent *event)
                 int32_t bgBoxWidth = textFont_->pixelWidth() + bgLeftRightMargin_ * 2;
                 int32_t bgBoxHeight = textFont_->pixelHeight() /*+ bgTopBottomMargin_ * 2*/;
 
-                painter->roundedBox(curWordOffset_, pinyinHeight + 5, curWordOffset_ + bgBoxWidth, pinyinHeight + 5 + bgBoxHeight, 6, _RGB(251, 251, 252));
+                painter->setPen(_RGB(251, 251, 252));
+                painter->setBrush(TpBrush(_RGB(251, 251, 252)));
+                painter->drawRect(curWordOffset_, pinyinHeight + 5, bgBoxWidth, bgBoxHeight, 6);
             }
-            painter->renderText(*textFont_, curX, pinyinHeight + 5);
+            painter->drawText(*textFont_, curX, pinyinHeight + 5);
 
             TpRect curCandidateWordRect(curX - bgLeftRightMargin_, pinyinHeight + 5,
                                         textFont_->pixelWidth() + bgLeftRightMargin_ * 2, textFont_->pixelHeight());

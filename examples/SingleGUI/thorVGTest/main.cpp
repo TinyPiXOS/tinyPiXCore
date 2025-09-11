@@ -1,7 +1,7 @@
 #include "TpApp.h"
 #include "TpFixScreen.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpUtils.h"
 #include "TpImage.h"
 #include "TpBattery.h"
@@ -87,13 +87,13 @@ public:
 
         TpChildWidget::onPaintEvent(event);
 
-        TpCanvas *painter = event->canvas();
+        TpPainter *painter = event->canvas();
         // painter->paintTest();
 
         // TpFont testFont;
         // testFont.setFontColor(_RGB(0, 255, 0), _RGB(0, 255, 0));
         // testFont.setFontSize(30);
-        // painter->renderText(testFont, 10, 10, "你好tinyPiXOS");
+        // painter->drawText(testFont, 10, 10, "你好tinyPiXOS");
 
         // TpLinearGradient lineGradient(0, 0, 290, 90);
         // lineGradient.setColorAt(0, _RGB(204, 143, 237));
@@ -154,16 +154,16 @@ public:
         // painter->pie(260, 380, 50, 45, 170, _RGB(150, 200, 168), 5);
         // painter->filledPie(330, 450, 50, 225, 315, _RGB(150, 200, 168));
 
-        // HollowMask hallowMask;
+        // TpHollowMask hallowMask;
         // hallowMask.addRectHollow(TpRect(10, 10, 30, 30));
         // hallowMask.addRoundRectHollow(TpRect(50, 10, 30, 30), 10);
-        // hallowMask.addCircleHollow(HollowMask::CircleHollow(110, 20, 15));
-        // hallowMask.addPieHollow(HollowMask::PieHollow(40, 50, 0, 45, 30));
+        // hallowMask.addCircleHollow(TpHollowMask::CircleHollow(110, 20, 15));
+        // hallowMask.addPieHollow(TpHollowMask::PieHollow(40, 50, 0, 45, 30));
         // painter->hollowBox(320, 220, 480, 310, _RGB(150, 200, 168), hallowMask);
 
         // TpImage pngImage(applicationDirPath() + "/icon.png");
-        // painter->paintImage(400, 415, pngImage.scaled(50, 50));
-        // painter->paintImage(400, 340, pngImage.scaled(50, 50), 15);
+        // painter->drawImage(400, 415, pngImage.scaled(50, 50));
+        // painter->drawImage(400, 340, pngImage.scaled(50, 50), 15);
 
         return true;
     }

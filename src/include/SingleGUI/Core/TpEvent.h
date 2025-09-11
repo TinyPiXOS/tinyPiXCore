@@ -10,7 +10,7 @@
 TP_DEF_VOID_TYPE_VAR(ItpEventData);
 TP_DEF_VOID_TYPE_VAR(ItpSufaceData);
 
-class TpCanvas;
+class TpPainter;
 class TpSurface;
 class TpRect;
 
@@ -427,7 +427,7 @@ public:
     virtual TpObject *object();
 
 public:
-    virtual TpCanvas *canvas();            // must set offsetX and offsetY
+    virtual TpPainter *canvas();            // must set offsetX and offsetY
     virtual tpShared<TpSurface> surface(); // must set clipRect
     virtual ItpSufaceData *itpSurface();
 

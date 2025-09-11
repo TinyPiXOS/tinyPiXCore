@@ -2,7 +2,7 @@
 #include "TpImage.h"
 #include "TpFileInfo.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 
 struct TpImageWidgetData
 {
@@ -61,7 +61,7 @@ bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
 
     TpDialog::onPaintEvent(event);
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
 
     uint32_t windowWidth = width();
     uint32_t windowHeight = height();
@@ -132,12 +132,12 @@ bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
             scaledSurface = imageData->cachedScaledSurface;
         }
 
-        painter->paintImage(x, y, scaledSurface);
+        painter->drawImage(x, y, scaledSurface);
     }
     else
     {
         // 无需缩放，直接绘制
-        painter->paintImage(x, y, imageData->fileSurface);
+        painter->drawImage(x, y, imageData->fileSurface);
     }
 
     return true;

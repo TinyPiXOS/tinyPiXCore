@@ -1,6 +1,6 @@
 #include "TpListCheckBoxGroup.h"
 #include "TpVector.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpEvent.h"
 
 #define SPACER_LINE_WIDTH 1
@@ -240,9 +240,12 @@ bool TpListCheckBoxGroup::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
-    TpCanvas *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->canvas();
     TpListCheckBoxGroupData *cbxData = static_cast<TpListCheckBoxGroupData *>(data_);
     tpShared<TpCssData> normalCss = currentStatusCss();
+
+    paintCanvas->pen().setColor(_RGB(230, 235, 241));
+    paintCanvas->pen().setWidth(SPACER_LINE_WIDTH);
 
     for (int i = 1; i < cbxData->itemList.size(); ++i)
     {
@@ -253,7 +256,7 @@ bool TpListCheckBoxGroup::onPaintEvent(TpPaintEvent *event)
         uint32_t y = i * (curItem->height() + SPACER_LINE_WIDTH);
         uint32_t x2 = normalCss->paddingLeft() + (width() - normalCss->paddingRight() - normalCss->paddingLeft());
 
-        paintCanvas->hline(normalCss->paddingLeft(), x2, y, _RGB(230, 235, 241), SPACER_LINE_WIDTH);
+        paintCanvas->drawHLine(normalCss->paddingLeft(), x2, y);
     }
     return true;
 }

@@ -1,7 +1,7 @@
 #include "TpRadioButton.h"
 #include "TpEvent.h"
 #include "TpColors.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpRect.h"
 #include "TpFont.h"
 #include "TpString.h"
@@ -199,7 +199,7 @@ bool TpRadioButton::onPaintEvent(TpPaintEvent *event)
 
     tpShared<TpCssData> curCssData = currentStatusCss();
 
-    TpCanvas *canvas = event->canvas();
+    TpPainter *canvas = event->canvas();
     TpSize size = set->font->pixelSize();
     double rad = size.height() / 4.0;
 
@@ -209,14 +209,18 @@ bool TpRadioButton::onPaintEvent(TpPaintEvent *event)
 
     int32_t lineWidth = TP_MAX(1, rad / 8);
 
-    canvas->circle(cx, cy + 9 * size.height() / 16.0, rad, curCssData->borderColor(), lineWidth);
+    canvas->setBrush(TpBrush(curCssData->backgroundColor()));
+    canvas->pen().setWidth(lineWidth);
+    canvas->pen().setColor(curCssData->borderColor());
+
+    canvas->drawEllipse(cx, cy + 9 * size.height() / 16.0, rad, rad);
 
     if (checked())
     {
-        canvas->filledCircle(cx, cy + 9 * size.height() / 16.0, rad / 2.0, curCssData->backgroundColor());
+        canvas->drawEllipse(cx, cy + 9 * size.height() / 16.0, rad / 2.0, rad / 2.0);
     }
 
-    canvas->renderText(*set->font, cx + rad + set->space, cy);
+    canvas->drawText(*set->font, cx + rad + set->space, cy);
 
     return true;
 }

@@ -306,7 +306,7 @@ struct ItpObjectPaintSet
 
     TpObject *object;
 
-    TpCanvas *canvas;
+    TpPainter *canvas;
     tpShared<TpSurface> surface;
     ItpSufaceData *itpSurface;
 

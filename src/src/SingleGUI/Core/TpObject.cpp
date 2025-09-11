@@ -3,7 +3,7 @@
 #include "TpChildWidget.h"
 #include "TpEvent.h"
 #include "TpApp.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpLayout.h"
 #include "TpDef.h"
 #include "TpObjectStack.h"

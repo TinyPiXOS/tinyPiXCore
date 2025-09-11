@@ -1,0 +1,111 @@
+#include "TpPen.h"
+
+// 画笔内部数据结构
+struct TpPenData
+{
+    tinyPiX::PenStyle style = tinyPiX::PenStyle::SolidLine; // 画笔样式，默认为实线
+    float dashOffset = 0.0f;                                // 虚线偏移量
+    int32_t width = 1;                                      // 画笔宽度，默认1像素
+    TpColors color;                                         // 画笔颜色
+    tinyPiX::PenCapStyle capStyle = tinyPiX::RoundCap;      // 线帽样式
+    tinyPiX::PenJoinStyle joinStyle = tinyPiX::RoundJoin;   // 连接点样式
+};
+
+TpPen::TpPen()
+{
+    TpPenData *penData = new TpPenData();
+    data_ = penData;
+}
+
+TpPen::TpPen(const TpColors &color)
+{
+    TpPenData *penData = new TpPenData();
+    penData->color = color;
+    data_ = penData;
+}
+
+TpPen::~TpPen()
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    if (penData)
+    {
+        delete penData;
+        penData = nullptr;
+        data_ = nullptr;
+    }
+}
+
+tinyPiX::PenStyle TpPen::style() const
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    return penData->style;
+}
+
+void TpPen::setStyle(tinyPiX::PenStyle style)
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    penData->style = style;
+}
+
+float TpPen::dashOffset() const
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    return penData->dashOffset;
+}
+
+void TpPen::setDashOffset(float doffset)
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    penData->dashOffset = doffset;
+}
+
+int32_t TpPen::width() const
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    return penData->width;
+}
+
+void TpPen::setWidth(int32_t width)
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    if (width >= 0)
+    {
+        penData->width = width;
+    }
+}
+
+TpColors TpPen::color() const
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    return penData->color;
+}
+
+void TpPen::setColor(const TpColors &color)
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    penData->color = color;
+}
+
+tinyPiX::PenCapStyle TpPen::capStyle() const
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    return penData->capStyle;
+}
+
+void TpPen::setCapStyle(tinyPiX::PenCapStyle pcs)
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    penData->capStyle = pcs;
+}
+
+tinyPiX::PenJoinStyle TpPen::joinStyle() const
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    return penData->joinStyle;
+}
+
+void TpPen::setJoinStyle(tinyPiX::PenJoinStyle pcs)
+{
+    TpPenData *penData = static_cast<TpPenData *>(data_);
+    penData->joinStyle = pcs;
+}

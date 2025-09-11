@@ -24,7 +24,7 @@
 */
 #include "TpLink.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpFont.h"
 #include "TpRect.h"
 #include <cstring>
@@ -286,10 +286,10 @@ bool TpLink::onPaintEvent(TpPaintEvent *event)
 
 		if (set)
 		{
-			TpCanvas *canvas = event->canvas();
+			TpPainter *canvas = event->canvas();
 			TpSize size = set->font->pixelSize();
 			int32_t cx = 0, cy = (int32_t)(event->rect().height() - size.height()) / 2.0;
-			canvas->renderText(*set->font, cx, cy);
+			canvas->drawText(*set->font, cx, cy);
 		}
 	}
 

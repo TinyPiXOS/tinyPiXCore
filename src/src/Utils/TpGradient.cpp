@@ -29,7 +29,7 @@ TpGradient::~TpGradient()
     }
 }
 
-TpGradient::GradientType TpGradient::gradientType()
+TpGradient::GradientType TpGradient::gradientType() const
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     return gradientData->type;
@@ -104,7 +104,7 @@ void TpGradient::setSpread(TpGradient::Spread spread)
     gradientData->spread = spread;
 }
 
-TpGradient::Spread TpGradient::spread()
+TpGradient::Spread TpGradient::spread() const
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
     return gradientData->spread;

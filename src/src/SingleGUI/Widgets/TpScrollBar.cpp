@@ -25,7 +25,7 @@
 #include "TpScrollBar.h"
 #include "TpButton.h"
 #include "TpRect.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpColors.h"
 #include "TpEvent.h"
 #include "TpFont.h"

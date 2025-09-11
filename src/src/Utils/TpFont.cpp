@@ -3,7 +3,7 @@
 #include "TpRect.h"
 #include "TpSize.h"
 #include "TpSurface.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
 #include <iostream>
@@ -771,7 +771,7 @@ TpFontFamily *TpFont::getSysFamilyFont()
     return (new TpFontFamily());
 }
 
-uint32_t *TpFont::renderText(const TpString &text)
+uint32_t *TpFont::drawText(const TpString &text)
 {
     TpFontData *set = static_cast<TpFontData *>(data_);
     if (!set)

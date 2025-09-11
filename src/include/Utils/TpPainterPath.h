@@ -64,7 +64,7 @@ public:
     /// @param other 要连接的路径
     TpPainterPath &operator+=(const TpPainterPath &other);
 
-    friend class TpCanvas;
+    friend class TpPainter;
 
 private:
     ITpPainterPathData *data_;

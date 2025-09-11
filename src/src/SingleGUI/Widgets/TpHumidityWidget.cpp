@@ -1,5 +1,5 @@
 #include "TpHumidityWidget.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpLinearGradient.h"
 #include "TpFont.h"
 
@@ -119,7 +119,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     int32_t humidityWidth = width() * 0.8;
     int32_t humidityHeight = height() * 0.75;
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
 
     // painter->box(0, 0, width(), height(), _RGB(255, 0, 0));
 
@@ -129,7 +129,10 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     int32_t arcX = (width() - humidityWidth) / 2.0 + arcRadius;
     int32_t arcY = startY + humidityHeight - arcRadius;
 
-    painter->arc(arcX, arcY, arcRadius, 1, 179, _RGB(116, 121, 150), tempData->lineWidth);
+    painter->setPen(_RGB(116, 121, 150));
+    painter->pen().setWidth(tempData->lineWidth);
+
+    painter->drawArc(arcX, arcY, arcRadius, 1, 179);
 
     // 绘制左侧曲线（从圆弧左端点到水滴底部尖点）
     // 顶点坐标（arcX, startY）
@@ -140,12 +143,11 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     // 控制点2坐标
     TpPoint leftCPoint2(arcX - arcRadius * 0.6, startY + arcRadius * 0.5);
 
-    painter->cubicTo(
+    painter->drawCubic(
         arcX - arcRadius, arcY,           // 起点：圆弧左端点
         leftCPoint1.x(), leftCPoint1.y(), // 控制点1
         leftCPoint2.x(), leftCPoint2.y(), // 控制点2
-        arcX, startY,                     // 终点：顶点
-        _RGB(116, 121, 150), tempData->lineWidth);
+        arcX, startY);                    // 终点：顶点
 
     // 绘制右侧曲线：从顶点到圆弧右端点
     // // 控制点1坐标
@@ -153,12 +155,11 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     // 控制点2坐标
     TpPoint rightCPoint2(arcX + arcRadius, arcY - arcRadius * 0.6);
 
-    painter->cubicTo(
+    painter->drawCubic(
         arcX, startY,                       // 起点：顶点
         rightCPoint1.x(), rightCPoint1.y(), // 控制点1
         rightCPoint2.x(), rightCPoint2.y(), // 控制点2
-        arcX + arcRadius, arcY,             // 终点：圆弧右端点
-        _RGB(116, 121, 150), tempData->lineWidth);
+        arcX + arcRadius, arcY);            // 终点：圆弧右端点
 
     // 计算填充值百分比
     float percentValue = 1.0 * (tempData->curValue - tempData->minValue) / (tempData->maxValue - tempData->minValue);
@@ -177,7 +178,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     {
         lineGradient.setStart(arcX, arcY + arcRadius);
         lineGradient.setFinalStop(arcX, startY);
-        painter->setGradient(&lineGradient);
+        painter->setBrush(TpBrush(lineGradient));
     }
 
     // 水滴总高度，用于计算填充绘制高度
@@ -192,7 +193,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     else if (tempData->curValue >= tempData->maxValue)
     {
         // 大于等于最大值，绘制完全填充
-        painter->filledPie(arcX, arcY, fillCircleRadius, 0, 180, _RGB(0, 0, 0));
+        painter->drawPie(arcX, arcY, fillCircleRadius, 0, 180);
 
         // 绘制上半区域
     }
@@ -207,8 +208,8 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
             float lineW = 0;
 
             // 镂空一个三角形
-            HollowMask hollowMask;
-            HollowMask::PolygonHollow polygonHollow;
+            TpHollowMask hollowMask;
+            TpHollowMask::PolygonHollow polygonHollow;
 
             float startAngle = 0;
             float endAngle = 0;
@@ -240,13 +241,13 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
             else if (cosValue > 1.0)
                 cosValue = 1.0;
 
-            painter->filledPie(arcX, arcY, fillCircleRadius, startAngle, endAngle, _RGB(0, 0, 0), hollowMask);
+            painter->drawPie(arcX, arcY, fillCircleRadius, startAngle, endAngle, hollowMask);
         }
         else
         {
             // 高度末尾处于上半区域
             // 先绘制半圆
-            painter->filledPie(arcX, arcY, fillCircleRadius, 0, 180, _RGB(0, 0, 0));
+            painter->drawPie(arcX, arcY, fillCircleRadius, 0, 180);
 
             if (valueHeight > arcRadius)
             {
@@ -255,7 +256,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     }
 
     // 重置渐变
-    painter->setGradient(nullptr);
+    painter->setBrush(TpBrush(tinyPiX::NoBrush));
 
     // 绘制百分比文本
     tempData->percentFont.setText(TpString::number(int32_t(percentValue * 100)) + "%");
@@ -263,7 +264,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     int32_t percentTextHeight = tempData->percentFont.pixelHeight();
     int32_t percentTextX = (width() - percentTextWidth) / 2.0;
     // int32_t percentTextY = height() - percentTextHeight;
-    painter->renderText(tempData->percentFont, percentTextX, arcY);
+    painter->drawText(tempData->percentFont, percentTextX, arcY);
 
     // 绘制标题文本
     tempData->titleTextFont.setText(tempData->titleText);
@@ -271,7 +272,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     int32_t titleTextHeight = tempData->titleTextFont.pixelHeight();
     int32_t titleTextX = (width() - titleTextWidth) / 2.0;
     int32_t titleTextY = height() - titleTextHeight;
-    painter->renderText(tempData->titleTextFont, titleTextX, titleTextY);
+    painter->drawText(tempData->titleTextFont, titleTextX, titleTextY);
 
     return true;
 }

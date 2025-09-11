@@ -1,5 +1,5 @@
 #include "TpLineEdit.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpEvent.h"
 #include "TpTimer.h"
 #include "TpClipboard.h"
@@ -47,7 +47,7 @@ struct TpLineEditData
 
     // 当前光标偏移量
     int32_t cursorPos;
-    bool hasFocus;  // 是否有焦点
+    bool hasFocus;      // 是否有焦点
     int32_t textOffset; // 文本偏移量，用于处理滚动
 
     // 选择起始/终止索引
@@ -251,7 +251,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     if (!editData)
         return true;
 
-    TpCanvas *canvas = event->canvas();
+    TpPainter *canvas = event->canvas();
     if (!canvas)
         return true;
 
@@ -303,7 +303,9 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
         uint32_t selectionWidth = CaculateTextWidth(editData->textFont, selectedText);
         uint32_t selectionX = leftMargin + CaculateTextWidth(editData->textFont, editData->text.mid(0, start)) - editData->textOffset;
         uint32_t selectionY = (rect().height() - editData->textFont->pixelHeight()) / 2;
-        canvas->box(selectionX, selectionY, selectionX + selectionWidth, selectionY + editData->textFont->pixelHeight(), _RGB(0, 120, 215)); // 蓝色背景表示选中
+
+        canvas->setBrush(TpBrush(_RGB(0, 120, 215)));
+        canvas->drawRect(selectionX, selectionY, selectionWidth, editData->textFont->pixelHeight()); // 蓝色背景表示选中
     }
 
     // 绘制文本
@@ -328,7 +330,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
         // std::cout << "text  X" << textX << std::endl;
 
         // std::cout << "editData->text  " << editData->text << std::endl;
-        canvas->renderText(*editData->textFont, textX, textY, editData->text);
+        canvas->drawText(*editData->textFont, textX, textY, editData->text);
     }
     else
     {
@@ -360,7 +362,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
             placeTextX = leftMargin;
         }
 
-        canvas->renderText(placeholderTextFont, placeTextX, textY, editData->placeholerText);
+        canvas->drawText(placeholderTextFont, placeTextX, textY, editData->placeholerText);
     }
 
     // 如果有图标，绘制一个遮罩层
@@ -375,7 +377,8 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
 
         uint32_t blockRound = curCssData->roundCorners();
 
-        canvas->roundedBox(0, 0, blockWidth, blockHeight - 1, blockRound, curCssData->backgroundColor());
+        canvas->setBrush(TpBrush(curCssData->backgroundColor()));
+        canvas->drawRect(0, 0, blockWidth, blockHeight, blockRound);
         // canvas->roundedBox(0, 0, blockWidth, blockHeight - 1, blockRound, _RGB(255, 0, 0));
     }
 
@@ -410,7 +413,8 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
 
         cursorrX -= editData->textOffset;
 
-        canvas->vline(cursorrX, upMargin, rect().height() - downMargin, _RGB(0, 0, 0)); // 黑色光标
+        canvas->setPen(_RGB(0, 0, 0));
+        canvas->drawVLine(cursorrX, upMargin, rect().height() - downMargin); // 黑色光标
     }
 
     return true;

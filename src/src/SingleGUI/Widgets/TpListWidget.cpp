@@ -12,7 +12,7 @@
 #include "TpList.h"
 #include "TpVector.h"
 #include "TpFont.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 
 #include <cmath>
 #include <iterator>
@@ -735,17 +735,18 @@ bool TpListWidget::onPaintEvent(TpPaintEvent *event)
     // 默认边框线颜色
     int32_t borderColor = _RGB(0, 0, 0) & 0xffffff00 | (alpha & 0xff);
 
-    TpCanvas *paint = event->canvas();
+    TpPainter *paint = event->canvas();
 
     if (!paint)
         return false;
 
     TpRect editBound = this->rect();
 
-    paint->line(0, 0, editBound.width(), 0, borderColor);
-    paint->line(0, 0, 0, editBound.height(), borderColor);
-    paint->line(editBound.width() - 1, 0, editBound.width() - 1, editBound.height(), borderColor);
-    paint->line(0, editBound.height() - 1, editBound.width(), editBound.height() - 1, borderColor);
+    paint->setPen(borderColor);
+    paint->drawLine(0, 0, editBound.width(), 0);
+    paint->drawLine(0, 0, 0, editBound.height());
+    paint->drawLine(editBound.width() - 1, 0, editBound.width() - 1, editBound.height());
+    paint->drawLine(0, editBound.height() - 1, editBound.width(), editBound.height() - 1);
 
     // 绘制所有item
     //  最大显示数量
@@ -768,7 +769,7 @@ bool TpListWidget::onPaintEvent(TpPaintEvent *event)
         // itemFont->setText(itemText.c_str());
 
         // std::cout << "itemText ：" << itemText << std::endl;
-        paint->renderText(*testItemFont, 5, ITEM_V_PIX + relativeIndex * (2 * ITEM_V_PIX + testItemFont->pixelHeight()), itemText);
+        paint->drawText(*testItemFont, 5, ITEM_V_PIX + relativeIndex * (2 * ITEM_V_PIX + testItemFont->pixelHeight()), itemText);
 
         tempItem->setSelected(false);
 
@@ -782,7 +783,10 @@ bool TpListWidget::onPaintEvent(TpPaintEvent *event)
             uint32_t endX = editBound.width() - 1;
             uint32_t endY = relativeIndex * (2 * ITEM_V_PIX + testItemFont->pixelHeight()) + (2 * ITEM_V_PIX + testItemFont->pixelHeight());
 
-            paint->rectangle(0, startY, endX, endY, _RGB(255, 10, 10));
+            paint->setPen(_RGB(255, 10, 10));
+            paint->setBrush(TpBrush(tinyPiX::NoBrush));
+
+            paint->drawRect(0, startY, endX, endY - startY);
         }
 
         delete testItemFont;
@@ -809,7 +813,9 @@ bool TpListWidget::onPaintEvent(TpPaintEvent *event)
 
             int32_t scrollBarColor = _RGB(200, 0, 0);
 
-            paint->roundedBox(editBound.width() - 2, scrollBarY, editBound.width() - 1, scrollBarY + scrollBarHeight, 0.5, scrollBarColor);
+            paint->setPen(scrollBarColor);
+            paint->setBrush(TpBrush(scrollBarColor));
+            paint->drawRect(editBound.width() - 2, scrollBarY, 1, scrollBarHeight, 0.5);
         }
     }
 

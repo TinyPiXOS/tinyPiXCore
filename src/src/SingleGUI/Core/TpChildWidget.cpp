@@ -7,7 +7,7 @@
 #include "TpEvent.h"
 #include "TpRect.h"
 #include "TpLayout.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpPoint.h"
 #include "tinyPiXUtils.h"
 #include "Core/TpObjectFunction.hpp"
@@ -1168,7 +1168,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
     if (!ret)
         return false;
 
-    TpCanvas *canvas = event->canvas();
+    TpPainter *painter = event->canvas();
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
         return false;
@@ -1190,26 +1190,21 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
         {
             if ((curCssData->backgroundColor() & 0xff) != 0xff)
             {
-                // canvas->erase();
+                // painter->erase();
             }
         }
 
-        if (minRad == 0)
-        {
-            canvas->box(0, 0, rect.width(), rect.height(), curCssData->backgroundColor());
-        }
-        else
-        {
-            canvas->roundedBox(0, 0, rect.width(), rect.height(), minRad, curCssData->backgroundColor());
-        }
+        painter->setPen(curCssData->backgroundColor());
+        painter->setBrush(TpBrush(curCssData->backgroundColor()));
+
+        painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
+        painter->setBrush(TpBrush(tinyPiX::NoBrush));
     }
 
     if (set->enableBorderColor)
     {
-        if (minRad == 0)
-            canvas->rectangle(0, 0, rect.width() - 1, rect.height() - 1, curCssData->borderColor());
-        else
-            canvas->roundedRectangle(0, 0, rect.width() - 1, rect.height() - 1, minRad, curCssData->borderColor());
+        painter->setPen(curCssData->borderColor());
+        painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
     }
 
     if (set->enableImage && !set->cacheImage.isNull())
@@ -1242,7 +1237,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
             }
         }
 
-        canvas->paintImage(imageX, imageY, set->cacheImage, minRad);
+        painter->drawImage(imageX, imageY, set->cacheImage, minRad);
     }
 
     // 窗体更新，如果有布局更新布局

@@ -1,6 +1,6 @@
 #include "TpMessageBox.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpDisplay.h"
 
 static int32_t BtnFontColor = _RGB(38, 38, 38);
@@ -180,7 +180,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     if (messageData->text.empty())
         return true;
 
-    TpCanvas *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->canvas();
 
     uint32_t msgWidth = TpDisplay::dp2Px(450);
     uint32_t msgHeight = TpDisplay::dp2Px(160);
@@ -188,7 +188,9 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     uint32_t msgX = (width() - msgWidth) / 2.0;
     uint32_t msgY = (height() - msgHeight) / 2.0;
 
-    paintCanvas->roundedBox(msgX, msgY, msgX + msgWidth, msgY + msgHeight, 25, _RGBA(255, 255, 255, 230));
+    paintCanvas->pen().setColor(_RGBA(255, 255, 255, 230));
+    paintCanvas->setBrush(TpBrush(_RGBA(255, 255, 255, 230)));
+    paintCanvas->drawRect(msgX, msgY, msgWidth, msgHeight, 25);
 
     // 分割提示信息
     uint32_t titleHeight = msgHeight * 0.6;
@@ -197,7 +199,9 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     uint32_t paddingLeftRight = 60;
 
     // 绘制标题和按钮分割线
-    paintCanvas->hline(msgX + paddingLeftRight, msgX + msgWidth - paddingLeftRight, msgY + titleHeight, _RGB(190, 196, 202));
+    paintCanvas->pen().setColor(_RGB(190, 196, 202));
+    paintCanvas->setBrush(TpBrush(tinyPiX::NoBrush));
+    paintCanvas->drawHLine(msgX + paddingLeftRight, msgX + msgWidth - paddingLeftRight, msgY + titleHeight);
 
     // 文字行间距
     uint32_t textGap = 5;
@@ -214,7 +218,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
 
         int32_t curLineX = (msgWidth - messageData->font->pixelWidth()) / 2.0;
 
-        paintCanvas->renderText(*messageData->font, msgX + curLineX, msgY + titleStartY + i * (messageData->font->pixelHeight() + textGap));
+        paintCanvas->drawText(*messageData->font, msgX + curLineX, msgY + titleStartY + i * (messageData->font->pixelHeight() + textGap));
     }
 
     if (messageData->btnList.size() == 0)
@@ -228,6 +232,9 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
 
     messageData->btnFont->setText("确定");
     int32_t btnTextY = msgY + titleHeight + (btnHeight - messageData->btnFont->pixelHeight()) / 2.0;
+
+    paintCanvas->pen().setColor(_RGB(190, 196, 202));
+    paintCanvas->setBrush(TpBrush(tinyPiX::NoBrush));
 
     for (int i = 0; i < messageData->btnList.size(); ++i)
     {
@@ -244,7 +251,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
         {
             messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
         }
-        paintCanvas->renderText(*messageData->btnFont, btnTextX, btnTextY);
+        paintCanvas->drawText(*messageData->btnFont, btnTextX, btnTextY);
 
         // 记录按钮rect
         TpRect btnRect(btnTextX, msgY + titleHeight, btnWidth, btnHeight);
@@ -254,7 +261,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
         if (i != (messageData->btnList.size() - 1))
         {
             // 绘制分割线
-            paintCanvas->vline(msgX + btnWidth * (i + 1), btnTextY, btnTextY + messageData->btnFont->pixelHeight(), _RGB(190, 196, 202));
+            paintCanvas->drawVLine(msgX + btnWidth * (i + 1), btnTextY, btnTextY + messageData->btnFont->pixelHeight());
         }
     }
 

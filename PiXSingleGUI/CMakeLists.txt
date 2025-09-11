@@ -46,8 +46,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpComBox.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpListWidget.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpListWidgetItem.cpp
-    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTreeWidget.cpp
-    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTreeWidgetItem.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTabWidget.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpTabBar.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpBattery.cpp

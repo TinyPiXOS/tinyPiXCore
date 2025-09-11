@@ -20,7 +20,7 @@ public:
         PNG_FMT,
         WEBP_FMT
     };
-    friend class TpCanvas;
+    friend class TpPainter;
 
 public:
     TpImage(const TpString &fileName = "");

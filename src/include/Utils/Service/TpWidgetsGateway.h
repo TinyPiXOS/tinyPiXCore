@@ -2,7 +2,7 @@
 #define __TP_WIDGETS_GATEWAY_H
 
 #include "TpUtils.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpString.h"
 #include "TpGateway.h"
 #include "TpNetDataGlobal.h"
@@ -20,7 +20,7 @@ public:
 
     /// @brief 小组件窗口尺寸变化；会通知新的画笔对象；使用新画笔对象绘制
     /// @param painter 新的画笔对象
-    virtual void widgetResizeEvent(TpCanvas *painter) = 0;
+    virtual void widgetResizeEvent(TpPainter *painter) = 0;
 
     /// @brief 上层通知刷新事件；需要重绘并发送刷新请求
     virtual void onPaintEvent() = 0;

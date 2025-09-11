@@ -1,5 +1,5 @@
 #include "TpTemperatureWidget.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpLinearGradient.h"
 #include "TpFont.h"
 
@@ -116,7 +116,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpTemperatureWidgetData *tempData = static_cast<TpTemperatureWidgetData *>(data_);
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
 
     // painter->box(0, 0, width(), height(), _RGB(255, 0, 0));
 
@@ -136,13 +136,18 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     int32_t circleCenterY = rectangleY + rectangleHeight;
     int32_t circleRadius = thermometerWidth / 2.0;
 
-    painter->arc(circleCenterX, circleCenterY, circleRadius, -45, 225, _RGB(116, 121, 150), tempData->lineWidth);
+    painter->setPen(_RGB(116, 121, 150));
+    painter->pen().setWidth(tempData->lineWidth);
+    painter->drawArc(circleCenterX, circleCenterY, circleRadius, -45, 225);
 
     // 绘制上半部分圆角矩形;使用遮罩圆角box绘制，实现遮挡圆和矩形交接处的线条  - tempData->lineWidth * 2
-    HollowMask hollowMask;
-    hollowMask.addRectHollow(HollowMask::RectHollow(TpRect(tempData->lineWidth, tempData->lineWidth, rectangleWidth - tempData->lineWidth * 2, rectangleY + rectangleHeight), rectangleWidth / 2.0));
+    TpHollowMask hollowMask;
+    hollowMask.addRectHollow(TpHollowMask::RectHollow(TpRect(tempData->lineWidth, tempData->lineWidth, rectangleWidth - tempData->lineWidth * 2, rectangleY + rectangleHeight), rectangleWidth / 2.0));
     hollowMask.addCircleHollow(circleCenterX - rectangleX, rectangleHeight, circleRadius - tempData->lineWidth + 1);
-    painter->roundedBox(rectangleX, rectangleY, rectangleX + rectangleWidth, rectangleY + rectangleHeight, rectangleWidth / 2.0, _RGB(116, 121, 150), hollowMask);
+
+    painter->setPen(_RGB(116, 121, 150));
+    painter->setBrush(TpBrush(_RGB(116, 121, 150)));
+    painter->drawRect(rectangleX, rectangleY, rectangleWidth, rectangleHeight, rectangleWidth / 2.0, hollowMask);
 
     // 根据当前温度值绘制填充矩形
     // 构建渐变效果
@@ -158,15 +163,15 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     {
         lineGradient.setStart(circleCenterX, circleCenterY + circleRadius);
         lineGradient.setFinalStop(circleCenterX, rectangleY);
-        painter->setGradient(&lineGradient);
+        painter->setBrush(TpBrush(lineGradient));
     }
 
     // 计算填充高度
     if (tempData->curTemperature >= tempData->maxTemperature)
     {
         // 和最大温度相同；完全填充
-        painter->filledCircle(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, _RGB(0, 0, 0));
-        painter->roundedBox(rectangleX + tempData->lineWidth, rectangleY + tempData->lineWidth, rectangleX + rectangleWidth - tempData->lineWidth, rectangleY + rectangleHeight, rectangleWidth / 2.0, _RGB(0, 0, 0));
+        painter->drawEllipse(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, circleRadius - tempData->lineWidth + 1);
+        painter->drawRect(rectangleX + tempData->lineWidth, rectangleY + tempData->lineWidth, rectangleWidth - tempData->lineWidth * 2, rectangleHeight - tempData->lineWidth, rectangleWidth / 2.0);
     }
     else if (tempData->curTemperature <= tempData->minTemperature)
     {
@@ -179,11 +184,11 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
 
         int32_t fillCircleRadius = circleRadius - tempData->lineWidth + 1;
         // 绘制圆形
-        HollowMask hallowMask;
+        TpHollowMask hallowMask;
 
         if (valueHeight == fillCircleRadius)
         {
-            painter->filledPie(circleCenterX, circleCenterY, fillCircleRadius, 0, 180, _RGB(0, 0, 0));
+            painter->drawPie(circleCenterX, circleCenterY, fillCircleRadius, 0, 180);
         }
         else if (valueHeight < (fillCircleRadius * 2))
         {
@@ -194,7 +199,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
             float lineW = 0;
 
             // 镂空一个三角形
-            HollowMask::PolygonHollow polygonHollow;
+            TpHollowMask::PolygonHollow polygonHollow;
 
             float startAngle = 0;
             float endAngle = 0;
@@ -238,7 +243,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
                 addPolygonPointList.emplace_back(TpPoint(circleCenterX, circleCenterY));
                 addPolygonPointList.emplace_back(TpPoint(leftPoint.x(), leftPoint.y()));
                 addPolygonPointList.emplace_back(TpPoint(rightPoint.x(), rightPoint.y()));
-                painter->filledPolygon(addPolygonPointList, _RGB(0, 0, 0));
+                painter->drawPolygon(addPolygonPointList);
 
                 // 大于半径且小于执行，在上半圆
                 // 余弦定理 计算弦两个顶点的角度
@@ -254,27 +259,29 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
             else if (cosValue > 1.0)
                 cosValue = 1.0;
 
-            painter->filledPie(circleCenterX, circleCenterY, fillCircleRadius, startAngle, endAngle, _RGB(0, 0, 0), hallowMask);
+            painter->drawPie(circleCenterX, circleCenterY, fillCircleRadius, startAngle, endAngle, hallowMask);
         }
         else
         {
-            painter->filledCircle(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, _RGB(0, 0, 0));
+            painter->drawEllipse(circleCenterX, circleCenterY, circleRadius - tempData->lineWidth + 1, circleRadius - tempData->lineWidth + 1);
 
             // 绘制圆角矩形; 矩形终止点与矩形边框相同；起始点Y通过 （值高度 - 圆半径）计算
             int32_t rectLeftY = rectangleY + rectangleHeight - (valueHeight - fillCircleRadius);
-            painter->roundedBox(rectangleX + tempData->lineWidth, rectLeftY, rectangleX + rectangleWidth - tempData->lineWidth, rectangleY + rectangleHeight, rectangleWidth / 2.0, _RGB(0, 0, 0));
+            painter->drawRect(rectangleX + tempData->lineWidth, rectLeftY, rectangleWidth - tempData->lineWidth * 2, rectangleHeight, rectangleWidth / 2.0);
         }
     }
 
     // 重置渐变
-    painter->setGradient(nullptr);
+    painter->setBrush(TpBrush(tinyPiX::NoBrush));
 
     // 绘制刻度线
+    painter->setPen(_RGB(116, 121, 150));
+
     // 将矩形区域去除圆角部分，然后五等分，绘制四根刻度线  (rectangleWidth / 2.0)为圆角值
     int32_t singleLineHeight = (rectangleHeight - (rectangleWidth / 2.0 * 2.0)) / 5.0;
     for (int i = 0; i < 4; ++i)
     {
-        painter->hline(rectangleX, rectangleX + rectangleWidth * 0.65, rectangleY + (rectangleWidth / 2.0) + singleLineHeight + singleLineHeight * i, _RGB(116, 121, 150));
+        painter->drawHLine(rectangleX, rectangleX + rectangleWidth * 0.65, rectangleY + (rectangleWidth / 2.0) + singleLineHeight + singleLineHeight * i);
     }
 
     // 绘制文本
@@ -283,14 +290,14 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     tempData->minMaxTemptFont.setText(TpString::number(tempData->maxTemperature) + "°");
     int32_t maxTempTextWidth = tempData->minMaxTemptFont.pixelWidth();
     int32_t maxTempTextX = ((circleCenterX - circleRadius) - maxTempTextWidth) / 2.0;
-    painter->renderText(tempData->minMaxTemptFont, maxTempTextX, rectangleY * 2);
+    painter->drawText(tempData->minMaxTemptFont, maxTempTextX, rectangleY * 2);
 
     // 绘制最低温度
     tempData->minMaxTemptFont.setText(TpString::number(tempData->minTemperature) + "°");
     int32_t minTempTextWidth = tempData->minMaxTemptFont.pixelWidth();
     int32_t minTempTextHeight = tempData->minMaxTemptFont.pixelHeight();
     int32_t minTempTextX = ((circleCenterX - circleRadius) - maxTempTextWidth) / 2.0;
-    painter->renderText(tempData->minMaxTemptFont, minTempTextX, circleCenterY + circleRadius - minTempTextHeight);
+    painter->drawText(tempData->minMaxTemptFont, minTempTextX, circleCenterY + circleRadius - minTempTextHeight);
 
     // 绘制当前温度值
     tempData->curTempFont.setText(TpString::number(tempData->curTemperature) + "°");
@@ -298,7 +305,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     int32_t curTempTextHeight = tempData->curTempFont.pixelHeight();
     int32_t curTempTextX = (circleCenterX + circleRadius) + (width() - (circleCenterX + circleRadius) - maxTempTextWidth) / 2.0;
     int32_t curTempTextY = rectangleY + ((circleCenterY + circleRadius) - rectangleY - curTempTextHeight) / 2.0;
-    painter->renderText(tempData->curTempFont, curTempTextX, curTempTextY);
+    painter->drawText(tempData->curTempFont, curTempTextX, curTempTextY);
 
     // 绘制标题文本
     tempData->minMaxTemptFont.setText(tempData->titleText);
@@ -306,7 +313,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     int32_t titleTextHeight = tempData->minMaxTemptFont.pixelHeight();
     int32_t titleTextX = (width() - titleTextWidth) / 2.0;
     int32_t titleTextY = height() - titleTextHeight;
-    painter->renderText(tempData->minMaxTemptFont, titleTextX, titleTextY);
+    painter->drawText(tempData->minMaxTemptFont, titleTextX, titleTextY);
 
     return true;
 }

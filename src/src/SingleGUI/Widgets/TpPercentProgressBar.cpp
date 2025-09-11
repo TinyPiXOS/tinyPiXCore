@@ -2,7 +2,7 @@
 #include "TpVector.h"
 #include "TpFont.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include <cmath>
 
 struct ItemData
@@ -145,13 +145,16 @@ bool TpPercentProgressBar::onPaintEvent(TpPaintEvent *event)
     if (progressData->itemList.size() == 0)
         return true;
 
-    TpCanvas *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->canvas();
     tpShared<TpCssData> normalCss = currentStatusCss();
 
     // 绘制进度条底色
     uint32_t progressHeight = height() - progressData->itemFont->pixelHeight() - normalCss->gap();
 
-    paintCanvas->roundedBox(0, 0, width(), progressHeight, normalCss->roundCorners(), normalCss->subColor());
+    paintCanvas->setPen(normalCss->subColor());
+    paintCanvas->setBrush(TpBrush(normalCss->subColor()));
+
+    paintCanvas->drawRect(0, 0, width(), progressHeight, normalCss->roundCorners());
 
     // 进度条item颜色之间有间隔，绘制色块宽度要排除间隔
     uint32_t actualProgressWidth = width() - 2 * (progressData->itemList.size() - 1);
@@ -180,38 +183,44 @@ bool TpPercentProgressBar::onPaintEvent(TpPaintEvent *event)
                 curItemWidth = 0;
         }
 
+        paintCanvas->setPen(itemInfo.color);
+        paintCanvas->setBrush(TpBrush(itemInfo.color));
+
         // 第一个要绘制一半圆角，一半方角
         if (i == 0)
         {
-            paintCanvas->roundedBox(curItemX, 0, curItemX + curItemWidth, progressHeight, progressHeight / 2.0, itemInfo.color);
+            paintCanvas->drawRect(curItemX, 0, curItemWidth, progressHeight, progressHeight / 2.0);
 
             // 绘制方角
-            paintCanvas->box(curItemX + curItemWidth - progressHeight / 2.0, 0, curItemX + curItemWidth, progressHeight, itemInfo.color);
+            paintCanvas->drawRect(curItemX + curItemWidth - progressHeight / 2.0, 0, progressHeight, progressHeight);
         }
         else if (i == (progressData->itemList.size() - 1))
         {
+            paintCanvas->setPen(itemInfo.color);
+            paintCanvas->setBrush(TpBrush(itemInfo.color));
+
             if (std::fabs(curTotalValue - progressData->totalValue) < 1e-3)
             {
                 // 最后一个如果刚好绘制到末尾，也要一半圆角，一半方角
-                paintCanvas->roundedBox(curItemX, 0, curItemX + curItemWidth, progressHeight, progressHeight / 2.0, itemInfo.color);
+                paintCanvas->drawRect(curItemX, 0, curItemWidth, progressHeight, progressHeight / 2.0);
             }
             else
             {
-                paintCanvas->box(curItemX, 0, curItemX + curItemWidth, progressHeight, itemInfo.color);
+                paintCanvas->drawRect(curItemX, 0, curItemWidth, progressHeight);
             }
         }
         else
         {
-            paintCanvas->box(curItemX, 0, curItemX + curItemWidth, progressHeight, itemInfo.color);
+            paintCanvas->drawRect(curItemX, 0, curItemWidth, progressHeight);
         }
 
         // 绘制item的提示文本
         progressData->itemFont->setText(itemInfo.name);
-        paintCanvas->roundedBox(curItemContentX, itemContentY + 2, curItemContentX + itemContentCirrleWidth, height() - 2, itemContentCirrleWidth / 2.0, itemInfo.color);
+        paintCanvas->drawRect(curItemContentX, itemContentY + 2, itemContentCirrleWidth, height() - 4 - itemContentY, itemContentCirrleWidth / 2.0);
 
         curItemContentX += itemContentCirrleWidth + 5;
 
-        paintCanvas->renderText(*progressData->itemFont, curItemContentX, itemContentY);
+        paintCanvas->drawText(*progressData->itemFont, curItemContentX, itemContentY);
 
         curItemContentX += 18 + progressData->itemFont->pixelWidth();
         // if (curItemContentX > (width() - 18))

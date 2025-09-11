@@ -24,7 +24,7 @@
 */
 #include "TpEvent.h"
 #include "TpSurface.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpRect.h"
 #include "TpChildWidget.h"
 #include <cstring>
@@ -1444,7 +1444,7 @@ bool TpPaintEvent::construct(ItpEventData *eventData)
     }
 
     set->surface = input->surface;
-    set->canvas = new TpCanvas(set->surface, set->offsetX, set->offsetY);
+    set->canvas = new TpPainter(set->surface, set->offsetX, set->offsetY);
 
     if (set->canvas == nullptr)
     {
@@ -1508,10 +1508,10 @@ TpObject *TpPaintEvent::object()
     return object;
 }
 
-TpCanvas *TpPaintEvent::canvas()
+TpPainter *TpPaintEvent::canvas()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
-    TpCanvas *canvas = nullptr;
+    TpPainter *canvas = nullptr;
 
     if (set)
     {

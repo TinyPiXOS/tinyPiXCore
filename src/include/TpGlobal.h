@@ -133,6 +133,70 @@ namespace tinyPiX
         Delete,  // 删除
         Symbol   // 输入的字符和字母
     };
+
+    /// @brief 画笔样式
+    enum PenStyle
+    {
+        /// @brief 实线
+        SolidLine,
+        /// @brief 虚线
+        DashLine,
+        /// @brief 点虚线
+        DotLine,
+        /// @brief 线点虚线
+        DashDotLine,
+        /// @brief 线点点虚线
+        DashDotDotLine,
+    };
+
+    /// @brief 笔触样式
+    enum PenCapStyle
+    {
+        /// @brief 笔画在子路径的两个端点处精确结束。对于长度为零的子路径，不绘制笔画
+        ButtCap = 0,
+        /// @brief 笔画在子路径的两个端点处各延伸半个圆，半径等于笔画宽度的一半。对于长度为零的子路径，则绘制一个完整的圆
+        RoundCap,
+        /// @brief 在子路径的两个端点，笔划被矩形延伸，矩形的宽度等于笔划宽度，长度等于笔划宽度的一半。对于长度为零的子路径，则以笔划宽度的大小绘制一个正方形
+        SquareCap
+    };
+
+    /// @brief 用于确定连接描边路径段角落处所使用样式的枚举
+    enum PenJoinStyle
+    {
+        /// @brief 连接路径段的外角呈尖角状。尖角是通过将笔划外边缘的连接点延伸至相交处而形成的。如果延伸超出限制，则连接样式将转换为斜面样式
+        MiterJoin = 0,
+        /// @brief 连接路径段的外角是圆形的。圆形区域以连接点为中心
+        RoundJoin,
+        /// @brief 连接的路径段的外角在连接点处被倒角。角的三角形区域由每条笔划外角之间的直线包围
+        BevelJoin
+    };
+
+    /// @brief 画刷样式
+    enum BrushStyle
+    {
+        /// @brief 无填充
+        NoBrush,
+        /// @brief 纯色填充
+        SolidPattern,
+        /// @brief 密集点填充 暂未实现
+        DensePattern,
+        /// @brief 水平线填充 暂未实现
+        HorPattern,
+        /// @brief 垂直线填充 暂未实现
+        VerPattern,
+        /// @brief 水平垂直线交叉填充 暂未实现
+        CrossPattern,
+        /// @brief 后斜线填充 暂未实现
+        BDiagPattern,
+        /// @brief 前斜线填充 暂未实现
+        FDiagPattern,
+        /// @brief 斜线交叉填充 暂未实现
+        DiagCrossPattern,
+        /// @brief 线性渐变填充
+        LinearGradientPattern,
+        /// @brief 径向渐变填充
+        RadialGradientPattern,
+    };
 };
 
 #endif

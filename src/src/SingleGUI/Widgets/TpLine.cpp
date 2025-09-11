@@ -1,5 +1,5 @@
 #include "TpLine.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpEvent.h"
 
 struct TpLineData
@@ -257,15 +257,17 @@ bool TpLine::onPaintEvent(TpPaintEvent *event)
         }
     }
 
-    TpCanvas *paintCanvas = event->canvas();
-    // std::cout << "lineData->width " << lineData->width << std::endl;
+    TpPainter *paintCanvas = event->canvas();
+    paintCanvas->pen().setColor(lineData->color);
+    paintCanvas->pen().setWidth(lineData->width);
+
     if (lineData->lineType == TpLine::HLine)
     {
-        paintCanvas->hline(startX, startX + length, startY, lineData->color, lineData->width);
+        paintCanvas->drawHLine(startX, startX + length, startY);
     }
     else
     {
-        paintCanvas->vline(startX, startY, startY + length, lineData->color, lineData->width);
+        paintCanvas->drawVLine(startX, startY, startY + length);
     }
 
     return true;

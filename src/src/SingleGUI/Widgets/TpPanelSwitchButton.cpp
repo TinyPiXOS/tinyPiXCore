@@ -1,5 +1,5 @@
 #include "TpPanelSwitchButton.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpLabel.h"
 #include "TpFont.h"
 #include "TpImage.h"
@@ -102,7 +102,7 @@ bool TpPanelSwitchButton::onPaintEvent(TpPaintEvent *event)
     // std::cout << "TpPanelSwitchButton::onPaintEvent " << std::endl;
     TpChildWidget::onPaintEvent(event);
 
-    TpCanvas *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->canvas();
 
     // 判断组件当前状态，决定取出哪个CSS样式
     tpShared<TpCssData> curCssData = currentStatusCss();

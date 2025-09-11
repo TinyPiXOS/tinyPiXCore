@@ -3,7 +3,7 @@
 #include "TpVector.h"
 #include "TpImage.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpFont.h"
 
 struct singleButtonData

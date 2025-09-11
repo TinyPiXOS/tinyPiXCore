@@ -1,6 +1,6 @@
 #include "TpSlider.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpRange.h"
 #include "TpRect.h"
 
@@ -206,7 +206,7 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
     // TpChildWidget::onPaintEvent(event);
     tpShared<TpCssData> curCssData = currentStatusCss();
 
-    TpCanvas *painter = event->canvas();
+    TpPainter *painter = event->canvas();
 
     // 整体高度、宽度；分成4份。进度条1份，顶点2份，浅色顶点4份
     uint32_t bgWidth = width();
@@ -228,13 +228,15 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
     {
         bgHeight = height() / 4.0;
         bgY = (height() - bgHeight) / 2.0;
-        painter->roundedBox(0, bgY, rect.width(), bgY + bgHeight, roundCorners(), curCssData->backgroundColor());
+        painter->setBrush(TpBrush(curCssData->backgroundColor()));
+        painter->drawRect(0, bgY, rect.width(), bgHeight, roundCorners());
     }
     else
     {
         bgWidth = width() / 4.0;
         bgX = (width() - bgWidth) / 2.0;
-        painter->roundedBox(bgX, 0, bgX + bgWidth, rect.height(), roundCorners(), curCssData->backgroundColor());
+        painter->setBrush(TpBrush(curCssData->backgroundColor()));
+        painter->drawRect(bgX, 0, bgWidth, rect.height(), roundCorners());
     }
 
     // 填充宽度
@@ -253,7 +255,10 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
 
         valueWidth = valuePercent * width();
         if (valueWidth != 0)
-            painter->roundedBox(0, bgY, valueWidth, bgY + bgHeight, roundCorners(), curCssData->subColor());
+        {
+            painter->setBrush(TpBrush(curCssData->subColor()));
+            painter->drawRect(0, bgY, valueWidth, bgHeight, roundCorners());
+        }
 
         int32_t circleX = valueWidth;
 
@@ -270,10 +275,12 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
         }
 
         // 绘制淡色圆形顶点
-        painter->filledCircle(circleX, height() / 2.0, height() / 2.0, lightSubColor);
+        painter->setBrush(TpBrush(lightSubColor));
+        painter->drawEllipse(circleX, height() / 2.0, height() / 2.0, height() / 2.0);
 
         // 绘制圆形顶点
-        painter->filledCircle(circleX, height() / 2.0, circleRadius, subColor);
+        painter->setBrush(TpBrush(subColor));
+        painter->drawEllipse(circleX, height() / 2.0, circleRadius, circleRadius);
 
         // 记录顶点区域
         sliderData->vertexRect.setRect(circleX - circleRadius, height() / 2.0 - circleRadius,
@@ -285,7 +292,10 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
 
         valueWidth = valuePercent * height();
         if (valueWidth != 0)
-            painter->roundedBox(bgX, height() - valueWidth, bgX + bgWidth, height(), roundCorners(), subColor);
+        {
+            painter->setBrush(TpBrush(subColor));
+            painter->drawRect(bgX, height() - valueWidth, bgWidth, valueWidth, roundCorners());
+        }
 
         int32_t circleY = height() - valueWidth;
 
@@ -302,10 +312,12 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
         }
 
         // 绘制淡色圆形顶点
-        painter->filledCircle(width() / 2.0, circleY, width() / 2.0, lightSubColor);
+        painter->setBrush(TpBrush(lightSubColor));
+        painter->drawEllipse(width() / 2.0, circleY, width() / 2.0, width() / 2.0);
 
         // 绘制圆形顶点
-        painter->filledCircle(width() / 2.0, circleY, circleRadius, subColor);
+        painter->setBrush(TpBrush(subColor));
+        painter->drawEllipse(width() / 2.0, circleY, circleRadius, circleRadius);
 
         // 记录顶点区域
         sliderData->vertexRect.setRect(width() / 2.0 - circleRadius, circleY - circleRadius,

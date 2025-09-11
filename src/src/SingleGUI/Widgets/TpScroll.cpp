@@ -1,6 +1,6 @@
 #include "TpScroll.h"
 #include "TpEvent.h"
-#include "TpCanvas.h"
+#include "TpPainter.h"
 #include "TpRange.h"
 #include "TpRect.h"
 #include <cstring>
@@ -739,7 +739,7 @@ bool TpScroll::onPaintEvent(TpPaintEvent *event)
     if (!ret)
         return ret;
 
-    TpCanvas *canvas = event->canvas();
+    TpPainter *canvas = event->canvas();
     uint8_t alpha = mapAlpha((uint8_t)(set->barColor & 0x000000ff), this->alpha());
     int32_t x0 = 0, y0 = 0, x1 = 0, y1 = 0;
     switch (set->direction)
@@ -762,8 +762,12 @@ bool TpScroll::onPaintEvent(TpPaintEvent *event)
     break;
     }
 
-    canvas->box(x0, y0, x1, y1, (set->barColor & 0xffffff00) | alpha);
-    canvas->rectangle(0, 0, this->width(), this->height(), (set->lineColor & 0xffffff00) | alpha);
+    canvas->setBrush(TpBrush(tinyPiX::NoBrush));
+    canvas->setPen((set->lineColor & 0xffffff00) | alpha);
+    canvas->drawRect(x0, y0, x1, y1);
+
+    canvas->setBrush(TpBrush((set->barColor & 0xffffff00) | alpha));
+    canvas->drawRect(0, 0, this->width(), this->height());
 
     return ret;
 }
