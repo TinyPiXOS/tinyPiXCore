@@ -23,17 +23,25 @@ public:
 	/// @brief 获取本机上内核已开启的I2C的bus号列表，但不保证全部可用。
 	/// @return 
 	static TpList<tpUInt8> getI2cBuss();
+
+	/// @brief 获取总线上所有从机地址
+	/// @return 
+	static TpList<tpUInt8> getSlaveDevices(tpUInt8 bus);
+
 public:
 	/// @brief 打开设备
 	/// @return 
 	tpBool open();
+
 	/// @brief 关闭设备
 	void close();
+
 	/// @brief 
 	/// @param buffer 
 	/// @param length 
 	/// @return 
 	ssize_t read(uint8_t* buffer, size_t length);
+
 	/// @brief 
 	/// @param data 
 	/// @param length 
@@ -41,7 +49,7 @@ public:
 	ssize_t write(const uint8_t* data, size_t length);
 
 	/// @brief 从指定寄存器开始读取，适合于存储设备
-	/// @param reg 起始寄存器
+	/// @param reg 起始寄存器地址
 	/// @param data 数据
 	/// @param length 数据长度
 	/// @param timeout_ms 
@@ -49,10 +57,10 @@ public:
 	tpInt64 readReg(tpUInt8 reg, tpUInt8* data, size_t length, uint32_t timeout_ms = 1000);
 
 	/// @brief 从指定寄存器开始写入
-	/// @param reg 
-	/// @param data 
-	/// @param length 
-	/// @param timeout_ms 
+	/// @param reg 起始寄存器地址
+	/// @param data 数据 
+	/// @param length 数据长度
+	/// @param timeout_ms 超时时间
 	/// @return 
 	tpInt64 writeReg(tpUInt8 reg, const tpUInt8* data, size_t length, uint32_t timeout_ms = 1000);
 
@@ -74,14 +82,14 @@ public:
 	/// @param address 
 	/// @return 
 	int setSlaveAddress(tpUInt8 address);
+
 	/// @brief 获取IIC从机地址
 	/// @return 
 	tpUInt8 getSlaveAddress();
+
 	/// @brief 探测设备是否存在
 	/// @return 
 	tpBool probeDevice();
-
-
 
 private:
 	ITpHardwareI2c *data_;

@@ -14,8 +14,9 @@
 
 
 struct TpHardwarePwmData{
-	TpString path;
-	tpUInt8 channel;
+	TpString path;		//pwm基本路径
+	tpUInt8 number;		//pwm控制器编号
+	tpUInt8 channel;	//pwm通道号
 	tpBool is_open;
 	TpString period_path;
 	TpString duty_path;
@@ -30,21 +31,18 @@ struct TpHardwarePwmData{
 
 
 
-TpHardwarePwm::TpHardwarePwm(const TpString& name, tpUInt8 channel)
-{
-	data_ = new TpHardwarePwmData();
-	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
-	data->path=name;
-	data->duty_path=data->path+"/duty_cycle";
-	data->period_path=data->path+"/period";
-	data->enable_path=data->path+"/enable";
-}
 
 /// @brief 
 /// @param num pwm编号
-TpHardwarePwm::TpHardwarePwm(tpUInt8 num, tpUInt8 channel): TpHardwarePwm(
-        TpString(PATH_PWM_DEVICE) + std::to_string(static_cast<int>(num))+TpString("/pwm")+std::to_string(static_cast<int>(channel)),channel)
+TpHardwarePwm::TpHardwarePwm(tpUInt8 num, tpUInt8 channel)
 {
+	data_ = new TpHardwarePwmData();
+	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
+	data->number=num;
+	data->path=TpString(PATH_PWM_DEVICE) + std::to_string(static_cast<int>(num))+TpString("/pwm")+std::to_string(static_cast<int>(channel));
+	data->duty_path=data->path+"/duty_cycle";
+	data->period_path=data->path+"/period";
+	data->enable_path=data->path+"/enable";
 }
 
 TpHardwarePwm::~TpHardwarePwm()
@@ -123,7 +121,11 @@ tpBool TpHardwarePwm::open()
 		return TP_TRUE;
 	// 检查是否已导出
 	if(isExportPwm())
+	{
+		setEnable(TP_TRUE);
 		return TP_TRUE;
+	}
+
 	if(!exportPwm())
 		return TP_FALSE;
 	
@@ -142,7 +144,7 @@ tpBool TpHardwarePwm::open()
 			return TP_FALSE;
 	}
 	
-	writeToFile(data->enable_path, std::to_string(1));
+	setEnable(TP_TRUE);
 
 	data->is_open=TP_TRUE;
 	return TP_TRUE;
@@ -163,7 +165,7 @@ int TpHardwarePwm::setDutyCycle(float duty)
 	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
 
 	tpUInt32 duty_cycle=(tpUInt32)(duty*data->period/100.0);
-	if(!writeToFile(data->period_path,std::to_string(duty_cycle)))
+	if(!writeToFile(data->duty_path,std::to_string(duty_cycle)))
 		return -1;
 	data->duty_cycle=duty;
 	return 0;
@@ -185,11 +187,12 @@ int TpHardwarePwm::setEnable(tpBool enable)
 	return writeToFile(data->enable_path, std::to_string(state));
 }
 
-//导出gpio端口
+//导出pwm通道
 bool TpHardwarePwm::exportPwm()
 {
 	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
-	return writeToFile(data->path, std::to_string(data->channel));
+	TpString path=TpString(PATH_PWM_DEVICE)+std::to_string(data->number)+TpString("/export");
+	return writeToFile(path, std::to_string(data->channel));
 }
 
 //是否已经导出
@@ -207,7 +210,8 @@ bool TpHardwarePwm::isExportPwm()
 bool TpHardwarePwm::unexportPwm()
 {
 	TpHardwarePwmData *data = static_cast<TpHardwarePwmData *>(data_);
-	return writeToFile(data->path, std::to_string(data->channel));
+	TpString path=TpString(PATH_PWM_DEVICE)+std::to_string(data->number)+TpString("/export");
+	return writeToFile(path, std::to_string(data->channel));
 }
 
 
