@@ -161,6 +161,8 @@ TpList<tpUInt8> TpHardwareI2c::getI2cBuss()
 tpBool TpHardwareI2c::open()
 {
 	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
+	if(data->is_open)
+		return TP_TRUE;
 	data->devfd=::open(data->path.c_str(),O_RDWR);
 	if(data->devfd<0)
 	{
@@ -181,6 +183,8 @@ tpBool TpHardwareI2c::open()
 void TpHardwareI2c::close()
 {
 	TpHardwareI2cData *data = static_cast<TpHardwareI2cData *>(data_);
+	if(data->is_open)
+		return ;
 	::close(data->devfd);
 	data->devfd=-1;
 }
