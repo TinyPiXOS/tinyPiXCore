@@ -407,7 +407,7 @@ void TpChildWidget::setRect(const TpRect &rect)
     setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-void TpChildWidget::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
+void TpChildWidget::setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -446,7 +446,7 @@ TpSize TpChildWidget::screenSize()
     return TpSize(sWidth, sHeight);
 }
 
-void TpChildWidget::setSize(const uint32_t &width, const uint32_t &height)
+void TpChildWidget::setSize(const int32_t &width, const int32_t &height)
 {
     setWidth(width);
     setHeight(height);
@@ -462,7 +462,7 @@ TpSize TpChildWidget::size()
     return TpSize(width(), height());
 }
 
-void TpChildWidget::setWidth(const uint32_t &width)
+void TpChildWidget::setWidth(const int32_t &width)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -471,7 +471,7 @@ void TpChildWidget::setWidth(const uint32_t &width)
     changeWidth(this, set, width);
 }
 
-void TpChildWidget::setHeight(const uint32_t &height)
+void TpChildWidget::setHeight(const int32_t &height)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -480,7 +480,7 @@ void TpChildWidget::setHeight(const uint32_t &height)
     changeHeight(this, set, height);
 }
 
-uint32_t TpChildWidget::width()
+int32_t TpChildWidget::width()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -489,7 +489,7 @@ uint32_t TpChildWidget::width()
     return set->logicalRect.width();
 }
 
-uint32_t TpChildWidget::height()
+int32_t TpChildWidget::height()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -498,7 +498,7 @@ uint32_t TpChildWidget::height()
     return set->logicalRect.height();
 }
 
-void TpChildWidget::setMinimumSize(const uint32_t &width, const uint32_t &height)
+void TpChildWidget::setMinimumSize(const int32_t &width, const int32_t &height)
 {
     setMinumumWidth(width);
     setMinumumHeight(height);
@@ -517,7 +517,7 @@ TpSize TpChildWidget::minimumSize()
     return TpSize(set->minimumWidth, set->minimumHeight);
 }
 
-void TpChildWidget::setMinumumWidth(const uint32_t &width)
+void TpChildWidget::setMinumumWidth(const int32_t &width)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -529,7 +529,7 @@ void TpChildWidget::setMinumumWidth(const uint32_t &width)
         setWidth(set->minimumWidth);
 }
 
-uint32_t TpChildWidget::minumumWidth()
+int32_t TpChildWidget::minumumWidth()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -537,7 +537,7 @@ uint32_t TpChildWidget::minumumWidth()
     return set->minimumWidth;
 }
 
-void TpChildWidget::setMinumumHeight(const uint32_t &height)
+void TpChildWidget::setMinumumHeight(const int32_t &height)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -552,7 +552,7 @@ void TpChildWidget::setMinumumHeight(const uint32_t &height)
         setHeight(set->minimumHeight);
 }
 
-uint32_t TpChildWidget::minumumHeight()
+int32_t TpChildWidget::minumumHeight()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -560,7 +560,7 @@ uint32_t TpChildWidget::minumumHeight()
     return set->minimumHeight;
 }
 
-void TpChildWidget::setMaximumSize(const uint32_t &width, const uint32_t &height)
+void TpChildWidget::setMaximumSize(const int32_t &width, const int32_t &height)
 {
     setMaxumumWidth(width);
     setMaxumumHeight(height);
@@ -579,7 +579,7 @@ TpSize TpChildWidget::maximumSize()
     return TpSize(set->maximumWidth, set->maximumHeight);
 }
 
-void TpChildWidget::setMaxumumWidth(const uint32_t &width)
+void TpChildWidget::setMaxumumWidth(const int32_t &width)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -591,7 +591,7 @@ void TpChildWidget::setMaxumumWidth(const uint32_t &width)
         setWidth(set->maximumWidth);
 }
 
-uint32_t TpChildWidget::maxumumWidth()
+int32_t TpChildWidget::maxumumWidth()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -599,7 +599,7 @@ uint32_t TpChildWidget::maxumumWidth()
     return set->maximumWidth;
 }
 
-void TpChildWidget::setMaxumumHeight(const uint32_t &height)
+void TpChildWidget::setMaxumumHeight(const int32_t &height)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -610,7 +610,7 @@ void TpChildWidget::setMaxumumHeight(const uint32_t &height)
         setHeight(set->maximumHeight);
 }
 
-uint32_t TpChildWidget::maxumumHeight()
+int32_t TpChildWidget::maxumumHeight()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -618,13 +618,13 @@ uint32_t TpChildWidget::maxumumHeight()
     return set->maximumHeight;
 }
 
-void TpChildWidget::setFixedSize(const uint32_t &width, const uint32_t &height)
+void TpChildWidget::setFixedSize(const int32_t &width, const int32_t &height)
 {
     setFixedWidth(width);
     setFixedHeight(height);
 }
 
-void TpChildWidget::setFixedWidth(const uint32_t &width)
+void TpChildWidget::setFixedWidth(const int32_t &width)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -638,7 +638,7 @@ void TpChildWidget::setFixedWidth(const uint32_t &width)
     setWidth(width);
 }
 
-void TpChildWidget::setFixedHeight(const uint32_t &height)
+void TpChildWidget::setFixedHeight(const int32_t &height)
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
@@ -1194,8 +1194,16 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
             }
         }
 
-        painter->setPen(curCssData->backgroundColor());
-        painter->setBrush(TpBrush(curCssData->backgroundColor()));
+        if (curCssData->backgroundColorIsGradient())
+        {
+            painter->setPen(curCssData->backgroundColor());
+            painter->setBrush(TpBrush(curCssData->backgroundColorGradiant()));
+        }
+        else
+        {
+            painter->setPen(curCssData->backgroundColor());
+            painter->setBrush(TpBrush(curCssData->backgroundColor()));
+        }
 
         painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
         painter->setBrush(TpBrush(tinyPiX::NoBrush));

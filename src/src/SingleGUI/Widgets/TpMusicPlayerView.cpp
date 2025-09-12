@@ -41,33 +41,33 @@ TpMusicPlayerView::TpMusicPlayerView(TpChildWidget *parent)
 
     musicData->previousBtn = new ::TpButton(this);
     musicData->previousBtn->setButtonStyle(TpButton::IconOnly);
-    musicData->previousBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/上一首.png"));
+    musicData->previousBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/TpMusicPlayerView/上一首.png"));
     musicData->previousBtn->setFixedSize(TpDisplay::dp2Px(19), TpDisplay::dp2Px(19));
     connect(musicData->previousBtn, onClicked, [=](bool)
             { onPreviousMusic.emit(); });
 
     musicData->playPauseBtn = new ::TpButton(this);
     musicData->playPauseBtn->setButtonStyle(TpButton::IconOnly);
-    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/播放.png"));
+    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/TpMusicPlayerView/播放.png"));
     musicData->playPauseBtn->setFixedSize(TpDisplay::dp2Px(19), TpDisplay::dp2Px(19));
     connect(musicData->playPauseBtn, onClicked, [=](bool)
             { 
                 std::cout << " 播放按钮点击 " << std::endl;
                 if (musicData->isPlaying)
                 {
-                    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/暂停.png"));
+                    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/TpMusicPlayerView/暂停.png"));
                     onPauseMusic.emit();
                 }
                 else
                 {
-                    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/播放.png"));
+                    musicData->playPauseBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/TpMusicPlayerView/播放.png"));
                     onPlayingMusic.emit();
                 } 
                 musicData->isPlaying = !musicData->isPlaying; });
 
     musicData->nextBtn = new ::TpButton(this);
     musicData->nextBtn->setButtonStyle(TpButton::IconOnly);
-    musicData->nextBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/SmartDeviceGUI/TpMusicPlayerView/下一首.png"));
+    musicData->nextBtn->setBackGroundImage(TpImage("/usr/res/tinyPiX/TpMusicPlayerView/下一首.png"));
     musicData->nextBtn->setFixedSize(TpDisplay::dp2Px(19), TpDisplay::dp2Px(19));
     connect(musicData->nextBtn, onClicked, [=](bool)
             { onNextMusic.emit(); });

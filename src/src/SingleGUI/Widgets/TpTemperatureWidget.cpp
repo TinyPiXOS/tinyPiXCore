@@ -281,7 +281,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
     int32_t singleLineHeight = (rectangleHeight - (rectangleWidth / 2.0 * 2.0)) / 5.0;
     for (int i = 0; i < 4; ++i)
     {
-        painter->drawHLine(rectangleX, rectangleX + rectangleWidth * 0.65, rectangleY + (rectangleWidth / 2.0) + singleLineHeight + singleLineHeight * i);
+        painter->drawHLine(rectangleX + tempData->lineWidth, rectangleX + rectangleWidth * 0.65, rectangleY + (rectangleWidth / 2.0) + singleLineHeight + singleLineHeight * i);
     }
 
     // 绘制文本

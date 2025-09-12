@@ -8,7 +8,7 @@
 #include <thread>
 #include <cmath>
 
-TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY)
+TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, int32_t width, int32_t height)
 {
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -24,6 +24,9 @@ TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offse
     painterData->beUsed = false;
     painterData->offsetX = offsetX;
     painterData->offsetY = offsetY;
+
+    painterData->width = width;
+    painterData->height = height;
 
     // painterData->offsetX = 0;
     // painterData->offsetY = 0;

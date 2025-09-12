@@ -708,7 +708,7 @@ void TpScreen::setText(const TpString &text)
     this->setText(text.c_str());
 }
 
-void TpScreen::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
+void TpScreen::setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h)
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
 
@@ -723,7 +723,7 @@ void TpScreen::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, co
     TpChildWidget::setRect(x, y, w, h);
 }
 
-void TpScreen::setSize(const uint32_t &width, const uint32_t &height)
+void TpScreen::setSize(const int32_t &width, const int32_t &height)
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
 
@@ -735,7 +735,7 @@ void TpScreen::setSize(const uint32_t &width, const uint32_t &height)
     TpChildWidget::setSize(width, height);
 }
 
-void TpScreen::setWidth(const uint32_t &width)
+void TpScreen::setWidth(const int32_t &width)
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
 
@@ -747,7 +747,7 @@ void TpScreen::setWidth(const uint32_t &width)
     TpChildWidget::setWidth(width);
 }
 
-void TpScreen::setHeight(const uint32_t &height)
+void TpScreen::setHeight(const int32_t &height)
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
 

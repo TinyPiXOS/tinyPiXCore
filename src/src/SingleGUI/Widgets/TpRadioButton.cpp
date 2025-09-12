@@ -110,7 +110,7 @@ void TpRadioButton::setSpacing(uint32_t space)
     }
 }
 
-void TpRadioButton::setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h)
+void TpRadioButton::setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h)
 {
     TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
 

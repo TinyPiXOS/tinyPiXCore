@@ -16,7 +16,9 @@ struct TpGradientData
     // 线性渐变属性对象
     TpPointF lineStartPos;
     TpPointF lineStopPos;
-
+    float angle = 0;
+    bool hasAngle = false;
+    
     // 径向渐变属性对象
     TpPointF center;
     float centerRadius;

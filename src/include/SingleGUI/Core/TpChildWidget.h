@@ -77,7 +77,7 @@ public:
     /// @brief 设置widget矩形区域
     /// @param rect X、Y、W、H
     virtual void setRect(const TpRect &rect);
-    virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h);
+    virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h);
 
 public:
     /// @brief 获取widget相对于屏幕的矩形区域
@@ -95,7 +95,7 @@ public:
     /// @brief 设置窗口宽高
     /// @param width 宽度
     /// @param height 高度
-    virtual void setSize(const uint32_t &width, const uint32_t &height);
+    virtual void setSize(const int32_t &width, const int32_t &height);
     /// @brief 设置窗口宽高
     /// @param size 尺寸
     virtual void setSize(const TpSize &size);
@@ -105,24 +105,24 @@ public:
 
     /// @brief 设置窗口宽度
     /// @param width 宽度值，单位px
-    virtual void setWidth(const uint32_t &width);
+    virtual void setWidth(const int32_t &width);
 
     /// @brief 设置窗口高度
     /// @param height 高度值，单位px
-    virtual void setHeight(const uint32_t &height);
+    virtual void setHeight(const int32_t &height);
 
     /// @brief 获取窗口当前宽度
     /// @return 宽度值
-    virtual uint32_t width();
+    virtual int32_t width();
 
     /// @brief 获取窗口当前高度
     /// @return 高度值
-    virtual uint32_t height();
+    virtual int32_t height();
 
     /// @brief 设置窗口最小尺寸
     /// @param width 最小宽度
     /// @param height 最小高度
-    virtual void setMinimumSize(const uint32_t &width, const uint32_t &height);
+    virtual void setMinimumSize(const int32_t &width, const int32_t &height);
     /// @brief 设置窗口最小尺寸
     /// @param minimumSize 最小尺寸
     virtual void setMinimumSize(const TpSize &minimumSize);
@@ -132,21 +132,21 @@ public:
 
     /// @brief 设置窗口最小宽度
     /// @param width 最小宽度
-    virtual void setMinumumWidth(const uint32_t &width);
+    virtual void setMinumumWidth(const int32_t &width);
     /// @brief 获取窗口最小宽度
     /// @return 最小宽度
-    virtual uint32_t minumumWidth();
+    virtual int32_t minumumWidth();
     /// @brief 设置窗口最小高度
     /// @param height 最小高度
-    virtual void setMinumumHeight(const uint32_t &height);
+    virtual void setMinumumHeight(const int32_t &height);
     /// @brief 获取窗口最小高度
     /// @return 最小高度
-    virtual uint32_t minumumHeight();
+    virtual int32_t minumumHeight();
 
     /// @brief 设置窗口最大尺寸
     /// @param width 最大宽度
     /// @param height 最大高度
-    virtual void setMaximumSize(const uint32_t &width, const uint32_t &height);
+    virtual void setMaximumSize(const int32_t &width, const int32_t &height);
     /// @brief 设置窗口最大尺寸
     /// @param maximumSize 最大尺寸
     virtual void setMaximumSize(const TpSize &maximumSize);
@@ -156,28 +156,28 @@ public:
 
     /// @brief 设置窗口最大宽度
     /// @param width 最大宽度
-    virtual void setMaxumumWidth(const uint32_t &width);
+    virtual void setMaxumumWidth(const int32_t &width);
     /// @brief 获取窗口最大宽度
     /// @return 窗口最大宽度
-    virtual uint32_t maxumumWidth();
+    virtual int32_t maxumumWidth();
 
     /// @brief设置窗口最大高度
     /// @param height最大高度
-    virtual void setMaxumumHeight(const uint32_t &height);
+    virtual void setMaxumumHeight(const int32_t &height);
     /// @brief 获取窗口最大高度
     /// @return 最大高度
-    virtual uint32_t maxumumHeight();
+    virtual int32_t maxumumHeight();
 
     /// @brief 设置窗口固定大小，设置后窗口大小不会被改变
     /// @param width 固定宽度
     /// @param height 固定高度
-    virtual void setFixedSize(const uint32_t &width, const uint32_t &height);
+    virtual void setFixedSize(const int32_t &width, const int32_t &height);
     /// @brief 设置窗口固定宽度，设置后窗口宽度不会被改变
     /// @param width固定宽度
-    virtual void setFixedWidth(const uint32_t &width);
+    virtual void setFixedWidth(const int32_t &width);
     /// @brief 设置窗口固定高度，设置后窗口高度不会被改变
     /// @param height固定高度
-    virtual void setFixedHeight(const uint32_t &height);
+    virtual void setFixedHeight(const int32_t &height);
 
     /// @brief 窗口是否是固定大小
     /// @return 是返回true，否则返回false

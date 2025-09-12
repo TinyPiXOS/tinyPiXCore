@@ -21,7 +21,7 @@ struct TpWeatherInfoPanelData
 
 static inline TpString weatherIconPath(const TpWeatherInfoPanel::WeatherType &weatherType)
 {
-    TpString iconRootPath = "/usr/res/tinyPiX/SmartDeviceGUI/TpWeatherInfoPanel/";
+    TpString iconRootPath = "/usr/res/tinyPiX/TpWeatherInfoPanel/";
 
     switch (weatherType)
     {

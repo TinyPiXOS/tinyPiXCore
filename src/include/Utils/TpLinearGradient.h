@@ -15,6 +15,20 @@ public:
     virtual ~TpLinearGradient();
 
 public:
+    /// @brief 设置渐变方向角度；设置后渐变坐标属性无效
+    ///        ​​0度​​：表示从下到上（垂直向上）
+    ///        ​​90度​​：表示从左到右（水平向右）
+    ///        ​​180度​​：表示从上到下（垂直向下）
+    ///        ​​270度​​：表示从右到左（水平向左）
+    /// @param angle 角度值
+    void setAngle(float angle);
+    /// @brief 获取当前渐变角度
+    /// @return 渐变角度
+    float angle();
+    /// @brief 是否设置了渐变角度
+    /// @return 
+    bool hasAngle();
+
     /// @brief 设置渐变起始坐标
     /// @param start 起始坐标
     void setStart(const TpPointF &start);

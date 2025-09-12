@@ -39,7 +39,7 @@ public:
     /// @brief 清除所有Item
     void clear();
 
-    virtual void setMinumumHeight(const uint32_t &height) override;
+    virtual void setMinumumHeight(const int32_t &height) override;
 
 public
 signals:

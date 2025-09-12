@@ -7,6 +7,26 @@
 #include <cstdlib>
 #include <climits>
 
+int32_t safeStoi(const std::string &str, int32_t base)
+{
+    try
+    {
+        return std::stoi(str, nullptr, base);
+    }
+    catch (const std::invalid_argument &)
+    {
+        // 字符串格式错误（如非数字）
+        return 0.0f;
+    }
+    catch (const std::out_of_range &)
+    {
+        // 转换结果超出 float 范围
+        return 0.0f;
+    }
+
+    return 0.0;
+}
+
 TpString TpString::number(const int32_t &num)
 {
     return std::to_string(num);
@@ -186,74 +206,97 @@ void TpString::remove(const uint32_t &_pos, const uint32_t &_count)
 
 int16_t TpString::toShort(int32_t base) const
 {
-    return stoi(*this, nullptr, base);
+    return safeStoi(*this, base);
 }
 
 int32_t TpString::toInt(int32_t base) const
 {
-    return stoi(*this, nullptr, base);
+    return safeStoi(*this, base);
 }
 
 double TpString::toDouble() const
 {
-    return stof(*this);
+    try
+    {
+        return std::stof(*this);
+    }
+    catch (const std::invalid_argument &)
+    {
+        // 字符串格式错误（如非数字）
+        return 0.0f;
+    }
+    catch (const std::out_of_range &)
+    {
+        // 转换结果超出 float 范围
+        return 0.0f;
+    }
+
+    return 0.0;
 }
 
 // 转换为无符号短整型
 uint16_t TpString::toUShort(bool *ok, int base) const
 {
-    if (this->empty()) {
-        if (ok) *ok = false;
+    if (this->empty())
+    {
+        if (ok)
+            *ok = false;
         return 0;
     }
-    
+
     // 使用 strtoul 进行转换，因为它可以检测溢出
     char *endPtr = nullptr;
     errno = 0; // 清除错误状态
     unsigned long value = std::strtoul(this->c_str(), &endPtr, base);
-    
+
     // 检查转换是否成功
     bool success = (endPtr != this->c_str()) && // 至少有一个字符被转换
                    (*endPtr == '\0') &&         // 整个字符串都被转换
                    (errno == 0) &&              // 没有发生错误
-                   (value <= USHRT_MAX);         // 值在 uint16_t 范围内
-    
-    if (ok) *ok = success;
-    
+                   (value <= USHRT_MAX);        // 值在 uint16_t 范围内
+
+    if (ok)
+        *ok = success;
+
     return success ? static_cast<uint16_t>(value) : 0;
 }
 
 // 转换为无符号整型
 uint32_t TpString::toUInt(bool *ok, int base) const
 {
-    if (this->empty()) {
-        if (ok) *ok = false;
+    if (this->empty())
+    {
+        if (ok)
+            *ok = false;
         return 0;
     }
-    
+
     // 使用 strtoul 进行转换
     char *endPtr = nullptr;
     errno = 0; // 清除错误状态
     unsigned long value = std::strtoul(this->c_str(), &endPtr, base);
-    
+
     // 检查转换是否成功
     bool success = (endPtr != this->c_str()) && // 至少有一个字符被转换
                    (*endPtr == '\0') &&         // 整个字符串都被转换
                    (errno == 0) &&              // 没有发生错误
                    (value <= UINT_MAX);         // 值在 uint32_t 范围内
-    
-    if (ok) *ok = success;
-    
+
+    if (ok)
+        *ok = success;
+
     return success ? static_cast<uint32_t>(value) : 0;
 }
 
 // 转换为大写
-TpString TpString::toUpper() const 
+TpString TpString::toUpper() const
 {
     TpString result = *this;
-    for (size_t i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++)
+    {
         char c = result[i];
-        if (c >= 'a' && c <= 'z') {
+        if (c >= 'a' && c <= 'z')
+        {
             result[i] = c - 32;
         }
     }
@@ -261,12 +304,14 @@ TpString TpString::toUpper() const
 }
 
 // 转换为小写
-TpString TpString::toLower() const 
+TpString TpString::toLower() const
 {
     TpString result = *this;
-    for (size_t i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++)
+    {
         char c = result[i];
-        if (c >= 'A' && c <= 'Z') {
+        if (c >= 'A' && c <= 'Z')
+        {
             result[i] = c + 32;
         }
     }
@@ -276,49 +321,56 @@ TpString TpString::toLower() const
 // 在字符串左侧填充字符 (安全使用 append)
 TpString TpString::leftJustified(uint32_t width, char fill) const
 {
-    if (this->length() >= width) {
+    if (this->length() >= width)
+    {
         return *this;
     }
-    
+
     TpString result;
     uint32_t padding = width - this->length();
-    
+
     // 安全添加填充字符
-    for (uint32_t i = 0; i < padding; i++) {
-        result += fill;  // 使用 += 追加单个字符
+    for (uint32_t i = 0; i < padding; i++)
+    {
+        result += fill; // 使用 += 追加单个字符
     }
-    
-    result.append(*this);  // 使用您的 append 实现
+
+    result.append(*this); // 使用您的 append 实现
     return result;
 }
 
 // 在字符串右侧填充字符 (安全使用 append)
 TpString TpString::rightJustified(uint32_t width, char fill) const
 {
-    if (this->length() >= width) {
+    if (this->length() >= width)
+    {
         return *this;
     }
-    
+
     TpString result = *this;
     uint32_t padding = width - this->length();
-    
+
     // 安全添加填充字符
-    for (uint32_t i = 0; i < padding; i++) {
-        result += fill;  // 使用 += 追加单个字符
+    for (uint32_t i = 0; i < padding; i++)
+    {
+        result += fill; // 使用 += 追加单个字符
     }
-    
+
     return result;
 }
 
 // 重复字符串n次 (安全使用 append)
 TpString TpString::repeated(uint32_t times) const
 {
-    if (times == 0) return "";
-    if (times == 1) return *this;
-    
+    if (times == 0)
+        return "";
+    if (times == 1)
+        return *this;
+
     TpString result;
-    for (uint32_t i = 0; i < times; i++) {
-        result.append(*this);  // 使用您的 append 实现
+    for (uint32_t i = 0; i < times; i++)
+    {
+        result.append(*this); // 使用您的 append 实现
     }
     return result;
 }
@@ -326,32 +378,38 @@ TpString TpString::repeated(uint32_t times) const
 // 获取字符的十六进制表示
 TpString TpString::toHex(char separator) const
 {
-    if (this->empty()) return "";
-    
+    if (this->empty())
+        return "";
+
     static const char hexDigits[] = "0123456789ABCDEF";
     TpString result;
-    
-    for (size_t i = 0; i < this->length(); i++) {
+
+    for (size_t i = 0; i < this->length(); i++)
+    {
         uint8_t byte = static_cast<uint8_t>((*this)[i]);
-        
-        if (i > 0 && separator != '\0') {
+
+        if (i > 0 && separator != '\0')
+        {
             result += separator;
         }
-        
+
         result += hexDigits[byte >> 4];   // 高4位
         result += hexDigits[byte & 0x0F]; // 低4位
     }
-    
+
     return result;
 }
 
 // 检查字符串是否包含任何指定字符集中的字符
 bool TpString::containsAnyOf(const TpString &charSet) const
 {
-    if (this->empty() || charSet.empty()) return false;
-    
-    for (char c : *this) {
-        if (charSet.find(c) != std::string::npos) {
+    if (this->empty() || charSet.empty())
+        return false;
+
+    for (char c : *this)
+    {
+        if (charSet.find(c) != std::string::npos)
+        {
             return true;
         }
     }
@@ -361,11 +419,15 @@ bool TpString::containsAnyOf(const TpString &charSet) const
 // 检查字符串是否仅包含指定字符集中的字符
 bool TpString::containsOnly(const TpString &charSet) const
 {
-    if (this->empty()) return true; // 空字符串视为包含在任意字符集中
-    if (charSet.empty()) return false; // 非空字符串不能包含在空字符集中
-    
-    for (char c : *this) {
-        if (charSet.find(c) == std::string::npos) {
+    if (this->empty())
+        return true; // 空字符串视为包含在任意字符集中
+    if (charSet.empty())
+        return false; // 非空字符串不能包含在空字符集中
+
+    for (char c : *this)
+    {
+        if (charSet.find(c) == std::string::npos)
+        {
             return false;
         }
     }
@@ -374,29 +436,33 @@ bool TpString::containsOnly(const TpString &charSet) const
 // 转换为布尔值
 bool TpString::toBool() const
 {
-	TpString lower = this->toLower();
-    
+    TpString lower = this->toLower();
+
     // 使用显式转换避免歧义
-    if (lower == TpString("true") || 
-        lower == TpString("1") || 
-        lower == TpString("yes") || 
-        lower == TpString("on")) {
+    if (lower == TpString("true") ||
+        lower == TpString("1") ||
+        lower == TpString("yes") ||
+        lower == TpString("on"))
+    {
         return true;
     }
-    
+
     // 使用显式转换避免歧义
-    if (lower == TpString("false") || 
-        lower == TpString("0") || 
-        lower == TpString("no") || 
-        lower == TpString("off")) {
+    if (lower == TpString("false") ||
+        lower == TpString("0") ||
+        lower == TpString("no") ||
+        lower == TpString("off"))
+    {
         return false;
     }
-    
-    try {
+
+    try
+    {
         int num = std::stoi(lower);
         return num != 0;
     }
-    catch (...) {
+    catch (...)
+    {
         // 转换失败，默认为 false
         return false;
     }
@@ -405,31 +471,35 @@ bool TpString::toBool() const
 // 删除所有指定字符
 TpString TpString::removeChar(char ch) const
 {
-    if (this->find(ch) == std::string::npos) {
+    if (this->find(ch) == std::string::npos)
+    {
         return *this;
     }
-    
+
     TpString result;
-    for (char c : *this) {
-        if (c != ch) {
-            result += c;  // 追加单个字符
+    for (char c : *this)
+    {
+        if (c != ch)
+        {
+            result += c; // 追加单个字符
         }
     }
-    
+
     return result;
 }
 
 // 字符串反转 (修复构造函数问题)
 TpString TpString::reversed() const
 {
-    if (this->empty()) return "";
-    
+    if (this->empty())
+        return "";
+
     // 创建字符向量
     std::vector<char> chars(this->begin(), this->end());
-    
+
     // 反转向量
     std::reverse(chars.begin(), chars.end());
-    
+
     // 从向量创建字符串
     return TpString(chars.data());
 }
