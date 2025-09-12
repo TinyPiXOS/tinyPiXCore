@@ -140,6 +140,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/ExternUtils/TpHardwareI2c.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpHardwarePwm.cpp
 	${SOURCE_PATH}/src/ExternUtils/TpLogin.cpp
+	${SOURCE_PATH}/src/ExternUtils/TpSerialPort.cpp
 )
 
 include_directories(/usr/include)
