@@ -21,20 +21,20 @@ public:
     virtual void setText(const TpString &text);
 
 public:
-    virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h) override;
+    virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h) override;
 
     /// @brief 设置窗口宽高
     /// @param width
     /// @param height
-    virtual void setSize(const uint32_t &width, const uint32_t &height) override;
+    virtual void setSize(const int32_t &width, const int32_t &height) override;
 
     /// @brief 设置窗口宽度
     /// @param width 宽度值，单位px
-    virtual void setWidth(const uint32_t &width) override;
+    virtual void setWidth(const int32_t &width) override;
 
     /// @brief 设置窗口高度
     /// @param height 高度值，单位px
-    virtual void setHeight(const uint32_t &height) override;
+    virtual void setHeight(const int32_t &height) override;
 
     virtual void move(int32_t x, int32_t y) override;
 

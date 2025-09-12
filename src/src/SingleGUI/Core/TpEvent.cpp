@@ -1444,7 +1444,7 @@ bool TpPaintEvent::construct(ItpEventData *eventData)
     }
 
     set->surface = input->surface;
-    set->canvas = new TpPainter(set->surface, set->offsetX, set->offsetY);
+    set->canvas = new TpPainter(set->surface, set->offsetX, set->offsetY, inputObjectChild->width(), inputObjectChild->height());
 
     if (set->canvas == nullptr)
     {

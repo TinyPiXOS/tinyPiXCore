@@ -133,7 +133,7 @@ TP_DEF_VOID_TYPE_VAR(ITpCanvasData);
 class TpPainter
 {
 public:
-    TpPainter(tpShared<TpSurface> surface = nullptr, int32_t offsetX = 0, int32_t offsetY = 0);
+    TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, int32_t width, int32_t height);
     virtual ~TpPainter();
 
     void paintTest();

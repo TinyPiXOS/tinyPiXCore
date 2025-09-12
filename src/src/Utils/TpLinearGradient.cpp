@@ -31,6 +31,31 @@ TpLinearGradient::~TpLinearGradient()
 {
 }
 
+void TpLinearGradient::setAngle(float angle)
+{
+    TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
+    if (!gradientData)
+        return;
+    gradientData->angle = angle;
+    gradientData->hasAngle = true;
+}
+
+float TpLinearGradient::angle()
+{
+    TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
+    if (!gradientData)
+        return 0.0f;
+    return gradientData->angle;
+}
+
+bool TpLinearGradient::hasAngle()
+{
+    TpGradientData *gradientData = static_cast<TpGradientData *>(data_);
+    if (!gradientData)
+        return false;
+    return gradientData->hasAngle;
+}
+
 void TpLinearGradient::setStart(const TpPointF &start)
 {
     TpGradientData *gradientData = static_cast<TpGradientData *>(data_);

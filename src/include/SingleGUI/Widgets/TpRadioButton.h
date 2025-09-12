@@ -27,7 +27,7 @@ public:
 	/// @param space 间距
 	virtual void setSpacing(uint32_t space = 1);
 
-	virtual void setRect(const int32_t &x, const int32_t &y, const uint32_t &w, const uint32_t &h) override;
+	virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h) override;
 
 public:
 	/// @brief 设置按钮文本

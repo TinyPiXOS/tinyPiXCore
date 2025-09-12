@@ -174,7 +174,7 @@ void TpComBox::clear()
     update();
 }
 
-void TpComBox::setMinumumHeight(const uint32_t &height)
+void TpComBox::setMinumumHeight(const int32_t &height)
 {
     // std::cout << " ****************************height " << height << std::endl;
 

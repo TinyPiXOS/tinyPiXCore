@@ -103,7 +103,7 @@ public:
         radialGradient.setColorAt(0, _RGB(204, 143, 237));
         radialGradient.setColorAt(1, _RGB(107, 80, 246));
 
-        painter->setGradient(&radialGradient);
+        // painter->setGradient(&radialGradient);
 
         // painter->roundedBox(10, 10, 450, 450, 50, _RGB(0, 0, 0));
 
@@ -178,6 +178,7 @@ private:
 int32_t main(int32_t argc, char *argv[])
 {
     TpApp app(argc, argv);
+    app.setStyle(tinyPiX::SmartDeviceGUIStyle);
 
     TpFixScreen *vScreen = new TpFixScreen();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
