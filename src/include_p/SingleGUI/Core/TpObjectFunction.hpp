@@ -215,8 +215,8 @@ static void paintEnabledBox(TpChildWidget *child, TpPainter *paintCanvas)
 {
     if (!child->enabled())
     {
-        paintCanvas->setBrush(TpBrush(_RGBA(192, 192, 192, 125)));
-        paintCanvas->setPen(_RGBA(192, 192, 192, 125));
+        paintCanvas->setPen(_RGBA(192, 192, 192, 80));
+        paintCanvas->setBrush(TpBrush(_RGBA(192, 192, 192, 80)));
 
         paintCanvas->drawRect(0, 0, child->width(), child->height(), child->roundCorners());
     }
@@ -276,6 +276,9 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
             childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
         }
 
+        // 控件不可用，绘制遮罩层
+        paintEnabledBox(child, event.canvas());
+
         // 绘制完成刷新绘制
         childPainter->sync();
 
@@ -283,9 +286,6 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         {
             childPaint(childSet, &event);
         }
-
-        // 控件不可用，绘制遮罩层
-        paintEnabledBox(child, event.canvas());
     }
 }
 

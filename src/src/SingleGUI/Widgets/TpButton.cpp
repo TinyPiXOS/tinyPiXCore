@@ -86,7 +86,6 @@ void TpButton::setIcon(const TpString &iconPath)
 {
     TpButtonData *set = (TpButtonData *)this->data_;
 
-    // set->iconLabel->setBackGroundColor(_RGB(255, 50, 50));
     set->iconLabel->setBackGroundImage(TpImage(iconPath));
     set->iconLabel->update();
 }

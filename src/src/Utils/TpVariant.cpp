@@ -43,7 +43,6 @@ TpVariant::TpVariant(bool bValue)
     data_.data.m_bVal = bValue;
 }
 
-
 TpVariant::TpVariant(int8_t nValue)
 {
     data_.m_vt = (uint16_t)VariantType::Int1Var;
@@ -52,7 +51,7 @@ TpVariant::TpVariant(int8_t nValue)
 
 TpVariant::TpVariant(uint8_t nValue)
 {
-	data_.m_vt = (uint16_t)VariantType::Uint1Var;
+    data_.m_vt = (uint16_t)VariantType::Uint1Var;
     data_.data.m_ui1Val = nValue;
 }
 
@@ -64,7 +63,7 @@ TpVariant::TpVariant(int16_t nValue)
 
 TpVariant::TpVariant(uint16_t nValue)
 {
-	data_.m_vt = (uint16_t)VariantType::Uint2Var;
+    data_.m_vt = (uint16_t)VariantType::Uint2Var;
     data_.data.m_ui2Val = nValue;
 }
 
@@ -123,7 +122,24 @@ TpVariant::TpVariant(const char *pChar)
 
 TpVariant::TpVariant(const std::string &strChar)
 {
-    uint32_t uLen = static_cast<uint32_t>(strChar.length());
+    uint32_t uLen = strChar.length();
+
+    data_.m_vt = (uint16_t)VariantType::BstrVar;
+    if (0 != uLen)
+    {
+        data_.data.m_strVal = new char[uLen + 1];
+        memcpy(data_.data.m_strVal, strChar.c_str(), uLen);
+        data_.data.m_strVal[uLen] = '\0';
+    }
+    else
+    {
+        data_.data.m_strVal = nullptr;
+    }
+}
+
+TpVariant::TpVariant(const TpString &strChar)
+{
+    uint32_t uLen = strChar.length();
 
     data_.m_vt = (uint16_t)VariantType::BstrVar;
     if (0 != uLen)
@@ -291,7 +307,7 @@ TpVariant::TpVariant(const std::set<int16_t> &valueSet)
 TpVariant::TpVariant(const std::set<uint16_t> &valueSet)
 {
     data_.m_vt = (uint16_t)VariantType::Uint2Var | (uint16_t)VariantType::SetVar;
-	data_.data.m_pSetVal = new std::set<uint16_t>(valueSet);
+    data_.data.m_pSetVal = new std::set<uint16_t>(valueSet);
 }
 
 TpVariant::TpVariant(const std::set<int32_t> &valueSet)
@@ -348,16 +364,17 @@ TpVariant::TpVariant(const TpVariant &other)
     VariantValueCopy(data_, other.data_);
 }
 
-TpVariant::TpVariant(std::vector<TpVariant>* vectorVal) {
-	VariantValueInit(data_); // 确保初始化
+TpVariant::TpVariant(std::vector<TpVariant> *vectorVal)
+{
+    VariantValueInit(data_); // 确保初始化
     data_.m_vt = static_cast<uint16_t>(VariantType::VectorVar);
     data_.data.m_vectorVal = vectorVal;
 }
 
-TpVariant::~TpVariant() {
+TpVariant::~TpVariant()
+{
     VariantValueClear(data_);
 }
-
 
 bool TpVariant::isNull()
 {
@@ -515,7 +532,8 @@ TpVariant &TpVariant::operator=(const std::string &strChar)
     return *this;
 }
 
-TpVariant &TpVariant::operator=(std::vector<TpVariant>* vectorVal) {
+TpVariant &TpVariant::operator=(std::vector<TpVariant> *vectorVal)
+{
     VariantValueClear(data_);
     data_.m_vt = static_cast<uint16_t>(VariantType::VectorVar);
     data_.data.m_vectorVal = vectorVal;
@@ -909,7 +927,6 @@ std::vector<uint16_t> TpVariant::ToUint16Array() const
     return arrayValue;
 }
 
-
 std::vector<int32_t> TpVariant::ToInt32Array() const
 {
     std::vector<int32_t> arrayValue;
@@ -1269,7 +1286,7 @@ bool TpVariant::Compare(const VariantValue &value)
         case VariantType::BoolVar:
             bResult = VariantSetValueComplie(reinterpret_cast<std::set<bool> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<bool> *>(value.data.m_pSetVal));
             break;
-		case VariantType::Int1Var:
+        case VariantType::Int1Var:
             bResult = VariantSetValueComplie(reinterpret_cast<std::set<int8_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<int8_t> *>(value.data.m_pSetVal));
             break;
         case VariantType::Uint1Var:
@@ -1279,7 +1296,7 @@ bool TpVariant::Compare(const VariantValue &value)
             bResult = VariantSetValueComplie(reinterpret_cast<std::set<int16_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<int16_t> *>(value.data.m_pSetVal));
             break;
         case VariantType::Uint2Var:
-		    bResult = VariantSetValueComplie(reinterpret_cast<std::set<uint16_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<uint16_t> *>(value.data.m_pSetVal));
+            bResult = VariantSetValueComplie(reinterpret_cast<std::set<uint16_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<uint16_t> *>(value.data.m_pSetVal));
             break;
         case VariantType::Int4Var:
             bResult = VariantSetValueComplie(reinterpret_cast<std::set<int32_t> *>(data_.data.m_pSetVal), reinterpret_cast<std::set<int32_t> *>(value.data.m_pSetVal));
@@ -1315,10 +1332,10 @@ bool TpVariant::Compare(const VariantValue &value)
         {
             return 0 == memcmp(this, &value, sizeof(value));
         }
-		else if (data_.m_vt == static_cast<uint16_t>(VariantType::CustomVar) && value.m_vt == static_cast<uint16_t>(VariantType::CustomVar))
-		{
-			return false;
-		}
+        else if (data_.m_vt == static_cast<uint16_t>(VariantType::CustomVar) && value.m_vt == static_cast<uint16_t>(VariantType::CustomVar))
+        {
+            return false;
+        }
         else
         {
             if ((nullptr == data_.data.m_strVal) && (nullptr == value.data.m_strVal))
@@ -1326,43 +1343,55 @@ bool TpVariant::Compare(const VariantValue &value)
 
             if ((nullptr == data_.data.m_strVal) || (nullptr == value.data.m_strVal))
                 return false;
-			
+
             return 0 == strcmp(data_.data.m_strVal, value.data.m_strVal);
         }
     }
 }
 
-
 // 添加向量指针访问方法
-const std::vector<TpVariant>* TpVariant::toVectorPtr() const {
-    if (isVector()) {
+const std::vector<TpVariant> *TpVariant::toVectorPtr() const
+{
+    if (isVector())
+    {
         return data_.data.m_vectorVal;
     }
     return nullptr;
 }
 
-
-uint16_t TpVariant::getVariantType() const {
+uint16_t TpVariant::getVariantType() const
+{
     return data_.m_vt;
 }
 
 void TpVariant::clear()
 {
-	VariantValueClear(data_);
+    VariantValueClear(data_);
 }
 
-const char* TpVariant::variantTypeName() const 
+const char *TpVariant::variantTypeName() const
 {
-    switch (static_cast<VariantType>(data_.m_vt)) {
-        case VariantType::BoolVar: return "bool";
-        case VariantType::Int4Var: return "int32";
-        case VariantType::Uint4Var: return "uint32";
-        case VariantType::Int8Var: return "int64";
-        case VariantType::Uint8Var: return "uint64";
-        case VariantType::Real4Var: return "float";
-        case VariantType::Real8Var: return "double";
-        case VariantType::BstrVar: return "string";
-        case VariantType::VectorVar: return "vector";
-        default: return "unknown";
-	}
+    switch (static_cast<VariantType>(data_.m_vt))
+    {
+    case VariantType::BoolVar:
+        return "bool";
+    case VariantType::Int4Var:
+        return "int32";
+    case VariantType::Uint4Var:
+        return "uint32";
+    case VariantType::Int8Var:
+        return "int64";
+    case VariantType::Uint8Var:
+        return "uint64";
+    case VariantType::Real4Var:
+        return "float";
+    case VariantType::Real8Var:
+        return "double";
+    case VariantType::BstrVar:
+        return "string";
+    case VariantType::VectorVar:
+        return "vector";
+    default:
+        return "unknown";
+    }
 }

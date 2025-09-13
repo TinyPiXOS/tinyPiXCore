@@ -117,6 +117,7 @@ public:
     TpVariant(double dValue);
     TpVariant(const char *pChar);
     TpVariant(const std::string &strChar);
+    TpVariant(const TpString &strChar);
 
     TpVariant(const TpRect &value);
     TpVariant(const TpSize &value);
