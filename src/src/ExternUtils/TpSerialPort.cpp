@@ -2,6 +2,7 @@
 
 
 #include <fcntl.h>
+#include <dirent.h>
 #include <sys/ioctl.h>
 #include <linux/serial.h>
 #include <asm/termbits.h> // 包含 termios2 定义
@@ -33,6 +34,33 @@ struct TpSerialPortData{
 	}
 };
 
+
+TpList<TpString> TpSerialPort::getUsbSerialPorts()
+{
+	const std::string tty_dir = "/dev/";
+	TpList<TpString> list;
+
+	// 打开 PWM 目录
+	DIR* dir = opendir(tty_dir.c_str());
+	if (!dir) {
+		fprintf(stderr,"[Error]: get i2c buss error\n");
+		return list;
+	}
+
+	// 遍历目录项
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != nullptr) {
+		std::string name(entry->d_name);
+		
+		// 检查是否是 i2c 设备
+		if (name.find("ttyUSB") == 0) {			
+			list.push_back(name);
+		}
+	}
+
+	return list;
+}
+
 TpSerialPort::TpSerialPort(const TpString& name)
 {
 	data_ = new TpSerialPortData(name);
@@ -62,8 +90,18 @@ tpBool TpSerialPort::open()
 	if (ioctl(data->devfd, TCGETS2, &data->tty) != 0) {
 		throw std::runtime_error("Failed to get serial attributes");
 		return TP_FALSE;
-	}	
-//	setBaudRate(TP_BAUD_RATE_115200);
+	}
+	// 1. 输入模式：原始数据，无预处理
+	data->tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXOFF | IXANY);
+    
+    // 2. 输出模式：原始输出，无处理
+    data->tty.c_oflag &= ~OPOST;
+    
+    // 3. 本地模式：禁用回显和信号，非规范模式
+    data->tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+
+	setBaudRate(TP_BAUD_RATE_115200);
+
 	data->notifier_read=new TpSocketNotifier(data->devfd, TpSocketNotifier::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleHangup(); }
@@ -405,6 +443,7 @@ TpSerialPort::Parity TpSerialPort::getParity()
 
 void TpSerialPort::handleRead()
 {
+	printf("有数据可读\n");
 	readyRead.emit();
 }
 
