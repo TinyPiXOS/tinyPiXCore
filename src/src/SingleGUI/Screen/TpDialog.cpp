@@ -96,3 +96,10 @@ ItpObjectType TpDialog::objectType()
 {
     return TP_FLOAT_OBJECT;
 }
+
+bool TpDialog::onPaintEvent(TpPaintEvent *event)
+{
+    // dialog使用模拟宽高；即每个dialog起始都是全屏的，只是根据设置的尺寸绘制对应的背景
+
+    return TpScreen::onPaintEvent(event);
+}
