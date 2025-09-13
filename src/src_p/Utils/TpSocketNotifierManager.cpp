@@ -19,7 +19,7 @@ TpSocketNotifierManager::TpSocketNotifierManager()
         perror("epoll_create1 failed");
         return;
     }
-    printf("tpSocketNotifierManager构造\n");
+    
     loopThread_ = std::thread(&TpSocketNotifierManager::eventLoop, this);
 }
 
@@ -201,7 +201,7 @@ void TpSocketNotifierManager::eventLoop()
                 if (evs & (EPOLLRDHUP | EPOLLHUP | EPOLLERR))
                 { // EPOLLRDHUP
                     // 挂断回调（TCP 专用）
-                    notifier->hangupCallback_();
+                    if (notifier->hangupCallback_) notifier->hangupCallback_();
                 }
                 else if (evs & EPOLLIN)
                 {
@@ -213,7 +213,7 @@ void TpSocketNotifierManager::eventLoop()
             case TpSocketNotifier::Write:
                 if (evs & (EPOLLERR | EPOLLHUP))
                 {
-                    // notifier->hangupCallback_();
+                    if (notifier->hangupCallback_) notifier->hangupCallback_();
                 }
                 else if (evs & EPOLLOUT)
                 {

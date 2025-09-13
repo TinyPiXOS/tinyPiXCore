@@ -14,7 +14,13 @@ public:
     enum Type { Read, Write, Exception };
 
     //TpSocketNotifier(int fd, Type type, std::function<void()> callback);
-	TpSocketNotifier(int fd, Type type, std::function<void()> readCb, std::function<void()> hangupCb = std::function<void()>());
+
+	/// @brief 
+	/// @param fd 文件接口描述符
+	/// @param type 监测类型
+	/// @param rwCb 回调
+	/// @param hangupCb 异常回调
+	TpSocketNotifier(int fd, Type type, std::function<void()> rwCb, std::function<void()> hangupCb = std::function<void()>());
     ~TpSocketNotifier();
 
     void setEnabled(bool enable);
