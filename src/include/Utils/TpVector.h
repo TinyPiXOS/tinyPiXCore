@@ -41,11 +41,33 @@ public:
         return *this;
     }
 
+    /// @brief 获取容器内是否存在某个值
+    /// @param value 值
+    /// @return 存在返回true，否则返回false
     bool contains(const T &value);
+    /// @brief 移除指定索引的值
+    /// @param i 索引
     void remove(uint32_t i);
 
+    /// @brief 在指定索引处插入值
+    /// @param i 索引
+    /// @param value 插入值
     void insertData(uint32_t i, const T &value);
+    /// @brief 容器是否为空
+    /// @return 为空返回true，否则返回false
     bool isEmpty() const;
+
+    /// @brief 添加单个元素到向量末尾
+    /// @param value 要添加的元素
+    void append(const T &value) { this->emplace_back(value); }
+
+    /// @brief 添加多个元素到向量末尾
+    /// @param list 初始化列表
+    void append(std::initializer_list<T> list) { this->insert(this->end(), list.begin(), list.end()); }
+
+    /// @brief 添加另一个向量的所有元素到当前向量末尾
+    /// @param other 另一个向量
+    void append(const TpVector<T> &other) { this->insert(this->end(), other.begin(), other.end()); }
 };
 
 template <typename T>
