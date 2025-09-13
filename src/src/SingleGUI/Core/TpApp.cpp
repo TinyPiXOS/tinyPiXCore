@@ -319,6 +319,9 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         UpdateCommand task = updateCommandQueue.front();
         updateCommandQueue.pop();
 
+        if (!task.updateObj->visible())
+            continue;
+
         ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(task.updateObj->objectSets());
         ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
 

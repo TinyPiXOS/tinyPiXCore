@@ -96,15 +96,22 @@ bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
     // 半径要减去线宽的一半
     painter->drawEllipse(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, circlePoint - progressData->lineWidth / 2.0);
 
+    painter->setPen(_RGB(128, 94, 243));
+    painter->pen().setWidth(progressData->lineWidth);
+
     // 根据进度绘制填充
-    if (progressData->curValue != 0)
+    if (progressData->curValue == progressData->minValue)
+    {
+    }
+    else if (progressData->curValue == progressData->maxValue)
+    {
+        painter->drawEllipse(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, circlePoint - progressData->lineWidth / 2.0);
+    }
+    else
     {
         // 计算百分比
         double percent = 1.0 * (progressData->curValue - progressData->minValue) / (progressData->maxValue - progressData->minValue);
         double percentAngle = -90 + 360.0 * percent;
-
-        painter->setPen(_RGB(128, 94, 243));
-        painter->pen().setWidth(progressData->lineWidth);
 
         painter->drawArc(circlePoint, circlePoint, circlePoint - progressData->lineWidth / 2.0, -90, percentAngle);
     }
