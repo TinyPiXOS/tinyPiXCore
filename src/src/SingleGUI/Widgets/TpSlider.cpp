@@ -124,6 +124,36 @@ bool TpSlider::onMousePressEvent(TpMouseEvent *event)
         sliderData->isPressVertex = true;
         sliderData->isDrag = true;
     }
+    else
+    {
+        // 根据点击位置，自动切换值到点击位置
+        if (sliderData->direct == TpSlider::Horizon)
+        {
+            // 点击位置占宽度的百分比
+            float pressPointPercent = 1.0 * mousePoint.x() / width();
+            float pressValue = pressPointPercent * (sliderData->maxValue - sliderData->minValue) + sliderData->minValue;
+
+            if (pressValue != sliderData->value)
+                valueChanged.emit(pressValue);
+
+            setValue(pressValue);
+
+            update();
+        }
+        else
+        {
+            // 点击位置占高度度的百分比
+            float pressPointPercent = 1.0 * mousePoint.y() / height();
+            float pressValue = pressPointPercent * (sliderData->maxValue - sliderData->minValue) + sliderData->minValue;
+
+            if (pressValue != sliderData->value)
+                valueChanged.emit(pressValue);
+
+            setValue(pressValue);
+
+            update();
+        }
+    }
 
     return true;
 }
