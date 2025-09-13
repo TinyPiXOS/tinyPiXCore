@@ -46,6 +46,11 @@ public:
 	TpSerialPort(const TpString& name);
 	~TpSerialPort();
 public:
+	/// @brief 获取USB类型的串口列表，由于普通串口在设备树中一直存在，暂时无法判断是否接入了串口从机设备
+	/// @return 
+	static TpList<TpString> getUsbSerialPorts();
+	
+public:
 	/// @brief 打开设备
 	/// @return 
 	tpBool open();
