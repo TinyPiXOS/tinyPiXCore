@@ -56,6 +56,18 @@ public:
         return (this->compare(_others) == 0) ? true : false;
     }
 
+    /// @brief 查找子字符串的位置
+    /// @param str 要查找的子字符串
+    /// @param from 开始查找的位置（默认为0）
+    /// @return 子字符串的位置索引，如果未找到则返回-1
+    int32_t indexOf(const TpString &str, int32_t from = 0) const;
+
+    /// @brief 查找字符的位置
+    /// @param ch 要查找的字符
+    /// @param from 开始查找的位置（默认为0）
+    /// @return 字符的位置索引，如果未找到则返回-1
+    int32_t indexOf(char ch, int32_t from = 0) const;
+
     /// @brief 将数字转换为字符串
     /// @param num 数字
     /// @return 返回转换后的字符串
@@ -72,6 +84,10 @@ public:
     /// @brief 去除首尾空格，中间空格只保留一个
     /// @return 返回处理后的字符串
     TpString simplified() const;
+
+    /// @brief 去除字符串两端的空白字符
+    /// @return 返回处理后的字符串
+    TpString trimmed() const;
 
     /// @brief 指定字符串替换
     /// @param from 要被替换的字符串

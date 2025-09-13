@@ -25,13 +25,13 @@ struct TpButtonData
 TpButton::TpButton(TpChildWidget *parent)
     : TpChildWidget(parent)
 {
-    Init();
+    init();
 }
 
 TpButton::TpButton(const TpString &iconPath, const TpString &text, TpChildWidget *parent)
     : TpChildWidget(parent)
 {
-    Init();
+    init();
 
     setIcon(iconPath);
     setText(text);
@@ -40,7 +40,7 @@ TpButton::TpButton(const TpString &iconPath, const TpString &text, TpChildWidget
 TpButton::TpButton(const TpString &text, TpChildWidget *parent)
     : TpChildWidget(parent)
 {
-    Init();
+    init();
 
     setText(text);
 }
@@ -67,6 +67,8 @@ void TpButton::setText(const TpString &text)
 
     buttonData->textLabel->setText(text);
     buttonData->textLabel->update();
+
+    refreshLayout();
 }
 
 TpFont *TpButton::font()
@@ -100,6 +102,8 @@ void TpButton::setIconSize(const uint32_t &width, const uint32_t &height)
     TpButtonData *set = (TpButtonData *)this->data_;
     set->iconSize.setWidth(width);
     set->iconSize.setHeight(height);
+
+    refreshLayout();
 }
 
 void TpButton::setButtonStyle(TpButton::ButtonTextStyle buttonStyle)
@@ -186,66 +190,7 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
 
 bool TpButton::onResizeEvent(TpResizeEvent *event)
 {
-    TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
-
-    tpShared<TpCssData> curCssData = currentStatusCss();
-
-    if (buttonData->buttonStyle == TpButton::TextOnly)
-    {
-        buttonData->textLabel->setWidth(rect().width() - curCssData->paddingLeft() - curCssData->paddingRight());
-        buttonData->textLabel->setHeight(rect().height() - curCssData->paddingTop() - curCssData->paddingBottom());
-        buttonData->textLabel->move(curCssData->paddingLeft(), curCssData->paddingTop());
-        // buttonData->textLabel->update();
-    }
-    else if (buttonData->buttonStyle == TpButton::IconOnly)
-    {
-        uint32_t iconWidth = (buttonData->iconSize.width() == 0) ? (rect().width() - curCssData->paddingLeft() - curCssData->paddingRight()) : buttonData->iconSize.width();
-        uint32_t iconHeight = (buttonData->iconSize.height() == 0) ? (rect().height() - curCssData->paddingTop() - curCssData->paddingBottom()) : buttonData->iconSize.height();
-
-        int32_t iconX = (width() - iconWidth) / 2.0;
-        int32_t iconY = (height() - iconHeight) / 2.0;
-
-        buttonData->iconLabel->setWidth(iconWidth);
-        buttonData->iconLabel->setHeight(iconHeight);
-        buttonData->iconLabel->move(iconX, iconY);
-    }
-    else if (buttonData->buttonStyle == TpButton::TextBesideIcon)
-    {
-        // 计算可用空间
-        int32_t availableWidth = rect().width() - curCssData->paddingLeft() - curCssData->paddingRight();
-        int32_t availableHeight = rect().height() - curCssData->paddingTop() - curCssData->paddingBottom();
-
-        // 图标保持正方形 (高度决定宽度)
-        int32_t iconWidth = buttonData->textLabel->font()->pixelHeight();
-        int32_t iconHeight = iconWidth;
-
-        // 判断是否文字超出显示区域
-        bool isOverland = (buttonData->textLabel->font()->pixelWidth() + iconWidth + curCssData->gap()) > availableWidth;
-
-        // 文本占据剩余宽度 (至少保证不小于0)
-        int32_t textWidth = isOverland ? (availableWidth - iconWidth - curCssData->gap()) : buttonData->textLabel->font()->pixelWidth();
-
-        uint32_t startX = isOverland ? curCssData->paddingLeft() : ((availableWidth - iconWidth - curCssData->gap() - textWidth) / 2.0);
-
-        // 调整图标
-        uint32_t iconY = (height() > iconHeight) ? (height() - iconHeight) / 2.0 : 0;
-        buttonData->iconLabel->setSize(iconWidth, iconHeight);
-        buttonData->iconLabel->move(startX, iconY);
-
-        // 调整文本
-        buttonData->textLabel->setWidth(textWidth);
-        buttonData->textLabel->setHeight(availableHeight);
-        buttonData->textLabel->move(
-            startX + iconWidth + curCssData->gap(), // 紧贴图标右侧
-            curCssData->paddingTop());
-
-        // 更新控件
-        // buttonData->iconLabel->update();
-        // buttonData->textLabel->update();
-    }
-    else
-    {
-    }
+    refreshLayout();
 
     return true;
 }
@@ -283,7 +228,7 @@ void TpButton::onThemeChangeEvent(TpThemeChangeEvent *event)
     // tpShared<TpCssData> normalCssData = readCss(TO_STRING(TpButton), TpCssParser::Normal);
 }
 
-void TpButton::Init()
+void TpButton::init()
 {
     TpButtonData *set = new TpButtonData();
     data_ = set;
@@ -300,4 +245,69 @@ void TpButton::Init()
 
     setEnableBackGroundColor(true);
     refreshBaseCss();
+}
+
+void TpButton::refreshLayout()
+{
+    // 尺寸变化、文本变化重新计算布局
+    TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
+
+    tpShared<TpCssData> curCssData = currentStatusCss();
+
+    if (buttonData->buttonStyle == TpButton::TextOnly)
+    {
+        buttonData->textLabel->setWidth(width() - curCssData->paddingLeft() - curCssData->paddingRight());
+        buttonData->textLabel->setHeight(height() - curCssData->paddingTop() - curCssData->paddingBottom());
+        buttonData->textLabel->move(curCssData->paddingLeft(), curCssData->paddingTop());
+        // buttonData->textLabel->update();
+    }
+    else if (buttonData->buttonStyle == TpButton::IconOnly)
+    {
+        uint32_t iconWidth = (buttonData->iconSize.width() == 0) ? (width() - curCssData->paddingLeft() - curCssData->paddingRight()) : buttonData->iconSize.width();
+        uint32_t iconHeight = (buttonData->iconSize.height() == 0) ? (height() - curCssData->paddingTop() - curCssData->paddingBottom()) : buttonData->iconSize.height();
+
+        int32_t iconX = (width() - iconWidth) / 2.0;
+        int32_t iconY = (height() - iconHeight) / 2.0;
+
+        buttonData->iconLabel->setWidth(iconWidth);
+        buttonData->iconLabel->setHeight(iconHeight);
+        buttonData->iconLabel->move(iconX, iconY);
+    }
+    else if (buttonData->buttonStyle == TpButton::TextBesideIcon)
+    {
+        // 计算可用空间
+        int32_t availableWidth = width() - curCssData->paddingLeft() - curCssData->paddingRight();
+        int32_t availableHeight = height() - curCssData->paddingTop() - curCssData->paddingBottom();
+
+        // 图标保持正方形 (高度决定宽度)
+        int32_t iconWidth = buttonData->textLabel->font()->pixelHeight();
+        int32_t iconHeight = iconWidth;
+
+        // 判断是否文字超出显示区域
+        bool isOverland = (buttonData->textLabel->font()->pixelWidth() + iconWidth + curCssData->gap()) > availableWidth;
+
+        // 文本占据剩余宽度 (至少保证不小于0)
+        int32_t textWidth = isOverland ? (availableWidth - iconWidth - curCssData->gap()) : buttonData->textLabel->font()->pixelWidth();
+
+        uint32_t startX = isOverland ? curCssData->paddingLeft() : ((availableWidth - iconWidth - curCssData->gap() - textWidth) / 2.0);
+
+        // 调整图标
+        uint32_t iconY = (height() > iconHeight) ? (height() - iconHeight) / 2.0 : 0;
+        buttonData->iconLabel->setSize(iconWidth, iconHeight);
+        buttonData->iconLabel->move(startX, iconY);
+
+        // 调整文本
+        buttonData->textLabel->setWidth(textWidth);
+        buttonData->textLabel->setHeight(availableHeight);
+        buttonData->textLabel->move(
+            startX + iconWidth + curCssData->gap(), // 紧贴图标右侧
+            curCssData->paddingTop());
+
+        // 更新控件
+        // buttonData->iconLabel->update();
+        // buttonData->textLabel->update();
+    }
+    else
+    {
+    }
 }

@@ -213,6 +213,9 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
 
 static void paintEnabledBox(TpChildWidget *child, TpPainter *paintCanvas)
 {
+    // TODO 暂时屏蔽禁用绘制效果
+    return;
+
     if (!child->enabled())
     {
         paintCanvas->setPen(_RGBA(192, 192, 192, 80));

@@ -103,6 +103,18 @@ static TpString formatFloatNumber(T num, uint32_t precision, int width, char fil
     return str;
 }
 
+int32_t TpString::indexOf(const TpString &str, int32_t from) const
+{
+    size_t pos = this->find(str, from);
+    return (pos == std::string::npos) ? -1 : static_cast<int32_t>(pos);
+}
+
+int32_t TpString::indexOf(char ch, int32_t from) const
+{
+    size_t pos = this->find(ch, from);
+    return (pos == std::string::npos) ? -1 : static_cast<int32_t>(pos);
+}
+
 TpString TpString::number(int32_t num, int32_t width, char fillChar)
 {
     return formatNumber(num, width, fillChar);
@@ -169,6 +181,24 @@ TpString TpString::simplified() const
     }
 
     return result;
+}
+
+TpString TpString::trimmed() const
+{
+    if (empty())
+        return *this;
+
+    // 查找第一个非空白字符位置
+    size_t start = 0;
+    while (start < length() && isspace(at(start)))
+        start++;
+
+    // 查找最后一个非空白字符位置
+    size_t end = length() - 1;
+    while (end > start && isspace(at(end)))
+        end--;
+
+    return substr(start, end - start + 1);
 }
 
 TpString TpString::replace(const TpString &from, const TpString &to) const
