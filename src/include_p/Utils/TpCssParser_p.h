@@ -453,7 +453,7 @@ TpString parseLinearGradient(const TpString &gradientStr)
     for (int i = 0; i < stops.size(); ++i)
     {
         TpString colorValue = TpString::number(parseColorValue(stops[i].color));
-        TpString posStr = TpString::number(stops[i].position, 1); // 保留1位小数
+        TpString posStr = TpString::number(stops.at(i).position, 1); // 保留1位小数
         result += colorValue + "|" + posStr;
         if (i < stops.size() - 1)
         {

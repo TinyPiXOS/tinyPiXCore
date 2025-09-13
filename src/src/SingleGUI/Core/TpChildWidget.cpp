@@ -318,6 +318,8 @@ void TpChildWidget::setVisible(bool visible)
     {
         this->onVisibleEvent(&event);
     }
+
+    update();
 }
 
 bool TpChildWidget::visible()

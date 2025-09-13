@@ -59,10 +59,10 @@ public:
     /// @brief 将数字转换为字符串
     /// @param num 数字
     /// @return 返回转换后的字符串
-    static TpString number(const int32_t &num);
-    static TpString number(const uint32_t &num);
-    static TpString number(const uint64_t &num);
-    static TpString number(const double &num, const uint32_t &precision = 2);
+    static TpString number(int32_t num, int32_t width = 0, char fillChar = '0');
+    static TpString number(uint32_t num, int32_t width = 0, char fillChar = '0');
+    static TpString number(uint64_t num, int32_t width = 0, char fillChar = '0');
+    static TpString number(double num, int32_t precision = 2, int32_t width = 0, char fillChar = '0');
 
     /// @brief 指定字符分割字符串
     /// @param _ch 分隔符
@@ -102,7 +102,7 @@ public:
     /// @brief 指定索引移除字符
     /// @param _pos 索引值，从该索引开始移除
     /// @param _count 移除字符数
-    void remove(const uint32_t & _pos, const uint32_t &_count = 1);
+    void remove(const uint32_t &_pos, const uint32_t &_count = 1);
 
     /// @brief 字符串转整数
     /// @param base 字符串内容的进制，默认为10进制，包括 2/8/10/16
@@ -114,60 +114,60 @@ public:
     int32_t toInt(int32_t base = 10) const;
     double toDouble() const;
 
-	bool toBool() const;
+    bool toBool() const;
 
-	// 转换为无符号短整型
+    // 转换为无符号短整型
     uint16_t toUShort(bool *ok = nullptr, int base = 10) const;
-    
+
     // 转换为无符号整型
     uint32_t toUInt(bool *ok = nullptr, int base = 10) const;
 
-	/// @brief 转换为大写
-	/// @return 
-	TpString toUpper() const;
+    /// @brief 转换为大写
+    /// @return
+    TpString toUpper() const;
 
-	/// @brief 转换为小写
-	/// @return 
-	TpString toLower() const;
-	
+    /// @brief 转换为小写
+    /// @return
+    TpString toLower() const;
+
     /// @brief 	在字符串左侧填充字符
     /// @param width 填充数量
     /// @param fill 填充的字符
-    /// @return 
+    /// @return
     TpString leftJustified(uint32_t width, char fill = ' ') const;
-    
+
     /// @brief 	在字符串右侧填充字符
     /// @param width 填充数量
     /// @param fill 填充的字符
-    /// @return 
+    /// @return
     TpString rightJustified(uint32_t width, char fill = ' ') const;
-    
+
     // 重复字符串n次
     TpString repeated(uint32_t times) const;
 
-	// 获取字符的十六进制表示
+    // 获取字符的十六进制表示
     TpString toHex(char separator = '\0') const;
-    
+
     // 检查字符串是否包含任何指定字符集中的字符
     bool containsAnyOf(const TpString &charSet) const;
-    
+
     // 检查字符串是否仅包含指定字符集中的字符
     bool containsOnly(const TpString &charSet) const;
 
-	// 删除所有指定字符
+    // 删除所有指定字符
     TpString removeChar(char ch) const;
-    
+
     // 字符串反转
     TpString reversed() const;
 
     /// @brief 指定索引插入指定字符或字符串
     /// @param post 索引值，从0开始
     /// @param str 插入字符串
-    void insert(const uint32_t& pos, const TpString& str);
+    void insert(const uint32_t &pos, const TpString &str);
 
     /// @brief 末尾追加字符串
     /// @param str 指定字符串
-    void append(const TpString& str);
+    void append(const TpString &str);
 
     /// @brief 从字符串起始位置，切割指定长度字符
     /// @param _length 切割长度

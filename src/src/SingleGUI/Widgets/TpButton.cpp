@@ -164,6 +164,9 @@ bool TpButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpButton::onPaintEvent(TpPaintEvent *event)
 {
+    // std::cout << "按钮 " << text() << " 渲染" << std::endl;
+    // std::cout << "按钮 " << text() << " 尺寸" << pos().x() << " " << pos().y() << "  " << width() << "  " << height() << std::endl;
+
     TpChildWidget::onPaintEvent(event);
 
     TpButtonData *buttonData = static_cast<TpButtonData *>(data_);

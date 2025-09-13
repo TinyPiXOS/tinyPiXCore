@@ -27,27 +27,100 @@ int32_t safeStoi(const std::string &str, int32_t base)
     return 0.0;
 }
 
-TpString TpString::number(const int32_t &num)
+// 通用整数格式化模板
+template <typename T>
+static TpString formatNumber(T num, int width, char fillChar)
 {
-    return std::to_string(num);
+    std::string str = std::to_string(num);
+
+    // 如果需要补零且当前长度小于指定宽度
+    if (width > 0 && static_cast<int>(str.length()) < width)
+    {
+        // 处理负数情况
+        if (num < 0)
+        {
+            // 对于负数，先去掉负号，补零后再加回负号
+            std::string positiveStr = std::to_string(-num);
+            if (static_cast<int>(positiveStr.length()) < width - 1)
+            {
+                positiveStr = std::string(width - 1 - positiveStr.length(), fillChar) + positiveStr;
+            }
+            return "-" + positiveStr;
+        }
+        else
+        {
+            // 正数直接补零
+            return std::string(width - str.length(), fillChar) + str;
+        }
+    }
+
+    return str;
 }
 
-TpString TpString::number(const uint32_t &num)
-{
-    return std::to_string(num);
-}
-
-TpString TpString::number(const uint64_t &num)
-{
-    return std::to_string(num);
-}
-
-TpString TpString::number(const double &num, const uint32_t &precision)
+// 浮点数格式化
+template <typename T>
+static TpString formatFloatNumber(T num, uint32_t precision, int width, char fillChar)
 {
     std::ostringstream out;
     out << std::fixed << std::setprecision(precision) << num;
-    std::string result = out.str();
-    return result;
+    std::string str = out.str();
+
+    // 处理小数点前的补零
+    if (width > 0)
+    {
+        // 找到小数点的位置
+        size_t dotPos = str.find('.');
+        if (dotPos == std::string::npos)
+        {
+            // 没有小数点，当作整数处理
+            return formatNumber(static_cast<int64_t>(num), width, fillChar);
+        }
+
+        // 计算整数部分的长度
+        int integerPartLength = static_cast<int>(dotPos);
+        if (num < 0)
+        {
+            integerPartLength--; // 负号不算在整数部分长度内
+        }
+
+        // 如果需要补零
+        if (integerPartLength < width)
+        {
+            int zerosToAdd = width - integerPartLength;
+            if (num < 0)
+            {
+                // 负数处理：在负号后补零
+                return "-" + std::string(zerosToAdd, fillChar) + str.substr(1);
+            }
+            else
+            {
+                // 正数处理：直接在前面补零
+                return std::string(zerosToAdd, fillChar) + str;
+            }
+        }
+    }
+
+    return str;
+}
+
+TpString TpString::number(int32_t num, int32_t width, char fillChar)
+{
+    return formatNumber(num, width, fillChar);
+}
+
+TpString TpString::number(uint32_t num, int32_t width, char fillChar)
+{
+    return formatNumber(num, width, fillChar);
+}
+
+TpString TpString::number(uint64_t num, int32_t width, char fillChar)
+{
+    return formatNumber(num, width, fillChar);
+}
+
+TpString TpString::number(double num, int32_t precision, int32_t width, char fillChar)
+{
+    return formatFloatNumber(num, precision, width, fillChar);
 }
 
 TpList<TpString> TpString::split(const char &_ch) const
