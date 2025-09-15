@@ -1,0 +1,3 @@
+[submodule "3rdparty/thorvg"]
+	path = 3rdparty/thorvg
+	url = https://gitee.com/tinypixos/thorvg.git
