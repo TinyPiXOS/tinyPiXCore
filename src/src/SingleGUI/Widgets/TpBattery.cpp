@@ -115,7 +115,7 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
     int32_t borderColor = batteryData->style == TpBattery::White ? batteryData->whiteBorderColor : batteryData->blackBorderColor;
     int32_t fontColor = batteryData->style == TpBattery::White ? batteryData->blackColor : batteryData->whiteColor;
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
     double linew = batteryData->borderWidth;
 
     double headWidth = width() / 12;

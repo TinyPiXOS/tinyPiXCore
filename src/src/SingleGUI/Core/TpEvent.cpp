@@ -1508,7 +1508,7 @@ TpObject *TpPaintEvent::object()
     return object;
 }
 
-TpPainter *TpPaintEvent::canvas()
+TpPainter *TpPaintEvent::painter()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::TpEventSet;
     TpPainter *canvas = nullptr;

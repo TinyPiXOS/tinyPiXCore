@@ -739,7 +739,7 @@ bool TpScroll::onPaintEvent(TpPaintEvent *event)
     if (!ret)
         return ret;
 
-    TpPainter *canvas = event->canvas();
+    TpPainter *canvas = event->painter();
     uint8_t alpha = mapAlpha((uint8_t)(set->barColor & 0x000000ff), this->alpha());
     int32_t x0 = 0, y0 = 0, x1 = 0, y1 = 0;
     switch (set->direction)

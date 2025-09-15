@@ -251,7 +251,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     if (!editData)
         return true;
 
-    TpPainter *canvas = event->canvas();
+    TpPainter *canvas = event->painter();
     if (!canvas)
         return true;
 

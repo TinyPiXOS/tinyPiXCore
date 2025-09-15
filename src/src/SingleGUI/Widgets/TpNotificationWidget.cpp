@@ -104,7 +104,7 @@ bool TpNotificationWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpNotificationWidgetData *widgetData = static_cast<TpNotificationWidgetData *>(data_);
 
-    TpPainter *canvas = event->canvas();
+    TpPainter *canvas = event->painter();
 
     TpRect widgetRect = this->rect();
 

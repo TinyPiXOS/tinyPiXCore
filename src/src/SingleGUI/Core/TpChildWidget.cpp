@@ -1170,7 +1170,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
     if (!ret)
         return false;
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
         return false;

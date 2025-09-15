@@ -161,7 +161,7 @@ bool TpCarouselButton::onPaintEvent(TpPaintEvent *event)
     TpCarouselButtonData *buttonData = static_cast<TpCarouselButtonData *>(data_);
     buttonData->pointRectList.clear();
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
 
     if (buttonData->showMode == TpCarouselButton::Horizon)
     {

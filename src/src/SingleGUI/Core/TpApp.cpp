@@ -378,7 +378,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         event.construct(&paintInput);
 
         // 刷新前清除scene
-        TpPainter *childPainter = event.canvas();
+        TpPainter *childPainter = event.painter();
 
         auto canvasPair = updateWidgetIter.first->canvasPtr();
         tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
@@ -397,7 +397,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         }
 
         // 控件不可用，绘制遮罩层
-        paintEnabledBox(updateWidgetIter.first, event.canvas());
+        paintEnabledBox(updateWidgetIter.first, event.painter());
 
         // 绘制完成刷新绘制
         childPainter->sync();
@@ -460,7 +460,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         event.construct(&input);
 
         // 刷新前清除scene
-        TpPainter *childPainter = event.canvas();
+        TpPainter *childPainter = event.painter();
 
         tvg::Scene *childScene = (tvg::Scene *)topScreen->testScenePtr();
         childScene->remove();

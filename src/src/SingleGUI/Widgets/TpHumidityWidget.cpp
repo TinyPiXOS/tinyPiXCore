@@ -119,7 +119,7 @@ bool TpHumidityWidget::onPaintEvent(TpPaintEvent *event)
     int32_t humidityWidth = width() * 0.8;
     int32_t humidityHeight = height() * 0.75;
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     // painter->box(0, 0, width(), height(), _RGB(255, 0, 0));
 

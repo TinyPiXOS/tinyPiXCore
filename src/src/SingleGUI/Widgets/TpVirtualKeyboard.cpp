@@ -831,7 +831,7 @@ bool TpCandidateWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     int32_t pinyinHeight = 0;
     if (!cachePinyin_.empty())

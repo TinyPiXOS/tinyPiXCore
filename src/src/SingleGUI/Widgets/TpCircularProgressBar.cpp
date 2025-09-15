@@ -85,7 +85,7 @@ bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
     TpCircularProgressBarData *progressData = static_cast<TpCircularProgressBarData *>(data_);
 
     // TpChildWidget::onPaintEvent(event);
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
     // painter->arc(50, 50, 40, 140, 40, _RGBA(204, 179, 230, 204), 15, true);
 
     int32_t circlePoint = (width() < height() ? width() : height()) / 2.0;

@@ -145,7 +145,7 @@ bool TpPercentProgressBar::onPaintEvent(TpPaintEvent *event)
     if (progressData->itemList.size() == 0)
         return true;
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
     tpShared<TpCssData> normalCss = currentStatusCss();
 
     // 绘制进度条底色

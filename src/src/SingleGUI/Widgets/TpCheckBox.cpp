@@ -129,7 +129,7 @@ bool TpCheckBox::onPaintEvent(TpPaintEvent *event)
     // return true;
     // TpChildWidget::onPaintEvent(event);
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
 
     TpCheckBoxData *cbxData = static_cast<TpCheckBoxData *>(data_);
 

@@ -238,7 +238,7 @@ bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
         if (ret)
         {
             TpRect rect = event->rect();
-            TpPainter *canvas = event->canvas();
+            TpPainter *canvas = event->painter();
 
             uint8_t alpha1 = mapAlpha((uint8_t)(set->topLeftColor & 0x000000ff), this->alpha());
             uint8_t alpha2 = mapAlpha((uint8_t)(set->bottomRightColor & 0x000000ff), this->alpha());

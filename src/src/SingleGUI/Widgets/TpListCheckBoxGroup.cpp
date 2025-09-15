@@ -240,7 +240,7 @@ bool TpListCheckBoxGroup::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
     TpListCheckBoxGroupData *cbxData = static_cast<TpListCheckBoxGroupData *>(data_);
     tpShared<TpCssData> normalCss = currentStatusCss();
 

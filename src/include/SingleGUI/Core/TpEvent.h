@@ -427,7 +427,7 @@ public:
     virtual TpObject *object();
 
 public:
-    virtual TpPainter *canvas();            // must set offsetX and offsetY
+    virtual TpPainter *painter();            // must set offsetX and offsetY
     virtual tpShared<TpSurface> surface(); // must set clipRect
     virtual ItpSufaceData *itpSurface();
 

@@ -87,7 +87,7 @@ public:
 
         TpChildWidget::onPaintEvent(event);
 
-        TpPainter *painter = event->canvas();
+        TpPainter *painter = event->painter();
         // painter->paintTest();
 
         // TpFont testFont;
