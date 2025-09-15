@@ -59,15 +59,15 @@ public:
     /// @brief 基于当前日期添加指定天数
     /// @param days 添加天数
     /// @return 返回叠加后的新日期对象
-    TpDate addDays(const uint64_t &days) const;
+    TpDate addDays(const int64_t &days) const;
     /// @brief 基于当前日期添加指定月数
     /// @param months 添加月数
     /// @return 返回叠加后的新日期对象
-    TpDate addMonths(const uint32_t &months) const;
+    TpDate addMonths(const int32_t &months) const;
     /// @brief 基于当前日期添加指定年数
     /// @param years 添加年数
     /// @return 返回叠加后的新日期对象
-    TpDate addYears(const uint32_t &years) const;
+    TpDate addYears(const int32_t &years) const;
 
     /// @brief 将日期对象转换为字符串
     /// @param format 格式化字符串 例如yyyy-MM-dd
