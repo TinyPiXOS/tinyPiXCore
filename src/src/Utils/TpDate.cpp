@@ -156,7 +156,7 @@ int32_t TpDate::daysInYear() const
     return isLeapYear(year()) ? 366 : 365;
 }
 
-TpDate TpDate::addDays(const uint64_t &days) const
+TpDate TpDate::addDays(const int64_t &days) const
 {
     TpDateData *dateData = static_cast<TpDateData *>(data_);
 
@@ -168,7 +168,7 @@ TpDate TpDate::addDays(const uint64_t &days) const
     return TpDate(tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
 }
 
-TpDate TpDate::addMonths(const uint32_t &months) const
+TpDate TpDate::addMonths(const int32_t &months) const
 {
     TpDateData *dateData = static_cast<TpDateData *>(data_);
 
@@ -179,7 +179,7 @@ TpDate TpDate::addMonths(const uint32_t &months) const
     return TpDate(newYear, newMonth, newDay);
 }
 
-TpDate TpDate::addYears(const uint32_t &years) const
+TpDate TpDate::addYears(const int32_t &years) const
 {
     TpDateData *dateData = static_cast<TpDateData *>(data_);
 
