@@ -286,7 +286,7 @@ bool TpLink::onPaintEvent(TpPaintEvent *event)
 
 		if (set)
 		{
-			TpPainter *canvas = event->canvas();
+			TpPainter *canvas = event->painter();
 			TpSize size = set->font->pixelSize();
 			int32_t cx = 0, cy = (int32_t)(event->rect().height() - size.height()) / 2.0;
 			canvas->drawText(*set->font, cx, cy);

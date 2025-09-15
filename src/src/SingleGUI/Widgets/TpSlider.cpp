@@ -236,7 +236,7 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
     // TpChildWidget::onPaintEvent(event);
     tpShared<TpCssData> curCssData = currentStatusCss();
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     // 整体高度、宽度；分成4份。进度条1份，顶点2份，浅色顶点4份
     uint32_t bgWidth = width();

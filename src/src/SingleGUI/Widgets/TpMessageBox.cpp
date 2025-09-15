@@ -180,7 +180,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     if (messageData->text.empty())
         return true;
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
 
     uint32_t msgWidth = TpDisplay::dp2Px(450);
     uint32_t msgHeight = TpDisplay::dp2Px(160);

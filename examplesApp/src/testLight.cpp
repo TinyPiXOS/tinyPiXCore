@@ -22,7 +22,7 @@ bool testLight::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     painter->box(0, 0, width(), height(), _RGB(255, 255, 255));
 

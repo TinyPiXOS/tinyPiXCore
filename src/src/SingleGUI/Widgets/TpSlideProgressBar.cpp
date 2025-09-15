@@ -188,7 +188,7 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
 
     tpShared<TpCssData> curCssData = enabledCss();
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
 
     // 绘制填充
     double valuePercent = 1.0 * (progressData->curValue - progressData->minValue) / (progressData->maxValue - progressData->minValue);
@@ -217,7 +217,7 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
         int32_t imageWidth = drawSurface.width();
         int32_t imageHeight = drawSurface.height();
 
-        TpPainter *canvas = event->canvas();
+        TpPainter *canvas = event->painter();
 
         int32_t cy = (rect().height() - imageHeight) / 2;
 

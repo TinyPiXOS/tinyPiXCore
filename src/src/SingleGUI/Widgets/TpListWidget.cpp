@@ -735,7 +735,7 @@ bool TpListWidget::onPaintEvent(TpPaintEvent *event)
     // 默认边框线颜色
     int32_t borderColor = _RGB(0, 0, 0) & 0xffffff00 | (alpha & 0xff);
 
-    TpPainter *paint = event->canvas();
+    TpPainter *paint = event->painter();
 
     if (!paint)
         return false;

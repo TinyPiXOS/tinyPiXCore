@@ -102,7 +102,7 @@ bool TpPanelSwitchButton::onPaintEvent(TpPaintEvent *event)
     // std::cout << "TpPanelSwitchButton::onPaintEvent " << std::endl;
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
 
     // 判断组件当前状态，决定取出哪个CSS样式
     tpShared<TpCssData> curCssData = currentStatusCss();

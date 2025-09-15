@@ -13,6 +13,15 @@ TpButton:active {
     background-color: rgb(204, 143, 237);
 }
 
+TpButton[type="TextButton"] {
+    font-size: 13dp;
+    color: rgb(150, 100, 246);
+}
+
+TpButton[type="TextButton"]:active {
+    color: rgb(204, 143, 237);
+}
+
 TpButton[type="LightButton"] {
     gap: 10dp;
     font-size: 13dp;

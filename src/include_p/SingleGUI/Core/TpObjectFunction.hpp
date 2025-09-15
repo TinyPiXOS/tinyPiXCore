@@ -261,7 +261,7 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         event.construct(&input);
 
         // 刷新前清除scene
-        TpPainter *childPainter = event.canvas();
+        TpPainter *childPainter = event.painter();
 
         auto canvasPair = child->canvasPtr();
         tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
@@ -280,7 +280,7 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         }
 
         // 控件不可用，绘制遮罩层
-        paintEnabledBox(child, event.canvas());
+        paintEnabledBox(child, event.painter());
 
         // 绘制完成刷新绘制
         childPainter->sync();

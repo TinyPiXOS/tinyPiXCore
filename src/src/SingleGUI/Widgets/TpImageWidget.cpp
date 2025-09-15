@@ -61,7 +61,7 @@ bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
 
     TpDialog::onPaintEvent(event);
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     uint32_t windowWidth = width();
     uint32_t windowHeight = height();

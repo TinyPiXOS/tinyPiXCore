@@ -84,7 +84,7 @@ bool mainWindowService::onPaintEvent(TpPaintEvent *event)
 {
     TpFixScreen::onPaintEvent(event);
 
-    // TpPainter *paintCanvas = event->canvas();
+    // TpPainter *paintCanvas = event->painter();
 
     // paintCanvas->sync();
 

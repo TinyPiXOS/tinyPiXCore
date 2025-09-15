@@ -278,7 +278,7 @@ bool TpMenu::onPaintEvent(TpPaintEvent *event)
 {
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     TpMenuData *menuData = static_cast<TpMenuData *>(data_);
     if (!menuData)

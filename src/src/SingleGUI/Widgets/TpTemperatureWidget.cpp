@@ -116,7 +116,7 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpTemperatureWidgetData *tempData = static_cast<TpTemperatureWidgetData *>(data_);
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
 
     // painter->box(0, 0, width(), height(), _RGB(255, 0, 0));
 

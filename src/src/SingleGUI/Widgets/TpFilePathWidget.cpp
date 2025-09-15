@@ -196,7 +196,7 @@ bool TpFilePathWidget::onPaintEvent(TpPaintEvent *event)
     if (buttonData->pathLabelList.size() == 0)
         return true;
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
 
     tpShared<TpCssData> curCssData = currentStatusCss();
 

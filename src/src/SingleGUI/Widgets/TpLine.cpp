@@ -257,7 +257,7 @@ bool TpLine::onPaintEvent(TpPaintEvent *event)
         }
     }
 
-    TpPainter *paintCanvas = event->canvas();
+    TpPainter *paintCanvas = event->painter();
     paintCanvas->pen().setColor(lineData->color);
     paintCanvas->pen().setWidth(lineData->width);
 

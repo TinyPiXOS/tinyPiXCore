@@ -199,7 +199,7 @@ bool TpRadioButton::onPaintEvent(TpPaintEvent *event)
 
     tpShared<TpCssData> curCssData = currentStatusCss();
 
-    TpPainter *canvas = event->canvas();
+    TpPainter *canvas = event->painter();
     TpSize size = set->font->pixelSize();
     double rad = size.height() / 4.0;
 

@@ -166,7 +166,7 @@ bool TpOnOffButton::onPaintEvent(TpPaintEvent *event)
 
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *canvas = event->canvas();
+    TpPainter *canvas = event->painter();
 
     // 绘制背景色
     int32_t backColor = btnData->onOff ? btnData->onBackColor : btnData->offBackColor;

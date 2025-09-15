@@ -152,7 +152,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
     if (singleWeatherWidth == 0)
         return true;
 
-    TpPainter *painter = event->canvas();
+    TpPainter *painter = event->painter();
     int32_t iconSize = singleWeatherWidth * 0.5;
     int32_t iconX = (singleWeatherWidth - iconSize) / 2.0;
     int32_t iconY = (height() - iconSize) / 2.0;

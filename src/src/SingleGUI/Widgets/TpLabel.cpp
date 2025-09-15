@@ -301,7 +301,7 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
 
     TpChildWidget::onPaintEvent(event);
 
-    TpPainter *canvas = event->canvas();
+    TpPainter *canvas = event->painter();
     TpString text = this->text();
 
     if (text.empty())
