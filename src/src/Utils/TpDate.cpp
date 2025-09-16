@@ -1,8 +1,9 @@
 #include "TpDate.h"
 #include <ctime>
+#include <iostream>
 #include <sstream>
-#include <cstring>
 #include <stdexcept>
+#include <cmath>
 
 struct TpDateData
 {

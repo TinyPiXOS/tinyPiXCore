@@ -147,7 +147,7 @@ public:
                 {
                     switch (childWidgetObj->objectType())
                     {
-                    case TP_FLOAT_OBJECT:
+                    case tinyPiX::TP_FLOAT_OBJECT:
                     {
                         set->vReserveMap[childWidgetObj] = childWidgetObj->visible();
                     }
@@ -222,7 +222,7 @@ public:
                     TpScreen *screenObj = static_cast<TpScreen *>(vScreen);
 
                     // exclude desktop
-                    if (screenObj->objectLayer() != TP_WM_DESK)
+                    if (screenObj->objectLayer() != tinyPiX::TP_WM_DESK)
                     {
                         if (vScreen)
                         {
@@ -251,7 +251,7 @@ public:
 
                 TpObject *vScreen = set->vScreen;
 
-                if (((TpScreen *)vScreen)->objectLayer() != TP_WM_DESK)
+                if (((TpScreen *)vScreen)->objectLayer() != tinyPiX::TP_WM_DESK)
                 {
                     set->gMutex.lock();
 
@@ -775,7 +775,7 @@ bool TpApp::bindVScreen(TpScreen *object)
     if (!object)
         return false;
 
-    if (object->objectType() != TP_TOP_OBJECT)
+    if (object->objectType() != tinyPiX::TP_TOP_OBJECT)
     {
         std::cout << "bind screen type error !" << std::endl;
         return false;
@@ -990,7 +990,7 @@ bool TpApp::sendRegister(TpObject *object)
     if (object == nullptr)
         return registerObject;
 
-    if (object->objectType() == TP_FLOAT_OBJECT)
+    if (object->objectType() == tinyPiX::TP_FLOAT_OBJECT)
     {
         TpChildWidget *floatScreenWidget = dynamic_cast<TpChildWidget *>(object);
         if (floatScreenWidget)
@@ -1037,7 +1037,7 @@ bool TpApp::sendReturn(TpObject *object)
 
         if (returnAct)
         {
-            if (object->objectType() != TP_TOP_OBJECT)
+            if (object->objectType() != tinyPiX::TP_TOP_OBJECT)
             {
                 return false;
             }
@@ -1064,7 +1064,7 @@ bool TpApp::sendActive(TpObject *object, bool actived)
 
         if (beActived)
         {
-            if (object->objectType() != TP_TOP_OBJECT)
+            if (object->objectType() != tinyPiX::TP_TOP_OBJECT)
             {
                 return false;
             }

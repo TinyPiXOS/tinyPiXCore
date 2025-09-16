@@ -25,24 +25,6 @@
 // #undef TP_RGB_UNKOWN
 // #endif
 
-typedef enum
-{
-    TP_UNKOWN_OBJECT = -1,
-    TP_TOP_OBJECT, // FixScreen
-    TP_FLOAT_OBJECT,
-    TP_CHILD_OBJECT,
-} ItpObjectType;
-
-typedef enum
-{
-    TP_WM_NONE = -1,
-    TP_WM_DESK,
-    TP_WM_WIN,
-    TP_WM_USE_FLOAT,
-    TP_WM_SYS_FLOAT,
-    TP_WM_LAYER_NUMBERS,
-} ItpObjectSysLayer;
-
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif

@@ -1429,10 +1429,10 @@ bool TpPaintEvent::construct(ItpEventData *eventData)
     if (!inputObjectChild)
         return false;
 
-    ItpObjectType type = inputObjectChild->objectType();
+    tinyPiX::ItpObjectType type = inputObjectChild->objectType();
     set->object = inputObjectChild;
 
-    if (type == TP_FLOAT_OBJECT || type == TP_TOP_OBJECT)
+    if (type == tinyPiX::TP_FLOAT_OBJECT || type == tinyPiX::TP_TOP_OBJECT)
     {
         set->offsetX = 0;
         set->offsetY = 0;
@@ -1466,7 +1466,7 @@ bool TpPaintEvent::construct(ItpEventData *eventData)
     set->updateRect = clipRect;
     TpObject *top = input->object->topObject();
 
-    if (top && top->objectType() == TP_FLOAT_OBJECT)
+    if (top && top->objectType() == tinyPiX::TP_FLOAT_OBJECT)
     {
         clipRect.setX(clipRect.x() - inputObjectChild->offsetX());
         clipRect.setY(clipRect.y() - inputObjectChild->offsetY());

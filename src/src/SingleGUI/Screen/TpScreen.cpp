@@ -538,7 +538,7 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
     input.ny = ny;
     event.construct(&input);
 
-    if (object->objectType() == TP_FLOAT_OBJECT)
+    if (object->objectType() == tinyPiX::TP_FLOAT_OBJECT)
     {
         ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
 
@@ -765,9 +765,9 @@ void TpScreen::move(int32_t x, int32_t y)
 
     if (set)
     {
-        ItpObjectSysLayer layer = (ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+        tinyPiX::ItpObjectSysLayer layer = (tinyPiX::ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
 
-        if (layer >= TP_WM_USE_FLOAT)
+        if (layer >= tinyPiX::TP_WM_USE_FLOAT)
         {
             int32_t ox = 0, oy = 0;
 
@@ -794,9 +794,9 @@ void TpScreen::setBeMoved(bool moved)
 
     if (set)
     {
-        ItpObjectSysLayer layer = (ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+        tinyPiX::ItpObjectSysLayer layer = (tinyPiX::ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
 
-        if (layer >= TP_WM_USE_FLOAT)
+        if (layer >= tinyPiX::TP_WM_USE_FLOAT)
         {
             tinyPiX_wf_set_bemoved(set->agent, moved);
         }
@@ -858,27 +858,27 @@ void TpScreen::update(bool onlyBlit)
     update(this->toScreen().x(), this->toScreen().y(), this->width(), this->height(), onlyBlit);
 }
 
-ItpObjectType TpScreen::objectType()
+tinyPiX::ItpObjectType TpScreen::objectType()
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
-    ItpObjectType type = TP_UNKOWN_OBJECT;
+    tinyPiX::ItpObjectType type = tinyPiX::TP_UNKOWN_OBJECT;
 
     if (set)
     {
-        ItpObjectSysLayer layer = (ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+        tinyPiX::ItpObjectSysLayer layer = (tinyPiX::ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
 
         switch (layer)
         {
-        case TP_WM_DESK:
-        case TP_WM_WIN:
+        case tinyPiX::TP_WM_DESK:
+        case tinyPiX::TP_WM_WIN:
         {
-            type = TP_TOP_OBJECT;
+            type = tinyPiX::TP_TOP_OBJECT;
         }
         break;
-        case TP_WM_USE_FLOAT:
-        case TP_WM_SYS_FLOAT:
+        case tinyPiX::TP_WM_USE_FLOAT:
+        case tinyPiX::TP_WM_SYS_FLOAT:
         {
-            type = TP_FLOAT_OBJECT;
+            type = tinyPiX::TP_FLOAT_OBJECT;
         }
         break;
         }
@@ -887,14 +887,14 @@ ItpObjectType TpScreen::objectType()
     return type;
 }
 
-ItpObjectSysLayer TpScreen::objectLayer()
+tinyPiX::ItpObjectSysLayer TpScreen::objectLayer()
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
-    ItpObjectSysLayer layer = TP_WM_NONE;
+    tinyPiX::ItpObjectSysLayer layer = tinyPiX::TP_WM_NONE;
 
     if (set)
     {
-        layer = (ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+        layer = (tinyPiX::ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
     }
 
     return layer;
@@ -958,13 +958,13 @@ void TpScreen::deleteLater()
 
     switch (this->objectType())
     {
-    case TP_TOP_OBJECT:
+    case tinyPiX::TP_TOP_OBJECT:
     {
         message.type = TpApp::TP_ABORT_ACT;
         TpApp::Inst()->sendAbort(this);
     }
     break;
-    case TP_FLOAT_OBJECT:
+    case tinyPiX::TP_FLOAT_OBJECT:
     {
         message.type = TpApp::TP_DELETE_ACT;
         TpApp::Inst()->sendDelete(this);
@@ -986,7 +986,7 @@ bool TpScreen::returns()
 
         switch (this->objectType())
         {
-        case TP_TOP_OBJECT:
+        case tinyPiX::TP_TOP_OBJECT:
         {
             message.type = TpApp::TP_RETURN_ACT;
             TpApp::Inst()->sendReturn(this);

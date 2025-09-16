@@ -20,7 +20,7 @@ public:
     virtual void close() override;
 
 public:
-    virtual ItpObjectType objectType() final;
+    virtual tinyPiX::ItpObjectType objectType() final;
 
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
     /// @return 类名字符串

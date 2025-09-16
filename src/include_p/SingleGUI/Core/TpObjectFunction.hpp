@@ -66,8 +66,8 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear t
 static inline bool addObject(ItpObjectSet *set, TpObject *object, TpObject *parent)
 {
     if (object == nullptr ||
-        object->objectType() == TP_TOP_OBJECT ||
-        object->objectType() == TP_FLOAT_OBJECT)
+        object->objectType() == tinyPiX::TP_TOP_OBJECT ||
+        object->objectType() == tinyPiX::TP_FLOAT_OBJECT)
     {
         return false;
     }

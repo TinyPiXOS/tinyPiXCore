@@ -67,7 +67,7 @@ public:
 	virtual bool eventFilter(TpObject *watched, TpEvent *event);
 
 public:
-	virtual ItpObjectType objectType() { return TP_UNKOWN_OBJECT; };
+	virtual tinyPiX::ItpObjectType objectType() { return tinyPiX::TP_UNKOWN_OBJECT; };
 	virtual int32_t objectID();
 	virtual bool objectActive() { return false; };
 

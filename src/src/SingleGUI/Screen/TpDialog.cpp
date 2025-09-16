@@ -46,7 +46,7 @@ TpDialog::TpDialog(const char *type) : TpScreen(type)
     data_ = dialogData;
     // TpApp::Inst()->sendRegister(this);
 
-    if (this->objectType() != TP_FLOAT_OBJECT)
+    if (this->objectType() != tinyPiX::TP_FLOAT_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
     }
@@ -92,9 +92,9 @@ void TpDialog::close()
     dialogData->sema.post();
 }
 
-ItpObjectType TpDialog::objectType()
+tinyPiX::ItpObjectType TpDialog::objectType()
 {
-    return TP_FLOAT_OBJECT;
+    return tinyPiX::TP_FLOAT_OBJECT;
 }
 
 bool TpDialog::onPaintEvent(TpPaintEvent *event)
