@@ -56,6 +56,24 @@
 
 namespace tinyPiX
 {
+    enum ItpObjectType
+    {
+        TP_UNKOWN_OBJECT = -1,
+        TP_TOP_OBJECT, // FixScreen
+        TP_FLOAT_OBJECT,
+        TP_CHILD_OBJECT,
+    };
+
+    enum ItpObjectSysLayer
+    {
+        TP_WM_NONE = -1,
+        TP_WM_DESK,
+        TP_WM_WIN,
+        TP_WM_USE_FLOAT,
+        TP_WM_SYS_FLOAT,
+        TP_WM_LAYER_NUMBERS,
+    };
+
     enum ConnectionType
     {
         /// @brief 自动连接，如果信号在主线程则为 DirectConnection，否则为 QueuedConnection

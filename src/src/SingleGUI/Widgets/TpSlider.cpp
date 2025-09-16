@@ -246,7 +246,7 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
 
     // 不能用父类绘制，绘制背景色
     TpRect rect = event->rect();
-    if (objectType() == TP_FLOAT_OBJECT)
+    if (objectType() == tinyPiX::TP_FLOAT_OBJECT)
     {
         if ((curCssData->backgroundColor() & 0xff) != 0xff)
         {

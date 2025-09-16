@@ -19,7 +19,7 @@ public:
     virtual ~TpFixScreen();
 
 public:
-    virtual ItpObjectType objectType() final;
+    virtual tinyPiX::ItpObjectType objectType() final;
 
 public:
     /// @brief 设置桌面颜色，该树形会下发至应用的appchanged

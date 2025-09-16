@@ -57,7 +57,7 @@ TpFixScreen::TpFixScreen(const char *type)
 
     // TpApp::Inst()->sendRegister(this);
 
-    if (this->objectType() != TP_TOP_OBJECT)
+    if (this->objectType() != tinyPiX::TP_TOP_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
     }
@@ -93,9 +93,9 @@ TpFixScreen::~TpFixScreen()
     }
 }
 
-ItpObjectType TpFixScreen::objectType()
+tinyPiX::ItpObjectType TpFixScreen::objectType()
 {
-    return TP_TOP_OBJECT;
+    return tinyPiX::TP_TOP_OBJECT;
 }
 
 int32_t TpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr)

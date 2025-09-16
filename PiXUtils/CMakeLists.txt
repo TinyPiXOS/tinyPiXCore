@@ -74,6 +74,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/Utils/TpPen.cpp
 	${SOURCE_PATH}/src/Utils/TpBrush.cpp
     ${SOURCE_PATH}/src/Utils/TpSVG.cpp
+    ${SOURCE_PATH}/src/Utils/TpChineseCalendar.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSParser.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/CSSLex.cpp
     ${SOURCE_PATH}/src_p/Utils/CSSParser/CSSParser/Keyword/KeywordItem.cpp

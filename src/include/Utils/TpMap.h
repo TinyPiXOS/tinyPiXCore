@@ -2,21 +2,27 @@
 #define __TP_MAP_H
 
 #include <map>
+#include <initializer_list> // 添加初始化列表支持
 #include "TpList.h"
 
 template <typename Key, typename Value>
 class TpMap : public std::map<Key, Value>
 {
 public:
+    // 添加初始化列表构造函数
+    TpMap(std::initializer_list<std::pair<const Key, Value>> initList)
+        : std::map<Key, Value>(initList) {}
+
     TpMap() = default;
     TpMap(const TpMap<Key, Value> &others) = default;
     TpMap(TpMap<Key, Value> &&others) noexcept = default;
 
-    // 赋值运算符
+    /// @brief 赋值运算符
     TpMap &operator=(const TpMap &) = default;
+    /// @brief 赋值运算符
     TpMap &operator=(TpMap &&) noexcept = default;
 
-    // 启用索引操作符
+    /// @brief 启用索引操作符
     using std::map<Key, Value>::operator[];
 
     /// @brief 检查键是否存在
@@ -35,7 +41,7 @@ public:
     TpList<Value> values() const;
 };
 
-// 实现部分
+// 实现部分（保持不变）
 template <typename Key, typename Value>
 inline bool TpMap<Key, Value>::contains(const Key &key) const
 {

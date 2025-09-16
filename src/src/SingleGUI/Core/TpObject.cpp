@@ -255,9 +255,9 @@ TpObject *TpObject::topObject()
 	if (!set)
 		return top;
 
-	ItpObjectType type = objectType();
+	tinyPiX::ItpObjectType type = objectType();
 
-	if (type == TP_TOP_OBJECT || type == TP_FLOAT_OBJECT)
+	if (type == tinyPiX::TP_TOP_OBJECT || type == tinyPiX::TP_FLOAT_OBJECT)
 	{
 		set->top = this;
 	}
@@ -268,9 +268,9 @@ TpObject *TpObject::topObject()
 			pParent = set->parent;
 			while (pParent)
 			{
-				ItpObjectType type = pParent->objectType();
+				tinyPiX::ItpObjectType type = pParent->objectType();
 
-				if (type == TP_TOP_OBJECT || type == TP_FLOAT_OBJECT)
+				if (type == tinyPiX::TP_TOP_OBJECT || type == tinyPiX::TP_FLOAT_OBJECT)
 				{
 					set->top = pParent;
 					break;

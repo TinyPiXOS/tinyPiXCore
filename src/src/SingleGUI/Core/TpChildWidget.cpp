@@ -1188,7 +1188,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
 
     if (set->enableColor)
     {
-        if (objectType() == TP_FLOAT_OBJECT)
+        if (objectType() == tinyPiX::TP_FLOAT_OBJECT)
         {
             if ((curCssData->backgroundColor() & 0xff) != 0xff)
             {
@@ -1279,9 +1279,9 @@ void TpChildWidget::onThemeChangeEvent(TpThemeChangeEvent *event)
     // setRoundCorners(childData->enabledCssData->roundCorners());
 }
 
-ItpObjectType TpChildWidget::objectType()
+tinyPiX::ItpObjectType TpChildWidget::objectType()
 {
-    return TP_CHILD_OBJECT;
+    return tinyPiX::TP_CHILD_OBJECT;
 }
 
 TpChildWidget *TpChildWidget::find(const TpPoint &point)
@@ -1317,7 +1317,7 @@ void TpChildWidget::setStyleSheet(const TpString &_styleSheetStr)
     // 解析CSS字符串
     TpApp::Inst()->cssParser()->parseCss(_styleSheetStr);
 
-    if (objectType() != TP_TOP_OBJECT)
+    if (objectType() != tinyPiX::TP_TOP_OBJECT)
         refreshBaseCss();
 }
 
