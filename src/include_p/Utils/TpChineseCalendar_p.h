@@ -359,16 +359,16 @@ LunarDate solarToLunar(int year, int month, int day)
         else
         {
             // 处理正常月份
-            // int bitMask = 0x10000 >> bitIndex;
-            // daysInMonth = 29 + ((yearInfo & bitMask) ? 1 : 0);
-            // isLeap = false;
-            // bitIndex++;
-
-            lunarMonth++; // 正常月份递增
             int bitMask = 0x10000 >> bitIndex;
             daysInMonth = 29 + ((yearInfo & bitMask) ? 1 : 0);
             isLeap = false;
             bitIndex++;
+
+            // lunarMonth++; // 正常月份递增
+            // int bitMask = 0x10000 >> bitIndex;
+            // daysInMonth = 29 + ((yearInfo & bitMask) ? 1 : 0);
+            // isLeap = false;
+            // bitIndex++;
         }
 
         // 检查是否找到对应的月份

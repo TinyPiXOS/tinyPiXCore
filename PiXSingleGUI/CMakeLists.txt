@@ -37,7 +37,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpRadioButton.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpProgressBar.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpSlider.cpp
-    ${SOURCE_PATH}/src/SingleGUI/Widgets/TpLink.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpScroll.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpScrollBar.cpp
     ${SOURCE_PATH}/src/SingleGUI/Widgets/TpOnOffButton.cpp
