@@ -47,5 +47,5 @@ include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
 add_executable(examplesApp ${SOURCE_FILES})
 
 # 将pthread库链接到可执行目标
-target_link_libraries(examplesApp pthread dl pthread PiXApi PiXSingleGUI PiXUtils PiXExternUtils
+target_link_libraries(examplesApp pthread dl pthread PiXApi TpGui TpUtils TpExtUtils
     SDL2 SDL2_image SDL2_gfx cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL )

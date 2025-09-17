@@ -33,10 +33,10 @@ add_custom_target(test_config
     COMMENT "测试配置目标是否可用"
 )
 # 添加子目录
-add_subdirectory(PiXUtils)
-add_subdirectory(PiXExternUtils)
-add_subdirectory(PiXSingleGUI)
-add_subdirectory(PiXService)
+add_subdirectory(TpUtils)
+add_subdirectory(TpExtUtils)
+add_subdirectory(TpGui)
+add_subdirectory(TpService)
 # add_subdirectory(examplesApp)
 
 # 平台不同拷贝资源文件到不同安装目录；以及准备不同平台的安装依赖库
@@ -120,10 +120,10 @@ install(CODE "
 ")
 
 # 安装生成库到安装目录
-install(TARGETS PiXService RUNTIME DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/bin)
-install(TARGETS PiXSingleGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
-install(TARGETS PiXExternUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
-install(TARGETS PiXUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
+install(TARGETS TpService RUNTIME DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/bin)
+install(TARGETS TpGui LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
+install(TARGETS TpExtUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
+install(TARGETS TpUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 
 # 拷贝依赖库到/usr/lib
 file(GLOB_RECURSE INSTALL_SO_FILES "${INSTALL_LIB_DIR}/*.so*")
@@ -223,7 +223,7 @@ add_custom_target(create_symlinks
 )
 
 # 确保拷贝在构建前执行
-add_dependencies(PiXUtils create_symlinks)
-add_dependencies(PiXExternUtils create_symlinks)
-add_dependencies(PiXSingleGUI create_symlinks)
-add_dependencies(PiXService create_symlinks)
+add_dependencies(TpUtils create_symlinks)
+add_dependencies(TpExtUtils create_symlinks)
+add_dependencies(TpGui create_symlinks)
+add_dependencies(TpService create_symlinks)

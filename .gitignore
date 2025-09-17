@@ -31,21 +31,21 @@ examples/SingleGUI/tpTabWidget/tabWidget
 examples/SingleGUI/tpVirtualKeyboard/virtualKeyboard
 examples/SingleGUI/treewidget/treewidget
 
-PiXUtils/cmake_install.cmake
-PiXUtils/Makefile
-PiXUtils/CMakeFiles/
+TpUtils/cmake_install.cmake
+TpUtils/Makefile
+TpUtils/CMakeFiles/
 
-PiXExternUtils/cmake_install.cmake
-PiXExternUtils/Makefile
-PiXExternUtils/CMakeFiles/
+TpExtUtils/cmake_install.cmake
+TpExtUtils/Makefile
+TpExtUtils/CMakeFiles/
 
-PiXService/cmake_install.cmake
-PiXService/Makefile
-PiXService/CMakeFiles/
+TpService/cmake_install.cmake
+TpService/Makefile
+TpService/CMakeFiles/
 
-PiXSingleGUI/cmake_install.cmake
-PiXSingleGUI/Makefile
-PiXSingleGUI/CMakeFiles/
+TpGui/cmake_install.cmake
+TpGui/Makefile
+TpGui/CMakeFiles/
 
 examples/Utils/tpThreadPool/threadPool
 examples/Utils/cssParser/cssParser
@@ -60,11 +60,11 @@ examples/Utils/tpProcess/process
 examples/Utils/tpString/tpString
 examples/Utils/variant/variant
 examples/SingleGUI/tpButton/button
-PiXExternUtils/PiXExternUtils_symlink.cmake
+TpExtUtils/PiXExternUtils_symlink.cmake
 install_manifest.txt
-PiXService/PiXService_symlink.cmake
-PiXSingleGUI/PiXSingleGUI_symlink.cmake
-PiXUtils/PiXUtils_symlink.cmake
+TpService/PiXService_symlink.cmake
+TpGui/PiXSingleGUI_symlink.cmake
+TpUtils/PiXUtils_symlink.cmake
 examples/SingleGUI/scroll/scroll
 examples/SingleGUI/scrollpanel/scrollpanel
 examples/SingleGUI/tpCheckBox/checkbox
@@ -73,3 +73,7 @@ examplesApp/bin/examplesApp
 examples/SingleGUI/tpBattery/battery
 examples/SingleGUI/thorVGTest/thorVGTest
 examples/SingleGUI/tpDialog/dialog
+TpUtils/PiXUtils_symlink.cmake
+TpService/PiXService_symlink.cmake
+TpGui/PiXSingleGUI_symlink.cmake
+TpExtUtils/PiXExternUtils_symlink.cmake
