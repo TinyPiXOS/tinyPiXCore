@@ -280,7 +280,7 @@ TpComBox {
     gap: 8;
 }
 
-TpListCheckBoxGroup {
+TpListWidget {
     width: 399;
     /* min-width: 120; */
     border-radius: 20;
@@ -290,7 +290,7 @@ TpListCheckBoxGroup {
     padding-right: 20;
 }
 
-TpListCheckBoxGroupItem {
+TpListWidgetItem {
     min-height: 65;
     height: 65;
     background-color: rgb(255, 255, 255);
@@ -299,7 +299,7 @@ TpListCheckBoxGroupItem {
     border-radius: 20;
 }
 
-TpListCheckBoxGroupItem:checked {
+TpListWidgetItem:checked {
     color: rgb(140, 29, 235);
 }
 

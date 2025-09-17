@@ -9,7 +9,6 @@
 
 TP_DEF_VOID_TYPE_VAR(ItpScrollPanelData);
 
-class TpScroll;
 class TpScrollPanel : public TpChildWidget
 {
 public:
@@ -52,13 +51,6 @@ public:
 	/// @param isVertical 垂直滚动返回true，否则返回false
 	void setScrollMode(const bool &isVertical = true);
 
-	/// @brief 设置水平进度条显隐
-	/// @param visible true显示，false不显示
-	void setHorizontalScrollBarVisible(const bool &visible);
-	/// @brief 设置垂直进度条显隐
-	/// @param visible true显示，false不显示
-	void setVerticalScrollBarVisible(const bool &visible);
-
 public:
 	/// @brief 向滚动窗口添加组件，组件坐标、宽高需外部手动设置
 	/// @param object 组件指针
@@ -94,10 +86,6 @@ public:
     virtual bool onWheelEvent(TpWheelEvent *event) override;
 	virtual bool onResizeEvent(TpResizeEvent *event) override;
 	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
-
-private:
-	//
-	virtual void doFlip(TpScroll *scroll, int32_t position, int32_t page, int32_t pageIndex, double percent);
 
 private:
 	ItpScrollPanelData *data_;

@@ -1,103 +1,175 @@
-/***
- * @Author: hywang
- * @Date: 2024-05-31 09:55:00
- * @LastEditors: hywang
- * @LastEditTime: 2024-06-14 09:47:19
- * @FilePath: /pix-singlegui/PixSingleGUI/src/SingleGUI/Widgets/TpListWidgetItem.cpp
- * @Description:
- * @
- * @PiXOS
- */
 #include "TpListWidgetItem.h"
-#include "TpListWidget.h"
-#include "TpVariant.h"
-#include "TpString.h"
+#include "TpLabel.h"
 #include "TpFont.h"
+#include "TpImage.h"
+#include "TpEvent.h"
 
-TpListWidgetItem::TpListWidgetItem(TpListWidget *listview)
-    : alignment_(tinyPiX::AlignLeft)
+struct TpListCheckBoxGroupItemData
 {
+    TpLabel *titleLabel;
+    TpLabel *selectIconLabel;
+};
+
+TpListWidgetItem::TpListWidgetItem(TpChildWidget *parent)
+    : TpChildWidget(parent)
+{
+    TpListCheckBoxGroupItemData *itemData = new TpListCheckBoxGroupItemData();
+
+    itemData->titleLabel = new TpLabel(this);
+    itemData->titleLabel->installEventFilter(this);
+
+    itemData->selectIconLabel = new TpLabel(this);
+    itemData->selectIconLabel->installEventFilter(this);
+
+    itemData->selectIconLabel->setBackGroundImage(TpImage("/usr/res/tinyPiX/勾选.png"));
+
+    tpShared<TpCssData> normalCss = currentStatusCss();
+    itemData->titleLabel->font()->setText("TpMenu");
+    itemData->titleLabel->font()->setFontSize(normalCss->fontSize());
+    itemData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+
+    itemData->selectIconLabel->setFixedSize(itemData->titleLabel->font()->pixelHeight(), itemData->titleLabel->font()->pixelHeight());
+
+    data_ = itemData;
+
+    refreshBaseCss();
+    setCheckable(true);
 }
 
-TpListWidgetItem::TpListWidgetItem(const TpString &text, TpListWidget *listview)
-    : text_(text), alignment_(tinyPiX::AlignLeft)
+TpListWidgetItem::TpListWidgetItem(const TpString &text, TpChildWidget *parent)
+    : TpChildWidget(parent)
 {
-    itemFont_.setText(text_.c_str());
+    TpListCheckBoxGroupItemData *itemData = new TpListCheckBoxGroupItemData();
+
+    itemData->titleLabel = new TpLabel(this);
+    itemData->titleLabel->installEventFilter(this);
+
+    itemData->selectIconLabel = new TpLabel(this);
+    itemData->selectIconLabel->installEventFilter(this);
+
+    itemData->selectIconLabel->setBackGroundImage(TpImage("/usr/res/tinyPiX/勾选.png"));
+
+    tpShared<TpCssData> normalCss = currentStatusCss();
+    itemData->titleLabel->font()->setText("TpMenu");
+    itemData->titleLabel->font()->setFontSize(normalCss->fontSize());
+    itemData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+
+    itemData->selectIconLabel->setFixedSize(itemData->titleLabel->font()->pixelHeight(), itemData->titleLabel->font()->pixelHeight());
+
+    data_ = itemData;
+
+    refreshBaseCss();
+    setCheckable(true);
+
+    setText(text);
 }
 
-TpListWidgetItem::TpListWidgetItem(const TpListWidgetItem &other)
-    : alignment_(tinyPiX::AlignLeft)
+TpListWidgetItem::~TpListWidgetItem()
 {
+    TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
+    if (itemData)
+    {
+        itemData->titleLabel->setParent(nullptr);
+        itemData->selectIconLabel->setParent(nullptr);
+
+        delete itemData->titleLabel;
+        itemData->titleLabel = nullptr;
+
+        delete itemData->selectIconLabel;
+        itemData->selectIconLabel = nullptr;
+
+        delete itemData;
+        itemData = nullptr;
+        data_ = nullptr;
+    }
 }
 
-void TpListWidgetItem::setSelected(bool select)
+TpString TpListWidgetItem::text()
 {
-    select_ = select;
-}
+    TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
 
-bool TpListWidgetItem::isSelected() const
-{
-    return select_;
-}
-
-TpString TpListWidgetItem::text() const
-{
-    return text_;
+    return itemData->titleLabel->text();
 }
 
 void TpListWidgetItem::setText(const TpString &text)
 {
-    text_ = text;
-    itemFont_.setText(text_.c_str());
+    TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
+    itemData->titleLabel->setText(text);
 }
 
-TpString TpListWidgetItem::statusTip() const
+TpVariant TpListWidgetItem::data()
 {
-    return TpString();
+    return property("TpListCheckBoxGroupItemData");
 }
 
-void TpListWidgetItem::setStatusTip(const TpString &statusTip)
+void TpListWidgetItem::setData(const TpVariant &data)
 {
+    setProperty("TpListCheckBoxGroupItemData", data);
 }
 
-TpString TpListWidgetItem::toolTip() const
+bool TpListWidgetItem::onPaintEvent(TpPaintEvent *event)
 {
-    return TpString();
+    TpChildWidget::onPaintEvent(event);
+
+    TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
+
+    tpShared<TpCssData> normalCss = currentStatusCss();
+
+    itemData->titleLabel->font()->setFontSize(normalCss->fontSize());
+    itemData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+
+    itemData->selectIconLabel->setVisible(checked());
+
+    return true;
 }
 
-void TpListWidgetItem::setToolTip(const TpString &toolTip)
+bool TpListWidgetItem::onMousePressEvent(TpMouseEvent *event)
 {
+    TpChildWidget::onMousePressEvent(event);
+
+    return true;
 }
 
-TpFont TpListWidgetItem::font() const
+bool TpListWidgetItem::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    return itemFont_;
+    TpChildWidget::onMouseRleaseEvent(event);
+
+    onStatusChanged.emit(this);
+
+    return true;
 }
 
-void TpListWidgetItem::setFont(const TpFont &font)
+bool TpListWidgetItem::onResizeEvent(TpResizeEvent *event)
 {
-    itemFont_ = font;
+    TpChildWidget::onResizeEvent(event);
+
+    TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
+    tpShared<TpCssData> normalCss = currentStatusCss();
+
+    uint32_t titleY = (height() - itemData->titleLabel->font()->pixelHeight()) / 2.0;
+    itemData->titleLabel->move(normalCss->paddingLeft(), titleY);
+
+    itemData->selectIconLabel->move(width() - normalCss->paddingRight() - itemData->titleLabel->font()->pixelHeight(), titleY);
+
+    return true;
 }
 
-tinyPiX::AlignmentFlag TpListWidgetItem::textAlignment()
+bool TpListWidgetItem::eventFilter(TpObject *watched, TpEvent *event)
 {
-    return alignment_;
-}
+    if (event->eventType() == TpEvent::EVENT_MOUSE_PRESS_TYPE)
+    {
+        TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
+        onMousePressEvent(mouseEvent);
+    }
+    else if (event->eventType() == TpEvent::EVENT_MOUSE_RELEASE_TYPE)
+    {
+        TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
+        onMouseRleaseEvent(mouseEvent);
+    }
+    else
+    {
 
-void TpListWidgetItem::setTextAlignment(tinyPiX::AlignmentFlag alignment)
-{
-    alignment_ = alignment;
-}
+    }
 
-TpVariant TpListWidgetItem::data(int32_t role)
-{
-    if (itemDataMap_.contains(role))
-        return itemDataMap_[role];
-    return TpVariant();
+    return false;
 }
-
-void TpListWidgetItem::setData(int32_t role, const TpVariant &value)
-{
-    itemDataMap_[role] = value;
-}
-

@@ -73,6 +73,7 @@
         "obex_client.h": "c",
         "tpgradient_p": "c",
         "types.h": "c",
-        "optional": "cpp"
+        "optional": "cpp",
+        "variant": "cpp"
     }
 }

@@ -259,7 +259,7 @@ void VariantValueCopy(TpVariant::VariantValue &toValue, const TpVariant::Variant
 		else if (from.m_vt == static_cast<uint16_t>(TpVariant::VariantType::VectorVar)) {
             toValue.m_vt = from.m_vt; // 设置类型
             if (from.data.m_vectorVal) {
-                toValue.data.m_vectorVal = new std::vector<TpVariant>(*from.data.m_vectorVal);
+                toValue.data.m_vectorVal = new TpVector<TpVariant>(*from.data.m_vectorVal);
             } else {
                 toValue.data.m_vectorVal = nullptr;
             }

@@ -1,13 +1,10 @@
 #ifndef __TP_VARIANT_H
 #define __TP_VARIANT_H
 
-#include <iostream>
-#include <stdint.h>
-#include <set>
-#include <vector>
-#include <cstring>
 #include <assert.h>
-
+#include <set>
+#include "TpString.h"
+#include "TpVector.h"
 #include "TpUtils.h"
 #include "TpSize.h"
 #include "TpRect.h"
@@ -46,7 +43,7 @@ public:
     struct VariantValue
     {
         uint16_t m_vt; //!< 值的类型,取值参看枚举VariantType，其中vt_set可以与其他值联合使用
-        union InnerUnion
+        struct InnerUnion
         {
             bool m_bVal;
             int8_t m_i1Val;
@@ -67,7 +64,7 @@ public:
             char *m_strVal;
             void *m_pSetVal;
 
-            std::vector<TpVariant> *m_vectorVal; // 向量指针
+           TpVector<TpVariant> *m_vectorVal; // 向量指针
             struct CustomData
             {
                 void *ptr;                    // 数据
@@ -123,18 +120,18 @@ public:
     TpVariant(const TpSize &value);
     TpVariant(const TpPoint &value);
 
-    TpVariant(const std::vector<bool> &valueVector);
-    TpVariant(const std::vector<int8_t> &valueVector);
-    TpVariant(const std::vector<uint8_t> &valueVector);
-    TpVariant(const std::vector<int16_t> &valueVector);
-    TpVariant(const std::vector<uint16_t> &valueVector);
-    TpVariant(const std::vector<int32_t> &valueVector);
-    TpVariant(const std::vector<uint32_t> &valueVector);
-    TpVariant(const std::vector<int64_t> &valueVector);
-    TpVariant(const std::vector<uint64_t> &valueVector);
-    TpVariant(const std::vector<float> &valueVector);
-    TpVariant(const std::vector<double> &valueVector);
-    TpVariant(const std::vector<std::string> &valueVector);
+    TpVariant(const TpVector<bool> &valueVector);
+    TpVariant(const TpVector<int8_t> &valueVector);
+    TpVariant(const TpVector<uint8_t> &valueVector);
+    TpVariant(const TpVector<int16_t> &valueVector);
+    TpVariant(const TpVector<uint16_t> &valueVector);
+    TpVariant(const TpVector<int32_t> &valueVector);
+    TpVariant(const TpVector<uint32_t> &valueVector);
+    TpVariant(const TpVector<int64_t> &valueVector);
+    TpVariant(const TpVector<uint64_t> &valueVector);
+    TpVariant(const TpVector<float> &valueVector);
+    TpVariant(const TpVector<double> &valueVector);
+    TpVariant(const TpVector<std::string> &valueVector);
     TpVariant(const std::set<bool> &valueSet);
     TpVariant(const std::set<int8_t> &valueSet);
     TpVariant(const std::set<uint8_t> &valueSet);
@@ -150,7 +147,7 @@ public:
 
     TpVariant(const VariantValue &value);
     TpVariant(const TpVariant &other);
-    TpVariant(std::vector<TpVariant> *vectorVal);
+    TpVariant(TpVector<TpVariant> *vectorVal);
 
     // 模板构造函数
     template <typename T>
@@ -190,19 +187,19 @@ public:
     TpVariant &operator=(TpPoint value);
     TpVariant &operator=(const char *pChar);
     TpVariant &operator=(const std::string &strChar);
-    TpVariant &operator=(std::vector<TpVariant> *vectorVal);
-    TpVariant &operator=(const std::vector<bool> &valueVector);
-    TpVariant &operator=(const std::vector<int8_t> &valueVector);
-    TpVariant &operator=(const std::vector<uint8_t> &valueVector);
-    TpVariant &operator=(const std::vector<int16_t> &valueVector);
-    TpVariant &operator=(const std::vector<uint16_t> &valueVector);
-    TpVariant &operator=(const std::vector<int32_t> &valueVector);
-    TpVariant &operator=(const std::vector<uint32_t> &valueVector);
-    TpVariant &operator=(const std::vector<int64_t> &valueVector);
-    TpVariant &operator=(const std::vector<uint64_t> &valueVector);
-    TpVariant &operator=(const std::vector<float> &valueVector);
-    TpVariant &operator=(const std::vector<double> &valueVector);
-    TpVariant &operator=(const std::vector<std::string> &valueVector);
+    TpVariant &operator=(TpVector<TpVariant> *vectorVal);
+    TpVariant &operator=(const TpVector<bool> &valueVector);
+    TpVariant &operator=(const TpVector<int8_t> &valueVector);
+    TpVariant &operator=(const TpVector<uint8_t> &valueVector);
+    TpVariant &operator=(const TpVector<int16_t> &valueVector);
+    TpVariant &operator=(const TpVector<uint16_t> &valueVector);
+    TpVariant &operator=(const TpVector<int32_t> &valueVector);
+    TpVariant &operator=(const TpVector<uint32_t> &valueVector);
+    TpVariant &operator=(const TpVector<int64_t> &valueVector);
+    TpVariant &operator=(const TpVector<uint64_t> &valueVector);
+    TpVariant &operator=(const TpVector<float> &valueVector);
+    TpVariant &operator=(const TpVector<double> &valueVector);
+    TpVariant &operator=(const TpVector<std::string> &valueVector);
     TpVariant &operator=(const std::set<bool> &valueSet);
     TpVariant &operator=(const std::set<int8_t> &valueSet);
     TpVariant &operator=(const std::set<uint8_t> &valueSet);
@@ -370,7 +367,7 @@ public:
     }
 
     bool isVector() const { return data_.m_vt == static_cast<uint16_t>(VariantType::VectorVar); }
-    const std::vector<TpVariant> *toVectorPtr() const;
+    const TpVector<TpVariant> *toVectorPtr() const;
 
     // 自定义类型检查
     template <typename T>
@@ -526,18 +523,18 @@ public:
         return TpPoint(*this);
     }
 
-    std::vector<bool> ToBoolArray() const;
-    std::vector<int8_t> ToInt8Array() const;
-    std::vector<uint8_t> ToUint8Array() const;
-    std::vector<int16_t> ToInt16Array() const;
-    std::vector<uint16_t> ToUint16Array() const;
-    std::vector<int32_t> ToInt32Array() const;
-    std::vector<uint32_t> ToUint32Array() const;
-    std::vector<int64_t> ToInt64Array() const;
-    std::vector<uint64_t> ToUint64Array() const;
-    std::vector<float> ToFloatArray() const;
-    std::vector<double> ToDoubleArray() const;
-    std::vector<std::string> ToStringArray() const;
+    TpVector<bool> ToBoolArray() const;
+    TpVector<int8_t> ToInt8Array() const;
+    TpVector<uint8_t> ToUint8Array() const;
+    TpVector<int16_t> ToInt16Array() const;
+    TpVector<uint16_t> ToUint16Array() const;
+    TpVector<int32_t> ToInt32Array() const;
+    TpVector<uint32_t> ToUint32Array() const;
+    TpVector<int64_t> ToInt64Array() const;
+    TpVector<uint64_t> ToUint64Array() const;
+    TpVector<float> ToFloatArray() const;
+    TpVector<double> ToDoubleArray() const;
+    TpVector<std::string> ToStringArray() const;
 
     std::set<bool> &ToBoolSet();
     std::set<int8_t> &ToInt8Set();

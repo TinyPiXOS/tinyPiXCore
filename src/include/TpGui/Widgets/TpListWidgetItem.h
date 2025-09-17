@@ -1,97 +1,56 @@
-/*** 
- * @Author: hywang
- * @Date: 2024-05-31 09:54:54
- * @LastEditors: hywang
- * @LastEditTime: 2024-06-17 10:59:49
- * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/Widgets/TpListWidgetItem.h
- * @Description: 
- * @
- * @PiXOS
- */
+#ifndef __TP_LIST_WIDGET_ITEM_H
+#define __TP_LIST_WIDGET_ITEM_H
 
-/***
- * @Author: hywang
- * @Date: 2024-05-31 09:54:54
- * @LastEditors: hywang
- * @LastEditTime: 2024-05-31 10:00:47
- * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/Widgets/TpListWidgetItem.h
- * @Description: ListWidget的单个条目
- * @
- * @PiXOS
- */
-
-#ifndef __TP_LISTWIDGETITEM_H
-#define __TP_LISTWIDGETITEM_H
-
+#include "TpChildWidget.h"
+#include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVariant.h"
-#include "TpFont.h"
-#include "TpMap.h"
-#include "TpGlobal.h"
 
-class TpListWidget;
-class TpListWidgetItem
+TP_DEF_VOID_TYPE_VAR(ITpListWidgetItemData);
+/// @brief 列表下的item
+class TpListWidgetItem : public TpChildWidget
 {
-    friend class TpListWidget;
+public:
+    TpListWidgetItem(TpChildWidget *parent = nullptr);
+    TpListWidgetItem(const TpString &text, TpChildWidget *parent = nullptr);
+
+    virtual ~TpListWidgetItem();
 
 public:
-    TpListWidgetItem(TpListWidget *listview = nullptr);
-    TpListWidgetItem(const TpString &text, TpListWidget *listview = nullptr);
-    // TpListWidgetItem(const TpIcon &icon, const TpString &text,
-    //                       TpListWidget *listview = nullptr);
-    TpListWidgetItem(const TpListWidgetItem &other);
+    /// @brief 获取当前文本
+    /// @return 文本字符串
+    TpString text();
 
-    TpListWidget *listWidget() const { return view_; }
-
-    void setSelected(bool select);
-    bool isSelected() const;
-
-    // inline void setHidden(bool hide);
-    // inline bool isHidden() const;
-
-    TpString text() const;
+    /// @brief 设置item的文本内容
+    /// @param text 文本字符串
     void setText(const TpString &text);
 
-    // inline TpIcon icon() const;
-    // inline void setIcon(const TpIcon &icon);
+    /// @brief 获取item设置的数据
+    /// @return 数据对象
+    TpVariant data();
 
-    TpString statusTip() const;
-    void setStatusTip(const TpString &statusTip);
+    /// @brief 设置item数据
+    /// @param data 数据
+    void setData(const TpVariant &data);
 
-    TpString toolTip() const;
-    void setToolTip(const TpString &toolTip);
+public
+signals:
+    /// @brief 选中项切换事件
+    /// @param TpListWidgetItem* 当前item指针
+    declare_signal(onStatusChanged, TpListWidgetItem *);
 
-    TpFont font() const;
-    void setFont(const TpFont &font);
+protected:
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
+    virtual bool onMousePressEvent(TpMouseEvent *event) override;
+    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
+    virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
-    tinyPiX::AlignmentFlag textAlignment();
-    void setTextAlignment(tinyPiX::AlignmentFlag alignment);
-
-    // virtual void setBackgroundColor(const TpColor &color)
-
-    // TpBrush background() const;
-    // void setBackground(const TpBrush &brush);
-
-    // void setTextColor(const QColor &color);
-
-    // TpSize sizeHint() const;
-    // void setSizeHint(const TpSize &size);
-
-    virtual TpVariant data(int role);
-    virtual void setData(int role, const TpVariant &value);
-
-    // QListWidgetItem &operator=(const QListWidgetItem &other);
+protected:
+    virtual TpString pluginType() override { return TO_STRING(TpListWidgetItem); }
 
 private:
-    TpListWidget* view_;
-    TpString text_;
-
-    TpFont itemFont_;
-
-    TpMap<int, TpVariant> itemDataMap_;
-    tinyPiX::AlignmentFlag alignment_;
-
-    bool select_;
+    ITpListWidgetItemData *data_;
 };
 
-#endif // TP_LISTWIDGETITEM_H
+#endif
