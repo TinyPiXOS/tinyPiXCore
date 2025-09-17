@@ -30,8 +30,6 @@
                 "-I/usr/include/SDL2", 
                 "-I../tinyPiXCore/src/include/Utils/base", 
                 "-I../tinyPiXCore/src/include/Utils", 
-                "-I../tinyPiXCore/src/include_p/Api", 
-                "-I../tinyPiXCore/src/include_p/Api/base", 
                 "-I./engine", 
                 "-I./", 
                 "-L/usr/lib", 
