@@ -77,3 +77,4 @@ TpUtils/PiXUtils_symlink.cmake
 TpService/PiXService_symlink.cmake
 TpGui/PiXSingleGUI_symlink.cmake
 TpExtUtils/PiXExternUtils_symlink.cmake
+examples/SingleGUI/TpLottieAnimation/lottieAnimation
