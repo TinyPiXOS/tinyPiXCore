@@ -37,8 +37,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGui/Widgets/TpRadioButton.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpProgressBar.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpSlider.cpp
-    ${SOURCE_PATH}/src/TpGui/Widgets/TpScroll.cpp
-    ${SOURCE_PATH}/src/TpGui/Widgets/TpScrollBar.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpOnOffButton.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpScrollPanel.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpLineEdit.cpp
@@ -61,8 +59,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGui/Widgets/TpMediaTileButton.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpFilePathWidget.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpFilePathWidgetItem.cpp
-    ${SOURCE_PATH}/src/TpGui/Widgets/TpListCheckBoxGroup.cpp
-    ${SOURCE_PATH}/src/TpGui/Widgets/TpListCheckBoxGroupItem.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpMessageBox.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpPercentProgressBar.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpAnimation.cpp

@@ -1,6 +1,6 @@
 #include "TpApp.h"
 #include "TpFixScreen.h"
-#include "TpListCheckBoxGroup.h"
+#include "TpListWidget.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -10,14 +10,14 @@ int32_t main(int32_t argc, char *argv[])
 	vScreen->setVisible(true); // vScreen setvisible will be update display
 	app.bindVScreen(vScreen);
 
-	TpListCheckBoxGroup* checkBoxGroup = new TpListCheckBoxGroup(vScreen);
+	TpListWidget* checkBoxGroup = new TpListWidget(vScreen);
 
 	checkBoxGroup->addItem("测试1");
 	checkBoxGroup->addItem("测试2");
 	checkBoxGroup->addItem("测试3");
 
-	checkBoxGroup->addItem(new TpListCheckBoxGroupItem("测试4"));
-	checkBoxGroup->addItem(new TpListCheckBoxGroupItem("测试5"));
+	checkBoxGroup->addItem(new TpListWidgetItem("测试4"));
+	checkBoxGroup->addItem(new TpListWidgetItem("测试5"));
 
 	checkBoxGroup->move(15, 20);
 	checkBoxGroup->update();

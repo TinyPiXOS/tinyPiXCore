@@ -1,115 +1,83 @@
-/***
- * @Author: hywang
- * @Date: 2024-05-31 09:39:28
- * @LastEditors: hywang
- * @LastEditTime: 2024-05-31 09:58:23
- * @FilePath: /pix-singlegui/PixSingleGUI/include/SingleGUI/Widgets/TpListWidget.h
- * @Description: ListWidget实现类
- * @
- * @PiXOS
- */
+#ifndef __TP_LIST_WIDGET_H
+#define __TP_LIST_WIDGET_H
 
-#ifndef __TP_LISTWIDGET_H
-#define __TP_LISTWIDGET_H
-
-#include "TpListWidgetItem.h"
 #include "TpChildWidget.h"
 #include "TpSignalSlot.h"
-#include "TpList.h"
-#include "TpGlobal.h"
-#include "TpEvent.h"
+#include "TpString.h"
+#include "TpListWidgetItem.h"
 
-TP_DEF_VOID_TYPE_VAR(IPiListWidgetPrivData);
-
+TP_DEF_VOID_TYPE_VAR(ITpListWidgetData);
+/// @brief 列表窗口
 class TpListWidget : public TpChildWidget
 {
 public:
-    TpListWidget(TpChildWidget *parent);
+    TpListWidget(TpChildWidget *parent = nullptr);
+    virtual ~TpListWidget();
 
-    ~TpListWidget();
+public:
+    /// @brief 设置选择模式
+    /// @param selectionMode 选择模式枚举, 只有单选和多选生效
+    void setSelectionMode(const tinyPiX::ItemSelectionMode &selectionMode);
 
-    TpListWidgetItem *item(int row) const;
-    int row(const TpListWidgetItem *item) const;
-    void insertItem(int row, TpListWidgetItem *item);
-    void insertItem(int row, const TpString &label);
-    void insertItems(int row, const TpList<TpString> &labels);
-    void addItem(const TpString &label) { insertItem(count(), label); }
-    void addItem(TpListWidgetItem *item);
-    void addItems(const TpList<TpString> &labels) { insertItems(count(), labels); }
-    TpListWidgetItem *takeItem(int row);
-    int count() const;
+    /// @brief 获取当前widget设置的选中模式
+    /// @return 选中模式枚举
+    tinyPiX::ItemSelectionMode selectionMode();
 
-    TpListWidgetItem *currentItem() const;
-    void setCurrentItem(TpListWidgetItem *item);
+    /// @brief 添加一个item
+    /// @param text item文本
+    /// @param itemData item绑定数据，可以不给入
+    /// @return 添加的item指针
+    virtual TpListWidgetItem *addItem(const TpString &text, const TpVariant &itemData = TpVariant());
 
-    int currentRow() const;
-    void setCurrentRow(int row);
+    /// @brief 添加一个item
+    /// @param item 指针对象
+    virtual void addItem(TpListWidgetItem *item);
 
-    TpListWidgetItem *itemAt(const TpPoint &p);
-    TpListWidgetItem *itemAt(int x, int y);
+    /// @brief 获取当前索引
+    /// @return 索引值,单选模式下只会返回一个，多选模式下可能返回空
+    TpVector<uint32_t> currentIndex();
 
-    void sortItems(tinyPiX::SortOrder order = tinyPiX::AscendingOrder);
-    void setSortingEnabled(bool enable);
-    bool isSortingEnabled() const;
+    /// @brief 获取当前选中的item
+    /// @return 选中的item指针,单选模式下只会返回一个，多选模式下可能返回空
+    TpVector<TpListWidgetItem *> currentItem();
 
-    TpChildWidget *itemWidget(TpListWidgetItem *item) const;
-    void setItemWidget(TpListWidgetItem *item, TpChildWidget *widget);
-    void removeItemWidget(TpListWidgetItem *item);
+    /// @brief 指定索引选中item
+    /// @param index item索引，从0开始
+    void setSelected(const uint32_t &index);
 
-    bool isItemSelected(const TpListWidgetItem *item) const;
-    void setItemSelected(const TpListWidgetItem *item, bool select);
+    /// @brief 指定item选中
+    /// @param item 选中item指针
+    void setSelectedItem(const TpListWidgetItem *item);
 
-    TpList<TpListWidgetItem *> selectedItems() const;
-    TpList<TpListWidgetItem *> findItems(const TpString &text, tinyPiX::MatchFlags flags) const;
+    /// @brief 指定索引取出指定item；取出后窗体内无该item；外部需释放指针
+    /// @param index 索引值
+    /// @return 索引对应的item;索引值无效则返回nullptr
+    TpListWidgetItem *takeItem(const uint32_t &index);
 
-    // bool isItemHidden(const TpListWidgetItem *item) const;
-    // void setItemHidden(const TpListWidgetItem *item, bool hide);
-
-    // void dropEvent(TpDropEvent *event) override;
-
+    /// @brief 清理所有Item
     void clear();
-
-    TpSize sizeHint() const;
-    void setSizeHint(const TpSize &size);
-
-    void setSelectionModel(tinyPiX::ItemSelectionMode selectMode);
 
 public
 signals:
-    declare_signal(itemPressed, TpListWidgetItem *);
-    declare_signal(itemClicked, TpListWidgetItem *);
-    // declare_signal(itemDoubleClicked, TpListWidgetItem *);
+    /// @brief 选中项切换事件
+    /// @param TpListWidgetItem* 当前状态切换item
+    declare_signal(onStatusChanged, TpListWidgetItem *);
 
-    // current, previous
-    declare_signal(currentItemChanged, TpListWidgetItem *, TpListWidgetItem *);
-    declare_signal(currentTextChanged, TpString);
-    declare_signal(currentRowChanged, uint32_t); // 行号，从0开始
+    /// @brief 选中项切换时间
+    /// @param const TpVariant& 状态切换项数据
+    /// @param bool 当前item状态
+    // declare_signal(onStatusChanged, const TpVariant &, bool);
 
 protected:
-    virtual bool onMoveEvent(TpMoveEvent *event) override;
-
-    virtual bool onResizeEvent(TpResizeEvent *event) override;
-
-    virtual bool onKeyPressEvent(TpKeyboardEvent *event) override;
-    virtual bool onKeyReleaseEvent(TpKeyboardEvent *event) override;
-
-    virtual bool onMousePressEvent(TpMouseEvent *event) override;
-    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-    virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
-    virtual bool onWheelEvent(TpWheelEvent *event) override;
-
-    virtual bool onFocusEvent(TpFocusEvent *event) override;
-    virtual bool onLeaveEvent(TpLeaveEvent *event) override;
-
     virtual bool onPaintEvent(TpPaintEvent *event) override;
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
+    virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
+
+protected:
+    virtual TpString pluginType() override { return TO_STRING(TpListWidget); }
 
 private:
-    uint32_t getItemIndex(const uint32_t &_x, const uint32_t &_y);
-
-    void RefreshShowIndex();
-
-private:
-    IPiListWidgetPrivData *privData;
+    ITpListWidgetData *data_;
 };
 
 #endif
