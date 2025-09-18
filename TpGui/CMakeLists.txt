@@ -16,7 +16,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGui/Core/TpObject.cpp
     ${SOURCE_PATH}/src/TpGui/Core/TpChildWidget.cpp
     ${SOURCE_PATH}/src/TpGui/Core/TpEvent.cpp
-    ${SOURCE_PATH}/src/TpGui/Core/TpAutoObject.cpp
     ${SOURCE_PATH}/src/TpGui/Core/TpApp.cpp
     ${SOURCE_PATH}/src/TpGui/Screen/TpScreen.cpp
     ${SOURCE_PATH}/src/TpGui/Screen/TpFixScreen.cpp
@@ -73,6 +72,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGui/Widgets/TpHumidityWidget.cpp
     ${SOURCE_PATH}/src/TpGui/Widgets/TpLottieAnimation.cpp
     ${SOURCE_PATH}/src_p/TpGui/Core/TpObjectStack.cpp
+    ${SOURCE_PATH}/src_p/TpGui/Core/TpAutoObject.cpp
 )
 
 include_directories(/usr/include/cairo)

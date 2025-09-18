@@ -10,7 +10,6 @@
 #include <cstring> 
 #include "event.h"
 #include "TpString.h"
-#include "TpAlphaTable.h"
 
 #ifndef STDCALL
 #define STDCALL
@@ -65,14 +64,6 @@ static uint32_t generateTimerId()
 {
     static std::atomic<uint32_t> uniqueIdGenerator(0);
     return uniqueIdGenerator.fetch_add(1);
-}
-
-static uint8_t mapAlpha(uint8_t color, uint8_t alpha)
-{
-    if (alpha == 0xff)
-        return color;
-
-    return alphaVertTatble[color][alpha];
 }
 
 /// @brief 对两个浮点数判断是否相等

@@ -1,13 +1,3 @@
-/***
- * @Author: hywang
- * @Date: 2024-06-03 15:06:03
- * @LastEditors: hywang
- * @LastEditTime: 2024-06-20 10:09:38
- * @FilePath: /pix-singlegui/PixSingleGUI/include/Utils/TpVector.h
- * @Description:
- * @
- * @PiXOS
- */
 #ifndef __TP_VECTPR_H
 #define __TP_VECTPR_H
 
