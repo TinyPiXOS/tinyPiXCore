@@ -847,7 +847,7 @@ bool TpApp::run()
             }
             DownUpdateCommand(cacheUpdateTaskList);
 
-            TpTimer::sleep(20);
+            TpTimer::sleep(15);
         }
     }
 

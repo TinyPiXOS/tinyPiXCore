@@ -194,19 +194,6 @@ TpChildWidget::TpChildWidget(TpChildWidget *parent)
     if (set)
     {
         set->top = this->topObject();
-
-        // if (set->top && parent)
-        // if (parent)
-        // {
-        // 	set->parent = parent;
-        // 	set->parent->add(this);
-        // }
-
-        // 遍历this的所有子节点，所有子节点查询一下top
-        // if (set->top)
-        // {
-        // 	SetTopFunc(set->top, set);
-        // }
     }
 
     setVisible(true);

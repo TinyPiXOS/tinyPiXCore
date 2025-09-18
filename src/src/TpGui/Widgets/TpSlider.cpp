@@ -1,7 +1,6 @@
 #include "TpSlider.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
-#include "TpRange.h"
 #include "TpRect.h"
 
 struct TpSliderData

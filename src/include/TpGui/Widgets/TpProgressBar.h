@@ -1,50 +1,58 @@
-#ifndef __TP_VPROGRESS_H
-#define __TP_VPROGRESS_H
+#ifndef __TP_PROGRESS_BAR_H
+#define __TP_PROGRESS_BAR_H
 
 #include "TpChildWidget.h"
-#include "TpColors.h"
+#include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(IPitpProgressSet);
-
-class TpFont;
+TP_DEF_VOID_TYPE_VAR(ITpProgressBarData);
+/// @brief 进度条组件；用于显示进度，不可操作
 class TpProgressBar : public TpChildWidget
 {
 public:
-	TpProgressBar(TpChildWidget* parent);
-	virtual ~TpProgressBar();
+    /// @brief 进度条方向
+    enum Direct
+    {
+        Horizon,
+        Vertical
+    };
 
 public:
-	virtual void setRangeFrom(int32_t min = 0, int32_t max = 0);
-	virtual void setPosition(int32_t pos);
-	virtual void setPercent(double percent);
+    TpProgressBar(TpChildWidget *parent = nullptr, const Direct &direct = Horizon);
+    virtual ~TpProgressBar();
 
-public:
-	virtual int position();
-	virtual double percent();
+    /// @brief 设置取值范围
+    /// @param min 最小值
+    /// @param max 最大值
+    virtual void setRange(const int32_t &min, const int32_t &max);
+    /// @brief 设置进度条方向
+    /// @param direct 方向枚举
+    virtual void setDirection(const Direct &direct = Horizon);
+    /// @brief 获取当前进度条方向
+    /// @return 进度条方向枚举
+    virtual Direct direction() const;
 
-public:
-	virtual TpFont *font();
+    /// @brief 获取当前值
+    /// @param position
+    virtual int32_t value() const;
+    /// @brief 设置当前值
+    /// @param value 当前值
+    virtual void setValue(const int32_t &value);
 
-public:
-	virtual void setProgressBackColor(uint32_t bkColor = TpColors::Green);
-	virtual void setProgressBackColor(TpColors &color);
+    /// @brief 设置百分比文本显隐状态
+    /// @param visible true显示；false不显示
+    void setTextVisible(bool visible);
+    /// @brief 获取当前是否显示百分比文本
+    /// @return true显示，false不显示
+    bool textVisible() const;
 
-public:
-	virtual void setTopLeftLineColor(uint32_t color = TpColors::Black);
-	virtual void setTopLeftLineColor(TpColors &color);
+protected:
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
-	virtual void setRightBottomLineColor(uint32_t color = TpColors::LightSlateGray);
-	virtual void setRightBottomLineColor(TpColors &color);
-
-public:
-	virtual void setRect(const TpRect &rect);
-	virtual void setRect(int32_t x, int32_t y, uint32_t w, uint32_t h);
-
-public:
-	virtual bool onPaintEvent(TpPaintEvent *event);
+protected:
+    virtual TpString pluginType() override { return TO_STRING(TpProgressBar); }
 
 private:
-	IPitpProgressSet *progressSet;
+    ITpProgressBarData *data_;
 };
 
 #endif
