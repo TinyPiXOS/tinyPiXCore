@@ -1,6 +1,7 @@
 #include "TpApp.h"
 #include "TpFixScreen.h"
 #include "TpDialog.h"
+#include "TpLabel.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -11,14 +12,23 @@ int32_t main(int32_t argc, char *argv[])
 	app.bindVScreen(vScreen);
 	
 	TpDialog *dia = new TpDialog();
-	dia->setBackGroundColor(_RGB(243, 243, 243));//or use TpColors
+	dia->setBackGroundColor(_RGBA(243, 243, 243, 100));
 	dia->setRect(0, 0, 300, 300);
 	dia->setAlpha(128);
     dia->setRoundCorners(50);
 	dia->setVisible(true);
 	dia->setBeMoved(true);
 	
-	dia->update();
+    TpLabel* testLabel = new TpLabel(vScreen);
+    testLabel->setText("测试标签");
+    testLabel->setRect(100, 100, 300, 100);
+    
+    TpChildWidget *childW = new TpChildWidget(vScreen);
+	childW->setBackGroundColor(_RGBA(100, 255, 100, 100));
+	childW->setRect(100, 100, 300, 300);
+    childW->setRoundCorners(50);
+
+	// dia->update();
 	vScreen->update();
 
 	return app.run();

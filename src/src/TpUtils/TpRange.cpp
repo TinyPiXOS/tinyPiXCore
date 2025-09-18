@@ -2,202 +2,87 @@
 
 struct TpRangeData
 {
-	int32_t min = 0;
-	int32_t max = 0;
-	double percent = 0;
-	int32_t position = 0;
-	int32_t length = 0;
+    int64_t min = 0;
+    int64_t max = 0;
+    double percent = 0;
+    int64_t value = 0;
 
-	TpRangeData()
-	{
-	}
+    TpRangeData()
+    {
+    }
 };
 
-static inline int32_t range_priv_proper(int32_t v, int32_t min, int32_t max)
+TpRange::TpRange(int64_t min, int64_t max)
 {
-	if (v < min)
-	{
-		v = min;
-	}
-	else if (v > max)
-	{
-		v = max;
-	}
-
-	return v;
-}
-
-static inline void range_priv_adjust(TpRangeData *range, int32_t min, int32_t max)
-{
-	if (range)
-	{
-		if (min > max)
-		{
-			range->max = min;
-			range->min = max;
-		}
-		else
-		{
-			range->max = max;
-			range->min = min;
-		}
-
-		range->length = range->max - range->min + 1;
-		range->position = (int32_t)(range->percent / 100 * range->length + range->min);
-		range->position = range_priv_proper(range->position, range->min, range->max);
-	}
-}
-
-TpRange::TpRange(int32_t min, int32_t max)
-{
-	TpRangeData *set = new TpRangeData();
-
-	if (set)
-	{
-		this->data_ = set;
-		this->setRange(min, max);
-	}
+    TpRangeData *rangeData = new TpRangeData();
+    data_ = rangeData;
+    setRange(min, max);
 }
 
 TpRange::~TpRange()
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
-
-	if (set)
-	{
-		delete set;
-	}
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    if (rangeData)
+    {
+        delete rangeData;
+        rangeData = nullptr;
+        data_ = nullptr;
+    }
 }
 
-void TpRange::setRange(int32_t min, int32_t max)
+void TpRange::setRange(int64_t min, int64_t max)
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
-
-	if (set)
-	{
-		if (min > max)
-		{
-			set->max = min;
-			set->min = max;
-		}
-		else
-		{
-			set->min = min;
-			set->max = max;
-		}
-
-		set->percent = 0;
-		set->position = set->min;
-		set->length = set->max - set->min + 1;
-	}
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    rangeData->min = min;
+    rangeData->max = max;
+    rangeData->percent = 0;
+    rangeData->value = rangeData->min;
 }
 
-void TpRange::setPosition(int32_t position)
+void TpRange::setValue(int64_t value)
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    if (value < rangeData->min)
+        value = rangeData->min;
+    if (value > rangeData->max)
+        value = rangeData->max;
 
-	if (set)
-	{
-		if (position <= set->min)
-		{
-			position = set->min;
-		}
-		else if (position >= set->max)
-		{
-			position = set->max;
-		}
+    rangeData->value = value;
+    rangeData->percent = 1.0 * (rangeData->value - rangeData->min) / (rangeData->max - rangeData->min);
+}
 
-		set->position = position;
-		set->percent = (double)(set->position - set->min + 1) / set->length;
-	}
+int64_t TpRange::value() const noexcept
+{
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    return rangeData->value;
 }
 
 void TpRange::setPercent(double percent)
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
+    if (percent < 0)
+        percent = 0;
+    if (percent > 1)
+        percent = 1;
 
-	if (set)
-	{
-		if (percent <= 0)
-		{
-			set->percent = 0;
-			set->position = set->min;
-		}
-		else if (percent >= 1)
-		{
-			set->percent = 1;
-			set->position = set->max;
-		}
-		else
-		{
-			set->percent = percent;
-			set->position = (int32_t)(percent * set->length + set->min);
-			set->position = range_priv_proper(set->position, set->min, set->max);
-		}
-	}
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    rangeData->percent = percent;
+    rangeData->value = rangeData->min + rangeData->percent * (rangeData->max - rangeData->min);
 }
 
-int32_t TpRange::position()
+double TpRange::percent() const noexcept
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
-	int32_t position = 0;
-
-	if (set)
-	{
-		position = set->position;
-	}
-
-	return position;
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    return rangeData->percent;
 }
 
-double TpRange::percent()
+int64_t TpRange::min() const noexcept
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
-	double percent = 0;
-
-	if (set)
-	{
-		percent = set->percent;
-	}
-
-	return percent;
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    return rangeData->min;
 }
 
-int32_t TpRange::min()
+int64_t TpRange::max() const noexcept
 {
-	TpRangeData *set = (TpRangeData *)this->data_;
-	int32_t min = 0;
-
-	if (set)
-	{
-		min = set->min;
-	}
-
-	return min;
-}
-
-int32_t TpRange::max()
-{
-	TpRangeData *set = (TpRangeData *)this->data_;
-	int32_t max = 0;
-
-	if (set)
-	{
-		max = set->max;
-	}
-
-	return max;
-}
-
-int32_t TpRange::length()
-{
-	TpRangeData *set = (TpRangeData *)this->data_;
-	int32_t length = 0;
-
-	if (set)
-	{
-		length = set->length;
-	}
-
-	return length;
+    TpRangeData *rangeData = static_cast<TpRangeData *>(data_);
+    return rangeData->max;
 }
