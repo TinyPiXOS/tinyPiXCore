@@ -240,36 +240,36 @@ bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
             TpRect rect = event->rect();
             TpPainter *canvas = event->painter();
 
-            uint8_t alpha1 = mapAlpha((uint8_t)(set->topLeftColor & 0x000000ff), this->alpha());
-            uint8_t alpha2 = mapAlpha((uint8_t)(set->bottomRightColor & 0x000000ff), this->alpha());
-            uint8_t alpha3 = mapAlpha((uint8_t)(set->bkColor & 0x000000ff), this->alpha());
+            // uint8_t alpha1 = mapAlpha((uint8_t)(set->topLeftColor & 0x000000ff), this->alpha());
+            // uint8_t alpha2 = mapAlpha((uint8_t)(set->bottomRightColor & 0x000000ff), this->alpha());
+            // uint8_t alpha3 = mapAlpha((uint8_t)(set->bkColor & 0x000000ff), this->alpha());
 
-            int32_t x0 = 0, y0 = 0, x1 = rect.width() - 1, y1 = rect.height() - 1;
+            // int32_t x0 = 0, y0 = 0, x1 = rect.width() - 1, y1 = rect.height() - 1;
 
-            canvas->setPen((set->topLeftColor & 0xffffff00) | alpha1);
-            canvas->drawLine(x0, y0, x0, y1);
-            canvas->drawLine(x0, y0, x1, y0);
+            // canvas->setPen((set->topLeftColor & 0xffffff00) | alpha1);
+            // canvas->drawLine(x0, y0, x0, y1);
+            // canvas->drawLine(x0, y0, x1, y0);
 
-            canvas->setPen((set->bottomRightColor & 0xffffff00) | alpha2);
-            canvas->drawLine(x0, y1, x1, y1);
-            canvas->drawLine(x1, y0, x1, y1);
+            // canvas->setPen((set->bottomRightColor & 0xffffff00) | alpha2);
+            // canvas->drawLine(x0, y1, x1, y1);
+            // canvas->drawLine(x1, y0, x1, y1);
 
-            int32_t position = set->rectRange.position();
+            // int32_t position = set->rectRange.position();
 
-            if (position)
-            {
-                canvas->setBrush(TpBrush((set->bkColor & 0xffffff00) | alpha3));
-                canvas->drawRect(x0 + 1, y0 + 1, position + 1, y1 - 1 - y0 - 1);
-            }
+            // if (position)
+            // {
+            //     canvas->setBrush(TpBrush((set->bkColor & 0xffffff00) | alpha3));
+            //     canvas->drawRect(x0 + 1, y0 + 1, position + 1, y1 - 1 - y0 - 1);
+            // }
 
-            int32_t percent = (int32_t)(set->rectRange.percent() * 100);
-            TpString perString = TpString::number(percent);
-            perString += "%";
-            set->font->setText(perString.c_str());
-            TpSize size = set->font->pixelSize();
+            // int32_t percent = (int32_t)(set->rectRange.percent() * 100);
+            // TpString perString = TpString::number(percent);
+            // perString += "%";
+            // set->font->setText(perString.c_str());
+            // TpSize size = set->font->pixelSize();
 
-            int32_t cx = (rect.width() - size.width()) / 2.0, cy = (rect.height() - size.height()) / 2.0;
-            canvas->drawText(*set->font, cx, cy);
+            // int32_t cx = (rect.width() - size.width()) / 2.0, cy = (rect.height() - size.height()) / 2.0;
+            // canvas->drawText(*set->font, cx, cy);
         }
     }
 
