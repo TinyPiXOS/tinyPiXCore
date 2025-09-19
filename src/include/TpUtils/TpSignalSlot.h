@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <tuple>
 #include "TpGlobal.h"
-#include "TpGui/Core/TpApp.h"
+#include "TpGUI/Core/TpApp.h"
 
 #ifndef signals
 #define signals
@@ -112,7 +112,7 @@ class TpSignal
 private:
 	struct Connection
 	{
-		tinyPiX::ConnectionType type;
+		Tp::ConnectionType type;
 		TpSlotBase<_ArgTypes...> *slot;
 		LambdaConnectionManager::ConnectionID lambdaID = 0;
 	};
@@ -132,11 +132,11 @@ public:
 	template <class T>
 	void connect(T *obj, void (T::*func)(_ArgTypes...))
 	{
-		do_connect(obj, func, tinyPiX::AutoConnection);
+		do_connect(obj, func, Tp::AutoConnection);
 	}
 
 	template <class T>
-	void connect(T *obj, void (T::*func)(_ArgTypes...), tinyPiX::ConnectionType type)
+	void connect(T *obj, void (T::*func)(_ArgTypes...), Tp::ConnectionType type)
 	{
 		do_connect(obj, func, type);
 	}
@@ -144,10 +144,10 @@ public:
 	// 通用lambda连接
 	LambdaConnectionManager::ConnectionID connect(typename std::function<void(_ArgTypes...)> func)
 	{
-		return do_connect(func, tinyPiX::AutoConnection);
+		return do_connect(func, Tp::AutoConnection);
 	}
 
-	LambdaConnectionManager::ConnectionID connect(typename std::function<void(_ArgTypes...)> func, tinyPiX::ConnectionType type)
+	LambdaConnectionManager::ConnectionID connect(typename std::function<void(_ArgTypes...)> func, Tp::ConnectionType type)
 	{
 		return do_connect(func, type);
 	}
@@ -158,14 +158,14 @@ public:
 		LambdaConnectionManager::ConnectionID>::type
 		connect(Func func)
 	{
-		return do_connect(std::function<void(_ArgTypes...)>(func), tinyPiX::AutoConnection);
+		return do_connect(std::function<void(_ArgTypes...)>(func), Tp::AutoConnection);
 	}
 
 	template <typename Func>
 	typename std::enable_if<
 		!is_member_function_pointer<decltype(&Func::operator())>::value,
 		LambdaConnectionManager::ConnectionID>::type
-		connect(Func func, tinyPiX::ConnectionType type)
+		connect(Func func, Tp::ConnectionType type)
 	{
 		return do_connect(std::function<void(_ArgTypes...)>(func), type);
 	}
@@ -219,7 +219,7 @@ public:
 
 		for (const auto &conn : currentConnections)
 		{
-			if (conn.type == tinyPiX::AutoConnection)
+			if (conn.type == Tp::AutoConnection)
 			{
 				if (TpApp::Inst()->isMainThread())
 				{
@@ -244,11 +244,11 @@ public:
 					TpApp::Inst()->postEvent(task);
 				}
 			}
-			else if (conn.type == tinyPiX::DirectConnection)
+			else if (conn.type == Tp::DirectConnection)
 			{
 				conn.slot->exec(args...);
 			}
-			else if (conn.type == tinyPiX::QueuedConnection)
+			else if (conn.type == Tp::QueuedConnection)
 			{
 				// 队列连接 - 提交到事件循环
 				std::shared_ptr<TpSlotBase<_ArgTypes...>> slotRef(
@@ -280,7 +280,7 @@ public:
 
 private:
 	template <class T>
-	void do_connect(T *obj, void (T::*func)(_ArgTypes...), tinyPiX::ConnectionType type)
+	void do_connect(T *obj, void (T::*func)(_ArgTypes...), Tp::ConnectionType type)
 	{
 		std::lock_guard<std::mutex> lock(gMutex_);
 
@@ -303,7 +303,7 @@ private:
 		connections_.emplace_back(newConn);
 	}
 
-	LambdaConnectionManager::ConnectionID do_connect(typename std::function<void(_ArgTypes...)> func, tinyPiX::ConnectionType type)
+	LambdaConnectionManager::ConnectionID do_connect(typename std::function<void(_ArgTypes...)> func, Tp::ConnectionType type)
 	{
 		std::lock_guard<std::mutex> lock(gMutex_);
 

@@ -3,12 +3,12 @@
 // 画笔内部数据结构
 struct TpPenData
 {
-    tinyPiX::PenStyle style = tinyPiX::PenStyle::SolidLine; // 画笔样式，默认为实线
+    Tp::PenStyle style = Tp::PenStyle::SolidLine; // 画笔样式，默认为实线
     float dashOffset = 0.0f;                                // 虚线偏移量
     int32_t width = 1;                                      // 画笔宽度，默认1像素
     TpColors color;                                         // 画笔颜色
-    tinyPiX::PenCapStyle capStyle = tinyPiX::RoundCap;      // 线帽样式
-    tinyPiX::PenJoinStyle joinStyle = tinyPiX::RoundJoin;   // 连接点样式
+    Tp::PenCapStyle capStyle = Tp::RoundCap;      // 线帽样式
+    Tp::PenJoinStyle joinStyle = Tp::RoundJoin;   // 连接点样式
 };
 
 TpPen::TpPen()
@@ -35,13 +35,13 @@ TpPen::~TpPen()
     }
 }
 
-tinyPiX::PenStyle TpPen::style() const
+Tp::PenStyle TpPen::style() const
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     return penData->style;
 }
 
-void TpPen::setStyle(tinyPiX::PenStyle style)
+void TpPen::setStyle(Tp::PenStyle style)
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     penData->style = style;
@@ -86,25 +86,25 @@ void TpPen::setColor(const TpColors &color)
     penData->color = color;
 }
 
-tinyPiX::PenCapStyle TpPen::capStyle() const
+Tp::PenCapStyle TpPen::capStyle() const
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     return penData->capStyle;
 }
 
-void TpPen::setCapStyle(tinyPiX::PenCapStyle pcs)
+void TpPen::setCapStyle(Tp::PenCapStyle pcs)
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     penData->capStyle = pcs;
 }
 
-tinyPiX::PenJoinStyle TpPen::joinStyle() const
+Tp::PenJoinStyle TpPen::joinStyle() const
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     return penData->joinStyle;
 }
 
-void TpPen::setJoinStyle(tinyPiX::PenJoinStyle pcs)
+void TpPen::setJoinStyle(Tp::PenJoinStyle pcs)
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     penData->joinStyle = pcs;

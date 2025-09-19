@@ -144,7 +144,7 @@ set(SOURCE_FILES
 )
 
 include_directories(/usr/include)
-include_directories(/usr/include/PiXWM)
+include_directories(/usr/include/TpWM)
 include_directories(/usr/include/SDL2)
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/cairo)
@@ -197,7 +197,7 @@ endif()
 
 # 将pthread库链接到可执行目标
 target_link_libraries(TpExtUtils ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} dl
-	pthread PiXApi TpUtils ssl json-c glib-2.0 
+	pthread TpAPI TpUtils ssl json-c glib-2.0 
 	gio-2.0 asound avcodec avfilter avformat avutil 
 	swresample SDL2 avdevice swscale bluetooth dbus-1 usb-1.0 udev)
 

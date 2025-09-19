@@ -19,11 +19,11 @@ public:
 
     /// @brief 获取画笔样式
     /// @return 当前画笔样式 (实线/虚线等)
-    tinyPiX::PenStyle style() const;
+    Tp::PenStyle style() const;
 
     /// @brief 设置画笔样式
     /// @param style 要设置的画笔样式
-    void setStyle(tinyPiX::PenStyle style);
+    void setStyle(Tp::PenStyle style);
 
     /// @brief 获取虚线偏移量
     /// @return 当前虚线偏移量
@@ -51,19 +51,19 @@ public:
 
     /// @brief 获取线帽样式
     /// @return 当前线帽样式
-    tinyPiX::PenCapStyle capStyle() const;
+    Tp::PenCapStyle capStyle() const;
 
     /// @brief 设置线帽样式
     /// @param pcs 新的线帽样式
-    void setCapStyle(tinyPiX::PenCapStyle pcs);
+    void setCapStyle(Tp::PenCapStyle pcs);
 
     /// @brief 获取连接点样式
     /// @return 当前连接点样式
-    tinyPiX::PenJoinStyle joinStyle() const;
+    Tp::PenJoinStyle joinStyle() const;
 
     /// @brief 设置连接点样式
     /// @param pcs 新的连接点样式
-    void setJoinStyle(tinyPiX::PenJoinStyle pcs);
+    void setJoinStyle(Tp::PenJoinStyle pcs);
 
 private:
     ITpPenData *data_; 

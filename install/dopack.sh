@@ -18,20 +18,20 @@ declare -A PATH_MAPPINGS=(
     # 相对路径会自动转换为绝对路径
     # 格式: [源目录]="模式:目标路径"
 	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新)
-    ["./{ARCH}/lib"]="overwrite:/usr/lib/tinyPiX"
-	["./{ARCH}/bin"]="overwrite:/usr/bin/tinyPiX"
+    ["./{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX"
+	["./{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX"
 
-	["../src/depend_lib/dynamic/{ARCH}"]="update:/usr/lib/tinyPiX"
-#	["../src/depend_lib/static/{ARCH}"]="update:/usr/lib/tinyPiX"
+	["../src/depend_lib/dynamic/{ARCH}"]="update:/usr/lib/TinyPiX"
+#	["../src/depend_lib/static/{ARCH}"]="update:/usr/lib/TinyPiX"
     
     # 示例 2: 数据目录重定位
-    ["./{ARCH}/data"]="update:/usr/data/tinyPiX"  # 源目录安装到新位置
+    ["./{ARCH}/data"]="update:/usr/data/TinyPiX"  # 源目录安装到新位置
     
     # 示例 3: 头文件
-    ["./{ARCH}/include"]="overwrite:/usr/include/tinyPiX"
+    ["./{ARCH}/include"]="overwrite:/usr/include/TinyPiX"
     
     # 示例 4: 资源文件到自定义位置
-	["./{ARCH}/res"]="update:/usr/res/tinyPiX"
+	["./{ARCH}/res"]="update:/usr/res/TinyPiX"
 
 )
 # =====================================================
@@ -670,7 +670,7 @@ create_symlinks() {
     echo "▸ 创建绝对路径符号链接 (安全替换)"
     
     # 1. 库文件链接
-	LIB_DIR="${TARGET_DIR}/usr/lib/tinyPiX"
+	LIB_DIR="${TARGET_DIR}/usr/lib/TinyPiX"
 	if [ -d "$LIB_DIR" ]; then
 		echo "  → 处理库文件目录: $LIB_DIR"
 		find "$LIB_DIR" -maxdepth 1 -type f \( -name "*.so" -o -name "*.so.*" \) | while read -r lib; do
@@ -711,7 +711,7 @@ create_symlinks() {
 	fi
     
     # 2. 二进制文件链接
-    BIN_DIR="${TARGET_DIR}/usr/bin/tinyPiX"
+    BIN_DIR="${TARGET_DIR}/usr/bin/TinyPiX"
     if [ -d "$BIN_DIR" ]; then
         echo "  → 处理二进制目录: $BIN_DIR"
         find "$BIN_DIR" -maxdepth 1 -type f -executable | while read -r bin; do
@@ -729,11 +729,11 @@ create_symlinks() {
     fi
 
 	#3. 字体库文件链接
-	FONTS_DIR="${TARGET_DIR}/usr/data/tinyPiX/fonts"
+	FONTS_DIR="${TARGET_DIR}/usr/data/TinyPiX/fonts"
 	if [ -d "$FONTS_DIR" ]; then
 		echo "  → 处理字体源目录: $FONTS_DIR"
 		# 目标字体目录 (此处直接放用户目录避免嵌套)
-		FONT_TARGET_DIR="${TARGET_DIR}/usr/share/fonts/opentype/tinyPiX"
+		FONT_TARGET_DIR="${TARGET_DIR}/usr/share/fonts/opentype/TinyPiX"
 		mkdir -p "$FONT_TARGET_DIR"
 		
 		# 遍历字体目录中的文件

@@ -17,7 +17,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/TpGatewayServer.cpp
 )
 
-include_directories(/usr/include/PiXWM)
+include_directories(/usr/include/TpWM)
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
@@ -42,7 +42,7 @@ target_link_libraries(TpService
     ${NANOMSG_STATIC_LIB}
     dl
     pthread
-    PiXApi
+    TpAPI
     TpUtils
     TpExtUtils
 )
