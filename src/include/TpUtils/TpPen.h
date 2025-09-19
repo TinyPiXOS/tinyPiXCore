@@ -12,9 +12,10 @@ class TpPen
 public:
     /// @brief 默认构造函数
     TpPen();
-
+    /// @brief 拷贝构造函数
+    TpPen(const TpPen &other);
     TpPen(const TpColors &color);
-
+    TpPen(const TpColors &color, int32_t width);
     /// @brief 析构函数
     ~TpPen();
 
@@ -73,6 +74,9 @@ public:
     /// @return 画刷
     TpBrush brush();
 
+     /// @brief 赋值运算符重载
+    TpPen& operator=(const TpPen &other);
+    
 private:
     ITpPenData *data_;
 };

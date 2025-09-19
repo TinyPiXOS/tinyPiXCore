@@ -25,10 +25,26 @@ TpPen::TpPen()
     data_ = penData;
 }
 
+TpPen::TpPen(const TpPen &other)
+{
+    TpPenData *otherData = static_cast<TpPenData *>(other.data_);
+    TpPenData *penData = new TpPenData();
+    *penData = *otherData; // 使用TpPenData的默认拷贝赋值
+    data_ = penData;
+}
+
 TpPen::TpPen(const TpColors &color)
 {
     TpPenData *penData = new TpPenData();
     penData->fillBrush.setColor(color);
+    data_ = penData;
+}
+
+TpPen::TpPen(const TpColors &color, int32_t width)
+{
+    TpPenData *penData = new TpPenData();
+    penData->fillBrush.setColor(color);
+    penData->width = width;
     data_ = penData;
 }
 
@@ -128,4 +144,15 @@ TpBrush TpPen::brush()
 {
     TpPenData *penData = static_cast<TpPenData *>(data_);
     return penData->fillBrush;
+}
+
+TpPen &TpPen::operator=(const TpPen &other)
+{
+    if (this != &other)
+    {
+        TpPenData *otherData = static_cast<TpPenData *>(other.data_);
+        TpPenData *penData = static_cast<TpPenData *>(data_);
+        *penData = *otherData; // 使用TpPenData的默认拷贝赋值
+    }
+    return *this;
 }
