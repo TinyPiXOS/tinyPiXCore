@@ -74,3 +74,6 @@ TpGUI/TpGUI_symlink.cmake
 TpService/TpService_symlink.cmake
 TpExtUtils/TpExtUtils_symlink.cmake
 TpUtils/TpUtils_symlink.cmake
+examples/TpGUI/test/thorVGTest
+examples/TpGUI/TpBattery/battery
+examples/TpGUI/TpButton/button
