@@ -133,12 +133,24 @@ std::pair<TpPoint, TpPoint> calculateRayIntersections(float angleDeg, float widt
 // 解析渐变信息；无渐变则返回空指针
 static inline tvg::Fill *parseGradientPtr(TpCanvasData *painterData)
 {
-    TpBrush gradientBrush = painterData->drawBrush;
-    if (gradientBrush.style() != Tp::LinearGradientPattern &&
-        gradientBrush.style() != Tp::RadialGradientPattern)
-        return nullptr;
+    TpGradient *brushGradientPtr = nullptr;
 
-    TpGradient *brushGradientPtr = gradientBrush.gradient();
+    TpBrush gradientBrush = painterData->drawBrush;
+    if (gradientBrush.style() == Tp::LinearGradientPattern ||
+        gradientBrush.style() == Tp::RadialGradientPattern)
+    {
+        brushGradientPtr = gradientBrush.gradient();
+    }
+    else
+    {
+        TpBrush penBrush = painterData->drawPen.brush();
+        if (penBrush.style() == Tp::LinearGradientPattern ||
+            penBrush.style() == Tp::RadialGradientPattern)
+        {
+            brushGradientPtr = penBrush.gradient();
+        }
+    }
+
     if (!brushGradientPtr)
         return nullptr;
 

@@ -27,7 +27,7 @@ TpButton[type="LightButton"] {
     font-size: 13dp;
     border-radius: 30;
     color: rgb(54, 59, 100);
-    border-color: rgb(238, 164, 206);
+    border-color: linear-gradient(90deg, rgb(238, 164, 206), rgb(193, 80, 246));
     background-color: rgb(255, 255, 255);
 }
 

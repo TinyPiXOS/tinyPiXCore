@@ -4,6 +4,7 @@
 #include "TpUtils.h"
 #include "TpColors.h"
 
+class TpBrush;
 TP_DEF_VOID_TYPE_VAR(ITpPenData);
 /// @brief 画笔工具类，用于定义绘图时的线条属性
 class TpPen
@@ -12,7 +13,7 @@ public:
     /// @brief 默认构造函数
     TpPen();
 
-    TpPen(const TpColors& color); 
+    TpPen(const TpColors &color);
 
     /// @brief 析构函数
     ~TpPen();
@@ -65,8 +66,15 @@ public:
     /// @param pcs 新的连接点样式
     void setJoinStyle(Tp::PenJoinStyle pcs);
 
+    /// @brief 设置画笔的画刷；可以设置渐变等填充效果
+    /// @param brush 画刷
+    void setBrush(const TpBrush &brush);
+    /// @brief 获取当前画笔画刷
+    /// @return 画刷
+    TpBrush brush();
+
 private:
-    ITpPenData *data_; 
+    ITpPenData *data_;
 };
 
 #endif
