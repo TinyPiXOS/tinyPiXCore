@@ -7,8 +7,7 @@
 #include "TpCssParser.h"
 #include "TpImage.h"
 #include "TpRect.h"
-
-#include <memory>
+#include "TpBrush.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpChildWidgetData);
 
@@ -270,6 +269,12 @@ public:
     /// @param color 颜色值
     /// @param enable 启动/禁用背景颜色显示
     virtual void setBackGroundColor(int32_t color, bool enable = true);
+
+    /// @brief 设置背景填充效果
+    /// @param bgBrush 填充效果
+    /// @param enable 启动/禁用背景颜色显示
+    virtual void setBackGroundColor(const TpBrush& bgBrush, bool enable = true);
+
     /// @brief 获取当前背景颜色RGBA
     /// @return RGBA值
     virtual uint32_t backGroundColor();

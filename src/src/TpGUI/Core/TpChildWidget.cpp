@@ -926,7 +926,7 @@ void TpChildWidget::setBackGroundColor(int32_t color, bool enable)
     set->backColor = color;
     set->enableColor = enable;
 
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    // TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
 
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setBackgroundColor(color);
@@ -934,6 +934,22 @@ void TpChildWidget::setBackGroundColor(int32_t color, bool enable)
     hoveredCss()->setBackgroundColor(color);
     checkedCss()->setBackgroundColor(color);
     disableCss()->setBackgroundColor(color);
+}
+
+void TpChildWidget::setBackGroundColor(const TpBrush &bgBrush, bool enable)
+{
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
+    if (!set)
+        return;
+    set->backBrush = bgBrush;
+    set->enableColor = enable;
+
+    // CSS解析完，初始化默认状态下CSS数据对象
+    enabledCss()->setBackgroundColor(set->backBrush.gradient());
+    pressedCss()->setBackgroundColor(set->backBrush.gradient());
+    hoveredCss()->setBackgroundColor(set->backBrush.gradient());
+    checkedCss()->setBackgroundColor(set->backBrush.gradient());
+    disableCss()->setBackgroundColor(set->backBrush.gradient());
 }
 
 uint32_t TpChildWidget::backGroundColor()
