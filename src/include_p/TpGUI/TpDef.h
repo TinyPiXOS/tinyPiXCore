@@ -126,6 +126,7 @@ struct ItpObjectSet
     // 边框颜色
     bool enableBorderColor = false;
     uint32_t borderColor;
+    TpBrush borderBrush;
 
     // 是否可选中；选中状态
     bool checkable = false;

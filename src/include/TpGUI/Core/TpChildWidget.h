@@ -293,6 +293,10 @@ public:
     /// @param color 颜色值
     /// @param enable 启动/禁用边框颜色显示
     virtual void setBorderColor(int32_t color, bool enable = true);
+    /// @brief 设置边框填充效果;渐变效果等
+    /// @param bgBrush 填充效果
+    /// @param enable 启动/禁用边框颜色显示
+    virtual void setBorderColor(const TpBrush& borderBrush, bool enable = true);
     /// @brief 获取当前边框颜色RGBA
     /// @return RGBA值
     virtual uint32_t borderColor();

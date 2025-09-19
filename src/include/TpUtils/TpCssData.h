@@ -20,11 +20,9 @@ public:
     /// @brief 获取元素宽度
     /// @return 宽度值(px)
     int32_t width();
-
     /// @brief 获取元素最小宽度
     /// @return 最小宽度值(px)
     int32_t minimumWidth();
-
     /// @brief 获取元素最大宽度
     /// @return 最大宽度值(px)
     int32_t maximumWidth();
@@ -32,11 +30,9 @@ public:
     /// @brief 获取元素高度
     /// @return 高度值(px)
     int32_t height();
-
     /// @brief 获取元素最小高度
     /// @return 最小高度值(px)
     int32_t minimumHeight();
-
     /// @brief 获取元素最大高度
     /// @return 最大高度值(px)
     int32_t maximumHeight();
@@ -55,11 +51,9 @@ public:
     /// @brief 获取子标题字体颜色
     /// @return 颜色值(RGB格式)
     int32_t subColor();
-
     /// @brief 检查子标题字体颜色是否为渐变色
     /// @return true-渐变色, false-纯色
     bool subColorIsGradient();
-
     /// @brief 获取子标题字体颜色渐变对象
     /// @return 渐变对象指针，如果不是渐变色则返回nullptr
     TpGradient *subColorGradiant();
@@ -83,19 +77,15 @@ public:
     /// @brief 获取边框颜色
     /// @return 颜色值(RGB格式)
     int32_t borderColor();
-
     /// @brief 设置边框颜色
     /// @param color 颜色值(RGB格式)
     void setBorderColor(const int32_t &color);
-
     /// @brief 检查边框颜色是否为渐变色
     /// @return true-渐变色, false-纯色
     bool borderColorIsGradient();
-
     /// @brief 获取边框颜色渐变对象
     /// @return 渐变对象指针，如果不是渐变色则返回nullptr
     TpGradient *borderColorGradiant();
-
     /// @brief 设置边框渐变颜色
     /// @param color 渐变对象指针
     void setBorderColor(TpGradient *color);

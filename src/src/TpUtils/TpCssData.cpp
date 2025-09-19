@@ -310,6 +310,12 @@ TpGradient *TpCssData::borderColorGradiant()
     return cssData->borderColor_.gradient();
 }
 
+void TpCssData::setBorderColor(TpGradient *color)
+{
+    TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
+    cssData->borderColor_.setGradient(color);
+}
+
 int32_t TpCssData::borderWidth()
 {
     TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);

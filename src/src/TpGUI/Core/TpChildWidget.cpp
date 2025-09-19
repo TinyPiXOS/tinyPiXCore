@@ -994,6 +994,22 @@ void TpChildWidget::setBorderColor(int32_t color, bool enable)
     set->enableBorderColor = enable;
 }
 
+void TpChildWidget::setBorderColor(const TpBrush &borderBrush, bool enable)
+{
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
+    if (!set)
+        return;
+    set->borderBrush = borderBrush;
+    set->enableBorderColor = enable;
+
+    // CSS解析完，初始化默认状态下CSS数据对象
+    enabledCss()->setBorderColor(set->borderBrush.gradient());
+    pressedCss()->setBorderColor(set->borderBrush.gradient());
+    hoveredCss()->setBorderColor(set->borderBrush.gradient());
+    checkedCss()->setBorderColor(set->borderBrush.gradient());
+    disableCss()->setBorderColor(set->borderBrush.gradient());
+}
+
 uint32_t TpChildWidget::borderColor()
 {
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
@@ -1216,7 +1232,17 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
 
     if (set->enableBorderColor)
     {
-        painter->setPen(curCssData->borderColor());
+        painter->pen().setColor(curCssData->borderColor());
+
+        if (curCssData->borderColorIsGradient())
+        {
+            painter->pen().setBrush(TpBrush(curCssData->borderColorGradiant()));
+        }
+        else
+        {
+            painter->pen().setBrush(TpBrush(Tp::NoBrush));
+        }
+
         painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
     }
 

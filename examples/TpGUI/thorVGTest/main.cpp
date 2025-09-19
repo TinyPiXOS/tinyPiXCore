@@ -12,8 +12,8 @@
 #include "TpLinearGradient.h"
 #include "TpRadialGradient.h"
 #include "TpSlider.h"
-// #include "SmartDeviceGUI/Widgets/TpButton.h"
 #include "TpGraphicsBlurEffect.h"
+#include "TpButton.h"
 
 class ThorVgPaintWidget : public TpChildWidget
 // class ThorVgPaintWidget : public TpDialog
@@ -103,9 +103,9 @@ public:
         radialGradient.setColorAt(0, _RGB(204, 143, 237));
         radialGradient.setColorAt(1, _RGB(107, 80, 246));
 
-        // painter->setGradient(&radialGradient);
+        painter->pen().setBrush(TpBrush(&radialGradient));
 
-        // painter->roundedBox(10, 10, 450, 450, 50, _RGB(0, 0, 0));
+        painter->drawRect(10, 10, 450, 450, 50);
 
         // static int32_t width = 100;
         // painter->box(10, 10, 10 + width, 60, _RGB(150, 200, 168));
@@ -185,27 +185,22 @@ int32_t main(int32_t argc, char *argv[])
     vScreen->setVisible(true); // vScreen setvisible will be update display
     app.bindVScreen(vScreen);
 
-    TpSlider *vSlider = new TpSlider(vScreen);
-    vSlider->setDirection(TpSlider::Vertical);
-    vSlider->setValue(50);
-    vSlider->setSize(10, 500);
-    vSlider->move(950, 20);
+    TpButton* testBtn = new TpButton(vScreen);
+    testBtn->setProperty("type", "LightButton");
+    testBtn->setText("测试按钮");
+    testBtn->setCheckable(true);
+    testBtn->setRect(100, 100, 150, 50);
 
-    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    thorVGPaint->setRect(600, 100, 500, 500);
-    TpGraphicsBlurEffect btnBlurEffect;
-    btnBlurEffect.setBlurRadius(15);
-    thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    // TpSlider *vSlider = new TpSlider(vScreen);
+    // vSlider->setDirection(TpSlider::Vertical);
+    // vSlider->setValue(50);
+    // vSlider->setSize(10, 500);
+    // vSlider->move(950, 20);
 
-    // TpBattery* testBattery = new TpBattery(vScreen);
-    // testBattery->setRect(100, 100, 500, 500);
-
-    // smartDeviceGUI::TpButton* testButton = new smartDeviceGUI::TpButton(vScreen);
-    // testButton->setCheckable(true);
-    // testButton->setText("蓝牙");
-    // testButton->setRect(10, 10, 150, 50);
-
-    // testButton->setRoundCorners(20);
+    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    // thorVGPaint->setRect(600, 100, 500, 500);
+    // TpGraphicsBlurEffect btnBlurEffect;
+    // btnBlurEffect.setBlurRadius(15);
 
     vScreen->update();
 
