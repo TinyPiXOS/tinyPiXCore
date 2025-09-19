@@ -4,6 +4,7 @@
 #include "TpImage_p.h"
 #include "TpGradient_p.h"
 #include "TpPainter_p.h"
+#include "TpPainterPath_p.h"
 
 #include <thread>
 #include <cmath>
@@ -17,7 +18,7 @@ TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offse
     if (!surface)
         return;
 
-    TpCanvasData *painterData = new TpCanvasData();
+    TpPainterData *painterData = new TpPainterData();
     if (!painterData)
         return;
 
@@ -46,7 +47,7 @@ TpPainter::~TpPainter()
 {
     tvg::Initializer::term();
 
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     if (!painterData)
         return;
 
@@ -66,7 +67,7 @@ TpPainter::~TpPainter()
 
 void TpPainter::paintTest()
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     if (!painterData)
         return;
 
@@ -101,37 +102,37 @@ void TpPainter::paintTest()
 
 void TpPainter::setPen(const TpColors &color)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     painterData->drawPen.setColor(color);
 }
 
 void TpPainter::setPen(const TpPen &pen)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     painterData->drawPen = pen;
 }
 
 TpPen &TpPainter::pen() const
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     return painterData->drawPen;
 }
 
 void TpPainter::setBrush(const TpBrush &brush)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     painterData->drawBrush = brush;
 }
 
 TpBrush &TpPainter::brush() const
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     return painterData->drawBrush;
 }
 
 void TpPainter::drawPoint(int32_t x, int32_t y)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -164,7 +165,7 @@ void TpPainter::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 void TpPainter::drawLine(const TpPoint &point1, const TpPoint &point2)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -181,7 +182,7 @@ void TpPainter::drawRect(int32_t x1, int32_t y1, int32_t w, int32_t h, int32_t r
 
 void TpPainter::drawRect(const TpRect &rect, int32_t rad, const TpHollowMask &hollowMaskData)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -197,7 +198,7 @@ void TpPainter::drawEllipse(int32_t x, int32_t y, int32_t rx, int32_t ry, const 
 
 void TpPainter::drawEllipse(const TpPoint &center, int32_t rx, int32_t ry, const TpHollowMask &hollowMaskData)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -213,7 +214,7 @@ void TpPainter::drawArc(int32_t x, int32_t y, int32_t rad, int32_t start, int32_
 
 void TpPainter::drawArc(const TpPoint &center, int32_t rad, int32_t start, int32_t end)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -229,7 +230,7 @@ void TpPainter::drawPie(int32_t x, int32_t y, int32_t rad, int32_t start, int32_
 
 void TpPainter::drawPie(const TpPoint &center, int32_t rad, int32_t start, int32_t end, const TpHollowMask &hollowMaskData)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -240,7 +241,7 @@ void TpPainter::drawPie(const TpPoint &center, int32_t rad, int32_t start, int32
 
 void TpPainter::drawPolygon(const TpVector<TpPoint> &pointList, const TpHollowMask &hollowMaskData)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -255,7 +256,7 @@ void TpPainter::drawCubic(int32_t startX, int32_t startY, int32_t cx1, int32_t c
 
 void TpPainter::drawCubic(const TpPoint &startPoint, const TpPoint &cPoint, const TpPoint &c2Point, const TpPoint &endPoint)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (!painterData)
         return;
@@ -291,7 +292,7 @@ void TpPainter::drawImage(const int32_t &x, const int32_t &y, const TpImage &ima
 
 void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t roundRad)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     if (!painterData->swCanvas)
         return;
 
@@ -355,7 +356,7 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
 
 void TpPainter::drawText(TpFont &font, int32_t x, int32_t y, const TpString &text)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     if (!painterData)
         return;
 
@@ -384,9 +385,152 @@ void TpPainter::drawText(TpFont &font, int32_t x, int32_t y)
     drawText(font, x, y, font.text());
 }
 
+void TpPainter::drawPath(const TpPainterPath &path)
+{
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
+    if (!painterData || !painterData->beUsed)
+        return;
+
+    // 获取路径数据
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(path.data_);
+    if (!pathData || pathData->elements.empty())
+        return;
+
+    refreshCanvasTarget(painterData);
+
+    // 创建形状对象
+    auto shape = tvg::Shape::gen();
+    if (!shape)
+        return;
+
+    // 遍历路径元素并构建 ThorVG 路径
+    TpPoint currentPoint;
+    TpPoint startPoint;
+    bool hasMoveTo = false;
+
+    for (const auto &element : pathData->elements)
+    {
+        switch (element.type)
+        {
+        case TpPathElementType::MoveTo:
+            if (!element.points.empty())
+            {
+                currentPoint = element.points[0];
+                startPoint = currentPoint;
+                shape->moveTo(painterData->offsetX + currentPoint.x(),
+                              painterData->offsetY + currentPoint.y());
+                hasMoveTo = true;
+            }
+            break;
+
+        case TpPathElementType::LineTo:
+            if (!element.points.empty() && hasMoveTo)
+            {
+                currentPoint = element.points[0];
+                shape->lineTo(painterData->offsetX + currentPoint.x(),
+                              painterData->offsetY + currentPoint.y());
+            }
+            break;
+
+        case TpPathElementType::CubicTo:
+            if (element.points.size() >= 3 && hasMoveTo)
+            {
+                TpPoint cp1 = element.points[0];
+                TpPoint cp2 = element.points[1];
+                TpPoint endPoint = element.points[2];
+
+                shape->cubicTo(painterData->offsetX + cp1.x(), painterData->offsetY + cp1.y(),
+                               painterData->offsetX + cp2.x(), painterData->offsetY + cp2.y(),
+                               painterData->offsetX + endPoint.x(), painterData->offsetY + endPoint.y());
+
+                currentPoint = endPoint;
+            }
+            break;
+
+        case TpPathElementType::CloseSubpath:
+            if (hasMoveTo && currentPoint != startPoint)
+            {
+                shape->lineTo(painterData->offsetX + startPoint.x(),
+                              painterData->offsetY + startPoint.y());
+                currentPoint = startPoint;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    tvg::Fill *gradientPtr = parseGradientPtr(painterData);
+
+    int32_t penColor = painterData->drawPen.color().rgba();
+    int32_t brushColor = painterData->drawBrush.color().rgba();
+
+    if (painterData->drawBrush.style() == Tp::NoBrush)
+    {
+        if (gradientPtr)
+            shape->strokeFill(gradientPtr);
+        else
+            shape->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor));
+
+        shape->strokeWidth(painterData->drawPen.width());
+
+        // 设置线帽样式
+        switch (painterData->drawPen.capStyle())
+        {
+        case Tp::ButtCap:
+            shape->strokeCap(tvg::StrokeCap::Butt);
+            break;
+        case Tp::RoundCap:
+            shape->strokeCap(tvg::StrokeCap::Round);
+            break;
+        case Tp::SquareCap:
+            shape->strokeCap(tvg::StrokeCap::Square);
+            break;
+        default:
+            shape->strokeCap(tvg::StrokeCap::Round);
+            break;
+        }
+
+        // 设置连接样式
+        switch (painterData->drawPen.joinStyle())
+        {
+        case Tp::MiterJoin:
+            shape->strokeJoin(tvg::StrokeJoin::Miter);
+            break;
+        case Tp::BevelJoin:
+            shape->strokeJoin(tvg::StrokeJoin::Bevel);
+            break;
+        case Tp::RoundJoin:
+            shape->strokeJoin(tvg::StrokeJoin::Round);
+            break;
+        default:
+            shape->strokeJoin(tvg::StrokeJoin::Miter);
+            break;
+        }
+    }
+    else if (painterData->drawBrush.style() == Tp::SolidPattern)
+    {
+        if (gradientPtr)
+            shape->fill(gradientPtr);
+        else
+            shape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
+    }
+    else
+    {
+        if (gradientPtr)
+            shape->fill(gradientPtr);
+        else
+            shape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
+    }
+
+    // 添加到场景并绘制
+    painterData->tvgScene->push(std::move(shape));
+}
+
 void TpPainter::setClipRect(const TpRect &rect)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -396,13 +540,13 @@ void TpPainter::setClipRect(const TpRect &rect)
 
 TpRect TpPainter::clipRect()
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     return painterData->TpSurfacePtr->clipRect();
 }
 
 void TpPainter::erase()
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
@@ -413,7 +557,7 @@ void TpPainter::erase()
         // painterData->swCanvas->draw(true);
         // painterData->swCanvas->sync();
 
-        TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+        TpPainterData *painterData = static_cast<TpPainterData *>(data_);
         if (!painterData || !painterData->swCanvas || !painterData->beUsed)
             return;
 
@@ -440,7 +584,7 @@ void TpPainter::erase()
 
 void TpPainter::addScene(void *canvas, void *scene)
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData->swCanvas)
     {
@@ -458,7 +602,7 @@ void TpPainter::addScene(void *canvas, void *scene)
 
 void TpPainter::sync()
 {
-    TpCanvasData *painterData = static_cast<TpCanvasData *>(data_);
+    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     // 绘制并同步
     painterData->swCanvas->draw();

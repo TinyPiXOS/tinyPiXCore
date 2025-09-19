@@ -9,6 +9,7 @@
 #include "TpGradient.h"
 #include "TpPen.h"
 #include "TpBrush.h"
+#include "TpPainterPath.h"
 
 class TpPainter;
 class TpSurface;
@@ -295,6 +296,10 @@ public:
     /// @param y Y坐标
     virtual void drawText(TpFont &font, int32_t x, int32_t y);
 
+    /// @brief 绘制自定义路径
+    /// @param path 自定义路径
+    virtual void drawPath(const TpPainterPath& path);
+
 public:
     /// @brief 设置裁剪矩形；只显示裁剪区域内容
     /// @param rect 裁剪矩形
@@ -304,11 +309,11 @@ public:
     /// @return 裁剪矩形
     virtual TpRect clipRect();
 
-public:
     /// @brief 清理画布；清除所有绘制对象
     virtual void erase();
 
 public:
+    /// @brief 用户无需调用
     void addScene(void *canvas, void *scene);
 
     /// @brief 绘图同步；用户无需调用

@@ -1,81 +1,15 @@
 #include "TpPainterPath.h"
-#include <algorithm>
-#include <cmath>
-#include "TpVector.h"
-
-// 路径元素类型
-enum class TpPathElementType
-{
-    MoveTo,
-    LineTo,
-    CubicTo,
-    CloseSubpath
-};
-
-// 路径元素结构
-struct TpPathElement
-{
-    TpPathElementType type;
-    TpVector<TpPoint> points;
-
-    TpPathElement()
-    {
-    }
-    TpPathElement(TpPathElementType type, const TpVector<TpPoint> &points)
-        : type(type), points(points)
-    {
-    }
-};
-
-// 路径数据实现
-struct TpPainterPathDataImpl
-{
-    TpVector<TpPathElement> elements;
-    TpPoint currentPoint;
-    TpPoint startPoint; // 当前子路径的起点
-    bool isClosed = false;
-
-    // 添加元素并更新当前点
-    void addElement(TpPathElementType type, const TpVector<TpPoint> &pts)
-    {
-        elements.emplace_back(TpPathElement(type, pts));
-
-        if (!pts.empty())
-        {
-            switch (type)
-            {
-            case TpPathElementType::MoveTo:
-                currentPoint = pts[0];
-                startPoint = currentPoint;
-                isClosed = false;
-                break;
-            case TpPathElementType::LineTo:
-                currentPoint = pts[0];
-                break;
-            case TpPathElementType::CubicTo:
-                if (pts.size() >= 3)
-                {
-                    currentPoint = pts[2];
-                }
-                break;
-            case TpPathElementType::CloseSubpath:
-                currentPoint = startPoint;
-                isClosed = true;
-                break;
-            }
-        }
-    }
-};
+#include "TpPainterPath_p.h"
 
 TpPainterPath::TpPainterPath()
 {
-    data_ = new TpPainterPathDataImpl();
+    data_ = new TpPainterPathData();
 }
 
 TpPainterPath::TpPainterPath(const TpPainterPath &other)
 {
-    TpPainterPathDataImpl *otherData = static_cast<TpPainterPathDataImpl *>(other.data_);
-    TpPainterPathDataImpl *newData = new TpPainterPathDataImpl();
+    TpPainterPathData *otherData = static_cast<TpPainterPathData *>(other.data_);
+    TpPainterPathData *newData = new TpPainterPathData();
     newData->elements = otherData->elements;
     newData->currentPoint = otherData->currentPoint;
     newData->startPoint = otherData->startPoint;
@@ -85,7 +19,7 @@ TpPainterPath::TpPainterPath(const TpPainterPath &other)
 
 TpPainterPath::TpPainterPath(const TpPoint &startPoint)
 {
-    TpPainterPathDataImpl *pathData = new TpPainterPathDataImpl();
+    TpPainterPathData *pathData = new TpPainterPathData();
     pathData->currentPoint = startPoint;
     pathData->startPoint = startPoint;
     pathData->addElement(TpPathElementType::MoveTo, TpVector<TpPoint>{startPoint});
@@ -94,22 +28,22 @@ TpPainterPath::TpPainterPath(const TpPoint &startPoint)
 
 void TpPainterPath::moveTo(const TpPoint &point)
 {
-    TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    d->addElement(TpPathElementType::MoveTo, {point});
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    pathData->addElement(TpPathElementType::MoveTo, {point});
 }
 
 void TpPainterPath::lineTo(const TpPoint &endPoint)
 {
-    TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    d->addElement(TpPathElementType::LineTo, {endPoint});
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    pathData->addElement(TpPathElementType::LineTo, {endPoint});
 }
 
 void TpPainterPath::cubicTo(const TpPoint &controlPoint1,
                             const TpPoint &controlPoint2,
                             const TpPoint &endPoint)
 {
-    TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    d->addElement(TpPathElementType::CubicTo, {controlPoint1, controlPoint2, endPoint});
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    pathData->addElement(TpPathElementType::CubicTo, {controlPoint1, controlPoint2, endPoint});
 }
 
 void TpPainterPath::addRect(const TpRect &rect)
@@ -123,146 +57,219 @@ void TpPainterPath::addRect(const TpRect &rect)
 
 void TpPainterPath::addEllipse(const TpRect &rect)
 {
-    // const float k = 0.5522847498f; // 贝塞尔曲线近似圆弧的常数
-    // float w = rect.width() / 2.0f;
-    // float h = rect.height() / 2.0f;
-    // TpPoint center = rect.center();
+    const float k = 0.5522847498f; // 贝塞尔曲线近似圆弧的常数
+    float w = rect.width() / 2.0f;
+    float h = rect.height() / 2.0f;
+    TpPoint center = rect.center();
 
-    // // 四个端点
-    // TpPoint p0 = center + TpPoint(w, 0);
-    // TpPoint p1 = center + TpPoint(0, h);
-    // TpPoint p2 = center + TpPoint(-w, 0);
-    // TpPoint p3 = center + TpPoint(0, -h);
+    // 四个端点
+    TpPoint p0 = center + TpPoint(w, 0);
+    TpPoint p1 = center + TpPoint(0, h);
+    TpPoint p2 = center + TpPoint(-w, 0);
+    TpPoint p3 = center + TpPoint(0, -h);
 
-    // // 控制点
-    // TpPoint p0_c1 = p0 + TpPoint(0, k * h);
-    // TpPoint p0_c2 = p1 + TpPoint(k * w, 0);
+    // 控制点
+    TpPoint p0_c1 = p0 + TpPoint(0, k * h);
+    TpPoint p0_c2 = p1 + TpPoint(k * w, 0);
 
-    // TpPoint p1_c1 = p1 + TpPoint(-k * w, 0);
-    // TpPoint p1_c2 = p2 + TpPoint(0, k * h);
+    TpPoint p1_c1 = p1 + TpPoint(-k * w, 0);
+    TpPoint p1_c2 = p2 + TpPoint(0, k * h);
 
-    // TpPoint p2_c1 = p2 + TpPoint(0, -k * h);
-    // TpPoint p2_c2 = p3 + TpPoint(-k * w, 0);
+    TpPoint p2_c1 = p2 + TpPoint(0, -k * h);
+    TpPoint p2_c2 = p3 + TpPoint(-k * w, 0);
 
-    // TpPoint p3_c1 = p3 + TpPoint(k * w, 0);
-    // TpPoint p3_c2 = p0 + TpPoint(0, -k * h);
+    TpPoint p3_c1 = p3 + TpPoint(k * w, 0);
+    TpPoint p3_c2 = p0 + TpPoint(0, -k * h);
 
-    // moveTo(p0);
-    // cubicTo(p0_c1, p0_c2, p1);
-    // cubicTo(p1_c1, p1_c2, p2);
-    // cubicTo(p2_c1, p2_c2, p3);
-    // cubicTo(p3_c1, p3_c2, p0);
-    // closeSubpath();
+    moveTo(p0);
+    cubicTo(p0_c1, p0_c2, p1);
+    cubicTo(p1_c1, p1_c2, p2);
+    cubicTo(p2_c1, p2_c2, p3);
+    cubicTo(p3_c1, p3_c2, p0);
+    closeSubpath();
 }
 
 void TpPainterPath::addRoundedRect(const TpRect &rect, float radius)
 {
-    // float rad = std::min(radius, std::min(rect.width(), rect.height()) / 2.0f);
-    // TpPoint topLeft = rect.topLeft();
-    // TpPoint topRight = rect.topRight();
-    // TpPoint bottomRight = rect.bottomRight();
-    // TpPoint bottomLeft = rect.bottomLeft();
+    float rad = std::min(radius, std::min(rect.width(), rect.height()) / 2.0f);
+    TpPoint topLeft = rect.topLeft();
+    TpPoint topRight = rect.topRight();
+    TpPoint bottomRight = rect.bottomRight();
+    TpPoint bottomLeft = rect.bottomLeft();
 
-    // // 圆角矩形的四个角
-    // moveTo(topLeft + TpPoint(rad, 0));
-    // lineTo(topRight - TpPoint(rad, 0));
+    // 圆角矩形的四个角
+    moveTo(topLeft + TpPoint(rad, 0));
+    lineTo(topRight - TpPoint(rad, 0));
 
-    // // 右上角圆弧
-    // cubicTo(topRight - TpPoint(rad, 0),
-    //         topRight + TpPoint(0, rad),
-    //         topRight + TpPoint(0, rad));
+    // 右上角圆弧
+    cubicTo(topRight - TpPoint(rad, 0),
+            topRight + TpPoint(0, rad),
+            topRight + TpPoint(0, rad));
 
-    // lineTo(bottomRight - TpPoint(0, rad));
+    lineTo(bottomRight - TpPoint(0, rad));
 
-    // // 右下角圆弧
-    // cubicTo(bottomRight - TpPoint(0, rad),
-    //         bottomRight - TpPoint(rad, 0),
-    //         bottomRight - TpPoint(rad, 0));
+    // 右下角圆弧
+    cubicTo(bottomRight - TpPoint(0, rad),
+            bottomRight - TpPoint(rad, 0),
+            bottomRight - TpPoint(rad, 0));
 
-    // lineTo(bottomLeft + TpPoint(rad, 0));
+    lineTo(bottomLeft + TpPoint(rad, 0));
 
-    // // 左下角圆弧
-    // cubicTo(bottomLeft + TpPoint(rad, 0),
-    //         bottomLeft + TpPoint(0, rad),
-    //         bottomLeft + TpPoint(0, rad));
+    // 左下角圆弧
+    cubicTo(bottomLeft + TpPoint(rad, 0),
+            bottomLeft + TpPoint(0, rad),
+            bottomLeft + TpPoint(0, rad));
 
-    // lineTo(topLeft + TpPoint(0, rad));
+    lineTo(topLeft + TpPoint(0, rad));
 
-    // // 左上角圆弧
-    // cubicTo(topLeft + TpPoint(0, rad),
-    //         topLeft + TpPoint(rad, 0),
-    //         topLeft + TpPoint(rad, 0));
+    // 左上角圆弧
+    cubicTo(topLeft + TpPoint(0, rad),
+            topLeft + TpPoint(rad, 0),
+            topLeft + TpPoint(rad, 0));
 
-    // closeSubpath();
+    closeSubpath();
+}
+
+void TpPainterPath::addArc(const TpPoint &center, float radius, float startAngle, float endAngle)
+{
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+
+    if (radius <= 0 || tpFuzzyCompare(startAngle, endAngle) || startAngle > endAngle)
+        return;
+
+    // 将角度转换为弧度
+    float startRad = startAngle * M_PI / 180.0f;
+    float sweepRad = (endAngle - startRad) * M_PI / 180.0f;
+
+    // 确定圆弧分段数（每90度至少4段）
+    int segments = static_cast<int>(std::ceil(std::abs(sweepRad) / (M_PI / 2.0f))) * 4;
+    float segmentAngle = sweepRad / segments;
+
+    // 计算起始点
+    float angle = startRad;
+    TpPoint startPoint(center.x() + radius * std::cos(angle),
+                       center.y() + radius * std::sin(angle));
+    moveTo(startPoint);
+
+    // 添加圆弧段
+    for (int i = 1; i <= segments; ++i)
+    {
+        angle = startRad + i * segmentAngle;
+        TpPoint endPoint(center.x() + radius * std::cos(angle),
+                         center.y() + radius * std::sin(angle));
+
+        // 使用二次贝塞尔曲线近似圆弧段
+        float midAngle = startRad + (i - 0.5f) * segmentAngle;
+        TpPoint controlPoint(center.x() + radius * std::cos(midAngle) / std::cos(segmentAngle / 2),
+                             center.y() + radius * std::sin(midAngle) / std::cos(segmentAngle / 2));
+
+        // 使用二次贝塞尔曲线（用三次贝塞尔曲线模拟）
+        TpPoint p1 = pathData->currentPoint + (controlPoint - pathData->currentPoint) * (2.0f / 3.0f);
+        TpPoint p2 = endPoint + (controlPoint - endPoint) * (2.0f / 3.0f);
+        cubicTo(p1, p2, endPoint);
+    }
+}
+
+void TpPainterPath::addPie(const TpPoint &center, float radius, float startAngle, float endAngle)
+{
+    if (radius <= 0 || tpFuzzyCompare(startAngle, endAngle) || startAngle > endAngle)
+        return;
+
+    // 将角度转换为弧度
+    float startRad = startAngle * M_PI / 180.0f;
+    float sweepRad = (endAngle - startRad) * M_PI / 180.0f;
+
+    // 计算起始点和结束点
+    TpPoint startPoint(center.x() + radius * std::cos(startRad),
+                       center.y() + radius * std::sin(startRad));
+    TpPoint endPoint(center.x() + radius * std::cos(startRad + sweepRad),
+                     center.y() + radius * std::sin(startRad + sweepRad));
+
+    // 移动到圆心，然后添加线段到起始点
+    moveTo(center);
+    lineTo(startPoint);
+
+    // 添加圆弧
+    addArc(center, radius, startAngle, endAngle);
+
+    // 闭合路径（回到圆心）
+    lineTo(center);
+    closeSubpath();
 }
 
 void TpPainterPath::closeSubpath()
 {
-    // TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    // if (!d->isClosed && d->currentPoint != d->startPoint)
-    // {
-    //     d->addElement(TpPathElementType::CloseSubpath, {});
-    // }
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    if (!pathData->isClosed && pathData->currentPoint != pathData->startPoint)
+    {
+        pathData->addElement(TpPathElementType::CloseSubpath, {});
+    }
 }
 
 void TpPainterPath::clear()
 {
-    TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    d->elements.clear();
-    d->currentPoint = TpPoint();
-    d->startPoint = TpPoint();
-    d->isClosed = false;
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    pathData->elements.clear();
+    pathData->currentPoint = TpPoint();
+    pathData->startPoint = TpPoint();
+    pathData->isClosed = false;
 }
 
 bool TpPainterPath::isEmpty() const
 {
-    TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    return d->elements.empty();
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    return pathData->elements.empty();
 }
 
 TpRect TpPainterPath::boundingRect() const
 {
-    return TpRect();
-    // TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    // if (d->elements.empty())
-    // {
-    //     return TpRect();
-    // }
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    if (pathData->elements.empty())
+    {
+        return TpRect();
+    }
 
-    // float minX = std::numeric_limits<float>::max();
-    // float minY = std::numeric_limits<float>::max();
-    // float maxX = std::numeric_limits<float>::lowest();
-    // float maxY = std::numeric_limits<float>::lowest();
+    float minX = std::numeric_limits<float>::max();
+    float minY = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::lowest();
+    float maxY = std::numeric_limits<float>::lowest();
 
-    // for (const auto &element : d->elements)
-    // {
-    //     for (const auto &point : element.points)
-    //     {
-    //         minX = std::min(minX, point.x());
-    //         minY = std::min(minY, point.y());
-    //         maxX = std::max(maxX, point.x());
-    //         maxY = std::max(maxY, point.y());
-    //     }
-    // }
+    for (const auto &element : pathData->elements)
+    {
+        for (const auto &point : element.points)
+        {
+            minX = TP_MIN(minX, point.x());
+            minY = TP_MIN(minY, point.y());
+            maxX = TP_MAX(maxX, point.x());
+            maxY = TP_MAX(maxY, point.y());
+        }
+    }
 
-    // return TpRect(minX, minY, maxX - minX, maxY - minY);
+    return TpRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+TpPainterPath TpPainterPath::operator+(const TpPainterPath &other) const
+{
+    TpPainterPath result(*this);
+    result += other;
+    return result;
 }
 
 TpPainterPath &TpPainterPath::operator+=(const TpPainterPath &other)
 {
-    TpPainterPathDataImpl *d = static_cast<TpPainterPathDataImpl *>(data_);
-    TpPainterPathDataImpl *otherData = static_cast<TpPainterPathDataImpl *>(other.data_);
+    TpPainterPathData *pathData = static_cast<TpPainterPathData *>(data_);
+    TpPainterPathData *otherData = static_cast<TpPainterPathData *>(other.data_);
 
     // 添加所有元素
     for (const auto &element : otherData->elements)
     {
-        d->elements.push_back(element);
+        pathData->elements.push_back(element);
     }
 
     // 更新当前点和起点
-    d->currentPoint = otherData->currentPoint;
-    d->startPoint = otherData->startPoint;
-    d->isClosed = otherData->isClosed;
+    pathData->currentPoint = otherData->currentPoint;
+    pathData->startPoint = otherData->startPoint;
+    pathData->isClosed = otherData->isClosed;
 
     return *this;
 }

@@ -3,72 +3,23 @@
 #include "TpEvent.h"
 #include "TpPainter.h"
 #include "TpUtils.h"
-#include "TpImage.h"
-#include "TpBattery.h"
-#include "TpLabel.h"
-#include "TpTimer.h"
-#include "TpDialog.h"
-#include "TpFont.h"
-#include "TpLinearGradient.h"
-#include "TpRadialGradient.h"
-#include "TpSlider.h"
-#include "TpGraphicsBlurEffect.h"
-#include "TpButton.h"
 
-class ThorVgPaintWidget : public TpChildWidget
-// class ThorVgPaintWidget : public TpDialog
+class PaintPathWidget : public TpChildWidget
 {
 public:
-    ThorVgPaintWidget(TpChildWidget *parent) : TpChildWidget(parent)
+    PaintPathWidget(TpChildWidget *parent) : TpChildWidget(parent)
     {
         setBackGroundColor(_RGBA(100, 100, 100, 200));
-        // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
-        // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
-        setAlpha(150);
-        testBattery_ = new TpBattery(this);
-        testBattery_->setValue(100);
-        testBattery_->setRect(10, 100, 200, 80);
-
-        testBattery_->setVisible(false);
     }
-    ~ThorVgPaintWidget()
+    ~PaintPathWidget()
     {
-    }
-
-    virtual bool onMousePressEvent(TpMouseEvent *event) override
-    {
-        int32_t batteryValue = testBattery_->value();
-        batteryValue -= 10;
-        if (batteryValue < 0)
-            batteryValue = 100;
-        testBattery_->setValue(batteryValue);
-
-        update();
-
-        move(pos().x() + 10, pos().y());
-        if (pos().x() + width() > 1080)
-        {
-            move(150, pos().y());
-        }
-
-        return true;
-    }
-
-    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override
-    {
-        TpChildWidget::onMouseRleaseEvent(event);
-        return true;
     }
 
     virtual bool onPaintEvent(TpPaintEvent *event) override
     {
-        // static uint64_t paintCount = 0;
-        // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
-
         TpChildWidget::onPaintEvent(event);
 
         TpPainter *painter = event->painter();
-        // painter->paintTest();
 
         // 测试 1: 默认构造函数和 moveTo/lineTo
         {
@@ -178,7 +129,6 @@ public:
     }
 
 private:
-    TpBattery *testBattery_;
 };
 
 int32_t main(int32_t argc, char *argv[])
@@ -191,17 +141,8 @@ int32_t main(int32_t argc, char *argv[])
     vScreen->setVisible(true); // vScreen setvisible will be update display
     app.bindVScreen(vScreen);
 
-    TpSlider *vSlider = new TpSlider(vScreen);
-    vSlider->setDirection(TpSlider::Vertical);
-    vSlider->setValue(50);
-    vSlider->setSize(10, 500);
-    vSlider->move(950, 20);
-
-    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    thorVGPaint->setRect(600, 100, 500, 500);
-    // TpGraphicsBlurEffect btnBlurEffect;
-    // btnBlurEffect.setBlurRadius(15);
-    // thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    PaintPathWidget *thorVGPaint = new PaintPathWidget(vScreen);
+    thorVGPaint->setRect(100, 100, 500, 500);
 
     vScreen->update();
 

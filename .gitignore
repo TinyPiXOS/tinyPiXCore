@@ -77,3 +77,5 @@ TpUtils/TpUtils_symlink.cmake
 examples/TpGUI/test/thorVGTest
 examples/TpGUI/TpBattery/battery
 examples/TpGUI/TpButton/button
+examples/TpGUI/test/test
+examples/TpGUI/TpPainterPath/paintPath

@@ -16,7 +16,7 @@
 #define OFFSET_X(painterData, x) (painterData->offsetX + x)
 #define OFFSET_Y(painterData, y) (painterData->offsetY + y)
 
-struct TpCanvasData
+struct TpPainterData
 {
     tpShared<TpSurface> TpSurfacePtr = nullptr;
 
@@ -39,14 +39,14 @@ struct TpCanvasData
 
     tvg::Scene *tvgScene = nullptr;
 
-    TpCanvasData()
+    TpPainterData()
     {
         drawBrush.setStyle(Tp::NoBrush);
     }
 };
 
 // 重设canvas的target
-static inline void refreshCanvasTarget(TpCanvasData *painterData)
+static inline void refreshCanvasTarget(TpPainterData *painterData)
 {
     // static bool test = true;
     // if (test)
@@ -131,7 +131,7 @@ std::pair<TpPoint, TpPoint> calculateRayIntersections(float angleDeg, float widt
 }
 
 // 解析渐变信息；无渐变则返回空指针
-static inline tvg::Fill *parseGradientPtr(TpCanvasData *painterData)
+static inline tvg::Fill *parseGradientPtr(TpPainterData *painterData)
 {
     TpGradient *brushGradientPtr = nullptr;
 
@@ -453,7 +453,7 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
 }
 
 /// @brief 绘制像素点
-static inline void renderPoint(TpCanvasData *painterData, int32_t x, int32_t y)
+static inline void renderPoint(TpPainterData *painterData, int32_t x, int32_t y)
 {
     if (!painterData->swCanvas)
         return;
@@ -476,7 +476,7 @@ static inline void renderPoint(TpCanvasData *painterData, int32_t x, int32_t y)
 }
 
 /// @brief 绘制线段
-static inline void renderLine(TpCanvasData *painterData, const TpPoint &point1, const TpPoint &point2)
+static inline void renderLine(TpPainterData *painterData, const TpPoint &point1, const TpPoint &point2)
 {
     if (!painterData->swCanvas)
         return;
@@ -512,7 +512,7 @@ static inline void renderLine(TpCanvasData *painterData, const TpPoint &point1, 
 }
 
 /// @brief 绘制矩形/圆角矩形
-static inline void renderRect(TpCanvasData *painterData, const TpRect &rect, int32_t rad, const TpHollowMask &hollowMaskData = TpHollowMask())
+static inline void renderRect(TpPainterData *painterData, const TpRect &rect, int32_t rad, const TpHollowMask &hollowMaskData = TpHollowMask())
 {
     if (!painterData->swCanvas)
         return;
@@ -567,7 +567,7 @@ static inline void renderRect(TpCanvasData *painterData, const TpRect &rect, int
 /// @param x 圆心坐标
 /// @param rx 长轴半径
 /// @param ry 短轴半径
-static inline void renderEllipse(TpCanvasData *painterData, const TpPoint &center, const int32_t &rx, const int32_t &ry, const TpHollowMask &hollowMaskData = TpHollowMask())
+static inline void renderEllipse(TpPainterData *painterData, const TpPoint &center, const int32_t &rx, const int32_t &ry, const TpHollowMask &hollowMaskData = TpHollowMask())
 {
     if (!painterData->swCanvas)
         return;
@@ -614,7 +614,7 @@ static inline void renderEllipse(TpCanvasData *painterData, const TpPoint &cente
 }
 
 // 绘制圆环
-static inline void renderArc(TpCanvasData *painterData, const TpPoint &center, int32_t rad,
+static inline void renderArc(TpPainterData *painterData, const TpPoint &center, int32_t rad,
                              const double &start, const double &end, bool isPie, const TpHollowMask &hollowMaskData = TpHollowMask())
 {
     if (!painterData->swCanvas)
@@ -720,7 +720,7 @@ static inline void renderArc(TpCanvasData *painterData, const TpPoint &center, i
 }
 
 // 绘制多边形
-static inline void renderPolygon(TpCanvasData *painterData, const TpVector<TpPoint> &pointList, const TpHollowMask &hollowMaskData = TpHollowMask())
+static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPoint> &pointList, const TpHollowMask &hollowMaskData = TpHollowMask())
 {
     if (pointList.size() == 0)
         return;

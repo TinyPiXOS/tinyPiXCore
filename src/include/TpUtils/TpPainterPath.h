@@ -46,6 +46,20 @@ public:
     /// @param yRadius Y方向圆角半径
     void addRoundedRect(const TpRect &rect, float radius);
 
+    /// @brief 添加圆弧路径
+    /// @param center 圆心坐标
+    /// @param radius 半径
+    /// @param startAngle 起始角度（度）0度：指向右侧（正X轴方向）90度：指向下方（正Y轴方向）
+    /// @param endAngle 终止角度（度）要比起始角度大
+    void addArc(const TpPoint &center, float radius, float startAngle, float endAngle);
+
+    /// @brief 添加扇形路径
+    /// @param center 圆心坐标
+    /// @param radius 半径
+    /// @param startAngle 起始角度（度）0度：指向右侧（正X轴方向）90度：指向下方（正Y轴方向）
+    /// @param endAngle 终止角度（度）要比起始角度大
+    void addPie(const TpPoint &center, float radius, float startAngle, float endAngle);
+
     /// @brief 闭合路径（添加起点到当前点的线段）
     void closeSubpath();
 
@@ -60,6 +74,9 @@ public:
     /// @return 包含整个路径的矩形
     TpRect boundingRect() const;
 
+    /// @brief 连接两个路径
+    /// @param other 要连接的路径
+    TpPainterPath operator+(const TpPainterPath &other) const;
     /// @brief 连接两个路径
     /// @param other 要连接的路径
     TpPainterPath &operator+=(const TpPainterPath &other);
