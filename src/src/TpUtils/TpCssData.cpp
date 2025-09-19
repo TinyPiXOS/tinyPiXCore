@@ -65,6 +65,47 @@ public:
     int32_t solidColor() const { return solidColor_; }
     bool isGradient() const { return isGradient_; }
     TpGradient *gradient() const { return gradient_.get(); }
+    void setGradient(TpGradient *gradient)
+    {
+        if (gradient)
+        {
+            if (gradient->gradientType() == TpGradient::LinearGradient)
+            {
+                isGradient_ = true;
+
+                TpLinearGradient *inputGradient = dynamic_cast<TpLinearGradient *>(gradient);
+                tpShared<TpLinearGradient> lineGradient = tpMakeShared<TpLinearGradient>();
+                *lineGradient = *inputGradient;
+                gradient_ = lineGradient;
+            }
+            else if (gradient->gradientType() == TpGradient::RadialGradient)
+            {
+                isGradient_ = true;
+
+                TpRadialGradient *inputGradient = dynamic_cast<TpRadialGradient *>(gradient);
+                tpShared<TpRadialGradient> radialGradient = tpMakeShared<TpRadialGradient>();
+                *radialGradient = *inputGradient;
+                gradient_ = radialGradient;
+            }
+            else
+            {
+                gradient_.reset();
+                isGradient_ = false;
+            }
+
+            TpList<std::pair<float, int32_t>> colorAtList = gradient_->getColors();
+            if (!colorAtList.empty())
+            {
+                solidColor_ = colorAtList.front().second;
+            }
+        }
+        else
+        {
+            gradient_.reset();
+            isGradient_ = false;
+        }
+    }
+
     bool parsed() const { return parsed_; }
     void reset()
     {
@@ -240,6 +281,8 @@ TpGradient *TpCssData::backgroundColorGradiant()
 
 void TpCssData::setBackgroundColor(TpGradient *color)
 {
+    TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
+    cssData->backgroundColor_.setGradient(color);
 }
 
 int32_t TpCssData::borderColor()

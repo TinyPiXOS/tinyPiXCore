@@ -121,6 +121,7 @@ struct ItpObjectSet
     // 背景颜色
     bool enableColor = true;
     uint32_t backColor;
+    TpBrush backBrush;
 
     // 边框颜色
     bool enableBorderColor = false;
