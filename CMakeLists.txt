@@ -13,15 +13,15 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/bin")
 
 # 安装目标目录
-set(INSTALL_INCLUDE_DIR "/usr/include/tinyPiX")
+set(INSTALL_INCLUDE_DIR "/usr/include/TinyPiX")
 # 安装资源文件
-set(INSTALL_RESOURCE_DIR "/usr/res/tinyPiX")
+set(INSTALL_RESOURCE_DIR "/usr/res/TinyPiX")
 # 安装数据文件
-set(INSTALL_DATA_DIR "/usr/data/tinyPiX")
+set(INSTALL_DATA_DIR "/usr/data/TinyPiX")
 # 安装bin文件
-set(INSTALL_BIN_DIR "/usr/bin/tinyPiX")
+set(INSTALL_BIN_DIR "/usr/bin/TinyPiX")
 # 安装bin文件
-set(INSTALL_LIB_DIR "/usr/lib/tinyPiX" CACHE PATH "Global library installation directory")
+set(INSTALL_LIB_DIR "/usr/lib/TinyPiX" CACHE PATH "Global library installation directory")
 # 定义可执行程序的软链接目录
 set(LINK_BIN_DIR "/usr/bin")
 # 定义动态库软链接的目标目录
@@ -35,7 +35,7 @@ add_custom_target(test_config
 # 添加子目录
 add_subdirectory(TpUtils)
 add_subdirectory(TpExtUtils)
-add_subdirectory(TpGui)
+add_subdirectory(TpGUI)
 add_subdirectory(TpService)
 # add_subdirectory(examplesApp)
 
@@ -121,7 +121,7 @@ install(CODE "
 
 # 安装生成库到安装目录
 install(TARGETS TpService RUNTIME DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/bin)
-install(TARGETS TpGui LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
+install(TARGETS TpGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 install(TARGETS TpExtUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 install(TARGETS TpUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 
@@ -219,11 +219,11 @@ add_custom_target(create_symlinks
     COMMAND ${CMAKE_COMMAND} -E echo "创建软链接..."
     ${COPY_DEPEND_COMMANDS}
     ${CREATE_LINK_COMMANDS}
-    COMMENT "/usr/lib/tinyPiX .so文件创建符号链接"
+    COMMENT "/usr/lib/TinyPiX .so文件创建符号链接"
 )
 
 # 确保拷贝在构建前执行
 add_dependencies(TpUtils create_symlinks)
 add_dependencies(TpExtUtils create_symlinks)
-add_dependencies(TpGui create_symlinks)
+add_dependencies(TpGUI create_symlinks)
 add_dependencies(TpService create_symlinks)

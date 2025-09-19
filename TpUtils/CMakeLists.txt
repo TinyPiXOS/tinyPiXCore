@@ -119,7 +119,7 @@ set(SOURCE_FILES
 )
 
 include_directories(/usr/include)
-include_directories(/usr/include/PiXWM)
+include_directories(/usr/include/TpWM)
 include_directories(/usr/include/SDL2)
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/cairo)
@@ -136,14 +136,14 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils/JsonStructPackage)
-include_directories(${SOURCE_PATH}/include/TpGui)
-include_directories(${SOURCE_PATH}/include/TpGui/Core)
-include_directories(${SOURCE_PATH}/include/TpGui/Screen)
-include_directories(${SOURCE_PATH}/include/TpGui/Widgets)
+include_directories(${SOURCE_PATH}/include/TpGUI)
+include_directories(${SOURCE_PATH}/include/TpGUI/Core)
+include_directories(${SOURCE_PATH}/include/TpGUI/Screen)
+include_directories(${SOURCE_PATH}/include/TpGUI/Widgets)
 include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpExtUtils/SystemLib)
 include_directories(${SOURCE_PATH}/include_p/TpUtils)
-include_directories(${SOURCE_PATH}/include_p/TpGui)
+include_directories(${SOURCE_PATH}/include_p/TpGUI)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/CSSParser)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/CSSParser/Applicability)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/CSSParser/Vendor)
@@ -170,7 +170,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
 endif()
 
 # 将pthread库链接到可执行目标
-target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} dl pthread PiXApi SDL2 SDL2_image SDL2_gfx
+target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} dl pthread TpAPI SDL2 SDL2_image SDL2_gfx
     cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime thorvg
 )
 

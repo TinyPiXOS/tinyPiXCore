@@ -52,10 +52,10 @@ TpInputMethod::TpInputMethod()
 
     // 设置应用基本信息
     traits.app_name = "tinyPiXOS";                      // 应用名称
-    traits.shared_data_dir = "/usr/data/tinyPiX/rime/"; // 修改共享数据目录
-    traits.user_data_dir = "/usr/data/tinyPiX/rime/";   // 修改用户数据目录
+    traits.shared_data_dir = "/usr/data/TinyPiX/rime/"; // 修改共享数据目录
+    traits.user_data_dir = "/usr/data/TinyPiX/rime/";   // 修改用户数据目录
     traits.min_log_level = 1;
-    traits.log_dir = "usr/data/tinyPiX/rime/log/";
+    traits.log_dir = "usr/data/TinyPiX/rime/log/";
     traits.data_size = sizeof(RimeTraits);
 
     // 设置分发信息（可选）

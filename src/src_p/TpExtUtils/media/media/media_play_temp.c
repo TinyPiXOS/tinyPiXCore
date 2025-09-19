@@ -47,7 +47,7 @@ static int sdl_display_init(struct MediaVideoHandle *display,uint32_t *format,in
 	}
 
 	//创建SDL窗口
-	display->window = SDL_CreateWindow("tinyPiX Video", x, y, w, h, SDL_WINDOW_HIDDEN);//隐藏：SDL_WINDOW_HIDDEN,显示：SDL_WINDOW_SHOWN
+	display->window = SDL_CreateWindow("TinyPiX Video", x, y, w, h, SDL_WINDOW_HIDDEN);//隐藏：SDL_WINDOW_HIDDEN,显示：SDL_WINDOW_SHOWN
 	if (!display->window) {
 		fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		SDL_Quit();

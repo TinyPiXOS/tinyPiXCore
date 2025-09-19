@@ -54,7 +54,7 @@
 #define tpUniquePtr std::unique_ptr
 #define tpMakeShared std::make_shared
 
-namespace tinyPiX
+namespace Tp
 {
     enum ItpObjectType
     {

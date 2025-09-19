@@ -26,16 +26,16 @@ set(SOURCE_FILES
 
 include_directories(${SOURCE_PATH})
 include_directories(/usr/include)
-include_directories(/usr/include/PiXWM)
-include_directories(/usr/include/tinyPiX)
-include_directories(/usr/include/tinyPiX/Api)
-include_directories(/usr/include/tinyPiX/Utils)
-include_directories(/usr/include/tinyPiX/ExternUtils)
-include_directories(/usr/include/tinyPiX/SingleGUI)
-include_directories(/usr/include/tinyPiX/SingleGUI/Core)
-include_directories(/usr/include/tinyPiX/SingleGUI/Screen)
-include_directories(/usr/include/tinyPiX/SingleGUI/Widgets)
-include_directories(/usr/include/tinyPiX/GUIFramework)
+include_directories(/usr/include/TpWM)
+include_directories(/usr/include/TinyPiX)
+include_directories(/usr/include/TinyPiX/Api)
+include_directories(/usr/include/TinyPiX/Utils)
+include_directories(/usr/include/TinyPiX/ExternUtils)
+include_directories(/usr/include/TinyPiX/SingleGUI)
+include_directories(/usr/include/TinyPiX/SingleGUI/Core)
+include_directories(/usr/include/TinyPiX/SingleGUI/Screen)
+include_directories(/usr/include/TinyPiX/SingleGUI/Widgets)
+include_directories(/usr/include/TinyPiX/GUIFramework)
 include_directories(/usr/include/SDL2)
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/cairo)
@@ -47,5 +47,5 @@ include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
 add_executable(examplesApp ${SOURCE_FILES})
 
 # 将pthread库链接到可执行目标
-target_link_libraries(examplesApp pthread dl pthread PiXApi TpGui TpUtils TpExtUtils
+target_link_libraries(examplesApp pthread dl pthread TpAPI TpGUI TpUtils TpExtUtils
     SDL2 SDL2_image SDL2_gfx cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL )

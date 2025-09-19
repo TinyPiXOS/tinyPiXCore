@@ -302,39 +302,39 @@ make install
 #### 目录结构
 
 - ​**可执行程序安装路径**​  
-  `/usr/bin/tinyPiX`
+  `/usr/bin/TinyPiX`
 - ​**头文件安装路径**​  
-  `/usr/include/tinyPiX`
+  `/usr/include/TinyPiX`
 - ​**动态库安装路径**​  
-  `/usr/lib/tinyPiX`
+  `/usr/lib/TinyPiX`
 - ​**资源文件安装路径**​  
-  `/usr/res/tinyPiX`
+  `/usr/res/TinyPiX`
 - ​**数据文件安装路径**​  
-  `/usr/data/tinyPiX`
+  `/usr/data/TinyPiX`
 
 #### 应用程序库引入
 
 ```cmake
 # SingleGUI引入：
-include_directories(/usr/include/tinyPiX/SingleGUI)
+include_directories(/usr/include/TinyPiX/SingleGUI)
 link_directories("/usr/lib")
 target_link_libraries(你的应用程序名称 SingleGUI)
 
 # Utils引入：
-include_directories(/usr/include/tinyPiX/Utils)
+include_directories(/usr/include/TinyPiX/Utils)
 link_directories("/usr/lib")
 target_link_libraries(你的应用程序名称 Utils)
 
 # ExternUtils引入
-include_directories(/usr/include/tinyPiX/ExternUtils)
+include_directories(/usr/include/TinyPiX/ExternUtils)
 link_directories("/usr/lib")
 target_link_libraries(你的应用程序名称 ExternUtils)
 
 # desktopGUI引入
-include_directories(/usr/include/tinyPiX/SingleGUI)
-include_directories(/usr/include/tinyPiX/Utils)
-include_directories(/usr/include/tinyPiX/ExternUtils)
-include_directories(/usr/include/tinyPiX/GUIFramework/desktopGUI)
+include_directories(/usr/include/TinyPiX/SingleGUI)
+include_directories(/usr/include/TinyPiX/Utils)
+include_directories(/usr/include/TinyPiX/ExternUtils)
+include_directories(/usr/include/TinyPiX/GUIFramework/desktopGUI)
 link_directories("/usr/lib")
 target_link_libraries(你的应用程序名称 PiXDesktopGUI SingleGUI Utils ExternUtils)
 ```

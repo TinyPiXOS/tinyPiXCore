@@ -24,7 +24,7 @@
 #include "TpDisplay.h"
 
 #define DRM_DEVICE_PATH "/dev/dri/card0"
-#define TINYPIX_CONF_PATH	"/System/conf/tinyPiX.conf"
+#define TINYPIX_CONF_PATH	"/System/conf/TinyPiX.conf"
 
 /*typedef struct {
 	Time timestamp;          // 资源的时间戳，标识资源的更新时间

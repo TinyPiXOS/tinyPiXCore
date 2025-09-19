@@ -10,7 +10,7 @@
 #
 # 参数:
 #   TARGET        CMake目标名
-#   INSTALL_DIR   库安装目录 (默认: /usr/lib/tinyPiX)
+#   INSTALL_DIR   库安装目录 (默认: /usr/lib/TinyPiX)
 #   LINK_DIR      软链接创建目录 (默认: /usr/lib)
 #   LINK_NAME     自定义链接名 (默认为目标文件名)
 
@@ -27,7 +27,7 @@ function(cmake_create_core_symlink)
 
     # 设置默认值
     if(NOT ARG_INSTALL_DIR)
-        set(ARG_INSTALL_DIR "/usr/lib/tinyPiX")
+        set(ARG_INSTALL_DIR "/usr/lib/TinyPiX")
     endif()
 
     if(NOT ARG_LINK_DIR)

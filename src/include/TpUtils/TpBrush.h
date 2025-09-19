@@ -16,12 +16,12 @@ public:
 
     /// @brief 使用指定样式创建画刷
     /// @param bs 画刷样式
-    explicit TpBrush(tinyPiX::BrushStyle bs);
+    explicit TpBrush(Tp::BrushStyle bs);
 
     /// @brief 使用指定颜色和样式创建画刷
     /// @param color 填充颜色
     /// @param bs 画刷样式（默认为实心填充）
-    TpBrush(const TpColors &color, tinyPiX::BrushStyle bs = tinyPiX::SolidPattern);
+    TpBrush(const TpColors &color, Tp::BrushStyle bs = Tp::SolidPattern);
 
     /// @brief 复制构造函数
     /// @param brush 要复制的画刷对象
@@ -41,11 +41,11 @@ public:
 
     /// @brief 获取画刷样式
     /// @return 当前画刷样式
-    tinyPiX::BrushStyle style() const;
+    Tp::BrushStyle style() const;
 
     /// @brief 设置画刷样式
     /// @param bs 要设置的画刷样式
-    void setStyle(tinyPiX::BrushStyle bs);
+    void setStyle(Tp::BrushStyle bs);
 
     /// @brief 获取画刷颜色
     /// @return 当前画刷颜色

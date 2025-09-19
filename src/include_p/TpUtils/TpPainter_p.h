@@ -41,7 +41,7 @@ struct TpCanvasData
 
     TpCanvasData()
     {
-        drawBrush.setStyle(tinyPiX::NoBrush);
+        drawBrush.setStyle(Tp::NoBrush);
     }
 };
 
@@ -134,8 +134,8 @@ std::pair<TpPoint, TpPoint> calculateRayIntersections(float angleDeg, float widt
 static inline tvg::Fill *parseGradientPtr(TpCanvasData *painterData)
 {
     TpBrush gradientBrush = painterData->drawBrush;
-    if (gradientBrush.style() != tinyPiX::LinearGradientPattern &&
-        gradientBrush.style() != tinyPiX::RadialGradientPattern)
+    if (gradientBrush.style() != Tp::LinearGradientPattern &&
+        gradientBrush.style() != Tp::RadialGradientPattern)
         return nullptr;
 
     TpGradient *brushGradientPtr = gradientBrush.gradient();
@@ -520,7 +520,7 @@ static inline void renderRect(TpCanvasData *painterData, const TpRect &rect, int
     int32_t penColor = painterData->drawPen.color().rgba();
     int32_t brushColor = painterData->drawBrush.color().rgba();
 
-    if (painterData->drawBrush.style() == tinyPiX::NoBrush)
+    if (painterData->drawBrush.style() == Tp::NoBrush)
     {
         if (gradientPtr)
             rectShape->strokeFill(gradientPtr);
@@ -529,7 +529,7 @@ static inline void renderRect(TpCanvasData *painterData, const TpRect &rect, int
 
         rectShape->strokeWidth(painterData->drawPen.width());
     }
-    else if (painterData->drawBrush.style() == tinyPiX::SolidPattern)
+    else if (painterData->drawBrush.style() == Tp::SolidPattern)
     {
         if (gradientPtr)
             rectShape->fill(gradientPtr);
@@ -570,7 +570,7 @@ static inline void renderEllipse(TpCanvasData *painterData, const TpPoint &cente
     int32_t penColor = painterData->drawPen.color().rgba();
     int32_t brushColor = painterData->drawBrush.color().rgba();
 
-    if (painterData->drawBrush.style() == tinyPiX::NoBrush)
+    if (painterData->drawBrush.style() == Tp::NoBrush)
     {
         if (gradientPtr)
             circle->strokeFill(gradientPtr);
@@ -579,7 +579,7 @@ static inline void renderEllipse(TpCanvasData *painterData, const TpPoint &cente
 
         circle->strokeWidth(painterData->drawPen.width());
     }
-    else if (painterData->drawBrush.style() == tinyPiX::SolidPattern)
+    else if (painterData->drawBrush.style() == Tp::SolidPattern)
     {
         if (gradientPtr)
             circle->fill(gradientPtr);
@@ -661,7 +661,7 @@ static inline void renderArc(TpCanvasData *painterData, const TpPoint &center, i
         arc->lineTo(center.x(), center.y()); // 画线到起点
         arc->close();                        // 闭合路径回到圆心
 
-        if (painterData->drawBrush.style() == tinyPiX::NoBrush)
+        if (painterData->drawBrush.style() == Tp::NoBrush)
         {
             if (gradientPtr)
                 arc->strokeFill(gradientPtr);
@@ -670,7 +670,7 @@ static inline void renderArc(TpCanvasData *painterData, const TpPoint &center, i
 
             arc->strokeWidth(painterData->drawPen.width());
         }
-        else if (painterData->drawBrush.style() == tinyPiX::SolidPattern)
+        else if (painterData->drawBrush.style() == Tp::SolidPattern)
         {
             if (gradientPtr)
                 arc->fill(gradientPtr);
@@ -753,7 +753,7 @@ static inline void renderPolygon(TpCanvasData *painterData, const TpVector<TpPoi
         int32_t penColor = painterData->drawPen.color().rgba();
         int32_t brushColor = painterData->drawBrush.color().rgba();
 
-        if (painterData->drawBrush.style() == tinyPiX::NoBrush)
+        if (painterData->drawBrush.style() == Tp::NoBrush)
         {
             if (gradientPtr)
                 polygon->strokeFill(gradientPtr);
@@ -762,7 +762,7 @@ static inline void renderPolygon(TpCanvasData *painterData, const TpVector<TpPoi
 
             polygon->strokeWidth(painterData->drawPen.width());
         }
-        else if (painterData->drawBrush.style() == tinyPiX::SolidPattern)
+        else if (painterData->drawBrush.style() == Tp::SolidPattern)
         {
             if (gradientPtr)
                 polygon->fill(gradientPtr);
