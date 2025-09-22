@@ -253,11 +253,12 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
             continue;
 
         ItpObjectSet *childSet = (ItpObjectSet *)child->objectSets();
-        TpPaintEvent event;
         ItpObjectPaintInput input;
         input.object = child;
         input.updateRect = events->updateRect();
         input.surface = events->surface();
+
+        TpPaintEvent event;
         event.construct(&input);
 
         // 刷新前清除scene

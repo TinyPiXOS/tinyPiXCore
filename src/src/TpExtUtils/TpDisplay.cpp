@@ -24,7 +24,7 @@
 #include "TpDisplay.h"
 
 #define DRM_DEVICE_PATH "/dev/dri/card0"
-#define TINYPIX_CONF_PATH	"/System/conf/TinyPiX.conf"
+#define TINYPIX_CONF_PATH	"/System/conf/tinyPiX.conf"
 
 /*typedef struct {
 	Time timestamp;          // 资源的时间戳，标识资源的更新时间
@@ -304,16 +304,14 @@ tpInt32 TpDisplay::getResolutionWidth() {
 
 tpInt32 TpDisplay::getPiXWMResolutionWidth()
 {
-	TpConfig conf;
-	conf.readFrom(TINYPIX_CONF_PATH);
-	return conf.keyValueAsInteger("display-setting", "width");
+	TpConfig conf(TINYPIX_CONF_PATH);
+	return conf.value("display-setting/width").toInt();
 }
 
 tpInt32 TpDisplay::getPiXWMResolutionHeight()
 {
-	TpConfig conf;
-	conf.readFrom(TINYPIX_CONF_PATH);
-	return conf.keyValueAsInteger("display-setting", "height");
+	TpConfig conf(TINYPIX_CONF_PATH);
+	return conf.value("display-setting/height").toInt();
 }
 
 

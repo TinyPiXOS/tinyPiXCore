@@ -115,6 +115,28 @@ int32_t TpString::indexOf(char ch, int32_t from) const
     return (pos == std::string::npos) ? -1 : static_cast<int32_t>(pos);
 }
 
+int32_t TpString::lastIndexOf(const TpString &str, int32_t from) const
+{
+    // 处理from参数的默认值和边界情况
+    size_t startPos = (from == 0) ? std::string::npos : static_cast<size_t>(from);
+
+    // 使用std::string的rfind方法进行反向查找[5](@ref)
+    size_t pos = this->rfind(str, startPos);
+
+    return (pos == std::string::npos) ? -1 : static_cast<int32_t>(pos);
+}
+
+int32_t TpString::lastIndexOf(char ch, int32_t from) const
+{
+    // 处理from参数的默认值和边界情况
+    size_t startPos = (from == 0) ? std::string::npos : static_cast<size_t>(from);
+
+    // 使用std::string的rfind方法进行反向查找[5](@ref)
+    size_t pos = this->rfind(ch, startPos);
+
+    return (pos == std::string::npos) ? -1 : static_cast<int32_t>(pos);
+}
+
 TpString TpString::number(int32_t num, int32_t width, char fillChar)
 {
     return formatNumber(num, width, fillChar);

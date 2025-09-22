@@ -1147,11 +1147,6 @@ bool TpChildWidget::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpChildWidget::onResizeEvent(TpResizeEvent *event)
 {
-    TpObject *object = event->object();
-
-    if (!object)
-        return false;
-
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
         return false;

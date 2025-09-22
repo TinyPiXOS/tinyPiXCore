@@ -23,7 +23,6 @@ class TpResizeEvent;
 class TpFocusEvent;
 class TpLeaveEvent;
 class TpVisibleEvent;
-class TpRotateEvent;
 class TpPaintEvent;
 class TpActiveEvent;
 class TpThemeChangeEvent;
