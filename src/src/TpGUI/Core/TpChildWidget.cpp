@@ -1211,7 +1211,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
         {
             if ((curCssData->backgroundColor() & 0xff) != 0xff)
             {
-                // painter->erase();
+                painter->erase();
             }
         }
 

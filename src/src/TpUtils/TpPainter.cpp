@@ -550,34 +550,10 @@ void TpPainter::erase()
 
     if (painterData && painterData->beUsed)
     {
-        // // 方法1：清除所有 Paint 对象
-        // painterData->swCanvas->remove();
-
-        // // 方法2：清除缓冲区并重新绘制
-        // painterData->swCanvas->draw(true);
-        // painterData->swCanvas->sync();
-
-        TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-        if (!painterData || !painterData->swCanvas || !painterData->beUsed)
-            return;
-
-        // 获取裁剪矩形（类似 SDL_GetClipRect）
-        TpRect clipRect = painterData->TpSurfacePtr->clipRect();
-
-        // 设置视口到裁剪区域
-        // <cite> inc / thorvg.h : 846 - 871 < / cite >
-        painterData->swCanvas->viewport(clipRect.x(), clipRect.y(), clipRect.width(), clipRect.height());
-
-        // 清除该区域（相当于 CAIRO_OPERATOR_CLEAR）
-        // <cite> inc / thorvg.h : 825 - 843 < / cite >
-        painterData->swCanvas->draw(true); // true 参数会清除缓冲区
-
-        // 恢复完整视口
-        int32_t surfaceWidth = painterData->TpSurfacePtr->width();
-        int32_t surfaceHeight = painterData->TpSurfacePtr->height();
-        painterData->swCanvas->viewport(0, 0, surfaceWidth, surfaceHeight);
-
-        // 同步操作
+        refreshCanvasTarget(painterData);
+        
+        // 清除并绘制
+        painterData->swCanvas->draw(true); // true参数会清除目标缓冲区
         painterData->swCanvas->sync();
     }
 }
