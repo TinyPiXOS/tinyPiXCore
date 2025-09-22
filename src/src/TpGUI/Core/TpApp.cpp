@@ -487,7 +487,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 #endif
 }
 
-static inline bool hold_app_second_run(const char *runPath, const char *uuid)
+static inline bool holdAppSecondRun(const char *runPath, const char *uuid)
 {
     int32_t fd;
     int32_t lock_result;
@@ -519,7 +519,7 @@ static inline bool hold_app_second_run(const char *runPath, const char *uuid)
     return false;
 }
 
-static inline bool decide_run_once(const char *appName)
+static inline bool decideRunOnce(const char *appName)
 {
     char tempPath[PATH_MAX] = {0};
     char *currentPath = get_current_dir_name();
@@ -537,10 +537,10 @@ static inline bool decide_run_once(const char *appName)
         return false;
     }
 
-    return hold_app_second_run(currentPath, md5);
+    return holdAppSecondRun(currentPath, md5);
 }
 
-static inline bool check_digitals(char *args)
+static inline bool checkDigitals(char *args)
 {
     if (args == NULL)
     {
@@ -580,7 +580,7 @@ static inline bool parseArgs(ItpAppSet *set, int32_t argc, char *argv[])
         {
         case 'p':
         {
-            ret = check_digitals(optarg);
+            ret = checkDigitals(optarg);
 
             if (ret)
             {
@@ -590,7 +590,7 @@ static inline bool parseArgs(ItpAppSet *set, int32_t argc, char *argv[])
         break;
         case 'i':
         {
-            ret = check_digitals(optarg);
+            ret = checkDigitals(optarg);
 
             if (ret)
             {
@@ -617,7 +617,7 @@ static inline bool parseArgs(ItpAppSet *set, int32_t argc, char *argv[])
     return true;
 }
 
-static void SendThemeChangedEvent(ItpAppSet *setData, const Tp::SystemTheme &sysTheme)
+static void sendThemeChangedEvent(ItpAppSet *setData, const Tp::SystemTheme &sysTheme)
 {
     TpThemeChangeEvent *themeEvent = new TpThemeChangeEvent();
 
@@ -645,7 +645,7 @@ static void SendThemeChangedEvent(ItpAppSet *setData, const Tp::SystemTheme &sys
     themeEvent = nullptr;
 }
 
-static void InitVirtualKeyboard(ItpAppSet *set)
+static void initVirtualKeyboard(ItpAppSet *set)
 {
     if (set->virtualKeyboard)
         return;
@@ -687,7 +687,7 @@ TpApp::TpApp(int32_t argc, char *argv[])
 
     ItpAppSet *set = new ItpAppSet();
 
-    bool ret = decide_run_once(argv[0]);
+    bool ret = decideRunOnce(argv[0]);
 
     if (ret)
     {
@@ -900,7 +900,7 @@ void TpApp::setStyle(const Tp::SystemTheme &style)
 
         // app run起来之后才下发主题切换事件，在run的时候已经解析过了
         // if (set->waitRun)
-        //     SendThemeChangedEvent(set, style);
+        //     sendThemeChangedEvent(set, style);
     }
 }
 
@@ -927,7 +927,7 @@ void TpApp::wakeUpVirtualKeyboard(TpChildWidget *object)
     ItpAppSet *set = (ItpAppSet *)this->appSet;
 
     if (set->virtualKeyboard == nullptr)
-        InitVirtualKeyboard(set);
+        initVirtualKeyboard(set);
 
     set->curInputObj = object;
     set->virtualKeyboard->show();

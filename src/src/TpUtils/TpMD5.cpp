@@ -36,18 +36,18 @@
         a += b;                   \
     }
 
-typedef struct
+struct MD5_CTX
 {
     int32_t count[2];
     int32_t state[4];
     uint8_t buffer[64];
-} MD5_CTX;
+};
 
-typedef struct
+struct TpMD5Data
 {
     char MD5String[MAX_MD5_LENGTH];
     int32_t length;
-} ItpMD5Set;
+};
 
 static unsigned char PADDING[] =
     {
@@ -230,32 +230,33 @@ static inline void MD5Final(MD5_CTX *context, uint8_t digest[16])
 
 TpMD5::TpMD5()
 {
-    ItpMD5Set *set = new ItpMD5Set();
+    TpMD5Data *set = new TpMD5Data();
 
     if (set)
     {
         memset(set->MD5String, 0, MAX_MD5_LENGTH);
         set->length = 0;
-        this->md5Set = set;
+        data_ = set;
     }
 }
 
 TpMD5::~TpMD5()
 {
-    ItpMD5Set *set = (ItpMD5Set *)this->md5Set;
+    TpMD5Data *set = static_cast<TpMD5Data *>(data_);
 
     if (set)
     {
         delete set;
+        data_ = nullptr;
     }
 }
 
-const char *TpMD5::create(std::string &srcString, TpMD5::ItpMD5Type type)
+const char *TpMD5::create(const TpString &srcString, TpMD5::MD5Type type)
 {
     return this->create(srcString.c_str(), type);
 }
 
-const char *TpMD5::create(const char *srcString, TpMD5::ItpMD5Type type)
+const char *TpMD5::create(const char *srcString, TpMD5::MD5Type type)
 {
     int32_t loopCount = 0, md5length[] = {0, 32, 64, 128, 256, 512};
 
@@ -296,7 +297,7 @@ const char *TpMD5::create(const char *srcString, TpMD5::ItpMD5Type type)
         return nullptr;
     }
 
-    ItpMD5Set *set = (ItpMD5Set *)this->md5Set;
+    TpMD5Data *set = static_cast<TpMD5Data *>(data_);
 
     if (set)
     {
@@ -322,7 +323,7 @@ const char *TpMD5::create(const char *srcString, TpMD5::ItpMD5Type type)
 
 const char *TpMD5::MD5String()
 {
-    ItpMD5Set *set = (ItpMD5Set *)this->md5Set;
+    TpMD5Data *set = static_cast<TpMD5Data *>(data_);
     const char *result = nullptr;
 
     if (set)
@@ -338,7 +339,7 @@ const char *TpMD5::MD5String()
 
 int32_t TpMD5::MD5Length()
 {
-    ItpMD5Set *set = (ItpMD5Set *)this->md5Set;
+    TpMD5Data *set = static_cast<TpMD5Data *>(data_);
     int32_t length = 0;
 
     if (set)
@@ -351,12 +352,12 @@ int32_t TpMD5::MD5Length()
 
 void TpMD5::release()
 {
-    ItpMD5Set *set = (ItpMD5Set *)this->md5Set;
+    TpMD5Data *set = static_cast<TpMD5Data *>(data_);
     int32_t length = 0;
 
     if (set)
     {
-        memset(set, 0, sizeof(ItpMD5Set));
+        memset(set, 0, sizeof(TpMD5Data));
     }
 }
 
