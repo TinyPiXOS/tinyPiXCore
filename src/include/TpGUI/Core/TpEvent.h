@@ -30,7 +30,6 @@ public:
     friend class TpFocusEvent;
     friend class TpLeaveEvent;
     friend class TpVisibleEvent;
-    friend class TpRotateEvent;
     friend class TpPaintEvent;
     friend class TpActiveEvent;
 
@@ -95,7 +94,7 @@ public:
     virtual ItpEventType eventType() = 0;
 
 protected:
-    ItpEventData *TpEventSet;
+    ItpEventData *eventData_;
 };
 
 /// @brief 窗口显示事件；暂未实现
@@ -297,9 +296,6 @@ public:
     virtual ItpEventType eventType();
 
 public:
-    virtual TpObject *object();
-
-public:
     virtual int32_t newX();
     virtual int32_t newY();
 };
@@ -326,9 +322,6 @@ public:
     virtual int32_t question();
 
 public:
-    virtual TpObject *object();
-
-public:
     virtual int32_t nWidth();
     virtual int32_t nHeight();
 };
@@ -346,9 +339,6 @@ public:
     virtual ItpEventType eventType();
 
 public:
-    virtual TpObject *object();
-
-public:
     virtual bool focused();
 };
 
@@ -363,9 +353,6 @@ public:
 
 public:
     virtual ItpEventType eventType();
-
-public:
-    virtual TpObject *object();
 
 public:
     /// @brief 鼠标是否悬停本窗口
@@ -386,29 +373,7 @@ public:
     virtual ItpEventType eventType();
 
 public:
-    virtual TpObject *object();
-
-public:
     virtual bool visible();
-};
-
-class TpRotateEvent : public TpEvent
-{
-public:
-    TpRotateEvent();
-    virtual ~TpRotateEvent();
-
-public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
-
-public:
-    virtual TpObject *object();
-
-public:
-    virtual ItpRotateType rotate();
 };
 
 class TpPaintEvent : public TpEvent
@@ -418,29 +383,23 @@ public:
     virtual ~TpPaintEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
     virtual ItpEventType eventType();
 
-public:
-    virtual TpObject *object();
-
-public:
-    virtual TpPainter *painter();            // must set offsetX and offsetY
+    virtual TpPainter *painter();          // must set offsetX and offsetY
     virtual tpShared<TpSurface> surface(); // must set clipRect
-    virtual ItpSufaceData *itpSurface();
 
-public:
     virtual int32_t offsetX();
     virtual int32_t offsetY();
 
-public:
     virtual TpRect updateRect(); // update rect
     virtual TpRect rect();       // object logical rect, use this to canvas
     virtual TpRect absRect();    // object absolute rect, use this to canvas, not object absrect
-public:
+
     virtual bool isCanDraw();
+
+public:
+/// @brief 构建绘制事件数据；用户无需调用
+    virtual bool construct(ItpEventData *eventData) override;
 };
 
 class TpActiveEvent : public TpEvent
@@ -454,9 +413,6 @@ public:
 
 public:
     virtual ItpEventType eventType();
-
-public:
-    virtual TpObject *object();
 
 public:
     virtual bool isActived();

@@ -68,6 +68,18 @@ public:
     /// @return 字符的位置索引，如果未找到则返回-1
     int32_t indexOf(char ch, int32_t from = 0) const;
 
+    /// @brief 从字符串末尾开始查找子字符串的位置
+    /// @param str 要查找的子字符串
+    /// @param from 开始查找的位置（默认为0）
+    /// @return 子字符串的位置索引，如果未找到则返回-1
+    int32_t lastIndexOf(const TpString &str, int32_t from = 0) const;
+
+    /// @brief 从字符串末尾开始查找字符的位置
+    /// @param ch 要查找的字符
+    /// @param from 开始查找的位置（默认为0）
+    /// @return 字符的位置索引，如果未找到则返回-1
+    int32_t lastIndexOf(char ch, int32_t from = 0) const;
+
     /// @brief 将数字转换为字符串
     /// @param num 数字
     /// @return 返回转换后的字符串
@@ -146,13 +158,13 @@ public:
     /// @return
     TpString toLower() const;
 
-    /// @brief 	在字符串左侧填充字符
+    /// @brief 在字符串左侧填充字符
     /// @param width 填充数量
     /// @param fill 填充的字符
     /// @return
     TpString leftJustified(uint32_t width, char fill = ' ') const;
 
-    /// @brief 	在字符串右侧填充字符
+    /// @brief 在字符串右侧填充字符
     /// @param width 填充数量
     /// @param fill 填充的字符
     /// @return
