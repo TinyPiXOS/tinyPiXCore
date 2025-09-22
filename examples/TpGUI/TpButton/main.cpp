@@ -2,6 +2,7 @@
 #include "TpFixScreen.h"
 #include "TpButton.h"
 #include "TpVariant.h"
+#include "TpCursor.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -16,7 +17,7 @@ int32_t main(int32_t argc, char *argv[])
     button1->setSize(300, 64);
     button1->move(150, 150);
     connect(button1, onClicked, [=](bool checked)
-            { std::cout << "按钮被点击" << std::endl; });
+            { std::cout << "按钮被点击" << std::endl; std::cout << "当前鼠标坐标" << TpCursor::pos().x() << " , " <<TpCursor::pos().y()<<std::endl; });
 
     TpButton *buttonEnable = new TpButton("河北省", vScreen);
     buttonEnable->setProperty("type", "VirtualKeyboardButton");
