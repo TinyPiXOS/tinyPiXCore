@@ -6,82 +6,24 @@
 #include <system_error>
 #include <cerrno>
 
-TpPipe::TpPipe(const std::string &pipePath, Mode mode, bool createPipe)
-    : pipePath_(pipePath), fd_(-1)
+struct TpPipeData
 {
-    if (createPipe)
-    {
-        if (mkfifo(pipePath.c_str(), 0666) == -1 && errno != EEXIST)
-        {
-            throw std::system_error(errno, std::generic_category(), "mkfifo failed");
-        }
-    }
+    TpString pipePath_; ///< 命名管道的文件系统路径
+    int fd_;            ///< 管道的文件描述符
+};
 
-    int flags = (mode == Mode::Write) ? O_WRONLY : O_RDONLY;
-    flags |= O_NONBLOCK; // 添加非阻塞标志
-    if ((fd_ = open(pipePath.c_str(), flags)) == -1)
-    {
-        throw std::system_error(errno, std::generic_category(), "open failed");
-    }
-
-    // 在构造函数末尾添加
-    // if (fd_ != -1)
-    // {
-    //     int flags = fcntl(fd_, F_GETFL);
-    //     fcntl(fd_, F_SETFL, flags & ~O_NONBLOCK);
-    // }
-}
-
-TpPipe::~TpPipe()
-{
-    if (fd_ != -1)
-    {
-        close(fd_);
-    }
-}
-
-void TpPipe::send(const std::string &topic, const char *data, size_t dataLength)
-{
-    uint32_t topicLen = static_cast<uint32_t>(topic.size());
-    uint32_t dataLen = static_cast<uint32_t>(dataLength);
-
-    writeFull(&topicLen, sizeof(topicLen));
-    writeFull(topic.data(), topicLen);
-    writeFull(&dataLen, sizeof(dataLen));
-    writeFull(data, dataLen);
-}
-
-TpPipe::PipeData TpPipe::recv()
-{
-    TpPipe::PipeData readData;
-
-    try
-    {
-        uint32_t topicLen;
-        readFull(&topicLen, sizeof(topicLen));
-
-        readData.topic.resize(topicLen);
-        readFull(&readData.topic[0], topicLen);
-
-        uint32_t dataLen;
-        readFull(&dataLen, sizeof(dataLen));
-
-        readData.data.resize(dataLen);
-        readFull(readData.data.data(), dataLen);
-    }
-    catch (const std::exception &)
-    {
-    }
-
-    return readData;
-}
-
-void TpPipe::writeFull(const void *buf, size_t count)
+/**
+ * @brief 确保写入指定数量的字节
+ * @param buf 要写入的数据缓冲区指针
+ * @param count 要写入的字节数
+ * @throw std::system_error 写入失败或写入字节数不足时抛出
+ */
+void writeFull(TpPipeData *pipeData, const void *buf, size_t count)
 {
     const char *p = static_cast<const char *>(buf);
     while (count > 0)
     {
-        ssize_t n = write(fd_, p, count);
+        ssize_t n = write(pipeData->fd_, p, count);
         if (n == -1)
         {
             throw std::system_error(errno, std::generic_category(), "write failed");
@@ -91,12 +33,18 @@ void TpPipe::writeFull(const void *buf, size_t count)
     }
 }
 
-void TpPipe::readFull(void *buf, size_t count)
+/**
+ * @brief 确保读取指定数量的字节
+ * @param buf 用于存储读取数据的缓冲区指针
+ * @param count 要读取的字节数
+ * @throw std::system_error 读取失败（如管道破裂）或读取字节数不足（遇到文件结束）时抛出
+ */
+void readFull(TpPipeData *pipeData, void *buf, size_t count)
 {
     char *p = static_cast<char *>(buf);
     while (count > 0)
     {
-        ssize_t n = read(fd_, p, count);
+        ssize_t n = read(pipeData->fd_, p, count);
         if (n <= 0)
         {
             throw std::system_error(errno, std::generic_category(), "read failed");
@@ -104,4 +52,86 @@ void TpPipe::readFull(void *buf, size_t count)
         p += n;
         count -= n;
     }
+}
+
+TpPipe::TpPipe(const TpString &pipePath, Mode mode, bool isBlock)
+{
+    TpPipeData *pipeData = new TpPipeData();
+    pipeData->pipePath_ = pipePath;
+    pipeData->fd_ = -1;
+    data_ = pipeData;
+
+    if (mkfifo(pipePath.c_str(), 0666) == -1 && errno != EEXIST)
+    {
+        throw std::system_error(errno, std::generic_category(), "mkfifo failed");
+    }
+
+    int flags = (mode == Mode::Write) ? O_WRONLY : O_RDONLY;
+
+    // 添加非阻塞标志
+    if (!isBlock)
+    {
+        flags |= O_NONBLOCK;
+    }
+
+    if ((pipeData->fd_ = open(pipePath.c_str(), flags)) == -1)
+    {
+        throw std::system_error(errno, std::generic_category(), "open failed");
+    }
+}
+
+TpPipe::~TpPipe()
+{
+    TpPipeData *pipeData = static_cast<TpPipeData *>(data_);
+    if (pipeData)
+    {
+        if (pipeData->fd_ != -1)
+        {
+            close(pipeData->fd_);
+        }
+
+        delete pipeData;
+        pipeData = nullptr;
+        data_ = nullptr;
+    }
+}
+
+void TpPipe::send(const TpString &topic, const char *data, uint32_t dataLength)
+{
+    TpPipeData *pipeData = static_cast<TpPipeData *>(data_);
+
+    uint32_t topicLen = static_cast<uint32_t>(topic.size());
+    uint32_t dataLen = dataLength;
+
+    writeFull(pipeData, &topicLen, sizeof(topicLen));
+    writeFull(pipeData, topic.data(), topicLen);
+    writeFull(pipeData, &dataLen, sizeof(dataLen));
+    writeFull(pipeData, data, dataLen);
+}
+
+TpPipe::PipeData TpPipe::recv()
+{
+    TpPipeData *pipeData = static_cast<TpPipeData *>(data_);
+
+    TpPipe::PipeData readData;
+
+    try
+    {
+        uint32_t topicLen;
+        readFull(pipeData, &topicLen, sizeof(topicLen));
+
+        readData.topic.resize(topicLen);
+        readFull(pipeData, &readData.topic[0], topicLen);
+
+        uint32_t dataLen;
+        readFull(pipeData, &dataLen, sizeof(dataLen));
+
+        readData.data.resize(dataLen);
+        readFull(pipeData, readData.data.data(), dataLen);
+    }
+    catch (const std::exception &)
+    {
+    }
+
+    return readData;
 }
