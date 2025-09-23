@@ -1,5 +1,5 @@
 #include "TpUuid.h"
-#include "sole.hpp"
+#include "sole/sole.hpp"
 
 #define UUID_MAX_LENGTH 37
 

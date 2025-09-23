@@ -3,7 +3,7 @@
 
 #include "typesDef.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpRegexData);
+TP_DEF_VOID_TYPE_VAR(ITpRegexData);
 
 class TpString;
 class TpRegex
@@ -22,7 +22,7 @@ public:
     TpString regexStr() const;
 
 private:
-    ItpRegexData *data_;
+    ITpRegexData *data_;
 };
 
 #endif
