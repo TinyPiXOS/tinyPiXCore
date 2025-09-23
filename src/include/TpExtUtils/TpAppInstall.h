@@ -2,7 +2,7 @@
 #define __TP_APP_MANAGE_H
 
 #include "TpUtils.h"
-#include "TpUUID.h"
+#include "TpUuid.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpAppInstallData);
 

@@ -3,7 +3,7 @@
 
 #include "TpUtils.h"
 #include "TpString.h"
-#include "TpUUID.h"
+#include "TpUuid.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpAppDopackData);
 
@@ -37,7 +37,7 @@ public:
 	void setAppID(const TpString& id);
 	/// @brief 设置应用的UUID
 	/// @param id tpUUID类型的UUID
-	void setAppID(const TpUUID id);
+	void setAppID(const TpUuid id);
 	/// @brief 设置应用的名字
 	/// @param name 
 	void setAppName(const TpString& name);
