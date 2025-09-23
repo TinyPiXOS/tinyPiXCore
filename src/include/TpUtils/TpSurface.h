@@ -11,6 +11,7 @@ TP_DEF_VOID_TYPE_VAR(ITpSurfaceData);
 TP_DEF_VOID_TYPE_VAR(IPiDSSurface);
 
 class TpRect;
+/// @brief 内部类，用户无需调用
 class TpSurface
 {
 public:

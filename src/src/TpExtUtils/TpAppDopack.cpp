@@ -146,7 +146,7 @@ void TpAppDopack::setAppID(const TpString& id)
 	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
 	std::strncpy(adpData->params.app_id, id.c_str(), sizeof(adpData->params.app_id) - 1);
 }
-void TpAppDopack::setAppID(const TpUUID id)
+void TpAppDopack::setAppID(const TpUuid id)
 {
 		TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
 }

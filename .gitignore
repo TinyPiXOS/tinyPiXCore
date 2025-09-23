@@ -81,3 +81,4 @@ examples/TpGUI/test/test
 examples/TpGUI/TpPainterPath/paintPath
 examples/TpGUI/TpDialog/dialog
 examples/TpUtils/TpConfig/config
+examples/TpUtils/TpUuid/uuid

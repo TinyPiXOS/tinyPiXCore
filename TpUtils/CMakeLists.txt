@@ -26,7 +26,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/TpFont.cpp
     ${SOURCE_PATH}/src/TpUtils/TpPainter.cpp
     ${SOURCE_PATH}/src/TpUtils/TpRange.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpUUID.cpp
+    ${SOURCE_PATH}/src/TpUtils/TpUuid.cpp
     ${SOURCE_PATH}/src/TpUtils/TpMD5.cpp
     ${SOURCE_PATH}/src/TpUtils/TpClipboard.cpp
     ${SOURCE_PATH}/src/TpUtils/TpConfig.cpp
