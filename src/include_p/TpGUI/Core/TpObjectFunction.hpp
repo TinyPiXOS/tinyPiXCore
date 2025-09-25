@@ -238,10 +238,13 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         if (!child)
             continue;
 
-        TpRect updateIRect = events->updateRect();
-        TpRect updateRect(updateIRect);
-
+        TpRect updateRect = events->updateRect();
         TpRect childRect = child->toScreen();
+
+        // std::cout << "updateRect区域： " << updateRect.x() << " , " << updateRect.y()
+        //           << " , " << updateRect.width() << " , " << updateRect.height() << std::endl;
+        // std::cout << "childRect: " << childRect.x() << " , " << childRect.y()
+        //           << " , " << childRect.width() << " , " << childRect.height() << std::endl;
 
         if (!updateRect.intersect(childRect))
             continue;

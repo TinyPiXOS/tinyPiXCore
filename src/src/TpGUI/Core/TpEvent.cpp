@@ -1384,16 +1384,14 @@ bool TpPaintEvent::isCanDraw()
     return canDraw;
 }
 
-bool TpPaintEvent::construct(ItpEventData *eventData)
+bool TpPaintEvent::construct(ItpEventData *inputData)
 {
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-
-    if (!set)
+    ItpObjectPaintSet *eventData = static_cast<ItpObjectPaintSet *>(TpEvent::eventData_);
+    if (!eventData)
         return false;
+    eventData->canDraw = false;
 
-    set->canDraw = false;
-
-    ItpObjectPaintInput *input = (ItpObjectPaintInput *)eventData;
+    ItpObjectPaintInput *input = static_cast<ItpObjectPaintInput *>(inputData);
     if (!input)
         return false;
 
@@ -1401,55 +1399,95 @@ bool TpPaintEvent::construct(ItpEventData *eventData)
     if (!inputObjectChild)
         return false;
 
+    // 缓存频繁使用的计算和属性
     Tp::ItpObjectType type = inputObjectChild->objectType();
-    set->object = inputObjectChild;
+    const TpRect objectAbsRect = inputObjectChild->toScreen();
+    const int32_t objWidth = inputObjectChild->width();
+    const int32_t objHeight = inputObjectChild->height();
+    const int32_t offsetXVal = inputObjectChild->offsetX();
+    const int32_t offsetYVal = inputObjectChild->offsetY();
+
+    eventData->object = inputObjectChild;
+    eventData->surface = input->surface;
 
     if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_TOP_OBJECT)
     {
-        set->offsetX = 0;
-        set->offsetY = 0;
+        eventData->offsetX = 0;
+        eventData->offsetY = 0;
     }
     else
     {
-        set->offsetX = inputObjectChild->toScreen().x() - inputObjectChild->offsetX();
-        set->offsetY = inputObjectChild->toScreen().y() - inputObjectChild->offsetY();
+        eventData->offsetX = objectAbsRect.x() - offsetXVal;
+        eventData->offsetY = objectAbsRect.y() - offsetYVal;
     }
 
-    set->surface = input->surface;
-    set->canvas = new TpPainter(set->surface, set->offsetX, set->offsetY, inputObjectChild->width(), inputObjectChild->height());
-
-    if (set->canvas == nullptr)
+    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    if (eventData->canvas == nullptr)
     {
-        set->surface = nullptr;
+        eventData->surface = nullptr;
         return false;
     }
 
-    TpRect clipRect = input->updateRect;
-    TpRect objectAbsRect = inputObjectChild->toScreen();
-    TpRect absRect(objectAbsRect);
+    // 限制绘制区域;如果父窗口比自己大，则使用自己的尺寸，如果父窗口比自己小，则使用父窗口的
+    TpRect clipRect = objectAbsRect;
+    TpChildWidget *inputParentWidget = dynamic_cast<TpChildWidget *>(inputObjectChild->parent());
 
-    set->canDraw = clipRect.intersect(absRect);
-
-    if (set->canDraw == false)
+    eventData->canDraw = true;
+    if (inputParentWidget)
     {
-        return false;
+        // std::cout << "objectAbsRect " << objectAbsRect.x() << " , " << objectAbsRect.y()
+        //   << " , " << objectAbsRect.width() << " , " << objectAbsRect.height() << std::endl;
+
+        while (inputParentWidget)
+        {
+            TpRect inputParentRect = inputParentWidget->toScreen();
+
+            // std::cout << "合并前inputParentRect " << inputParentRect.x() << " , " << inputParentRect.y()
+            //           << " , " << inputParentRect.width() << " , " << inputParentRect.height() << std::endl;
+            // std::cout << "合并前clipRect " << clipRect.x() << " , " << clipRect.y()
+            //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
+
+            clipRect.setX(TP_MAX(clipRect.x(), inputParentRect.x()));
+            clipRect.setY(TP_MAX(clipRect.y(), inputParentRect.y()));
+
+            int32_t tempWidth = TP_MIN(clipRect.x() + clipRect.width(), inputParentRect.x() + inputParentRect.width());
+            int32_t tempHeight = TP_MIN(clipRect.y() + clipRect.height(), inputParentRect.y() + inputParentRect.height());
+
+            clipRect.setWidth(tempWidth - clipRect.x());
+            clipRect.setHeight(tempHeight - clipRect.y());
+
+            // std::cout << "合并区域结果：clipRect " << clipRect.x() << " , " << clipRect.y()
+            //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
+
+            inputParentWidget = dynamic_cast<TpChildWidget *>(inputParentWidget->parent());
+        }
+
+        // std::cout << "裁剪区域： " << clipRect.x() << " , " << clipRect.y()
+        //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
+
+        eventData->canDraw = (clipRect.width() > 0) && (clipRect.height() > 0);
+        if (!eventData->canDraw)
+            return false;
+    }
+    else
+    {
+        clipRect.setX(eventData->offsetX);
+        clipRect.setY(eventData->offsetY);
+        clipRect.setWidth(objWidth);
+        clipRect.setHeight(objHeight);
     }
 
-    set->updateRect = clipRect;
     TpObject *top = input->object->topObject();
-
-    if (top && top->objectType() == Tp::TP_FLOAT_OBJECT)
+    if (top && (top != input->object) && top->objectType() == Tp::TP_FLOAT_OBJECT)
     {
-        clipRect.setX(clipRect.x() - inputObjectChild->offsetX());
-        clipRect.setY(clipRect.y() - inputObjectChild->offsetY());
+        clipRect.setX(clipRect.x() - offsetXVal);
+        clipRect.setY(clipRect.y() - offsetYVal);
     }
 
-    // std::cout << "clipRect 区域： " << input->object << " : " << clipRect.get().x << " , " << clipRect.get().y << " , "
-    //           << clipRect.get().w << " , " << clipRect.get().h << std::endl;
-
-    set->rect = inputObjectChild->rect();
-    set->canvas->setClipRect(clipRect);
-    set->type = EVENT_OBJECT_PAINT_TYPE;
+    eventData->updateRect = input->updateRect;
+    eventData->rect = inputObjectChild->rect();
+    eventData->canvas->setClipRect(clipRect);
+    eventData->type = EVENT_OBJECT_PAINT_TYPE;
 
     return true;
 }

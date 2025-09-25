@@ -398,8 +398,8 @@ public:
     virtual bool isCanDraw();
 
 public:
-/// @brief 构建绘制事件数据；用户无需调用
-    virtual bool construct(ItpEventData *eventData) override;
+    /// @brief 构建绘制事件数据；用户无需调用
+    virtual bool construct(ItpEventData *inputData) override;
 };
 
 class TpActiveEvent : public TpEvent

@@ -9,7 +9,7 @@ arm-build-release/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
-CMakeCache.txt
+CMakeCache.txt-0
 examples/TpGUI/tpSlider/slider
 examples/TpGUI/tpAnimation/animation
 examples/TpGUI/deleteLaterTest/test
@@ -83,3 +83,6 @@ examples/TpGUI/TpDialog/dialog
 examples/TpUtils/TpConfig/config
 examples/TpUtils/TpUuid/uuid
 examples/TpUtils/TpPipe/pipe
+examples/TpGUI/TpMediaTileButton/button
+examples/TpGUI/clipTest/test
+examples/TpGUI/TpSlider/slider
