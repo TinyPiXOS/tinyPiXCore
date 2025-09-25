@@ -16,22 +16,19 @@ public:
     {
         /// @brief 几何属性；位置和大小 TpRect
         Geometry,
-        /// @brief 位置​​   TpPoint
+        /// @brief 位置​​ TpPoint
         Pos,
-        /// @brief 大小​​   TpSize
+        /// @brief 大小​ TpSize
         Size,
         /// @brief 窗体高度 int32_t
         Height,
         /// @brief 窗体宽度 int32_t
         Width,
-
         /// @brief 整体透明度​​（0透明，255不透明 int32_t
         WindowOpacity,
-
         /// @brief 背景颜色 int32_t
         BackgroundColor,
-
-        /// @brief 自定义动画 ，数值自定义； 暂未启用
+        /// @brief 自定义动画 ，数值自定义；暂未启用
         CustomAnimation
     };
     typedef std::function<void(const TpVariant &)> CustomAnimationFunc;
@@ -106,7 +103,7 @@ public:
     /// @brief 设置在给定步骤使用给定值创建关键帧。给定的步长必须在0到1的范围内
     /// @param percent 指定步骤 (0, 1), 为0则会修改StartValue，为1则会修改endValue
     /// @param value 步骤对应值
-    void setKeyValueAt(const float& percent, const TpVariant& value);
+    void setKeyValueAt(const float &percent, const TpVariant &value);
 
 public
 signals:

@@ -19,9 +19,9 @@ int32_t main(int32_t argc, char *argv[])
 	dia->setVisible(true);
 	dia->setBeMoved(true);
 	
-    TpLabel* testLabel = new TpLabel(vScreen);
+    TpLabel* testLabel = new TpLabel(dia);
     testLabel->setText("测试标签");
-    testLabel->setRect(100, 100, 300, 100);
+    testLabel->setRect(50, 50, 200, 100);
     
     TpChildWidget *childW = new TpChildWidget(vScreen);
 	childW->setBackGroundColor(_RGBA(100, 255, 100, 100));

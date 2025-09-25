@@ -348,10 +348,9 @@ bool TpScrollPanel::setWidget(TpChildWidget *widget)
         scrollData->centralWidget->setParent(nullptr);
     }
 
-    scrollData->panel->setBackGroundColor(_RGB(0, 255, 0));
-
     // addObject(widget);
     scrollData->centralWidget = widget;
+    // scrollData->centralWidget->setBackGroundColor(_RGB(0, 255, 0));
 
     if (widget)
     {
