@@ -534,6 +534,7 @@ void TpPainter::setClipRect(const TpRect &rect)
 
     if (painterData && painterData->beUsed)
     {
+        painterData->clipRect = rect;
         painterData->TpSurfacePtr->setClipRect(rect);
     }
 }
@@ -541,7 +542,7 @@ void TpPainter::setClipRect(const TpRect &rect)
 TpRect TpPainter::clipRect()
 {
     TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-    return painterData->TpSurfacePtr->clipRect();
+    return painterData->clipRect;
 }
 
 void TpPainter::erase()

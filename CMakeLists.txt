@@ -1,82 +1,22 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(tinyPiXCore VERSION 1.0.0 LANGUAGES C CXX)
 
-# 将包含目录添加到编译器搜索路径
-include_directories(${CMAKE_BINARY_DIR})
+# 定义选项控制是否构建子项目
+option(BUILD_SUBPROJECTS "Build subprojects from source" OFF)
+option(FORCE_REBUILD_SUBPROJECTS "Force rebuild subprojects" OFF)
 
-# 设置构建生成的根目录
-set(CMAKE_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build")
+# 引入cmake模块
+include(cmake/GlobalConfig.cmake)
+include(cmake/TargetArchConfig.cmake)
+include(cmake/CopyDependLib.cmake)
 
-# 设置不同类型的目标文件的输出目录
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/bin")
-
-# 安装目标目录
-set(INSTALL_INCLUDE_DIR "/usr/include/TinyPiX")
-# 安装资源文件
-set(INSTALL_RESOURCE_DIR "/usr/res/TinyPiX")
-# 安装数据文件
-set(INSTALL_DATA_DIR "/usr/data/TinyPiX")
-# 安装bin文件
-set(INSTALL_BIN_DIR "/usr/bin/TinyPiX")
-# 安装bin文件
-set(INSTALL_LIB_DIR "/usr/lib/TinyPiX" CACHE PATH "Global library installation directory")
-# 定义可执行程序的软链接目录
-set(LINK_BIN_DIR "/usr/bin")
-# 定义动态库软链接的目标目录
-set(LINK_LIB_DIR "/usr/lib")
-
-# 在自定义目标后添加
-add_custom_target(test_config
-    COMMAND ${CMAKE_COMMAND} -E echo "===== 配置系统测试成功 ====="
-    COMMENT "测试配置目标是否可用"
-)
 # 添加子目录
 add_subdirectory(TpUtils)
 add_subdirectory(TpExtUtils)
 add_subdirectory(TpGUI)
 add_subdirectory(TpService)
-# add_subdirectory(examplesApp)
 
-# 平台不同拷贝资源文件到不同安装目录；以及准备不同平台的安装依赖库
-# 首选方案：使用 CMAKE_CROSSCOMPILING 和自定义变量
-if(DEFINED TARGET_ARCH)
-    # 显式指定目标架构优先
-    if(TARGET_ARCH STREQUAL "x86_64")
-        message(STATUS "============ 目标平台: X86_64 ============")
-        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
-        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
-    elseif(TARGET_ARCH STREQUAL "arm64" OR TARGET_ARCH STREQUAL "aarch64")
-        message(STATUS "============ 目标平台: ARM64 ============")
-        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
-        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
-    endif()
-elseif(CMAKE_CROSSCOMPILING)
-    # 交叉编译时获取目标架构
-    message(STATUS "============ 交叉编译目标平台: ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR} ============")
-    
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
-        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
-        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
-        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
-    else()
-        message(WARNING "未知的目标平台架构: ${CMAKE_SYSTEM_PROCESSOR}")
-    endif()
-else()
-    # 本机编译
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-        message(STATUS "============ 本机平台: X86_64 ============")
-        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/x86_64")
-        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/x86_64")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
-        message(STATUS "============ 本机平台: ARM ============")
-        set(INSTALL_PACKAGE_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/install/arm_64")
-        set(DEPEND_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/depend_lib/dynamic/arm_64")
-    endif()
-endif()
+# add_subdirectory(examplesApp)
 
 # 创建一个虚拟目标用于执行自定义命令，清理安装目录
 add_custom_target(clean_install_directory
@@ -86,10 +26,10 @@ add_custom_target(clean_install_directory
     COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_RESOURCE_DIR}"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_DATA_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_DATA_DIR}"
-    # COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_BIN_DIR}"
-    # COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_BIN_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_BIN_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_BIN_DIR}"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_PACKAGE_ROOT_PATH}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_PACKAGE_ROOT_PATH}"   
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_PACKAGE_ROOT_PATH}"
     COMMENT "Cleaning install directory for headers and res"
 )
 
@@ -125,105 +65,14 @@ install(TARGETS TpGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 install(TARGETS TpExtUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 install(TARGETS TpUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
 
-# 拷贝依赖库到/usr/lib
-file(GLOB_RECURSE INSTALL_SO_FILES "${INSTALL_LIB_DIR}/*.so*")
-file(GLOB_RECURSE DEPEND_SO_FILES "${DEPEND_LIB_PATH}/*.so*")
+# 定义拷贝依赖库指令的依赖模块参数
+# 需要依赖此操作的目标列表
+set(TARGET_LIST TpUtils TpExtUtils TpGUI TpService)
 
-set(COPY_DEPEND_COMMANDS)
-list(APPEND COPY_DEPEND_COMMANDS
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_LIB_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_LIB_DIR}"
+# 调用函数
+setup_dependency_libraries(
+    "${DEPEND_LIB_PATH}"
+    "${INSTALL_LIB_DIR}"
+    "${LINK_LIB_DIR}"
+    "${TARGET_LIST}"
 )
-foreach(SO_FILE IN LISTS DEPEND_SO_FILES)
-    message(STATUS "拷贝依赖库: ===== ${SO_FILE} =====")
-   
-    # 拷贝
-    list(APPEND COPY_DEPEND_COMMANDS
-        COMMAND ${CMAKE_COMMAND} -E copy
-            "${SO_FILE}"
-            "${INSTALL_LIB_DIR}"
-    )
-endforeach()
-
-set(CREATE_LINK_COMMANDS)
-foreach(SO_FILE IN LISTS INSTALL_SO_FILES)
-    # 提取文件名（不带路径）
-    get_filename_component(FILENAME "${SO_FILE}" NAME)
-
-    # 初始化变量
-    set(BASE_NAME_WITHOUT_ANY_VERSION "") # 不带任何版本号的名称
-    set(BASE_NAME_WITH_MAJOR_VERSION "") # 只带主版本号的名称
-
-    # 匹配带完整版本号的库文件 (lib.so.x.y.z)
-    if("${FILENAME}" MATCHES "^(.*)\\.so\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
-        set(LIB_BASE "${CMAKE_MATCH_1}")
-        set(MAJOR_VERSION "${CMAKE_MATCH_2}")
-        set(MINOR_VERSION "${CMAKE_MATCH_3}")
-        set(PATCH_VERSION "${CMAKE_MATCH_4}")
-
-        # 创建两种名称
-        set(BASE_NAME_WITHOUT_ANY_VERSION "${LIB_BASE}.so")
-        set(BASE_NAME_WITH_MAJOR_VERSION "${LIB_BASE}.so.${MAJOR_VERSION}")
-
-    # 匹配带主次版本号的库文件 (lib.so.x.y)
-    elseif("${FILENAME}" MATCHES "^(.*)\\.so\\.([0-9]+)\\.([0-9]+)$")
-        set(LIB_BASE "${CMAKE_MATCH_1}")
-        set(MAJOR_VERSION "${CMAKE_MATCH_2}")
-        set(MINOR_VERSION "${CMAKE_MATCH_3}")
-
-        # 创建两种名称
-        set(BASE_NAME_WITHOUT_ANY_VERSION "${LIB_BASE}.so")
-        set(BASE_NAME_WITH_MAJOR_VERSION "${LIB_BASE}.so.${MAJOR_VERSION}")
-
-    # 匹配只带主版本号的库文件 (lib.so.x)
-    elseif("${FILENAME}" MATCHES "^(.*)\\.so\\.([0-9]+)$")
-        set(LIB_BASE "${CMAKE_MATCH_1}")
-        set(MAJOR_VERSION "${CMAKE_MATCH_2}")
-
-        # 创建两种名称
-        set(BASE_NAME_WITHOUT_ANY_VERSION "${LIB_BASE}.so")
-        set(BASE_NAME_WITH_MAJOR_VERSION "${FILENAME}") # 已经是主版本号形式
-
-    # 处理没有版本号后缀的文件
-    else()
-        set(BASE_NAME_WITHOUT_ANY_VERSION "${FILENAME}")
-        set(BASE_NAME_WITH_MAJOR_VERSION "${FILENAME}") # 没有版本则两者相同
-    endif()
-
-    # message(STATUS "文件名称: ===== ${FILENAME} =====")
-    # message(STATUS "无版本号: ===== ${BASE_NAME_WITHOUT_ANY_VERSION} =====")
-    # message(STATUS "带主版本号: ===== ${BASE_NAME_WITH_MAJOR_VERSION} =====")
-
-    # 生成单个 ln -s 命令（注意使用绝对路径）
-    if("${BASE_NAME_WITH_MAJOR_VERSION}" STREQUAL "${BASE_NAME_WITHOUT_ANY_VERSION}")
-        list(APPEND CREATE_LINK_COMMANDS
-            COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${SO_FILE}"
-            "${LINK_LIB_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}"
-        )
-    else()
-        list(APPEND CREATE_LINK_COMMANDS
-            COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${SO_FILE}"
-            "${LINK_LIB_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}"
-        )
-        list(APPEND CREATE_LINK_COMMANDS
-            COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${SO_FILE}"
-            "${LINK_LIB_DIR}/${BASE_NAME_WITH_MAJOR_VERSION}"
-        )
-    endif()
-endforeach()
-
-add_custom_target(create_symlinks
-    COMMAND ${CMAKE_COMMAND} -E echo "创建软链接..."
-    ${COPY_DEPEND_COMMANDS}
-    ${CREATE_LINK_COMMANDS}
-    COMMENT "/usr/lib/TinyPiX .so文件创建符号链接"
-)
-
-# 确保拷贝在构建前执行
-add_dependencies(TpUtils create_symlinks)
-add_dependencies(TpExtUtils create_symlinks)
-add_dependencies(TpGUI create_symlinks)
-add_dependencies(TpService create_symlinks)
