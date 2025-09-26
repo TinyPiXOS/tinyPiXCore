@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
 include(../cmake/CreateTinyCoreSymlink.cmake)
+include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录
 set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
@@ -187,13 +188,8 @@ add_library(TpExtUtils SHARED ${SOURCE_FILES})
 # set_target_properties(TpExtUtils PROPERTIES VERSION 1.0 SOVERSION 1)
 
 # 指定静态库 pcap 的路径
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-	set(PCAP_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libpcap.a)
-	set(TPARCHIVE_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libtparchive.a)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
-	set(PCAP_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libpcap.a)
-	set(TPARCHIVE_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libtparchive.a)
-endif()
+set(PCAP_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libpcap.a)
+set(TPARCHIVE_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libtparchive.a)
 
 # 将pthread库链接到可执行目标
 target_link_libraries(TpExtUtils ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} dl

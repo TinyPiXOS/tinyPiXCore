@@ -20,6 +20,7 @@
 
 #include <unordered_map>
 #include <mutex>
+#include <thread>
 
 struct TpChildWidgetData
 {
@@ -197,10 +198,16 @@ TpChildWidget::TpChildWidget(TpChildWidget *parent)
     }
 
     setVisible(true);
+
+    // // 根据CPU核心数；分配绘图引擎线程数
+    uint32_t cores = std::thread::hardware_concurrency();
+    tvg::Initializer::init(cores / 2);
 }
 
 TpChildWidget::~TpChildWidget()
 {
+    tvg::Initializer::term();
+
     TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
     if (childData)
     {
