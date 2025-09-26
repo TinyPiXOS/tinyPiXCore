@@ -1,16 +1,16 @@
 # 拷贝依赖动态库至安装目录；并在/usr/lib下创建软链接
 
 function(setup_dependency_libraries
-    DEPEND_LIB_PATH # 依赖库的搜索路径
-    INSTALL_LIB_DIR # 安装库的目标目录（拷贝.so文件到此）
-    LINK_LIB_DIR # 创建符号链接的目录（通常为/usr/lib或类似系统库目录）
-    TARGET_LIST # 需要依赖此操作的目标列表（例如TpUtils TpExtUtils等）
+    DEPEND_DYNAMIC_LIB_PATH     # 依赖动态库的搜索路径
+    INSTALL_LIB_DIR             # 安装库的目标目录（拷贝.so文件到此）
+    LINK_LIB_DIR                # 创建符号链接的目录（通常为/usr/lib或类似系统库目录）
+    TARGET_LIST                 # 需要依赖此操作的目标列表（例如TpUtils TpExtUtils等）
 )
     # 查找所有已安装的.so文件（用于后续创建符号链接）
     file(GLOB_RECURSE INSTALL_SO_FILES "${INSTALL_LIB_DIR}/*.so*")
 
     # 查找所有依赖的.so文件（用于拷贝）
-    file(GLOB_RECURSE DEPEND_SO_FILES "${DEPEND_LIB_PATH}/*.so*")
+    file(GLOB_RECURSE DEPEND_SO_FILES "${DEPEND_DYNAMIC_LIB_PATH}/*.so*")
 
     # 初始化命令列表：先清空目标目录，然后重新创建
     set(COPY_DEPEND_COMMANDS)

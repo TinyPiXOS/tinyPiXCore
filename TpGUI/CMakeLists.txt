@@ -101,7 +101,7 @@ link_directories("/usr/lib")
 
 # 直接指定静态库的路径
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-    set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libsqlite3.a)
+    set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libsqlite3.a)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
     set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libsqlite3.a)
 endif()

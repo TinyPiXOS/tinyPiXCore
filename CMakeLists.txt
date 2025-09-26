@@ -34,7 +34,7 @@ add_custom_target(clean_install_directory
 )
 
 # 将清理目标添加为全局安装的依赖
-install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target clean_install_directory)")
+# install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target clean_install_directory)")
 
 # 安装整个头文件目录到/usr/include
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include/ DESTINATION ${INSTALL_INCLUDE_DIR})
@@ -55,15 +55,15 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bin DESTINATION ${INSTALL_PACK
 # 修改bin下文件权限
 install(CODE "
     # 权限修复（可选）
-    execute_process(COMMAND chmod -R 0777 ${INSTALL_PACKAGE_ROOT_PATH}/bin)
+    execute_process(COMMAND chmod -R 0777 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     execute_process(COMMAND chmod -R 0777 ${INSTALL_BIN_DIR})
 ")
 
 # 安装生成库到安装目录
-install(TARGETS TpService RUNTIME DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/bin)
-install(TARGETS TpGUI LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
-install(TARGETS TpExtUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
-install(TARGETS TpUtils LIBRARY DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/lib)
+# install(TARGETS TpService RUNTIME DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+# install(TARGETS TpGUI LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+# install(TARGETS TpExtUtils LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+# install(TARGETS TpUtils LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # 定义拷贝依赖库指令的依赖模块参数
 # 需要依赖此操作的目标列表
@@ -71,7 +71,7 @@ set(TARGET_LIST TpUtils TpExtUtils TpGUI TpService)
 
 # 调用函数
 setup_dependency_libraries(
-    "${DEPEND_LIB_PATH}"
+    "${DEPEND_DYNAMIC_LIB_PATH}"
     "${INSTALL_LIB_DIR}"
     "${LINK_LIB_DIR}"
     "${TARGET_LIST}"

@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
 include(../cmake/CreateTinyCoreSymlink.cmake)
+include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录
 set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
@@ -163,15 +164,32 @@ add_library(TpUtils SHARED ${SOURCE_FILES})
 # 指定依赖动态库目录
 link_directories("/usr/lib")
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-    set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libnanomsg.a)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
-    set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libnanomsg.a)
-endif()
+# 添加编译定义  
+add_definitions(-DYAML_CPP_STATIC_DEFINE)  
+add_definitions(-DGLOG_EXPORT=)  
+add_definitions(-DGLOG_NO_EXPORT=)  
 
-# 将pthread库链接到可执行目标
-target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} dl pthread TpAPI SDL2 SDL2_image SDL2_gfx
-    cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime thorvg
+# 依赖的静态库
+set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
+set(YAML_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libyaml-cpp.a)
+set(GLOG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libglog.a)
+set(RIME_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/librime.a)
+
+# 设置动态库属性  
+set_target_properties(TpUtils PROPERTIES  
+    POSITION_INDEPENDENT_CODE ON  
+)  
+
+target_link_libraries(TpUtils PRIVATE   
+    -Wl,--whole-archive   
+    ${YAML_STATIC_LIB}   
+    ${GLOG_STATIC_LIB}   
+    ${RIME_STATIC_LIB}  
+    -Wl,--no-whole-archive  
+)
+
+target_link_libraries(TpUtils PRIVATE ${NANOMSG_STATIC_LIB} dl pthread TpAPI SDL2 SDL2_image SDL2_gfx
+    cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 thorvg
 )
 
 # 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
