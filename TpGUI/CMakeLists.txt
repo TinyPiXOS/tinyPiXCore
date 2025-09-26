@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
 include(../cmake/CreateTinyCoreSymlink.cmake)
+include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录
 set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
@@ -99,15 +100,11 @@ add_library(TpGUI SHARED ${SOURCE_FILES})
 # 指定依赖动态库目录
 link_directories("/usr/lib")
 
-# 直接指定静态库的路径
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-    set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libsqlite3.a)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
-    set(SQLITE3_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libsqlite3.a)
-endif()
+# 指定静态库的路径
+set(SQLITE3_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libsqlite3.a)
 
 # 库链接到可执行目标
-target_link_libraries(TpGUI
+target_link_libraries(TpGUI PUBLIC
     ${SQLITE3_STATIC_LIB}
     dl pthread TpAPI TpUtils TpExtUtils
 )
