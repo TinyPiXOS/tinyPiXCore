@@ -32,7 +32,7 @@ link_directories("/usr/lib")
 
 # 直接指定静态库的路径
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-    set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libnanomsg.a)
+    set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libnanomsg.a)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
     set(NANOMSG_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libnanomsg.a)
 endif()

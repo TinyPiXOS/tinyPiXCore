@@ -188,8 +188,8 @@ add_library(TpExtUtils SHARED ${SOURCE_FILES})
 
 # 指定静态库 pcap 的路径
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i686|i386|AMD64")
-	set(PCAP_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libpcap.a)
-	set(TPARCHIVE_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_x64/libtparchive.a)
+	set(PCAP_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libpcap.a)
+	set(TPARCHIVE_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/x86_64/libtparchive.a)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
 	set(PCAP_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libpcap.a)
 	set(TPARCHIVE_LIB_STATIC_LIB ${SOURCE_PATH}/depend_lib/static/arm_64/libtparchive.a)
