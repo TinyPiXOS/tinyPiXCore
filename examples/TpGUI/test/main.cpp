@@ -19,11 +19,12 @@ class ThorVgPaintWidget : public TpChildWidget
 // class ThorVgPaintWidget : public TpDialog
 {
 public:
-    ThorVgPaintWidget(TpChildWidget *parent) : TpChildWidget(parent)
+    ThorVgPaintWidget(TpChildWidget *parent)
+        : TpChildWidget(parent)
     {
-        setBackGroundColor(_RGBA(100, 100, 100, 200));
+        // setBackGroundColor(_RGBA(100, 100, 100, 200));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
-        // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
+        setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
         setAlpha(150);
         testBattery_ = new TpBattery(this);
         testBattery_->setValue(100);
@@ -51,12 +52,6 @@ public:
             move(150, pos().y());
         }
 
-        return true;
-    }
-
-    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override
-    {
-        TpChildWidget::onMouseRleaseEvent(event);
         return true;
     }
 
@@ -199,9 +194,9 @@ int32_t main(int32_t argc, char *argv[])
 
     ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     thorVGPaint->setRect(600, 100, 500, 500);
-    // TpGraphicsBlurEffect btnBlurEffect;
-    // btnBlurEffect.setBlurRadius(15);
-    // thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    TpGraphicsBlurEffect btnBlurEffect;
+    btnBlurEffect.setBlurRadius(15);
+    thorVGPaint->setGraphicsEffect(btnBlurEffect);
 
     vScreen->update();
 

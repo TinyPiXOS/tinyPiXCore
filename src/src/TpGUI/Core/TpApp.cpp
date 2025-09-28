@@ -1151,8 +1151,8 @@ void TpApp::postUpdateEvent(TpChildWidget *updateObj, const int32_t &x, const in
 
     ItpAppSet *set = (ItpAppSet *)this->appSet;
 
-    if (!set->running)
-        return;
+    // if (!set->running)
+        // return;
 
     UpdateCommand updateCommandInfo;
     updateCommandInfo.updateObj = updateObj;
