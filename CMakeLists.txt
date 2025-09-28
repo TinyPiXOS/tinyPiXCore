@@ -59,17 +59,10 @@ install(CODE "
     execute_process(COMMAND chmod -R 0777 ${INSTALL_BIN_DIR})
 ")
 
-# 安装生成库到安装目录
-# install(TARGETS TpService RUNTIME DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-# install(TARGETS TpGUI LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-# install(TARGETS TpExtUtils LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-# install(TARGETS TpUtils LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-
-# 定义拷贝依赖库指令的依赖模块参数
 # 需要依赖此操作的目标列表
 set(TARGET_LIST TpUtils TpExtUtils TpGUI TpService)
 
-# 调用函数
+# 调用函数;将公共依赖动态库拷贝至指定目录
 setup_dependency_libraries(
     "${DEPEND_DYNAMIC_LIB_PATH}"
     "${INSTALL_LIB_DIR}"
