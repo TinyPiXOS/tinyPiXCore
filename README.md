@@ -215,7 +215,8 @@ sudo apt install libsdl2-image-dev libsdl2-gfx-dev \
   libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libswresample-dev \
   libavfilter-dev libavdevice-dev librsvg2-dev bluez libbluetooth-dev \
-  libdbus-1-dev bluez-alsa-utils libasound2-plugin-bluez bluez-obexd  libusb-1.0-0-dev
+  libdbus-1-dev bluez-alsa-utils libasound2-plugin-bluez bluez-obexd  libusb-1.0-0-dev \
+  libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 ```
 
 - ​**构建 tinyPiXCore Debug版本**
