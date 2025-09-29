@@ -154,7 +154,7 @@ struct ItpObjectSet
     TpHash<TpString, TpVariant> objPropertyMap;
 
     // 缓存有多少发送者信号绑定了自己
-    TpVector<std::pair<void *, uintptr_t>> slotConnections_;
+    std::unordered_map<void *, std::vector<std::function<void()>>> slotConnections_;
     std::mutex slotConnectMutex_;
 
     ItpObjectSet()

@@ -443,9 +443,11 @@ void TpAnimation::AnimationRun()
             {
                 if (animationData->deleteMode == TpAnimation::DeleteWhenStopped && !animationData->isDelete.load())
                 {
+                    // std::cout << "动画终止 " <<std::endl;
                     disconnect(&animationData->animationTimer, timeout, this, &TpAnimation::AnimationRun);
                     animationData->isDelete.store(true);
                     deleteLater();
+                    // std::cout << "动画终止2222 " <<std::endl;
                 }
 
                 animationData->stopped.store(true);

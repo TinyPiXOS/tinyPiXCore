@@ -16,357 +16,372 @@
 #include <TpString.h>
 #include <TpVariant.h>
 #include "Core/TpObjectFunction.hpp"
+#include "TpSignalSlot.h"
 
-#include <cstring>
 #include <mutex>
 #include <iostream>
 
+void disconnectAllSignal(ItpObjectSet *set)
+{
+    // 断开所有槽函数连接
+    std::lock_guard<std::mutex> lock(set->slotConnectMutex_);
+    for (auto &pair : set->slotConnections_)
+    {
+        for (auto &disconnector : pair.second)
+        {
+            disconnector();
+        }
+    }
+    set->slotConnections_.clear();
+}
+
 TpObject::TpObject(TpObject *parent)
 {
-	ItpObjectSet *set = new ItpObjectSet();
+    ItpObjectSet *set = new ItpObjectSet();
 
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	set->offsetX = 0;
-	set->offsetY = 0;
+    set->offsetX = 0;
+    set->offsetY = 0;
 
-	set->backColor = _RGB(248, 248, 248);
-	// set->backColor = TpApp::Inst()->appConfigSet()->bkcolor;
-	set->objectID = TpAutoObject::Inst()->selfCounterIncrease();
+    set->backColor = _RGB(248, 248, 248);
+    // set->backColor = TpApp::Inst()->appConfigSet()->bkcolor;
+    set->objectID = TpAutoObject::Inst()->selfCounterIncrease();
 
-	set->top = nullptr;
+    set->top = nullptr;
 
-	set->agent = nullptr;
+    set->agent = nullptr;
 
-	set->enableColor = true;
-	// set->enableColor = TpApp::Inst()->appConfigSet()->enable;
-	set->enableImage = true;
+    set->enableColor = true;
+    // set->enableColor = TpApp::Inst()->appConfigSet()->enable;
+    set->enableImage = true;
 
-	set->alpha = 0xff;
+    set->alpha = 0xff;
 
-	set->layout = nullptr;
+    set->layout = nullptr;
 
-	set->visible = false;
+    set->visible = false;
 
-	memset(set->text, 0, OBJECT_MAX_TEXT_LENGTH);
+    memset(set->text, 0, OBJECT_MAX_TEXT_LENGTH);
 
-	this->objectSet = set;
+    data_ = set;
 }
 
 TpObject::~TpObject()
 {
-	bool ret = TpApp::Inst()->isExistObject(this, true);
+    bool ret = TpApp::Inst()->isExistObject(this, true);
 
-	if (!ret)
-		return;
+    if (!ret)
+        return;
 
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    if (!set)
+        return;
 
-	if (!set)
-		return;
+    disconnectAllSignal(set);
 
-	// {
-	// 	std::lock_guard<std::mutex> lock(set->slotConnectMutex_);
-	// 	// 对象销毁时断开所有关联连接
-	// 	while (!set->slotConnections_.empty())
-	// 	{
-	// 		auto [signal, connId] = set->slotConnections_.back();
-	// 		if (signal)
-	// 		{
-	// 			disconnect(signal)
-	// 		}
-	// 			signal->disconnect(connId);
-	// 		connections_.pop_back();
-	// 	}
-	// }
+    set->gMutex.lock();
 
-	set->gMutex.lock();
+    if (set->parent)
+    {
+        ItpObjectSet *parent_set = (ItpObjectSet *)set->parent->objectSets();
+        delObject(parent_set, set->parent);
+    }
 
-	if (set->parent)
-	{
-		ItpObjectSet *parent_set = (ItpObjectSet *)set->parent->objectSets();
-		delObject(parent_set, set->parent);
-	}
+    set->objectList.clear();
+    set->gMutex.unlock();
 
-	set->objectList.clear();
-	set->gMutex.unlock();
-
-	delete set;
+    delete set;
 }
 
 void TpObject::setProperty(const TpString &_name, const TpVariant &_value)
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
 
-	set->objPropertyMap[_name] = _value;
+    set->objPropertyMap[_name] = _value;
 }
 
 TpVariant TpObject::property(const TpString &_name)
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
 
-	if (set->objPropertyMap.contains(_name))
-		return set->objPropertyMap[_name];
-	return TpVariant();
+    if (set->objPropertyMap.contains(_name))
+        return set->objPropertyMap[_name];
+    return TpVariant();
 }
 
 void TpObject::installEventFilter(TpObject *filterObj)
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	if (!set)
-		return;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    if (!set)
+        return;
 
-	set->filterObject = filterObj;
+    set->filterObject = filterObj;
 }
 
 void TpObject::uninstallEventFilter()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	if (!set)
-		return;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    if (!set)
+        return;
 
-	set->filterObject = nullptr;
+    set->filterObject = nullptr;
 }
 
 TpObject *TpObject::eventFilterObject()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	if (!set)
-		return nullptr;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    if (!set)
+        return nullptr;
 
-	return set->filterObject;
+    return set->filterObject;
 }
 
 bool TpObject::eventFilter(TpObject *watched, TpEvent *event)
 {
-	return false;
+    return false;
 }
 
 void TpObject::broadSetTop()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
 
-	if (set)
-	{
-		broadObjectSetTop(this, set->top);
-	}
+    if (set)
+    {
+        broadObjectSetTop(this, set->top);
+    }
 }
 
 TpObject *TpObject::find(int32_t id)
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	TpObject *object = this;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObject *object = this;
 
-	if (set)
-	{
-		if (id == set->objectID)
-		{
-			object == this;
-		}
-		else
-		{
-			object = findObject(set, id);
-		}
-	}
+    if (set)
+    {
+        if (id == set->objectID)
+        {
+            object == this;
+        }
+        else
+        {
+            object = findObject(set, id);
+        }
+    }
 
-	return object;
+    return object;
 }
 
 void TpObject::deleteLater()
 {
-	TpApp::Inst()->sendDelete(this);
+    // 立刻终止信号槽绑定
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    if (!set)
+        return;
+
+    disconnectAllSignal(set);
+
+    TpApp::Inst()->sendDelete(this);
 }
 
 int32_t TpObject::objectID()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	int32_t id = TP_INVALIDATE_VALUE;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    int32_t id = TP_INVALIDATE_VALUE;
 
-	if (set)
-	{
-		id = set->objectID;
-	}
+    if (set)
+    {
+        id = set->objectID;
+    }
 
-	return id;
+    return id;
 }
 
 TpList<TpObject *> &TpObject::objectList()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	TpList<TpObject *> *objectList = nullptr;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpList<TpObject *> *objectList = nullptr;
 
-	if (set)
-	{
-		objectList = &set->objectList;
-	}
+    if (set)
+    {
+        objectList = &set->objectList;
+    }
 
-	return (*objectList);
+    return (*objectList);
 }
 
 void TpObject::setParent(TpObject *parent)
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
 
-	if (!set)
-		return;
+    if (!set)
+        return;
 
-	if (set->parent == parent)
-		return;
+    if (set->parent == parent)
+        return;
 
-	// 如果已有父指针， 移除以前的父指针
-	if (set->parent)
-	{
-		ItpObjectSet *parentSet = (ItpObjectSet *)set->parent->objectSets();
-		delObject(parentSet, this);
-	}
+    // 如果已有父指针， 移除以前的父指针
+    if (set->parent)
+    {
+        ItpObjectSet *parentSet = (ItpObjectSet *)set->parent->objectSets();
+        delObject(parentSet, this);
+    }
 
-	if (parent)
-	{
-		ItpObjectSet *parentSet = (ItpObjectSet *)parent->objectSets();
-		addObject(parentSet, this, parent);
-	}
-	else
-	{
-		broadObjectSetTop(this, nullptr);
-	}
+    if (parent)
+    {
+        ItpObjectSet *parentSet = (ItpObjectSet *)parent->objectSets();
+        addObject(parentSet, this, parent);
+    }
+    else
+    {
+        broadObjectSetTop(this, nullptr);
+    }
 
-	set->parent = parent;
+    set->parent = parent;
 }
 
 TpObject *TpObject::parent()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	TpObject *parent = nullptr;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObject *parent = nullptr;
 
-	if (set)
-	{
-		parent = set->parent;
-	}
+    if (set)
+    {
+        parent = set->parent;
+    }
 
-	return parent;
+    return parent;
 }
 
 TpObject *TpObject::topObject()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	TpObject *top = nullptr, *pParent = nullptr;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObject *top = nullptr, *pParent = nullptr;
 
-	if (!set)
-		return top;
+    if (!set)
+        return top;
 
-	Tp::ItpObjectType type = objectType();
+    Tp::ItpObjectType type = objectType();
 
-	if (type == Tp::TP_TOP_OBJECT || type == Tp::TP_FLOAT_OBJECT)
-	{
-		set->top = this;
-	}
-	else
-	{
-		if (top == nullptr)
-		{
-			pParent = set->parent;
-			while (pParent)
-			{
-				Tp::ItpObjectType type = pParent->objectType();
+    if (type == Tp::TP_TOP_OBJECT || type == Tp::TP_FLOAT_OBJECT)
+    {
+        set->top = this;
+    }
+    else
+    {
+        if (top == nullptr)
+        {
+            pParent = set->parent;
+            while (pParent)
+            {
+                Tp::ItpObjectType type = pParent->objectType();
 
-				if (type == Tp::TP_TOP_OBJECT || type == Tp::TP_FLOAT_OBJECT)
-				{
-					set->top = pParent;
-					break;
-				}
+                if (type == Tp::TP_TOP_OBJECT || type == Tp::TP_FLOAT_OBJECT)
+                {
+                    set->top = pParent;
+                    break;
+                }
 
-				pParent = pParent->parent();
-			}
-		}
-	}
+                pParent = pParent->parent();
+            }
+        }
+    }
 
-	top = set->top;
+    top = set->top;
 
-	return top;
+    return top;
 }
 
-IPitpObject *TpObject::objectSets()
+ITpObjectData *TpObject::objectSets()
 {
-	ItpObjectSet *set = (ItpObjectSet *)this->objectSet;
-	IPitpObject *sets = nullptr;
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    ITpObjectData *sets = nullptr;
 
-	if (set)
-	{
-		sets = set;
-	}
+    if (set)
+    {
+        sets = set;
+    }
 
-	return sets;
+    return sets;
 }
 
 void *TpObject::operator new(size_t size)
 {
-	void *object = (void *)malloc(size);
+    void *object = (void *)malloc(size);
 
-	if (object == nullptr)
-	{
-		return NULL;
-	}
+    if (object == nullptr)
+    {
+        return NULL;
+    }
 
-	TpAutoObject *helper = TpAutoObject::Inst();
+    TpAutoObject *helper = TpAutoObject::Inst();
 
-	if (helper)
-	{
-		helper->addObjectLife(object);
-	}
+    if (helper)
+    {
+        helper->addObjectLife(object);
+    }
 
-	return object;
+    return object;
 }
 
 void *TpObject::operator new[](size_t size)
 {
-	void *object = (void *)malloc(size);
+    void *object = (void *)malloc(size);
 
-	if (object == nullptr)
-	{
-		return NULL;
-	}
+    if (object == nullptr)
+    {
+        return NULL;
+    }
 
-	TpAutoObject *helper = TpAutoObject::Inst();
+    TpAutoObject *helper = TpAutoObject::Inst();
 
-	if (helper)
-	{
-		helper->addObjectLife(object);
-	}
+    if (helper)
+    {
+        helper->addObjectLife(object);
+    }
 
-	return object;
+    return object;
 }
 
 void TpObject::operator delete(void *ptr)
 {
-	if (!ptr)
-		return;
+    if (!ptr)
+        return;
 
-	TpAutoObject *helper = TpAutoObject::Inst();
+    TpAutoObject *helper = TpAutoObject::Inst();
 
-	if (!helper)
-		return;
+    if (!helper)
+        return;
 
-	if (helper->isExist(ptr))
-	{
-		helper->removeObjectLife(ptr);
-		free(ptr);
-	}
+    if (helper->isExist(ptr))
+    {
+        helper->removeObjectLife(ptr);
+        free(ptr);
+    }
 }
 
 void TpObject::operator delete[](void *ptr)
 {
-	if (!ptr)
-		return;
+    if (!ptr)
+        return;
 
-	TpAutoObject *helper = TpAutoObject::Inst();
+    TpAutoObject *helper = TpAutoObject::Inst();
 
-	if (!helper)
-		return;
+    if (!helper)
+        return;
 
-	if (helper->isExist(ptr))
-	{
-		helper->removeObjectLife(ptr);
-		free(ptr);
-	}
+    if (helper->isExist(ptr))
+    {
+        helper->removeObjectLife(ptr);
+        free(ptr);
+    }
+}
+
+void TpObject::addConnection(void *signal, std::function<void()> disconnector)
+{
+    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+
+    std::lock_guard<std::mutex> lock(set->slotConnectMutex_);
+    set->slotConnections_[signal].push_back(disconnector);
 }

@@ -810,9 +810,7 @@ bool TpApp::run()
         set->waitRun = true;
 
         if (set->vScreen == nullptr)
-        {
             return false;
-        }
 
         while (set->running)
         {
