@@ -17,6 +17,7 @@
 #include "TpMap.h"
 #include "TpRect.h"
 #include "TpObjectFunction.hpp"
+#include "TpFixScreen.h"
 
 #include <tinyPiXApi.h>
 #include <mutex>
@@ -62,7 +63,7 @@ struct UpdateCommand
 };
 // typedef std::shared_ptr<UpdateCommand> UpdateCommandSPtr;
 
-struct ItpAppSet
+struct TpAppData
 {
     // 主线程ID
     std::thread::id mainThreadId;
@@ -119,7 +120,7 @@ public:
 
     virtual void run()
     {
-        ItpAppSet *set = (ItpAppSet *)theApp->appObjectSet();
+        TpAppData *set = (TpAppData *)theApp->appObjectSet();
         ItpUserEvent message;
         bool ret = false;
         if (!set)
@@ -569,7 +570,7 @@ static inline bool checkDigitals(char *args)
     return true;
 }
 
-static inline bool parseArgs(ItpAppSet *set, int32_t argc, char *argv[])
+static inline bool parseArgs(TpAppData *set, int32_t argc, char *argv[])
 {
     bool ret = false;
     char ch;
@@ -617,7 +618,7 @@ static inline bool parseArgs(ItpAppSet *set, int32_t argc, char *argv[])
     return true;
 }
 
-static void sendThemeChangedEvent(ItpAppSet *setData, const Tp::SystemTheme &sysTheme)
+static void sendThemeChangedEvent(TpAppData *setData, const Tp::SystemTheme &sysTheme)
 {
     TpThemeChangeEvent *themeEvent = new TpThemeChangeEvent();
 
@@ -645,7 +646,7 @@ static void sendThemeChangedEvent(ItpAppSet *setData, const Tp::SystemTheme &sys
     themeEvent = nullptr;
 }
 
-static void initVirtualKeyboard(ItpAppSet *set)
+static void initVirtualKeyboard(TpAppData *set)
 {
     if (set->virtualKeyboard)
         return;
@@ -685,7 +686,7 @@ TpApp::TpApp(int32_t argc, char *argv[])
     uint32_t cores = std::thread::hardware_concurrency();
     tvg::Initializer::init(cores / 2);
 
-    ItpAppSet *set = new ItpAppSet();
+    TpAppData *set = new TpAppData();
 
     bool ret = decideRunOnce(argv[0]);
 
@@ -721,7 +722,7 @@ TpApp::TpApp(int32_t argc, char *argv[])
     }
 
     appInst = this;
-    this->appSet = set;
+    this->data_ = set;
 
     // APP创建，解析初始CSS样式
     TpString cssFilePath = parseThemeFile(set->systemTheme);
@@ -732,7 +733,7 @@ TpApp::~TpApp()
 {
     tvg::Initializer::term();
 
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     if (set)
     {
@@ -764,9 +765,7 @@ TpApp *TpApp::Inst()
 
 bool TpApp::bindVScreen(TpScreen *object)
 {
-    tvg::Initializer::term();
-
-    ItpAppSet *set = static_cast<ItpAppSet *>(this->appSet);
+    TpAppData *set = static_cast<TpAppData *>(this->data_);
     bool ret = false;
 
     if (!set)
@@ -803,50 +802,56 @@ bool TpApp::bindVScreen(TpScreen *object)
 
 bool TpApp::run()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
-    if (set)
+    if (!set)
+        return set->running;
+
+    set->waitRun = true;
+
+    if (set->vScreen == nullptr)
+        return false;
+
+    while (set->running)
     {
-        set->waitRun = true;
+        // 异步调用信号槽
+        std::queue<std::function<void()>> cacheTaskList;
 
-        if (set->vScreen == nullptr)
-            return false;
-
-        while (set->running)
         {
-            // 异步调用信号槽
-            std::queue<std::function<void()>> cacheTaskList;
-
-            {
-                std::lock_guard<std::mutex> lock(set->queueSlotMutex_);
-                cacheTaskList = set->slotTasks_;
-                set->slotTasks_ = std::queue<std::function<void()>>();
-            }
-
-            // std::cout << "执行槽函数前  "  << cacheTaskList.size()  << std::endl;
-
-            while (!cacheTaskList.empty())
-            {
-                auto task = cacheTaskList.front();
-                cacheTaskList.pop();
-                // lock.unlock();
-                task();
-                // lock.lock();
-            }
-
-            // std::cout << "执行槽函数后 "  << std::endl;
-
-            // 异步刷新UI
-            std::queue<UpdateCommand> cacheUpdateTaskList;
-            {
-                std::lock_guard<std::mutex> lock(set->queueUpdateMutex_);
-                cacheUpdateTaskList = set->updateTasks_;
-                set->updateTasks_ = std::queue<UpdateCommand>();
-            }
-            DownUpdateCommand(cacheUpdateTaskList);
-
-            TpTimer::sleep(15);
+            std::lock_guard<std::mutex> lock(set->queueSlotMutex_);
+            cacheTaskList = set->slotTasks_;
+            set->slotTasks_ = std::queue<std::function<void()>>();
         }
+
+        // std::cout << "执行槽函数前  "  << cacheTaskList.size()  << std::endl;
+
+        while (!cacheTaskList.empty())
+        {
+            auto task = cacheTaskList.front();
+            cacheTaskList.pop();
+            // lock.unlock();
+            task();
+            // lock.lock();
+        }
+
+        // std::cout << "执行槽函数后 "  << std::endl;
+
+        // 异步刷新UI
+        std::queue<UpdateCommand> cacheUpdateTaskList;
+        {
+            std::lock_guard<std::mutex> lock(set->queueUpdateMutex_);
+            cacheUpdateTaskList = set->updateTasks_;
+            set->updateTasks_ = std::queue<UpdateCommand>();
+        }
+        DownUpdateCommand(cacheUpdateTaskList);
+
+        // set->vScreen->update();
+        // for (const auto &dia : set->floatScreenList)
+        // {
+        //     dia->update();
+        // }
+
+        TpTimer::sleep(15);
     }
 
     return set->running;
@@ -854,7 +859,7 @@ bool TpApp::run()
 
 TpClipboard *TpApp::clipboard()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     TpClipboard *clipboard = nullptr;
 
     if (set)
@@ -867,7 +872,7 @@ TpClipboard *TpApp::clipboard()
 
 TpScreen *TpApp::vScreen()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     TpScreen *vScreen = nullptr;
 
     if (set)
@@ -880,13 +885,13 @@ TpScreen *TpApp::vScreen()
 
 tpShared<TpCssParser> TpApp::cssParser()
 {
-    ItpAppSet *set = static_cast<ItpAppSet *>(this->appSet);
+    TpAppData *set = static_cast<TpAppData *>(this->data_);
     return set->cssParser_;
 }
 
 void TpApp::setStyle(const Tp::SystemTheme &style)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     if (set->systemTheme != style)
     {
@@ -904,14 +909,14 @@ void TpApp::setStyle(const Tp::SystemTheme &style)
 
 Tp::SystemTheme TpApp::style()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     return set->systemTheme;
 }
 
 TpImage TpApp::grabWindow()
 {
-    // ItpAppSet *set = (ItpAppSet *)this->appSet;
+    // TpAppData *set = (TpAppData *)this->data_;
 
     // tinyPiX_sys_capture_screen();
     return TpImage();
@@ -922,7 +927,7 @@ void TpApp::wakeUpVirtualKeyboard(TpChildWidget *object)
     if (!object)
         return;
 
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     if (set->virtualKeyboard == nullptr)
         initVirtualKeyboard(set);
@@ -933,14 +938,14 @@ void TpApp::wakeUpVirtualKeyboard(TpChildWidget *object)
 
 void TpApp::dormantVirtualKeyboard()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     set->curInputObj = nullptr;
     set->virtualKeyboard->close();
 }
 
 bool TpApp::isExistObject(TpObject *object, bool autoRemove)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     bool ret = false;
 
     if (object == nullptr)
@@ -973,13 +978,13 @@ bool TpApp::isExistObject(TpObject *object, bool autoRemove)
 
 bool TpApp::isMainThread()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     return std::this_thread::get_id() == set->mainThreadId;
 }
 
 bool TpApp::sendRegister(TpObject *object)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     bool registerObject = false;
 
     if (!set)
@@ -1009,7 +1014,7 @@ bool TpApp::sendDelete(TpObject *object)
     if (!object)
         return false;
 
-    ItpAppSet *set = static_cast<ItpAppSet *>(this->appSet);
+    TpAppData *set = static_cast<TpAppData *>(this->data_);
     bool deleteObject = false;
 
     if (!set)
@@ -1026,7 +1031,7 @@ bool TpApp::sendDelete(TpObject *object)
 
 bool TpApp::sendReturn(TpObject *object)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     bool returnAct = false;
 
     if (set)
@@ -1053,7 +1058,7 @@ bool TpApp::sendReturn(TpObject *object)
 
 bool TpApp::sendActive(TpObject *object, bool actived)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     bool beActived = false;
 
     if (set)
@@ -1081,7 +1086,7 @@ bool TpApp::sendActive(TpObject *object, bool actived)
 
 bool TpApp::sendAbort(TpObject *object)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     bool abort = false;
 
     if (set)
@@ -1103,7 +1108,7 @@ bool TpApp::sendAbort(TpObject *object)
 
 void TpApp::setDisableEventType(int32_t type)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     if (set)
     {
@@ -1111,14 +1116,14 @@ void TpApp::setDisableEventType(int32_t type)
     }
 }
 
-ItpAppData *TpApp::appObjectSet()
+ITpAppData *TpApp::appObjectSet()
 {
-    return (ItpAppSet *)this->appSet;
+    return (TpAppData *)this->data_;
 }
 
 int32_t TpApp::disableEventType()
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
     int32_t type = 0;
 
     if (set)
@@ -1131,7 +1136,7 @@ int32_t TpApp::disableEventType()
 
 void TpApp::postEvent(std::function<void()> task)
 {
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     if (!set->running)
         return;
@@ -1147,10 +1152,10 @@ void TpApp::postUpdateEvent(TpChildWidget *updateObj, const int32_t &x, const in
     if (!updateObj)
         return;
 
-    ItpAppSet *set = (ItpAppSet *)this->appSet;
+    TpAppData *set = (TpAppData *)this->data_;
 
     // if (!set->running)
-        // return;
+    // return;
 
     UpdateCommand updateCommandInfo;
     updateCommandInfo.updateObj = updateObj;
