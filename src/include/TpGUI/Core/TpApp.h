@@ -7,7 +7,7 @@
 #include <functional>
 #include "TpImage.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpAppData);
+TP_DEF_VOID_TYPE_VAR(ITpAppData);
 
 class TpObject;
 class TpClipboard;
@@ -140,7 +140,7 @@ public:
     /// @param type 事件禁用类型
     virtual void setDisableEventType(int32_t type);
     virtual int32_t disableEventType();
-    virtual ItpAppData *appObjectSet();
+    virtual ITpAppData *appObjectSet();
 
 public:
     /// @brief 队列类型信号槽处理；用户无需调用
@@ -156,7 +156,7 @@ public:
     void postUpdateEvent(TpChildWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit);
 
 private:
-    ItpAppData *appSet;
+    ITpAppData *data_;
 };
 
 #endif

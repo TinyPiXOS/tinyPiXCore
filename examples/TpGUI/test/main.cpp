@@ -183,20 +183,26 @@ int32_t main(int32_t argc, char *argv[])
 
     TpFixScreen *vScreen = new TpFixScreen();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    vScreen->setVisible(true); // vScreen setvisible will be update display
+    vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
+    // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
     app.bindVScreen(vScreen);
 
-    TpSlider *vSlider = new TpSlider(vScreen);
-    vSlider->setDirection(TpSlider::Vertical);
-    vSlider->setValue(50);
-    vSlider->setSize(10, 500);
-    vSlider->move(950, 20);
+    TpButton *testBtn = new TpButton(vScreen);
+    testBtn->setButtonStyle(TpButton::IconOnly);
+    testBtn->setIcon(applicationDirPath() + "/icon.png");
+    testBtn->setRect(50, 50, 100, 100);
 
-    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    thorVGPaint->setRect(600, 100, 500, 500);
-    TpGraphicsBlurEffect btnBlurEffect;
-    btnBlurEffect.setBlurRadius(15);
-    thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    // TpSlider *vSlider = new TpSlider(vScreen);
+    // vSlider->setDirection(TpSlider::Vertical);
+    // vSlider->setValue(50);
+    // vSlider->setSize(10, 500);
+    // vSlider->move(950, 20);
+
+    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    // thorVGPaint->setRect(600, 100, 500, 500);
+    // TpGraphicsBlurEffect btnBlurEffect;
+    // btnBlurEffect.setBlurRadius(15);
+    // thorVGPaint->setGraphicsEffect(btnBlurEffect);
 
     vScreen->update();
 

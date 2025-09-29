@@ -957,6 +957,8 @@ void TpChildWidget::setBackGroundColor(const TpBrush &bgBrush, bool enable)
     hoveredCss()->setBackgroundColor(set->backBrush.gradient());
     checkedCss()->setBackgroundColor(set->backBrush.gradient());
     disableCss()->setBackgroundColor(set->backBrush.gradient());
+
+    update();
 }
 
 uint32_t TpChildWidget::backGroundColor()

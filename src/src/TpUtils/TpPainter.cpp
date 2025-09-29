@@ -300,6 +300,18 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
 
     TpImageData *imageData = static_cast<TpImageData *>(image.data_);
 
+    // std::cout << "休眠" << std::endl;
+    // TpTimer::sleep(3000);
+    // std::cout << "休眠结束" << std::endl;
+
+    // 等待加载完成
+    // float w, h;
+    // while (imageData->tvgPicture->size(&w, &h) != tvg::Result::Success || (w == 0 && h == 0))
+    // {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    //     std::cout << "图片尺寸错误等待！" << std::endl;
+    // }
+
     // 创建深拷贝（不修改原对象）
     tvg::Picture *pictureCopy = static_cast<tvg::Picture *>(imageData->tvgPicture->duplicate());
     if (image.isRotated())
@@ -352,6 +364,16 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
     }
 
     painterData->tvgScene->push(std::move(pictureCopy));
+
+    // std::cout << "休眠" <<std::endl;
+    // TpTimer::sleep(3000);
+    // std::cout << "休眠结束" <<std::endl;
+
+    // painterData->swCanvas->update(); // 第一次update可能触发异步加载
+    // painterData->swCanvas->draw();
+    // painterData->swCanvas->sync(); // 等待所有操作完成
+
+    // std::cout << "绘制结束" <<std::endl;
 }
 
 void TpPainter::drawText(TpFont &font, int32_t x, int32_t y, const TpString &text)
@@ -552,7 +574,7 @@ void TpPainter::erase()
     if (painterData && painterData->beUsed)
     {
         refreshCanvasTarget(painterData);
-        
+
         // 清除并绘制
         painterData->swCanvas->draw(true); // true参数会清除目标缓冲区
         painterData->swCanvas->sync();
