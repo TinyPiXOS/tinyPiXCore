@@ -762,30 +762,37 @@ void TpScreen::setHeight(const int32_t &height)
 void TpScreen::move(int32_t x, int32_t y)
 {
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    if (!set)
+        return;
 
-    if (set)
+    Tp::ItpObjectSysLayer layer = (Tp::ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+
+    if (layer >= Tp::TP_WM_USE_FLOAT)
     {
-        Tp::ItpObjectSysLayer layer = (Tp::ItpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+        int32_t ox = 0, oy = 0;
 
-        if (layer >= Tp::TP_WM_USE_FLOAT)
-        {
-            int32_t ox = 0, oy = 0;
+        tinyPiX_wf_get_rect(set->agent, &ox, &oy, nullptr, nullptr);
+        tinyPiX_wf_set_position(set->agent, x, y);
 
-            tinyPiX_wf_get_rect(set->agent, &ox, &oy, nullptr, nullptr);
-            tinyPiX_wf_set_position(set->agent, x, y);
+        set->offsetX = x;
+        set->offsetY = y;
 
-            set->offsetX = x;
-            set->offsetY = y;
+        set->logicalRect.setX(0);
+        set->logicalRect.setY(0);
 
-            set->logicalRect.setX(0);
-            set->logicalRect.setY(0);
+        set->absoluteRect.setX(x);
+        set->absoluteRect.setY(y);
 
-            set->absoluteRect.setX(x);
-            set->absoluteRect.setY(y);
-
-            this->broadSetTop();
-        }
+        this->broadSetTop();
     }
+}
+
+const TpPoint TpScreen::pos()
+{
+    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    if (!set)
+        return TpPoint();
+    return TpPoint(set->absoluteRect.x(), set->absoluteRect.y());
 }
 
 void TpScreen::setBeMoved(bool moved)

@@ -15,17 +15,17 @@
 #include "TpGraphicsBlurEffect.h"
 #include "TpButton.h"
 
-class ThorVgPaintWidget : public TpChildWidget
-// class ThorVgPaintWidget : public TpDialog
+// class ThorVgPaintWidget : public TpChildWidget
+class ThorVgPaintWidget : public TpDialog
 {
 public:
     ThorVgPaintWidget(TpChildWidget *parent)
-        : TpChildWidget(parent)
+    // : TpChildWidget(parent)
     {
         // setBackGroundColor(_RGBA(100, 100, 100, 200));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
         setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
-        setAlpha(150);
+        // setAlpha(150);
         testBattery_ = new TpBattery(this);
         testBattery_->setValue(100);
         testBattery_->setRect(10, 100, 200, 80);
@@ -44,13 +44,15 @@ public:
             batteryValue = 100;
         testBattery_->setValue(batteryValue);
 
-        update();
+        std::cout << "pos: " << pos().x() << " , " << pos().y() << std::endl;
 
         move(pos().x() + 10, pos().y());
         if (pos().x() + width() > 1080)
         {
             move(150, pos().y());
         }
+
+        // update();
 
         return true;
     }
@@ -60,7 +62,8 @@ public:
         // static uint64_t paintCount = 0;
         // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
 
-        TpChildWidget::onPaintEvent(event);
+        // TpChildWidget::onPaintEvent(event);
+        TpDialog::onPaintEvent(event);
 
         TpPainter *painter = event->painter();
         // painter->paintTest();
@@ -187,10 +190,10 @@ int32_t main(int32_t argc, char *argv[])
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
     app.bindVScreen(vScreen);
 
-    TpButton *testBtn = new TpButton(vScreen);
-    testBtn->setButtonStyle(TpButton::IconOnly);
-    testBtn->setIcon(applicationDirPath() + "/icon.png");
-    testBtn->setRect(50, 50, 100, 100);
+    // TpButton *testBtn = new TpButton(vScreen);
+    // testBtn->setButtonStyle(TpButton::IconOnly);
+    // testBtn->setIcon(applicationDirPath() + "/icon.png");
+    // testBtn->setRect(50, 50, 100, 100);
 
     // TpSlider *vSlider = new TpSlider(vScreen);
     // vSlider->setDirection(TpSlider::Vertical);
@@ -198,8 +201,8 @@ int32_t main(int32_t argc, char *argv[])
     // vSlider->setSize(10, 500);
     // vSlider->move(950, 20);
 
-    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    // thorVGPaint->setRect(600, 100, 500, 500);
+    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    thorVGPaint->setRect(600, 100, 500, 500);
     // TpGraphicsBlurEffect btnBlurEffect;
     // btnBlurEffect.setBlurRadius(15);
     // thorVGPaint->setGraphicsEffect(btnBlurEffect);
