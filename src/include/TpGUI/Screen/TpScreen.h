@@ -38,6 +38,10 @@ public:
 
     virtual void move(int32_t x, int32_t y) override;
 
+    /// @brief 获取窗口当前坐标
+    /// @return 返回窗口当前坐标
+    virtual const TpPoint pos() override;
+
 public:
     virtual void setBeMoved(bool moved = false);
     virtual bool moved();

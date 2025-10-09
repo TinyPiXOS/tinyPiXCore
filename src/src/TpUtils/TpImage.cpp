@@ -5,6 +5,7 @@
 
 #include <thread>
 #include <cmath>
+#include <fstream>
 
 TpImage::TpImage(const TpString &fileName) : data_(nullptr)
 {
@@ -76,9 +77,26 @@ bool TpImage::load(const TpString &filename)
         return false;
 
     imageData->fileName = filename;
+
     imageData->tvgPicture->load(filename.c_str());
 
     imageData->tvgPicture->size(&imageData->actualWidth, &imageData->actualHeight);
+
+    // 创建临时Canvas触发加载
+    // auto tempCanvas = tvg::SwCanvas::gen();
+    // if (tempCanvas)
+    // {
+    //     uint32_t tempBuffer[1];
+    //     tempCanvas->target(tempBuffer, 1, 1, 1, tvg::ColorSpace::ARGB8888);
+
+    //     // 增加引用计数避免被释放
+    //     imageData->tvgPicture->ref();
+    //     tempCanvas->push(imageData->tvgPicture);
+    //     tempCanvas->update();
+    //     tempCanvas->sync();
+    //     tempCanvas->remove(imageData->tvgPicture);
+    //     // 引用计数会在Picture销毁时自动处理
+    // }
 
     return true;
 }
