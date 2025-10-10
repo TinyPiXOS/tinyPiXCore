@@ -719,7 +719,7 @@ bool TpScrollPanel::onWheelEvent(TpWheelEvent *event)
     else
     {
         int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-        std::cout << "curScrollValue : " << curScrollValue << std::endl;
+        // std::cout << "curScrollValue : " << curScrollValue << std::endl;
 
         curScrollValue += WHEEL_SCROLL_INTERVAL;
 

@@ -24,7 +24,7 @@ public:
 
 public:
     TpImage(const TpString &fileName = "");
-    TpImage(const TpImage& other);
+    TpImage(const TpImage &other);
     virtual ~TpImage();
 
 public:
@@ -32,6 +32,13 @@ public:
     /// @param filename 资源文件路径
     /// @return 加载结果
     virtual bool load(const TpString &filename);
+
+    /// @brief 指定资源buffer加载数据；当前仅支持ARGB格式
+    /// @param martix 数据buffer
+    /// @param width 宽度
+    /// @param height 高度
+    /// @return 加载结果
+    virtual bool load(void *martix, int32_t width, int32_t height);
 
     /// @brief 指定size对图片进行缩放
     /// @param size 缩放后的尺寸
@@ -78,7 +85,7 @@ public:
     /// @brief 旋转图片；返回新对象，不会修改原始对象
     /// @param angle 旋转角度；顺时针旋转，3点钟方向为0°
     /// @return 旋转后的新对象
-    virtual TpImage rotate(const float& angle);
+    virtual TpImage rotate(const float &angle);
 
     /// @brief 获取旋转角度
     /// @return 旋转角度
