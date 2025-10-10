@@ -845,11 +845,11 @@ bool TpApp::run()
         }
         DownUpdateCommand(cacheUpdateTaskList);
 
-        set->vScreen->update();
-        for (const auto &dia : set->floatScreenList)
-        {
-            dia->update();
-        }
+        // set->vScreen->update();
+        // for (const auto &dia : set->floatScreenList)
+        // {
+        //     dia->update();
+        // }
 
         TpTimer::sleep(16);
     }

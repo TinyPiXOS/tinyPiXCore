@@ -881,6 +881,9 @@ void TpChildWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
     if (!set)
         return;
 
+    if (image.isNull())
+        return;
+
     set->reserveImage = image;
     set->enableImage = true;
     set->keepAspectRatio = keepAspectRatio;

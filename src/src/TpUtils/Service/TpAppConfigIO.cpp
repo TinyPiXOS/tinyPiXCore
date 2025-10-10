@@ -30,6 +30,17 @@ TpAppConfigIO::TpAppConfigIO(const TpString &appUuid)
     setAppUuid(appUuid);
 }
 
+TpAppConfigIO::TpAppConfigIO(const TpAppConfigIO &others)
+{
+    TpAppConfigIOData *configData = new TpAppConfigIOData();
+    TpAppConfigIOData *othersData = static_cast<TpAppConfigIOData *>(others.data_);
+
+    configData->appUuid = othersData->appUuid;
+    configData->appStaticJsonObj = othersData->appStaticJsonObj;
+
+    data_ = configData;
+}
+
 TpAppConfigIO::~TpAppConfigIO()
 {
     TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
@@ -60,7 +71,7 @@ TpVector<TpString> TpAppConfigIO::installAppUuidList()
     return installAppUuidList;
 }
 
-bool TpAppConfigIO::setAppUuid(const TpString &appUuid)
+bool TpAppConfigIO::setAppUuid(const TpString &appUuid) 
 {
     if (appUuid.empty())
         return false;
@@ -93,9 +104,18 @@ void TpAppConfigIO::refreshCache()
     setAppUuid(configData->appUuid);
 }
 
-TpString TpAppConfigIO::iconPath()
+TpString TpAppConfigIO::appUuid() const
 {
     TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
+    return configData->appUuid;
+}
+
+TpString TpAppConfigIO::iconPath() const
+{
+    TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
+    if (configData->appUuid.empty())
+        return "";
+
     if (configData->appStaticJsonObj.isEmpty())
         return "";
 
@@ -107,7 +127,7 @@ TpString TpAppConfigIO::iconPath()
     return iconPath;
 }
 
-TpString TpAppConfigIO::runnerPath()
+TpString TpAppConfigIO::runnerPath() const
 {
     TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
     if (configData->appStaticJsonObj.isEmpty())
@@ -121,7 +141,7 @@ TpString TpAppConfigIO::runnerPath()
     return runnerPath;
 }
 
-TpString TpAppConfigIO::appName()
+TpString TpAppConfigIO::appName() const
 {
     TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
     if (configData->appStaticJsonObj.isEmpty())
@@ -133,7 +153,7 @@ TpString TpAppConfigIO::appName()
     return configData->appStaticJsonObj.value("appName").toString();
 }
 
-TpVector<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetsInfo()
+TpVector<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetsInfo() const
 {
     TpVector<AppWidgetInfo> widgetList;
 
@@ -163,7 +183,7 @@ TpVector<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetsInfo()
     return widgetList;
 }
 
-tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetInfo(const TpString &widgetUuid)
+tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetInfo(const TpString &widgetUuid) const
 {
     tpShared<TpAppConfigIO::AppWidgetInfo> findWidgetPtr = nullptr;
 
@@ -195,7 +215,7 @@ tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetInfo(const TpString 
     return findWidgetPtr;
 }
 
-tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::defaultWidgetInfo()
+tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::defaultWidgetInfo() const
 {
     tpShared<TpAppConfigIO::AppWidgetInfo> defaultWidgetPtr = nullptr;
 
@@ -232,4 +252,18 @@ tpShared<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::defaultWidgetInfo()
     }
 
     return defaultWidgetPtr;
+}
+
+TpAppConfigIO &TpAppConfigIO::operator=(const TpAppConfigIO &others)
+{
+    if (this == &others)
+        return *this;
+
+    TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
+    TpAppConfigIOData *othersData = static_cast<TpAppConfigIOData *>(others.data_);
+
+    configData->appUuid = othersData->appUuid;
+    configData->appStaticJsonObj = othersData->appStaticJsonObj;
+
+    return *this;
 }

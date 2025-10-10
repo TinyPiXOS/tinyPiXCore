@@ -88,3 +88,5 @@ examples/TpGUI/clipTest/test
 examples/TpGUI/TpSlider/slider
 examples/TpGUI/TpLineEdit/lineedit
 examples/TpGUI/TpOnOffButton/onoff
+examples/TpGUI/testDesk/test
+examples/TpGUI/TpLabel/label

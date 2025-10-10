@@ -82,21 +82,26 @@ bool TpImage::load(const TpString &filename)
 
     imageData->tvgPicture->size(&imageData->actualWidth, &imageData->actualHeight);
 
-    // 创建临时Canvas触发加载
-    // auto tempCanvas = tvg::SwCanvas::gen();
-    // if (tempCanvas)
-    // {
-    //     uint32_t tempBuffer[1];
-    //     tempCanvas->target(tempBuffer, 1, 1, 1, tvg::ColorSpace::ARGB8888);
+    return true;
+}
 
-    //     // 增加引用计数避免被释放
-    //     imageData->tvgPicture->ref();
-    //     tempCanvas->push(imageData->tvgPicture);
-    //     tempCanvas->update();
-    //     tempCanvas->sync();
-    //     tempCanvas->remove(imageData->tvgPicture);
-    //     // 引用计数会在Picture销毁时自动处理
-    // }
+bool TpImage::load(void *martix, int32_t width, int32_t height)
+{
+    if (!martix)
+        return false;
+
+    if (width == 0 || height == 0)
+        return false;
+
+    TpImageData *imageData = static_cast<TpImageData *>(data_);
+    if (!imageData)
+        return false;
+
+    imageData->fileName = "";
+
+    imageData->tvgPicture->load((uint32_t *)martix, width, height, tvg::ColorSpace::ARGB8888);
+
+    imageData->tvgPicture->size(&imageData->actualWidth, &imageData->actualHeight);
 
     return true;
 }

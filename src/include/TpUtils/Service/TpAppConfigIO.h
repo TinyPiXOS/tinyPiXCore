@@ -26,7 +26,8 @@ public:
 public:
     TpAppConfigIO();
     TpAppConfigIO(const TpString &appUuid);
-    virtual ~TpAppConfigIO();
+    TpAppConfigIO(const TpAppConfigIO &others);
+    virtual ~TpAppConfigIO() noexcept;
 
     /// @brief 获取所有已安装应用的UUID列表
     /// @return 已安装应用的UUID列表
@@ -39,30 +40,37 @@ public:
     /// @brief 刷新缓存；刷新后会重新解析所有配置文件
     void refreshCache();
 
+    /// @brief 获取应用UUID
+    /// @return 应用UUID
+    TpString appUuid() const;
+
     /// @brief 获取图标绝对路径
     /// @return 应用icon绝对路径
-    TpString iconPath();
+    TpString iconPath() const;
 
     /// @brief 获取应用可执行文件绝对路径
     /// @return 文件绝对路径
-    TpString runnerPath();
+    TpString runnerPath() const;
 
     /// @brief 获取应用名称
     /// @return 应用名称
-    TpString appName();
+    TpString appName() const;
 
     /// @brief 获取应用所有小组件信息列表
     /// @return 小组件信息列表
-    TpVector<AppWidgetInfo> widgetsInfo();
+    TpVector<AppWidgetInfo> widgetsInfo() const;
 
     /// @brief 指定小组件UUID获取小组件信息
     /// @param widgetUuid 小组件UUID
     /// @return 小组件信息;未找到则返回nullptr
-    tpShared<AppWidgetInfo> widgetInfo(const TpString &widgetUuid);
+    tpShared<AppWidgetInfo> widgetInfo(const TpString &widgetUuid) const;
 
     /// @brief 获取默认小组件信息
     /// @return 无默认小组件则返回 nullptr
-    tpShared<AppWidgetInfo> defaultWidgetInfo();
+    tpShared<AppWidgetInfo> defaultWidgetInfo() const;
+
+public:
+    TpAppConfigIO &operator=(const TpAppConfigIO &others);
 
 private:
     ItpAppConfigIOData *data_;
