@@ -219,6 +219,15 @@ sudo apt install libsdl2-image-dev libsdl2-gfx-dev \
   libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 ```
 
+- ​**构建 tinyPiXCore 依赖子模块（可跳过）**
+
+```bash
+# 更新子模块
+git submodule update --recursive
+# 构建并安装所有子模块依赖库
+make -f deps.mk
+```
+
 - ​**构建 tinyPiXCore Debug版本**
 
 ```bash
