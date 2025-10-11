@@ -4,12 +4,12 @@
 #include "TpChildWidget.h"
 #include "TpEvent.h"
 
-class testLight : public TpChildWidget
+class TpTestLight : public TpChildWidget
 {
 public:
-    testLight(TpChildWidget *parent);
+    TpTestLight(TpChildWidget *parent);
 
-    virtual ~testLight();
+    virtual ~TpTestLight();
 
 public:
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
