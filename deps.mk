@@ -6,9 +6,27 @@ export MAKEFLAGS+=" -j$$(( $$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/
 endif
 
 build ?= build
-prefix ?= $(core_root)/install
+prefix ?= $(core_root)/tempSubmodule
 
 rime_deps = librime nanomsg thorvg
+
+# 判断平台
+# 获取系统架构信息
+ARCH := $(shell uname -m)
+
+# 根据架构设置目录变量
+ifeq ($(ARCH), x86_64)
+    libDir := x86_64
+else ifneq (,$(filter $(ARCH), i386 i686))
+    libDir := x86_32
+else ifneq (,$(filter $(ARCH), armv7l arm))
+    libDir := arm_32
+else ifneq (,$(filter $(ARCH), aarch64 arm64))
+    libDir := arm_64
+else
+    $(warning 未知架构: $(ARCH), 使用默认目录)
+    libDir := x86_64
+endif
 
 .PHONY: all clean clean-dist clean-src $(rime_deps)
 
@@ -29,28 +47,43 @@ clean-src:
 		rm -r $(src_dir)/$${dep}/$(build) || true; \
 	done
 
+# apt install libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 librime:
 	cd $(src_dir)/librime; \
-	cmake . -B$(build) \
+	cmake . -B $(build) \
 	-DCMAKE_BUILD_TYPE:STRING=Releas \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
 	--no-warn-unused-cli \
 	-G Ninja \
-	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)" \
-	&& cmake --build $(build) --target install
+	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)/librime" \
+	-DCMAKE_INSTALL_BINDIR:PATH="$(prefix)/librime/bin" \
+	-DCMAKE_INSTALL_LIBDIR:PATH="$(prefix)/librime/lib" \
+	-DCMAKE_INSTALL_INCLUDEDIR:PATH="$(prefix)/librime/include" \
+	-DEXECUTABLE_OUTPUT_PATH:PATH="$(prefix)/librime/data" \
+	&& cmake --build $(build) --target install; \
+	cp $(prefix)/librime/data/* $(core_root)/src/data/rime/; \
+	cp $(prefix)/librime/include/* $(core_root)/src/include_p/TpUtils/rime/; \
+	cp $(prefix)/librime/lib/librime.so.1.5.3 $(core_root)/src/depend_lib/dynamic/$(libDir)/;
 
 nanomsg:
 	cd $(src_dir)/nanomsg; \
-	cmake . -B$(build) \
-	-DLEVELDB_BUILD_BENCHMARKS:BOOL=OFF \
-	-DLEVELDB_BUILD_TESTS:BOOL=OFF \
+	cmake . -B $(build) \
 	-DCMAKE_BUILD_TYPE:STRING="Release" \
-	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)" \
-	&& cmake --build $(build) --target install
+	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)/nanomsg"; \
+	cd $(build)	\
+	&& make && make install; \
+	cp $(prefix)/nanomsg/include/nanomsg/* $(core_root)/src/include_p/TpUtils/nanomsg/; \
+	cp $(prefix)/nanomsg/lib/libnanomsg.a $(core_root)/src/depend_lib/static/$(libDir)/;
 
 thorvg:
 	cd $(src_dir)/thorvg; \
-	cmake . -B$(build) \
-	-DCMAKE_BUILD_TYPE:STRING="Release" \
-	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)" \
-	&& cmake --build $(build) --target install
+	meson setup builddir \
+	-Dloaders="all" \
+	-Dsavers="all" \
+	-Dexamples=false \
+	-Dlog="false" \
+	--default-library=static \
+	--prefix=$(prefix)/thorvg \
+	&& ninja -C builddir install; \
+	cp $(prefix)/thorvg/include/* $(core_root)/src/include_p/TpUtils/thorVG/; \
+	cp $(prefix)/thorvg/lib/x86_64-linux-gnu/libthorvg.a $(core_root)/src/depend_lib/static/$(libDir)/;
