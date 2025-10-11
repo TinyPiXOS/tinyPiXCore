@@ -84,6 +84,7 @@ thorvg:
 	-Dlog="false" \
 	--default-library=static \
 	--prefix=$(prefix)/thorvg \
+	--libdir=lib \
 	&& ninja -C builddir install; \
 	cp $(prefix)/thorvg/include/* $(core_root)/src/include_p/TpUtils/thorVG/; \
-	cp $(prefix)/thorvg/lib/x86_64-linux-gnu/libthorvg.a $(core_root)/src/depend_lib/static/$(libDir)/;
+	cp $(prefix)/thorvg/lib/libthorvg.a $(core_root)/src/depend_lib/static/$(libDir)/;
