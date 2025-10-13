@@ -785,6 +785,8 @@ void TpScreen::move(int32_t x, int32_t y)
 
         this->broadSetTop();
     }
+
+    update();
 }
 
 const TpPoint TpScreen::pos()
@@ -861,7 +863,6 @@ void TpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
 
 void TpScreen::update(bool onlyBlit)
 {
-    // update(0, 0, this->toScreen().x() + this->width(), this->toScreen().y() + this->height(), onlyBlit);
     update(this->toScreen().x(), this->toScreen().y(), this->width(), this->height(), onlyBlit);
 }
 
