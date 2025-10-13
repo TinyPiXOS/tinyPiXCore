@@ -332,11 +332,6 @@ public:
     // virtual void setMouseKeyEventListener(TpMouseKeyEventListenerFunc func);
 
 public:
-    /// @brief 窗口显示前事件，窗口在绘制前会触发该事件
-    /// @param event 事件数据指针
-    /// @return 事件处理结果
-    // virtual bool onShowEvent(TpShowEvent *event) { return true; }
-
     /// @brief 键盘按下事件
     /// @param event
     virtual bool onKeyPressEvent(TpKeyboardEvent *event) { return true; }
@@ -391,6 +386,10 @@ public:
     /// @param _status
     /// @return 读取的CSS数据指针
     tpShared<TpCssData> readCss(const TpString &_className, const TpCssParser::MouseStatus &_status);
+
+    /// @brief 获取当前窗口截图
+    /// @return 窗口图片
+    TpImage grabWindow();
 
 public:
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式

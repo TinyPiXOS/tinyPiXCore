@@ -342,7 +342,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         {
             ItpObjectPaintInput paintInput;
 
-            IPiDSSurface *surface_t = tinyPiX_wf_get_surface(topScreenSet->agent);
+            IPiWFSurface *surface_t = tinyPiX_wf_get_surface(topScreenSet->agent);
             if (surface_t == nullptr)
                 continue;
 

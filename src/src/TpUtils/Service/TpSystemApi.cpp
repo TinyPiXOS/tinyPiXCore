@@ -134,13 +134,15 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
 
     // 获取winID
     int appId = tinyPiX_sys_find_win_main_id_bypid(apiData->globalAgent, appPid);
-    int appId222 = tinyPiX_sys_find_win_pid_byid(apiData->globalAgent, appPid);
 
+    std::cout << "appId : " << appId << "  appPid : " << appPid << std::endl;
     IPiWFSurface *surfacePtr = tinyPiX_sys_get_obj_surface(apiData->globalAgent, appId, appPid);
     if (!surfacePtr)
         return TpImage();
 
     tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
+
+    std::cout << "Width: " << appDisplayImage->width() << "  Height: " << appDisplayImage->height() << std::endl;
 
     TpImage resImage;
     resImage.load(appDisplayImage->matrix(), appDisplayImage->width(), appDisplayImage->height());

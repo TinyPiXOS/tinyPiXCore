@@ -52,6 +52,8 @@ public:
             move(150, pos().y());
         }
 
+        grabWindow();
+
         // update();
 
         return true;
