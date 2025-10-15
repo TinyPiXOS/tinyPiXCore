@@ -121,7 +121,7 @@ void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
 
 TpImage TpSystemApi::appImage(const TpString &uuid)
 {
-    return TpImage();
+    // return TpImage();
 
     TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
     if (!apiData)
