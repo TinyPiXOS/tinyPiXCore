@@ -9,12 +9,19 @@ struct TpImageData
     TpString fileName = "";
     tvg::Picture *tvgPicture = nullptr;
 
+    uint32_t *loadBuffer = nullptr;
+
     // 图片实际尺寸
-    float actualWidth = 0;
-    float actualHeight = 0;
+    int32_t actualWidth = 0;
+    int32_t actualHeight = 0;
 
     ~TpImageData()
     {
+        if (loadBuffer)
+        {
+            delete[] loadBuffer;
+            loadBuffer = nullptr;
+        }
         delete tvgPicture;
         tvgPicture = nullptr;
     }

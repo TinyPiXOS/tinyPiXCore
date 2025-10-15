@@ -157,6 +157,9 @@ struct ItpObjectSet
     std::unordered_map<void *, std::vector<std::function<void()>>> slotConnections_;
     std::mutex slotConnectMutex_;
 
+    // 组件抓图
+    TpImage grapImage;
+
     ItpObjectSet()
     {
     }

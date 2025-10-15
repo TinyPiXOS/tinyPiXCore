@@ -225,6 +225,45 @@ static void paintEnabledBox(TpChildWidget *child, TpPainter *paintCanvas)
     }
 }
 
+// 先声明，因为 childPaint 和 drawWidget 互相调用了
+static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events);
+static void drawWidget(ItpObjectPaintInput &input, TpChildWidget *obj)
+{
+    TpPaintEvent event;
+    event.construct(&input);
+
+    // 刷新前清除scene
+    TpPainter *childPainter = event.painter();
+
+    auto canvasPair = obj->canvasPtr();
+    tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
+    tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
+
+    childPainter->addScene(childCanvas, childScene);
+
+    bool ret = obj->onPaintEvent(&event);
+
+    // 清除所有现有效果
+    childScene->push(tvg::SceneEffect::ClearAll);
+    if (obj->enableBlur())
+    {
+        TpGraphicsBlurEffect blurEffectObj = obj->graphicsEffect();
+        childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
+    }
+
+    // 控件不可用，绘制遮罩层
+    paintEnabledBox(obj, event.painter());
+
+    // 绘制完成刷新绘制
+    childPainter->sync(obj);
+
+    if (ret)
+    {
+        ItpObjectSet *childSet = (ItpObjectSet *)obj->objectSets();
+        childPaint(childSet, &event);
+    }
+}
+
 static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
 {
     if (!set)
@@ -261,38 +300,7 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         input.updateRect = events->updateRect();
         input.surface = events->surface();
 
-        TpPaintEvent event;
-        event.construct(&input);
-
-        // 刷新前清除scene
-        TpPainter *childPainter = event.painter();
-
-        auto canvasPair = child->canvasPtr();
-        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
-        tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
-
-        childPainter->addScene(childCanvas, childScene);
-
-        bool ret = child->onPaintEvent(&event);
-
-        // 清除所有现有效果
-        childScene->push(tvg::SceneEffect::ClearAll);
-        if (child->enableBlur())
-        {
-            TpGraphicsBlurEffect blurEffectObj = child->graphicsEffect();
-            childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
-        }
-
-        // 控件不可用，绘制遮罩层
-        paintEnabledBox(child, event.painter());
-
-        // 绘制完成刷新绘制
-        childPainter->sync();
-
-        if (ret)
-        {
-            childPaint(childSet, &event);
-        }
+        drawWidget(input, child);
     }
 }
 

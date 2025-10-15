@@ -145,7 +145,7 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
     std::cout << "Width: " << appDisplayImage->width() << "  Height: " << appDisplayImage->height() << std::endl;
 
     TpImage resImage;
-    resImage.load(appDisplayImage->matrix(), appDisplayImage->width(), appDisplayImage->height());
+    resImage.load(appDisplayImage->matrix(), TpRect(0, 0, appDisplayImage->width(), appDisplayImage->height()));
 
     tinyPiX_surface_free(surfacePtr);
 
