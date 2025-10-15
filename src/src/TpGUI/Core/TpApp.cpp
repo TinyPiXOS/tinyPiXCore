@@ -375,38 +375,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         // int32_t surfaceHeight = paintInput.surface->height();
         // std::cout << "Surface尺寸： " << surfaceWidth << "  " << surfaceHeight << std::endl;
 
-        TpPaintEvent event;
-        event.construct(&paintInput);
-
-        // 刷新前清除scene
-        TpPainter *childPainter = event.painter();
-
-        auto canvasPair = updateWidgetIter.first->canvasPtr();
-        tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
-        tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
-
-        childPainter->addScene(childCanvas, childScene);
-
-        bool ret = updateWidgetIter.first->onPaintEvent(&event);
-
-        // 清除所有现有效果
-        childScene->push(tvg::SceneEffect::ClearAll);
-        if (updateWidgetIter.first->enableBlur())
-        {
-            TpGraphicsBlurEffect blurEffectObj = updateWidgetIter.first->graphicsEffect();
-            childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
-        }
-
-        // 控件不可用，绘制遮罩层
-        paintEnabledBox(updateWidgetIter.first, event.painter());
-
-        // 绘制完成刷新绘制
-        childPainter->sync();
-
-        if (ret)
-        {
-            childPaint(updateObjSet, &event);
-        }
+        drawWidget(paintInput, updateWidgetIter.first);
 
         tinyPiX_wf_unlock_mutex(topScreenSet->agent);
     }

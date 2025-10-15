@@ -35,10 +35,9 @@ public:
 
     /// @brief 指定资源buffer加载数据；当前仅支持ARGB格式
     /// @param martix 数据buffer
-    /// @param width 宽度
-    /// @param height 高度
+    /// @param rect 加载数据矩形
     /// @return 加载结果
-    virtual bool load(void *martix, int32_t width, int32_t height);
+    virtual bool load(void *martix, const TpRect& rect);
 
     /// @brief 指定size对图片进行缩放
     /// @param size 缩放后的尺寸

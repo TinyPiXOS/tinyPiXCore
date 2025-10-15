@@ -5,6 +5,7 @@
 #include "TpGradient_p.h"
 #include "TpPainter_p.h"
 #include "TpPainterPath_p.h"
+#include "TpChildWidget.h"
 
 #include <thread>
 #include <cmath>
@@ -582,23 +583,30 @@ void TpPainter::addScene(void *canvas, void *scene)
     painterData->tvgScene = addScene;
 }
 
-void TpPainter::sync()
+void TpPainter::sync(void *object)
 {
     TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-
-    // painterData->swCanvas->update(); // 这里会调用Picture内部的load()
-    // painterData->swCanvas->draw();
-    // painterData->swCanvas->sync();
-
-    // // 第二次渲染周期 - 此时内容应该已加载
-    // painterData->swCanvas->update();
-    // painterData->swCanvas->draw();
-    // painterData->swCanvas->sync();
 
     // 绘制并同步
     // painterData->swCanvas->update();
     painterData->swCanvas->draw();
     painterData->swCanvas->sync();
+
+    if (object)
+    {
+        TpChildWidget *paintWidget = static_cast<TpChildWidget *>(object);
+        ItpObjectSet *paintWidgetData = static_cast<ItpObjectSet *>(paintWidget->objectSets());
+
+        paintWidgetData->grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
+
+        // static int32_t saveIndexS = 0;
+        // TpString savePngPath = "/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
+
+        // // 加载原始像素数据
+        // TpImage grapImage;
+        // grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
+        // grapImage.save(savePngPath, TpImage::PNG_FMT);
+    }
 }
 
 TpHollowMask::TpHollowMask()

@@ -1374,96 +1374,11 @@ tpShared<TpCssData> TpChildWidget::readCss(const TpString &_className, const TpC
 
 TpImage TpChildWidget::grabWindow()
 {
-    TpObject *topObj = this->topObject();
-    if (!topObj)
+    ItpObjectSet *widgetData = static_cast<ItpObjectSet *>(this->objectSets());
+    if (!widgetData)
         return TpImage();
 
-    ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(topObj->objectSets());
-    IPiWFSurface *surface_t = tinyPiX_wf_get_surface(topScreenSet->agent);
-    if (surface_t == nullptr)
-        return TpImage();
-
-    tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t, rect());
-
-    FILE *fp = fopen("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/grapWindow.png", "wb");
-    if (!fp)
-    {
-        // 处理文件打开失败
-        return TpImage();
-    }
-
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png)
-    {
-        fclose(fp);
-        return TpImage();
-    }
-
-    png_infop info = png_create_info_struct(png);
-    if (!info)
-    {
-        png_destroy_write_struct(&png, nullptr);
-        fclose(fp);
-        return TpImage();
-    }
-
-    // 设置错误处理
-    if (setjmp(png_jmpbuf(png)))
-    {
-        png_destroy_write_struct(&png, &info);
-        fclose(fp);
-        return TpImage();
-    }
-
-    png_init_io(png, fp);
-
-    // 设置图像信息
-    png_set_IHDR(png, info,
-                 this->width(), this->height(),
-                 8,
-                 PNG_COLOR_TYPE_RGBA,
-                 PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT,
-                 PNG_FILTER_TYPE_DEFAULT);
-
-    // 添加关键：设置字节顺序（RGBA）
-    png_set_swap(png); // 如果您的系统是小端序，可能需要这个
-
-    png_write_info(png, info);
-
-    // 写入像素数据
-    int32_t *buffer = static_cast<int32_t *>(surface->matrix());
-    const int width = this->width();
-    const int height = this->height();
-    const int rowbytes = width * 4; // 每个像素4字节 (RGBA)
-
-    // 分配行缓冲区
-    png_bytep row_buffer = new png_byte[rowbytes];
-
-    for (int y = 0; y < height; y++)
-    {
-        // 获取当前行数据
-        int32_t *src_row = buffer + y * width;
-
-        // 转换为字节数组
-        for (int x = 0; x < width; x++)
-        {
-            uint32_t pixel = static_cast<uint32_t>(src_row[x]);
-            row_buffer[x * 4 + 0] = (pixel >> 16) & 0xFF; // R
-            row_buffer[x * 4 + 1] = (pixel >> 8) & 0xFF;  // G
-            row_buffer[x * 4 + 2] = pixel & 0xFF;         // B
-            row_buffer[x * 4 + 3] = (pixel >> 24) & 0xFF; // A
-        }
-
-        png_write_row(png, row_buffer);
-    }
-
-    delete[] row_buffer;
-    png_write_end(png, nullptr);
-    png_destroy_write_struct(&png, &info);
-    fclose(fp);
-
-    return TpImage();
+    return widgetData->grapImage;
 }
 
 std::pair<void *, void *> TpChildWidget::canvasPtr()

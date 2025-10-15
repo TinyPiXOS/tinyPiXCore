@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
-include(../cmake/CreateTinyCoreSymlink.cmake)
+include(../cmake/CreateSymlink.cmake)
 include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录

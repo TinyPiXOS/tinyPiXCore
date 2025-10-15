@@ -317,7 +317,7 @@ public:
     void addScene(void *canvas, void *scene);
 
     /// @brief 绘图同步；用户无需调用
-    void sync();
+    void sync(void* object);
 
 private:
     ITpCanvasData *data_;
