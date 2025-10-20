@@ -55,7 +55,14 @@ static void refreshCacheImage(ItpObjectSet *set)
     if (set->reserveImage.isNull())
         return;
 
+    if (set->logicalRect.width() == 0 || set->logicalRect.height() == 0)
+        return;
+
     set->cacheImage = set->reserveImage.scaled(set->logicalRect.width(), set->logicalRect.height(), set->keepAspectRatio);
+
+    // static int testIndex = 1;
+    // set->cacheImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/cache-" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
+    // set->reserveImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/origin" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
 }
 
 static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, const int32_t &x, const int32_t &y)
@@ -891,10 +898,8 @@ void TpChildWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
     set->enableImage = true;
     set->keepAspectRatio = keepAspectRatio;
 
-    if (set->logicalRect.width() != 0 && set->logicalRect.height() != 0)
-    {
-        refreshCacheImage(set);
-    }
+    refreshCacheImage(set);
+
     update();
 }
 

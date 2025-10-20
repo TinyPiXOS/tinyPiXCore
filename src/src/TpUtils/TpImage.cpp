@@ -22,32 +22,33 @@ TpImage::TpImage(const TpString &fileName) : data_(nullptr)
     load(fileName);
 }
 
-TpImage::TpImage(const TpImage &other)
+TpImage::TpImage(const TpImage &other) : data_(nullptr)
 {
-    TpImageData *otherData = static_cast<TpImageData *>(other.data_);
+    // 根据CPU核心数；分配绘图引擎线程数
+    uint32_t cores = std::thread::hardware_concurrency();
+    tvg::Initializer::init(cores / 2);
 
     TpImageData *imageData = new TpImageData();
     imageData->tvgPicture = tvg::Picture::gen();
 
-    if (otherData)
-    {
-        TpImageData *otherData = static_cast<TpImageData *>(other.data_);
+    data_ = imageData;
 
-        // 深拷贝所有成员
+    TpImageData *otherData = static_cast<TpImageData *>(other.data_);
+    if (!otherData)
+        return;
+
+    // 深拷贝所有成员
+    // if (otherData->loadBuffer)
+    // {
+    //     load(otherData->loadBuffer, TpRect(0, 0, otherData->actualWidth, otherData->actualHeight));
+    // }
+    // else
+    {
         imageData->fileName = otherData->fileName;
         imageData->actualWidth = otherData->actualWidth;
         imageData->actualHeight = otherData->actualHeight;
-
-        if (otherData->loadBuffer && otherData->actualWidth != 0 && otherData->actualHeight != 0)
-        {
-            imageData->loadBuffer = new uint32_t[otherData->actualWidth * otherData->actualHeight];
-            memcpy(imageData->loadBuffer, otherData->loadBuffer, sizeof(uint32_t) * otherData->actualWidth * otherData->actualHeight);
-        }
-
         imageData->tvgPicture = static_cast<tvg::Picture *>(otherData->tvgPicture->duplicate());
     }
-
-    data_ = imageData;
 }
 
 TpImage::~TpImage()
@@ -83,11 +84,11 @@ bool TpImage::load(const TpString &filename)
     if (!imageData)
         return false;
 
-    if (imageData->loadBuffer)
-    {
-        delete[] imageData->loadBuffer;
-        imageData->loadBuffer = nullptr;
-    }
+    // if (imageData->loadBuffer)
+    // {
+    //     delete[] imageData->loadBuffer;
+    //     imageData->loadBuffer = nullptr;
+    // }
 
     imageData->fileName = filename;
 
@@ -116,16 +117,17 @@ bool TpImage::load(void *martix, const TpRect &rect)
 
     imageData->fileName = "";
 
-    if (imageData->loadBuffer)
-    {
-        delete[] imageData->loadBuffer;
-        imageData->loadBuffer = nullptr;
-    }
+    // if (imageData->loadBuffer)
+    // {
+    //     delete[] imageData->loadBuffer;
+    //     imageData->loadBuffer = nullptr;
+    // }
 
-    imageData->loadBuffer = new uint32_t[rect.width() * rect.height()];
-    memcpy(imageData->loadBuffer, martix, sizeof(uint32_t) * rect.width() * rect.height());
+    // imageData->loadBuffer = new uint32_t[rect.width() * rect.height()];
+    // memcpy(imageData->loadBuffer, martix, sizeof(uint32_t) * rect.width() * rect.height());
 
-    imageData->tvgPicture->load(imageData->loadBuffer, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888);
+    imageData->tvgPicture->load((uint32_t*)martix, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888);
+    // imageData->tvgPicture->load(imageData->loadBuffer, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888);
 
     imageData->actualWidth = rect.width();
     imageData->actualHeight = rect.height();
@@ -257,92 +259,95 @@ TpImage TpImage::copy(int32_t x, int32_t y, int32_t w, int32_t h)
     return newCopyImage;
 }
 
-bool TpImage::save(const TpString &filename, ImageType type, int32_t jpguality)
-{
-    TpImageData *imageData = static_cast<TpImageData *>(data_);
-    if (!imageData)
-        return false;
+// bool TpImage::save(const TpString &filename, ImageType type, int32_t jpguality)
+// {
+//     TpImageData *imageData = static_cast<TpImageData *>(data_);
+//     if (!imageData)
+//         return false;
 
-#if 1
-    FILE *fp = fopen(filename.c_str(), "wb");
-    // 处理文件打开失败
-    if (!fp)
-        return false;
+//     if (!imageData->loadBuffer)
+//         return false;
 
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png)
-    {
-        fclose(fp);
-        return false;
-    }
+// #if 1
+//     FILE *fp = fopen(filename.c_str(), "wb");
+//     // 处理文件打开失败
+//     if (!fp)
+//         return false;
 
-    png_infop info = png_create_info_struct(png);
-    if (!info)
-    {
-        png_destroy_write_struct(&png, nullptr);
-        fclose(fp);
-        return false;
-    }
+//     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+//     if (!png)
+//     {
+//         fclose(fp);
+//         return false;
+//     }
 
-    // 设置错误处理
-    if (setjmp(png_jmpbuf(png)))
-    {
-        png_destroy_write_struct(&png, &info);
-        fclose(fp);
-        return false;
-    }
+//     png_infop info = png_create_info_struct(png);
+//     if (!info)
+//     {
+//         png_destroy_write_struct(&png, nullptr);
+//         fclose(fp);
+//         return false;
+//     }
 
-    png_init_io(png, fp);
+//     // 设置错误处理
+//     if (setjmp(png_jmpbuf(png)))
+//     {
+//         png_destroy_write_struct(&png, &info);
+//         fclose(fp);
+//         return false;
+//     }
 
-    // 设置图像信息
-    png_set_IHDR(png, info,
-                 imageData->actualWidth, imageData->actualHeight,
-                 8,
-                 PNG_COLOR_TYPE_RGBA,
-                 PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT,
-                 PNG_FILTER_TYPE_DEFAULT);
+//     png_init_io(png, fp);
 
-    // 添加关键：设置字节顺序（RGBA）
-    png_set_swap(png); // 如果您的系统是小端序，可能需要这个
+//     // 设置图像信息
+//     png_set_IHDR(png, info,
+//                  imageData->actualWidth, imageData->actualHeight,
+//                  8,
+//                  PNG_COLOR_TYPE_RGBA,
+//                  PNG_INTERLACE_NONE,
+//                  PNG_COMPRESSION_TYPE_DEFAULT,
+//                  PNG_FILTER_TYPE_DEFAULT);
 
-    png_write_info(png, info);
+//     // 添加关键：设置字节顺序（RGBA）
+//     png_set_swap(png); // 如果您的系统是小端序，可能需要这个
 
-    // 写入像素数据
-    int32_t *buffer = reinterpret_cast<int32_t *>(imageData->loadBuffer);
-    const int width = imageData->actualWidth;
-    const int height = imageData->actualHeight;
-    const int rowbytes = width * 4; // 每个像素4字节 (RGBA)
+//     png_write_info(png, info);
 
-    // 分配行缓冲区
-    png_bytep row_buffer = new png_byte[rowbytes];
+//     // 写入像素数据
+//     int32_t *buffer = reinterpret_cast<int32_t *>(imageData->loadBuffer);
+//     const int width = imageData->actualWidth;
+//     const int height = imageData->actualHeight;
+//     const int rowbytes = width * 4; // 每个像素4字节 (RGBA)
 
-    for (int y = 0; y < height; y++)
-    {
-        // 获取当前行数据
-        int32_t *src_row = buffer + y * width;
+//     // 分配行缓冲区
+//     png_bytep row_buffer = new png_byte[rowbytes];
 
-        // 转换为字节数组
-        for (int x = 0; x < width; x++)
-        {
-            uint32_t pixel = static_cast<uint32_t>(src_row[x]);
-            row_buffer[x * 4 + 0] = (pixel >> 16) & 0xFF; // R
-            row_buffer[x * 4 + 1] = (pixel >> 8) & 0xFF;  // G
-            row_buffer[x * 4 + 2] = pixel & 0xFF;         // B
-            row_buffer[x * 4 + 3] = (pixel >> 24) & 0xFF; // A
-        }
+//     for (int y = 0; y < height; y++)
+//     {
+//         // 获取当前行数据
+//         int32_t *src_row = buffer + y * width;
 
-        png_write_row(png, row_buffer);
-    }
+//         // 转换为字节数组
+//         for (int x = 0; x < width; x++)
+//         {
+//             uint32_t pixel = static_cast<uint32_t>(src_row[x]);
+//             row_buffer[x * 4 + 0] = (pixel >> 16) & 0xFF; // R
+//             row_buffer[x * 4 + 1] = (pixel >> 8) & 0xFF;  // G
+//             row_buffer[x * 4 + 2] = pixel & 0xFF;         // B
+//             row_buffer[x * 4 + 3] = (pixel >> 24) & 0xFF; // A
+//         }
 
-    delete[] row_buffer;
-    png_write_end(png, nullptr);
-    png_destroy_write_struct(&png, &info);
-    fclose(fp);
-#endif
+//         png_write_row(png, row_buffer);
+//     }
 
-    return true;
-}
+//     delete[] row_buffer;
+//     png_write_end(png, nullptr);
+//     png_destroy_write_struct(&png, &info);
+//     fclose(fp);
+// #endif
+
+//     return true;
+// }
 
 TpImage TpImage::rotate(const float &angle)
 {
@@ -396,22 +401,28 @@ TpImage &TpImage::operator=(const TpImage &others)
     if (imageData->tvgPicture)
     {
         delete imageData->tvgPicture;
-        imageData->tvgPicture = nullptr;
+        imageData->tvgPicture = tvg::Picture::gen();
     }
 
-    if (imageData->loadBuffer)
+    // if (imageData->loadBuffer)
+    // {
+    //     delete[] imageData->loadBuffer;
+    //     imageData->loadBuffer = nullptr;
+    // }
+
+    // if (othersImageData->loadBuffer)
+    // {
+    //     if (othersImageData->actualWidth != 0 && othersImageData->actualHeight != 0)
+    //     {
+    //         imageData->loadBuffer = new uint32_t[othersImageData->actualWidth * othersImageData->actualHeight];
+    //         memcpy(imageData->loadBuffer, othersImageData->loadBuffer, sizeof(uint32_t) * othersImageData->actualWidth * othersImageData->actualHeight);
+    //         imageData->tvgPicture->load(imageData->loadBuffer, othersImageData->actualWidth, othersImageData->actualHeight, tvg::ColorSpace::ARGB8888);
+    //     }
+    // }
+    // else
     {
-        delete[] imageData->loadBuffer;
-        imageData->loadBuffer = nullptr;
+        imageData->tvgPicture = static_cast<tvg::Picture *>(othersImageData->tvgPicture->duplicate());
     }
-
-    if (othersImageData->loadBuffer && othersImageData->actualWidth != 0 && othersImageData->actualHeight != 0)
-    {
-        imageData->loadBuffer = new uint32_t[othersImageData->actualWidth * othersImageData->actualHeight];
-        memcpy(imageData->loadBuffer, othersImageData->loadBuffer, sizeof(uint32_t) * othersImageData->actualWidth * othersImageData->actualHeight);
-    }
-
-    imageData->tvgPicture = static_cast<tvg::Picture *>(othersImageData->tvgPicture->duplicate());
 
     return *this;
 }

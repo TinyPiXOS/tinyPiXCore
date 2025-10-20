@@ -85,7 +85,8 @@ void TpPainter::paintTest()
     auto text = tvg::Text::gen();
 
     // text->font("Source Han Sans CN", 32);     // 设置字体名称和大小
-    text->font("Taipei Sans TC Beta", 32); // 设置字体名称和大小
+    text->font("Taipei Sans TC Beta"); // 设置字体名称和大小
+    text->size(32);
     text->text("Hello ThorVG 哈哈哈!");    // 设置文本内容
     text->fill(255, 0, 0);                 // 设置文本颜色 (红色)
     text->translate(painterData->offsetX, painterData->offsetY);
