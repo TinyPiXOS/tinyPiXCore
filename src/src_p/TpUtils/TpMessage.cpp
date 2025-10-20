@@ -27,147 +27,158 @@
 
 #define TP_MESSAGE_WAIT 10000
 
-typedef struct{
-	int32_t id;
-	ItpUserEvent data;
-}ItpMsgData;
+struct MsgData
+{
+    int32_t id;
+    ItpUserEvent data;
+};
 
-typedef struct{
-	int32_t front;
-	int32_t rear;
-	int32_t length;
-	ItpMsgData *msg;
-	std::mutex gMutex;
-}ItpInfoMsgSet;
+struct TpMessageData
+{
+    int32_t front;
+    int32_t rear;
+    int32_t length;
+    MsgData *msg;
+    std::mutex gMutex;
+};
 
 static int32_t msgObject = 0;
 
-static inline void timer_delay(unsigned long long usec)
+static inline void timerdelay(unsigned long long usec)
 {
-	struct timeval tv; 
-	tv.tv_sec = usec / 1000000; 
-	tv.tv_usec = usec % 1000000; 
-	int32_t err; 
-	do { 
-		err = select(0, NULL, NULL, NULL, &tv); 
-	} while(err < 0 && errno == EINTR);
+    struct timeval tv;
+    tv.tv_sec = usec / 1000000;
+    tv.tv_usec = usec % 1000000;
+    int32_t err;
+    do
+    {
+        err = select(0, NULL, NULL, NULL, &tv);
+    } while (err < 0 && errno == EINTR);
 }
 
 TpMessage::TpMessage(int32_t length)
 {
-	ItpInfoMsgSet *set = new ItpInfoMsgSet();
-	
-	if(set){
-		set->front = 0;
-		set->rear = 0;
-		
-		set->length = length;
-		
-		if(set->length <= 0){
-			set->length = TP_MESSAGE_LENGTH;
-		}
-		
-		set->msg = new ItpMsgData[set->length];
-		
-		this->msgSet = set;
-	}
+    TpMessageData *set = new TpMessageData();
+
+    if (set)
+    {
+        set->front = 0;
+        set->rear = 0;
+
+        set->length = length;
+
+        if (set->length <= 0)
+        {
+            set->length = TP_MESSAGE_LENGTH;
+        }
+
+        set->msg = new MsgData[set->length];
+
+        this->data_ = set;
+    }
 }
 
 TpMessage::~TpMessage()
 {
-	ItpInfoMsgSet *set = (ItpInfoMsgSet*)this->msgSet;
-	
-	if(set){
-		set->gMutex.lock();
-		delete []set->msg;
-		delete set;
-		set->gMutex.unlock();
-	}
+    TpMessageData *set = (TpMessageData *)this->data_;
+
+    if (set)
+    {
+        set->gMutex.lock();
+        delete[] set->msg;
+        delete set;
+        set->gMutex.unlock();
+    }
 }
 
-static inline bool isFull(ItpInfoMsgSet *set)
+static inline bool isFull(TpMessageData *set)
 {
-	return (set->front == (set->rear + 1)%set->length);
+    return (set->front == (set->rear + 1) % set->length);
 }
 
-static inline bool isEmpty(ItpInfoMsgSet *set)
+static inline bool isEmpty(TpMessageData *set)
 {
-	return (set->front == set->rear);
+    return (set->front == set->rear);
 }
 
 bool TpMessage::send(ItpUserEvent *message)
 {
-	ItpInfoMsgSet *set = (ItpInfoMsgSet*)this->msgSet;
+    TpMessageData *set = (TpMessageData *)this->data_;
 
-	bool ret = isFull(set);
+    bool ret = isFull(set);
 
-	if(ret ||
-		message == nullptr){
-		return false;
-	}
+    if (ret ||
+        message == nullptr)
+    {
+        return false;
+    }
 
-	set->gMutex.lock();
+    set->gMutex.lock();
 
-	set->msg[set->rear].id = msgObject++;
-	set->msg[set->rear].data = *message;
-	set->rear = (set->rear + 1)%set->length;
+    set->msg[set->rear].id = msgObject++;
+    set->msg[set->rear].data = *message;
+    set->rear = (set->rear + 1) % set->length;
 
-	set->gMutex.unlock();
+    set->gMutex.unlock();
 
-	return true;
+    return true;
 }
 
 bool TpMessage::sendWait(ItpUserEvent *message)
 {
-	bool ret = false;
-	
-	do{
-		ret = this->send(message);
-	}while(ret == false);
-	
-	return ret;
+    bool ret = false;
+
+    do
+    {
+        ret = this->send(message);
+    } while (ret == false);
+
+    return ret;
 }
 
 bool TpMessage::recvWait(ItpUserEvent *message)
 {
-	bool ret = false;
+    bool ret = false;
 
-	while(ret == false){
-		ret = this->recv(message);
+    while (ret == false)
+    {
+        ret = this->recv(message);
 
-		if(ret == false){
-			timer_delay(TP_MESSAGE_WAIT);
-		}
-	}
+        if (ret == false)
+        {
+            timerdelay(TP_MESSAGE_WAIT);
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 bool TpMessage::recv(ItpUserEvent *message)
 {
-	ItpInfoMsgSet *set = (ItpInfoMsgSet*)this->msgSet;
+    TpMessageData *set = (TpMessageData *)this->data_;
 
-	if(set == nullptr ||
-		isEmpty(set) ||
-		message == nullptr){
-		return false;
-	}
+    if (set == nullptr ||
+        isEmpty(set) ||
+        message == nullptr)
+    {
+        return false;
+    }
 
-	set->gMutex.lock();
+    set->gMutex.lock();
 
-	*message = set->msg[set->front].data;
-	set->front = (set->front + 1)%set->length;
+    *message = set->msg[set->front].data;
+    set->front = (set->front + 1) % set->length;
 
-	set->gMutex.unlock();
+    set->gMutex.unlock();
 
-	return true;
+    return true;
 }
 
 void TpMessage::clear()
 {
-	ItpInfoMsgSet *set = (ItpInfoMsgSet*)this->msgSet;
+    TpMessageData *set = (TpMessageData *)this->data_;
 
-	set->gMutex.lock();
-	set->front = set->rear;
-	set->gMutex.unlock();
+    set->gMutex.lock();
+    set->front = set->rear;
+    set->gMutex.unlock();
 }
