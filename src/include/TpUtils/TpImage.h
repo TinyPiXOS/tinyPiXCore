@@ -79,7 +79,7 @@ public:
     /// @param type 新存储文件类型
     /// @param jpguality 存储质量,取值范围[0, 100]
     /// @return 保存结果
-    virtual bool save(const TpString &filename, ImageType type, int32_t jpguality = 100);
+    // virtual bool save(const TpString &filename, ImageType type, int32_t jpguality = 100);
 
     /// @brief 旋转图片；返回新对象，不会修改原始对象
     /// @param angle 旋转角度；顺时针旋转，3点钟方向为0°
