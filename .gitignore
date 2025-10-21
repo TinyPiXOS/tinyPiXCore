@@ -91,3 +91,5 @@ examples/TpGUI/TpLineEdit/lineedit
 examples/TpGUI/TpOnOffButton/onoff
 examples/TpGUI/testDesk/test
 examples/TpGUI/TpLabel/label
+examples/TpUtils/TpShareMemory/recvMain
+examples/TpUtils/TpShareMemory/send
