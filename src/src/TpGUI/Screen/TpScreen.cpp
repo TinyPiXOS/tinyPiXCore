@@ -858,6 +858,9 @@ void TpScreen::bringToBottom()
 
 void TpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
 {
+    if (!visible())
+        return;
+
     TpApp::Inst()->postUpdateEvent(this, x, y, w, h, onlyBlit);
 }
 

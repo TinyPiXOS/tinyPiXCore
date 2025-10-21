@@ -770,6 +770,9 @@ void TpChildWidget::update(const TpRect &rect, bool onlyBlit)
 
 void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
 {
+    if (!visible())
+        return;
+        
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
         return;

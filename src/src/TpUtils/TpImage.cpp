@@ -126,7 +126,7 @@ bool TpImage::load(void *martix, const TpRect &rect)
     // imageData->loadBuffer = new uint32_t[rect.width() * rect.height()];
     // memcpy(imageData->loadBuffer, martix, sizeof(uint32_t) * rect.width() * rect.height());
 
-    imageData->tvgPicture->load((uint32_t*)martix, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888);
+    imageData->tvgPicture->load((uint32_t*)martix, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888, true);
     // imageData->tvgPicture->load(imageData->loadBuffer, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888);
 
     imageData->actualWidth = rect.width();

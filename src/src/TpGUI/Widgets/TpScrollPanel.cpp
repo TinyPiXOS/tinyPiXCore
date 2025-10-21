@@ -391,13 +391,12 @@ bool TpScrollPanel::clearObject()
 
     for (auto iter = scrollData->objectList.begin(); iter != scrollData->objectList.end(); iter++)
     {
-        TpRect rect = scrollData->objectRect[*iter];
-        (*iter)->setRect(rect);
-
         auto mapIter = scrollData->objectRect.find(*iter);
 
         if (mapIter != scrollData->objectRect.end())
         {
+            TpRect rect = scrollData->objectRect[*iter];
+            (*iter)->setRect(rect);
             scrollData->objectRect.erase(mapIter);
         }
     }
