@@ -320,6 +320,11 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         UpdateCommand task = updateCommandQueue.front();
         updateCommandQueue.pop();
 
+        if (task.updateObj->objectType() == Tp::TP_FLOAT_OBJECT || task.updateObj->objectType() == Tp::TP_TOP_OBJECT)
+        {
+            if (!task.updateObj->objectActive())
+                continue;
+        }
         if (!task.updateObj->visible())
             continue;
 

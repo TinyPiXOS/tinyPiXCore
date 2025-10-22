@@ -418,7 +418,7 @@ protected:
     /// @brief 子类构造函数可调用该函数完成基础CSS的初始化，例如size、round等，前提需实现 pluginType 函数
     void refreshBaseCss();
 
-private:
+public:
     /// @brief 对象
     /// @return
     virtual bool objectActive() /*final*/;
