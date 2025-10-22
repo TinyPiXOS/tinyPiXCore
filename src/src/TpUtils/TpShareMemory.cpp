@@ -34,7 +34,7 @@ struct TpShareMemoryData
  */
 struct SharedHeader
 {
-    std::atomic<uint32_t> version; ///< 数据版本号（原子操作保证线程安全）
+    std::atomic<uint64_t> version; ///< 数据版本号（原子操作保证线程安全）
     uint32_t data_size;            ///< 实际数据区域大小
     uint64_t timestamp;            ///< 最后修改时间戳
     char reserved[44];             ///< 保留字段，填充至64字节对齐

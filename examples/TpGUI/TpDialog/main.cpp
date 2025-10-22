@@ -28,7 +28,7 @@ int32_t main(int32_t argc, char *argv[])
 	childW->setRect(100, 100, 300, 300);
     childW->setRoundCorners(50);
 
-	// dia->update();
+	dia->update();
 	vScreen->update();
 
 	return app.run();
