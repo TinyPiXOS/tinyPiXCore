@@ -91,6 +91,15 @@ bool TpShareMemory::initializeSharedMemory()
             shm_unlink(sharedData->name_.c_str());
             sharedData->shm_fd_ = shm_open(sharedData->name_.c_str(), O_RDWR | O_CREAT | O_EXCL, 0666);
         }
+
+        // 关键步骤：立即标记删除 !!!
+        // if (shmctl(sharedData->shm_fd_, IPC_RMID, NULL) == -1)
+        // {
+        //     perror("shmctl IPC_RMID");
+        //     // 标记失败，可以考虑删除后重试或退出
+        //     return 1;
+        // }
+        // printf("共享内存已标记为待销毁。\n");
     }
     else
     {
