@@ -13,7 +13,6 @@ class TpObject;
 class TpClipboard;
 class TpChildWidget;
 class TpScreen;
-// class TpMessage;
 class TpCssParser;
 
 class TpApp

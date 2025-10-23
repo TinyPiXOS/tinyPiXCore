@@ -44,6 +44,23 @@
 #include <thread>
 #include <queue>
 
+/// @brief 读取桌面信息;慎重修改，需和桌面保持协议一致
+struct DeskTopBarInfo
+{
+    /// @brief 顶部工具栏宽度值
+    int32_t topBarWidth;
+    /// @brief 顶部工具栏高度值
+    int32_t topBarHeight;
+    /// @brief 顶部工具栏是否显示；true显示，false隐藏
+    bool topBarisVislble;
+
+    DeskTopBarInfo() : topBarWidth(0), topBarHeight(0), topBarisVislble(false)
+    {
+    }
+
+    virtual ~DeskTopBarInfo() {}
+};
+
 struct ItpProcessInfo
 {
     int32_t id;
@@ -105,6 +122,10 @@ struct TpAppData
 
     std::mutex queueUpdateMutex_;
     std::queue<UpdateCommand> updateTasks_;
+
+    // 桌面信息；无桌面则数据无用
+    bool isDesk = false;
+    DeskTopBarInfo desktopBarInfo_;
 };
 
 class appExe : public TpThread
@@ -304,23 +325,6 @@ public:
 
 private:
     TpApp *theApp;
-};
-
-/// @brief 读取桌面信息;慎重修改，需和桌面保持协议一致
-struct DeskTopBarInfo
-{
-    /// @brief 顶部工具栏宽度值
-    int32_t topBarWidth;
-    /// @brief 顶部工具栏高度值
-    int32_t topBarHeight;
-    /// @brief 顶部工具栏是否显示；true显示，false隐藏
-    bool topBarisVislble;
-
-    DeskTopBarInfo() : topBarWidth(0), topBarHeight(0), topBarisVislble(false)
-    {
-    }
-
-    virtual ~DeskTopBarInfo() {}
 };
 
 static TpApp *appInst = nullptr;
