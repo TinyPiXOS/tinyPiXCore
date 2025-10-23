@@ -52,13 +52,14 @@ TpApp::TpApp(int32_t argc, char *argv[])
     // 尝试读取桌面信息；如果没有桌面则读取失败
     try
     {
+        // 记录桌面信息要根据topbar的数据，决定应用所有窗体的xy偏移量，和真实可用宽高
         TpShareMemory deskTopBarshare("DeskTopBarConfig", 1024, false);
         if (deskTopBarshare.isMapped())
         {
-            DeskTopBarInfo config;
-            if (deskTopBarshare.readData(&config, sizeof(config)))
+            if (deskTopBarshare.readData(&set->desktopBarInfo_, sizeof(set->desktopBarInfo_)))
             {
-                std::cout << "桌面信息：" << config.topBarWidth << " , " << config.topBarHeight << " , " << config.topBarisVislble << std::endl;
+                std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
+                          << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
             }
         }
     }

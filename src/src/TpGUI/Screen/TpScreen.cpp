@@ -17,6 +17,7 @@
 #include <thread>
 #include "TpCDef.h"
 #include "TpApp.h"
+#include "TpChildWidget_p.h"
 
 // 记录鼠标按下时的对象，最后鼠标无论在哪释放，都触发按下对象的release
 // static TpChildWidget *pressObject = nullptr;
@@ -595,6 +596,23 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
     if (!set)
         return;
 
+    set->objectType = type;
+
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+    if (set->objectType.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
+    {
+        appData->isDesk = true;
+    }
+
+    // int32_t fixScreenY = 0;
+    // if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
+    // {
+    //     fixScreenY = appData->desktopBarInfo_.topBarHeight;
+    // }
+
+    // y += fixScreenY;
+    // h -= fixScreenY;
+
     set->agent = tinyPiX_wf_create(type, x, y, w, h);
 
     if (set->agent == nullptr)
@@ -769,6 +787,30 @@ void TpScreen::move(int32_t x, int32_t y)
 
     if (layer >= Tp::TP_WM_USE_FLOAT)
     {
+        // 检查当前对象类型
+        Tp::ItpObjectType objType = objectType();
+        bool isTopOrFloat = (objType == Tp::TP_TOP_OBJECT || objType == Tp::TP_FLOAT_OBJECT);
+
+        // 检查父对象类型
+        bool parentIsTop = false;
+        if (!isTopOrFloat)
+        {
+            if (TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(parent()))
+            {
+                parentIsTop = (parentPtr->objectType() == Tp::TP_TOP_OBJECT);
+            }
+        }
+
+        // 合并条件并执行偏移计算
+        if (isTopOrFloat || parentIsTop)
+        {
+            TpAppData *appData = static_cast<TpAppData *>(TpApp::Inst()->appObjectSet());
+            if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
+            {
+                y += appData->desktopBarInfo_.topBarHeight;
+            }
+        }
+
         int32_t ox = 0, oy = 0;
 
         tinyPiX_wf_get_rect(set->agent, &ox, &oy, nullptr, nullptr);
@@ -794,6 +836,7 @@ const TpPoint TpScreen::pos()
     ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
     if (!set)
         return TpPoint();
+
     return TpPoint(set->absoluteRect.x(), set->absoluteRect.y());
 }
 

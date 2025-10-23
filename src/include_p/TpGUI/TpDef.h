@@ -75,6 +75,9 @@ struct ItpTempDef
 
 struct ItpObjectSet
 {
+    // 对象类型；用于区分当前应用是否是桌面
+    TpString objectType = "";
+
     // 鼠标按下的对象，用于判断拖拽、等事件
     // 记录鼠标按下时的对象，最后鼠标无论在哪释放，都触发按下对象的release
     TpChildWidget *mousePressObject = nullptr;
@@ -94,6 +97,7 @@ struct ItpObjectSet
     std::mutex layoutMutex;
     TpLayout *layout = nullptr;
 
+    // XY偏移量
     int32_t offsetX;
     int32_t offsetY;
 

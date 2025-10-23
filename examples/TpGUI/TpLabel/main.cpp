@@ -8,13 +8,13 @@
 
 int32_t main(int32_t argc, char *argv[])
 {
-	TpApp app(argc, argv);
-	TpFixScreen *vScreen = new TpFixScreen();
-	vScreen->setBackGroundColor(_RGBA(226, 226, 226, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
-	app.bindVScreen(vScreen);
-	vScreen->update();
+    TpApp app(argc, argv);
+    TpFixScreen *vScreen = new TpFixScreen();
+    vScreen->setBackGroundColor(_RGBA(226, 226, 226, 255));
+    app.bindVScreen(vScreen);
+    vScreen->update();
 
+#if 0
 	TpLabel *label1 = new TpLabel(vScreen);
 	label1->font()->setFontColor(_RGBA(255, 0, 0, 255), 0);
 	label1->font()->setAntialias(TpFont::TINY_FONT_ANTIALIAS_GOOD);
@@ -90,6 +90,7 @@ int32_t main(int32_t argc, char *argv[])
 	// label6->setRoundCorners(100);
 	label6->setVisible(true);
 	label6->update();
+#endif
 
-	return app.run();
+    return app.run();
 }

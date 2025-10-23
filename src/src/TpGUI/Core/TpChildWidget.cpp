@@ -1,201 +1,11 @@
 #include "TpChildWidget.h"
-#include "TpApp.h"
-#include "TpMessage.h"
-#include "TpDef.h"
-#include "TpVector.h"
-#include "TpVariant.h"
-#include "TpEvent.h"
-#include "TpRect.h"
-#include "TpLayout.h"
-#include "TpPainter.h"
-#include "TpPoint.h"
-#include "tinyPiXUtils.h"
-#include "Core/TpObjectFunction.hpp"
-#include "TpGlobal.h"
-#include "TpDefaultCss.h"
-#include "TpScreen.h"
-#include "TpVirtualKeyboard.h"
-#include "TpImage.h"
-#include "thorVG/thorvg.h"
-#include "TpSurface.h"
-#include <png.h>
-#include <tinyPiXApi.h>
-
-#include <unordered_map>
-#include <mutex>
-#include <thread>
-
-struct TpChildWidgetData
-{
-    tpShared<TpCssData> enabledCssData;
-    tpShared<TpCssData> pressCssData;
-    tpShared<TpCssData> hoverCssData;
-    tpShared<TpCssData> checkedCssData;
-    tpShared<TpCssData> disabledCssData;
-
-    tvg::Scene *tvgScene = nullptr;
-    tvg::SwCanvas *swCanvas = nullptr;
-
-    TpChildWidgetData()
-    {
-        enabledCssData = nullptr;
-        pressCssData = nullptr;
-        hoverCssData = nullptr;
-        checkedCssData = nullptr;
-        disabledCssData = nullptr;
-    }
-};
-
-// 刷新缓存背景图
-static void refreshCacheImage(ItpObjectSet *set)
-{
-    if (!set)
-        return;
-
-    if (set->reserveImage.isNull())
-        return;
-
-    if (set->logicalRect.width() == 0 || set->logicalRect.height() == 0)
-        return;
-
-    set->cacheImage = set->reserveImage.scaled(set->logicalRect.width(), set->logicalRect.height(), set->keepAspectRatio);
-
-    // static int testIndex = 1;
-    // set->cacheImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/cache-" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
-    // set->reserveImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/origin" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
-}
-
-static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, const int32_t &x, const int32_t &y)
-{
-    if (!set)
-        return;
-
-    int32_t ox = set->logicalRect.x();
-    int32_t oy = set->logicalRect.y();
-
-    if (ox != x || oy != y)
-    {
-        set->logicalRect.setX(x);
-        set->logicalRect.setY(y);
-
-        TpPoint point = selfToScreenPoint(thisPtr, x, y);
-
-        set->absoluteRect.setX(point.x());
-        set->absoluteRect.setY(point.y());
-
-        ItpObjectMoveSet input;
-        input.object = thisPtr;
-        input.nx = x;
-        input.ny = y;
-        TpMoveEvent event;
-        bool ret = event.construct(&input);
-
-        if (ret)
-        {
-            thisPtr->onMoveEvent(&event);
-        }
-    }
-
-    if (set->parent)
-    {
-        thisPtr->broadSetTop();
-    }
-}
-
-static void changeWidth(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_t &w)
-{
-    if (!set)
-        return;
-
-    uint32_t ow = set->logicalRect.width();
-
-    uint32_t setW = w;
-
-    if (setW > set->maximumWidth)
-        setW = set->maximumWidth;
-    else if (setW < set->minimumWidth)
-        setW = set->minimumWidth;
-    else
-    {
-    }
-
-    if (ow != setW)
-    {
-        set->logicalRect.setWidth(setW);
-        set->absoluteRect.setWidth(setW);
-
-        ItpObjectResizeSet input;
-        input.object = thisPtr;
-        input.nw = setW;
-        input.nh = set->logicalRect.height();
-        input.question = TpResizeEvent::TP_NORMAL_CHANGE;
-        TpResizeEvent event;
-        bool ret = event.construct(&input);
-
-        if (ret)
-        {
-            refreshCacheImage(set);
-
-            IssueObjEvent(thisPtr, event, onResizeEvent, true);
-        }
-    }
-
-    if (set->parent)
-    {
-        thisPtr->broadSetTop();
-    }
-}
-
-static void changeHeight(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_t &h)
-{
-    if (!set)
-        return;
-
-    uint32_t oh = set->logicalRect.height();
-
-    uint32_t setH = h;
-
-    if (setH > set->maximumHeight)
-        setH = set->maximumHeight;
-    else if (setH < set->minimumHeight)
-        setH = set->minimumHeight;
-    else
-    {
-    }
-
-    if (oh != setH)
-    {
-        set->logicalRect.setHeight(setH);
-        set->absoluteRect.setHeight(setH);
-
-        ItpObjectResizeSet input;
-        input.object = thisPtr;
-        input.nw = set->logicalRect.width();
-        input.nh = setH;
-        input.question = TpResizeEvent::TP_NORMAL_CHANGE;
-        TpResizeEvent event;
-        bool ret = event.construct(&input);
-
-        // std::cout << "Change Height " << setH << std::endl;
-
-        if (ret)
-        {
-            refreshCacheImage(set);
-
-            IssueObjEvent(thisPtr, event, onResizeEvent, true);
-        }
-    }
-
-    if (set->parent)
-    {
-        thisPtr->broadSetTop();
-    }
-}
+#include "TpApp_p.h"
+#include "TpChildWidget_p.h"
 
 TpChildWidget::TpChildWidget(TpChildWidget *parent)
     : TpObject(parent)
 {
-    data_ = new TpChildWidgetData();
+    data_ = new TpWidgetCssData();
 
     TpApp::Inst()->sendRegister(this);
 
@@ -209,7 +19,7 @@ TpChildWidget::TpChildWidget(TpChildWidget *parent)
 
     setVisible(true);
 
-    // // 根据CPU核心数；分配绘图引擎线程数
+    // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
     tvg::Initializer::init(cores / 2);
 }
@@ -218,7 +28,7 @@ TpChildWidget::~TpChildWidget()
 {
     tvg::Initializer::term();
 
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData)
     {
         delete childData;
@@ -234,7 +44,7 @@ void TpChildWidget::setProperty(const TpString &_name, const TpVariant &_value)
     // 如果更新控件type，更新样式
     if (_name.compare("type") == 0)
     {
-        TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+        TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
 
         childData->enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
         childData->pressCssData = readCss(pluginType(), TpCssParser::Pressed);
@@ -430,6 +240,10 @@ TpRect TpChildWidget::toScreen()
     if (!set)
         return TpRect();
 
+    // TpRect resRect = set->absoluteRect;
+    // resRect.setY(processDeskTopBarY(this, resRect.y()));
+    // resRect.setHeight(processDeskTopBarHeight(this, resRect.height()));
+
     return set->absoluteRect;
 }
 
@@ -502,6 +316,7 @@ int32_t TpChildWidget::height()
         return 0;
 
     return set->logicalRect.height();
+    // return processDeskTopBarHeight(this, set->logicalRect.height());
 }
 
 void TpChildWidget::setMinimumSize(const int32_t &width, const int32_t &height)
@@ -772,7 +587,7 @@ void TpChildWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool only
 {
     if (!visible())
         return;
-        
+
     ItpObjectSet *set = static_cast<ItpObjectSet *>(TpObject::objectSets());
     if (!set)
         return;
@@ -947,7 +762,7 @@ void TpChildWidget::setBackGroundColor(int32_t color, bool enable)
     set->backColor = color;
     set->enableColor = enable;
 
-    // TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    // TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
 
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setBackgroundColor(color);
@@ -1244,6 +1059,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
             painter->setBrush(TpBrush(curCssData->backgroundColor()));
         }
 
+        // std::cout << "背景颜色： " << 0 << " " << rect.width() << " " << rect.height() << std::endl;
         painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
         painter->setBrush(TpBrush(Tp::NoBrush));
     }
@@ -1313,7 +1129,7 @@ bool TpChildWidget::onPaintEvent(TpPaintEvent *event)
 
 void TpChildWidget::onThemeChangeEvent(TpThemeChangeEvent *event)
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (!childData)
         return;
 
@@ -1391,7 +1207,7 @@ TpImage TpChildWidget::grabWindow()
 
 std::pair<void *, void *> TpChildWidget::canvasPtr()
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData->swCanvas == nullptr)
     {
         childData->swCanvas = tvg::SwCanvas::gen();
@@ -1430,7 +1246,7 @@ tpShared<TpCssData> TpChildWidget::currentStatusCss()
 
 tpShared<TpCssData> TpChildWidget::enabledCss()
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1444,7 +1260,7 @@ tpShared<TpCssData> TpChildWidget::enabledCss()
 
 tpShared<TpCssData> TpChildWidget::disableCss()
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1458,7 +1274,7 @@ tpShared<TpCssData> TpChildWidget::disableCss()
 
 tpShared<TpCssData> TpChildWidget::hoveredCss()
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1472,7 +1288,7 @@ tpShared<TpCssData> TpChildWidget::hoveredCss()
 
 tpShared<TpCssData> TpChildWidget::pressedCss()
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1486,7 +1302,7 @@ tpShared<TpCssData> TpChildWidget::pressedCss()
 
 tpShared<TpCssData> TpChildWidget::checkedCss()
 {
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1501,7 +1317,7 @@ tpShared<TpCssData> TpChildWidget::checkedCss()
 void TpChildWidget::refreshBaseCss()
 {
     // 每次刷新CSS要从配置文件重新读取，避免产生继承关系时，子类未刷新正确自己的CSS数据
-    TpChildWidgetData *childData = static_cast<TpChildWidgetData *>(data_);
+    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
     childData->enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
     childData->disabledCssData = readCss(pluginType(), TpCssParser::Disabled);
     childData->hoverCssData = readCss(pluginType(), TpCssParser::Hover);
