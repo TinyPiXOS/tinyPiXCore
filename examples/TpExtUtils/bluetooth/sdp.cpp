@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include "TpApp.h"
-#include "TpFixScreen.h"
+#include "TpMainWindow.h"
 #include "TpBluetoothServiceDiscovery.h"
 #include "TpBluetoothService.h"
 #include "TpBluetoothUuid.h"
@@ -441,7 +441,7 @@ int example_service_scan(TpApp& app,bool signal)
 int main(int argc,char *argv[])
 {
 	TpApp app(argc, argv);
-	TpFixScreen *vScreen = new TpFixScreen();
+	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
 	app.bindVScreen(vScreen);

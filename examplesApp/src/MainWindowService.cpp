@@ -2,7 +2,7 @@
 #include "TpPainter.h"
 
 MainWindowService::MainWindowService()
-    : TpFixScreen()
+    : TpMainWindow()
 {
     setStyleSheet(applicationDirPath() + "/../data/style.css");
     setBackGroundColor(_RGB(100, 100, 100));
@@ -38,7 +38,7 @@ bool MainWindowService::onActiveEvent(TpActiveEvent *event)
 
 bool MainWindowService::onPaintEvent(TpPaintEvent *event)
 {
-    TpFixScreen::onPaintEvent(event);
+    TpMainWindow::onPaintEvent(event);
 
     return true;
 }

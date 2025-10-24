@@ -1,5 +1,5 @@
 #include "TpApp.h"
-#include "TpFixScreen.h"
+#include "TpMainWindow.h"
 #include "navigationBar.h"
 
 int32_t main(int32_t argc, char *argv[])
@@ -7,7 +7,7 @@ int32_t main(int32_t argc, char *argv[])
     TpApp app(argc, argv);
     app.setStyle(Tp::SmartDeviceGUIStyle);
 
-    TpFixScreen *vScreen = new TpFixScreen();
+    TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));

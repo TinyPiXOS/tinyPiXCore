@@ -8,11 +8,26 @@ class TpMainWindow
     : public TpScreen
 {
 public:
+    enum
+    {
+        ITP_FULL_STYLE,
+        ITP_POP_STYLE,
+    };
+
+public:
     TpMainWindow(const char *type = "tinyPiX_WM_Screen");
     virtual ~TpMainWindow();
 
 public:
     virtual Tp::ItpObjectType objectType() final;
+
+public:
+    /// @brief 设置桌面颜色，该树形会下发至应用的appchanged
+    /// @param alpha
+    /// @param color
+    /// @param screenAttr
+    /// @return
+    virtual int setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr);
 
 private:
     virtual void setRect(const TpRect &rect) final {};

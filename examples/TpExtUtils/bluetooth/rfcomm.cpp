@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "TpApp.h"
-#include "TpFixScreen.h"
+#include "TpMainWindow.h"
 #include "TpBluetoothLocal.h"
 #include "TpBluetoothDiscovery.h"
 #include "TpBluetoothDevice.h"
@@ -33,7 +33,7 @@ int example_list_device(const TpString& adapter)
 int example_socket_client(int32_t argc, char *argv[],const TpString& adapter)
 {
 	TpApp app(argc, argv);
-	TpFixScreen *vScreen = new TpFixScreen();
+	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
 	app.bindVScreen(vScreen);
@@ -80,7 +80,7 @@ int example_socket_client(int32_t argc, char *argv[],const TpString& adapter)
 int example_socket_server(int32_t argc, char *argv[],const TpString& adapter)
 {
 	TpApp app(argc, argv);
-	TpFixScreen *vScreen = new TpFixScreen();
+	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
 	app.bindVScreen(vScreen);

@@ -19,7 +19,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Core/TpEvent.cpp
     ${SOURCE_PATH}/src/TpGUI/Core/TpApp.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpScreen.cpp
-    ${SOURCE_PATH}/src/TpGUI/Screen/TpFixScreen.cpp
+    ${SOURCE_PATH}/src/TpGUI/Screen/TpMainWindow.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpMainWindow.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpDialog.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpMenu.cpp
