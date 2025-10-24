@@ -1,7 +1,7 @@
 #ifndef __TP_COLLAPSIBLE_FILE_ITEM_H
 #define __TP_COLLAPSIBLE_FILE_ITEM_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpEvent.h"
 #include "TpSignalSlot.h"
 
@@ -9,10 +9,10 @@ TP_DEF_VOID_TYPE_VAR(ItpCollapsibleFileItemData);
 
 /// @brief 可折叠文件窗口的单个文件单元
 class TpCollapsibleFileItem
-    : public TpChildWidget
+    : public TpWidget
 {
 public:
-    TpCollapsibleFileItem(TpChildWidget *parent = nullptr);
+    TpCollapsibleFileItem(TpWidget *parent = nullptr);
     ~TpCollapsibleFileItem();
 
     /// @brief 设置是否显示可勾选状态

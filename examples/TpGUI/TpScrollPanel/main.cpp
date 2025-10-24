@@ -55,7 +55,7 @@ int32_t main(int32_t argc, char *argv[])
 	fastPathScroll_->setBackGroundColor(_RGB(255, 0, 0));
 
 	// 将快捷访问按钮放进中间widget，再放入滚动窗口
-	TpChildWidget *fastScrollWidget = new TpChildWidget();
+	TpWidget *fastScrollWidget = new TpWidget();
 	fastScrollWidget->setBackGroundColor(_RGB(0, 255, 0));
 
 	TpMediaTileButton *pictureTileBtn_ = new TpMediaTileButton();

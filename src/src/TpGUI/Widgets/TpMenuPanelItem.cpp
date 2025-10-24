@@ -14,15 +14,15 @@ struct TpMenuPanelItemData
     TpLabel *subTitleLabel;
     TpLabel *expandLabel;
 
-    TpChildWidget *customWidget = nullptr;
+    TpWidget *customWidget = nullptr;
 
     TpHBoxLayout *mainLayout;
 
     TpPoint pressPoint;
 };
 
-TpMenuPanelItem::TpMenuPanelItem(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpMenuPanelItem::TpMenuPanelItem(TpWidget *parent)
+    : TpWidget(parent)
 {
     tpShared<TpCssData> curCssData = currentStatusCss();
 
@@ -131,7 +131,7 @@ void TpMenuPanelItem::setSubTitle(const TpString &text)
     itemData->subTitleLabel->setText(text);
 }
 
-void TpMenuPanelItem::setCustomizeWidget(TpChildWidget *widget)
+void TpMenuPanelItem::setCustomizeWidget(TpWidget *widget)
 {
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
     if (!itemData)
@@ -164,7 +164,7 @@ void TpMenuPanelItem::setCustomizeWidget(TpChildWidget *widget)
     itemData->customWidget = widget;
 }
 
-TpChildWidget *TpMenuPanelItem::customizeWidget()
+TpWidget *TpMenuPanelItem::customizeWidget()
 {
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
     if (!itemData)
@@ -174,7 +174,7 @@ TpChildWidget *TpMenuPanelItem::customizeWidget()
 
 bool TpMenuPanelItem::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
     itemData->pressPoint = event->globalPos();
@@ -184,7 +184,7 @@ bool TpMenuPanelItem::onMousePressEvent(TpMouseEvent *event)
 
 bool TpMenuPanelItem::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
 
@@ -199,7 +199,7 @@ bool TpMenuPanelItem::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpMenuPanelItem::onMouseMoveEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseMoveEvent(event);
+    TpWidget::onMouseMoveEvent(event);
 
     return true;
 }

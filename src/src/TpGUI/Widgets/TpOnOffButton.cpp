@@ -34,8 +34,8 @@ struct TpOnOffButtonData
     }
 };
 
-TpOnOffButton::TpOnOffButton(TpChildWidget *parent, const Direction &horizontal)
-    : TpChildWidget(parent)
+TpOnOffButton::TpOnOffButton(TpWidget *parent, const Direction &horizontal)
+    : TpWidget(parent)
 {
     TpOnOffButtonData *btnData = new TpOnOffButtonData();
     data_ = btnData;
@@ -143,7 +143,7 @@ void TpOnOffButton::setOffBackColor(const uint32_t &color)
 
 bool TpOnOffButton::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -164,7 +164,7 @@ bool TpOnOffButton::onPaintEvent(TpPaintEvent *event)
     if (!btnData)
         return true;
 
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *canvas = event->painter();
 
@@ -182,7 +182,7 @@ bool TpOnOffButton::onResizeEvent(TpResizeEvent *event)
     if (!btnData)
         return true;
 
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     // 尺寸变化同步更改圆角值
     if (btnData->direction == TpOnOffButton::TP_HORIZONTAL)

@@ -17,12 +17,9 @@ struct TpFixScreenData
     uint32_t color;
     int32_t attr;
 
-    // std::shared_ptr<TpCssParser> TpCssParser_;
-
     TpFixScreenData()
         : alpha(0), color(0), attr(0)
     {
-        // TpCssParser_ = std::make_shared<TpCssParser>(defaultCssStr());
     }
 };
 
@@ -39,16 +36,9 @@ TpFixScreen::TpFixScreen(const char *type)
         TpApp::Inst()->sendDelete(this);
     }
 
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(this->objectSets());
+    TpObjectData *set = static_cast<TpObjectData *>(this->objectSets());
     if (set)
     {
-        // int32_t fixScreenY = 0;
-        // TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
-        // if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
-        // {
-        //     fixScreenY = appData->desktopBarInfo_.topBarHeight;
-        // }
-
         uint32_t rW = 0, rH = 0;
         tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 
@@ -98,7 +88,7 @@ int32_t TpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t 
         return false;
     }
 
-    ItpObjectSet *set = (ItpObjectSet *)this->objectSets();
+    TpObjectData *set = (TpObjectData *)this->objectSets();
 
     if (set)
     {

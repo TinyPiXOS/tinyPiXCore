@@ -33,7 +33,7 @@ struct TpLottieAnimationData
     }
 };
 
-TpLottieAnimation::TpLottieAnimation(TpChildWidget *parent) : TpChildWidget(parent)
+TpLottieAnimation::TpLottieAnimation(TpWidget *parent) : TpWidget(parent)
 {
     TpLottieAnimationData *lottieData = new TpLottieAnimationData();
     data_ = lottieData;
@@ -47,7 +47,7 @@ TpLottieAnimation::TpLottieAnimation(TpChildWidget *parent) : TpChildWidget(pare
                 update(); });
 }
 
-TpLottieAnimation::TpLottieAnimation(const TpString &lottieFile, TpChildWidget *parent)
+TpLottieAnimation::TpLottieAnimation(const TpString &lottieFile, TpWidget *parent)
 {
     TpLottieAnimationData *lottieData = new TpLottieAnimationData();
     data_ = lottieData;
@@ -111,7 +111,7 @@ bool TpLottieAnimation::load(const TpString &lottieFile)
 
 void TpLottieAnimation::setVisible(bool visible)
 {
-    TpChildWidget::setVisible(visible);
+    TpWidget::setVisible(visible);
 
     TpLottieAnimationData *lottieData = static_cast<TpLottieAnimationData *>(data_);
 
@@ -123,11 +123,11 @@ void TpLottieAnimation::setVisible(bool visible)
 
 bool TpLottieAnimation::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpLottieAnimationData *lottieData = static_cast<TpLottieAnimationData *>(data_);
 
-    std::pair<void *, void *> canvasPtrPair = TpChildWidget::canvasPtr();
+    std::pair<void *, void *> canvasPtrPair = TpWidget::canvasPtr();
     tvg::Scene *widgetScene = (tvg::Scene *)canvasPtrPair.second;
 
     tvg::Picture *dupPicture = static_cast<tvg::Picture *>(lottieData->animation->picture()->duplicate());

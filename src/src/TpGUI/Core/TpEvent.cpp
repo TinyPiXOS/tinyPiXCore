@@ -26,7 +26,7 @@
 #include "TpSurface.h"
 #include "TpPainter.h"
 #include "TpRect.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include <cstring>
 #include "TpDef.h"
 
@@ -1361,7 +1361,7 @@ TpRect TpPaintEvent::absRect()
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
     TpRect result;
 
-    TpChildWidget *chiildObject = static_cast<TpChildWidget *>(set->object);
+    TpWidget *chiildObject = static_cast<TpWidget *>(set->object);
 
     if (!chiildObject)
         return result;
@@ -1395,7 +1395,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     if (!input)
         return false;
 
-    TpChildWidget *inputObjectChild = static_cast<TpChildWidget *>(input->object);
+    TpWidget *inputObjectChild = static_cast<TpWidget *>(input->object);
     if (!inputObjectChild)
         return false;
 
@@ -1430,7 +1430,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
 
     // 限制绘制区域;如果父窗口比自己大，则使用自己的尺寸，如果父窗口比自己小，则使用父窗口的
     TpRect clipRect = objectAbsRect;
-    TpChildWidget *inputParentWidget = dynamic_cast<TpChildWidget *>(inputObjectChild->parent());
+    TpWidget *inputParentWidget = dynamic_cast<TpWidget *>(inputObjectChild->parent());
 
     eventData->canDraw = true;
     if (inputParentWidget)
@@ -1459,7 +1459,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
             // std::cout << "合并区域结果：clipRect " << clipRect.x() << " , " << clipRect.y()
             //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
 
-            inputParentWidget = dynamic_cast<TpChildWidget *>(inputParentWidget->parent());
+            inputParentWidget = dynamic_cast<TpWidget *>(inputParentWidget->parent());
         }
 
         // std::cout << "裁剪区域： " << clipRect.x() << " , " << clipRect.y()

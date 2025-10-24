@@ -10,8 +10,8 @@ struct TpMediaTileButtonData
     TpLabel *textLabel;
 };
 
-TpMediaTileButton::TpMediaTileButton(TpChildWidget *parent)
-    : TpChildWidget(parent), data_(nullptr)
+TpMediaTileButton::TpMediaTileButton(TpWidget *parent)
+    : TpWidget(parent), data_(nullptr)
 {
     tpShared<TpCssData> curCssData = currentStatusCss();
 
@@ -63,14 +63,14 @@ void TpMediaTileButton::setText(const TpString &text)
 
 bool TpMediaTileButton::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     return false;
 }
 
 bool TpMediaTileButton::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     onClicked.emit(checked());
 
@@ -79,14 +79,14 @@ bool TpMediaTileButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpMediaTileButton::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     return true;
 }
 
 bool TpMediaTileButton::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpMediaTileButtonData *buttonData = static_cast<TpMediaTileButtonData *>(data_);
     if (!buttonData)

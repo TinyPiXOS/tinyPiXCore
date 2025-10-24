@@ -1,17 +1,17 @@
 #ifndef __TP_VTEXT_LABEL_H
 #define __TP_VTEXT_LABEL_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include <string>
 
 TP_DEF_VOID_TYPE_VAR(ItpTextLabelData);
 
 class TpFont;
-class TpLabel : public TpChildWidget
+class TpLabel : public TpWidget
 {
 public:
-	TpLabel(TpChildWidget *parent = nullptr);
-	TpLabel(const TpString &text, TpChildWidget *parent = nullptr);
+	TpLabel(TpWidget *parent = nullptr);
+	TpLabel(const TpString &text, TpWidget *parent = nullptr);
 	virtual ~TpLabel();
 
 public:

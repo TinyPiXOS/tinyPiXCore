@@ -21,8 +21,8 @@ int32_t main(int32_t argc, char *argv[])
 	app.bindVScreen(vScreen);
 
 	TpTabWidget *tabWidget = new TpTabWidget(vScreen);
-	tabWidget->addTab(new TpChildWidget(), "Tab1");
-	tabWidget->addTab(new TpChildWidget(), "Tab2");
+	tabWidget->addTab(new TpWidget(), "Tab1");
+	tabWidget->addTab(new TpWidget(), "Tab2");
 	
 	TpTabBar *tabBar = tabWidget->tabBar();
     tabBar->setIcon(0, applicationDirPath() + "/最近-normal.png", applicationDirPath() + "/最近-focus.png");

@@ -1,7 +1,7 @@
 #ifndef __TP_RADIO_BUTTON_GROUP_H
 #define __TP_RADIO_BUTTON_GROUP_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpList.h"
 

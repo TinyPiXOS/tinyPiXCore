@@ -1,6 +1,6 @@
 #include "TpHBoxLayout.h"
 
-TpHBoxLayout::TpHBoxLayout(TpChildWidget *parent)
+TpHBoxLayout::TpHBoxLayout(TpWidget *parent)
     : TpBoxLayout(parent, TpBoxLayout::LeftToRight)
 {
 }

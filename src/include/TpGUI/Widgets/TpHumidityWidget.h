@@ -1,17 +1,17 @@
 #ifndef __TP_HUMIDITY_WIDGET_H
 #define __TP_HUMIDITY_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVector.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpHumidityWidgetData);
 /// @brief 湿度计组件
-class TpHumidityWidget : public TpChildWidget
+class TpHumidityWidget : public TpWidget
 {
 public:
-    TpHumidityWidget(TpChildWidget *parent = nullptr);
+    TpHumidityWidget(TpWidget *parent = nullptr);
 
     virtual ~TpHumidityWidget();
 

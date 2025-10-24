@@ -2,7 +2,7 @@
 #define TP_OBJECT_FUNCTION_HPP
 
 #include "TpObject.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpPainter.h"
 #include "thorVG/thorvg.h"
 
@@ -10,11 +10,11 @@ static inline TpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
 {
     TpPoint point(x, y);
 
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(object->objectSets());
+    TpObjectData *set = static_cast<TpObjectData *>(object->objectSets());
     if (!set)
         return point;
 
-    TpChildWidget *parentWidget = static_cast<TpChildWidget *>(set->parent);
+    TpWidget *parentWidget = static_cast<TpWidget *>(set->parent);
     if (!parentWidget)
         return point;
 
@@ -27,7 +27,7 @@ static inline TpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
 
 static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear topobject
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(object->objectSets());
+    TpObjectData *set = static_cast<TpObjectData *>(object->objectSets());
     if (!set)
         return;
 
@@ -39,12 +39,12 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear t
 
         if (parent)
         {
-            ItpObjectSet *parent_set = (ItpObjectSet *)parent->objectSets();
+            TpObjectData *parent_set = (TpObjectData *)parent->objectSets();
             set->absoluteRect.setX(set->logicalRect.x() + parent_set->absoluteRect.x());
             set->absoluteRect.setY(set->logicalRect.y() + parent_set->absoluteRect.y());
         }
 
-        TpChildWidget *parentWidget = static_cast<TpChildWidget *>(set->top);
+        TpWidget *parentWidget = static_cast<TpWidget *>(set->top);
         if (parentWidget)
         {
             set->offsetX = parentWidget->toScreen().x();
@@ -63,7 +63,7 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear t
     }
 }
 
-static inline bool addObject(ItpObjectSet *set, TpObject *object, TpObject *parent)
+static inline bool addObject(TpObjectData *set, TpObject *object, TpObject *parent)
 {
     if (object == nullptr ||
         object->objectType() == Tp::TP_TOP_OBJECT ||
@@ -73,7 +73,7 @@ static inline bool addObject(ItpObjectSet *set, TpObject *object, TpObject *pare
     }
 
     set->gMutex.lock();
-    ItpObjectSet *child_set = (ItpObjectSet *)object->objectSets();
+    TpObjectData *child_set = (TpObjectData *)object->objectSets();
     child_set->parent = parent;
     set->objectList.push_back(object);
     broadObjectSetTop(object, object->topObject());
@@ -82,7 +82,7 @@ static inline bool addObject(ItpObjectSet *set, TpObject *object, TpObject *pare
     return true;
 }
 
-static inline bool delObject(ItpObjectSet *set, TpObject *object)
+static inline bool delObject(TpObjectData *set, TpObject *object)
 {
     if (object == nullptr)
     {
@@ -91,7 +91,7 @@ static inline bool delObject(ItpObjectSet *set, TpObject *object)
 
     set->gMutex.lock();
 
-    ItpObjectSet *child_set = (ItpObjectSet *)object->objectSets();
+    TpObjectData *child_set = (TpObjectData *)object->objectSets();
     set->objectList.remove(object);
 
     set->tmp.deleteObject(object);
@@ -103,7 +103,7 @@ static inline bool delObject(ItpObjectSet *set, TpObject *object)
     return true;
 }
 
-static inline TpObject *findObject(ItpObjectSet *set, int32_t id)
+static inline TpObject *findObject(TpObjectData *set, int32_t id)
 {
     TpObject *object = nullptr;
 
@@ -125,7 +125,7 @@ static inline TpObject *findObject(ItpObjectSet *set, int32_t id)
             break;
         }
 
-        ItpObjectSet *child_set = (ItpObjectSet *)(*iter)->objectSets();
+        TpObjectData *child_set = (TpObjectData *)(*iter)->objectSets();
         object = findObject(child_set, id);
 
         if (object)
@@ -143,11 +143,11 @@ static inline TpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
 {
     TpPoint point = {x, y};
 
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(object->objectSets());
+    TpObjectData *set = static_cast<TpObjectData *>(object->objectSets());
     if (!set)
         return point;
 
-    TpChildWidget *parentWidget = static_cast<TpChildWidget *>(set->parent);
+    TpWidget *parentWidget = static_cast<TpWidget *>(set->parent);
     if (!parentWidget)
         return point;
 
@@ -158,9 +158,9 @@ static inline TpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
     return point;
 }
 
-static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
+static inline TpWidget *findObject(TpObjectData *set, int32_t x, int32_t y)
 {
-    TpChildWidget *object = nullptr;
+    TpWidget *object = nullptr;
 
     set->gMutex.lock();
 
@@ -169,7 +169,7 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
 
     for (; iter != list.end(); iter++)
     {
-        TpChildWidget *childWidgetPtr = dynamic_cast<TpChildWidget *>(*iter);
+        TpWidget *childWidgetPtr = dynamic_cast<TpWidget *>(*iter);
         if (!childWidgetPtr)
             continue;
 
@@ -178,7 +178,7 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
 
         // childWidgetPtr->TestFunction();
 
-        ItpObjectSet *child_set = (ItpObjectSet *)childWidgetPtr->objectSets();
+        TpObjectData *child_set = (TpObjectData *)childWidgetPtr->objectSets();
         bool ret = false;
 
         TpRect absRect(child_set->absoluteRect);
@@ -192,8 +192,8 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
 
     if (object)
     {
-        TpChildWidget *result = nullptr;
-        ItpObjectSet *child_set = (ItpObjectSet *)object->objectSets();
+        TpWidget *result = nullptr;
+        TpObjectData *child_set = (TpObjectData *)object->objectSets();
 
         if (child_set)
         {
@@ -211,7 +211,7 @@ static inline TpChildWidget *findObject(ItpObjectSet *set, int32_t x, int32_t y)
     return object;
 }
 
-static void paintEnabledBox(TpChildWidget *child, TpPainter *paintCanvas)
+static void paintEnabledBox(TpWidget *child, TpPainter *paintCanvas)
 {
     // TODO 暂时屏蔽禁用绘制效果
     return;
@@ -226,8 +226,8 @@ static void paintEnabledBox(TpChildWidget *child, TpPainter *paintCanvas)
 }
 
 // 先声明，因为 childPaint 和 drawWidget 互相调用了
-static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events);
-static void drawWidget(ItpObjectPaintInput &input, TpChildWidget *obj)
+static inline void childPaint(TpObjectData *set, TpPaintEvent *events);
+static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
 {
     TpPaintEvent event;
     event.construct(&input);
@@ -259,12 +259,12 @@ static void drawWidget(ItpObjectPaintInput &input, TpChildWidget *obj)
 
     if (ret)
     {
-        ItpObjectSet *childSet = (ItpObjectSet *)obj->objectSets();
+        TpObjectData *childSet = (TpObjectData *)obj->objectSets();
         childPaint(childSet, &event);
     }
 }
 
-static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
+static inline void childPaint(TpObjectData *set, TpPaintEvent *events)
 {
     if (!set)
         return;
@@ -273,7 +273,7 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
 
     for (; iter != set->objectList.end(); iter++)
     {
-        TpChildWidget *child = dynamic_cast<TpChildWidget *>(*iter);
+        TpWidget *child = dynamic_cast<TpWidget *>(*iter);
         if (!child)
             continue;
 
@@ -294,7 +294,7 @@ static inline void childPaint(ItpObjectSet *set, TpPaintEvent *events)
         if (child->alpha() == 0)
             continue;
 
-        ItpObjectSet *childSet = (ItpObjectSet *)child->objectSets();
+        TpObjectData *childSet = (TpObjectData *)child->objectSets();
         ItpObjectPaintInput input;
         input.object = child;
         input.updateRect = events->updateRect();

@@ -1,17 +1,17 @@
 #ifndef __TP_TEMPERATURE_WIDGET_H
 #define __TP_TEMPERATURE_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVector.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpTemperatureWidgetData);
 /// @brief 温度计组件
-class TpTemperatureWidget : public TpChildWidget
+class TpTemperatureWidget : public TpWidget
 {
 public:
-    TpTemperatureWidget(TpChildWidget *parent = nullptr);
+    TpTemperatureWidget(TpWidget *parent = nullptr);
 
     virtual ~TpTemperatureWidget();
 

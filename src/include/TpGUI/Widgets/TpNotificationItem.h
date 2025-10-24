@@ -1,13 +1,13 @@
 #ifndef __TP_NOTIFICATION_ITEM_H
 #define __TP_NOTIFICATION_ITEM_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpNotificationItemData);
 
 class TpNotificationItem
-    : public TpChildWidget
+    : public TpWidget
 {
 public:
     struct NotificationItemData
@@ -34,7 +34,7 @@ public:
     };
 
 public:
-    TpNotificationItem(TpChildWidget *parent = nullptr);
+    TpNotificationItem(TpWidget *parent = nullptr);
     ~TpNotificationItem();
 
     void setItemData(const NotificationItemData &data);

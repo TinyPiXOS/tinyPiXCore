@@ -23,8 +23,8 @@ struct TpSliderData
     bool isDrag = false;
 };
 
-TpSlider::TpSlider(TpChildWidget *parent, const SliderDirect &direct)
-    : TpChildWidget(parent)
+TpSlider::TpSlider(TpWidget *parent, const SliderDirect &direct)
+    : TpWidget(parent)
 {
     TpSliderData *sliderData = new TpSliderData();
     data_ = sliderData;
@@ -232,7 +232,7 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
 {
     TpSliderData *sliderData = static_cast<TpSliderData *>(data_);
 
-    // TpChildWidget::onPaintEvent(event);
+    // TpWidget::onPaintEvent(event);
     tpShared<TpCssData> curCssData = currentStatusCss();
 
     TpPainter *painter = event->painter();

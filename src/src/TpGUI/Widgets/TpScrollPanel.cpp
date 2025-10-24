@@ -18,12 +18,12 @@ struct TpScrollPanelData
 {
     int32_t scrollRange[TP_SCROLL_NUM];
 
-    TpChildWidget *panel;
-    TpVector<TpChildWidget *> objectList;
-    TpMap<TpChildWidget *, TpRect> objectRect;
+    TpWidget *panel;
+    TpVector<TpWidget *> objectList;
+    TpMap<TpWidget *, TpRect> objectRect;
 
     // 滚动窗口
-    TpChildWidget *centralWidget = nullptr;
+    TpWidget *centralWidget = nullptr;
 
     // 滚轮滚动模式,true为垂直滚动
     bool isVertical = true;
@@ -42,15 +42,15 @@ struct TpScrollPanelData
     TpPoint updatePoint_;
 };
 
-TpScrollPanel::TpScrollPanel(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpScrollPanel::TpScrollPanel(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpScrollPanelData *scrollData = new TpScrollPanelData();
 
     if (!scrollData)
         return;
 
-    scrollData->panel = new TpChildWidget(this);
+    scrollData->panel = new TpWidget(this);
     scrollData->panel->setEnableBackGroundColor(true);
     scrollData->panel->setEnableBackGroundImage(false);
     scrollData->panel->setEnabledBorderColor(false);
@@ -129,7 +129,7 @@ void TpScrollPanel::setHorizontalScrollBarValue(const uint32_t &value)
         scrollData->panel->broadSetTop();
     }
 
-    TpChildWidget::update();
+    TpWidget::update();
 }
 
 uint32_t TpScrollPanel::verticalScrollBarValue()
@@ -174,7 +174,7 @@ void TpScrollPanel::setVerticalScrollBarValue(const uint32_t &value)
         scrollData->panel->broadSetTop();
     }
 
-    TpChildWidget::update();
+    TpWidget::update();
 }
 
 int32_t TpScrollPanel::horizontalPostion()
@@ -212,7 +212,7 @@ void TpScrollPanel::setHorizontalPostion(const int32_t &value)
         scrollData->panel->broadSetTop();
     }
 
-    TpChildWidget::update();
+    TpWidget::update();
 }
 
 int32_t TpScrollPanel::verticalPostion()
@@ -271,7 +271,7 @@ void TpScrollPanel::setScrollMode(const bool &isVertical)
     scrollData->isVertical = isVertical;
 }
 
-bool TpScrollPanel::addObject(TpChildWidget *object)
+bool TpScrollPanel::addObject(TpWidget *object)
 {
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     bool ret = false;
@@ -293,7 +293,7 @@ bool TpScrollPanel::addObject(TpChildWidget *object)
     return ret;
 }
 
-bool TpScrollPanel::delObject(TpChildWidget *object)
+bool TpScrollPanel::delObject(TpWidget *object)
 {
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     bool ret = false;
@@ -336,7 +336,7 @@ bool TpScrollPanel::delObject(TpChildWidget *object)
     return ret;
 }
 
-bool TpScrollPanel::setWidget(TpChildWidget *widget)
+bool TpScrollPanel::setWidget(TpWidget *widget)
 {
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
@@ -370,13 +370,13 @@ bool TpScrollPanel::setWidget(TpChildWidget *widget)
     return true;
 }
 
-TpChildWidget *TpScrollPanel::widget()
+TpWidget *TpScrollPanel::widget()
 {
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     return scrollData->centralWidget;
 }
 
-TpVector<TpChildWidget *> TpScrollPanel::children()
+TpVector<TpWidget *> TpScrollPanel::children()
 {
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     return scrollData->objectList;
@@ -551,7 +551,7 @@ bool TpScrollPanel::recal(bool enableOffset)
 
 bool TpScrollPanel::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
     // recal(true);
     return true;
 }
@@ -691,7 +691,7 @@ bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
 
         scrollData->updatePoint_ = curPoint;
 
-        // TpChildWidget::update();
+        // TpWidget::update();
     }
 
     return true;

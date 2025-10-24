@@ -86,7 +86,7 @@ struct VirtualKeyButton
     // 确定按钮
     TpButton *applyKey;
 
-    VirtualKeyButton(TpChildWidget *_this)
+    VirtualKeyButton(TpWidget *_this)
     {
         auto InitButtonFunc = [=](TpButton *&button)
         {
@@ -171,10 +171,10 @@ struct VirtualKeyButton
 typedef tpShared<VirtualKeyButton> VirtualKeyButtonSPtr;
 
 /// @brief 候选词窗口
-class TpCandidateWidget : public TpChildWidget
+class TpCandidateWidget : public TpWidget
 {
 public:
-    TpCandidateWidget(TpChildWidget *panret = nullptr);
+    TpCandidateWidget(TpWidget *panret = nullptr);
     ~TpCandidateWidget();
 
     // 设置拼音字符
@@ -383,7 +383,7 @@ void TpVirtualKeyboard::show()
 {
     TpVirtualKeyboardData *vkData = static_cast<TpVirtualKeyboardData *>(data_);
 
-    TpChildWidget *mainScreen = TpApp::Inst()->vScreen();
+    TpWidget *mainScreen = TpApp::Inst()->vScreen();
 
     setSize(mainScreen->width(), 300);
     move(0, mainScreen->height() - height());
@@ -414,7 +414,7 @@ bool TpVirtualKeyboard::eventFilter(TpObject *watched, TpEvent *event)
 
 bool TpVirtualKeyboard::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     return true;
 }
@@ -431,7 +431,7 @@ bool TpVirtualKeyboard::onKeyReleaseEvent(TpKeyboardEvent *event)
 
 bool TpVirtualKeyboard::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpVirtualKeyboardData *vkData = static_cast<TpVirtualKeyboardData *>(data_);
     if (!vkData)
@@ -788,8 +788,8 @@ void TpVirtualKeyboard::pressLetterButton(TpButton *pressBtn)
     // }
 }
 
-TpCandidateWidget::TpCandidateWidget(TpChildWidget *parent)
-    : TpChildWidget(parent), cachePinyin_(""), textFont_(new TpFont()), curWordOffset_(0)
+TpCandidateWidget::TpCandidateWidget(TpWidget *parent)
+    : TpWidget(parent), cachePinyin_(""), textFont_(new TpFont()), curWordOffset_(0)
 {
     textFont_->setFontSize(15);
     textFont_->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
@@ -829,7 +829,7 @@ void TpCandidateWidget::setSlectCandidateFunc(SelectCandidateWordFunc func)
 
 bool TpCandidateWidget::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *painter = event->painter();
 
@@ -975,7 +975,7 @@ bool TpCandidateWidget::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpCandidateWidget::onMouseMoveEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseMoveEvent(event);
+    TpWidget::onMouseMoveEvent(event);
 
     if (event->state())
     {

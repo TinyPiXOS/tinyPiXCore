@@ -1,7 +1,7 @@
 #ifndef __TP_VRECT_BUTTON_H
 #define __TP_VRECT_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpColors.h"
 #include "TpSignalSlot.h"
 #include <TpString.h>
@@ -12,7 +12,7 @@ TP_DEF_VOID_TYPE_VAR(ItpButtonData);
 
 class TpFont;
 /// @brief 按钮类
-class TpButton : public TpChildWidget
+class TpButton : public TpWidget
 {
 public:
     enum ButtonTextStyle
@@ -23,11 +23,11 @@ public:
     };
 
 public:
-    TpButton(TpChildWidget *parent = nullptr);
+    TpButton(TpWidget *parent = nullptr);
 
-    TpButton(const TpString &iconPath, const TpString &text, TpChildWidget *parent = nullptr);
+    TpButton(const TpString &iconPath, const TpString &text, TpWidget *parent = nullptr);
 
-    TpButton(const TpString &text, TpChildWidget *parent = nullptr);
+    TpButton(const TpString &text, TpWidget *parent = nullptr);
 
     virtual ~TpButton();
 

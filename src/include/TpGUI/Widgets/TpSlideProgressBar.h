@@ -2,17 +2,17 @@
 #ifndef __TP_SLIDE_PROGRESSBAR_H
 #define __TP_SLIDE_PROGRESSBAR_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpSlideProgressBarData);
 /// @brief 滑动进度条，可用手势或鼠标拖拽进度
-class TpSlideProgressBar : public TpChildWidget
+class TpSlideProgressBar : public TpWidget
 {
 public:
-    TpSlideProgressBar(TpChildWidget *parent);
+    TpSlideProgressBar(TpWidget *parent);
     ~TpSlideProgressBar();
 
     /// @brief 设置图标文件路径

@@ -13,8 +13,8 @@ struct TpMenuPanelWidgetData
     Tp::ItemSelectionMode selectionMode = Tp::SingleSelection;
 };
 
-TpMenuPanelWidget::TpMenuPanelWidget(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpMenuPanelWidget::TpMenuPanelWidget(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpMenuPanelWidgetData *widgetData = new TpMenuPanelWidgetData();
 
@@ -129,7 +129,7 @@ void TpMenuPanelWidget::removeItem(TpMenuPanelItem *item)
                 {
                     if (lastChild)
                     {
-                        widgetData->mainLayout->removeWidget((TpChildWidget*)lastChild);
+                        widgetData->mainLayout->removeWidget((TpWidget*)lastChild);
                         lastChild->deleteLater();
                     }
                     break;
@@ -162,35 +162,35 @@ void TpMenuPanelWidget::clearSelection()
 
 bool TpMenuPanelWidget::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     return true;
 }
 
 bool TpMenuPanelWidget::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     return true;
 }
 
 bool TpMenuPanelWidget::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     return true;
 }
 
 bool TpMenuPanelWidget::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     return true;
 }
 
 bool TpMenuPanelWidget::onFocusEvent(TpFocusEvent *event)
 {
-    TpChildWidget::onFocusEvent(event);
+    TpWidget::onFocusEvent(event);
 
     if (!event->focused())
     {

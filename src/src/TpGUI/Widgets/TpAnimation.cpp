@@ -27,7 +27,7 @@ struct TpAnimationData
     TpTimer animationTimer;
     uint32_t curTimeMs = 0;
 
-    TpChildWidget *targetWidget = nullptr;
+    TpWidget *targetWidget = nullptr;
 
     TpAnimation::DeletionPolicy deleteMode = TpAnimation::DeleteWhenStopped;
 
@@ -46,7 +46,7 @@ struct TpAnimationData
     }
 };
 
-TpAnimation::TpAnimation(TpChildWidget *target, const AnimationType &propertyType)
+TpAnimation::TpAnimation(TpWidget *target, const AnimationType &propertyType)
     : TpObject(nullptr)
 {
     TpAnimationData *animationData = new TpAnimationData();
@@ -73,13 +73,13 @@ TpAnimation::~TpAnimation()
     }
 }
 
-void TpAnimation::setTargetWidget(TpChildWidget *target)
+void TpAnimation::setTargetWidget(TpWidget *target)
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
     animationData->targetWidget = target;
 }
 
-TpChildWidget *TpAnimation::targetWidget()
+TpWidget *TpAnimation::targetWidget()
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
     return animationData->targetWidget;
@@ -417,7 +417,7 @@ void TpAnimation::AnimationRun()
         animationData->targetWidget->update();
 
         // 同步更新目标窗口的父窗口；避免在父窗口产生阴影残留
-        TpChildWidget *targetParent = dynamic_cast<TpChildWidget *>(animationData->targetWidget->parent());
+        TpWidget *targetParent = dynamic_cast<TpWidget *>(animationData->targetWidget->parent());
         if (targetParent)
         {
             // std::cout << "更新父窗口" << std::endl;

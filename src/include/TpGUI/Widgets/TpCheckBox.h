@@ -1,17 +1,17 @@
 #ifndef __TP_CHECK_BOX_H
 #define __TP_CHECK_BOX_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpFont.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpCheckBoxData);
 
 /// @brief 复选按钮
-class TpCheckBox : public TpChildWidget
+class TpCheckBox : public TpWidget
 {
 public:
-	TpCheckBox(TpChildWidget *parent = nullptr);
+	TpCheckBox(TpWidget *parent = nullptr);
 	virtual ~TpCheckBox();
 
 	/// @brief 设置文本字符串

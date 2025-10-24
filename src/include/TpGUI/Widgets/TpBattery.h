@@ -1,13 +1,13 @@
 #ifndef __TP_BATTERY_H
 #define __TP_BATTERY_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpBatteryData);
 /// @brief 电池UI组件
-class TpBattery : public TpChildWidget
+class TpBattery : public TpWidget
 {
 public:
     enum BatteryStyle
@@ -17,7 +17,7 @@ public:
     };
 
 public:
-    TpBattery(TpChildWidget *parent);
+    TpBattery(TpWidget *parent);
 
     virtual ~TpBattery();
 

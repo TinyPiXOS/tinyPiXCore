@@ -5,7 +5,7 @@ struct TpFilePathWidgetItemData
 {
 };
 
-TpFilePathWidgetItem::TpFilePathWidgetItem(TpChildWidget *parent)
+TpFilePathWidgetItem::TpFilePathWidgetItem(TpWidget *parent)
     : TpLabel(parent)
 {
     data_ = nullptr;

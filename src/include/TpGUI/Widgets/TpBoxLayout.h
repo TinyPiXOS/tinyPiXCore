@@ -16,7 +16,7 @@ public:
         BottomToTop  // 垂直从下到上
     };
 
-    explicit TpBoxLayout(TpChildWidget *parent, Direction direction);
+    explicit TpBoxLayout(TpWidget *parent, Direction direction);
     virtual ~TpBoxLayout();
 
     // 设置布局方向

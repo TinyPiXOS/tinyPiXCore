@@ -21,7 +21,7 @@ struct TpRadioButtonData
     }
 };
 
-TpRadioButton::TpRadioButton(TpChildWidget *parent) : TpChildWidget(parent)
+TpRadioButton::TpRadioButton(TpWidget *parent) : TpWidget(parent)
 {
     TpRadioButtonData *set = new TpRadioButtonData();
 
@@ -44,8 +44,8 @@ TpRadioButton::TpRadioButton(TpChildWidget *parent) : TpChildWidget(parent)
     refreshBaseCss();
 }
 
-TpRadioButton::TpRadioButton(const TpString &text, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpRadioButton::TpRadioButton(const TpString &text, TpWidget *parent)
+    : TpWidget(parent)
 {
     TpRadioButtonData *set = new TpRadioButtonData();
 
@@ -120,11 +120,11 @@ void TpRadioButton::setRect(const int32_t &x, const int32_t &y, const int32_t &w
     if (set->enableFit)
     {
         TpSize size = set->font->pixelSize();
-        TpChildWidget::setRect(x, y, size.width() + size.height() / 2.0 + set->space, size.height());
+        TpWidget::setRect(x, y, size.width() + size.height() / 2.0 + set->space, size.height());
         return;
     }
 
-    TpChildWidget::setRect(x, y, w, h);
+    TpWidget::setRect(x, y, w, h);
 }
 
 void TpRadioButton::setText(const TpString &text)
@@ -132,7 +132,7 @@ void TpRadioButton::setText(const TpString &text)
     if (text.empty())
         return;
 
-    TpChildWidget::setText(text);
+    TpWidget::setText(text);
     TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
 
     if (!set)
@@ -161,7 +161,7 @@ TpFont *TpRadioButton::font()
 
 bool TpRadioButton::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
     if (!set)
@@ -176,7 +176,7 @@ bool TpRadioButton::onMousePressEvent(TpMouseEvent *event)
 
 bool TpRadioButton::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
     if (!set)
@@ -195,7 +195,7 @@ bool TpRadioButton::onPaintEvent(TpPaintEvent *event)
     if (!set)
         return true;
 
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     tpShared<TpCssData> curCssData = currentStatusCss();
 

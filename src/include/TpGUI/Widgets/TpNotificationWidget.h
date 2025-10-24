@@ -1,17 +1,17 @@
 #ifndef __TP_NOTIFICATION_WIDGET_H
 #define __TP_NOTIFICATION_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpString.h"
 #include "TpFont.h"
 #include "TpNotificationItem.h"
 #include "TpEvent.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpNotificationWidgetData);
-class TpNotificationWidget : public TpChildWidget
+class TpNotificationWidget : public TpWidget
 {
 public:
-    TpNotificationWidget(TpChildWidget *parent = nullptr);
+    TpNotificationWidget(TpWidget *parent = nullptr);
     ~TpNotificationWidget();
 
     void addItem(TpNotificationItem *item);

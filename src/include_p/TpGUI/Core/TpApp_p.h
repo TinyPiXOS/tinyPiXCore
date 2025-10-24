@@ -17,7 +17,7 @@
 #include "TpDefaultCss.h"
 #include "TpEvent.h"
 #include "TpDef.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSurface.h"
 #include "TpVirtualKeyboard.h"
 #include "TpMap.h"
@@ -70,7 +70,7 @@ struct ItpProcessInfo
 
 struct UpdateCommand
 {
-    TpChildWidget *updateObj = nullptr;
+    TpWidget *updateObj = nullptr;
     int32_t x = 0;
     int32_t y = 0;
     int32_t w = 0;
@@ -91,7 +91,7 @@ struct TpAppData
     TpList<TpObject *> objectList;
     std::map<TpObject *, bool> vReserveMap;
     // 所有floatscreen列表，用于更新主题样式
-    TpList<TpChildWidget *> floatScreenList;
+    TpList<TpWidget *> floatScreenList;
 
     std::mutex gMutex;
 
@@ -115,7 +115,7 @@ struct TpAppData
 
     // 全局唯一单例虚拟键盘
     TpVirtualKeyboard *virtualKeyboard = nullptr;
-    TpChildWidget *curInputObj = nullptr;
+    TpWidget *curInputObj = nullptr;
 
     std::mutex queueSlotMutex_;
     std::queue<std::function<void()>> slotTasks_;
@@ -167,7 +167,7 @@ public:
             {
                 // add to objectList
                 set->gMutex.lock();
-                TpChildWidget *childWidgetObj = (TpChildWidget *)message.user_data0;
+                TpWidget *childWidgetObj = (TpWidget *)message.user_data0;
                 if (childWidgetObj)
                 {
                     switch (childWidgetObj->objectType())
@@ -215,7 +215,7 @@ public:
                         set->floatScreenList.remove(*floatFindIter);
                     }
 
-                    // ItpObjectSet *vScreenObjDaata = (ItpObjectSet *)set->vScreen->objectSets();
+                    // TpObjectData *vScreenObjDaata = (TpObjectData *)set->vScreen->objectSets();
                     // vScreenObjDaata->tmp.deleteObject(object);
 
                     if (object == set->vScreen)
@@ -259,7 +259,7 @@ public:
                         std::map<TpObject *, bool>::iterator iter = set->vReserveMap.begin();
                         for (; iter != set->vReserveMap.end(); iter++)
                         {
-                            TpChildWidget *tmp = static_cast<TpChildWidget *>(iter->first);
+                            TpWidget *tmp = static_cast<TpWidget *>(iter->first);
                             iter->second = tmp->visible();
                             tmp->setVisible(false);
                         }
@@ -285,7 +285,7 @@ public:
                         std::map<TpObject *, bool>::iterator mapiter = set->vReserveMap.begin();
                         for (; mapiter != set->vReserveMap.end(); mapiter++)
                         {
-                            TpChildWidget *tmp = static_cast<TpChildWidget *>(mapiter->first);
+                            TpWidget *tmp = static_cast<TpWidget *>(mapiter->first);
 
                             if (tmp != set->vScreen)
                             {
@@ -298,7 +298,7 @@ public:
                         std::map<TpObject *, bool>::iterator mapiter = set->vReserveMap.begin();
                         for (; mapiter != set->vReserveMap.end(); mapiter++)
                         {
-                            TpChildWidget *tmp = static_cast<TpChildWidget *>(mapiter->first);
+                            TpWidget *tmp = static_cast<TpWidget *>(mapiter->first);
 
                             if (tmp != set->vScreen)
                             {
@@ -336,8 +336,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         return;
 
     TpMap<IPiWFApiAgent *, TpRect> pixwmMergeUpdateRect;
-    TpMap<TpChildWidget *, ItpObjectPaintInput> mergeUpdateWidget;
-    // std::pair<TpChildWidget *, ItpObjectPaintInput> fixScreenPair;
+    TpMap<TpWidget *, ItpObjectPaintInput> mergeUpdateWidget;
+    // std::pair<TpWidget *, ItpObjectPaintInput> fixScreenPair;
     // fixScreenPair.first = nullptr;
 
     while (!updateCommandQueue.empty())
@@ -353,8 +353,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         if (!task.updateObj->visible())
             continue;
 
-        ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(task.updateObj->objectSets());
-        ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
+        TpObjectData *updateObjSet = static_cast<TpObjectData *>(task.updateObj->objectSets());
+        TpObjectData *topScreenSet = static_cast<TpObjectData *>(updateObjSet->top->objectSets());
 
         if (pixwmMergeUpdateRect.contains(topScreenSet->agent))
         {
@@ -416,8 +416,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     // // 先绘制fixscreen
     // if (fixScreenPair.first)
     // {
-    //     ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(fixScreenPair.first->objectSets());
-    //     ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
+    //     TpObjectData *updateObjSet = static_cast<TpObjectData *>(fixScreenPair.first->objectSets());
+    //     TpObjectData *topScreenSet = static_cast<TpObjectData *>(updateObjSet->top->objectSets());
 
     //     ItpObjectPaintInput paintInput = fixScreenPair.second;
 
@@ -430,8 +430,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
     for (const auto &updateWidgetIter : mergeUpdateWidget)
     {
-        ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(updateWidgetIter.first->objectSets());
-        ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
+        TpObjectData *updateObjSet = static_cast<TpObjectData *>(updateWidgetIter.first->objectSets());
+        TpObjectData *topScreenSet = static_cast<TpObjectData *>(updateObjSet->top->objectSets());
 
         ItpObjectPaintInput paintInput = updateWidgetIter.second;
 
@@ -594,7 +594,7 @@ static void sendThemeChangedEvent(TpAppData *setData, const Tp::SystemTheme &sys
     setData->cssParser_->parseCss(cssFilePath);
 
     // 在 app的run函数中，调用主题改变事件函数，通知所有组件
-    TpChildWidget *screenWidget = dynamic_cast<TpChildWidget *>(setData->vScreen);
+    TpWidget *screenWidget = dynamic_cast<TpWidget *>(setData->vScreen);
     if (screenWidget)
     {
         // 初始化CSS样式表

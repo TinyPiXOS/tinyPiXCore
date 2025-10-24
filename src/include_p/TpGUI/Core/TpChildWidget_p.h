@@ -51,7 +51,7 @@ struct TpWidgetCssData
 
 #if 0
 // 根据桌面工具栏高度，处理窗体Y坐标
-static int32_t processDeskTopBarY(TpChildWidget *dealWidget, int32_t originY)
+static int32_t processDeskTopBarY(TpWidget *dealWidget, int32_t originY)
 {
     if (!dealWidget)
         return originY;
@@ -64,7 +64,7 @@ static int32_t processDeskTopBarY(TpChildWidget *dealWidget, int32_t originY)
     bool parentIsTop = false;
     if (!isTopOrFloat)
     {
-        if (TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(dealWidget->parent()))
+        if (TpWidget *parentPtr = dynamic_cast<TpWidget *>(dealWidget->parent()))
         {
             parentIsTop = (parentPtr->objectType() == Tp::TP_TOP_OBJECT);
         }
@@ -84,7 +84,7 @@ static int32_t processDeskTopBarY(TpChildWidget *dealWidget, int32_t originY)
 }
 
 // 将考虑桌面工具栏的Y坐标转换为原始坐标
-static int32_t processDesktopOriginY(TpChildWidget *dealWidget, int32_t processY)
+static int32_t processDesktopOriginY(TpWidget *dealWidget, int32_t processY)
 {
     if (!dealWidget)
         return processY;
@@ -97,7 +97,7 @@ static int32_t processDesktopOriginY(TpChildWidget *dealWidget, int32_t processY
     bool parentIsTop = false;
     if (!isTopOrFloat)
     {
-        if (TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(dealWidget->parent()))
+        if (TpWidget *parentPtr = dynamic_cast<TpWidget *>(dealWidget->parent()))
         {
             parentIsTop = (parentPtr->objectType() == Tp::TP_TOP_OBJECT);
         }
@@ -117,7 +117,7 @@ static int32_t processDesktopOriginY(TpChildWidget *dealWidget, int32_t processY
 }
 
 // 根据桌面工具栏高度，处理窗体高度
-static int32_t processDeskTopBarHeight(TpChildWidget *dealWidget, int32_t originHeight)
+static int32_t processDeskTopBarHeight(TpWidget *dealWidget, int32_t originHeight)
 {
     if (!dealWidget)
         return originHeight;
@@ -137,7 +137,7 @@ static int32_t processDeskTopBarHeight(TpChildWidget *dealWidget, int32_t origin
 #endif
 
 // 刷新缓存背景图
-static void refreshCacheImage(ItpObjectSet *set)
+static void refreshCacheImage(TpObjectData *set)
 {
     if (!set)
         return;
@@ -155,7 +155,7 @@ static void refreshCacheImage(ItpObjectSet *set)
     // set->reserveImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/origin" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
 }
 
-static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, int32_t x, int32_t y)
+static void changeXY(TpWidget *thisPtr, TpObjectData *set, int32_t x, int32_t y)
 {
     if (!set)
         return;
@@ -194,7 +194,7 @@ static void changeXY(TpChildWidget *thisPtr, ItpObjectSet *set, int32_t x, int32
     }
 }
 
-static void changeWidth(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_t &w)
+static void changeWidth(TpWidget *thisPtr, TpObjectData *set, const uint32_t &w)
 {
     if (!set)
         return;
@@ -238,7 +238,7 @@ static void changeWidth(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_
     }
 }
 
-static void changeHeight(TpChildWidget *thisPtr, ItpObjectSet *set, const uint32_t &h)
+static void changeHeight(TpWidget *thisPtr, TpObjectData *set, const uint32_t &h)
 {
     if (!set)
         return;

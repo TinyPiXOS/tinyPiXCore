@@ -20,7 +20,7 @@ struct TpTemperatureWidgetData
     TpFont minMaxTemptFont;
 };
 
-TpTemperatureWidget::TpTemperatureWidget(TpChildWidget *parent) : TpChildWidget(parent)
+TpTemperatureWidget::TpTemperatureWidget(TpWidget *parent) : TpWidget(parent)
 {
     TpTemperatureWidgetData *tempData = new TpTemperatureWidgetData();
     data_ = tempData;

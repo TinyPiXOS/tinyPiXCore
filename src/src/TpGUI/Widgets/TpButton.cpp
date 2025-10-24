@@ -22,14 +22,14 @@ struct TpButtonData
     }
 };
 
-TpButton::TpButton(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpButton::TpButton(TpWidget *parent)
+    : TpWidget(parent)
 {
     init();
 }
 
-TpButton::TpButton(const TpString &iconPath, const TpString &text, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpButton::TpButton(const TpString &iconPath, const TpString &text, TpWidget *parent)
+    : TpWidget(parent)
 {
     init();
 
@@ -37,8 +37,8 @@ TpButton::TpButton(const TpString &iconPath, const TpString &text, TpChildWidget
     setText(text);
 }
 
-TpButton::TpButton(const TpString &text, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpButton::TpButton(const TpString &text, TpWidget *parent)
+    : TpWidget(parent)
 {
     init();
 
@@ -63,7 +63,7 @@ void TpButton::setText(const TpString &text)
     if (!buttonData)
         return;
 
-    TpChildWidget::setText(text);
+    TpWidget::setText(text);
 
     buttonData->textLabel->setText(text);
     buttonData->textLabel->update();
@@ -140,7 +140,7 @@ void TpButton::setButtonStyle(TpButton::ButtonTextStyle buttonStyle)
 
 bool TpButton::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -150,7 +150,7 @@ bool TpButton::onMousePressEvent(TpMouseEvent *event)
 
 bool TpButton::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -171,7 +171,7 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
     // std::cout << "按钮 " << text() << " 渲染" << std::endl;
     // std::cout << "按钮 " << text() << " 尺寸" << pos().x() << " " << pos().y() << "  " << width() << "  " << height() << std::endl;
 
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
 

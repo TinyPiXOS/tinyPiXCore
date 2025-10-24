@@ -51,13 +51,13 @@ public:
     };
 
 public:
-    TpFlexLayout(TpChildWidget *parent = nullptr);
+    TpFlexLayout(TpWidget *parent = nullptr);
 
     virtual ~TpFlexLayout();
 
     /// @brief 向布局内添加窗口
     /// @param childWidget 窗口指针
-    void addWidget(TpChildWidget *childWidget);
+    void addWidget(TpWidget *childWidget);
 
     /// @brief 向布局内添加布局
     /// @param layout 布局指针
@@ -66,7 +66,7 @@ public:
     /// @brief 插入一个窗口
     /// @param index 插入索引，从0开始
     /// @param widget 窗口指针
-    void insertWidget(uint32_t index, TpChildWidget *widget);
+    void insertWidget(uint32_t index, TpWidget *widget);
 
     /// @brief 插入一个布局
     /// @param index 插入索引，从0开始
@@ -75,7 +75,7 @@ public:
 
     /// @brief 从布局移除一个指定widget，不会释放指针
     /// @param widget widget指针
-    virtual void removeWidget(TpChildWidget *widget) override;
+    virtual void removeWidget(TpWidget *widget) override;
 
     /// @brief 从布局移除一个子布局，不会释放指针
     /// @param layout 布局指针

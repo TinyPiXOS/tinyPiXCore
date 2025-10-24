@@ -1,17 +1,17 @@
 #ifndef __TP_LIST_MODE_COMBOX_H
 #define __TP_LIST_MODE_COMBOX_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVariant.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpComboxData);
 /// @brief 下拉框组件
-class TpComBox : public TpChildWidget
+class TpComBox : public TpWidget
 {
 public:
-    TpComBox(TpChildWidget *parent = nullptr);
+    TpComBox(TpWidget *parent = nullptr);
     virtual ~TpComBox();
 
 public:

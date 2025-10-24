@@ -1,7 +1,7 @@
 #ifndef __TP_ANIMATION_H
 #define __TP_ANIMATION_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpString.h"
 #include "TpSignalSlot.h"
 
@@ -45,17 +45,17 @@ public:
     /// @brief 动画类构造函数
     /// @param target 动画绑定目标
     /// @param propertyType 动画类型
-    TpAnimation(TpChildWidget *target, const AnimationType &propertyType);
+    TpAnimation(TpWidget *target, const AnimationType &propertyType);
 
     virtual ~TpAnimation();
 
     /// @brief 设置动画绑定窗体
     /// @param target 绑定窗体指针
-    void setTargetWidget(TpChildWidget *target);
+    void setTargetWidget(TpWidget *target);
 
     /// @brief 获取当前动画绑定窗体
     /// @return 窗体指针
-    TpChildWidget *targetWidget();
+    TpWidget *targetWidget();
 
     /// @brief 设置动画循环次数，默认为1次
     /// @param count -1为无限循环，需要手动终止动画

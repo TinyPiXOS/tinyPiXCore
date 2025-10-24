@@ -15,7 +15,7 @@
 #include <list>
 #include "TpHash.h"
 #include "TpVariant.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpImage.h"
 #include "TpGraphicsBlurEffect.h"
 
@@ -27,19 +27,19 @@ class TpEvent;
 
 struct ItpTempDef
 {
-    TpChildWidget *curfocus = nullptr;
-    TpChildWidget *lstfocus = nullptr;
-    TpChildWidget *curmotion = nullptr;
-    TpChildWidget *lstmotion = nullptr;
-    TpChildWidget *curObject = nullptr;
-    // TpChildWidget *dragObject = nullptr;
+    TpWidget *curfocus = nullptr;
+    TpWidget *lstfocus = nullptr;
+    TpWidget *curmotion = nullptr;
+    TpWidget *lstmotion = nullptr;
+    TpWidget *curObject = nullptr;
+    // TpWidget *dragObject = nullptr;
 
     // 鼠标移动前的上一个坐标
     TpPoint lastPoint;
 
     // 新增悬停链状态
-    // TpVector<TpChildWidget *> prevHoverChain; // 上一帧悬停链
-    // TpVector<TpChildWidget *> currHoverChain; // 当前悬停链
+    // TpVector<TpWidget *> prevHoverChain; // 上一帧悬停链
+    // TpVector<TpWidget *> currHoverChain; // 当前悬停链
 
     ItpTempDef()
     {
@@ -49,7 +49,7 @@ struct ItpTempDef
     /// @param delObj
     void deleteObject(TpObject *delObj)
     {
-        TpChildWidget *needDelObj = dynamic_cast<TpChildWidget *>(delObj);
+        TpWidget *needDelObj = dynamic_cast<TpWidget *>(delObj);
         if (!needDelObj)
             return;
 
@@ -73,14 +73,14 @@ struct ItpTempDef
     }
 };
 
-struct ItpObjectSet
+struct TpObjectData
 {
     // 对象类型；用于区分当前应用是否是桌面
     TpString objectType = "";
 
     // 鼠标按下的对象，用于判断拖拽、等事件
     // 记录鼠标按下时的对象，最后鼠标无论在哪释放，都触发按下对象的release
-    TpChildWidget *mousePressObject = nullptr;
+    TpWidget *mousePressObject = nullptr;
 
     TpList<TpObject *> objectList;
 
@@ -164,7 +164,7 @@ struct ItpObjectSet
     // 组件抓图
     TpImage grapImage;
 
-    ItpObjectSet()
+    TpObjectData()
     {
     }
 };

@@ -7,7 +7,7 @@ class TpHBoxLayout
     : public TpBoxLayout
 {
 public:
-    TpHBoxLayout(TpChildWidget *parent = nullptr);
+    TpHBoxLayout(TpWidget *parent = nullptr);
     virtual ~TpHBoxLayout() = default;
 };
 

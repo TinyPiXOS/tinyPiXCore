@@ -96,8 +96,8 @@ struct TpLineEditData
     }
 };
 
-TpLineEdit::TpLineEdit(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpLineEdit::TpLineEdit(TpWidget *parent)
+    : TpWidget(parent)
 {
     data_ = new TpLineEditData();
     TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
@@ -256,7 +256,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
         return true;
 
     // 父类绘制背景
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     tpShared<TpCssData> curCssData = currentStatusCss();
     editData->textFont->setFontColor(curCssData->color(), curCssData->color());

@@ -1,7 +1,7 @@
 #ifndef __TP_VONOFF_BUTTON_H
 #define __TP_VONOFF_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpColors.h"
 #include <string>
@@ -9,7 +9,7 @@
 TP_DEF_VOID_TYPE_VAR(ItpOnOffButtonData);
 
 /// @brief 开关状态按钮
-class TpOnOffButton : public TpChildWidget
+class TpOnOffButton : public TpWidget
 {
 public:
 	enum Direction
@@ -19,7 +19,7 @@ public:
 	};
 
 public:
-	TpOnOffButton(TpChildWidget *parent = nullptr, const Direction &horizontal = TP_HORIZONTAL);
+	TpOnOffButton(TpWidget *parent = nullptr, const Direction &horizontal = TP_HORIZONTAL);
 	virtual ~TpOnOffButton();
 
 public:

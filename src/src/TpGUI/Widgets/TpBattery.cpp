@@ -23,8 +23,8 @@ struct TpBatteryData
     TpBattery::BatteryStyle style = TpBattery::White;
 };
 
-TpBattery::TpBattery(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpBattery::TpBattery(TpWidget *parent)
+    : TpWidget(parent)
 {
     data_ = new TpBatteryData();
 
@@ -109,7 +109,7 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
 
     TpBatteryData *batteryData = static_cast<TpBatteryData *>(data_);
 
-    // TpChildWidget::onPaintEvent(event);
+    // TpWidget::onPaintEvent(event);
 
     int32_t powerColor = batteryData->style == TpBattery::White ? batteryData->whiteColor : batteryData->blackColor;
     int32_t borderColor = batteryData->style == TpBattery::White ? batteryData->whiteBorderColor : batteryData->blackBorderColor;

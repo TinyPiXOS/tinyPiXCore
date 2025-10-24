@@ -1,16 +1,16 @@
 #ifndef __TP_LINEEDIT_H
 #define __TP_LINEEDIT_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpFont.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpLineEditData);
 
-class TpLineEdit : public TpChildWidget
+class TpLineEdit : public TpWidget
 {
 public:
-    TpLineEdit(TpChildWidget *parent = nullptr);
+    TpLineEdit(TpWidget *parent = nullptr);
     virtual ~TpLineEdit();
 
     /// @brief 获取输入框字体

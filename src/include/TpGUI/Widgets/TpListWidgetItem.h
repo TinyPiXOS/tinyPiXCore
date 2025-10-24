@@ -1,18 +1,18 @@
 #ifndef __TP_LIST_WIDGET_ITEM_H
 #define __TP_LIST_WIDGET_ITEM_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVariant.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpListWidgetItemData);
 /// @brief 列表下的item
-class TpListWidgetItem : public TpChildWidget
+class TpListWidgetItem : public TpWidget
 {
 public:
-    TpListWidgetItem(TpChildWidget *parent = nullptr);
-    TpListWidgetItem(const TpString &text, TpChildWidget *parent = nullptr);
+    TpListWidgetItem(TpWidget *parent = nullptr);
+    TpListWidgetItem(const TpString &text, TpWidget *parent = nullptr);
 
     virtual ~TpListWidgetItem();
 

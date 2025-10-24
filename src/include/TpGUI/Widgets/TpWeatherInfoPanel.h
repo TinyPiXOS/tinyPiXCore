@@ -1,14 +1,14 @@
 #ifndef __TP_WEATHER_INFO_PANEL_H
 #define __TP_WEATHER_INFO_PANEL_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpVector.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpWeatherInfoPanelData);
 /// @brief 天气预报面板
-class TpWeatherInfoPanel : public TpChildWidget
+class TpWeatherInfoPanel : public TpWidget
 {
 public:
     /// @brief 天气类型
@@ -70,7 +70,7 @@ public:
     };
 
 public:
-    TpWeatherInfoPanel(TpChildWidget *parent = nullptr);
+    TpWeatherInfoPanel(TpWidget *parent = nullptr);
 
     virtual ~TpWeatherInfoPanel();
 

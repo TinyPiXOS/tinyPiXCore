@@ -1,17 +1,17 @@
 #ifndef __TP_LIST_WIDGET_H
 #define __TP_LIST_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpListWidgetItem.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpListWidgetData);
 /// @brief 列表窗口
-class TpListWidget : public TpChildWidget
+class TpListWidget : public TpWidget
 {
 public:
-    TpListWidget(TpChildWidget *parent = nullptr);
+    TpListWidget(TpWidget *parent = nullptr);
     virtual ~TpListWidget();
 
 public:

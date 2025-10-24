@@ -51,7 +51,7 @@ TpDialog::TpDialog(const char *type) : TpScreen(type)
         TpApp::Inst()->sendDelete(this);
     }
 
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     set->top = this->topObject();
 
     refreshBaseCss();

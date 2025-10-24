@@ -23,8 +23,8 @@ struct TpListCheckBoxGroupData
     }
 };
 
-TpListWidget::TpListWidget(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpListWidget::TpListWidget(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpListCheckBoxGroupData *cbxData = new TpListCheckBoxGroupData();
 
@@ -238,7 +238,7 @@ void TpListWidget::clear()
 
 bool TpListWidget::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *paintCanvas = event->painter();
     TpListCheckBoxGroupData *cbxData = static_cast<TpListCheckBoxGroupData *>(data_);
@@ -263,7 +263,7 @@ bool TpListWidget::onPaintEvent(TpPaintEvent *event)
 
 bool TpListWidget::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpListCheckBoxGroupData *cbxData = static_cast<TpListCheckBoxGroupData *>(data_);
 

@@ -276,7 +276,7 @@ bool TpMenu::onLeaveEvent(TpLeaveEvent *event)
 
 bool TpMenu::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *painter = event->painter();
 

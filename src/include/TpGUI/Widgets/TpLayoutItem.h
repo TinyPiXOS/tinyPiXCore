@@ -1,7 +1,7 @@
 #ifndef __TP_LAYOUT_ITEM_H
 #define __TP_LAYOUT_ITEM_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpLayoutItemData);
 
@@ -22,7 +22,7 @@ public:
 
     /// @brief 获取item中的widget指针，layout类型则返回逻辑widget
     /// @return 
-    TpChildWidget* widget();
+    TpWidget* widget();
 
 private:
     ItpLayoutItemData *data_;

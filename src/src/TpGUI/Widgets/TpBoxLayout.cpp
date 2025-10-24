@@ -5,7 +5,7 @@ struct TpBoxLayoutData
     TpBoxLayout::Direction direction;
 };
 
-TpBoxLayout::TpBoxLayout(TpChildWidget *parent, Direction direction)
+TpBoxLayout::TpBoxLayout(TpWidget *parent, Direction direction)
     : TpLayout(parent)
 {
     TpBoxLayoutData *layoutData = new TpBoxLayoutData();

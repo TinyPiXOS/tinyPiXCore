@@ -11,7 +11,7 @@ TP_DEF_VOID_TYPE_VAR(ITpAppData);
 
 class TpObject;
 class TpClipboard;
-class TpChildWidget;
+class TpWidget;
 class TpScreen;
 class TpCssParser;
 
@@ -115,7 +115,7 @@ public:
 
     /// @brief 唤醒虚拟键盘
     /// @return object 唤醒对象；虚拟键盘的输入将会给入该对象
-    void wakeUpVirtualKeyboard(TpChildWidget *object);
+    void wakeUpVirtualKeyboard(TpWidget *object);
 
     /// @brief 休眠虚拟键盘
     void dormantVirtualKeyboard();
@@ -152,7 +152,7 @@ public:
     /// @param w 刷新区域W
     /// @param h 刷新区域H
     /// @param onlyBlit
-    void postUpdateEvent(TpChildWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit);
+    void postUpdateEvent(TpWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit);
 
 private:
     ITpAppData *data_;

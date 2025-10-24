@@ -31,8 +31,8 @@ struct TpComboxData
     std::mutex updateIndexMutex;
 };
 
-TpComBox::TpComBox(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpComBox::TpComBox(TpWidget *parent)
+    : TpWidget(parent)
 {
     tpShared<TpCssData> normalCss = currentStatusCss();
 
@@ -178,7 +178,7 @@ void TpComBox::setMinumumHeight(const int32_t &height)
 {
     // std::cout << " ****************************height " << height << std::endl;
 
-    TpChildWidget::setMinumumHeight(height);
+    TpWidget::setMinumumHeight(height);
 }
 
 bool TpComBox::onResizeEvent(TpResizeEvent *event)

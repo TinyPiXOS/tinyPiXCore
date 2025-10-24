@@ -16,8 +16,8 @@ struct TpCircularProgressBarData
     }
 };
 
-TpCircularProgressBar::TpCircularProgressBar(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpCircularProgressBar::TpCircularProgressBar(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpCircularProgressBarData *progressData = new TpCircularProgressBarData();
 
@@ -84,7 +84,7 @@ bool TpCircularProgressBar::onPaintEvent(TpPaintEvent *event)
 {
     TpCircularProgressBarData *progressData = static_cast<TpCircularProgressBarData *>(data_);
 
-    // TpChildWidget::onPaintEvent(event);
+    // TpWidget::onPaintEvent(event);
     TpPainter *painter = event->painter();
     // painter->arc(50, 50, 40, 140, 40, _RGBA(204, 179, 230, 204), 15, true);
 

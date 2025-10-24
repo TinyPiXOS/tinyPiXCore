@@ -5,7 +5,7 @@
 #include "TpLayout.h"
 #include "TpObjectStack.h"
 #include "TpTimer.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpPainter.h"
 #include <TpColors.h>
 #include <TpRect.h>
@@ -20,10 +20,10 @@
 #include "TpChildWidget_p.h"
 
 // 记录鼠标按下时的对象，最后鼠标无论在哪释放，都触发按下对象的release
-// static TpChildWidget *pressObject = nullptr;
+// static TpWidget *pressObject = nullptr;
 
 // 鼠标左键长按回调
-static std::function<void(TpChildWidget *, ItpMouseSet)> longPressCallback = [](TpChildWidget *obj, ItpMouseSet mouseSet)
+static std::function<void(TpWidget *, ItpMouseSet)> longPressCallback = [](TpWidget *obj, ItpMouseSet mouseSet)
 {
     // std::cout << " onLongPress ***********" << std::endl;
 
@@ -73,7 +73,7 @@ static inline void generateParentList(TpObject *object, std::list<TpObject *> &l
     }
 }
 
-static inline void startLongPressCheck(TpChildWidget *object, const ItpMouseSet &mouseSet)
+static inline void startLongPressCheck(TpWidget *object, const ItpMouseSet &mouseSet)
 {
     std::lock_guard<std::mutex> lock(pressThreadMutex);
     if (pressThread || longPressActive)
@@ -117,7 +117,7 @@ static inline void stopLongPressCheck()
     }
 }
 
-static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, std::list<TpObject *> &list, ItpEvent *events, TpChildWidget *pressObject)
+static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, std::list<TpObject *> &list, ItpEvent *events, TpWidget *pressObject)
 {
     TpMouseEvent motionEvent;
     ItpMouseSet mInput;
@@ -126,7 +126,7 @@ static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, 
 
     std::list<TpObject *>::iterator iter = list.begin();
 
-    TpChildWidget *childObj = static_cast<TpChildWidget *>(dragObject);
+    TpWidget *childObj = static_cast<TpWidget *>(dragObject);
     if (childObj)
     {
         // motion, and state = true
@@ -144,7 +144,7 @@ static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, 
         IssueObjEvent(childObj, motionEvent, onMouseMoveEvent, childObj->enabled());
     }
 
-    TpChildWidget *childMotionObj = static_cast<TpChildWidget *>(curMotionObject);
+    TpWidget *childMotionObj = static_cast<TpWidget *>(curMotionObject);
 
     if (childMotionObj && curMotionObject != dragObject)
     {
@@ -172,7 +172,7 @@ static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, 
     list.clear();
 }
 
-static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, ItpEvent *events, TpChildWidget *pressObject)
+static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, ItpEvent *events, TpWidget *pressObject)
 {
     ItpMouseSet mInput;
     mInput.which = events->mouseButtonEvent.which;
@@ -180,7 +180,7 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
     mInput.state = events->mouseButtonEvent.state;
     mInput.type = mInput.state ? TpEvent::EVENT_MOUSE_PRESS_TYPE : TpEvent::EVENT_MOUSE_RELEASE_TYPE;
 
-    TpChildWidget *childObj = static_cast<TpChildWidget *>(object);
+    TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
     {
         list.clear();
@@ -270,9 +270,9 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
     list.clear();
 }
 
-static inline void broadFinger(ItpObjectSet *set, ItpFingerSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broadFinger(TpObjectData *set, ItpFingerSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
 {
-    TpChildWidget *childObj = static_cast<TpChildWidget *>(object);
+    TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
         return;
 
@@ -298,9 +298,9 @@ static inline void broadFinger(ItpObjectSet *set, ItpFingerSet &input, TpObject 
     list.clear();
 }
 
-static inline void broaDollar(ItpObjectSet *set, ItpDollarSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broaDollar(TpObjectData *set, ItpDollarSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
 {
-    TpChildWidget *childObj = static_cast<TpChildWidget *>(object);
+    TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
         return;
 
@@ -325,9 +325,9 @@ static inline void broaDollar(ItpObjectSet *set, ItpDollarSet &input, TpObject *
     IssueObjEvent(childObj, event, onDollAREvent, childObj->enabled());
 }
 
-static inline void broadMultiGesture(ItpObjectSet *set, ItpMultiGestureSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broadMultiGesture(TpObjectData *set, ItpMultiGestureSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
 {
-    TpChildWidget *childObj = static_cast<TpChildWidget *>(object);
+    TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
         return;
 
@@ -346,7 +346,7 @@ static inline void broadMultiGesture(ItpObjectSet *set, ItpMultiGestureSet &inpu
 
     std::list<TpObject *>::iterator iter = list.begin();
 
-    TpChildWidget *setCurChildObj = static_cast<TpChildWidget *>(set->tmp.curObject);
+    TpWidget *setCurChildObj = static_cast<TpWidget *>(set->tmp.curObject);
     if (setCurChildObj)
     {
         input.x = events->gestrueEvent.x * rW - setCurChildObj->toScreen().x();
@@ -408,7 +408,7 @@ static inline bool splitTouchMousePoint(ItpEvent *event, TpPoint *point)
 static inline void doTransUpdate(void *args)
 {
     TpScreen *object = (TpScreen *)args;
-    ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
+    TpObjectData *set = (TpObjectData *)object->objectSets();
     int32_t x, y;
     uint32_t w, h;
     tinyPiX_wf_get_rect(set->agent, &x, &y, &w, &h);
@@ -425,7 +425,7 @@ static inline int32_t transferEvent(int32_t id, void *event, void *args)
 
 static inline int32_t transferFocus(int32_t id, int32_t focused, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     TpFocusEvent event;
     ItpObjectFocusSet input;
     input.object = object;
@@ -437,7 +437,7 @@ static inline int32_t transferFocus(int32_t id, int32_t focused, void *args)
 
 static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int mouseY, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     TpLeaveEvent event;
     ItpObjectLeaveSet input;
     input.object = nullptr;
@@ -447,7 +447,7 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
     if (leaved == false)
     {
         // notice cur object, leave out
-        ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
+        TpObjectData *set = (TpObjectData *)object->objectSets();
         if (set->tmp.curmotion != object)
         {
             // 如果鼠标坐标没有移出当前对象区域，不触发leve事件
@@ -470,7 +470,7 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
 
 static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32_t question, void *args) // only for resolution
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     TpResizeEvent event;
     ItpObjectResizeSet input;
     input.object = object;
@@ -479,7 +479,7 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
     input.question = TpResizeEvent::TP_RESOLUTION_CHANGE;
     event.construct(&input);
 
-    ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
+    TpObjectData *set = (TpObjectData *)object->objectSets();
 
 #if 1
     set->absoluteRect.setRect(0, 0, nw, nh);
@@ -509,14 +509,14 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
 
 static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     TpVisibleEvent event;
     ItpObjectVisibleSet input;
     input.object = object;
     input.visible = visible;
     event.construct(&input);
 
-    ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
+    TpObjectData *set = (TpObjectData *)object->objectSets();
 
     if (set)
     {
@@ -531,7 +531,7 @@ static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
 
 static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t question, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     TpMoveEvent event;
     ItpObjectMoveSet input;
     input.object = object;
@@ -541,7 +541,7 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
 
     if (object->objectType() == Tp::TP_FLOAT_OBJECT)
     {
-        ItpObjectSet *set = (ItpObjectSet *)object->objectSets();
+        TpObjectData *set = (TpObjectData *)object->objectSets();
 
         set->absoluteRect.setX(nx);
         set->absoluteRect.setY(ny);
@@ -555,7 +555,7 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
 
 static inline int32_t transferActive(int32_t id, int32_t actived, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     TpApp::Inst()->sendActive(object, actived);
 
     TpActiveEvent event;
@@ -572,27 +572,27 @@ static inline int32_t transferActive(int32_t id, int32_t actived, void *args)
 
 static inline int32_t transferQuit(int32_t id, int32_t question, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     object->deleteLater();
     return 1;
 }
 
 static inline int32_t transferReturn(int32_t id, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     return ((TpScreen *)object)->returns();
 }
 
 static inline int32_t transferAppState(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require, void *args)
 {
-    TpChildWidget *object = (TpChildWidget *)args;
+    TpWidget *object = (TpWidget *)args;
     return object->appChange(id, pid, visible, active, color, alpha, require);
 }
 
 TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t h)
-    : TpChildWidget(nullptr)
+    : TpWidget(nullptr)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     if (!set)
         return;
 
@@ -654,7 +654,7 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
 
 TpScreen::~TpScreen()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -668,9 +668,9 @@ TpScreen::~TpScreen()
 
 void TpScreen::setVisible(bool visible)
 {
-    TpChildWidget::setVisible(visible);
+    TpWidget::setVisible(visible);
 
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
         return;
@@ -683,7 +683,7 @@ void TpScreen::setVisible(bool visible)
 
     if (visible == false)
     {
-        TpChildWidget *fixedScreen = TpApp::Inst()->vScreen();
+        TpWidget *fixedScreen = TpApp::Inst()->vScreen();
         if (fixedScreen)
         {
             fixedScreen->update();
@@ -695,7 +695,7 @@ void TpScreen::setVisible(bool visible)
 
 bool TpScreen::actived()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     bool actived = false;
 
     if (set)
@@ -708,7 +708,7 @@ bool TpScreen::actived()
 
 void TpScreen::setText(const char *text)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -716,7 +716,7 @@ void TpScreen::setText(const char *text)
 
         if (ret)
         {
-            TpChildWidget::setText(text);
+            TpWidget::setText(text);
         }
     }
 }
@@ -728,7 +728,7 @@ void TpScreen::setText(const TpString &text)
 
 void TpScreen::setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
         return;
@@ -738,48 +738,48 @@ void TpScreen::setRect(const int32_t &x, const int32_t &y, const int32_t &w, con
     set->offsetX = x;
     set->offsetY = y;
 
-    TpChildWidget::setRect(x, y, w, h);
+    TpWidget::setRect(x, y, w, h);
 }
 
 void TpScreen::setSize(const int32_t &width, const int32_t &height)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
         return;
 
     tinyPiX_wf_set_rect(set->agent, set->offsetX, set->offsetY, width, height);
 
-    TpChildWidget::setSize(width, height);
+    TpWidget::setSize(width, height);
 }
 
 void TpScreen::setWidth(const int32_t &width)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
         return;
 
     tinyPiX_wf_set_rect(set->agent, set->offsetX, set->offsetY, width, height());
 
-    TpChildWidget::setWidth(width);
+    TpWidget::setWidth(width);
 }
 
 void TpScreen::setHeight(const int32_t &height)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
         return;
 
     tinyPiX_wf_set_rect(set->agent, set->offsetX, set->offsetY, width(), height);
 
-    TpChildWidget::setHeight(height);
+    TpWidget::setHeight(height);
 }
 
 void TpScreen::move(int32_t x, int32_t y)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     if (!set)
         return;
 
@@ -795,7 +795,7 @@ void TpScreen::move(int32_t x, int32_t y)
         bool parentIsTop = false;
         if (!isTopOrFloat)
         {
-            if (TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(parent()))
+            if (TpWidget *parentPtr = dynamic_cast<TpWidget *>(parent()))
             {
                 parentIsTop = (parentPtr->objectType() == Tp::TP_TOP_OBJECT);
             }
@@ -833,7 +833,7 @@ void TpScreen::move(int32_t x, int32_t y)
 
 const TpPoint TpScreen::pos()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     if (!set)
         return TpPoint();
 
@@ -842,7 +842,7 @@ const TpPoint TpScreen::pos()
 
 void TpScreen::setBeMoved(bool moved)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -857,7 +857,7 @@ void TpScreen::setBeMoved(bool moved)
 
 bool TpScreen::moved()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     bool moved = false;
 
     if (set)
@@ -870,7 +870,7 @@ bool TpScreen::moved()
 
 void TpScreen::setAlpha(const uint8_t &alpha)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -881,7 +881,7 @@ void TpScreen::setAlpha(const uint8_t &alpha)
 
 void TpScreen::bringToTop()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -891,7 +891,7 @@ void TpScreen::bringToTop()
 
 void TpScreen::bringToBottom()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -914,7 +914,7 @@ void TpScreen::update(bool onlyBlit)
 
 Tp::ItpObjectType TpScreen::objectType()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     Tp::ItpObjectType type = Tp::TP_UNKOWN_OBJECT;
 
     if (set)
@@ -943,7 +943,7 @@ Tp::ItpObjectType TpScreen::objectType()
 
 Tp::ItpObjectSysLayer TpScreen::objectLayer()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     Tp::ItpObjectSysLayer layer = Tp::TP_WM_NONE;
 
     if (set)
@@ -956,7 +956,7 @@ Tp::ItpObjectSysLayer TpScreen::objectLayer()
 
 int32_t TpScreen::objectSysID()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     int32_t id = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -969,7 +969,7 @@ int32_t TpScreen::objectSysID()
 
 bool TpScreen::objectActive()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     bool actived = false;
 
     if (set)
@@ -982,7 +982,7 @@ bool TpScreen::objectActive()
 
 void TpScreen::setParent(TpObject *parent)
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (set)
     {
@@ -1002,7 +1002,7 @@ TpObject *TpScreen::topObject()
 
 void TpScreen::deleteLater()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     bool exitOK = true;
 
     if (!set)
@@ -1031,7 +1031,7 @@ void TpScreen::deleteLater()
 
 bool TpScreen::returns()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     bool returns = true;
 
     if (set)
@@ -1056,7 +1056,7 @@ bool TpScreen::returns()
 
 TpSize TpScreen::screenSize()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     uint32_t sWidth = 0;
     uint32_t sHeight = 0;
 
@@ -1070,7 +1070,7 @@ TpSize TpScreen::screenSize()
 
 int32_t TpScreen::screenWidth()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     uint32_t sWidth = 0;
 
     if (set)
@@ -1083,7 +1083,7 @@ int32_t TpScreen::screenWidth()
 
 int32_t TpScreen::screenHeight()
 {
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     uint32_t sHeight = 0;
 
     if (set)
@@ -1099,7 +1099,7 @@ int32_t TpScreen::dispatchEvent(void *events)
     ItpEvent *eventPtr = (ItpEvent *)events;
 
     TpPoint point;
-    ItpObjectSet *set = (ItpObjectSet *)TpObject::objectSets();
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     bool ret = false;
 
@@ -1193,7 +1193,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                 }
 
                 // 判断是否也进入了当前对象的父对象
-                TpChildWidget *curParent = dynamic_cast<TpChildWidget *>(set->tmp.curmotion->parent());
+                TpWidget *curParent = dynamic_cast<TpWidget *>(set->tmp.curmotion->parent());
                 while (curParent)
                 {
                     TpRect curParentRect = curParent->toScreen();
@@ -1212,7 +1212,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                         IssueObjEvent(curParent, leaveEvent, onLeaveEvent, curParent->enabled());
                     }
 
-                    curParent = dynamic_cast<TpChildWidget *>(curParent->parent());
+                    curParent = dynamic_cast<TpWidget *>(curParent->parent());
                 }
             }
 
@@ -1223,7 +1223,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                 leaveEvent.construct(&lInput);
 
                 // 根据当前鼠标坐标判断是否也离开了上一个对象及父对象
-                TpChildWidget *curParent = set->tmp.lstmotion;
+                TpWidget *curParent = set->tmp.lstmotion;
                 while (curParent)
                 {
                     TpRect curParentRect = curParent->toScreen();
@@ -1234,7 +1234,7 @@ int32_t TpScreen::dispatchEvent(void *events)
                         IssueObjEvent(curParent, leaveEvent, onLeaveEvent, curParent->enabled());
                     }
 
-                    curParent = dynamic_cast<TpChildWidget *>(curParent->parent());
+                    curParent = dynamic_cast<TpWidget *>(curParent->parent());
                 }
             }
 

@@ -12,12 +12,12 @@
 TP_DEF_VOID_TYPE_VAR(ItpChildWidgetData);
 
 class TpGraphicsBlurEffect;
-class TpChildWidget
+class TpWidget
     : public TpObject
 {
 public:
-    TpChildWidget(TpChildWidget *parent = nullptr);
-    virtual ~TpChildWidget();
+    TpWidget(TpWidget *parent = nullptr);
+    virtual ~TpWidget();
 
 public:
     /// @brief 设置属性值
@@ -369,8 +369,8 @@ public:
 
     virtual bool appChange(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require) { return true; }
 
-    virtual TpChildWidget *find(const TpPoint &point);
-    virtual TpChildWidget *find(int32_t x, int32_t y);
+    virtual TpWidget *find(const TpPoint &point);
+    virtual TpWidget *find(int32_t x, int32_t y);
 
 public:
     /// @brief 补充CSS样式，系统内置CSS除非同名否则不会被覆盖
@@ -394,7 +394,7 @@ public:
 public:
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
     /// @return 类名字符串
-    virtual TpString pluginType() { return TO_STRING(TpChildWidget); }
+    virtual TpString pluginType() { return TO_STRING(TpWidget); }
 
 public:
     /// @brief 外部无需调用

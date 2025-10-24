@@ -70,8 +70,8 @@ TpVector<TpString> wrapText(ItpTextLabelSet *data, const TpString &text, const u
     return subStrList;
 }
 
-TpLabel::TpLabel(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpLabel::TpLabel(TpWidget *parent)
+    : TpWidget(parent)
 {
     ItpTextLabelSet *set = new ItpTextLabelSet();
     this->textLabelSet = set;
@@ -95,8 +95,8 @@ TpLabel::TpLabel(TpChildWidget *parent)
     // refreshBaseCss();
 }
 
-TpLabel::TpLabel(const TpString &text, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpLabel::TpLabel(const TpString &text, TpWidget *parent)
+    : TpWidget(parent)
 {
     ItpTextLabelSet *set = new ItpTextLabelSet();
 
@@ -155,7 +155,7 @@ void TpLabel::setText(const TpString &text)
     if (text.empty())
         return;
 
-    TpChildWidget::setText(text);
+    TpWidget::setText(text);
     ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
 
     if (!set)
@@ -223,11 +223,11 @@ void TpLabel::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
         if (set->enableFit)
         {
             TpSize size = set->font->pixelSize();
-            TpChildWidget::setRect(x, y, size.width(), size.height());
+            TpWidget::setRect(x, y, size.width(), size.height());
             return;
         }
 
-        TpChildWidget::setRect(x, y, w, h);
+        TpWidget::setRect(x, y, w, h);
     }
 }
 
@@ -299,7 +299,7 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
             setMinumumHeight(set->font->pixelHeight());
     }
 
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *canvas = event->painter();
     TpString text = this->text();

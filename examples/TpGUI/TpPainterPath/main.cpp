@@ -4,10 +4,10 @@
 #include "TpPainter.h"
 #include "TpUtils.h"
 
-class PaintPathWidget : public TpChildWidget
+class PaintPathWidget : public TpWidget
 {
 public:
-    PaintPathWidget(TpChildWidget *parent) : TpChildWidget(parent)
+    PaintPathWidget(TpWidget *parent) : TpWidget(parent)
     {
         setBackGroundColor(_RGBA(100, 100, 100, 200));
     }
@@ -17,7 +17,7 @@ public:
 
     virtual bool onPaintEvent(TpPaintEvent *event) override
     {
-        TpChildWidget::onPaintEvent(event);
+        TpWidget::onPaintEvent(event);
 
         TpPainter *painter = event->painter();
 

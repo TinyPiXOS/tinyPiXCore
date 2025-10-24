@@ -19,8 +19,8 @@ struct TpCheckBoxData
     }
 };
 
-TpCheckBox::TpCheckBox(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpCheckBox::TpCheckBox(TpWidget *parent)
+    : TpWidget(parent)
 {
     tpShared<TpCssData> normalCss = currentStatusCss();
 
@@ -82,7 +82,7 @@ TpFont *TpCheckBox::font()
 
 bool TpCheckBox::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -92,7 +92,7 @@ bool TpCheckBox::onMousePressEvent(TpMouseEvent *event)
 
 bool TpCheckBox::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -104,7 +104,7 @@ bool TpCheckBox::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpCheckBox::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpCheckBoxData *cbxData = static_cast<TpCheckBoxData *>(data_);
     cbxData->checkIcon = cbxData->originIcon.scaled(height() * 0.7, height() * 0.47);
@@ -127,7 +127,7 @@ bool TpCheckBox::onResizeEvent(TpResizeEvent *event)
 bool TpCheckBox::onPaintEvent(TpPaintEvent *event)
 {
     // return true;
-    // TpChildWidget::onPaintEvent(event);
+    // TpWidget::onPaintEvent(event);
 
     TpPainter *paintCanvas = event->painter();
 
