@@ -169,7 +169,7 @@ link_directories("/usr/lib")
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
 set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
-target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthread TpAPI SDL2 SDL2_image SDL2_gfx
+target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthread TpWMEngine SDL2 SDL2_image SDL2_gfx
     cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime
 )
 

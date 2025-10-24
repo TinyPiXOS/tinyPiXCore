@@ -193,7 +193,7 @@ set(TPARCHIVE_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libtparchive.a)
 
 # 将pthread库链接到可执行目标
 target_link_libraries(TpExtUtils ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} dl
-	pthread TpAPI TpUtils ssl json-c glib-2.0 
+	pthread TpWMEngine TpUtils ssl json-c glib-2.0 
 	gio-2.0 asound avcodec avfilter avformat avutil 
 	swresample SDL2 avdevice swscale bluetooth dbus-1 usb-1.0 udev)
 

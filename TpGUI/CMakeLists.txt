@@ -107,7 +107,7 @@ set(SQLITE3_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libsqlite3.a)
 # 库链接到可执行目标
 target_link_libraries(TpGUI PUBLIC
     ${SQLITE3_STATIC_LIB}
-    dl pthread TpAPI TpUtils TpExtUtils
+    dl pthread TpWMEngine TpUtils TpExtUtils
 )
 
 # 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
