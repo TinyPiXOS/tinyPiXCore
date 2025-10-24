@@ -1,4 +1,4 @@
-# TinyPiXCore 🚀
+# TinyPiXOS 🚀
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 </div>
 
-TinyPiXCore 提供TinyPiXOS的底层支撑库，包括GUI库（TpGUI）、工具库（TpUtil）、扩展库（TpExtUtils）三大部分。
+TinyPiXOS 包括窗口管理器（TpWM）、GUI库（TpGUI）、工具库（TpUtil）、扩展库（TpExtUtils）四大部分。
 
 ---
 
@@ -19,6 +19,10 @@ TinyPiXCore 提供TinyPiXOS的底层支撑库，包括GUI库（TpGUI）、工具
 TinyPiXOS的诞生标志着我们从零起步，完成了基础技术栈的完整构建与自主掌控。其核心定位在于提供一个**独立可控、架构轻量且高度定制化**的嵌入式桌面操作系统开发平台。  
 
 **核心目标：** 在最小化硬件资源配置的前提下，确保流畅的多应用并行处理能力，提供完备的桌面级核心功能体验（资源管理、外设驱动、图形渲染等）。
+
+## TpWM
+
+TpWM是 TinyPiXOS 的窗口管理引擎，是 TinyPiXOS 的核心支撑要件。整个引擎设计以精简接口为切入点，摒弃复杂冗余的接口设计理念，结合类似RISC精简指令集的设计思想，为窗口设计人员提供任意组装和拼接的高效途径，可以打造出千变万化的自定义产品。
 
 ## TpGUI
 
@@ -118,8 +122,8 @@ TinyPiXOS整体架构图
 拉取代码，可以使用Github地址直接下拉，或者使用Gitee同步仓库拉取
 
 ```bash
-git clone https://github.com/TinyPiXOS/TinyPiXCore.git
-# git clone https://gitee.com/tinypixos/TinyPiXCore.git
+git clone https://github.com/TinyPiXOS/TinyPiXOS.git
+# git clone https://gitee.com/tinypixos/TinyPiXOS.git
 ```
 
 ### 依赖库清单
@@ -154,7 +158,7 @@ git clone https://github.com/TinyPiXOS/TinyPiXCore.git
 - ​**安装 依赖环境**
 
 ```bash
-sudo apt install libsdl2-image-dev libsdl2-gfx-dev \
+sudo apt install \
   libcairo2-dev libpango1.0-dev libglib2.0-dev \
   libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
   libgbm-dev libgles2 libegl-dev \
@@ -165,7 +169,7 @@ sudo apt install libsdl2-image-dev libsdl2-gfx-dev \
   libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 ```
 
-- ​**构建 TinyPiXCore 依赖子模块（可跳过）**
+- ​**构建 TinyPiXOS 依赖子模块（可跳过）**
 
 ```bash
 # 更新子模块
@@ -174,7 +178,7 @@ git submodule update --recursive
 make -f deps.mk
 ```
 
-- ​**构建 TinyPiXCore Debug版本**
+- ​**构建 TinyPiXOS Debug版本**
 
 ```bash
 cmake .
@@ -190,7 +194,7 @@ make
 make install
 ```
 
-- ​**构建 TinyPiXCore Release版本**
+- ​**构建 TinyPiXOS Release版本**
 
 ```bash
 cmake --preset=release
@@ -243,7 +247,7 @@ target_link_libraries(你的应用程序名称 TpExtUtils)
 ### 📝 提交前自查
 
 > [!TIP]
-✅ 已在 [TinyPiXCore Issues](https://github.com/TinyPiXOS/TinyPiXCore/issues)和[tinyPiXApp Issues](https://github.com/TinyPiXOS/tinyPiXApp/issues)搜索过同类问题。  
+✅ 已在 [TinyPiXOS Issues](https://github.com/TinyPiXOS/TinyPiXOS/issues)搜索过同类问题。  
 ✅ 使用最新版本进行验证后，问题仍然存在。  
 ✅ 在[知识星球](https://t.zsxq.com/JzbkN)当中检索，但是未找到同类问题。  
 
@@ -287,7 +291,7 @@ TinyPiXOS开发者服务邮箱
 
 ## 如何系统学习TinyPiXOS
 
-- 我们围绕TinyPiXOS项目技术栈，搭建了“从零构建桌面操作系统”课程，包括“TinyPiXCore系统学习”. “TinyPiXApp应用开发实战”和“TpWM高级用法实战”三大板块和若干个子专栏，**通过阶梯式能力进阶，赋能开发者​体系化掌握嵌入式OS全栈开发能力**。
+- 我们围绕 TinyPiXOS 项目技术栈，搭建了“从零构建桌面操作系统”课程，包括“TinyPiXOS系统学习”. “TinyPiXApp应用开发实战”和“TpWM高级用法实战”三大板块和若干个子专栏，**通过阶梯式能力进阶，赋能开发者​体系化掌握嵌入式OS全栈开发能力**。
 - 为使开发者深度掌握TinyPiXOS技术栈的同时突破领域局限，我们特邀**嵌入式软件开发、硬件开发、人工智能、国产化**等跨领域专家驻场指导，助你构建多维度能力矩阵，实现**领域纵深+技能广度的双重提升**。
 
 <div align="center">
@@ -297,5 +301,5 @@ TinyPiXOS开发者服务邮箱
 ## 核心团队
 
 <div align="center">
-<img src="https://file.tinypixos.com/tinypixos/团队.png" width="500" height="280" alt="核心团队">
+<img src="https://file.tinypixos.com/tinypixos/团队.png" width="550" height="300" alt="核心团队">
 </div>
