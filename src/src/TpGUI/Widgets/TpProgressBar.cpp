@@ -11,7 +11,7 @@ struct TpProgressBarData
     bool showText = true;
 };
 
-TpProgressBar::TpProgressBar(TpChildWidget *parent, const Direct &direct) : TpChildWidget(parent)
+TpProgressBar::TpProgressBar(TpWidget *parent, const Direct &direct) : TpWidget(parent)
 {
     TpProgressBarData *progressData = new TpProgressBarData();
     progressData->direction = direct;

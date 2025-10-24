@@ -20,7 +20,7 @@ struct TpHumidityWidgetData
     TpFont percentFont;
 };
 
-TpHumidityWidget::TpHumidityWidget(TpChildWidget *parent) : TpChildWidget(parent)
+TpHumidityWidget::TpHumidityWidget(TpWidget *parent) : TpWidget(parent)
 {
     TpHumidityWidgetData *tempData = new TpHumidityWidgetData();
     data_ = tempData;

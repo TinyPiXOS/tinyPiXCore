@@ -1,13 +1,13 @@
 #ifndef __TP_VSLIDER_H
 #define __TP_VSLIDER_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpColors.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpSliderData);
 /// @brief 可拖动滑块
-class TpSlider : public TpChildWidget
+class TpSlider : public TpWidget
 {
 public:
 	enum SliderDirect
@@ -17,7 +17,7 @@ public:
 	};
 
 public:
-	TpSlider(TpChildWidget *parent = nullptr, const SliderDirect &direct = Horizon);
+	TpSlider(TpWidget *parent = nullptr, const SliderDirect &direct = Horizon);
 	virtual ~TpSlider();
 
 public:

@@ -1,13 +1,13 @@
 #ifndef __TEST_LIGHT_H
 #define __TEST_LIGHT_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpEvent.h"
 
-class TpTestLight : public TpChildWidget
+class TpTestLight : public TpWidget
 {
 public:
-    TpTestLight(TpChildWidget *parent);
+    TpTestLight(TpWidget *parent);
 
     virtual ~TpTestLight();
 

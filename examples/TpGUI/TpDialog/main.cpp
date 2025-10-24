@@ -23,7 +23,7 @@ int32_t main(int32_t argc, char *argv[])
     testLabel->setText("测试标签");
     testLabel->setRect(50, 50, 200, 100);
     
-    TpChildWidget *childW = new TpChildWidget(vScreen);
+    TpWidget *childW = new TpWidget(vScreen);
 	childW->setBackGroundColor(_RGBA(100, 255, 100, 100));
 	childW->setRect(100, 100, 300, 300);
     childW->setRoundCorners(50);

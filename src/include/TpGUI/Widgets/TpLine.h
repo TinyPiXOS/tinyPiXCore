@@ -1,13 +1,13 @@
 #ifndef __TP_LINE_H
 #define __TP_LINE_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpString.h"
 #include "TpGlobal.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpLineData);
 /// @brief 分割线组件
-class TpLine : public TpChildWidget
+class TpLine : public TpWidget
 {
 public:
     enum LineType
@@ -17,7 +17,7 @@ public:
     };
 
 public:
-    TpLine(TpChildWidget *parent = nullptr);
+    TpLine(TpWidget *parent = nullptr);
     virtual ~TpLine();
 
     /// @brief 设置线类型是水平还是垂直,设置后会调整line组件的最小宽高

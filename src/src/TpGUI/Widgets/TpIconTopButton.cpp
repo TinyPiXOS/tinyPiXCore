@@ -12,14 +12,14 @@ struct TpIconTopButtonData
     TpLabel *textLabel;
 };
 
-TpIconTopButton::TpIconTopButton(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpIconTopButton::TpIconTopButton(TpWidget *parent)
+    : TpWidget(parent)
 {
     Init();
 }
 
-TpIconTopButton::TpIconTopButton(const TpString &iconPath, const TpString &text, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpIconTopButton::TpIconTopButton(const TpString &iconPath, const TpString &text, TpWidget *parent)
+    : TpWidget(parent)
 {
     Init();
 
@@ -103,7 +103,7 @@ void TpIconTopButton::setTextVisible(const bool &visible)
 
 void TpIconTopButton::setRoundCorners(const uint32_t &round)
 {
-    TpChildWidget::setRoundCorners(round);
+    TpWidget::setRoundCorners(round);
 
     TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
     buttonData->iconLabel->setRoundCorners(round);
@@ -111,12 +111,12 @@ void TpIconTopButton::setRoundCorners(const uint32_t &round)
 
 void TpIconTopButton::setParent(TpObject *parent)
 {
-    TpChildWidget::setParent(parent);
+    TpWidget::setParent(parent);
 }
 
 bool TpIconTopButton::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -128,7 +128,7 @@ bool TpIconTopButton::onMousePressEvent(TpMouseEvent *event)
 
 bool TpIconTopButton::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -151,14 +151,14 @@ bool TpIconTopButton::onMouseLongPressEvent(TpMouseEvent *event)
 
 bool TpIconTopButton::onLeaveEvent(TpLeaveEvent *event)
 {
-    TpChildWidget::onLeaveEvent(event);
+    TpWidget::onLeaveEvent(event);
 
     return true;
 }
 
 bool TpIconTopButton::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
 

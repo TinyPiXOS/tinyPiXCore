@@ -1,13 +1,13 @@
 #ifndef __TP_CAROUSE_BUTTON_H
 #define __TP_CAROUSE_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
 TP_DEF_VOID_TYPE_VAR(ITpCarouselButtonData);
 /// @brief 轮播按钮
-class TpCarouselButton : public TpChildWidget
+class TpCarouselButton : public TpWidget
 {
 public:
     /// @brief 显示模式
@@ -20,9 +20,9 @@ public:
     };
 
 public:
-    TpCarouselButton(TpChildWidget *parent = nullptr);
+    TpCarouselButton(TpWidget *parent = nullptr);
 
-    TpCarouselButton(const uint32_t &count, TpChildWidget *parent = nullptr);
+    TpCarouselButton(const uint32_t &count, TpWidget *parent = nullptr);
 
     virtual ~TpCarouselButton();
 

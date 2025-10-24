@@ -1,17 +1,17 @@
 #ifndef __TP_MEDIA_TILE_BUTTON_H
 #define __TP_MEDIA_TILE_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpMediaTileButtonData);
 
 /// @brief 多媒体磁铁开关按钮
-class TpMediaTileButton : public TpChildWidget
+class TpMediaTileButton : public TpWidget
 {
 public:
-    TpMediaTileButton(TpChildWidget *parent = nullptr);
+    TpMediaTileButton(TpWidget *parent = nullptr);
 
     virtual ~TpMediaTileButton();
 

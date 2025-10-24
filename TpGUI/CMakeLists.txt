@@ -15,11 +15,12 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Core/TpObject.cpp
-    ${SOURCE_PATH}/src/TpGUI/Core/TpChildWidget.cpp
+    ${SOURCE_PATH}/src/TpGUI/Core/TpWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/Core/TpEvent.cpp
     ${SOURCE_PATH}/src/TpGUI/Core/TpApp.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpScreen.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpFixScreen.cpp
+    ${SOURCE_PATH}/src/TpGUI/Screen/TpMainWindow.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpDialog.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpMenu.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLabel.cpp

@@ -1,8 +1,8 @@
 #include "TpTestLight.h"
 #include "TpPainter.h"
 
-TpTestLight::TpTestLight(TpChildWidget *parent)
-    : TpChildWidget(parent), maxCount_(4), count_(0)
+TpTestLight::TpTestLight(TpWidget *parent)
+    : TpWidget(parent), maxCount_(4), count_(0)
 {
 }
 
@@ -20,7 +20,7 @@ bool TpTestLight::onMousePressEvent(TpMouseEvent *event)
 
 bool TpTestLight::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *painter = event->painter();
 

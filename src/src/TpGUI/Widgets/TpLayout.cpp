@@ -9,11 +9,11 @@
 
 struct widgetItemData
 {
-	TpChildWidget *widget;
+	TpWidget *widget;
 
 	TpLayout *layout;
 	// 子布局的容器widget
-	TpChildWidget *layoutWidget;
+	TpWidget *layoutWidget;
 
 	TpSpacerItem *spacerItem;
 
@@ -76,7 +76,7 @@ static TpSize baseSize(const widgetItemData &item, bool isHorizontal)
 	return TpSize();
 }
 
-TpLayout::TpLayout(TpChildWidget *parent)
+TpLayout::TpLayout(TpWidget *parent)
 	: TpObject(parent)
 {
 	if (parent)
@@ -129,7 +129,7 @@ TpLayout::~TpLayout()
 	}
 }
 
-void TpLayout::addWidget(TpChildWidget *widget, int stretch)
+void TpLayout::addWidget(TpWidget *widget, int stretch)
 {
 	TpLayoutData *layoutData = static_cast<TpLayoutData *>(data_);
 
@@ -157,7 +157,7 @@ void TpLayout::addLayout(TpLayout *layout, int stretch)
 	curData.layout = layout;
 	curData.strech = stretch;
 
-	curData.layoutWidget = new TpChildWidget();
+	curData.layoutWidget = new TpWidget();
 	curData.layoutWidget->setLayout(curData.layout);
 	// curData.layoutWidget->setBackGroundColor(_RGB(0, 0, 0));
 
@@ -172,7 +172,7 @@ void TpLayout::addLayout(TpLayout *layout, int stretch)
 	update();
 }
 
-void TpLayout::insertWidget(uint32_t index, TpChildWidget *widget, int stretch)
+void TpLayout::insertWidget(uint32_t index, TpWidget *widget, int stretch)
 {
 	TpLayoutData *layoutData = static_cast<TpLayoutData *>(data_);
 
@@ -200,7 +200,7 @@ void TpLayout::insertLayout(uint32_t index, TpLayout *layout, int stretch)
 	curData.layout = layout;
 	curData.strech = stretch;
 
-	curData.layoutWidget = new TpChildWidget();
+	curData.layoutWidget = new TpWidget();
 	curData.layoutWidget->setLayout(curData.layout);
 
 	if (curData.strech == 0)
@@ -214,7 +214,7 @@ void TpLayout::insertLayout(uint32_t index, TpLayout *layout, int stretch)
 	update();
 }
 
-void TpLayout::removeWidget(TpChildWidget *widget)
+void TpLayout::removeWidget(TpWidget *widget)
 {
 	if (!widget)
 		return;
@@ -327,7 +327,7 @@ void TpLayout::update()
 		return;
 
 	// 获取父控件（通过tpChildWidget的parent()或存储的parent_）
-	TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(parent());
+	TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
 	if (!parentWidget)
 		return;
 
@@ -403,7 +403,7 @@ void TpLayout::update()
 
 	for (const auto &item : layoutData->widgetList)
 	{
-		TpChildWidget *operatorWidget = nullptr;
+		TpWidget *operatorWidget = nullptr;
 		if (item.widget)
 		{
 			operatorWidget = item.widget;
@@ -583,7 +583,7 @@ void TpLayout::update()
 		uint32_t itemWidth = isHorizon ? ((1.0 * item.strech / totalStretch) * remainingWidth) : availableWidth;
 		uint32_t itemHeight = isHorizon ? availableHeight : ((1.0 * item.strech / totalStretch) * remainingHeight);
 
-		TpChildWidget *operatorWidget = nullptr;
+		TpWidget *operatorWidget = nullptr;
 		if (item.widget)
 		{
 			operatorWidget = item.widget;
@@ -903,7 +903,7 @@ TpSize TpLayout::minumumSize()
 		return miniSize;
 
 	// 获取父控件（通过tpChildWidget的parent()或存储的parent_）
-	TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(parent());
+	TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
 	if (!parentWidget)
 		return miniSize;
 
@@ -935,7 +935,7 @@ TpSize TpLayout::minumumSize()
 
 	for (const auto &item : layoutData->widgetList)
 	{
-		TpChildWidget *operatorWidget = nullptr;
+		TpWidget *operatorWidget = nullptr;
 		if (item.widget)
 		{
 			operatorWidget = item.widget;

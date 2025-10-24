@@ -1,17 +1,17 @@
 #ifndef __TP_MUSIC_PLAYER_VIEW_H
 #define __TP_MUSIC_PLAYER_VIEW_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpImage.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpMusicPlayerViewData);
 /// @brief 音乐播放视图
-class TpMusicPlayerView : public TpChildWidget
+class TpMusicPlayerView : public TpWidget
 {
 public:
-    TpMusicPlayerView(TpChildWidget *parent = nullptr);
+    TpMusicPlayerView(TpWidget *parent = nullptr);
 
     virtual ~TpMusicPlayerView();
 

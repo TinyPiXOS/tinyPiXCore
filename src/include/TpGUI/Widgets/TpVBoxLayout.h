@@ -7,7 +7,7 @@ class TpVBoxLayout
     : public TpBoxLayout
 {
 public:
-    TpVBoxLayout(TpChildWidget *parent = nullptr);
+    TpVBoxLayout(TpWidget *parent = nullptr);
     virtual ~TpVBoxLayout() = default;
 };
 

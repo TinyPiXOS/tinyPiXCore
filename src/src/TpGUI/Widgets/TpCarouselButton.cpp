@@ -21,14 +21,14 @@ struct TpCarouselButtonData
     TpVector<TpRect> pointRectList;
 };
 
-TpCarouselButton::TpCarouselButton(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpCarouselButton::TpCarouselButton(TpWidget *parent)
+    : TpWidget(parent)
 {
     Init();
 }
 
-TpCarouselButton::TpCarouselButton(const uint32_t &maxCount, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpCarouselButton::TpCarouselButton(const uint32_t &maxCount, TpWidget *parent)
+    : TpWidget(parent)
 {
     Init();
 

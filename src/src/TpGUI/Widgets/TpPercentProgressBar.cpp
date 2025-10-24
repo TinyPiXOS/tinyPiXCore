@@ -31,8 +31,8 @@ struct TpPercentProgressBarData
     }
 };
 
-TpPercentProgressBar::TpPercentProgressBar(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpPercentProgressBar::TpPercentProgressBar(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpPercentProgressBarData *progressData = new TpPercentProgressBarData();
 
@@ -136,7 +136,7 @@ void TpPercentProgressBar::setItemValue(const uint32_t &index, const double &val
 
 bool TpPercentProgressBar::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPercentProgressBarData *progressData = static_cast<TpPercentProgressBarData *>(data_);
     if (progressData->totalValue == 0)
@@ -236,7 +236,7 @@ bool TpPercentProgressBar::onPaintEvent(TpPaintEvent *event)
 
 bool TpPercentProgressBar::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     return true;
 }

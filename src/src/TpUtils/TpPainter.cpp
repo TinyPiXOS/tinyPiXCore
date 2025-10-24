@@ -5,7 +5,7 @@
 #include "TpGradient_p.h"
 #include "TpPainter_p.h"
 #include "TpPainterPath_p.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 
 #include <thread>
 #include <cmath>
@@ -595,8 +595,8 @@ void TpPainter::sync(void *object)
 
     if (object)
     {
-        TpChildWidget *paintWidget = static_cast<TpChildWidget *>(object);
-        ItpObjectSet *paintWidgetData = static_cast<ItpObjectSet *>(paintWidget->objectSets());
+        TpWidget *paintWidget = static_cast<TpWidget *>(object);
+        TpObjectData *paintWidgetData = static_cast<TpObjectData *>(paintWidget->objectSets());
 
         paintWidgetData->grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
 

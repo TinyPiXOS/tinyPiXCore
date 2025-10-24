@@ -14,8 +14,8 @@ struct TpPanelSwitchButtonData
     bool isChecked = false;
 };
 
-TpPanelSwitchButton::TpPanelSwitchButton(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpPanelSwitchButton::TpPanelSwitchButton(TpWidget *parent)
+    : TpWidget(parent)
 {
     setEnabledBorderColor(false);
 
@@ -81,14 +81,14 @@ bool TpPanelSwitchButton::onResizeEvent(TpResizeEvent *event)
 
 bool TpPanelSwitchButton::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     return false;
 }
 
 bool TpPanelSwitchButton::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     onClicked.emit(checked());
 
@@ -100,7 +100,7 @@ bool TpPanelSwitchButton::onPaintEvent(TpPaintEvent *event)
     TpPanelSwitchButtonData *buttonData = static_cast<TpPanelSwitchButtonData *>(data_);
 
     // std::cout << "TpPanelSwitchButton::onPaintEvent " << std::endl;
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpPainter *paintCanvas = event->painter();
 
@@ -125,7 +125,7 @@ bool TpPanelSwitchButton::onPaintEvent(TpPaintEvent *event)
 
 bool TpPanelSwitchButton::onLeaveEvent(TpLeaveEvent *event)
 {
-    TpChildWidget::onLeaveEvent(event);
+    TpWidget::onLeaveEvent(event);
     // std::cout << " TpPanelSwitchButton::onLeaveEvent " << event->leave() << std::endl;
 
     return true;

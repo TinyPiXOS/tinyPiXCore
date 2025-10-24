@@ -1,7 +1,7 @@
 #ifndef __TP_VSCROLL_PANEL_H
 #define __TP_VSCROLL_PANEL_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpColors.h"
 #include "TpEvent.h"
@@ -9,10 +9,10 @@
 
 TP_DEF_VOID_TYPE_VAR(ItpScrollPanelData);
 
-class TpScrollPanel : public TpChildWidget
+class TpScrollPanel : public TpWidget
 {
 public:
-	TpScrollPanel(TpChildWidget *parent = nullptr);
+	TpScrollPanel(TpWidget *parent = nullptr);
 	virtual ~TpScrollPanel();
 
 public:
@@ -55,21 +55,21 @@ public:
 	/// @brief 向滚动窗口添加组件，组件坐标、宽高需外部手动设置
 	/// @param object 组件指针
 	/// @return 返回添加结果
-	virtual bool addObject(TpChildWidget *object); // object must position (x>=0, y>=0)
-	virtual bool delObject(TpChildWidget *object);
+	virtual bool addObject(TpWidget *object); // object must position (x>=0, y>=0)
+	virtual bool delObject(TpWidget *object);
 
 	/// @brief 设置滚动区域的窗口，内部会调整窗口充满滚动区域
 	/// @param widget 窗口指针
 	/// @return 添加结果
-	virtual bool setWidget(TpChildWidget *widget);
+	virtual bool setWidget(TpWidget *widget);
 
 	/// @brief 获取设置的滚动窗口
 	/// @return 窗口指针，不存在则返回空
-	TpChildWidget *widget();
+	TpWidget *widget();
 
 	/// @brief 获取滚动窗体内所有添加的子组件
 	/// @return 子组件列表
-	TpVector<TpChildWidget *> children();
+	TpVector<TpWidget *> children();
 
 	// 清除所有object，内部会直接释放指针
 	bool clearObject();

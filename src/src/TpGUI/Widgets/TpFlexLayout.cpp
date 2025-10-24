@@ -3,11 +3,11 @@
 
 struct ItemData
 {
-    TpChildWidget *widget;
+    TpWidget *widget;
 
     TpLayout *layout;
     // 子布局的容器widget
-    TpChildWidget *layoutWidget;
+    TpWidget *layoutWidget;
 
     ItemData()
         : widget(nullptr), layout(nullptr), layoutWidget(nullptr)
@@ -28,7 +28,7 @@ struct TpFlexLayoutData
     TpFlexLayout::AlignContent alignContent = TpFlexLayout::Stretch;
 };
 
-TpFlexLayout::TpFlexLayout(TpChildWidget *parent)
+TpFlexLayout::TpFlexLayout(TpWidget *parent)
     : TpLayout(parent)
 {
     TpFlexLayoutData *layoutData = new TpFlexLayoutData();
@@ -70,7 +70,7 @@ TpFlexLayout::~TpFlexLayout()
     }
 }
 
-void TpFlexLayout::addWidget(TpChildWidget *childWidget)
+void TpFlexLayout::addWidget(TpWidget *childWidget)
 {
     TpFlexLayoutData *flexData = static_cast<TpFlexLayoutData *>(data_);
 
@@ -89,7 +89,7 @@ void TpFlexLayout::addLayout(TpLayout *layout)
     ItemData itemData;
     itemData.layout = layout;
 
-    itemData.layoutWidget = new TpChildWidget();
+    itemData.layoutWidget = new TpWidget();
     itemData.layoutWidget->setLayout(itemData.layout);
 
     flexData->widgetList.emplace_back(itemData);
@@ -97,7 +97,7 @@ void TpFlexLayout::addLayout(TpLayout *layout)
     update();
 }
 
-void TpFlexLayout::insertWidget(uint32_t index, TpChildWidget *widget)
+void TpFlexLayout::insertWidget(uint32_t index, TpWidget *widget)
 {
     TpFlexLayoutData *flexData = static_cast<TpFlexLayoutData *>(data_);
 
@@ -116,7 +116,7 @@ void TpFlexLayout::insertLayout(uint32_t index, TpLayout *layout)
     ItemData itemData;
     itemData.layout = layout;
 
-    itemData.layoutWidget = new TpChildWidget();
+    itemData.layoutWidget = new TpWidget();
     itemData.layoutWidget->setLayout(itemData.layout);
 
     flexData->widgetList.insertData(index, itemData);
@@ -124,7 +124,7 @@ void TpFlexLayout::insertLayout(uint32_t index, TpLayout *layout)
     update();
 }
 
-void TpFlexLayout::removeWidget(TpChildWidget *widget)
+void TpFlexLayout::removeWidget(TpWidget *widget)
 {
     TpFlexLayoutData *flexData = static_cast<TpFlexLayoutData *>(data_);
     for (int i = 0; i < flexData->widgetList.size(); ++i)
@@ -206,7 +206,7 @@ void TpFlexLayout::update()
         return;
 
     // 获取父控件（通过tpChildWidget的parent()或存储的parent_）
-    TpChildWidget *parentWidget = dynamic_cast<TpChildWidget *>(parent());
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
     if (!parentWidget)
         return;
 
@@ -233,7 +233,7 @@ void TpFlexLayout::update()
     // 收集可见子项
     struct ItemInfo
     {
-        TpChildWidget *widget;
+        TpWidget *widget;
         int mainSize;
         int crossSize;
         bool isSpacer;
@@ -242,7 +242,7 @@ void TpFlexLayout::update()
 
     for (auto &item : flexData->widgetList)
     {
-        TpChildWidget *child = item.widget ? item.widget : item.layoutWidget;
+        TpWidget *child = item.widget ? item.widget : item.layoutWidget;
         if (!child || !child->visible())
             continue;
 

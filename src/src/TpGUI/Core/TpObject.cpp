@@ -1,6 +1,6 @@
 #include "TpObject.h"
 #include "TpAutoObject.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpEvent.h"
 #include "TpApp.h"
 #include "TpPainter.h"
@@ -21,7 +21,7 @@
 #include <mutex>
 #include <iostream>
 
-void disconnectAllSignal(ItpObjectSet *set)
+void disconnectAllSignal(TpObjectData *set)
 {
     // 断开所有槽函数连接
     std::lock_guard<std::mutex> lock(set->slotConnectMutex_);
@@ -37,7 +37,7 @@ void disconnectAllSignal(ItpObjectSet *set)
 
 TpObject::TpObject(TpObject *parent)
 {
-    ItpObjectSet *set = new ItpObjectSet();
+    TpObjectData *set = new TpObjectData();
 
     if (!set)
         return;
@@ -75,7 +75,7 @@ TpObject::~TpObject()
     if (!ret)
         return;
 
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
         return;
 
@@ -85,7 +85,7 @@ TpObject::~TpObject()
 
     if (set->parent)
     {
-        ItpObjectSet *parent_set = (ItpObjectSet *)set->parent->objectSets();
+        TpObjectData *parent_set = (TpObjectData *)set->parent->objectSets();
         delObject(parent_set, set->parent);
     }
 
@@ -97,14 +97,14 @@ TpObject::~TpObject()
 
 void TpObject::setProperty(const TpString &_name, const TpVariant &_value)
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     set->objPropertyMap[_name] = _value;
 }
 
 TpVariant TpObject::property(const TpString &_name)
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     if (set->objPropertyMap.contains(_name))
         return set->objPropertyMap[_name];
@@ -113,7 +113,7 @@ TpVariant TpObject::property(const TpString &_name)
 
 void TpObject::installEventFilter(TpObject *filterObj)
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
         return;
 
@@ -122,7 +122,7 @@ void TpObject::installEventFilter(TpObject *filterObj)
 
 void TpObject::uninstallEventFilter()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
         return;
 
@@ -131,7 +131,7 @@ void TpObject::uninstallEventFilter()
 
 TpObject *TpObject::eventFilterObject()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
         return nullptr;
 
@@ -145,7 +145,7 @@ bool TpObject::eventFilter(TpObject *watched, TpEvent *event)
 
 void TpObject::broadSetTop()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     if (set)
     {
@@ -155,7 +155,7 @@ void TpObject::broadSetTop()
 
 TpObject *TpObject::find(int32_t id)
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     TpObject *object = this;
 
     if (set)
@@ -176,7 +176,7 @@ TpObject *TpObject::find(int32_t id)
 void TpObject::deleteLater()
 {
     // 立刻终止信号槽绑定
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
         return;
 
@@ -187,7 +187,7 @@ void TpObject::deleteLater()
 
 int32_t TpObject::objectID()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     int32_t id = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -200,7 +200,7 @@ int32_t TpObject::objectID()
 
 TpList<TpObject *> &TpObject::objectList()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     TpList<TpObject *> *objectList = nullptr;
 
     if (set)
@@ -213,7 +213,7 @@ TpList<TpObject *> &TpObject::objectList()
 
 void TpObject::setParent(TpObject *parent)
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     if (!set)
         return;
@@ -224,13 +224,13 @@ void TpObject::setParent(TpObject *parent)
     // 如果已有父指针， 移除以前的父指针
     if (set->parent)
     {
-        ItpObjectSet *parentSet = (ItpObjectSet *)set->parent->objectSets();
+        TpObjectData *parentSet = (TpObjectData *)set->parent->objectSets();
         delObject(parentSet, this);
     }
 
     if (parent)
     {
-        ItpObjectSet *parentSet = (ItpObjectSet *)parent->objectSets();
+        TpObjectData *parentSet = (TpObjectData *)parent->objectSets();
         addObject(parentSet, this, parent);
     }
     else
@@ -243,7 +243,7 @@ void TpObject::setParent(TpObject *parent)
 
 TpObject *TpObject::parent()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     TpObject *parent = nullptr;
 
     if (set)
@@ -256,7 +256,7 @@ TpObject *TpObject::parent()
 
 TpObject *TpObject::topObject()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     TpObject *top = nullptr, *pParent = nullptr;
 
     if (!set)
@@ -295,7 +295,7 @@ TpObject *TpObject::topObject()
 
 ITpObjectData *TpObject::objectSets()
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
     ITpObjectData *sets = nullptr;
 
     if (set)
@@ -380,7 +380,7 @@ void TpObject::operator delete[](void *ptr)
 
 void TpObject::addConnection(void *signal, std::function<void()> disconnector)
 {
-    ItpObjectSet *set = static_cast<ItpObjectSet *>(data_);
+    TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     std::lock_guard<std::mutex> lock(set->slotConnectMutex_);
     set->slotConnections_[signal].push_back(disconnector);

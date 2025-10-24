@@ -1,15 +1,15 @@
 #ifndef __TP_LOTTIR_ANIMATION_H
 #define __TP_LOTTIR_ANIMATION_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpLottieAnimationData);
-class TpLottieAnimation : public TpChildWidget
+class TpLottieAnimation : public TpWidget
 {
 public:
-    TpLottieAnimation(TpChildWidget *parent = nullptr);
-    TpLottieAnimation(const TpString &lottieFile, TpChildWidget *parent = nullptr);
+    TpLottieAnimation(TpWidget *parent = nullptr);
+    TpLottieAnimation(const TpString &lottieFile, TpWidget *parent = nullptr);
     ~TpLottieAnimation();
 
     /// @brief 加载lottie动画

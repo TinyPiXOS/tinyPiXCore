@@ -1,7 +1,7 @@
 #ifndef __TP_ICON_TOP_BUTTON_H
 #define __TP_ICON_TOP_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpColors.h"
 #include "TpSignalSlot.h"
 #include <TpString.h>
@@ -10,12 +10,12 @@ TP_DEF_VOID_TYPE_VAR(ItpIconTopButtonData);
 
 class TpFont;
 /// @brief 图标按钮类，图标在上。文本在下;只需要设置iconSize即可，内部会自动根据icon大小调整整个按钮的大小
-class TpIconTopButton : public TpChildWidget
+class TpIconTopButton : public TpWidget
 {
 public:
-    TpIconTopButton(TpChildWidget *parent);
+    TpIconTopButton(TpWidget *parent);
 
-    TpIconTopButton(const TpString &iconPath, const TpString &text, TpChildWidget *parent);
+    TpIconTopButton(const TpString &iconPath, const TpString &text, TpWidget *parent);
 
     virtual ~TpIconTopButton();
 

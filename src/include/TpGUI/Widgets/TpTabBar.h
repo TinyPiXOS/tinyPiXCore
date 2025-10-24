@@ -1,16 +1,16 @@
 #ifndef __TP_TAB_BAR_H
 #define __TP_TAB_BAR_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpTabBarData);
 /// @brief 底部菜单,宽度设置暂时无效，跟随父窗口宽度变化
-class TpTabBar : public TpChildWidget
+class TpTabBar : public TpWidget
 {
 public:
-    TpTabBar(TpChildWidget *parent = nullptr);
+    TpTabBar(TpWidget *parent = nullptr);
 
     virtual ~TpTabBar();
 

@@ -1,7 +1,7 @@
 #ifndef __TP_VRADIO_BUTTON_H
 #define __TP_VRADIO_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpRadioButtonData);
@@ -10,11 +10,11 @@ class TpColors;
 class TpFont;
 class TpString;
 /// @brief 单选按钮
-class TpRadioButton : public TpChildWidget
+class TpRadioButton : public TpWidget
 {
 public:
-	TpRadioButton(TpChildWidget *parent = nullptr);
-	TpRadioButton(const TpString &text, TpChildWidget *parent = nullptr);
+	TpRadioButton(TpWidget *parent = nullptr);
+	TpRadioButton(const TpString &text, TpWidget *parent = nullptr);
 
 	virtual ~TpRadioButton();
 

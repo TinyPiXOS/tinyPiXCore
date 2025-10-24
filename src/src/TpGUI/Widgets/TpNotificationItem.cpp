@@ -29,8 +29,8 @@ struct TpNotificationItemData
     }
 };
 
-TpNotificationItem::TpNotificationItem(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpNotificationItem::TpNotificationItem(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpNotificationItemData *itemData = new TpNotificationItemData();
     data_ = itemData;

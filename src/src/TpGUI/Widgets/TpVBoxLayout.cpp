@@ -1,6 +1,6 @@
 #include "TpVBoxLayout.h"
 
-TpVBoxLayout::TpVBoxLayout(TpChildWidget *parent)
+TpVBoxLayout::TpVBoxLayout(TpWidget *parent)
     : TpBoxLayout(parent, TpBoxLayout::TopToBottom)
 {
 }

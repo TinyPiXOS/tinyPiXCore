@@ -1,12 +1,12 @@
 #ifndef __TP_PROGRESS_BAR_H
 #define __TP_PROGRESS_BAR_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpProgressBarData);
 /// @brief 进度条组件；用于显示进度，不可操作
-class TpProgressBar : public TpChildWidget
+class TpProgressBar : public TpWidget
 {
 public:
     /// @brief 进度条方向
@@ -17,7 +17,7 @@ public:
     };
 
 public:
-    TpProgressBar(TpChildWidget *parent = nullptr, const Direct &direct = Horizon);
+    TpProgressBar(TpWidget *parent = nullptr, const Direct &direct = Horizon);
     virtual ~TpProgressBar();
 
     /// @brief 设置取值范围

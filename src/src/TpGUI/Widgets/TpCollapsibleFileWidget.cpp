@@ -41,7 +41,7 @@ struct TpCollapsibleFileWidgetData
     TpCheckBox *selectAllItem;
 
     // 显示所有文件列表的窗口
-    TpChildWidget *fileListWidget;
+    TpWidget *fileListWidget;
 
     // 主布局
     TpVBoxLayout *mainLayout;
@@ -56,8 +56,8 @@ struct TpCollapsibleFileWidgetData
     TpCollapsibleFileWidget::SelectMode selectMode = TpCollapsibleFileWidget::Normal;
 };
 
-TpCollapsibleFileWidget::TpCollapsibleFileWidget(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpCollapsibleFileWidget::TpCollapsibleFileWidget(TpWidget *parent)
+    : TpWidget(parent)
 {
     setCheckable(true);
     refreshBaseCss();
@@ -242,7 +242,7 @@ bool TpCollapsibleFileWidget::onResizeEvent(TpResizeEvent *event)
 
 bool TpCollapsibleFileWidget::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -252,7 +252,7 @@ bool TpCollapsibleFileWidget::onMousePressEvent(TpMouseEvent *event)
 
 bool TpCollapsibleFileWidget::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
@@ -306,7 +306,7 @@ bool TpCollapsibleFileWidget::onPaintEvent(TpPaintEvent *event)
 {
     // std::cout << "TpCollapsibleFileWidget::onPaintEvent " << std::endl;
 
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpCollapsibleFileWidgetData *widgetData = static_cast<TpCollapsibleFileWidgetData *>(data_);
     if (!widgetData)

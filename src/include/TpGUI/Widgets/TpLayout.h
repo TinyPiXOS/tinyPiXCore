@@ -1,7 +1,7 @@
 #ifndef __TP_LAYOUT_H
 #define __TP_LAYOUT_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSpacerItem.h"
 #include "TpSignalSlot.h"
 
@@ -10,14 +10,14 @@ class TpLayout
 	: public TpObject
 {
 public:
-	TpLayout(TpChildWidget *parent = nullptr);
+	TpLayout(TpWidget *parent = nullptr);
 
 	virtual ~TpLayout();
 
 	/// @brief 向布局内添加窗口
 	/// @param widget 窗口指针
 	/// @param stretch 缩放比例
-	virtual void addWidget(TpChildWidget *widget, int stretch = 1);
+	virtual void addWidget(TpWidget *widget, int stretch = 1);
 
 	/// @brief 向布局内添加布局
 	/// @param layout 布局指针
@@ -28,7 +28,7 @@ public:
 	/// @param index 插入索引，从0开始
 	/// @param widget 窗口指针
 	/// @param stretch 缩放比例
-	virtual void insertWidget(uint32_t index, TpChildWidget *widget, int stretch = 1);
+	virtual void insertWidget(uint32_t index, TpWidget *widget, int stretch = 1);
 
 	/// @brief 插入一个布局
 	/// @param index 插入索引，从0开始
@@ -38,7 +38,7 @@ public:
 
 	/// @brief 从布局移除一个指定widget，不会释放指针
 	/// @param widget widget指针
-	virtual void removeWidget(TpChildWidget *widget);
+	virtual void removeWidget(TpWidget *widget);
 
 	/// @brief 从布局移除一个子布局，不会释放指针
 	/// @param layout 布局指针

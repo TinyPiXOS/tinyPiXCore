@@ -6,7 +6,7 @@ struct TpTabWidgetData
 {
     // 没有用布局管理tabbar，因为考虑未来调整bar在上下左右四个方向，用布局后期修改麻烦
     TpTabBar *tabBar;
-    TpVector<TpChildWidget *> tabWidgetList;
+    TpVector<TpWidget *> tabWidgetList;
 
     TpTabWidgetData()
     {
@@ -20,8 +20,8 @@ struct TpTabWidgetData
     }
 };
 
-TpTabWidget::TpTabWidget(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpTabWidget::TpTabWidget(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpTabWidgetData *widgetData = new TpTabWidgetData();
 
@@ -44,7 +44,7 @@ TpTabWidget::~TpTabWidget()
     }
 }
 
-int32_t TpTabWidget::addTab(TpChildWidget *widget, const TpString &text)
+int32_t TpTabWidget::addTab(TpWidget *widget, const TpString &text)
 {
     TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
 
@@ -65,7 +65,7 @@ int32_t TpTabWidget::addTab(TpChildWidget *widget, const TpString &text)
     return widgetData->tabWidgetList.size();
 }
 
-int32_t TpTabWidget::insertTab(int32_t index, TpChildWidget *widget, const TpString &text)
+int32_t TpTabWidget::insertTab(int32_t index, TpWidget *widget, const TpString &text)
 {
     TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
 
@@ -113,7 +113,7 @@ int32_t TpTabWidget::currentIndex() const
     return widgetData->tabBar->currendIndex();
 }
 
-TpChildWidget *TpTabWidget::currentWidget() const
+TpWidget *TpTabWidget::currentWidget() const
 {
     TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
 
@@ -124,7 +124,7 @@ TpChildWidget *TpTabWidget::currentWidget() const
     return widgetData->tabWidgetList.at(curIndex);
 }
 
-TpChildWidget *TpTabWidget::widget(int32_t index) const
+TpWidget *TpTabWidget::widget(int32_t index) const
 {
     TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
     if (index >= widgetData->tabWidgetList.size())
@@ -133,12 +133,12 @@ TpChildWidget *TpTabWidget::widget(int32_t index) const
     return widgetData->tabWidgetList.at(index);
 }
 
-int32_t TpTabWidget::indexOf(TpChildWidget *widget) const
+int32_t TpTabWidget::indexOf(TpWidget *widget) const
 {
     TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
     for (int i = 0; i < widgetData->tabWidgetList.size(); ++i)
     {
-        TpChildWidget *curWidget = widgetData->tabWidgetList.at(i);
+        TpWidget *curWidget = widgetData->tabWidgetList.at(i);
         if (curWidget == widget)
             return i;
     }
@@ -171,7 +171,7 @@ void TpTabWidget::setCurrentIndex(int32_t index)
 {
 }
 
-void TpTabWidget::setCurrentWidget(TpChildWidget *widget)
+void TpTabWidget::setCurrentWidget(TpWidget *widget)
 {
 }
 
@@ -194,7 +194,7 @@ bool TpTabWidget::onMoveEvent(TpMoveEvent *event)
 
 bool TpTabWidget::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     return true;
 }
@@ -213,7 +213,7 @@ void TpTabWidget::slotTabBarIndexChanged(uint32_t index)
 
     for (int i = 0; i < widgetData->tabWidgetList.size(); ++i)
     {
-        TpChildWidget *curWidget = widgetData->tabWidgetList.at(i);
+        TpWidget *curWidget = widgetData->tabWidgetList.at(i);
         if (i == index)
         {
             if (curWidget)

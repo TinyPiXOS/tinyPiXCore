@@ -9,7 +9,7 @@ TP_DEF_VOID_TYPE_VAR(ItpFilePathWidgetItemData);
 class TpFilePathWidgetItem : public TpLabel
 {
 public:
-    TpFilePathWidgetItem(TpChildWidget *parent = nullptr);
+    TpFilePathWidgetItem(TpWidget *parent = nullptr);
 
     virtual ~TpFilePathWidgetItem();
 

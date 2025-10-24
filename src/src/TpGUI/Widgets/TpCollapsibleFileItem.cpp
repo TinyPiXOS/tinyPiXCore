@@ -107,8 +107,8 @@ TpString parseIconPath(const TpString &suffix, const bool &isDir)
         return resPath + "未知.png";
 }
 
-TpCollapsibleFileItem::TpCollapsibleFileItem(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpCollapsibleFileItem::TpCollapsibleFileItem(TpWidget *parent)
+    : TpWidget(parent)
 {
     tpShared<TpCssData> curCssData = currentStatusCss();
 
@@ -249,7 +249,7 @@ void TpCollapsibleFileItem::setSelected(const bool &selected)
 
 bool TpCollapsibleFileItem::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
 
@@ -260,7 +260,7 @@ bool TpCollapsibleFileItem::onMousePressEvent(TpMouseEvent *event)
 
 bool TpCollapsibleFileItem::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
 
@@ -272,7 +272,7 @@ bool TpCollapsibleFileItem::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpCollapsibleFileItem::onMouseMoveEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseMoveEvent(event);
+    TpWidget::onMouseMoveEvent(event);
 
     if (event->state())
     {
@@ -285,7 +285,7 @@ bool TpCollapsibleFileItem::onMouseMoveEvent(TpMouseEvent *event)
 
 bool TpCollapsibleFileItem::onLeaveEvent(TpLeaveEvent *event)
 {
-    TpChildWidget::onLeaveEvent(event);
+    TpWidget::onLeaveEvent(event);
 
     TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
     itemData->isTrigger = false;
@@ -295,7 +295,7 @@ bool TpCollapsibleFileItem::onLeaveEvent(TpLeaveEvent *event)
 
 bool TpCollapsibleFileItem::onMoveEvent(TpMoveEvent *event)
 {
-    TpChildWidget::onMoveEvent(event);
+    TpWidget::onMoveEvent(event);
 
     // TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
     // itemData->selectCbx->move(itemData->iconLabel->width() - itemData->selectCbx->width() - 6, itemData->iconLabel->height() - itemData->selectCbx->height() - 6);
@@ -305,7 +305,7 @@ bool TpCollapsibleFileItem::onMoveEvent(TpMoveEvent *event)
 
 bool TpCollapsibleFileItem::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
 

@@ -67,8 +67,8 @@ static inline TpString weatherIconPath(const TpWeatherInfoPanel::WeatherType &we
     return iconRootPath + "晴天.png";
 }
 
-TpWeatherInfoPanel::TpWeatherInfoPanel(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpWeatherInfoPanel::TpWeatherInfoPanel(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpWeatherInfoPanelData *weatherData = new TpWeatherInfoPanelData();
     data_ = weatherData;
@@ -138,7 +138,7 @@ bool TpWeatherInfoPanel::setWeatherInfo(const int32_t &index, const TpWeatherInf
 
 bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpWeatherInfoPanelData *weatherData = static_cast<TpWeatherInfoPanelData *>(data_);
 
@@ -208,7 +208,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
 
 bool TpWeatherInfoPanel::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     return true;
 }

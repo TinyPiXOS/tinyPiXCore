@@ -18,8 +18,8 @@ struct TpMusicPlayerViewData
     bool isPlaying = false;
 };
 
-TpMusicPlayerView::TpMusicPlayerView(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpMusicPlayerView::TpMusicPlayerView(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpMusicPlayerViewData *musicData = new TpMusicPlayerViewData();
     data_ = musicData;
@@ -136,7 +136,7 @@ void TpMusicPlayerView::setImage(TpImage image)
 
 bool TpMusicPlayerView::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     return true;
 }

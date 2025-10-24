@@ -19,8 +19,8 @@ struct TpLineData
     bool isAuto = true;
 };
 
-TpLine::TpLine(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpLine::TpLine(TpWidget *parent)
+    : TpWidget(parent)
 {
     data_ = new TpLineData();
 }
@@ -126,7 +126,7 @@ void TpLine::setLineWidth(const uint32_t &width)
 
 bool TpLine::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpLineData *lineData = static_cast<TpLineData *>(data_);
 
@@ -275,7 +275,7 @@ bool TpLine::onPaintEvent(TpPaintEvent *event)
 
 bool TpLine::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
     TpLineData *lineData = static_cast<TpLineData *>(data_);
 
     if (lineData->isPercent)

@@ -1,7 +1,7 @@
 #ifndef __TP_COLLAPSIBLE_FILE_WIDGET_H
 #define __TP_COLLAPSIBLE_FILE_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpEvent.h"
 #include "TpCollapsibleFileItem.h"
 
@@ -9,7 +9,7 @@ TP_DEF_VOID_TYPE_VAR(ItpCollapsibleFileWidgetData);
 
 /// @brief 可折叠文件窗口
 class TpCollapsibleFileWidget
-    : public TpChildWidget
+    : public TpWidget
 {
 public:
     enum SelectMode
@@ -19,7 +19,7 @@ public:
     };
 
 public:
-    TpCollapsibleFileWidget(TpChildWidget *parent = nullptr);
+    TpCollapsibleFileWidget(TpWidget *parent = nullptr);
     ~TpCollapsibleFileWidget();
 
     /// @brief 设置选中状态

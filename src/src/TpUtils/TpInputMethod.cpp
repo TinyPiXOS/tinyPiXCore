@@ -1,6 +1,6 @@
 #include "TpInputMethod.h"
 #include "TpPainter.h"
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpApp.h"
 #include "rime/rime_api.h"
 #include <thread>

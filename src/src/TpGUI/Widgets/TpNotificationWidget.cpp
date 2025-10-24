@@ -35,8 +35,8 @@ struct TpNotificationWidgetData
     TpFont m_content_font; // 内容字体
 };
 
-TpNotificationWidget::TpNotificationWidget(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpNotificationWidget::TpNotificationWidget(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpNotificationWidgetData *widgetData = new TpNotificationWidgetData();
     data_ = widgetData;

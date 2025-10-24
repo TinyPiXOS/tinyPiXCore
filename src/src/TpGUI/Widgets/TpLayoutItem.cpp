@@ -3,7 +3,7 @@
 
 struct TpLayoutItemData
 {
-	TpChildWidget *widget = nullptr;
+	TpWidget *widget = nullptr;
 	TpLayout *layout = nullptr;
 
     TpLayoutItem::ItemType type;
@@ -18,7 +18,7 @@ TpLayoutItem::TpLayoutItem(const ItemType& type)
     data_ = itemData;
 }
 
-TpChildWidget *TpLayoutItem::widget()
+TpWidget *TpLayoutItem::widget()
 {
     return nullptr;
 }

@@ -20,8 +20,8 @@ struct TpFilePathWidgetData
     TpString curPath = "";
 };
 
-TpFilePathWidget::TpFilePathWidget(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpFilePathWidget::TpFilePathWidget(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpFilePathWidgetData *buttonData = new TpFilePathWidgetData();
     buttonData->arrowSurface.load("/usr/res/TinyPiX/箭头-右.png");
@@ -163,14 +163,14 @@ TpString TpFilePathWidget::path()
 
 bool TpFilePathWidget::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     return true;
 }
 
 bool TpFilePathWidget::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
     if (buttonData->curClickedItem)
@@ -190,7 +190,7 @@ bool TpFilePathWidget::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpFilePathWidget::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
     if (buttonData->pathLabelList.size() == 0)
@@ -249,7 +249,7 @@ bool TpFilePathWidget::onPaintEvent(TpPaintEvent *event)
 
 bool TpFilePathWidget::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
     for (int i = 0; i < buttonData->pathLabelList.size(); ++i)

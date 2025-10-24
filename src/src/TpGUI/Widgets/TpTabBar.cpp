@@ -29,15 +29,15 @@ struct TpTabBarData
     TpVector<singleButtonData> buttonGroup;
 };
 
-TpTabBar::TpTabBar(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpTabBar::TpTabBar(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpTabBarData *menuData = new TpTabBarData();
     data_ = menuData;
 
     refreshBaseCss();
 
-    // TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(parent);
+    // TpWidget *parentPtr = dynamic_cast<TpWidget *>(parent);
     // if (parentPtr)
     // {
     //     setWidth(parentPtr->width());
@@ -300,7 +300,7 @@ bool TpTabBar::onMousePressEvent(TpMouseEvent *event)
 
 bool TpTabBar::onResizeEvent(TpResizeEvent *event)
 {
-    // TpChildWidget *parentPtr = dynamic_cast<TpChildWidget *>(parent());
+    // TpWidget *parentPtr = dynamic_cast<TpWidget *>(parent());
 
     // if (parentPtr)
     // {
@@ -314,7 +314,7 @@ bool TpTabBar::onResizeEvent(TpResizeEvent *event)
 
 bool TpTabBar::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpTabBarData *menuData = static_cast<TpTabBarData *>(data_);
 

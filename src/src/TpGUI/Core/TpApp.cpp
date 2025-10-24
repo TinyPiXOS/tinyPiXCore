@@ -114,11 +114,11 @@ bool TpApp::bindVScreen(TpScreen *object)
     if (!object)
         return false;
 
-    if (object->objectType() != Tp::TP_TOP_OBJECT)
-    {
-        std::cout << "bind screen type error !" << std::endl;
-        return false;
-    }
+    // if (object->objectType() != Tp::TP_TOP_OBJECT)
+    // {
+    //     std::cout << "bind screen type error !" << std::endl;
+    //     return false;
+    // }
 
     if (set->vScreen)
     {
@@ -262,7 +262,7 @@ TpImage TpApp::grabWindow()
     return TpImage();
 }
 
-void TpApp::wakeUpVirtualKeyboard(TpChildWidget *object)
+void TpApp::wakeUpVirtualKeyboard(TpWidget *object)
 {
     if (!object)
         return;
@@ -335,7 +335,7 @@ bool TpApp::sendRegister(TpObject *object)
 
     if (object->objectType() == Tp::TP_FLOAT_OBJECT)
     {
-        TpChildWidget *floatScreenWidget = dynamic_cast<TpChildWidget *>(object);
+        TpWidget *floatScreenWidget = dynamic_cast<TpWidget *>(object);
         if (floatScreenWidget)
             set->floatScreenList.emplace_back(floatScreenWidget);
     }
@@ -487,7 +487,7 @@ void TpApp::postEvent(std::function<void()> task)
     }
 }
 
-void TpApp::postUpdateEvent(TpChildWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit)
+void TpApp::postUpdateEvent(TpWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit)
 {
     if (!updateObj)
         return;

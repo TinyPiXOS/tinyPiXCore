@@ -1,16 +1,16 @@
 #ifndef __TP_PANEL_SWITCH_BUTTON_H
 #define __TP_PANEL_SWITCH_BUTTON_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpPanelSwitchButtonData);
 
-class TpPanelSwitchButton : public TpChildWidget
+class TpPanelSwitchButton : public TpWidget
 {
 public:
-    TpPanelSwitchButton(TpChildWidget *parent);
+    TpPanelSwitchButton(TpWidget *parent);
 
     virtual ~TpPanelSwitchButton();
 

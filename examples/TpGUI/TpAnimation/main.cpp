@@ -15,7 +15,7 @@ int32_t main(int32_t argc, char *argv[])
 
 	// 效果展示窗体
 	TpDialog *exampleWidget = new TpDialog();
-	// TpChildWidget *exampleWidget = new TpChildWidget(vScreen);
+	// TpWidget *exampleWidget = new TpWidget(vScreen);
 	exampleWidget->setBackGroundColor(_RGB(255, 255, 255));
 	exampleWidget->setRect(350, 20, 100, 100);
 

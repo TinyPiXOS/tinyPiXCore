@@ -1,7 +1,7 @@
 #ifndef __TP_MENU_PANEL_WIDGET_H
 #define __TP_MENU_PANEL_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpMenuPanelItem.h"
@@ -9,10 +9,10 @@
 TP_DEF_VOID_TYPE_VAR(ItpMenuPanelWidgetData);
 
 /// @brief 菜单面板窗体,item只能单选；失去焦点时取消所有选中；选中后不可取消选中
-class TpMenuPanelWidget : public TpChildWidget
+class TpMenuPanelWidget : public TpWidget
 {
 public:
-    TpMenuPanelWidget(TpChildWidget *parent = nullptr);
+    TpMenuPanelWidget(TpWidget *parent = nullptr);
 
     virtual ~TpMenuPanelWidget();
 

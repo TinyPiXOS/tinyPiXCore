@@ -1,14 +1,14 @@
 #ifndef __TP_PERCENT_PROGRESS_H
 #define __TP_PERCENT_PROGRESS_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpPercentProgressBarData);
 /// @brief 百分比显示的进度条
-class TpPercentProgressBar : public TpChildWidget
+class TpPercentProgressBar : public TpWidget
 {
 public:
-    TpPercentProgressBar(TpChildWidget *parent = nullptr);
+    TpPercentProgressBar(TpWidget *parent = nullptr);
     virtual ~TpPercentProgressBar();
 
 public:

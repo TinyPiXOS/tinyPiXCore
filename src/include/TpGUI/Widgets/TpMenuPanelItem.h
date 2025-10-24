@@ -1,17 +1,17 @@
 #ifndef __TP_MENU_PANEL_ITEM_H
 #define __TP_MENU_PANEL_ITEM_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpMenuPanelItemData);
 
 /// @brief 菜单面板Item单元
-class TpMenuPanelItem : public TpChildWidget
+class TpMenuPanelItem : public TpWidget
 {
 public:
-    TpMenuPanelItem(TpChildWidget *parent = nullptr);
+    TpMenuPanelItem(TpWidget *parent = nullptr);
 
     virtual ~TpMenuPanelItem();
 
@@ -29,11 +29,11 @@ public:
 
     /// @brief 设置自定义窗体，窗体会被添加到最右侧，会覆盖子标题和末尾箭头，给入空则会清除自定义窗体
     /// @param widget 窗体指针
-    void setCustomizeWidget(TpChildWidget *widget);
+    void setCustomizeWidget(TpWidget *widget);
 
     /// @brief 获取自定义窗体；无则返回nullptr
     /// @return 自定义窗体指针
-    TpChildWidget* customizeWidget();
+    TpWidget* customizeWidget();
 
 public
 signals:

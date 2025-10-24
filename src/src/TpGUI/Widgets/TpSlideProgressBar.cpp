@@ -23,8 +23,8 @@ struct TpSlideProgressBarData
     }
 };
 
-TpSlideProgressBar::TpSlideProgressBar(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpSlideProgressBar::TpSlideProgressBar(TpWidget *parent)
+    : TpWidget(parent)
 {
     data_ = new TpSlideProgressBarData();
 
@@ -98,12 +98,12 @@ void TpSlideProgressBar::setParent(TpObject *parent)
         }
     }
 
-    TpChildWidget::setParent(parent);
+    TpWidget::setParent(parent);
 }
 
 bool TpSlideProgressBar::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
 
@@ -118,7 +118,7 @@ bool TpSlideProgressBar::onMousePressEvent(TpMouseEvent *event)
 
 bool TpSlideProgressBar::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
 
@@ -132,7 +132,7 @@ bool TpSlideProgressBar::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpSlideProgressBar::onMouseMoveEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseMoveEvent(event);
+    TpWidget::onMouseMoveEvent(event);
 
     TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
     if (progressData->mouseLeftPress)
@@ -168,21 +168,21 @@ bool TpSlideProgressBar::onLeaveEvent(TpLeaveEvent *event)
     // TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
     // progressData->mouseLeftPress = false;
 
-    TpChildWidget::onLeaveEvent(event);
+    TpWidget::onLeaveEvent(event);
 
     return true;
 }
 
 bool TpSlideProgressBar::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     return true;
 }
 
 bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
 

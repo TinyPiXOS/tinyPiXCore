@@ -1,16 +1,16 @@
 #ifndef __TP_CIRCULAR_PROGRESS_BAR_H
 #define __TP_CIRCULAR_PROGRESS_BAR_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpCircularProgressBarData);
 /// @brief 环形进度条
-class TpCircularProgressBar : public TpChildWidget
+class TpCircularProgressBar : public TpWidget
 {
 public:
-	TpCircularProgressBar(TpChildWidget *parent = nullptr);
+	TpCircularProgressBar(TpWidget *parent = nullptr);
 
 	virtual ~TpCircularProgressBar();
 

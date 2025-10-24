@@ -10,8 +10,8 @@ struct TpListCheckBoxGroupItemData
     TpLabel *selectIconLabel;
 };
 
-TpListWidgetItem::TpListWidgetItem(TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpListWidgetItem::TpListWidgetItem(TpWidget *parent)
+    : TpWidget(parent)
 {
     TpListCheckBoxGroupItemData *itemData = new TpListCheckBoxGroupItemData();
 
@@ -36,8 +36,8 @@ TpListWidgetItem::TpListWidgetItem(TpChildWidget *parent)
     setCheckable(true);
 }
 
-TpListWidgetItem::TpListWidgetItem(const TpString &text, TpChildWidget *parent)
-    : TpChildWidget(parent)
+TpListWidgetItem::TpListWidgetItem(const TpString &text, TpWidget *parent)
+    : TpWidget(parent)
 {
     TpListCheckBoxGroupItemData *itemData = new TpListCheckBoxGroupItemData();
 
@@ -109,7 +109,7 @@ void TpListWidgetItem::setData(const TpVariant &data)
 
 bool TpListWidgetItem::onPaintEvent(TpPaintEvent *event)
 {
-    TpChildWidget::onPaintEvent(event);
+    TpWidget::onPaintEvent(event);
 
     TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
 
@@ -125,14 +125,14 @@ bool TpListWidgetItem::onPaintEvent(TpPaintEvent *event)
 
 bool TpListWidgetItem::onMousePressEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMousePressEvent(event);
+    TpWidget::onMousePressEvent(event);
 
     return true;
 }
 
 bool TpListWidgetItem::onMouseRleaseEvent(TpMouseEvent *event)
 {
-    TpChildWidget::onMouseRleaseEvent(event);
+    TpWidget::onMouseRleaseEvent(event);
 
     onStatusChanged.emit(this);
 
@@ -141,7 +141,7 @@ bool TpListWidgetItem::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpListWidgetItem::onResizeEvent(TpResizeEvent *event)
 {
-    TpChildWidget::onResizeEvent(event);
+    TpWidget::onResizeEvent(event);
 
     TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
     tpShared<TpCssData> normalCss = currentStatusCss();

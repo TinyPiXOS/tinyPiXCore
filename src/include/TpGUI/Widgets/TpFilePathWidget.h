@@ -1,7 +1,7 @@
 #ifndef __TP_FILE_PATH_WIDGET_H
 #define __TP_FILE_PATH_WIDGET_H
 
-#include "TpChildWidget.h"
+#include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpString.h"
 #include "TpFilePathWidgetItem.h"
@@ -9,10 +9,10 @@
 TP_DEF_VOID_TYPE_VAR(ItpFilePathWidgetData);
 
 /// @brief 路径显示按钮类
-class TpFilePathWidget : public TpChildWidget
+class TpFilePathWidget : public TpWidget
 {
 public:
-    TpFilePathWidget(TpChildWidget *parent = nullptr);
+    TpFilePathWidget(TpWidget *parent = nullptr);
 
     virtual ~TpFilePathWidget();
 
