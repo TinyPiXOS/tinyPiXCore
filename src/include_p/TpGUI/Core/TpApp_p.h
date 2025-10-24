@@ -337,6 +337,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
     TpMap<IPiWFApiAgent *, TpRect> pixwmMergeUpdateRect;
     TpMap<TpChildWidget *, ItpObjectPaintInput> mergeUpdateWidget;
+    // std::pair<TpChildWidget *, ItpObjectPaintInput> fixScreenPair;
+    // fixScreenPair.first = nullptr;
 
     while (!updateCommandQueue.empty())
     {
@@ -369,8 +371,16 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         if (mergeUpdateWidget.contains(task.updateObj))
         {
             TpRect taskRect(task.x, task.y, task.w, task.h);
-            ItpObjectPaintInput &paintInfo = mergeUpdateWidget[task.updateObj];
-            paintInfo.updateRect.unions(taskRect);
+
+            // if (task.updateObj->objectType() == Tp::TP_TOP_OBJECT)
+            // {
+            //     fixScreenPair.second.updateRect.unions(taskRect);
+            // }
+            // else
+            {
+                ItpObjectPaintInput &paintInfo = mergeUpdateWidget[task.updateObj];
+                paintInfo.updateRect.unions(taskRect);
+            }
         }
         else
         {
@@ -390,9 +400,33 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             paintInput.updateRect.setWidth(task.w);
             paintInput.updateRect.setHeight(task.h);
 
-            mergeUpdateWidget[task.updateObj] = paintInput;
+            // if (task.updateObj->objectType() == Tp::TP_TOP_OBJECT)
+            // {
+            //     fixScreenPair.first = task.updateObj;
+            //     fixScreenPair.second = paintInput;
+            // }
+            // else
+            {
+
+                mergeUpdateWidget[task.updateObj] = paintInput;
+            }
         }
     }
+
+    // // 先绘制fixscreen
+    // if (fixScreenPair.first)
+    // {
+    //     ItpObjectSet *updateObjSet = static_cast<ItpObjectSet *>(fixScreenPair.first->objectSets());
+    //     ItpObjectSet *topScreenSet = static_cast<ItpObjectSet *>(updateObjSet->top->objectSets());
+
+    //     ItpObjectPaintInput paintInput = fixScreenPair.second;
+
+    //     tinyPiX_wf_lock_mutex(topScreenSet->agent);
+
+    //     drawWidget(paintInput, fixScreenPair.first);
+
+    //     tinyPiX_wf_unlock_mutex(topScreenSet->agent);
+    // }
 
     for (const auto &updateWidgetIter : mergeUpdateWidget)
     {
