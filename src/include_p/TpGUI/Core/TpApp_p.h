@@ -23,7 +23,7 @@
 #include "TpMap.h"
 #include "TpRect.h"
 #include "TpObjectFunction.hpp"
-#include "TpFixScreen.h"
+#include "TpMainWindow.h"
 #include "TpShareMemory.h"
 #include "thorVG/thorvg.h"
 

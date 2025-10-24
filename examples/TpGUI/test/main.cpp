@@ -1,5 +1,5 @@
 #include "TpApp.h"
-#include "TpFixScreen.h"
+#include "TpMainWindow.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
 #include "TpUtils.h"
@@ -197,7 +197,7 @@ int32_t main(int32_t argc, char *argv[])
 
     TpMainWindow *vScreen = new TpMainWindow();
 
-    // TpFixScreen *vScreen = new TpFixScreen();
+    // TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));

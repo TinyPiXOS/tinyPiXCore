@@ -1,5 +1,5 @@
 #include "TpApp.h"
-#include "TpFixScreen.h"
+#include "TpMainWindow.h"
 #include "TpColors.h"
 #include "TpLabel.h"
 #include "TpDialog.h"
@@ -9,7 +9,7 @@
 int32_t main(int32_t argc, char *argv[])
 {
     TpApp app(argc, argv);
-    TpFixScreen *vScreen = new TpFixScreen();
+    TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(226, 226, 226, 255));
     app.bindVScreen(vScreen);
     vScreen->update();
