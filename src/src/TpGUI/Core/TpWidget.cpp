@@ -882,6 +882,7 @@ void TpWidget::setGraphicsEffect(const TpGraphicsBlurEffect &blurEffect)
         return;
     set->enableBlur = true;
     set->blurEffect = blurEffect;
+    update();
 }
 
 TpGraphicsBlurEffect TpWidget::graphicsEffect()
@@ -892,16 +893,17 @@ TpGraphicsBlurEffect TpWidget::graphicsEffect()
     return set->blurEffect;
 }
 
-void TpWidget::setEnableBlur(const bool &enable)
+void TpWidget::setEnableGraphicsEffect(const bool &enable)
 {
     TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     if (!set)
         return;
 
     set->enableBlur = enable;
+    update();
 }
 
-bool TpWidget::enableBlur()
+bool TpWidget::enableGraphicsEffect()
 {
     TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     if (!set)

@@ -54,7 +54,7 @@
                 "-lTpGUI", 
                 "-lTpExtUtils",
                 "-lrime", 
-                "-lTpAPI"
+                ""
             ],
             "options": {
                 "cwd": "${fileDirname}"

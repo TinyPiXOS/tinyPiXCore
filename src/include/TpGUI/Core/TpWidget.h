@@ -316,11 +316,11 @@ public:
 
     /// @brief 设置启用/禁用背景模糊
     /// @param enable 是否启用背景模糊
-    virtual void setEnableBlur(const bool &enable = false);
+    virtual void setEnableGraphicsEffect(const bool &enable = false);
 
     /// @brief 获取当前是否启用背景模糊
     /// @return 是否启用背景模糊
-    bool enableBlur();
+    bool enableGraphicsEffect();
 
     /// @brief 重设当前窗体的父窗体
     /// @param parent 父窗体指针

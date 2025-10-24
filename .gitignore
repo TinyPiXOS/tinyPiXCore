@@ -93,3 +93,5 @@ examples/TpGUI/testDesk/test
 examples/TpGUI/TpLabel/label
 examples/TpUtils/TpShareMemory/recvMain
 examples/TpUtils/TpShareMemory/send
+examples/TpGUI/TpGradient/gradient
+examples/TpGUI/TpGraphicsEffect/graphics

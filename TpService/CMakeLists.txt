@@ -39,7 +39,7 @@ target_link_libraries(TpService
     ${NANOMSG_STATIC_LIB}
     dl
     pthread
-    TpAPI
+    TpWMEngine
     TpGUI
     TpUtils
     TpExtUtils
