@@ -78,6 +78,7 @@ nanomsg:
 thorvg:
 	cd $(src_dir)/thorvg; \
 	meson setup builddir \
+	--buildtype=release \
 	-Dloaders="all" \
 	-Dsavers="all" \
 	-Dexamples=false \
