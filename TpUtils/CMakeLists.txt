@@ -121,7 +121,6 @@ set(SOURCE_FILES
 )
 
 include_directories(/usr/include)
-include_directories(/usr/include/TpWM)
 include_directories(/usr/include/SDL2)
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/cairo)
@@ -135,6 +134,7 @@ include_directories(/usr/include/librsvg-2.0/librsvg/)
 include_directories(/usr/include/librsvg-2.0)
 include_directories(/usr/include/gdk-pixbuf-2.0)
 include_directories(${SOURCE_PATH}/include)
+include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils/JsonStructPackage)
@@ -177,7 +177,7 @@ target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthr
 install(TARGETS TpUtils LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
 # 创建软链接
-cmake_create_core_symlink(
+CmakeCreateSymlink(
     TARGET TpUtils
     INSTALL_DIR ${INSTALL_LIB_DIR}
     LINK_DIR ${LINK_LIB_DIR}

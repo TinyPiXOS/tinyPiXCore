@@ -145,7 +145,6 @@ set(SOURCE_FILES
 )
 
 include_directories(/usr/include)
-include_directories(/usr/include/TpWM)
 include_directories(/usr/include/SDL2)
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/cairo)
@@ -157,6 +156,7 @@ include_directories(/usr/lib/aarch64-linux-gnu/glib-2.0/include)
 include_directories(/usr/include/dbus-1.0/)
 include_directories(/usr/lib/x86_64-linux-gnu/dbus-1.0/include/)
 include_directories(${SOURCE_PATH}/include)
+include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include_p)
@@ -201,7 +201,7 @@ target_link_libraries(TpExtUtils ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_L
 install(TARGETS TpExtUtils LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
 # 创建软链接
-cmake_create_core_symlink(
+CmakeCreateSymlink(
     TARGET TpExtUtils
     INSTALL_DIR ${INSTALL_LIB_DIR}
     LINK_DIR ${LINK_LIB_DIR}             

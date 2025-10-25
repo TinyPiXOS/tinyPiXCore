@@ -48,6 +48,10 @@ TpGUI/cmake_install.cmake
 TpGUI/Makefile
 TpGUI/CMakeFiles/
 
+TpWM/cmake_install.cmake
+TpWM/Makefile
+TpWM/CMakeFiles/
+
 examples/TpUtils/tpThreadPool/threadPool
 examples/TpUtils/cssParser/cssParser
 examples/TpUtils/cssParser/main
@@ -95,3 +99,4 @@ examples/TpUtils/TpShareMemory/recvMain
 examples/TpUtils/TpShareMemory/send
 examples/TpGUI/TpGradient/gradient
 examples/TpGUI/TpGraphicsEffect/graphics
+TpWM/TpWM_symlink.cmake
