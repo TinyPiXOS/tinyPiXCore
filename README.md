@@ -173,7 +173,7 @@ sudo apt install \
 
 ```bash
 # 更新子模块
-git submodule update --recursive
+git submodule update --init --recursive
 # 构建并安装所有子模块依赖库
 make -f deps.mk
 ```
