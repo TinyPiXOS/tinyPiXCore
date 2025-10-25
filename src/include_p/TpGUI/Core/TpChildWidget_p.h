@@ -151,8 +151,8 @@ static void refreshCacheImage(TpObjectData *set)
     set->cacheImage = set->reserveImage.scaled(set->logicalRect.width(), set->logicalRect.height(), set->keepAspectRatio);
 
     // static int testIndex = 1;
-    // set->cacheImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/cache-" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
-    // set->reserveImage.save("/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/origin" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
+    // set->cacheImage.save("/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/cache-" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
+    // set->reserveImage.save("/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/origin" + TpString::number(testIndex++) + ".png", TpImage::PNG_FMT);
 }
 
 static void changeXY(TpWidget *thisPtr, TpObjectData *set, int32_t x, int32_t y)

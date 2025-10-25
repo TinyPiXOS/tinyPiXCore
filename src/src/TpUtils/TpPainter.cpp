@@ -78,8 +78,8 @@ void TpPainter::paintTest()
     refreshCanvasTarget(painterData);
 
     // 加载字体文件
-    // tvg::Text::load("/home/hawk/Public/tinyPiXCore/src/data/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf");
-    tvg::Text::load("/home/hawk/Public/tinyPiXCore/src/data/fonts/Taipei Sans TC Beta.ttf");
+    // tvg::Text::load("/home/hawk/Public/TinyPiXOS/src/data/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf");
+    tvg::Text::load("/home/hawk/Public/TinyPiXOS/src/data/fonts/Taipei Sans TC Beta.ttf");
 
     // 创建文本对象
     auto text = tvg::Text::gen();
@@ -601,7 +601,7 @@ void TpPainter::sync(void *object)
         paintWidgetData->grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
 
         // static int32_t saveIndexS = 0;
-        // TpString savePngPath = "/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
+        // TpString savePngPath = "/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
 
         // // 加载原始像素数据
         // TpImage grapImage;
