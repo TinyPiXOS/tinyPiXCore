@@ -2,7 +2,7 @@
 # 使用./dopack.sh <架构>
 # 架构可以设置x86_64或arm_64,如果不设置会按照当前环境默认打包
 # ====================== 配置区域 ======================
-BASE_NAME="tinyPiXCore" 	# 生成的安装包的名字,会自动拼接架构和后缀
+BASE_NAME="TinyPiXOS" 	# 生成的安装包的名字,会自动拼接架构和后缀
 TMP_ROOT_DIR="package_build"	# 生成的临时文件的名字
 KEEP_TMP_DIR=false		# 是否保留中间生成的打包源文件
 SCRIPTS_DIR="config"	# 禁止修改，如果需要修改，需要同步修“改智能安装器“部分的SCRIPTS_DIR

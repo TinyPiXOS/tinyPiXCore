@@ -60,7 +60,7 @@ public:
         TpImage grabImage = grabWindow();
 
         // static int32_t saveIndexS = 0;
-        // TpString savePngPath = "/home/hawk/Public/TinyPiXCore/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
+        // TpString savePngPath = "/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
         // grabImage.save(savePngPath, TpImage::PNG_FMT);
 
         // update();

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(tinyPiXCore VERSION 1.0.0 LANGUAGES C CXX)
+project(TinyPiXOS VERSION 1.0.0 LANGUAGES C CXX)
 
 # 定义选项控制是否构建子项目
 option(BUILD_SUBPROJECTS "Build subprojects from source" OFF)

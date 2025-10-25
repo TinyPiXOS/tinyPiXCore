@@ -1,4 +1,4 @@
-# tinyPiXCore 生成库创建软链接
+# tinyPiXOS 生成库创建软链接
 # CreateSymlink.cmake - 可重用的软链接创建模块
 #
 # 用法:
