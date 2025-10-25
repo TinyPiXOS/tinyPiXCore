@@ -2,7 +2,7 @@
 # CreateSymlink.cmake - 可重用的软链接创建模块
 #
 # 用法:
-#   cmake_create_core_symlink(TARGET <target> 
+#   CmakeCreateSymlink(TARGET <target> 
 #       [INSTALL_DIR <install_dir>]
 #       [LINK_DIR <link_dir>]
 #       [LINK_NAME <link_name>]
@@ -14,7 +14,7 @@
 #   LINK_DIR      软链接创建目录 (默认: /usr/lib)
 #   LINK_NAME     自定义链接名 (默认为目标文件名)
 
-function(cmake_create_core_symlink)
+function(CmakeCreateSymlink)
     # 解析参数
     set(options)
     set(oneValueArgs TARGET INSTALL_DIR LINK_DIR LINK_NAME)

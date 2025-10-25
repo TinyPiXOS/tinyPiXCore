@@ -11,6 +11,7 @@ include(cmake/TargetArchConfig.cmake)
 include(cmake/CopyDependLib.cmake)
 
 # 添加子目录
+add_subdirectory(TpWM)
 add_subdirectory(TpUtils)
 add_subdirectory(TpExtUtils)
 add_subdirectory(TpGUI)

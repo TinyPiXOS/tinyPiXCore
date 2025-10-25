@@ -78,8 +78,8 @@ set(SOURCE_FILES
 )
 
 include_directories(/usr/include/cairo)
-include_directories(/usr/include/TpWM)
 include_directories(${SOURCE_PATH}/include)
+include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include/TpGUI)
@@ -114,7 +114,7 @@ target_link_libraries(TpGUI PUBLIC
 install(TARGETS TpGUI LIBRARY DESTINATION ${INSTALL_LIB_DIR})
 
 # 创建软链接
-cmake_create_core_symlink(
+CmakeCreateSymlink(
     TARGET TpGUI
     INSTALL_DIR ${INSTALL_LIB_DIR}
     LINK_DIR ${LINK_LIB_DIR}             

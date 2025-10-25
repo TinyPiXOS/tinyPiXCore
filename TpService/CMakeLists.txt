@@ -18,8 +18,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/TpGatewayServer.cpp
 )
 
-include_directories(/usr/include/TpWM)
 include_directories(${SOURCE_PATH}/include)
+include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include_p)
@@ -49,7 +49,7 @@ target_link_libraries(TpService
 install(TARGETS TpService RUNTIME DESTINATION ${INSTALL_BIN_DIR})
 
 # 创建软链接
-cmake_create_core_symlink(
+CmakeCreateSymlink(
     TARGET TpService
     INSTALL_DIR ${INSTALL_BIN_DIR}
     LINK_DIR ${LINK_BIN_DIR}             
