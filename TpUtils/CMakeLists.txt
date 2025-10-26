@@ -169,8 +169,10 @@ link_directories("/usr/lib")
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
 set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
-target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthread TpWMEngine SDL2 SDL2_image SDL2_gfx
-    cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2 rime
+target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthread SDL2 SDL2_image SDL2_gfx
+    cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2
+    ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
+    ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
 )
 
 # 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
