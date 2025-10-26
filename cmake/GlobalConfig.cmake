@@ -6,6 +6,9 @@ set(CMAKE_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build")
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/lib")
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/bin")
 
+# 安装系统底层依赖
+set(INSTALL_SYSTEM_DIR "/System")
+
 # 安装目标目录
 set(INSTALL_INCLUDE_DIR "/usr/include/TinyPiX")
 # 安装资源文件
