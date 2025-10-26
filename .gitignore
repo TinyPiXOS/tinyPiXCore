@@ -100,3 +100,4 @@ examples/TpUtils/TpShareMemory/send
 examples/TpGUI/TpGradient/gradient
 examples/TpGUI/TpGraphicsEffect/graphics
 TpWM/TpWM_symlink.cmake
+examples/TpGUI/TpTemperatureWidget/temp
