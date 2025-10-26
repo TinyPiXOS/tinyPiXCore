@@ -33,6 +33,9 @@ declare -A PATH_MAPPINGS=(
     # 示例 4: 资源文件到自定义位置
 	["./{ARCH}/res"]="update:/usr/res/TinyPiX"
 
+    #System
+    ["./system"]="overwrite:/System"
+
 )
 # =====================================================
 
@@ -378,35 +381,26 @@ echo "映射文件: $MAPPING_FILE"
 # 检查系统依赖包 ----------------------------------------
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
-	libsdl2-image-dev libsdl2-gfx-dev
+    libsdl2-dev libdrm-dev libudev-dev
     libcairo2-dev libpango1.0-dev libglib2.0-dev
     libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev
     libgbm-dev libgles2 libegl-dev 
 	librsvg2-dev libssl-dev libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev
 	bluez-obexd bluez-alsa-utils libasound2-plugin-bluez
-	libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
+	libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 )
 # 可能已经通过手动安装的库
 declare -A LIB_DETECT_FUNCTIONS=(
-    ["libsdl2-image-dev"]="check_sdl2_image_installed"
-	["libsdl2-gfx-dev"]="check_sdl2_gfx_installed"
+    ["libsdl2-dev"]="check_sdl2_installed"
     # 添加新库示例：["libopencv-dev"]="check_opencv_installed"
 )
 
-# 检查sdl2-image安装
-check_sdl2_image_installed() {
+# 检查sdl2安装
+check_sdl2_installed() {
     # 检查关键文件：头文件、库文件、pkg-config
-    [ -f /usr/local/include/SDL2/SDL_image.h ] || \
-    [ -f /usr/include/SDL2/SDL_image.h ] || \
-    (pkg-config --exists sdl2_image 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2_image 2>/dev/null)/libSDL2_image.so ])
-}
-
-# 检查sdl2-gfx安装
-check_sdl2_gfx_installed() {
-    # 检查关键文件：头文件、库文件、pkg-config
-    [ -f /usr/local/include/SDL2/SDL2_gfxPrimitives.h ] || \
-    [ -f /usr/include/SDL2/SDL2_gfxPrimitives.h ] || \
-    (pkg-config --exists sdl2_gfx 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2_gfx 2>/dev/null)/libSDL2_gfx.so ])
+    [ -f /usr/local/include/SDL2/SDL.h ] || \
+    [ -f /usr/include/SDL2/SDL.h ] || \
+    (pkg-config --exists sdl2 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2)/libSDL2.so ])
 }
 
 #网络检查函数
