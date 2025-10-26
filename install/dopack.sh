@@ -2,7 +2,7 @@
 # 使用./dopack.sh <架构>
 # 架构可以设置x86_64或arm_64,如果不设置会按照当前环境默认打包
 # ====================== 配置区域 ======================
-BASE_NAME="tinyPiXCore" 	# 生成的安装包的名字,会自动拼接架构和后缀
+BASE_NAME="TinyPiXOS" 	# 生成的安装包的名字,会自动拼接架构和后缀
 TMP_ROOT_DIR="package_build"	# 生成的临时文件的名字
 KEEP_TMP_DIR=false		# 是否保留中间生成的打包源文件
 SCRIPTS_DIR="config"	# 禁止修改，如果需要修改，需要同步修“改智能安装器“部分的SCRIPTS_DIR
@@ -18,20 +18,20 @@ declare -A PATH_MAPPINGS=(
     # 相对路径会自动转换为绝对路径
     # 格式: [源目录]="模式:目标路径"
 	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新)
-    ["./{ARCH}/lib"]="overwrite:/usr/lib/tinyPiX"
-	["./{ARCH}/bin"]="overwrite:/usr/bin/tinyPiX"
+    ["./{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX"
+	["./{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX"
 
-	["../src/depend_lib/dynamic/{ARCH}"]="update:/usr/lib/tinyPiX"
-#	["../src/depend_lib/static/{ARCH}"]="update:/usr/lib/tinyPiX"
+	["../src/depend_lib/dynamic/{ARCH}"]="update:/usr/lib/TinyPiX"
+#	["../src/depend_lib/static/{ARCH}"]="update:/usr/lib/TinyPiX"
     
     # 示例 2: 数据目录重定位
-    ["./{ARCH}/data"]="update:/usr/data/tinyPiX"  # 源目录安装到新位置
+    ["./{ARCH}/data"]="update:/usr/data/TinyPiX"  # 源目录安装到新位置
     
     # 示例 3: 头文件
-    ["./{ARCH}/include"]="overwrite:/usr/include/tinyPiX"
+    ["./{ARCH}/include"]="overwrite:/usr/include/TinyPiX"
     
     # 示例 4: 资源文件到自定义位置
-	["./{ARCH}/res"]="update:/usr/res/tinyPiX"
+	["./{ARCH}/res"]="update:/usr/res/TinyPiX"
 
 )
 # =====================================================
@@ -376,7 +376,6 @@ echo "目标目录: $TARGET_DIR"
 echo "映射文件: $MAPPING_FILE"
 
 # 检查系统依赖包 ----------------------------------------
-# libsdl2-image-dev libsdl2-gfx-dev	,改为编译安装
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
 	libsdl2-image-dev libsdl2-gfx-dev
@@ -387,6 +386,28 @@ packages=(
 	bluez-obexd bluez-alsa-utils libasound2-plugin-bluez
 	libboost-all-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 )
+# 可能已经通过手动安装的库
+declare -A LIB_DETECT_FUNCTIONS=(
+    ["libsdl2-image-dev"]="check_sdl2_image_installed"
+	["libsdl2-gfx-dev"]="check_sdl2_gfx_installed"
+    # 添加新库示例：["libopencv-dev"]="check_opencv_installed"
+)
+
+# 检查sdl2-image安装
+check_sdl2_image_installed() {
+    # 检查关键文件：头文件、库文件、pkg-config
+    [ -f /usr/local/include/SDL2/SDL_image.h ] || \
+    [ -f /usr/include/SDL2/SDL_image.h ] || \
+    (pkg-config --exists sdl2_image 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2_image 2>/dev/null)/libSDL2_image.so ])
+}
+
+# 检查sdl2-gfx安装
+check_sdl2_gfx_installed() {
+    # 检查关键文件：头文件、库文件、pkg-config
+    [ -f /usr/local/include/SDL2/SDL2_gfxPrimitives.h ] || \
+    [ -f /usr/include/SDL2/SDL2_gfxPrimitives.h ] || \
+    (pkg-config --exists sdl2_gfx 2>/dev/null && [ -f $(pkg-config --variable=libdir sdl2_gfx 2>/dev/null)/libSDL2_gfx.so ])
+}
 
 #网络检查函数
 check_network() {
@@ -414,7 +435,43 @@ check_network() {
     echo "✓ 网络连接正常"
     return 0
 }
+check_and_install_packages() {
+    if ! command -v apt-get >/dev/null; then
+        echo "[错误] 只支持基于Debian的系统（如Ubuntu）自动安装依赖包" >&2
+        echo "请手动安装以下包：${packages[*]}" >&2
+        return 1
+    fi
 
+    # 更新包列表...
+    echo "  更新包列表..."
+    if ! apt-get update >/dev/null; then
+        echo "[错误] 更新包列表失败，请检查软件源配置" >&2
+        return 1
+    fi
+
+    for pkg in "$@"; do
+        # 使用 dpkg-query 精确检查
+        if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
+            echo "  ✓ $pkg 已安装"
+			continue;
+		fi
+		# 检查可能通过手动安装的库
+		if [[ -n "${LIB_DETECT_FUNCTIONS[$pkg]}" ]]; then
+            if ${LIB_DETECT_FUNCTIONS[$pkg]}; then
+                echo "  ✓ [$pkg] 检测到手动编译安装"
+                continue  # 跳过安装流程
+            fi
+        fi
+		#安装
+		echo "  ▸ 正在安装 $pkg ..."
+		if ! apt-get install -y "$pkg" >/dev/null; then
+			echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
+			return 1
+		fi
+    done
+    
+    return 0
+}
 check_and_install_packages() {
 	local has_network=$1  # 接收网络状态参数
     shift  # 移除第一个参数，剩余参数为包列表
@@ -436,23 +493,30 @@ check_and_install_packages() {
 
     for pkg in "$@"; do
         # 方法1：使用 dpkg-query 精确检查（推荐）
+         # 使用 dpkg-query 精确检查
         if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
             echo "  ✓ $pkg 已安装"
-        else
-            # 如果没有网络连接，无法安装新包
-            if [ $has_network -ne 0 ]; then
-                echo "❌ 错误: $pkg 未安装且无网络连接" >&2
-                echo "  • 请手动安装此包或检查网络连接" >&2
-                return 1
+			continue;
+		fi
+		# 检查可能通过手动安装的库
+		if [[ -n "${LIB_DETECT_FUNCTIONS[$pkg]}" ]]; then
+            if ${LIB_DETECT_FUNCTIONS[$pkg]}; then
+                echo "  ✓ [$pkg] 检测到手动编译安装"
+                continue  # 跳过安装流程
             fi
-            
-            echo "  ▸ 正在安装 $pkg ..."
-            if ! apt-get install -y "$pkg" >/dev/null; then
-                echo "❌ 安装 $pkg 失败，请检查软件源配置" >&2
-                return 1
-            fi
-            echo "  ✓ $pkg 安装成功"
         fi
+		# 如果没有网络连接，无法安装新包
+		if [ $has_network -ne 0 ]; then
+			echo "❌ 错误: $pkg 未安装且无网络连接" >&2
+			echo "  • 请手动安装此包或检查网络连接" >&2
+			return 1
+		fi
+        echo "  ▸ 正在安装 $pkg ..."
+		if ! apt-get install -y "$pkg" >/dev/null; then
+			echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
+			return 1
+		fi
+        echo "  ✓ $pkg 安装成功"
     done
 }
 
@@ -606,7 +670,7 @@ create_symlinks() {
     echo "▸ 创建绝对路径符号链接 (安全替换)"
     
     # 1. 库文件链接
-	LIB_DIR="${TARGET_DIR}/usr/lib/tinyPiX"
+	LIB_DIR="${TARGET_DIR}/usr/lib/TinyPiX"
 	if [ -d "$LIB_DIR" ]; then
 		echo "  → 处理库文件目录: $LIB_DIR"
 		find "$LIB_DIR" -maxdepth 1 -type f \( -name "*.so" -o -name "*.so.*" \) | while read -r lib; do
@@ -647,7 +711,7 @@ create_symlinks() {
 	fi
     
     # 2. 二进制文件链接
-    BIN_DIR="${TARGET_DIR}/usr/bin/tinyPiX"
+    BIN_DIR="${TARGET_DIR}/usr/bin/TinyPiX"
     if [ -d "$BIN_DIR" ]; then
         echo "  → 处理二进制目录: $BIN_DIR"
         find "$BIN_DIR" -maxdepth 1 -type f -executable | while read -r bin; do
@@ -665,11 +729,11 @@ create_symlinks() {
     fi
 
 	#3. 字体库文件链接
-	FONTS_DIR="${TARGET_DIR}/usr/data/tinyPiX/fonts"
+	FONTS_DIR="${TARGET_DIR}/usr/data/TinyPiX/fonts"
 	if [ -d "$FONTS_DIR" ]; then
 		echo "  → 处理字体源目录: $FONTS_DIR"
 		# 目标字体目录 (此处直接放用户目录避免嵌套)
-		FONT_TARGET_DIR="${TARGET_DIR}/usr/share/fonts/opentype/tinyPiX"
+		FONT_TARGET_DIR="${TARGET_DIR}/usr/share/fonts/opentype/TinyPiX"
 		mkdir -p "$FONT_TARGET_DIR"
 		
 		# 遍历字体目录中的文件

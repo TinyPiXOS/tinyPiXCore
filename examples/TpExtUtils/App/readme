@@ -1,0 +1,44 @@
+G++ = g++
+#源码路径
+#SRC=../src
+#头文件路径
+#INC = -I../inc
+INC = -I/usr/include \
+        -I/usr/include/SDL2 \
+        -I/usr/include/TinyPiX \
+        -I/usr/include/TinyPiX/TpExtUtils \
+        -I/usr/include/TinyPiX/TpUtils \
+        -I/usr/include/TinyPiX/TpGUI \
+        -I/usr/include/TinyPiX/TpGUI/Core \
+        -I/usr/include/TinyPiX/TpGUI/Screen \
+        -I/usr/include/TinyPiX/TpGUI/Widgets \
+        -I.  \
+        -I/usr/include/freetype2 \
+        -I/usr/include/cairo \
+        -I/usr/include/pango-1.0 \
+        -I/usr/include/harfbuzz \
+        -I/usr/include/glib-2.0 \
+        -I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
+        -I/usr/include/TinyPiX/TpGUI/app \
+        -I/usr/include/TinyPiX/TpWM
+
+#引用的库
+#LIB = -lpthread -lpcap -ltparchive
+LIB = -L/usr/lib \
+        -ldl -lpthread -lSDL2 -lSDL2_image -lSDL2_gfx -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lTpUtils -lTpGUI  -lPiXExternUtils
+#伪目标：需要依赖的目标
+.PHONY:Install Dopack Remove#即使该目标存在也重新生成
+all:Install Dopack Remove clean#
+
+Install:
+	$(G++) -c install.cpp $(INC)
+	$(G++) -o Install install.o $(LIB) $(INC)
+Dopack:
+	$(G++) -c dopack.cpp $(INC)
+	$(G++) -o Dopack dopack.o $(LIB) $(INC)
+Remove:
+	$(G++) -c remove.cpp $(INC)
+	$(G++) -o Remove remove.o $(LIB) $(INC)
+clean:
+	rm *.o
+

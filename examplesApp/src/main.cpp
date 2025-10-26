@@ -1,11 +1,11 @@
-#include "tpApp.h"
-#include "mainWindowService.h"
+#include "TpApp.h"
+#include "MainWindowService.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
-	tpApp app(argc, argv);
+	TpApp app(argc, argv);
 
-	mainWindowService *mainWindow = new mainWindowService();
+	MainWindowService *mainWindow = new MainWindowService();
 	app.bindVScreen(mainWindow);
 	mainWindow->update();
 
