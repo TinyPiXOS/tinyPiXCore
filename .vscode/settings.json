@@ -63,6 +63,17 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "future": "cpp",
+        "netfwd": "cpp",
+        "typesdef.h": "c",
+        "properties.h": "c",
+        "manager.h": "c",
+        "agent_manager.h": "c",
+        "obex_client.h": "c",
+        "tpgradient_p": "c",
+        "types.h": "c",
+        "optional": "cpp",
+        "variant": "cpp"
     }
 }

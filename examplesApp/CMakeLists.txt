@@ -20,32 +20,21 @@ link_directories("/usr/lib")
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/main.cpp
-    ${SOURCE_PATH}/mainWindowService.cpp
-    ${SOURCE_PATH}/testLight.cpp
+    ${SOURCE_PATH}/MainWindowService.cpp
+    ${SOURCE_PATH}/TpTestLight.cpp
 )
 
 include_directories(${SOURCE_PATH})
 include_directories(/usr/include)
-include_directories(/usr/include/PiXWM)
-include_directories(/usr/include/tinyPiX)
-include_directories(/usr/include/tinyPiX/Api)
-include_directories(/usr/include/tinyPiX/Utils)
-include_directories(/usr/include/tinyPiX/ExternUtils)
-include_directories(/usr/include/tinyPiX/SingleGUI)
-include_directories(/usr/include/tinyPiX/SingleGUI/core)
-include_directories(/usr/include/tinyPiX/SingleGUI/screen)
-include_directories(/usr/include/tinyPiX/SingleGUI/widgets)
-include_directories(/usr/include/tinyPiX/GUIFramework)
-include_directories(/usr/include/SDL2)
-include_directories(/usr/include/freetype2)
-include_directories(/usr/include/cairo)
-include_directories(/usr/include/pango-1.0)
-include_directories(/usr/include/harfbuzz)
-include_directories(/usr/include/glib-2.0)
-include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
+include_directories(/usr/include/TinyPiX)
+include_directories(/usr/include/TinyPiX/TpUtils)
+include_directories(/usr/include/TinyPiX/TpExtUtils)
+include_directories(/usr/include/TinyPiX/TpGUI)
+include_directories(/usr/include/TinyPiX/TpGUI/Core)
+include_directories(/usr/include/TinyPiX/TpGUI/Screen)
+include_directories(/usr/include/TinyPiX/TpGUI/Widgets)
 
 add_executable(examplesApp ${SOURCE_FILES})
 
 # 将pthread库链接到可执行目标
-target_link_libraries(examplesApp pthread dl pthread PiXApi PiXSingleGUI PiXUtils PiXExternUtils PiXDesktopGUI
-    SDL2 SDL2_image SDL2_gfx cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL )
+target_link_libraries(examplesApp TpGUI TpUtils TpExtUtils)

@@ -1,0 +1,72 @@
+//音频测试程序
+#include <iostream>
+#include <stdio.h>
+#include "TpBluetoothLocal.h"
+#include "TpBluetoothDevice.h"
+#include "TpBluetoothAudioManager.h"
+#include "TpBluetoothSocket.h"
+#include "TpBluetoothAddress.h"
+#include "TpAudioInterface.h"
+#include "TpBluetoothDiscovery.h"
+#include "TpBluetoothAudioDevice.h"
+
+//主要用于启动bluealsa守护进程
+int example_audio_service()
+{
+	int err=0;
+	TpBluetoothAudioManager audio_service;
+	while(!audio_service.isRuning())
+	{
+		usleep(50000);
+		err++;
+		if(err>20)
+		{
+			std::cout << "蓝牙音频服务启动失败\n";
+			return 0;
+		}
+	}
+}
+
+
+int example_play_audio()
+{
+	example_audio_service();
+
+	TpBluetoothAddress tws_addr(TpString("41:42:AE:49:83:B9"));
+//	TpBluetoothDiscovery scan("hci0");
+//	TpList<TpBluetoothDevice *>dev_list=scan.getDeviceList();
+
+
+	TpBluetoothAudioDevice audio_dev("hci0",tws_addr);
+	audio_dev.connectToDevice();	
+	TpString dev_name=audio_dev.getDevice();
+	sleep(3);
+	
+	TpAudioInterface audio(dev_name);
+
+	audio.setVolume(100);
+	audio.addFile("/home/pix/Media/MeiNanBian.mp3");										//添加本地文件
+	audio.addFile("/home/pix/Media/phone.wav");	
+	audio.addFile("/home/pix/Media/test.mp3");
+	if(audio.openDevice()<0)
+	{
+		printf("open device error\n");
+		return -1;
+	}
+	audio.playStart();
+	sleep(10);
+	audio.closeDevice();
+	sleep(3);
+	printf("断开连接\n");
+	audio_dev.disconnectDevice();
+}
+
+
+
+
+
+
+int main()
+{
+	example_play_audio();
+}
