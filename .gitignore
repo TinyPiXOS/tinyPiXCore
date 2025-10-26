@@ -1,7 +1,10 @@
 build/
 out/
 install/x86_64
+install/x86_32
 install/arm_64
+install/arm_32
+install/system
 CMakeFiles/
 .cmake/
 arm-build-debug/
