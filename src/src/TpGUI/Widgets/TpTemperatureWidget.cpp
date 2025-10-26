@@ -267,7 +267,8 @@ bool TpTemperatureWidget::onPaintEvent(TpPaintEvent *event)
 
             // 绘制圆角矩形; 矩形终止点与矩形边框相同；起始点Y通过 （值高度 - 圆半径）计算
             int32_t rectLeftY = rectangleY + rectangleHeight - (valueHeight - fillCircleRadius);
-            painter->drawRect(rectangleX + tempData->lineWidth, rectLeftY, rectangleWidth - tempData->lineWidth * 2, rectangleHeight, rectangleWidth / 2.0);
+            painter->drawRect(rectangleX + tempData->lineWidth, rectLeftY + rectangleWidth / 2.0, rectangleWidth - tempData->lineWidth * 2, rectangleHeight - rectLeftY);
+            painter->drawRect(rectangleX + tempData->lineWidth, rectLeftY, rectangleWidth - tempData->lineWidth * 2, rectangleHeight - rectLeftY, rectangleWidth / 2.0);
         }
     }
 
