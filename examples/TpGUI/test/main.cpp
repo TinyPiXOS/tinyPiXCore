@@ -196,20 +196,12 @@ int32_t main(int32_t argc, char *argv[])
     app.setStyle(Tp::SmartDeviceGUIStyle);
 
     TpMainWindow *vScreen = new TpMainWindow();
-
-    // TpMainWindow *vScreen = new TpMainWindow();
-    vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
-    // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
+    // vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
     app.bindVScreen(vScreen);
 
     TpDialog *dia = new TpDialog();
-    dia->setBackGroundColor(_RGBA(243, 243, 243, 100));
-    dia->setRect(0, 0, 300, 300);
-    dia->setAlpha(128);
-    dia->setRoundCorners(50);
-    dia->setVisible(true);
-    dia->setBeMoved(true);
+    dia->setBackGroundColor(_RGBA(128, 128, 128, 255));
+    dia->setRect(0, 30, 1080, 690);
 
     // TpLabel *bgLabel = new TpLabel(vScreen);
     // bgLabel->setBackGroundColor(_RGB(200, 80, 80));

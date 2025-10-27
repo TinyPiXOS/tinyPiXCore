@@ -206,6 +206,14 @@ extern DECLSPEC int STDCALL tinyPiX_sys_find_win_main_id_bypid(IPiSysApiAgent *s
 extern DECLSPEC int STDCALL tinyPiX_sys_find_win_pid_byid(IPiSysApiAgent *sysApiagent, int id);
 
 /**
+@brief 获取进程应用整体截图
+@param sysApiagent(IPisysApiAgent)系统api的句柄
+@param pid(int)进程id
+@return 成功返回表面指针,失败返回NULL
+**/
+extern DECLSPEC IPiWFSurface *STDCALL tinyPiX_sys_get_process_surface(IPiSysApiAgent *sysApiagent, int pid);
+
+/**
 @brief 获取截图
 @param sysApiagent（IPiSysApiAgent） 系统api的句柄
 @param bytes（PiShmBytes）窗体id，进程id，其中窗体类型会被忽略
