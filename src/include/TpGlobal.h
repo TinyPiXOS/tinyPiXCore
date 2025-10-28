@@ -56,15 +56,16 @@
 
 namespace Tp
 {
-    enum ItpObjectType
+    enum TpObjectType
     {
         TP_UNKOWN_OBJECT = -1,
-        TP_TOP_OBJECT, // FixScreen
+        TP_FIXSCREEN_OBJECT,
+        TP_MAIN_WINDOW_OBJECT,
         TP_FLOAT_OBJECT,
         TP_CHILD_OBJECT,
     };
 
-    enum ItpObjectSysLayer
+    enum TpObjectSysLayer
     {
         TP_WM_NONE = -1,
         TP_WM_DESK,

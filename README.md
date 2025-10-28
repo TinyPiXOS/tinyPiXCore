@@ -157,7 +157,7 @@ git clone https://gitee.com/tinypixos/TinyPiXOS.git
 
 ```bash
 sudo apt install \
-  libcairo2-dev libpango1.0-dev libglib2.0-dev \
+  libsdl2-dev libcairo2-dev libpango1.0-dev libglib2.0-dev \
   libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
   libgbm-dev libgles2 libegl-dev \
   libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \

@@ -354,7 +354,8 @@ bool TpApp::sendReturn(TpObject *object)
 
         if (returnAct)
         {
-            if (object->objectType() != Tp::TP_TOP_OBJECT)
+            if (object->objectType() != Tp::TP_MAIN_WINDOW_OBJECT &&
+                object->objectType() != Tp::TP_FIXSCREEN_OBJECT)
             {
                 return false;
             }
@@ -381,7 +382,7 @@ bool TpApp::sendActive(TpObject *object, bool actived)
 
         if (beActived)
         {
-            if (object->objectType() != Tp::TP_TOP_OBJECT)
+            if (object->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && object->objectType() != Tp::TP_FIXSCREEN_OBJECT)
             {
                 return false;
             }

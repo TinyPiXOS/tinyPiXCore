@@ -59,8 +59,8 @@ public:
     virtual void update(bool onlyBlit = false) override;
 
 public:
-    virtual Tp::ItpObjectType objectType();
-    virtual Tp::ItpObjectSysLayer objectLayer();
+    virtual Tp::TpObjectType objectType();
+    virtual Tp::TpObjectSysLayer objectLayer();
     virtual int32_t objectSysID();
     virtual bool objectActive();
 

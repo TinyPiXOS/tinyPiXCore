@@ -66,7 +66,8 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear t
 static inline bool addObject(TpObjectData *set, TpObject *object, TpObject *parent)
 {
     if (object == nullptr ||
-        object->objectType() == Tp::TP_TOP_OBJECT ||
+        object->objectType() == Tp::TP_FIXSCREEN_OBJECT ||
+        object->objectType() == Tp::TP_MAIN_WINDOW_OBJECT ||
         object->objectType() == Tp::TP_FLOAT_OBJECT)
     {
         return false;

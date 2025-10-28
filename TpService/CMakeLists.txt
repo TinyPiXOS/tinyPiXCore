@@ -39,7 +39,7 @@ target_link_libraries(TpService
     ${NANOMSG_STATIC_LIB}
     dl
     pthread
-    TpWMEngine
+    ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     TpGUI
     TpUtils
     TpExtUtils

@@ -93,7 +93,7 @@ void TpDialog::close()
     dialogData->sema.post();
 }
 
-Tp::ItpObjectType TpDialog::objectType()
+Tp::TpObjectType TpDialog::objectType()
 {
     return Tp::TP_FLOAT_OBJECT;
 }

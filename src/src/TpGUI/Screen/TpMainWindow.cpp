@@ -24,7 +24,7 @@ TpMainWindow::TpMainWindow(const char *type)
     TpMainWindowData *screenData = new TpMainWindowData();
     data_ = screenData;
 
-    if (this->objectType() != Tp::TP_FLOAT_OBJECT)
+    if (this->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
     }
@@ -58,7 +58,7 @@ TpMainWindow::~TpMainWindow()
     }
 }
 
-Tp::ItpObjectType TpMainWindow::objectType()
+Tp::TpObjectType TpMainWindow::objectType()
 {
-    return Tp::TP_FLOAT_OBJECT;
+    return Tp::TP_MAIN_WINDOW_OBJECT;
 }
