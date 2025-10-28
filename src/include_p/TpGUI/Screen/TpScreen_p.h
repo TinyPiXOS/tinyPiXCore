@@ -507,6 +507,7 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
 
 static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
 {
+    std::cout << "transferVisible " << std::endl;
     TpWidget *object = (TpWidget *)args;
     TpVisibleEvent event;
     ItpObjectVisibleSet input;
@@ -521,6 +522,7 @@ static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
         set->visible = visible;
     }
 
+    // object->setVisible(visible);
     object->onVisibleEvent(&event);
     doTransUpdate(object);
 

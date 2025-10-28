@@ -259,10 +259,9 @@ private:
             {
                 // 将消息处理任务提交给线程池
                 threadPool.enqueue([this, msg, bytes]
-                    {
+                                   {
                     processMessage(msg, bytes);
-                    nn_freemsg(msg); 
-                });
+                    nn_freemsg(msg); });
             }
         }
     }
@@ -275,8 +274,11 @@ private:
             uint32_t topic_len = *reinterpret_cast<uint32_t *>(msg);
             if (topic_len > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topic_len)
             {
-                const char *topic = msg + sizeof(uint32_t);
-                const void *data = topic + topic_len;
+                char topic[topic_len + 1];
+                memcpy(topic, msg + sizeof(uint32_t), topic_len);
+                topic[topic_len] = '\0';
+
+                const void *data = msg + sizeof(uint32_t) + topic_len;
                 uint32_t data_size = bytes - sizeof(uint32_t) - topic_len;
 
                 // 通知订阅者
@@ -290,6 +292,7 @@ private:
         TpVector<Subscription> subs;
 
         TpString recvTopic(topic);
+
         recvTopic.erase(std::remove_if(recvTopic.begin(),
                                        recvTopic.end(),
                                        [](char c)

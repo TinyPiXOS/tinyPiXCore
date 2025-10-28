@@ -40,7 +40,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     }
 
     appInst = this;
-    this->data_ = set;
+    data_ = set;
 
     // 绑定物理窗口；判断是否是桌面
     if (deskStrKey.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
@@ -57,26 +57,28 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     TpString cssFilePath = parseThemeFile(set->systemTheme);
     set->cssParser_->parseCss(cssFilePath);
 
+    // 初始化网关
+    initializeGateway();
+
     // 尝试读取桌面信息；如果没有桌面则读取失败
     if (!set->isDesk)
     {
-        try
+        auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
         {
-            // 记录桌面信息要根据topbar的数据，决定应用所有窗体的xy偏移量，和真实可用宽高
-            TpShareMemory deskTopBarshare("DeskTopBarConfig", 1024, false);
-            if (deskTopBarshare.isMapped())
-            {
-                if (deskTopBarshare.readData(&set->desktopBarInfo_, sizeof(set->desktopBarInfo_)))
-                {
-                    std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
-                              << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
-                }
-            }
-        }
-        catch (const std::exception &e)
-        {
-            // 共享内存不存在;无桌面模式
-        }
+            DeskTopBarInfo *recvInfo = (DeskTopBarInfo *)data;
+            TpAppData *set = static_cast<TpAppData *>(data_);
+            set->desktopBarInfo_ = *recvInfo;
+
+            std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
+                      << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
+
+            // 主屏幕根据Bar数据是否变化决定是否刷新主屏
+        };
+
+        subscribeGatewayData("DeskTopBarConfig", RecvDeskBarFunc);
+
+        bool pubRunData = true;
+        publishGatewayData("ApplicationRunTopicConfig", &pubRunData, sizeof(bool));
     }
 }
 
