@@ -214,6 +214,8 @@ make install
   `/usr/res/TinyPiX`
 - ​**数据文件安装路径**​  
   `/usr/data/TinyPiX`
+- ​**系统支持文件安装路径**​  
+  `/System`
 
 #### 应用程序库引入
 
@@ -232,6 +234,36 @@ target_link_libraries(你的应用程序名称 TpUtils)
 include_directories(/usr/include/TinyPiX/TpExtUtils)
 link_directories("/usr/lib")
 target_link_libraries(你的应用程序名称 TpExtUtils)
+```
+
+#### 配置文件解析
+
+### 2. 配置文件解析
+
+配置文件路径：`/System/conf/tinyPiX.conf`
+
+示例配置，请勿复制注释至tinyPiX.conf：
+
+```ini
+[display-setting]
+width     = 1080   # 屏幕宽度（建议保持默认）
+height    = 720    # 屏幕高度（建议保持默认）
+format    = 32     # 颜色深度（不建议修改）
+
+[attribute-setting]
+daemon      = 0    # 0=前台运行，1=后台运行
+acclerate   = 1    # 0=禁用硬件加速，1=启用
+brightness  = 255  # 屏幕亮度（0-255）
+sharemem    = 0    # 0=硬盘空间；1=内存空间
+shareone    = 1    # 0=多应用不使用共享内存；1=使用共享内存
+
+[system-setting]
+simulator   = 1
+quitwait    = 15
+
+[mode-setting]
+startdir = /opt/project-main/tinyPiXApp/Application/deskTop/bin/
+startapp = TpDesktop
 ```
 
 ## 贡献代码

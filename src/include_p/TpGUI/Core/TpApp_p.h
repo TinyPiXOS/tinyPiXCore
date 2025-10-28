@@ -26,6 +26,7 @@
 #include "TpMainWindow.h"
 #include "TpShareMemory.h"
 #include "TpFixScreen.h"
+#include "TpGateway.h"
 #include "thorVG/thorvg.h"
 
 #include <tinyPiXApi.h>
@@ -338,8 +339,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
     TpMap<IPiWFApiAgent *, TpRect> pixwmMergeUpdateRect;
     TpMap<TpWidget *, ItpObjectPaintInput> mergeUpdateWidget;
-    // std::pair<TpWidget *, ItpObjectPaintInput> fixScreenPair;
-    // fixScreenPair.first = nullptr;
 
     while (!updateCommandQueue.empty())
     {
@@ -353,8 +352,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             if (!task.updateObj->objectActive())
                 continue;
         }
-        if (!task.updateObj->visible())
-            continue;
 
         TpObjectData *updateObjSet = static_cast<TpObjectData *>(task.updateObj->objectSets());
         TpObjectData *topScreenSet = static_cast<TpObjectData *>(updateObjSet->top->objectSets());
@@ -369,6 +366,10 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         {
             pixwmMergeUpdateRect[topScreenSet->agent] = TpRect(task.x, task.y, task.w, task.h);
         }
+
+        // 隐藏窗口不处理paint，但要通知TpWM
+        if (!task.updateObj->visible())
+            continue;
 
         // 存在该窗口则更新合并区域
         if (mergeUpdateWidget.contains(task.updateObj))
@@ -399,21 +400,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             mergeUpdateWidget[task.updateObj] = paintInput;
         }
     }
-
-    // // 先绘制fixscreen
-    // if (fixScreenPair.first)
-    // {
-    //     TpObjectData *updateObjSet = static_cast<TpObjectData *>(fixScreenPair.first->objectSets());
-    //     TpObjectData *topScreenSet = static_cast<TpObjectData *>(updateObjSet->top->objectSets());
-
-    //     ItpObjectPaintInput paintInput = fixScreenPair.second;
-
-    //     tinyPiX_wf_lock_mutex(topScreenSet->agent);
-
-    //     drawWidget(paintInput, fixScreenPair.first);
-
-    //     tinyPiX_wf_unlock_mutex(topScreenSet->agent);
-    // }
 
     for (const auto &updateWidgetIter : mergeUpdateWidget)
     {
