@@ -131,11 +131,7 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
         return TpImage();
 
     int32_t appPid = apiData->appUuidPidMap.value(uuid);
-
-    // 获取winID
-    int appId = tinyPiX_sys_find_win_main_id_bypid(apiData->globalAgent, appPid);
-
-    IPiWFSurface *surfacePtr = tinyPiX_sys_get_obj_surface(apiData->globalAgent, appId, appPid);
+    IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(apiData->globalAgent, appPid);
     if (!surfacePtr)
         return TpImage();
 

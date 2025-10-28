@@ -76,7 +76,7 @@ public:
     /// @brief 设置widget矩形区域
     /// @param rect X、Y、W、H
     virtual void setRect(const TpRect &rect);
-    virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h);
+    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h);
 
 public:
     /// @brief 获取widget相对于屏幕的矩形区域
@@ -273,7 +273,7 @@ public:
     /// @brief 设置背景填充效果
     /// @param bgBrush 填充效果
     /// @param enable 启动/禁用背景颜色显示
-    virtual void setBackGroundColor(const TpBrush& bgBrush, bool enable = true);
+    virtual void setBackGroundColor(const TpBrush &bgBrush, bool enable = true);
 
     /// @brief 获取当前背景颜色RGBA
     /// @return RGBA值
@@ -296,7 +296,7 @@ public:
     /// @brief 设置边框填充效果;渐变效果等
     /// @param bgBrush 填充效果
     /// @param enable 启动/禁用边框颜色显示
-    virtual void setBorderColor(const TpBrush& borderBrush, bool enable = true);
+    virtual void setBorderColor(const TpBrush &borderBrush, bool enable = true);
     /// @brief 获取当前边框颜色RGBA
     /// @return RGBA值
     virtual uint32_t borderColor();
@@ -375,7 +375,7 @@ public:
 public:
     /// @brief 补充CSS样式，系统内置CSS除非同名否则不会被覆盖
     /// @param _styleSheetStr CSS样式字符串或者文件
-    void setStyleSheet(const TpString &_styleSheetStr);
+    virtual void setStyleSheet(const TpString &_styleSheetStr);
 
     /// @brief 获取当前系统的CSS样式字符串
     /// @return CSS字符串

@@ -597,22 +597,6 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
         return;
 
     set->objectType = type;
-
-    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
-    if (set->objectType.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
-    {
-        appData->isDesk = true;
-    }
-
-    // int32_t fixScreenY = 0;
-    // if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
-    // {
-    //     fixScreenY = appData->desktopBarInfo_.topBarHeight;
-    // }
-
-    // y += fixScreenY;
-    // h -= fixScreenY;
-
     set->agent = tinyPiX_wf_create(type, x, y, w, h);
 
     if (set->agent == nullptr)
@@ -726,8 +710,17 @@ void TpScreen::setText(const TpString &text)
     this->setText(text.c_str());
 }
 
-void TpScreen::setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h)
+void TpScreen::setRect(const TpRect &rect)
 {
+    setRect(rect.x(), rect.y(), rect.width(), rect.height());
+}
+
+void TpScreen::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    // TpMainWindow不可被调整大小
+    if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
@@ -743,6 +736,10 @@ void TpScreen::setRect(const int32_t &x, const int32_t &y, const int32_t &w, con
 
 void TpScreen::setSize(const int32_t &width, const int32_t &height)
 {
+    // TpMainWindow不可被调整大小
+    if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
@@ -755,6 +752,10 @@ void TpScreen::setSize(const int32_t &width, const int32_t &height)
 
 void TpScreen::setWidth(const int32_t &width)
 {
+    // TpMainWindow不可被调整大小
+    if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
@@ -767,6 +768,10 @@ void TpScreen::setWidth(const int32_t &width)
 
 void TpScreen::setHeight(const int32_t &height)
 {
+    // TpMainWindow不可被调整大小
+    if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
 
     if (!set)
@@ -779,6 +784,10 @@ void TpScreen::setHeight(const int32_t &height)
 
 void TpScreen::move(int32_t x, int32_t y)
 {
+    // TpMainWindow不可被移动坐标
+    if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     if (!set)
         return;

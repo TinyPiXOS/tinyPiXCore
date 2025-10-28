@@ -25,6 +25,7 @@
 #include "TpObjectFunction.hpp"
 #include "TpMainWindow.h"
 #include "TpShareMemory.h"
+#include "TpFixScreen.h"
 #include "thorVG/thorvg.h"
 
 #include <tinyPiXApi.h>
@@ -454,6 +455,40 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         const TpRect &updateRect = updateInfo.second;
         tinyPiX_wf_update(updateInfo.first, updateRect.x(), updateRect.y(), updateRect.width(), updateRect.height(), true, false);
     }
+}
+
+static bool bindVScreen(TpAppData *appData, TpScreen *object)
+{
+    if (!appData)
+        return false;
+
+    if (!object)
+        return false;
+
+    if (object->objectType() != Tp::TP_TOP_OBJECT)
+    {
+        std::cout << "bind screen type error !" << std::endl;
+        return false;
+    }
+
+    if (appData->vScreen)
+    {
+        std::cout << "bind screen only once !" << std::endl;
+        return false;
+    }
+
+    bool ret = (appData->vScreen != object);
+
+    if (ret)
+    {
+        appData->gMutex.lock();
+        appData->vScreen = object;
+        appData->gMutex.unlock();
+    }
+
+    appData->thread->start();
+
+    return ret;
 }
 
 static inline bool holdAppSecondRun(const char *runPath, const char *uuid)

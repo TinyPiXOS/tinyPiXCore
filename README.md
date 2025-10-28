@@ -123,11 +123,11 @@ TinyPiXOS整体架构图
 
 ### 源码下载
 
-拉取代码，可以使用Github地址直接下拉，或者使用Gitee同步仓库拉取
+拉取代码，可以使用Gitee地址直接下拉，或者使用同步仓库Github拉取
 
 ```bash
-git clone https://github.com/TinyPiXOS/TinyPiXOS.git
-# git clone https://gitee.com/tinypixos/TinyPiXOS.git
+# git clone https://github.com/TinyPiXOS/TinyPiXOS.git
+git clone https://gitee.com/tinypixos/TinyPiXOS.git
 ```
 
 ### 依赖库清单
@@ -152,12 +152,6 @@ git clone https://github.com/TinyPiXOS/TinyPiXOS.git
 | libusb-1.0        |                  |          | 1.0.25  |
 
 ### 构建安装
-
-- ​**安装 TpWM 基础库**
-
-```bash
-# 需要先安装完成 TpWM 相关依赖；参考官网 TpWM 安装教程
-```
 
 - ​**安装 依赖环境**
 
@@ -306,4 +300,10 @@ TinyPiXOS开发者服务邮箱
 
 <div align="center">
 <img src="https://file.tinypixos.com/tinypixos/团队.png" width="550" height="300" alt="核心团队">
+</div>
+
+## 支持作者
+
+<div align="center">
+<img src="https://file.tinypixos.com/tinypixos/微信赞赏二维码.png" width="300" height="300" alt="核心团队">
 </div>

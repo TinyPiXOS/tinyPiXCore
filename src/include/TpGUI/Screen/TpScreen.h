@@ -21,7 +21,8 @@ public:
     virtual void setText(const TpString &text);
 
 public:
-    virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h) override;
+    virtual void setRect(const TpRect &rect) override;
+    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) override;
 
     /// @brief 设置窗口宽高
     /// @param width

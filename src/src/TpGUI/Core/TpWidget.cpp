@@ -223,7 +223,7 @@ void TpWidget::setRect(const TpRect &rect)
     setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-void TpWidget::setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h)
+void TpWidget::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 {
     TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     if (!set)
