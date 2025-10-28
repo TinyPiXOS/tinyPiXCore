@@ -49,93 +49,6 @@ struct TpWidgetCssData
     }
 };
 
-#if 0
-// 根据桌面工具栏高度，处理窗体Y坐标
-static int32_t processDeskTopBarY(TpWidget *dealWidget, int32_t originY)
-{
-    if (!dealWidget)
-        return originY;
-
-    // 检查当前对象类型
-    Tp::ItpObjectType objType = dealWidget->objectType();
-    bool isTopOrFloat = (objType == Tp::TP_TOP_OBJECT || objType == Tp::TP_FLOAT_OBJECT);
-
-    // 检查父对象类型
-    bool parentIsTop = false;
-    if (!isTopOrFloat)
-    {
-        if (TpWidget *parentPtr = dynamic_cast<TpWidget *>(dealWidget->parent()))
-        {
-            parentIsTop = (parentPtr->objectType() == Tp::TP_TOP_OBJECT);
-        }
-    }
-
-    // 合并条件并执行偏移计算
-    if (isTopOrFloat || parentIsTop)
-    {
-        TpAppData *appData = static_cast<TpAppData *>(TpApp::Inst()->appObjectSet());
-        if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
-        {
-            originY += appData->desktopBarInfo_.topBarHeight;
-        }
-    }
-
-    return originY;
-}
-
-// 将考虑桌面工具栏的Y坐标转换为原始坐标
-static int32_t processDesktopOriginY(TpWidget *dealWidget, int32_t processY)
-{
-    if (!dealWidget)
-        return processY;
-
-    // 检查当前对象类型
-    Tp::ItpObjectType objType = dealWidget->objectType();
-    bool isTopOrFloat = (objType == Tp::TP_TOP_OBJECT || objType == Tp::TP_FLOAT_OBJECT);
-
-    // 检查父对象类型
-    bool parentIsTop = false;
-    if (!isTopOrFloat)
-    {
-        if (TpWidget *parentPtr = dynamic_cast<TpWidget *>(dealWidget->parent()))
-        {
-            parentIsTop = (parentPtr->objectType() == Tp::TP_TOP_OBJECT);
-        }
-    }
-
-    // 合并条件并执行偏移计算
-    if (isTopOrFloat || parentIsTop)
-    {
-        TpAppData *appData = static_cast<TpAppData *>(TpApp::Inst()->appObjectSet());
-        if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
-        {
-            processY -= appData->desktopBarInfo_.topBarHeight;
-        }
-    }
-
-    return processY;
-}
-
-// 根据桌面工具栏高度，处理窗体高度
-static int32_t processDeskTopBarHeight(TpWidget *dealWidget, int32_t originHeight)
-{
-    if (!dealWidget)
-        return originHeight;
-
-    // 检查当前对象类型
-    if (dealWidget->objectType() == Tp::TP_TOP_OBJECT)
-    {
-        TpAppData *appData = static_cast<TpAppData *>(TpApp::Inst()->appObjectSet());
-        if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
-        {
-            originHeight -= appData->desktopBarInfo_.topBarHeight;
-        }
-    }
-
-    return originHeight;
-}
-#endif
-
 // 刷新缓存背景图
 static void refreshCacheImage(TpObjectData *set)
 {
@@ -157,10 +70,15 @@ static void refreshCacheImage(TpObjectData *set)
 
 static void changeXY(TpWidget *thisPtr, TpObjectData *set, int32_t x, int32_t y)
 {
-    if (!set)
+    if (!thisPtr)
         return;
 
-    // y = processDeskTopBarY(thisPtr, y);
+    // TpMainWindow不可被移动坐标
+    if (thisPtr->pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
+    if (!set)
+        return;
 
     int32_t ox = set->logicalRect.x();
     int32_t oy = set->logicalRect.y();
@@ -196,6 +114,13 @@ static void changeXY(TpWidget *thisPtr, TpObjectData *set, int32_t x, int32_t y)
 
 static void changeWidth(TpWidget *thisPtr, TpObjectData *set, const uint32_t &w)
 {
+    if (!thisPtr)
+        return;
+
+    // TpMainWindow不可被修改尺寸
+    if (thisPtr->pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     if (!set)
         return;
 
@@ -240,6 +165,13 @@ static void changeWidth(TpWidget *thisPtr, TpObjectData *set, const uint32_t &w)
 
 static void changeHeight(TpWidget *thisPtr, TpObjectData *set, const uint32_t &h)
 {
+    if (!thisPtr)
+        return;
+
+    // TpMainWindow不可被修改尺寸
+    if (thisPtr->pluginType().compare(TO_STRING(TpMainWindow)) == 0)
+        return;
+
     if (!set)
         return;
 

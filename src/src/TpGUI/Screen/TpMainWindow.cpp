@@ -13,12 +13,7 @@
 
 struct TpMainWindowData
 {
-    uint8_t alpha;
-    uint32_t color;
-    int32_t attr;
-
     TpMainWindowData()
-        : alpha(0), color(0), attr(0)
     {
     }
 };
@@ -29,28 +24,27 @@ TpMainWindow::TpMainWindow(const char *type)
     TpMainWindowData *screenData = new TpMainWindowData();
     data_ = screenData;
 
-    if (this->objectType() != Tp::TP_TOP_OBJECT)
+    if (this->objectType() != Tp::TP_FLOAT_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
     }
 
-    TpObjectData *set = static_cast<TpObjectData *>(this->objectSets());
-    if (set)
+    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    set->top = this->topObject();
+
+    // 调整窗口大小
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+
+    int32_t fixScreenY = 0;
+    if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
     {
-        uint32_t rW = 0, rH = 0;
-        tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
-
-        set->absoluteRect.setRect(0, 0, rW, rH);
-        set->logicalRect.setRect(0, 0, rW, rH);
-
-        screenData->alpha = 0xff;
-        screenData->color = TpColors::Black;
-        screenData->attr = TpMainWindow::ITP_POP_STYLE;
-
-        this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
+        fixScreenY = appData->desktopBarInfo_.topBarHeight;
     }
 
-    set->top = this->topObject();
+    uint32_t rW = 0, rH = 0;
+    tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
+
+    tinyPiX_wf_set_rect(set->agent, 0, fixScreenY, rW, rH - fixScreenY);
 }
 
 TpMainWindow::~TpMainWindow()
@@ -66,45 +60,5 @@ TpMainWindow::~TpMainWindow()
 
 Tp::ItpObjectType TpMainWindow::objectType()
 {
-    return Tp::TP_TOP_OBJECT;
-}
-
-int32_t TpMainWindow::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr)
-{
-    TpMainWindowData *screenData = static_cast<TpMainWindowData *>(data_);
-    if (!screenData)
-        return false;
-
-    switch (screenAttr)
-    {
-    case TpMainWindow::ITP_FULL_STYLE:
-    case TpMainWindow::ITP_POP_STYLE:
-    {
-    }
-    break;
-    default:
-        return false;
-    }
-
-    TpObjectData *set = (TpObjectData *)this->objectSets();
-
-    if (set)
-    {
-        screenData->alpha = alpha;
-        screenData->color = color;
-        screenData->attr = screenAttr;
-
-        return tinyPiX_wf_send_app_state(set->agent, TP_INVALIDATE_VALUE, this->visible(), this->objectActive(), color, alpha, screenAttr);
-    }
-
-    return false;
-}
-
-bool TpMainWindow::onActiveEvent(TpActiveEvent *event)
-{
-    TpMainWindowData *screenData = static_cast<TpMainWindowData *>(data_);
-    if (!screenData)
-        return false;
-
-    return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
+    return Tp::TP_FLOAT_OBJECT;
 }

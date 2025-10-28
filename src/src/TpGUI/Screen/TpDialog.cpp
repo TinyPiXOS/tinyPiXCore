@@ -40,7 +40,8 @@ struct TpDialogData
     Semaphore sema;
 };
 
-TpDialog::TpDialog(const char *type) : TpScreen(type)
+TpDialog::TpDialog(const char *type)
+    : TpScreen(type)
 {
     TpDialogData *dialogData = new TpDialogData();
     data_ = dialogData;

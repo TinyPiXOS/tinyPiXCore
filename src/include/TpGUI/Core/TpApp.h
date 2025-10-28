@@ -73,7 +73,11 @@ public:
     };
 
 public:
-    TpApp(int32_t argc, char *argv[]);
+    /// @brief 主事件循环构造函数
+    /// @param argc 参数数量
+    /// @param argv 入口参数
+    /// @param deskTopStrKey 桌面唯一标识；普通应用无需处理
+    TpApp(int32_t argc, char *argv[], const TpString& deskStrKey = "");
     virtual ~TpApp();
 
 public:
@@ -82,15 +86,12 @@ public:
     static TpApp *Inst();
 
 public:
-    /// @brief 绑定应用主窗体
-    /// @param object 主窗体对象指针
-    /// @return 绑定结果
-    virtual bool bindVScreen(TpScreen *object);
     /// @brief 开启tpApp主事件循环
     /// @return 启动结果
     virtual bool run();
 
-public:
+    /// @brief 获取剪切板单例指针
+    /// @return 剪切板指针
     virtual TpClipboard *clipboard();
 
     /// @brief 获取当前程序主窗体

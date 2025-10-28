@@ -4,45 +4,35 @@
 #include "TpScreen.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpMainWindowData);
+/// @brief 应用主窗体，每个应用只能拥有一个TpMainWindow
 class TpMainWindow
     : public TpScreen
 {
 public:
-    enum
-    {
-        ITP_FULL_STYLE,
-        ITP_POP_STYLE,
-    };
-
-public:
-    TpMainWindow(const char *type = "tinyPiX_WM_Screen");
+    TpMainWindow(const char *type = "tinyPiX_USE_Float");
     virtual ~TpMainWindow();
 
 public:
-    virtual Tp::ItpObjectType objectType() final;
+    virtual Tp::ItpObjectType objectType() final override;
 
-public:
-    /// @brief 设置桌面颜色，该树形会下发至应用的appchanged
-    /// @param alpha
-    /// @param color
-    /// @param screenAttr
-    /// @return
-    virtual int setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr);
+    /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
+    /// @return 类名字符串
+    virtual TpString pluginType() override { return TO_STRING(TpMainWindow); }
 
-private:
-    virtual void setRect(const TpRect &rect) final {};
-    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) final {};
+    /// @brief TpMainWindow无resize事件
+    virtual bool onResizeEvent(TpResizeEvent *event) final override { return true; };
 
 private:
-    virtual void setBeMoved(bool moved = false) final {};
-    virtual bool moved() final { return false; };
+    virtual void setRect(const TpRect &rect) final override {};
+    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) final override {};
 
 private:
-    virtual void setAlpha(const uint8_t &alpha = 0xff) final {};
-    virtual uint8_t alpha() final { return 0xff; };
+    virtual void setBeMoved(bool moved = false) final override {};
+    virtual bool moved() final override { return false; };
 
-public:
-    virtual bool onActiveEvent(TpActiveEvent *event);
+private:
+    virtual void setAlpha(const uint8_t &alpha = 0xff) final override {};
+    virtual uint8_t alpha() final override { return 0xff; };
 
 private:
     ITpMainWindowData *data_;

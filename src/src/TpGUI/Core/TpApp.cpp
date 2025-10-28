@@ -1,7 +1,7 @@
 #include "TpApp.h"
 #include "TpApp_p.h"
 
-TpApp::TpApp(int32_t argc, char *argv[])
+TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
 {
     // // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -10,11 +10,8 @@ TpApp::TpApp(int32_t argc, char *argv[])
     TpAppData *set = new TpAppData();
 
     bool ret = decideRunOnce(argv[0]);
-
     if (ret)
-    {
         std::exit(0);
-    }
 
     set->mainThreadId = std::this_thread::get_id();
 
@@ -45,27 +42,41 @@ TpApp::TpApp(int32_t argc, char *argv[])
     appInst = this;
     this->data_ = set;
 
+    // 绑定物理窗口；判断是否是桌面
+    if (deskStrKey.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
+    {
+        set->isDesk = true;
+        bindVScreen(set, new TpFixScreen("tinyPiX_DeskTop_0x43ef3dc14"));
+    }
+    else
+    {
+        bindVScreen(set, new TpFixScreen());
+    }
+
     // APP创建，解析初始CSS样式
     TpString cssFilePath = parseThemeFile(set->systemTheme);
     set->cssParser_->parseCss(cssFilePath);
 
     // 尝试读取桌面信息；如果没有桌面则读取失败
-    try
+    if (!set->isDesk)
     {
-        // 记录桌面信息要根据topbar的数据，决定应用所有窗体的xy偏移量，和真实可用宽高
-        TpShareMemory deskTopBarshare("DeskTopBarConfig", 1024, false);
-        if (deskTopBarshare.isMapped())
+        try
         {
-            if (deskTopBarshare.readData(&set->desktopBarInfo_, sizeof(set->desktopBarInfo_)))
+            // 记录桌面信息要根据topbar的数据，决定应用所有窗体的xy偏移量，和真实可用宽高
+            TpShareMemory deskTopBarshare("DeskTopBarConfig", 1024, false);
+            if (deskTopBarshare.isMapped())
             {
-                std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
-                          << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
+                if (deskTopBarshare.readData(&set->desktopBarInfo_, sizeof(set->desktopBarInfo_)))
+                {
+                    std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
+                              << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
+                }
             }
         }
-    }
-    catch (const std::exception &e)
-    {
-        // 共享内存不存在;无桌面模式
+        catch (const std::exception &e)
+        {
+            // 共享内存不存在;无桌面模式
+        }
     }
 }
 
@@ -101,43 +112,6 @@ TpApp::~TpApp()
 TpApp *TpApp::Inst()
 {
     return appInst;
-}
-
-bool TpApp::bindVScreen(TpScreen *object)
-{
-    TpAppData *set = static_cast<TpAppData *>(this->data_);
-    bool ret = false;
-
-    if (!set)
-        return false;
-
-    if (!object)
-        return false;
-
-    // if (object->objectType() != Tp::TP_TOP_OBJECT)
-    // {
-    //     std::cout << "bind screen type error !" << std::endl;
-    //     return false;
-    // }
-
-    if (set->vScreen)
-    {
-        std::cout << "bind screen only once !" << std::endl;
-        return false;
-    }
-
-    ret = (set->vScreen != object);
-
-    if (ret)
-    {
-        set->gMutex.lock();
-        set->vScreen = object;
-        set->gMutex.unlock();
-    }
-
-    set->thread->start();
-
-    return ret;
 }
 
 bool TpApp::run()

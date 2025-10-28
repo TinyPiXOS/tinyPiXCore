@@ -176,7 +176,7 @@ int32_t TpCssData::width()
     TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
     if (cssData->cssDataMap.contains("width"))
         return cssData->cssDataMap.value("width").toInt();
-    return 10;
+    return 1;
 }
 
 int32_t TpCssData::minimumWidth()
@@ -200,7 +200,7 @@ int32_t TpCssData::height()
     TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
     if (cssData->cssDataMap.contains("height"))
         return cssData->cssDataMap.value("height").toInt();
-    return 10;
+    return 1;
 }
 
 int32_t TpCssData::minimumHeight()
@@ -329,7 +329,7 @@ int32_t TpCssData::fontSize()
     TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
     if (cssData->cssDataMap.contains("font-size"))
         return cssData->cssDataMap.value("font-size").toInt();
-    return 10;
+    return 1;
 }
 
 int32_t TpCssData::gap()
@@ -411,7 +411,7 @@ int32_t TpCssData::iconSize()
     TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
     if (cssData->cssDataMap.contains("icon-size"))
         return cssData->cssDataMap.value("icon-size").toInt();
-    return 10;
+    return 1;
 }
 
 int32_t TpCssData::iconBackground()
