@@ -1400,7 +1400,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
         return false;
 
     // 缓存频繁使用的计算和属性
-    Tp::ItpObjectType type = inputObjectChild->objectType();
+    Tp::TpObjectType type = inputObjectChild->objectType();
     const TpRect objectAbsRect = inputObjectChild->toScreen();
     const int32_t objWidth = inputObjectChild->width();
     const int32_t objHeight = inputObjectChild->height();
@@ -1410,7 +1410,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     eventData->object = inputObjectChild;
     eventData->surface = input->surface;
 
-    if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_TOP_OBJECT)
+    if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FIXSCREEN_OBJECT)
     {
         eventData->offsetX = 0;
         eventData->offsetY = 0;

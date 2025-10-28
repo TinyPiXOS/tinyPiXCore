@@ -20,7 +20,7 @@ public:
     virtual ~TpFixScreen();
 
 public:
-    virtual Tp::ItpObjectType objectType() final;
+    virtual Tp::TpObjectType objectType() final;
 
     virtual int setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr);
 

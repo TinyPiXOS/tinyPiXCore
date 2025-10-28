@@ -29,7 +29,7 @@ TpFixScreen::TpFixScreen(const char *type)
     TpFixScreenData *screenData = new TpFixScreenData();
     data_ = screenData;
 
-    if (this->objectType() != Tp::TP_TOP_OBJECT)
+    if (this->objectType() != Tp::TP_FIXSCREEN_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
     }
@@ -64,9 +64,9 @@ TpFixScreen::~TpFixScreen()
     }
 }
 
-Tp::ItpObjectType TpFixScreen::objectType()
+Tp::TpObjectType TpFixScreen::objectType()
 {
-    return Tp::TP_TOP_OBJECT;
+    return Tp::TP_FIXSCREEN_OBJECT;
 }
 
 int32_t TpFixScreen::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr)

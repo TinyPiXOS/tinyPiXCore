@@ -346,7 +346,9 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         UpdateCommand task = updateCommandQueue.front();
         updateCommandQueue.pop();
 
-        if (task.updateObj->objectType() == Tp::TP_FLOAT_OBJECT || task.updateObj->objectType() == Tp::TP_TOP_OBJECT)
+        if (task.updateObj->objectType() == Tp::TP_FLOAT_OBJECT ||
+            task.updateObj->objectType() == Tp::TP_FIXSCREEN_OBJECT ||
+            task.updateObj->objectType() == Tp::TP_MAIN_WINDOW_OBJECT)
         {
             if (!task.updateObj->objectActive())
                 continue;
@@ -373,15 +375,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         {
             TpRect taskRect(task.x, task.y, task.w, task.h);
 
-            // if (task.updateObj->objectType() == Tp::TP_TOP_OBJECT)
-            // {
-            //     fixScreenPair.second.updateRect.unions(taskRect);
-            // }
-            // else
-            {
-                ItpObjectPaintInput &paintInfo = mergeUpdateWidget[task.updateObj];
-                paintInfo.updateRect.unions(taskRect);
-            }
+            ItpObjectPaintInput &paintInfo = mergeUpdateWidget[task.updateObj];
+            paintInfo.updateRect.unions(taskRect);
         }
         else
         {
@@ -401,16 +396,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             paintInput.updateRect.setWidth(task.w);
             paintInput.updateRect.setHeight(task.h);
 
-            // if (task.updateObj->objectType() == Tp::TP_TOP_OBJECT)
-            // {
-            //     fixScreenPair.first = task.updateObj;
-            //     fixScreenPair.second = paintInput;
-            // }
-            // else
-            {
-
-                mergeUpdateWidget[task.updateObj] = paintInput;
-            }
+            mergeUpdateWidget[task.updateObj] = paintInput;
         }
     }
 
@@ -457,7 +443,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     }
 }
 
-static bool bindVScreen(TpAppData *appData, TpScreen *object)
+static bool bindVScreen(TpAppData *appData, TpFixScreen *object)
 {
     if (!appData)
         return false;
@@ -465,7 +451,7 @@ static bool bindVScreen(TpAppData *appData, TpScreen *object)
     if (!object)
         return false;
 
-    if (object->objectType() != Tp::TP_TOP_OBJECT)
+    if (object->objectType() != Tp::TP_FIXSCREEN_OBJECT)
     {
         std::cout << "bind screen type error !" << std::endl;
         return false;

@@ -13,7 +13,7 @@ public:
     virtual ~TpMainWindow();
 
 public:
-    virtual Tp::ItpObjectType objectType() final override;
+    virtual Tp::TpObjectType objectType() final override;
 
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
     /// @return 类名字符串

@@ -1144,7 +1144,7 @@ void TpWidget::onThemeChangeEvent(TpThemeChangeEvent *event)
     // setRoundCorners(childData->enabledCssData->roundCorners());
 }
 
-Tp::ItpObjectType TpWidget::objectType()
+Tp::TpObjectType TpWidget::objectType()
 {
     return Tp::TP_CHILD_OBJECT;
 }
@@ -1182,7 +1182,7 @@ void TpWidget::setStyleSheet(const TpString &_styleSheetStr)
     // 解析CSS字符串
     TpApp::Inst()->cssParser()->parseCss(_styleSheetStr);
 
-    if (objectType() != Tp::TP_TOP_OBJECT)
+    if (objectType() != Tp::TP_MAIN_WINDOW_OBJECT && objectType() != Tp::TP_FIXSCREEN_OBJECT)
         refreshBaseCss();
 }
 
