@@ -45,40 +45,40 @@ public:
         disconnect();
     }
 
-    bool connect(const TpString &server_address = "", uint16_t port = DEFAULT_PORT)
+    bool connect(const TpString &serverAddress = "", uint16_t port = DEFAULT_PORT)
     {
         if (connected)
             return true;
 
         // 设置服务器地址
-        if (server_address.empty())
+        if (serverAddress.empty())
         {
             this->serverAddress = DEFAULT_SERVER;
         }
         else
         {
-            this->serverAddress = server_address;
+            this->serverAddress = serverAddress;
         }
         this->port = port;
 
         // 构建连接地址
-        TpString pub_addr = this->serverAddress + ":" + std::to_string(port);
-        TpString sub_addr = this->serverAddress + ":" + std::to_string(port + 1);
+        TpString pubAddr = this->serverAddress + ":" + std::to_string(port);
+        TpString subAddr = this->serverAddress + ":" + std::to_string(port + 1);
 
         // 连接到服务器
-        if (nn_connect(pubSocket, pub_addr.c_str()) < 0)
+        if (nn_connect(pubSocket, pubAddr.c_str()) < 0)
         {
             return false;
         }
 
-        if (nn_connect(subSocket, sub_addr.c_str()) < 0)
+        if (nn_connect(subSocket, subAddr.c_str()) < 0)
         {
             return false;
         }
 
         // 设置接收缓冲区大小
-        int recv_size = 10 * 1024 * 1024; // 10MB
-        nn_setsockopt(subSocket, NN_SOL_SOCKET, NN_RCVBUF, &recv_size, sizeof(recv_size));
+        int recvSize = 10 * 1024 * 1024; // 10MB
+        nn_setsockopt(subSocket, NN_SOL_SOCKET, NN_RCVBUF, &recvSize, sizeof(recvSize));
 
         // 订阅所有主题
         if (nn_setsockopt(subSocket, NN_SUB, NN_SUB_SUBSCRIBE, "", 0) < 0)
@@ -132,23 +132,24 @@ public:
         if (size == 0)
             return false;
 
-        // 消息格式: [主题长度(4字节)][主题][数据]
-        uint32_t topic_len = static_cast<uint32_t>(strlen(topic));
-        uint32_t total_size = sizeof(uint32_t) + topic_len + size;
+        // 消息格式: [主题长度(4字节)][主题][数据];主题长度+1，预留\0
+        uint32_t topicLen = static_cast<uint32_t>(strlen(topic) + 1);
+        uint32_t totalSize = sizeof(uint32_t) + topicLen + size;
 
-        if (total_size > MAX_MSG_SIZE)
-        {
+        if (totalSize > MAX_MSG_SIZE)
             return false;
-        }
 
-        void *msg = nn_allocmsg(total_size, 0);
+        void *msg = nn_allocmsg(totalSize, 0);
         if (!msg)
             return false;
 
         char *ptr = static_cast<char *>(msg);
-        *reinterpret_cast<uint32_t *>(ptr) = topic_len;
-        memcpy(ptr + sizeof(uint32_t), topic, topic_len);
-        memcpy(ptr + sizeof(uint32_t) + topic_len, data, size);
+        *reinterpret_cast<uint32_t *>(ptr) = topicLen;
+        memcpy(ptr + sizeof(uint32_t), topic, topicLen);
+        memcpy(ptr + sizeof(uint32_t) + topicLen, data, size);
+
+        char* topicEnd = ptr + sizeof(uint32_t) + topicLen - 1;
+        *topicEnd = '\0';
 
         int rc = nn_send(pubSocket, &msg, NN_MSG, NN_DONTWAIT);
         if (rc < 0)
@@ -271,18 +272,15 @@ private:
         // 消息格式: [主题长度(4字节)][主题][数据]
         if (bytes > 4)
         {
-            uint32_t topic_len = *reinterpret_cast<uint32_t *>(msg);
-            if (topic_len > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topic_len)
+            uint32_t topicLen = *reinterpret_cast<uint32_t *>(msg);
+            if (topicLen > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topicLen)
             {
-                char topic[topic_len + 1];
-                memcpy(topic, msg + sizeof(uint32_t), topic_len);
-                topic[topic_len] = '\0';
-
-                const void *data = msg + sizeof(uint32_t) + topic_len;
-                uint32_t data_size = bytes - sizeof(uint32_t) - topic_len;
+                const char* topic = msg + sizeof(uint32_t);
+                const void *data = msg + sizeof(uint32_t) + topicLen;
+                uint32_t dataSize = bytes - sizeof(uint32_t) - topicLen;
 
                 // 通知订阅者
-                notifySubscribers(topic, data, data_size);
+                notifySubscribers(topic, data, dataSize);
             }
         }
     }
@@ -342,9 +340,9 @@ bool initializeGateway(const char *serverAddress)
 
     std::lock_guard<std::mutex> lock(gClientMutex);
     bool connectRes = false;
-    // if (server_address)
+    // if (serverAddress)
     // {
-    //     connectRes = g_client.connect(server_address);
+    //     connectRes = g_client.connect(serverAddress);
     // }
     // else
     // {
