@@ -9,7 +9,7 @@
 
 TP_DEF_VOID_TYPE_VAR(ITpWidgetsGatewayData);
 /// @brief 系统组件相关回调接口类；每个小组件只应继承一次该接口类
-class TpWidgetsGateway : public TpGateway
+class TpWidgetsGateway : public ITpGatewayHander
 {
 public:
     TpWidgetsGateway() = delete;

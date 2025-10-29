@@ -665,7 +665,7 @@ int32_t TpScreen::dispatchEvent(void *events)
             return false;
         }
 
-        this->find(point);
+        // this->find(point);
 
         std::list<TpObject *> keyList;
         set->tmp.curfocus = set->tmp.curObject;

@@ -190,6 +190,40 @@ private:
     TpBattery *testBattery_;
 };
 
+class TestDialog : public TpWidget
+{
+public:
+    TestDialog(TpWidget *parent) : TpWidget(parent)
+    {
+    }
+    ~TestDialog() {}
+
+    virtual bool onMousePressEvent(TpMouseEvent *event) override
+    {
+        std::cout << "clickPos : " << event->pos().x() << " , " << event->pos().y() << std::endl;
+        std::cout << "clickGlobalPos : " << event->globalPos().x() << " , " << event->globalPos().y() << std::endl;
+        return true;
+    }
+
+    // virtual bool onMouseMoveEvent(TpMouseEvent *event) override
+    // {
+    //     std::cout << "onMouseMoveEventPos : " << event->pos().x() << " , " << event->pos().y() << std::endl;
+    //     std::cout << "onMouseMoveEventGlobalPos : " << event->globalPos().x() << " , " << event->globalPos().y() << std::endl;
+    //     return true;
+    // }
+
+    virtual bool onPaintEvent(TpPaintEvent *event) override
+    {
+        TpWidget::onPaintEvent(event);
+
+        TpPainter *painter = event->painter();
+        painter->setPen(TpPen(TpColors::Orange, 3));
+
+        painter->drawRect(0, 0, 50, 50);
+        return true;
+    }
+};
+
 int32_t main(int32_t argc, char *argv[])
 {
     TpApp app(argc, argv);
@@ -198,12 +232,13 @@ int32_t main(int32_t argc, char *argv[])
     TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 
-    // TpDialog *dia = new TpDialog();
-    // dia->setRect(0, 30, 1080, 690);
+    TestDialog *dia = new TestDialog(vScreen);
+    dia->setBackGroundColor(_RGB(255, 255, 255));
+    dia->setRect(0, 0, 500, 500);
 
     // TpLabel *bgLabel = new TpLabel(vScreen);
     // bgLabel->setBackGroundColor(_RGB(200, 80, 80));
-    // bgLabel->setRect(300, 50, 500, 500);
+    // bgLabel->setRect(0, 0, 500, 500);
 
     // TestClass *testObj = new TestClass();
     // testObj->setBgLabel(bgLabel);

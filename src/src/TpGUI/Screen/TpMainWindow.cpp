@@ -43,7 +43,7 @@ TpMainWindow::TpMainWindow(const char *type)
     set->top = this->topObject();
 
     // 调整窗口大小
-    refreshMainWindow(appData, set);
+    refreshMainWindow(appData, this, set);
 }
 
 TpMainWindow::~TpMainWindow()

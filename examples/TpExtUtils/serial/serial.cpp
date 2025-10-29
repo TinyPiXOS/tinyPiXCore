@@ -8,8 +8,8 @@ int main(int32_t argc, char *argv[])
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
-	app.bindVScreen(vScreen);
+	 weekly
+	
 
 	TpSerialPort tty("/dev/ttyUSB0");
 	if(!tty.open())
