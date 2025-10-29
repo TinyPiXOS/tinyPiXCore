@@ -382,11 +382,13 @@ echo "映射文件: $MAPPING_FILE"
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
     libsdl2-dev libdrm-dev libudev-dev
-    libcairo2-dev libpango1.0-dev libglib2.0-dev
-    libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev
-    libgbm-dev libgles2 libegl-dev 
-	librsvg2-dev libssl-dev libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev
-	bluez-obexd bluez-alsa-utils libasound2-plugin-bluez
+	libcairo2-dev libpango1.0-dev libglib2.0-dev \
+	libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
+	libgbm-dev libgles2 libegl-dev \
+	libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
+	libavutil-dev libswscale-dev libswresample-dev \
+	libavfilter-dev libavdevice-dev librsvg2-dev bluez libbluetooth-dev \
+	libdbus-1-dev bluez-alsa-utils libasound2-plugin-bluez bluez-obexd  libusb-1.0-0-dev \
 	libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
 )
 # 可能已经通过手动安装的库
@@ -429,62 +431,55 @@ check_network() {
     echo "✓ 网络连接正常"
     return 0
 }
-check_and_install_packages() {
-    if ! command -v apt-get >/dev/null; then
-        echo "[错误] 只支持基于Debian的系统（如Ubuntu）自动安装依赖包" >&2
-        echo "请手动安装以下包：${packages[*]}" >&2
-        return 1
-    fi
 
-    # 更新包列表...
-    echo "  更新包列表..."
-    if ! apt-get update >/dev/null; then
-        echo "[错误] 更新包列表失败，请检查软件源配置" >&2
-        return 1
-    fi
-
-    for pkg in "$@"; do
-        # 使用 dpkg-query 精确检查
-        if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
-            echo "  ✓ $pkg 已安装"
-			continue;
-		fi
-		# 检查可能通过手动安装的库
-		if [[ -n "${LIB_DETECT_FUNCTIONS[$pkg]}" ]]; then
-            if ${LIB_DETECT_FUNCTIONS[$pkg]}; then
-                echo "  ✓ [$pkg] 检测到手动编译安装"
-                continue  # 跳过安装流程
-            fi
-        fi
-		#安装
-		echo "  ▸ 正在安装 $pkg ..."
-		if ! apt-get install -y "$pkg" >/dev/null; then
-			echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
-			return 1
-		fi
-    done
-    
-    return 0
-}
 check_and_install_packages() {
 	local has_network=$1  # 接收网络状态参数
     shift  # 移除第一个参数，剩余参数为包列表
+	local packages=("$@") #包列表
 
-    if ! command -v apt-get >/dev/null; then
-        echo "[错误] 只支持基于Debian的系统（如Ubuntu）自动安装依赖包" >&2
-        echo "请手动安装以下包：${packages[*]}" >&2
-        exit 1
+    # 检测系统可用的包管理工具
+    local pkg_manager=""
+    if command -v apt > /dev/null 2>&1; then
+        pkg_manager="apt"
+    elif command -v apt-get > /dev/null 2>&1; then
+        pkg_manager="apt-get"
+    else
+        echo "❌ 当前系统未检测到 apt 或 apt-get 包管理器。" >&2
+        echo "📋 需要手动安装的软件包列表: ${packages[*]}" >&2
+        echo "💡 请根据您的嵌入式平台文档，通过源码或特定包管理器安装上述软件。" >&2
+        return 1
     fi
 
-    # 更新包索引
-	 if [ $has_network -eq 0 ]; then
-        echo "▸ 更新包列表..."
-        if ! apt-get update >/dev/null; then
+	if [ $has_network -eq 0 ]; then
+        echo "▸ 检测到包管理器: $pkg_manager, 开始自动安装流程..."
+        echo "▸ 更新软件包列表..."
+        if ! sudo $pkg_manager update > /dev/null 2>&1; then
             echo "❌ 更新包列表失败" >&2
             return 1
         fi
+
+        echo "▸ 正在安装软件包: ${packages[*]} ..."
+        if sudo $pkg_manager install -y "${packages[@]}" > /dev/null 2>&1; then
+            echo "✓ 所有软件包安装成功。"
+            return 0
+        else
+            echo "❌ 软件包安装失败，请检查:" >&2
+            echo "  • 网络连接" >&2
+            echo "  • 软件源配置" >&2
+            echo "  • 软件包名称拼写" >&2
+            return 1
+        fi
+
+    # 4. 有包管理器但无网络：提示手动安装
+    else
+        echo "❌ 检测到包管理器但无网络连接，无法自动安装。" >&2
+        echo "📋 需要手动安装的软件包列表: ${packages[*]}" >&2
+        echo "💡 请在有网络的环境下执行自动安装，或手动下载上述软件的 .deb 包及其依赖后进行离线安装。" >&2
+        return 1
     fi
 
+	#循环安装所有包
+	: '		#按块注释调这部分，改为直接安装
     for pkg in "$@"; do
         # 方法1：使用 dpkg-query 精确检查（推荐）
          # 使用 dpkg-query 精确检查
@@ -506,12 +501,13 @@ check_and_install_packages() {
 			return 1
 		fi
         echo "  ▸ 正在安装 $pkg ..."
-		if ! apt-get install -y "$pkg" >/dev/null; then
+		if ! $pkg_manager install -y "$pkg" >/dev/null; then
 			echo "[错误] 安装 $pkg 失败，请检查网络连接或软件源配置" >&2
 			return 1
 		fi
         echo "  ✓ $pkg 安装成功"
     done
+	'
 }
 
 if check_network; then
@@ -521,9 +517,17 @@ else
 fi
 
 # 安装依赖包，传递网络状态和包列表
-if ! check_and_install_packages $has_network "${packages[@]}"; then
-    echo "❌ 依赖包检查/安装失败" >&2
-    exit 1
+# 保存依赖包安装状态
+DEPENDENCY_STATUS=0
+PACKAGES_TO_INSTALL_MANUALLY=()
+
+# 安装依赖包
+check_and_install_packages $has_network "${packages[@]}"
+DEPENDENCY_STATUS=$?
+
+# 根据状态码记录需要手动安装的包
+if [ $DEPENDENCY_STATUS -ne 0 ]; then
+    PACKAGES_TO_INSTALL_MANUALLY=("${packages[@]}")
 fi
 
 # ====================== 文件复制逻辑 ======================
@@ -754,6 +758,15 @@ run_post_install_scripts
 
 # 在文件复制后调用
 create_symlinks
+
+if [ $DEPENDENCY_STATUS -ne 0 ]; then
+    echo ""
+    echo "⚠️  以下依赖包需要手动安装:"
+    for pkg in "${packages[@]}"; do
+        echo "   $pkg"
+    done
+    echo ""
+fi
 
 echo -e "\n✅ 安装成功完成"
 exit 0
