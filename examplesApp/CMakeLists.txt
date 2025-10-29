@@ -27,6 +27,7 @@ set(SOURCE_FILES
 include_directories(${SOURCE_PATH})
 include_directories(/usr/include)
 include_directories(/usr/include/TinyPiX)
+include_directories(/usr/include/TinyPiX/TpWM)
 include_directories(/usr/include/TinyPiX/TpUtils)
 include_directories(/usr/include/TinyPiX/TpExtUtils)
 include_directories(/usr/include/TinyPiX/TpGUI)
