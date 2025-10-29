@@ -12,7 +12,7 @@ int32_t main(int32_t argc, char *argv[])
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true);
-	app.bindVScreen(vScreen);
+	
 
 	TpRadioButton *RadioButton1 = new TpRadioButton(vScreen);
 	RadioButton1->font()->setFontSize(50);

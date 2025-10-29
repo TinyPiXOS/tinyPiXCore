@@ -240,10 +240,6 @@ TpRect TpWidget::toScreen()
     if (!set)
         return TpRect();
 
-    // TpRect resRect = set->absoluteRect;
-    // resRect.setY(processDeskTopBarY(this, resRect.y()));
-    // resRect.setHeight(processDeskTopBarHeight(this, resRect.height()));
-
     return set->absoluteRect;
 }
 

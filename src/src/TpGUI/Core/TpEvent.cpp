@@ -1478,7 +1478,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     }
 
     TpObject *top = input->object->topObject();
-    if (top && (top != input->object) && top->objectType() == Tp::TP_FLOAT_OBJECT)
+    if (top && (top != input->object) && (top->objectType() == Tp::TP_FLOAT_OBJECT || top->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
     {
         clipRect.setX(clipRect.x() - offsetXVal);
         clipRect.setY(clipRect.y() - offsetYVal);

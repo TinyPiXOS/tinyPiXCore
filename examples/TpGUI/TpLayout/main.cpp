@@ -11,7 +11,7 @@ int32_t main(int32_t argc, char *argv[])
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 200));
-	app.bindVScreen(vScreen);
+	
 
 	TpDialog *floatScreenH = new TpDialog();
 	floatScreenH->setBackGroundColor(_RGBA(255, 255, 255, 200));

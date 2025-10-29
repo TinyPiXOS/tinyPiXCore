@@ -476,7 +476,7 @@ static bool bindVScreen(TpAppData *appData, TpFixScreen *object)
 }
 
 // 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(TpAppData *appData, TpObjectData *mainWindowObjData)
+static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpObjectData *mainWindowObjData)
 {
     // 调整窗口大小
     int32_t fixScreenY = 0;
@@ -488,6 +488,24 @@ static void refreshMainWindow(TpAppData *appData, TpObjectData *mainWindowObjDat
     uint32_t rW = 0, rH = 0;
     tinyPiX_wf_get_display_size(mainWindowObjData->agent, &rW, &rH);
     tinyPiX_wf_set_rect(mainWindowObjData->agent, 0, fixScreenY, rW, rH - fixScreenY);
+
+    // 更新坐标
+    // tinyPiX_wf_set_rect(mainWindowObjData->agent, 0, fixScreenY, rW, rH - fixScreenY);
+    // mainWindowObjData->offsetX = 0;
+    // mainWindowObjData->offsetY = fixScreenY;
+
+    // tinyPiX_wf_set_position(mainWindowObjData->agent, 0, fixScreenY);
+
+    mainWindowObjData->offsetX = 0;
+    mainWindowObjData->offsetY = fixScreenY;
+
+    // mainWindowObjData->logicalRect.setX(0);
+    // mainWindowObjData->logicalRect.setY(fixScreenY);
+
+    mainWindowObjData->absoluteRect.setX(0);
+    mainWindowObjData->absoluteRect.setY(fixScreenY);
+
+    // mainWindow->broadSetTop();
 }
 
 static inline bool holdAppSecondRun(const char *runPath, const char *uuid)

@@ -84,7 +84,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
                 return;
 
             TpObjectData *mainWindowData = static_cast<TpObjectData *>(set->mainWindow->objectSets());
-            refreshMainWindow(set, mainWindowData);
+            refreshMainWindow(set, set->mainWindow, mainWindowData);
         };
 
         // 订阅桌面数据

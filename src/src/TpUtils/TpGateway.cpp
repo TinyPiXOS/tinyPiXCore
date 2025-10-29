@@ -161,7 +161,7 @@ public:
         return true;
     }
 
-    bool subscribe(const char *topic, TpGateway *receiver)
+    bool subscribe(const char *topic, ITpGatewayHander *receiver)
     {
         std::lock_guard<std::mutex> lock(subMutex);
         subscriptions[topic].emplace_back(Subscription(receiver, nullptr));
@@ -175,7 +175,7 @@ public:
         return true;
     }
 
-    bool unsubscribe(const char *topic, TpGateway *receiver)
+    bool unsubscribe(const char *topic, ITpGatewayHander *receiver)
     {
         std::lock_guard<std::mutex> lock(subMutex);
         auto it = subscriptions.find(topic);
@@ -223,13 +223,13 @@ public:
 private:
     struct Subscription
     {
-        TpGateway *receiver = nullptr;
+        ITpGatewayHander *receiver = nullptr;
         RecvDataFunc callback;
 
         Subscription()
         {
         }
-        Subscription(TpGateway *recv, RecvDataFunc callback)
+        Subscription(ITpGatewayHander *recv, RecvDataFunc callback)
             : receiver(recv), callback(callback)
         {
         }
@@ -366,7 +366,7 @@ bool publishGatewayData(const char *topic, const void *data, const uint32_t &siz
     return gClient.publish(topic, data, size);
 }
 
-bool subscribeGatewayData(const char *topic, TpGateway *obj)
+bool subscribeGatewayData(const char *topic, ITpGatewayHander *obj)
 {
     std::lock_guard<std::mutex> lock(gClientMutex);
     return gClient.subscribe(topic, obj);
@@ -378,7 +378,7 @@ bool subscribeGatewayData(const char *topic, RecvDataFunc func)
     return gClient.subscribe(topic, func);
 }
 
-bool unsubscribeGatewayData(const char *topic, TpGateway *obj)
+bool unsubscribeGatewayData(const char *topic, ITpGatewayHander *obj)
 {
     std::lock_guard<std::mutex> lock(gClientMutex);
     return gClient.unsubscribe(topic, obj);
