@@ -405,7 +405,7 @@ check_sdl2_installed() {
 
 #网络检查函数
 check_network() {
-    local servers=("google.com" "8.8.8.8" "1.1.1.1")
+    local servers=("baidu.com" "8.8.8.8" "1.1.1.1")
     local connected=0
     
     echo "▸ 检查网络连接..."
