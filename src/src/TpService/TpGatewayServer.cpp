@@ -22,13 +22,13 @@ const uint32_t MAX_MSG_SIZE = 10 * 1024 * 1024; // 10MB
 
 class GatewayServerImpl : public TpGatewayServer
 {
-    int32_t pub_socket_ = -1;
-    int32_t sub_socket_ = -1;
+    int32_t pubSocket_ = -1;
+    int32_t subSocket_ = -1;
     std::atomic<bool> running_{false};
-    std::atomic<uint32_t> message_count_{0};
+    std::atomic<uint32_t> messageCount_{0};
 
-    std::thread receiver_thread_;
-    std::thread publisher_thread_;
+    std::thread receiverThread_;
+    std::thread publisherThread_;
 
     struct Message
     {
@@ -53,7 +53,7 @@ class GatewayServerImpl : public TpGatewayServer
         while (running_)
         {
             char *msg = nullptr;
-            int32_t bytes = nn_recv(sub_socket_, &msg, NN_MSG, 0);
+            int32_t bytes = nn_recv(subSocket_, &msg, NN_MSG, 0);
             if (bytes > 0)
             {
                 {
@@ -61,7 +61,7 @@ class GatewayServerImpl : public TpGatewayServer
                     message_queue_.push(Message(msg, bytes));
                 }
                 queue_cv_.notify_one();
-                message_count_++;
+                messageCount_++;
             }
             else
             {
@@ -108,7 +108,7 @@ class GatewayServerImpl : public TpGatewayServer
                         uint32_t payload_size = msg.size - sizeof(uint32_t) - topic_len;
 
                         // 广播消息
-                        nn_send(pub_socket_, msg.data, msg.size, 0);
+                        nn_send(pubSocket_, msg.data, msg.size, 0);
                     }
                 }
                 nn_freemsg(msg.data);
@@ -134,16 +134,16 @@ public:
         stop();
     }
 
-    bool start(uint16_t tcp_port) override
+    bool start(uint16_t tcpPort) override
     {
         if (running_)
             return true;
 
         // 创建套接字
-        pub_socket_ = nn_socket(AF_SP, NN_PUB);
-        sub_socket_ = nn_socket(AF_SP, NN_SUB);
+        pubSocket_ = nn_socket(AF_SP, NN_PUB);
+        subSocket_ = nn_socket(AF_SP, NN_SUB);
 
-        if (pub_socket_ < 0 || sub_socket_ < 0)
+        if (pubSocket_ < 0 || subSocket_ < 0)
         {
             stop();
             return false;
@@ -151,36 +151,36 @@ public:
 
         // 设置接收缓冲区大小
         int32_t recv_size = 10 * 1024 * 1024; // 10MB
-        nn_setsockopt(sub_socket_, NN_SOL_SOCKET, NN_RCVBUF, &recv_size, sizeof(recv_size));
-        nn_setsockopt(pub_socket_, NN_SOL_SOCKET, NN_SNDBUF, &recv_size, sizeof(recv_size));
+        nn_setsockopt(subSocket_, NN_SOL_SOCKET, NN_RCVBUF, &recv_size, sizeof(recv_size));
+        nn_setsockopt(pubSocket_, NN_SOL_SOCKET, NN_SNDBUF, &recv_size, sizeof(recv_size));
 
         // 设置IPC连接
-        // if (nn_bind(sub_socket_, IPC_ADDRESS) < 0)
+        // if (nn_bind(subSocket_, IPC_ADDRESS) < 0)
         // {
             // 允许IPC绑定失败
         // }
 
         // 绑定TCP端口
-        // std::string pub_addr = "tcp://*:" + std::to_string(tcp_port);
-        // std::string sub_addr = "tcp://*:" + std::to_string(tcp_port + 1);
+        // std::string pub_addr = "tcp://*:" + std::to_string(tcpPort);
+        // std::string sub_addr = "tcp://*:" + std::to_string(tcpPort + 1);
 
-        std::string sub_addr = "tcp://*:" + std::to_string(tcp_port);
-        std::string pub_addr = "tcp://*:" + std::to_string(tcp_port + 1);
+        std::string sub_addr = "tcp://*:" + std::to_string(tcpPort);
+        std::string pub_addr = "tcp://*:" + std::to_string(tcpPort + 1);
 
-        if (nn_bind(pub_socket_, pub_addr.c_str()) < 0)
+        if (nn_bind(pubSocket_, pub_addr.c_str()) < 0)
         {
             stop();
             return false;
         }
 
-        if (nn_bind(sub_socket_, sub_addr.c_str()) < 0)
+        if (nn_bind(subSocket_, sub_addr.c_str()) < 0)
         {
             stop();
             return false;
         }
 
         // 设置订阅所有主题
-        if (nn_setsockopt(sub_socket_, NN_SUB, NN_SUB_SUBSCRIBE, "", 0) < 0)
+        if (nn_setsockopt(subSocket_, NN_SUB, NN_SUB_SUBSCRIBE, "", 0) < 0)
         {
             stop();
             return false;
@@ -188,12 +188,12 @@ public:
 
         // 设置接收超时
         int32_t timeout = 100; // 100ms
-        nn_setsockopt(sub_socket_, NN_SOL_SOCKET, NN_RCVTIMEO, &timeout, sizeof(timeout));
+        nn_setsockopt(subSocket_, NN_SOL_SOCKET, NN_RCVTIMEO, &timeout, sizeof(timeout));
 
         // 启动工作线程
         running_ = true;
-        receiver_thread_ = std::thread(&GatewayServerImpl::receiverThread, this);
-        publisher_thread_ = std::thread(&GatewayServerImpl::publisherThread, this);
+        receiverThread_ = std::thread(&GatewayServerImpl::receiverThread, this);
+        publisherThread_ = std::thread(&GatewayServerImpl::publisherThread, this);
 
         return true;
     }
@@ -203,32 +203,32 @@ public:
         running_ = false;
         queue_cv_.notify_one();
 
-        if (receiver_thread_.joinable())
+        if (receiverThread_.joinable())
         {
-            receiver_thread_.join();
+            receiverThread_.join();
         }
 
-        if (publisher_thread_.joinable())
+        if (publisherThread_.joinable())
         {
-            publisher_thread_.join();
+            publisherThread_.join();
         }
 
-        if (pub_socket_ >= 0)
+        if (pubSocket_ >= 0)
         {
-            nn_close(pub_socket_);
-            pub_socket_ = -1;
+            nn_close(pubSocket_);
+            pubSocket_ = -1;
         }
 
-        if (sub_socket_ >= 0)
+        if (subSocket_ >= 0)
         {
-            nn_close(sub_socket_);
-            sub_socket_ = -1;
+            nn_close(subSocket_);
+            subSocket_ = -1;
         }
     }
 
     size_t getMessageRate() override
     {
-        auto count = message_count_.exchange(0);
+        auto count = messageCount_.exchange(0);
         return static_cast<size_t>(count);
     }
 };
