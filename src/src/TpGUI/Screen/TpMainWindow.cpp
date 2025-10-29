@@ -27,24 +27,23 @@ TpMainWindow::TpMainWindow(const char *type)
     if (this->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
+        return;
     }
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    // 判断是否已经有mainwindow了
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+    if (appData->mainWindow)
+    {
+        TpApp::Inst()->sendDelete(this);
+        return;
+    }
+    appData->mainWindow = this;
+
+    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     set->top = this->topObject();
 
     // 调整窗口大小
-    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
-
-    int32_t fixScreenY = 0;
-    if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
-    {
-        fixScreenY = appData->desktopBarInfo_.topBarHeight;
-    }
-
-    uint32_t rW = 0, rH = 0;
-    tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
-
-    tinyPiX_wf_set_rect(set->agent, 0, fixScreenY, rW, rH - fixScreenY);
+    refreshMainWindow(appData, set);
 }
 
 TpMainWindow::~TpMainWindow()

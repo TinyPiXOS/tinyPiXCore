@@ -46,7 +46,13 @@
 #include <thread>
 #include <queue>
 
-/// @brief 读取桌面信息;慎重修改，需和桌面保持协议一致
+#if 1 // 慎重修改，需和桌面保持协议一致
+
+// 应用上线标识;应用启动时发送该主题；桌面会通知应用工具栏信息
+const static TpString ApplicationRunTopic = "ApplicationRunTopicConfig";
+/// @brief 桌面工具栏信息
+const static TpString DeskTopBarInfoTopic = "DeskTopBarConfig";
+/// @brief 读取桌面信息;
 struct DeskTopBarInfo
 {
     /// @brief 顶部工具栏宽度值
@@ -60,8 +66,16 @@ struct DeskTopBarInfo
     {
     }
 
+    bool operator==(const DeskTopBarInfo &others)
+    {
+        return (topBarWidth == others.topBarWidth) &&
+               (topBarHeight == others.topBarHeight) &&
+               (topBarisVislble == others.topBarisVislble);
+    }
+
     virtual ~DeskTopBarInfo() {}
 };
+#endif
 
 struct ItpProcessInfo
 {
@@ -97,7 +111,10 @@ struct TpAppData
 
     std::mutex gMutex;
 
-    TpScreen *vScreen;
+    // 物理屏幕窗口
+    TpFixScreen *vScreen;
+    // 应用主窗口，每个应用只有一个
+    TpMainWindow *mainWindow = nullptr;
 
     TpClipboard *clipboard;
 
@@ -217,9 +234,6 @@ public:
                         set->floatScreenList.remove(*floatFindIter);
                     }
 
-                    // TpObjectData *vScreenObjDaata = (TpObjectData *)set->vScreen->objectSets();
-                    // vScreenObjDaata->tmp.deleteObject(object);
-
                     if (object == set->vScreen)
                     {
                         goto finished;
@@ -228,10 +242,8 @@ public:
             deleted:
                 set->gMutex.unlock();
 
-                // std::cout << "指针释放 " << std::endl;
                 delete object;
                 object = nullptr;
-                // set->vScreen->update();
             }
             break;
             case TpApp::TP_ABORT_ACT:
@@ -461,6 +473,21 @@ static bool bindVScreen(TpAppData *appData, TpFixScreen *object)
     appData->thread->start();
 
     return ret;
+}
+
+// 桌面工具栏变化，主窗口要刷新尺寸
+static void refreshMainWindow(TpAppData *appData, TpObjectData *mainWindowObjData)
+{
+    // 调整窗口大小
+    int32_t fixScreenY = 0;
+    if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
+    {
+        fixScreenY = appData->desktopBarInfo_.topBarHeight;
+    }
+
+    uint32_t rW = 0, rH = 0;
+    tinyPiX_wf_get_display_size(mainWindowObjData->agent, &rW, &rH);
+    tinyPiX_wf_set_rect(mainWindowObjData->agent, 0, fixScreenY, rW, rH - fixScreenY);
 }
 
 static inline bool holdAppSecondRun(const char *runPath, const char *uuid)
