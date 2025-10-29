@@ -57,28 +57,42 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     TpString cssFilePath = parseThemeFile(set->systemTheme);
     set->cssParser_->parseCss(cssFilePath);
 
-    // 初始化网关
-    initializeGateway();
-
     // 尝试读取桌面信息；如果没有桌面则读取失败
     if (!set->isDesk)
     {
+        // 初始化网关
+        initializeGateway();
+
         auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
         {
-            DeskTopBarInfo *recvInfo = (DeskTopBarInfo *)data;
             TpAppData *set = static_cast<TpAppData *>(data_);
+            DeskTopBarInfo *recvInfo = (DeskTopBarInfo *)data;
+
             set->desktopBarInfo_ = *recvInfo;
 
-            std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
-                      << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
+            // std::cout << "桌面信息：" << set->desktopBarInfo_.topBarWidth << " , " << set->desktopBarInfo_.topBarHeight
+            //           << " , " << set->desktopBarInfo_.topBarisVislble << std::endl;
 
             // 主屏幕根据Bar数据是否变化决定是否刷新主屏
+            if (*recvInfo == set->desktopBarInfo_)
+                return;
+
+            set->desktopBarInfo_ = *recvInfo;
+
+            // 更新主屏
+            if (!set->mainWindow)
+                return;
+
+            TpObjectData *mainWindowData = static_cast<TpObjectData *>(set->mainWindow->objectSets());
+            refreshMainWindow(set, mainWindowData);
         };
 
-        subscribeGatewayData("DeskTopBarConfig", RecvDeskBarFunc);
+        // 订阅桌面数据
+        subscribeGatewayData(DeskTopBarInfoTopic.c_str(), RecvDeskBarFunc);
 
+        // 通知桌面应用启动
         bool pubRunData = true;
-        publishGatewayData("ApplicationRunTopicConfig", &pubRunData, sizeof(bool));
+        publishGatewayData(ApplicationRunTopic.c_str(), &pubRunData, sizeof(bool));
     }
 }
 
