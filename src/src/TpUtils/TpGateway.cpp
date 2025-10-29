@@ -148,7 +148,7 @@ public:
         memcpy(ptr + sizeof(uint32_t), topic, topicLen);
         memcpy(ptr + sizeof(uint32_t) + topicLen, data, size);
 
-        char* topicEnd = ptr + sizeof(uint32_t) + topicLen - 1;
+        char *topicEnd = ptr + sizeof(uint32_t) + topicLen - 1;
         *topicEnd = '\0';
 
         int rc = nn_send(pubSocket, &msg, NN_MSG, NN_DONTWAIT);
@@ -275,7 +275,7 @@ private:
             uint32_t topicLen = *reinterpret_cast<uint32_t *>(msg);
             if (topicLen > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topicLen)
             {
-                const char* topic = msg + sizeof(uint32_t);
+                const char *topic = msg + sizeof(uint32_t);
                 const void *data = msg + sizeof(uint32_t) + topicLen;
                 uint32_t dataSize = bytes - sizeof(uint32_t) - topicLen;
 
