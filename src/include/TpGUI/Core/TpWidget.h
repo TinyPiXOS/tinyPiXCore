@@ -264,7 +264,7 @@ public:
     /// @brief 设置背景颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用背景颜色显示
-    virtual void setBackGroundColor(TpColors &color, bool enable = true);
+    virtual void setBackGroundColor(const TpColors &color, bool enable = true);
     /// @brief 设置背景颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用背景颜色显示
@@ -288,7 +288,7 @@ public:
     /// @brief 设置边框颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用边框颜色显示
-    virtual void setBorderColor(TpColors &color, bool enable = true);
+    virtual void setBorderColor(const TpColors &color, bool enable = true);
     /// @brief 设置边框颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用边框颜色显示
