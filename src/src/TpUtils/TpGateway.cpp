@@ -83,6 +83,8 @@ public:
         // 订阅所有主题
         if (nn_setsockopt(subSocket, NN_SUB, NN_SUB_SUBSCRIBE, "", 0) < 0)
         {
+            nn_close(pubSocket);
+            nn_close(subSocket);
             return false;
         }
 
@@ -255,7 +257,6 @@ private:
         {
             char *msg = nullptr;
             int bytes = nn_recv(subSocket, &msg, NN_MSG, 0);
-
             if (bytes > 0)
             {
                 // 将消息处理任务提交给线程池
@@ -290,7 +291,6 @@ private:
         TpVector<Subscription> subs;
 
         TpString recvTopic(topic);
-
         recvTopic.erase(std::remove_if(recvTopic.begin(),
                                        recvTopic.end(),
                                        [](char c)
@@ -317,6 +317,9 @@ private:
             else if (sub.callback)
             {
                 sub.callback(recvTopic.c_str(), data, size);
+            }
+            else
+            {
             }
         }
     }

@@ -3,6 +3,9 @@
 
 TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
 {
+    // 初始化网关
+    bool gatewayInitRes = initializeGateway();
+
     // // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
     tvg::Initializer::init(cores / 2);
@@ -60,9 +63,6 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     // 尝试读取桌面信息；如果没有桌面则读取失败
     if (!set->isDesk)
     {
-        // 初始化网关
-        initializeGateway();
-
         auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
         {
             TpAppData *set = static_cast<TpAppData *>(data_);
