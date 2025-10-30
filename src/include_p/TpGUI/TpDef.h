@@ -147,7 +147,7 @@ struct TpObjectData
     // 圆角值，单位px
     uint32_t round = 0;
 
-    uint8_t alpha;
+    uint8_t alpha = 255;
 
     IPiWFApiAgent *agent = nullptr;
     std::mutex gMutex;

@@ -1,11 +1,13 @@
 #include "TpBrush.h"
+#include "TpLinearGradient.h"
+#include "TpRadialGradient.h"
 
 // 画刷数据实现结构体
 struct TpBrushData
 {
-    Tp::BrushStyle style; // 画刷样式
-    TpColors color;            // 画刷颜色
-    TpGradient *gradient;      // 渐变对象指针（如果是渐变画刷）
+    Tp::BrushStyle style;           // 画刷样式
+    TpColors color;                 // 画刷颜色
+    TpGradient *gradient = nullptr; // 渐变对象指针（如果是渐变画刷）
 
     /// @brief 默认构造函数
     TpBrushData()
@@ -26,18 +28,18 @@ struct TpBrushData
     /// @brief 渐变画刷构造函数
     /// @param g 渐变对象
     TpBrushData(TpGradient *g)
-        : style(Tp::LinearGradientPattern),
-          gradient(g)
+        : style(Tp::LinearGradientPattern)
     {
+        copyGradient(g);
     }
 
     /// @brief 复制构造函数
     /// @param other 要复制的数据对象
     TpBrushData(const TpBrushData &other)
         : style(other.style),
-          color(other.color),
-          gradient(other.gradient)
+          color(other.color)
     {
+        copyGradient(other.gradient);
     }
 
     /// @brief 赋值运算符重载
@@ -49,9 +51,49 @@ struct TpBrushData
         {
             style = other.style;
             color = other.color;
-            gradient = other.gradient;
+            copyGradient(other.gradient);
         }
         return *this;
+    }
+
+    ~TpBrushData()
+    {
+        if (gradient)
+        {
+            delete gradient;
+            gradient = nullptr;
+        }
+    }
+
+private:
+    void copyGradient(TpGradient *others)
+    {
+        if (!others)
+            return;
+            
+        if (others->gradientType() == TpGradient::LinearGradient)
+        {
+            TpLinearGradient *inputGradient = dynamic_cast<TpLinearGradient *>(others);
+            if (!inputGradient)
+                return;
+
+            TpLinearGradient *lineGradient = new TpLinearGradient();
+            *lineGradient = *inputGradient;
+            gradient = lineGradient;
+        }
+        else if (others->gradientType() == TpGradient::RadialGradient)
+        {
+            TpRadialGradient *inputGradient = dynamic_cast<TpRadialGradient *>(others);
+            if (!inputGradient)
+                return;
+
+            TpRadialGradient *radialGradient = new TpRadialGradient();
+            *radialGradient = *inputGradient;
+            gradient = radialGradient;
+        }
+        else
+        {
+        }
     }
 };
 

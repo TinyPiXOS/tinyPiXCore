@@ -44,6 +44,8 @@ TpMainWindow::TpMainWindow(const char *type)
 
     // 调整窗口大小
     refreshMainWindow(appData, this, set);
+
+    setBackGroundColor(_RGBA(255, 255, 255, 255));
 }
 
 TpMainWindow::~TpMainWindow()
@@ -60,4 +62,49 @@ TpMainWindow::~TpMainWindow()
 Tp::TpObjectType TpMainWindow::objectType()
 {
     return Tp::TP_MAIN_WINDOW_OBJECT;
+}
+
+void TpMainWindow::setBackGroundColor(const TpColors &color, bool enable)
+{
+    // TpMainWindow 不能透明,且必须有背景色
+    TpColors newColor = color;
+    newColor.setAlpha(255);
+    TpScreen::setBackGroundColor(newColor, true);
+}
+
+void TpMainWindow::setBackGroundColor(int32_t color, bool enable)
+{
+    TpScreen::setBackGroundColor(_RGBA(_R(color), _G(color), _B(color), 255), true);
+}
+
+void TpMainWindow::setBackGroundColor(const TpBrush &bgBrush, bool enable)
+{
+    // TpBrush newBrush = bgBrush;
+    // TpScreen::setBackGroundColor(_RGBA(_R(color), _G(color), _B(color), 255), true);
+}
+
+void TpMainWindow::setEnableBackGroundColor(bool enable)
+{
+    TpScreen::setEnableBackGroundColor(true);
+}
+
+void TpMainWindow::setBorderColor(const TpColors &color, bool enable)
+{
+    // TpMainWindow没有边框颜色
+    TpScreen::setBorderColor(color, false);
+}
+
+void TpMainWindow::setBorderColor(int32_t color, bool enable)
+{
+    TpScreen::setBorderColor(color, false);
+}
+
+void TpMainWindow::setBorderColor(const TpBrush &borderBrush, bool enable)
+{
+    TpScreen::setBorderColor(borderBrush, false);
+}
+
+void TpMainWindow::setEnabledBorderColor(bool enable)
+{
+    TpScreen::setEnabledBorderColor(false);
 }

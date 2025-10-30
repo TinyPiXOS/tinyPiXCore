@@ -744,7 +744,7 @@ void TpWidget::setEnableBackGroundImage(bool enable)
     set->enableImage = enable;
 }
 
-void TpWidget::setBackGroundColor(TpColors &color, bool enable)
+void TpWidget::setBackGroundColor(const TpColors &color, bool enable)
 {
     setBackGroundColor(color.rgba(), enable);
 }
@@ -813,7 +813,7 @@ void TpWidget::setEnableBackGroundColor(bool enable)
     set->enableColor = enable;
 }
 
-void TpWidget::setBorderColor(TpColors &color, bool enable)
+void TpWidget::setBorderColor(const TpColors &color, bool enable)
 {
     setBorderColor(color.rgba(), enable);
 }
@@ -1015,8 +1015,6 @@ bool TpWidget::onLeaveEvent(TpLeaveEvent *event)
 bool TpWidget::onPaintEvent(TpPaintEvent *event)
 {
     bool ret = event->isCanDraw();
-    uint8_t alpha = 0xff;
-
     if (!ret)
         return false;
 
