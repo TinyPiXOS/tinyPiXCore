@@ -9,6 +9,7 @@
 #include <chrono>
 #include <atomic>
 #include <cstring>
+#include "TpString.h"
 
 // 平台特定的IPC地址
 #ifdef _WIN32
@@ -44,9 +45,9 @@ class GatewayServerImpl : public TpGatewayServer
         }
     };
 
-    std::queue<Message> message_queue_;
-    std::mutex queue_mutex_;
-    std::condition_variable queue_cv_;
+    std::queue<Message> messagequeue_;
+    std::mutex queuemutex_;
+    std::condition_variable queuecv_;
 
     void receiverThread()
     {
@@ -57,10 +58,10 @@ class GatewayServerImpl : public TpGatewayServer
             if (bytes > 0)
             {
                 {
-                    std::lock_guard<std::mutex> lock(queue_mutex_);
-                    message_queue_.push(Message(msg, bytes));
+                    std::lock_guard<std::mutex> lock(queuemutex_);
+                    messagequeue_.push(Message(msg, bytes));
                 }
-                queue_cv_.notify_one();
+                queuecv_.notify_one();
                 messageCount_++;
             }
             else
@@ -77,17 +78,17 @@ class GatewayServerImpl : public TpGatewayServer
         {
             Message msg;
             {
-                std::unique_lock<std::mutex> lock(queue_mutex_);
-                queue_cv_.wait(lock, [this]
-                               { return !message_queue_.empty() || !running_; });
+                std::unique_lock<std::mutex> lock(queuemutex_);
+                queuecv_.wait(lock, [this]
+                              { return !messagequeue_.empty() || !running_; });
 
                 if (!running_)
                     break;
 
-                if (!message_queue_.empty())
+                if (!messagequeue_.empty())
                 {
-                    msg = message_queue_.front();
-                    message_queue_.pop();
+                    msg = messagequeue_.front();
+                    messagequeue_.pop();
                 }
                 else
                 {
@@ -97,15 +98,19 @@ class GatewayServerImpl : public TpGatewayServer
 
             if (msg.data && msg.size > 0)
             {
+                std::cout << "收到发布数据，数据长度：" << msg.size << std::endl;
                 // 处理消息并转发
                 if (msg.size > 4)
                 {
-                    uint32_t topic_len = *reinterpret_cast<uint32_t *>(msg.data);
-                    if (topic_len > 0 && topic_len < (msg.size - sizeof(uint32_t)))
+                    uint32_t topicLen = *reinterpret_cast<uint32_t *>(msg.data);
+                    std::cout << "收到发布数据，主题长度：" << topicLen << std::endl;
+
+                    if (topicLen > 0 && topicLen < (msg.size - sizeof(uint32_t)))
                     {
                         const char *topic = msg.data + sizeof(uint32_t);
-                        const char *payload = topic + topic_len;
-                        uint32_t payload_size = msg.size - sizeof(uint32_t) - topic_len;
+                        TpString topicString(topic);
+
+                        std::cout << "收到发布数据，主题为：" << topicString << std::endl;
 
                         // 广播消息
                         nn_send(pubSocket_, msg.data, msg.size, 0);
@@ -116,13 +121,13 @@ class GatewayServerImpl : public TpGatewayServer
         }
 
         // 清理剩余消息
-        std::lock_guard<std::mutex> lock(queue_mutex_);
-        while (!message_queue_.empty())
+        std::lock_guard<std::mutex> lock(queuemutex_);
+        while (!messagequeue_.empty())
         {
-            auto &msg = message_queue_.front();
+            auto &msg = messagequeue_.front();
             if (msg.data)
                 nn_freemsg(msg.data);
-            message_queue_.pop();
+            messagequeue_.pop();
         }
     }
 
@@ -157,7 +162,7 @@ public:
         // 设置IPC连接
         // if (nn_bind(subSocket_, IPC_ADDRESS) < 0)
         // {
-            // 允许IPC绑定失败
+        // 允许IPC绑定失败
         // }
 
         // 绑定TCP端口
@@ -201,7 +206,7 @@ public:
     void stop() override
     {
         running_ = false;
-        queue_cv_.notify_one();
+        queuecv_.notify_one();
 
         if (receiverThread_.joinable())
         {
