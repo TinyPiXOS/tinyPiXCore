@@ -3,6 +3,7 @@
 #include "TpDefaultCss.h"
 #include "TpDef.h"
 #include <semaphore.h>
+#include "TpMainWindow.h"
 
 class Semaphore
 {
@@ -38,6 +39,9 @@ struct TpDialogData
 {
     // 对话框阻塞信号量
     Semaphore sema;
+
+    // 模态窗口，
+    // TpWidget *execWindow;
 };
 
 TpDialog::TpDialog(const char *type)
@@ -69,8 +73,8 @@ uint32_t TpDialog::exec()
         return 0;
 
     // 调整窗口到居中位置
-    TpScreen *mainScreen = TpApp::Inst()->vScreen();
-    move((mainScreen->width() - width()) / 2.0, (mainScreen->height() - height()) / 2.0);
+    TpMainWindow *mainScreen = TpApp::Inst()->mainWindow();
+    move((mainScreen->width() - width()) / 2.0, mainScreen->pos().y() + (mainScreen->height() - height()) / 2.0);
 
     setVisible(true);
     update();

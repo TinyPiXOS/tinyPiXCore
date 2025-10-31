@@ -98,7 +98,7 @@ TpApp::~TpApp()
 {
     tvg::Initializer::term();
 
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     if (set)
     {
@@ -130,7 +130,7 @@ TpApp *TpApp::Inst()
 
 bool TpApp::run()
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     if (!set)
         return set->running;
@@ -187,7 +187,7 @@ bool TpApp::run()
 
 TpClipboard *TpApp::clipboard()
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     TpClipboard *clipboard = nullptr;
 
     if (set)
@@ -198,28 +198,21 @@ TpClipboard *TpApp::clipboard()
     return clipboard;
 }
 
-TpScreen *TpApp::vScreen()
+TpMainWindow *TpApp::mainWindow()
 {
-    TpAppData *set = (TpAppData *)this->data_;
-    TpScreen *vScreen = nullptr;
-
-    if (set)
-    {
-        vScreen = set->vScreen;
-    }
-
-    return vScreen;
+    TpAppData *set = static_cast<TpAppData *>(data_);
+    return set->mainWindow;
 }
 
 tpShared<TpCssParser> TpApp::cssParser()
 {
-    TpAppData *set = static_cast<TpAppData *>(this->data_);
+    TpAppData *set = static_cast<TpAppData *>(data_);
     return set->cssParser_;
 }
 
 void TpApp::setStyle(const Tp::SystemTheme &style)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     if (set->systemTheme != style)
     {
@@ -237,14 +230,14 @@ void TpApp::setStyle(const Tp::SystemTheme &style)
 
 Tp::SystemTheme TpApp::style()
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     return set->systemTheme;
 }
 
 TpImage TpApp::grabWindow()
 {
-    // TpAppData *set = (TpAppData *)this->data_;
+    // TpAppData *set = static_cast<TpAppData *>(data_);
 
     // tinyPiX_sys_capture_screen();
     return TpImage();
@@ -255,7 +248,7 @@ void TpApp::wakeUpVirtualKeyboard(TpWidget *object)
     if (!object)
         return;
 
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     if (set->virtualKeyboard == nullptr)
         initVirtualKeyboard(set);
@@ -266,14 +259,14 @@ void TpApp::wakeUpVirtualKeyboard(TpWidget *object)
 
 void TpApp::dormantVirtualKeyboard()
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     set->curInputObj = nullptr;
     set->virtualKeyboard->close();
 }
 
 bool TpApp::isExistObject(TpObject *object, bool autoRemove)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     bool ret = false;
 
     if (object == nullptr)
@@ -306,13 +299,13 @@ bool TpApp::isExistObject(TpObject *object, bool autoRemove)
 
 bool TpApp::isMainThread()
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     return std::this_thread::get_id() == set->mainThreadId;
 }
 
 bool TpApp::sendRegister(TpObject *object)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     bool registerObject = false;
 
     if (!set)
@@ -359,7 +352,7 @@ bool TpApp::sendDelete(TpObject *object)
 
 bool TpApp::sendReturn(TpObject *object)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     bool returnAct = false;
 
     if (set)
@@ -387,7 +380,7 @@ bool TpApp::sendReturn(TpObject *object)
 
 bool TpApp::sendActive(TpObject *object, bool actived)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     bool beActived = false;
 
     if (set)
@@ -415,7 +408,7 @@ bool TpApp::sendActive(TpObject *object, bool actived)
 
 bool TpApp::sendAbort(TpObject *object)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     bool abort = false;
 
     if (set)
@@ -437,7 +430,7 @@ bool TpApp::sendAbort(TpObject *object)
 
 void TpApp::setDisableEventType(int32_t type)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     if (set)
     {
@@ -447,12 +440,12 @@ void TpApp::setDisableEventType(int32_t type)
 
 ITpAppData *TpApp::appObjectSet()
 {
-    return (TpAppData *)this->data_;
+    return static_cast<TpAppData *>(data_);
 }
 
 int32_t TpApp::disableEventType()
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
     int32_t type = 0;
 
     if (set)
@@ -465,7 +458,7 @@ int32_t TpApp::disableEventType()
 
 void TpApp::postEvent(std::function<void()> task)
 {
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     if (!set->running)
         return;
@@ -481,7 +474,7 @@ void TpApp::postUpdateEvent(TpWidget *updateObj, const int32_t &x, const int32_t
     if (!updateObj)
         return;
 
-    TpAppData *set = (TpAppData *)this->data_;
+    TpAppData *set = static_cast<TpAppData *>(data_);
 
     // if (!set->running)
     // return;
