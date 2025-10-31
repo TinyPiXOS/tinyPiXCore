@@ -79,8 +79,23 @@ void TpMainWindow::setBackGroundColor(int32_t color, bool enable)
 
 void TpMainWindow::setBackGroundColor(const TpBrush &bgBrush, bool enable)
 {
-    // TpBrush newBrush = bgBrush;
-    // TpScreen::setBackGroundColor(_RGBA(_R(color), _G(color), _B(color), 255), true);
+    TpBrush newBrush = bgBrush;
+    TpColors setColorObj = newBrush.color();
+    setColorObj.setAlpha(255);
+    newBrush.setColor(setColorObj);
+
+    TpGradient *brushGradiwnt = newBrush.gradient();
+    if (brushGradiwnt)
+    {
+        TpList<std::pair<float, int32_t>> colorAtList = brushGradiwnt->getColors();
+        for (auto &colorAt : colorAtList)
+        {
+            colorAt.second = _RGBA(_R(colorAt.second), _G(colorAt.second), _B(colorAt.second), 255);
+            brushGradiwnt->setColorAt(colorAt.first, colorAt.second);
+        }
+    }
+
+    TpScreen::setBackGroundColor(newBrush, true);
 }
 
 void TpMainWindow::setEnableBackGroundColor(bool enable)

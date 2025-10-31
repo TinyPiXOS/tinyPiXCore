@@ -42,8 +42,8 @@ private:
     virtual bool moved() final override { return false; };
 
 private:
-    virtual void setAlpha(const uint8_t &alpha = 0xff) final override {};
-    virtual uint8_t alpha() final override { return 0xff; };
+    virtual void setWindowOpacity(float opacity) final override {};
+    virtual float windowOpacity() final override { return 1.0; };
 
 private:
     ITpMainWindowData *data_;

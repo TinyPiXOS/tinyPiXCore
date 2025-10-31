@@ -510,22 +510,39 @@ const TpPoint TpWidget::pos()
     return point;
 }
 
-void TpWidget::setAlpha(const uint8_t &alpha)
+void TpWidget::setWindowOpacity(float opacity)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::objectSets());
+    if (!objData)
         return;
 
-    set->alpha = alpha;
+    if (opacity < 0)
+        opacity = 0;
+    if (opacity > 1)
+        opacity = 1;
+
+    objData->windowOpacity = opacity;
+
+    // 遍历所有子窗口设置Alpha
+    TpList<TpObject *> childList = TpObject::objectList();
+    for (const auto &childPtr : childList)
+    {
+        TpWidget *childWidget = dynamic_cast<TpWidget *>(childPtr);
+        if (!childWidget)
+            continue;
+        childWidget->setWindowOpacity(opacity);
+    }
+
+    update();
 }
 
-uint8_t TpWidget::alpha()
+float TpWidget::windowOpacity()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::objectSets());
+    if (!objData)
         return 0;
 
-    return set->alpha;
+    return objData->windowOpacity;
 }
 
 bool TpWidget::setLayout(TpLayout *layout)
@@ -758,8 +775,6 @@ void TpWidget::setBackGroundColor(int32_t color, bool enable)
     set->backColor = color;
     set->enableColor = enable;
 
-    // TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
-
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setBackgroundColor(color);
     pressedCss()->setBackgroundColor(color);
@@ -773,6 +788,7 @@ void TpWidget::setBackGroundColor(const TpBrush &bgBrush, bool enable)
     TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     if (!set)
         return;
+
     set->backBrush = bgBrush;
     set->enableColor = enable;
 

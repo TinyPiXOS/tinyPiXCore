@@ -10,11 +10,10 @@ int32_t main(int32_t argc, char *argv[])
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 	vScreen->setVisible(true);//vScreen setvisible will be update display
 	
-	
 	TpDialog *dia = new TpDialog();
 	dia->setBackGroundColor(_RGBA(243, 243, 243, 100));
 	dia->setRect(0, 0, 300, 300);
-	dia->setAlpha(128);
+	dia->setWindowOpacity(0.5);
     dia->setRoundCorners(50);
 	dia->setVisible(true);
 	dia->setBeMoved(true);

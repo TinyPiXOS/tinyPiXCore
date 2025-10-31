@@ -48,7 +48,7 @@ public:
     virtual bool moved();
 
 public:
-    virtual void setAlpha(const uint8_t &alpha = 0xff) override;
+    virtual void setWindowOpacity(float opacity) override;
 
 public:
     virtual void bringToTop();
