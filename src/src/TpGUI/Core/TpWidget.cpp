@@ -1054,7 +1054,9 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
     {
         if (objectType() == Tp::TP_FLOAT_OBJECT)
         {
-            if ((curCssData->backgroundColor() & 0xff) != 0xff)
+            int curAlpha = _A(curCssData->backgroundColor());
+            curAlpha *= windowOpacity();
+            if ((curAlpha & 0xff) != 0xff)
             {
                 painter->erase();
             }

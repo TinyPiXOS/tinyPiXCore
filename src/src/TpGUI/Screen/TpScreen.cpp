@@ -80,10 +80,10 @@ void TpScreen::setVisible(bool visible)
 
     if (visible == false)
     {
-        TpWidget *fixedScreen = TpApp::Inst()->vScreen();
-        if (fixedScreen)
+        TpWidget *mainScreen = TpApp::Inst()->mainWindow();
+        if (mainScreen)
         {
-            fixedScreen->update();
+            mainScreen->update();
         }
     }
 

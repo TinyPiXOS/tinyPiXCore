@@ -27,6 +27,7 @@
 #include "TpShareMemory.h"
 #include "TpFixScreen.h"
 #include "TpGateway.h"
+#include "TpMainWindow.h"
 #include "thorVG/thorvg.h"
 
 #include <tinyPiXApi.h>
