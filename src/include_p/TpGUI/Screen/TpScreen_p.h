@@ -490,11 +490,6 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
         if (ret)
         {
             set->cacheImage = set->reserveImage.scaled(nw, nh);
-
-            // if (set->cacheImage)
-            // {
-            // 	set->cacheImage->setAlpha(set->reserveImage->alpha());
-            // }
         }
 
         doTransUpdate(object);

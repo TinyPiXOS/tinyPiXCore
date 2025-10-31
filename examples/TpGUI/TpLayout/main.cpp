@@ -16,13 +16,13 @@ int32_t main(int32_t argc, char *argv[])
 	TpDialog *floatScreenH = new TpDialog();
 	floatScreenH->setBackGroundColor(_RGBA(255, 255, 255, 200));
 	floatScreenH->setRect(0, 0, 900, 600);
-	floatScreenH->setAlpha(128);
+	floatScreenH->setWindowOpacity(0.5);
 	floatScreenH->setBeMoved(true);
 
 	TpDialog *floatScreenV = new TpDialog();
 	floatScreenV->setBackGroundColor(_RGBA(255, 255, 255, 200));
 	floatScreenV->setRect(10, 100, 400, 650);
-	floatScreenV->setAlpha(128);
+	floatScreenV->setWindowOpacity(0.5);
 	floatScreenV->setBeMoved(true);
 
 	TpHBoxLayout *hLayout = new TpHBoxLayout();

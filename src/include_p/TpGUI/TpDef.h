@@ -147,7 +147,8 @@ struct TpObjectData
     // 圆角值，单位px
     uint32_t round = 0;
 
-    uint8_t alpha = 255;
+    // 窗口不透明度乘数，[0,1]，1=完全不透明
+    float windowOpacity = 1.0;
 
     IPiWFApiAgent *agent = nullptr;
     std::mutex gMutex;

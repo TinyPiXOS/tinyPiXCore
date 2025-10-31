@@ -199,12 +199,12 @@ public:
     virtual const TpPoint pos();
 
 public:
-    /// @brief 设置窗体透明度，窗体及内部组件均会被影响
-    /// @param alpha 透明度值，0-255
-    virtual void setAlpha(const uint8_t &alpha = 0xff);
-    /// @brief 获取窗体当前透明度
-    /// @return 当前透明度值
-    virtual uint8_t alpha();
+    /// @brief 设置窗口的不透明度乘数；当前窗口及所有子窗口都会响应
+    /// @param opacity [0,1]；0=0%不透明，1=100%不透明
+    virtual void setWindowOpacity(float opacity);
+    /// @brief 获取窗体当前不透明度乘数
+    /// @return 当前不透明度乘数
+    virtual float windowOpacity();
 
 public:
     /// @brief 设置窗体布局，如果已经存在布局则设置失败，需要先释放旧布局指针

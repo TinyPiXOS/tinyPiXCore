@@ -266,15 +266,13 @@ bool TpScreen::moved()
     return moved;
 }
 
-void TpScreen::setAlpha(const uint8_t &alpha)
+void TpScreen::setWindowOpacity(float opacity)
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    TpWidget::setWindowOpacity(opacity);
 
-    if (set)
-    {
-        tinyPiX_wf_set_alpha(set->agent, alpha);
-        set->alpha = alpha;
-    }
+    // TODU 屏蔽旧版本针对于dialog的透明度设置，测试新版接口无误后可删除此注释代码
+    // TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    // tinyPiX_wf_set_alpha(set->agent, 255 * opacity);
 }
 
 void TpScreen::bringToTop()

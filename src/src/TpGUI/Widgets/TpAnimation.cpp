@@ -379,10 +379,10 @@ void TpAnimation::AnimationRun()
         if (startValue.isInt32() && endValue.isInt32())
         {
             const double opacity = lerp(
-                startValue.toInt32(),
-                endValue.toInt32(),
+                startValue.toDouble(),
+                endValue.toDouble(),
                 keyProgress);
-            animationData->targetWidget->setAlpha(opacity);
+            animationData->targetWidget->setWindowOpacity(opacity);
         }
         break;
     }

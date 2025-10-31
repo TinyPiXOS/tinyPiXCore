@@ -1421,7 +1421,8 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
         eventData->offsetY = objectAbsRect.y() - offsetYVal;
     }
 
-    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    // eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, inputObjectChild);
     if (eventData->canvas == nullptr)
     {
         eventData->surface = nullptr;

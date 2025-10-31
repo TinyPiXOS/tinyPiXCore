@@ -30,7 +30,6 @@ public:
         // setBackGroundColor(_RGBA(100, 100, 100, 200));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
         setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
-        // setAlpha(150);
         testBattery_ = new TpBattery(this);
         testBattery_->setValue(100);
         testBattery_->setRect(10, 100, 200, 80);
@@ -210,8 +209,8 @@ public:
         TpWidget::onPaintEvent(event);
 
         TpPainter *painter = event->painter();
-        painter->setPen(TpPen(_RGBA(255, 165, 255, 100), 3));
-        painter->setBrush(TpBrush(_RGBA(255, 165, 255, 100)));
+        painter->setPen(TpPen(_RGB(255, 165, 255), 3));
+        painter->setBrush(TpBrush(_RGB(255, 165, 255)));
         painter->drawRect(0, 0, 50, 50);
         return true;
     }
@@ -227,7 +226,8 @@ int32_t main(int32_t argc, char *argv[])
     vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
 
     TestWidget *dia = new TestWidget(vScreen);
-    dia->setBackGroundColor(_RGBA(255, 255, 255, 100));
+    dia->setBackGroundColor(_RGB(255, 255, 255));
+    dia->setWindowOpacity(0.6);
     dia->setRect(350, 170, 500, 500);
 
     // TpLabel *bgLabel = new TpLabel(vScreen);
