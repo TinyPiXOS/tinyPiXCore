@@ -35,20 +35,22 @@ TpFixScreen::TpFixScreen(const char *type)
     }
 
     TpObjectData *set = static_cast<TpObjectData *>(this->objectSets());
-    if (set)
-    {
-        uint32_t rW = 0, rH = 0;
-        tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
+    if (!set)
+        return;
 
-        set->absoluteRect.setRect(0, 0, rW, rH);
-        set->logicalRect.setRect(0, 0, rW, rH);
+    setVisible(true);
 
-        screenData->alpha = 0xff;
-        screenData->color = TpColors::Black;
-        screenData->attr = TpFixScreen::ITP_POP_STYLE;
+    uint32_t rW = 0, rH = 0;
+    tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
 
-        this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
-    }
+    set->absoluteRect.setRect(0, 0, rW, rH);
+    set->logicalRect.setRect(0, 0, rW, rH);
+
+    screenData->alpha = 0xff;
+    screenData->color = TpColors::Black;
+    screenData->attr = TpFixScreen::ITP_POP_STYLE;
+
+    this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
 
     set->top = this->topObject();
 }

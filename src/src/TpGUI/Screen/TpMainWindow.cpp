@@ -46,6 +46,8 @@ TpMainWindow::TpMainWindow(const char *type)
     refreshMainWindow(appData, this, set);
 
     setBackGroundColor(_RGBA(255, 255, 255, 255));
+
+    setVisible(true);
 }
 
 TpMainWindow::~TpMainWindow()

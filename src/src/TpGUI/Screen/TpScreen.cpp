@@ -46,7 +46,7 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
         }
     }
 
-    tinyPiX_wf_set_visible(set->agent, true);
+    // tinyPiX_wf_set_visible(set->agent, true);
 }
 
 TpScreen::~TpScreen()
