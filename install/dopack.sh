@@ -36,6 +36,13 @@ declare -A PATH_MAPPINGS=(
     #System
     ["./system"]="overwrite:/System"
 
+	# 系统基本构建环境
+	["./build/{ARCH}/lib"]="merge:/usr/lib/TinyPiX/build"
+	["./build/{ARCH}/bin"]="merge:/usr/bin/TinyPiX/build"
+	["./build/{ARCH}/libexec"]="merge:/usr/libexec/TinyPiX/build"
+	#["./build/{ARCH}/etc"]="merge:/usr/etc/TinyPiX"
+
+	["./build/{ARCH}/systemd"]="merge:/usr/lib/TinyPiX/systemd"
 )
 # =====================================================
 
@@ -663,7 +670,7 @@ safe_create_link() {
     return 0
 }
 
-# ====================== 合并软链接处理 ======================
+# ====================== 合并软链接处理 （对bin，lib，字体创建软链接）======================
 create_symlinks() {
     echo "▸ 创建绝对路径符号链接 (安全替换)"
     
@@ -753,11 +760,138 @@ create_symlinks() {
 	fi
 }
 
+create_corrected_symlinks() {
+    echo "▸ 开始处理第三方软链接 "
+    
+    local SYSTEM_BIN_DIR="${TARGET_DIR}/usr/bin"
+    local SYSTEM_LIB_DIR="${TARGET_DIR}/usr/lib"
+    local TINYPIX_BIN_DIR="${TARGET_DIR}/usr/bin/TinyPix"
+    local TINYPIX_LIB_DIR="${TARGET_DIR}/usr/lib/TinyPix"
+    
+    # 1. 处理第三方二进制文件 (位于 build 子目录，智能链接)
+    if [ -d "${TINYPIX_BIN_DIR}/build" ]; then
+        echo "  → 处理第三方二进制文件 (/build/ 目录，智能链接)"
+        find "${TINYPIX_BIN_DIR}/build" -maxdepth 1 -type f -executable | while read -r bin; do
+            local bin_name=$(basename "$bin")
+            local system_bin_path="${SYSTEM_BIN_DIR}/${bin_name}"
+            
+            # 核心逻辑：只有系统路径不存在时才创建链接
+            if [ ! -e "$system_bin_path" ] && [ ! -L "$system_bin_path" ]; then
+                echo "    ✅ 创建第三方命令链接: $bin_name -> TinyPix/build/$bin_name"
+                if ! $DRY_RUN; then
+                    ln -sf "$bin" "$system_bin_path"
+                fi
+            else
+                echo "    ⏭️  系统已存在命令 '$bin_name'，跳过链接"
+            fi
+        done
+    fi
+    
+    # 2. 处理第三方库文件 (位于 build 子目录，智能链接)
+    if [ -d "${TINYPIX_LIB_DIR}/build" ]; then
+        echo "  → 处理第三方库文件 (/build/ 目录，智能链接)"
+        find "${TINYPIX_LIB_DIR}/build" -type f \( -name "*.so" -o -name "*.so.*" \) | while read -r lib; do
+            local lib_name=$(basename "$lib")
+            
+            # 版本化库处理逻辑
+            if [[ "$lib_name" =~ \.so\. ]]; then
+                local base_name="${lib_name%%.so.*}.so"
+                local major_version="${lib_name#*.so.}"; major_version="${major_version%%.*}"
+                
+                local major_link="${SYSTEM_LIB_DIR}/${base_name}.${major_version}"
+                local base_link="${SYSTEM_LIB_DIR}/${base_name}"
+                
+                # 只创建系统缺失的链接
+                if [ ! -e "$major_link" ] && [ ! -L "$major_link" ]; then
+                    echo "    ✅ 创建版本库链接: ${base_name}.${major_version} -> TinyPix/build/$lib_name"
+                    if ! $DRY_RUN; then
+                        ln -sf "$lib" "$major_link"
+                    fi
+                else
+                    echo "    ⏭️  系统已存在库链接 '${base_name}.${major_version}'，跳过"
+                fi
+                
+                if [ ! -e "$base_link" ] && [ ! -L "$base_link" ]; then
+                    echo "    ✅ 创建基础库链接: $base_name -> TinyPix/build/$lib_name"
+                    if ! $DRY_RUN; then
+                        ln -sf "$lib" "$base_link"
+                    fi
+                else
+                    echo "    ⏭️  系统已存在库链接 '$base_name'，跳过"
+                fi
+            else
+                # 非版本化库
+                local link_path="${SYSTEM_LIB_DIR}/${lib_name}"
+                if [ ! -e "$link_path" ] && [ ! -L "$link_path" ]; then
+                    echo "    ✅ 创建库链接: $lib_name -> TinyPix/build/$lib_name"
+                    if ! $DRY_RUN; then
+                        ln -sf "$lib" "$link_path"
+                    fi
+                else
+                    echo "    ⏭️  系统已存在库 '$lib_name'，跳过"
+                fi
+            fi
+        done
+    fi
+	echo "✓ 第三方软链接处理完成"
+}
+
+# ====================== service文件安装 ======================
+install_systemd_services() {
+	local SERVICE_SOURCE_DIR="${TARGET_DIR}/usr/lib/TinyPiX/systemd" # 包内服务文件源路径
+    local SYSTEMD_SYSTEM_DIR="/etc/systemd/system" # systemd 系统服务目录
+
+    echo "▸ 开始注册 systemd 服务..."
+
+    # 1. 检查源目录是否存在
+    if [ ! -d "$SERVICE_SOURCE_DIR" ]; then
+        echo "    ℹ️ 未找到服务文件目录: $SERVICE_SOURCE_DIR"
+        return 0
+    fi
+
+    # 2. 遍历并处理每个 .service 文件
+    find "$SERVICE_SOURCE_DIR" -name "*.service" | while read -r service_file; do
+        local service_name=$(basename "$service_file")
+        local systemd_dest="${SYSTEMD_SYSTEM_DIR}/${service_name}"
+
+        echo "    → 处理服务: $service_name"
+
+        # 执行复制操作（这里使用复制，您也可以考虑创建软链接）
+        if $DRY_RUN; then
+            echo "      [模拟] 复制服务文件到: $systemd_dest"
+        else
+            # 安全做法：复制前备份已存在的文件
+            if [ -f "$systemd_dest" ]; then
+                cp "$systemd_dest" "${systemd_dest}.bak.$(date +%s)"
+            fi
+            cp "$service_file" "$systemd_dest"
+            chmod 644 "$systemd_dest" # 设置正确的权限[6](@ref)
+            echo "      ✅ 服务文件已复制。"
+        fi
+    done
+
+    # 3. 重新加载 systemd 配置（这是关键步骤！）[4,5,7](@ref)
+    if ! $DRY_RUN; then
+        echo "▸ 重新加载 systemd 配置..."
+        if systemctl daemon-reload; then
+            echo "    ✅ systemd 配置重载成功。"
+        else
+            echo "    ❌ systemd 配置重载失败。" >&2
+            return 1
+        fi
+    fi
+
+    echo "✓ 服务注册完成。"
+    echo "💡 提示：服务文件已就位。如需启用开机自启，请在安装后脚本中执行：sudo systemctl enable <服务名>"
+}
+
+
 #调用脚本执行
 run_post_install_scripts
 
-# 在文件复制后调用
+# 在文件复制后调用软链接处理
 create_symlinks
+create_corrected_symlinks
 
 if [ $DEPENDENCY_STATUS -ne 0 ]; then
     echo ""
