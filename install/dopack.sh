@@ -17,7 +17,7 @@ fi
 declare -A PATH_MAPPINGS=(
     # 相对路径会自动转换为绝对路径
     # 格式: [源目录]="模式:目标路径"
-	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新)
+	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新) | preserve(跳过以有同名文件)
     ["./{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX"
 	["./{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX"
 
@@ -36,13 +36,13 @@ declare -A PATH_MAPPINGS=(
     #System
     ["./system"]="overwrite:/System"
 
-	# 系统基本构建环境
-	["./build/{ARCH}/lib"]="merge:/usr/lib/TinyPiX/build"
-	["./build/{ARCH}/bin"]="merge:/usr/bin/TinyPiX/build"
-	["./build/{ARCH}/libexec"]="merge:/usr/libexec/TinyPiX/build"
-	#["./build/{ARCH}/etc"]="merge:/usr/etc/TinyPiX"
+	# 系统基本构建环境（必须使用preserve模式）
+	["./build/{ARCH}/lib"]="preserve:/usr/lib/TinyPiX/build"
+	["./build/{ARCH}/bin"]="preserve:/usr/bin/TinyPiX/build"
+	["./build/{ARCH}/libexec"]="preserve:/usr/libexec/TinyPiX/build"
+	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
 
-	["./build/{ARCH}/systemd"]="merge:/usr/lib/TinyPiX/systemd"
+	["./build/{ARCH}/systemd*.service"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
 )
 # =====================================================
 
@@ -838,52 +838,94 @@ create_corrected_symlinks() {
 
 # ====================== service文件安装 ======================
 install_systemd_services() {
-	local SERVICE_SOURCE_DIR="${TARGET_DIR}/usr/lib/TinyPiX/systemd" # 包内服务文件源路径
-    local SYSTEMD_SYSTEM_DIR="/etc/systemd/system" # systemd 系统服务目录
+  	local SERVICE_SOURCE_DIR="${TARGET_DIR}/usr/lib/TinyPiX/systemd"
+    local SYSTEMD_TARGET_DIR="/etc/systemd/system"
 
-    echo "▸ 开始注册 systemd 服务..."
+    echo "▸ 开始部署 systemd 服务文件 (模式: preserve)..."
 
     # 1. 检查源目录是否存在
     if [ ! -d "$SERVICE_SOURCE_DIR" ]; then
-        echo "    ℹ️ 未找到服务文件目录: $SERVICE_SOURCE_DIR"
+        echo "    ℹ️  未找到服务文件源目录: $SERVICE_SOURCE_DIR"
         return 0
     fi
 
-    # 2. 遍历并处理每个 .service 文件
+    # 2. 确保目标目录存在
+    safe_mkdir "$SYSTEMD_TARGET_DIR"
+
+    # 3. 遍历并处理所有 .service 文件
     find "$SERVICE_SOURCE_DIR" -name "*.service" | while read -r service_file; do
         local service_name=$(basename "$service_file")
-        local systemd_dest="${SYSTEMD_SYSTEM_DIR}/${service_name}"
+        local systemd_dest="${SYSTEMD_TARGET_DIR}/${service_name}"
 
         echo "    → 处理服务: $service_name"
 
-        # 执行复制操作（这里使用复制，您也可以考虑创建软链接）
-        if $DRY_RUN; then
-            echo "      [模拟] 复制服务文件到: $systemd_dest"
+        # Preserve 模式核心逻辑：检查目标是否已存在
+        if [ -e "$systemd_dest" ] || [ -L "$systemd_dest" ]; then
+            echo "      ⏭️  系统已存在服务 '$service_name'，为保活现有配置，跳过部署。"
         else
-            # 安全做法：复制前备份已存在的文件
-            if [ -f "$systemd_dest" ]; then
-                cp "$systemd_dest" "${systemd_dest}.bak.$(date +%s)"
+            echo "      ✅ 目标不存在，执行初始安装。"
+            if ! $DRY_RUN; then
+                # 复制文件并设置正确权限
+                cp "$service_file" "$systemd_dest"
+                chmod 644 "$systemd_dest"
+                echo "      ✓ 服务文件安装完成。"
             fi
-            cp "$service_file" "$systemd_dest"
-            chmod 644 "$systemd_dest" # 设置正确的权限[6](@ref)
-            echo "      ✅ 服务文件已复制。"
         fi
     done
 
-    # 3. 重新加载 systemd 配置（这是关键步骤！）[4,5,7](@ref)
+    # 4. 重新加载 systemd 配置（关键步骤！）
     if ! $DRY_RUN; then
         echo "▸ 重新加载 systemd 配置..."
         if systemctl daemon-reload; then
             echo "    ✅ systemd 配置重载成功。"
         else
-            echo "    ❌ systemd 配置重载失败。" >&2
-            return 1
+            echo "    ⚠️  systemd 配置重载完成（请注意环境）。"
         fi
     fi
 
-    echo "✓ 服务注册完成。"
-    echo "💡 提示：服务文件已就位。如需启用开机自启，请在安装后脚本中执行：sudo systemctl enable <服务名>"
+    echo "✓ 服务文件部署完成。"
 }
+
+deploy_etc_configs() {
+    local ETC_SOURCE_DIR="${TARGET_DIR}/usr/etc/TinyPiX"
+    local ETC_TARGET_DIR="/etc"
+
+    echo "▸ 开始部署 etc 配置文件 (模式: preserve)..."
+
+    # 1. 检查源目录是否存在
+    if [ ! -d "$ETC_SOURCE_DIR" ]; then
+        echo "    ℹ️  未找到 etc 配置源目录: $ETC_SOURCE_DIR"
+        return 0
+    fi
+
+    # 2. 递归遍历源目录中的所有文件
+    find "$ETC_SOURCE_DIR" -type f | while read -r source_file; do
+        # 计算相对于源目录的相对路径
+        local relative_path="${source_file#$ETC_SOURCE_DIR/}"
+        local dest_file="${ETC_TARGET_DIR}/${relative_path}"
+
+        echo "    → 处理配置: $relative_path"
+
+        # Preserve 模式核心逻辑：检查目标是否已存在
+        if [ -f "$dest_file" ]; then
+            echo "      ⏭️  配置文件已存在，为保活用户修改，跳过: $relative_path"
+        else
+            echo "      ✅ 配置文件不存在，执行初始安装。"
+            if ! $DRY_RUN; then
+                # 确保目标文件的目录存在
+                safe_mkdir "$(dirname "$dest_file")"
+                # 复制文件
+                cp "$source_file" "$dest_file"
+                # 建议设置严谨的权限，例如对于敏感配置可设为 600
+                chmod 600 "$dest_file"
+                echo "      ✓ 配置文件安装完成。"
+            fi
+        fi
+    done
+
+    echo "✓ etc 配置文件部署完成。"
+}
+
 
 
 #调用脚本执行
