@@ -4,6 +4,8 @@
 #include "TpDef.h"
 #include <semaphore.h>
 #include "TpMainWindow.h"
+#include "TpPainter.h"
+#include "thorVG/thorvg.h"
 
 class Semaphore
 {
@@ -40,8 +42,7 @@ struct TpDialogData
     // 对话框阻塞信号量
     Semaphore sema;
 
-    // 模态窗口，
-    // TpWidget *execWindow;
+    bool isExec = false;
 };
 
 TpDialog::TpDialog(const char *type)
@@ -49,7 +50,8 @@ TpDialog::TpDialog(const char *type)
 {
     TpDialogData *dialogData = new TpDialogData();
     data_ = dialogData;
-    // TpApp::Inst()->sendRegister(this);
+
+    TpApp::Inst()->sendRegister(this);
 
     if (this->objectType() != Tp::TP_FLOAT_OBJECT)
     {
@@ -60,10 +62,19 @@ TpDialog::TpDialog(const char *type)
     set->top = this->topObject();
 
     refreshBaseCss();
+
+    setVisible(false);
 }
 
 TpDialog::~TpDialog()
 {
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (dialogData)
+    {
+        delete dialogData;
+        dialogData = nullptr;
+        data_ = nullptr;
+    }
 }
 
 uint32_t TpDialog::exec()
@@ -71,6 +82,8 @@ uint32_t TpDialog::exec()
     TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
     if (!dialogData)
         return 0;
+
+    dialogData->isExec = true;
 
     // 调整窗口到居中位置
     TpMainWindow *mainScreen = TpApp::Inst()->mainWindow();
@@ -90,11 +103,18 @@ void TpDialog::close()
     if (!dialogData)
         return;
 
-    TpScreen::setVisible(false);
-    // setVisible(false);
+    setVisible(false);
     // update();
 
-    dialogData->sema.post();
+    // dialogData->sema.post();
+}
+
+void TpDialog::setVisible(bool visible)
+{
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    dialogData->isExec = false;
+
+    TpScreen::setVisible(visible);
 }
 
 Tp::TpObjectType TpDialog::objectType()
@@ -104,7 +124,21 @@ Tp::TpObjectType TpDialog::objectType()
 
 bool TpDialog::onPaintEvent(TpPaintEvent *event)
 {
-    // dialog使用模拟宽高；即每个dialog起始都是全屏的，只是根据设置的尺寸绘制对应的背景
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+
+    // 绘制一层近似透明遮罩
+    if (dialogData->isExec)
+    {
+        TpMainWindow *mainScreen = TpApp::Inst()->mainWindow();
+        auto rectShape = tvg::Shape::gen();
+
+        rectShape->appendRect(mainScreen->pos().x(), mainScreen->pos().y(), mainScreen->width(), mainScreen->height());
+        rectShape->fill(255, 255, 255, 50);
+
+        std::pair<void *, void *> canvasPtrIter = canvasPtr();
+        tvg::Scene *diaScene = static_cast<tvg::Scene *>(canvasPtrIter.second);
+        diaScene->push(std::move(rectShape));
+    }
 
     return TpScreen::onPaintEvent(event);
 }

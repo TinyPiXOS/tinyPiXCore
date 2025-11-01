@@ -19,6 +19,10 @@ public:
     /// @brief 关闭窗口
     virtual void close() override;
 
+    /// @brief 设置窗口显隐
+    /// @param visible true显示，false隐藏
+    virtual void setVisible(bool visible = true) override;
+
 public:
     virtual Tp::TpObjectType objectType() final;
 

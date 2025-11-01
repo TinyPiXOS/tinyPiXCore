@@ -223,24 +223,30 @@ int32_t main(int32_t argc, char *argv[])
 
     TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
+    // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
 
-    TestWidget *dia = new TestWidget(vScreen);
-    dia->setBackGroundColor(_RGB(255, 255, 255));
-    dia->setWindowOpacity(0.6);
-    dia->setRect(350, 170, 500, 500);
+    // TestWidget *dia = new TestWidget(vScreen);
+    // dia->setBackGroundColor(_RGB(255, 255, 255));
+    // dia->setWindowOpacity(0.6);
+    // dia->setRect(350, 170, 500, 500);
 
-    // TpLabel *bgLabel = new TpLabel(vScreen);
-    // bgLabel->setBackGroundColor(_RGB(200, 80, 80));
-    // bgLabel->setRect(0, 0, 500, 500);
+    TpDialog* testDialog = new TpDialog();
+    testDialog->setBackGroundColor(_RGB(100, 230, 100));
+    testDialog->setSize(250, 250);
+    
+    // TpTimer::sleep(1000);
 
-    // TestClass *testObj = new TestClass();
-    // testObj->setBgLabel(bgLabel);
+    // testDialog->setVisible(false);
+    testDialog->setBeMoved(true);
 
-    // TpButton *testBtn = new TpButton(vScreen);
-    // testBtn->setText("获取截图");
-    // testBtn->setRect(50, 50, 150, 50);
-    // connect(testBtn, onClicked, testObj, &TestClass::SlotTestFunc);
+    TpButton *testBtn = new TpButton(vScreen);
+    testBtn->setText("模态对话框");
+    testBtn->setRect(50, 50, 150, 50);
+    connect(testBtn, onClicked, [=](bool)
+    {
+        // testDialog->setVisible(!testDialog->visible());
+        testDialog->exec();
+    });
 
     // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     // thorVGPaint->setRect(600, 100, 500, 500);
