@@ -235,14 +235,6 @@ Tp::SystemTheme TpApp::style()
     return set->systemTheme;
 }
 
-TpImage TpApp::grabWindow()
-{
-    // TpAppData *set = static_cast<TpAppData *>(data_);
-
-    // tinyPiX_sys_capture_screen();
-    return TpImage();
-}
-
 void TpApp::wakeUpVirtualKeyboard(TpWidget *object)
 {
     if (!object)

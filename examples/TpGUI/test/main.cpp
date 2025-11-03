@@ -19,6 +19,7 @@
 #include "TpSurface.h"
 #include "png.h"
 #include "TpMainWindow.h"
+#include "Service/TpSystemApi.h"
 
 // class ThorVgPaintWidget : public TpWidget
 class ThorVgPaintWidget : public TpDialog
@@ -216,6 +217,27 @@ public:
     }
 };
 
+IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
+
+TpImage getImage()
+{
+    IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
+    std::cout << "appPid " << getpid() << " , " << surfacePtr << std::endl;
+    if (!surfacePtr)
+        return TpImage();
+
+    tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
+
+    TpImage resImage;
+    resImage.load(appDisplayImage->matrix(), TpRect(0, 0, appDisplayImage->width(), appDisplayImage->height()));
+
+    TpImage copyImage = resImage;
+
+    tinyPiX_surface_free(surfacePtr);
+
+    return copyImage;
+}
+
 int32_t main(int32_t argc, char *argv[])
 {
     TpApp app(argc, argv);
@@ -225,24 +247,16 @@ int32_t main(int32_t argc, char *argv[])
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
 
-    // TestWidget *dia = new TestWidget(vScreen);
-    // dia->setBackGroundColor(_RGB(255, 255, 255));
-    // dia->setWindowOpacity(0.6);
-    // dia->setRect(350, 170, 500, 500);
-
-    TpDialog* testDialog = new TpDialog();
-    testDialog->setBackGroundColor(_RGB(100, 230, 100));
-    testDialog->setSize(250, 250);
-    testDialog->setBeMoved(true);
+    TpLabel *bgLabel = new TpLabel(vScreen);
+    bgLabel->setRect(250, 50, 450, 450);
 
     TpButton *testBtn = new TpButton(vScreen);
-    testBtn->setText("模态对话框");
+    testBtn->setText("获取当前进程截图");
     testBtn->setRect(50, 50, 150, 50);
     connect(testBtn, onClicked, [=](bool)
-    {
-        // testDialog->setVisible(!testDialog->visible());
-        testDialog->exec();
-    });
+            {
+                bgLabel->setBackGroundImage(getImage());
+            });
 
     // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     // thorVGPaint->setRect(600, 100, 500, 500);
