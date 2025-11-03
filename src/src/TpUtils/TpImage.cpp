@@ -29,7 +29,7 @@ TpImage::TpImage(const TpImage &other) : data_(nullptr)
     tvg::Initializer::init(cores / 2);
 
     TpImageData *imageData = new TpImageData();
-    imageData->tvgPicture = tvg::Picture::gen();
+    // imageData->tvgPicture = tvg::Picture::gen();
 
     data_ = imageData;
 
@@ -401,7 +401,7 @@ TpImage &TpImage::operator=(const TpImage &others)
     if (imageData->tvgPicture)
     {
         delete imageData->tvgPicture;
-        imageData->tvgPicture = tvg::Picture::gen();
+        // imageData->tvgPicture = tvg::Picture::gen();
     }
 
     // if (imageData->loadBuffer)

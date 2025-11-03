@@ -109,10 +109,6 @@ public:
     /// @return 系统主观类型
     Tp::SystemTheme style();
 
-    /// @brief 获取当前应用界面抓图;暂未实现
-    /// @return 图片资源对象
-    TpImage grabWindow();
-
     /// @brief 唤醒虚拟键盘
     /// @return object 唤醒对象；虚拟键盘的输入将会给入该对象
     void wakeUpVirtualKeyboard(TpWidget *object);

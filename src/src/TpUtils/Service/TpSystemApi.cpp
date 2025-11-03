@@ -121,8 +121,6 @@ void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
 
 TpImage TpSystemApi::appImage(const TpString &uuid)
 {
-    // return TpImage();
-
     TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
     if (!apiData)
         return TpImage();
@@ -132,6 +130,7 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
 
     int32_t appPid = apiData->appUuidPidMap.value(uuid);
     IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(apiData->globalAgent, appPid);
+    // std::cout << "appPid " << appPid << " , " << surfacePtr << std::endl;
     if (!surfacePtr)
         return TpImage();
 
@@ -299,8 +298,6 @@ TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppList()
     {
         PiShmBytes appIdInfo = appIdList[i];
 
-        std::cout << "App Index " << i << std::endl;
-        std::cout << "App Id " << appIdInfo.s_id << "  Pid " << appIdInfo.p_id << std::endl;
         if (runAppPidList.contains(appIdInfo.p_id))
         {
             TpString curAppUuid = apiData->appUuidPidMap.key(appIdInfo.p_id);
