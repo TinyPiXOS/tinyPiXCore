@@ -17,7 +17,7 @@ fi
 declare -A PATH_MAPPINGS=(
     # 相对路径会自动转换为绝对路径
     # 格式: [源目录]="模式:目标路径"
-	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新)
+	# 模式支持: overwrite(覆盖) | merge(合并) | update(更新) | preserve(跳过以有同名文件)
     ["./{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX"
 	["./{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX"
 
@@ -36,6 +36,13 @@ declare -A PATH_MAPPINGS=(
     #System
     ["./system"]="overwrite:/System"
 
+	# 系统基本构建环境（必须使用preserve模式）
+	["./build/{ARCH}/lib"]="preserve:/usr/lib/TinyPiX/build"
+	["./build/{ARCH}/bin"]="preserve:/usr/bin/TinyPiX/build"
+	["./build/{ARCH}/libexec"]="preserve:/usr/libexec/TinyPiX/build"
+	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
+
+	["./build/{ARCH}/systemd*.service"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
 )
 # =====================================================
 
@@ -663,7 +670,7 @@ safe_create_link() {
     return 0
 }
 
-# ====================== 合并软链接处理 ======================
+# ====================== 合并软链接处理 （对bin，lib，字体创建软链接）======================
 create_symlinks() {
     echo "▸ 创建绝对路径符号链接 (安全替换)"
     
@@ -753,11 +760,180 @@ create_symlinks() {
 	fi
 }
 
+create_corrected_symlinks() {
+    echo "▸ 开始处理第三方软链接 "
+    
+    local SYSTEM_BIN_DIR="${TARGET_DIR}/usr/bin"
+    local SYSTEM_LIB_DIR="${TARGET_DIR}/usr/lib"
+    local TINYPIX_BIN_DIR="${TARGET_DIR}/usr/bin/TinyPix"
+    local TINYPIX_LIB_DIR="${TARGET_DIR}/usr/lib/TinyPix"
+    
+    # 1. 处理第三方二进制文件 (位于 build 子目录，智能链接)
+    if [ -d "${TINYPIX_BIN_DIR}/build" ]; then
+        echo "  → 处理第三方二进制文件 (/build/ 目录，智能链接)"
+        find "${TINYPIX_BIN_DIR}/build" -maxdepth 1 -type f -executable | while read -r bin; do
+            local bin_name=$(basename "$bin")
+            local system_bin_path="${SYSTEM_BIN_DIR}/${bin_name}"
+            
+            # 核心逻辑：只有系统路径不存在时才创建链接
+            if [ ! -e "$system_bin_path" ] && [ ! -L "$system_bin_path" ]; then
+                echo "    ✅ 创建第三方命令链接: $bin_name -> TinyPix/build/$bin_name"
+                if ! $DRY_RUN; then
+                    ln -sf "$bin" "$system_bin_path"
+                fi
+            else
+                echo "    ⏭️  系统已存在命令 '$bin_name'，跳过链接"
+            fi
+        done
+    fi
+    
+    # 2. 处理第三方库文件 (位于 build 子目录，智能链接)
+    if [ -d "${TINYPIX_LIB_DIR}/build" ]; then
+        echo "  → 处理第三方库文件 (/build/ 目录，智能链接)"
+        find "${TINYPIX_LIB_DIR}/build" -type f \( -name "*.so" -o -name "*.so.*" \) | while read -r lib; do
+            local lib_name=$(basename "$lib")
+            
+            # 版本化库处理逻辑
+            if [[ "$lib_name" =~ \.so\. ]]; then
+                local base_name="${lib_name%%.so.*}.so"
+                local major_version="${lib_name#*.so.}"; major_version="${major_version%%.*}"
+                
+                local major_link="${SYSTEM_LIB_DIR}/${base_name}.${major_version}"
+                local base_link="${SYSTEM_LIB_DIR}/${base_name}"
+                
+                # 只创建系统缺失的链接
+                if [ ! -e "$major_link" ] && [ ! -L "$major_link" ]; then
+                    echo "    ✅ 创建版本库链接: ${base_name}.${major_version} -> TinyPix/build/$lib_name"
+                    if ! $DRY_RUN; then
+                        ln -sf "$lib" "$major_link"
+                    fi
+                else
+                    echo "    ⏭️  系统已存在库链接 '${base_name}.${major_version}'，跳过"
+                fi
+                
+                if [ ! -e "$base_link" ] && [ ! -L "$base_link" ]; then
+                    echo "    ✅ 创建基础库链接: $base_name -> TinyPix/build/$lib_name"
+                    if ! $DRY_RUN; then
+                        ln -sf "$lib" "$base_link"
+                    fi
+                else
+                    echo "    ⏭️  系统已存在库链接 '$base_name'，跳过"
+                fi
+            else
+                # 非版本化库
+                local link_path="${SYSTEM_LIB_DIR}/${lib_name}"
+                if [ ! -e "$link_path" ] && [ ! -L "$link_path" ]; then
+                    echo "    ✅ 创建库链接: $lib_name -> TinyPix/build/$lib_name"
+                    if ! $DRY_RUN; then
+                        ln -sf "$lib" "$link_path"
+                    fi
+                else
+                    echo "    ⏭️  系统已存在库 '$lib_name'，跳过"
+                fi
+            fi
+        done
+    fi
+	echo "✓ 第三方软链接处理完成"
+}
+
+# ====================== service文件安装 ======================
+install_systemd_services() {
+  	local SERVICE_SOURCE_DIR="${TARGET_DIR}/usr/lib/TinyPiX/systemd"
+    local SYSTEMD_TARGET_DIR="/etc/systemd/system"
+
+    echo "▸ 开始部署 systemd 服务文件 (模式: preserve)..."
+
+    # 1. 检查源目录是否存在
+    if [ ! -d "$SERVICE_SOURCE_DIR" ]; then
+        echo "    ℹ️  未找到服务文件源目录: $SERVICE_SOURCE_DIR"
+        return 0
+    fi
+
+    # 2. 确保目标目录存在
+    safe_mkdir "$SYSTEMD_TARGET_DIR"
+
+    # 3. 遍历并处理所有 .service 文件
+    find "$SERVICE_SOURCE_DIR" -name "*.service" | while read -r service_file; do
+        local service_name=$(basename "$service_file")
+        local systemd_dest="${SYSTEMD_TARGET_DIR}/${service_name}"
+
+        echo "    → 处理服务: $service_name"
+
+        # Preserve 模式核心逻辑：检查目标是否已存在
+        if [ -e "$systemd_dest" ] || [ -L "$systemd_dest" ]; then
+            echo "      ⏭️  系统已存在服务 '$service_name'，为保活现有配置，跳过部署。"
+        else
+            echo "      ✅ 目标不存在，执行初始安装。"
+            if ! $DRY_RUN; then
+                # 复制文件并设置正确权限
+                cp "$service_file" "$systemd_dest"
+                chmod 644 "$systemd_dest"
+                echo "      ✓ 服务文件安装完成。"
+            fi
+        fi
+    done
+
+    # 4. 重新加载 systemd 配置（关键步骤！）
+    if ! $DRY_RUN; then
+        echo "▸ 重新加载 systemd 配置..."
+        if systemctl daemon-reload; then
+            echo "    ✅ systemd 配置重载成功。"
+        else
+            echo "    ⚠️  systemd 配置重载完成（请注意环境）。"
+        fi
+    fi
+
+    echo "✓ 服务文件部署完成。"
+}
+
+deploy_etc_configs() {
+    local ETC_SOURCE_DIR="${TARGET_DIR}/usr/etc/TinyPiX"
+    local ETC_TARGET_DIR="/etc"
+
+    echo "▸ 开始部署 etc 配置文件 (模式: preserve)..."
+
+    # 1. 检查源目录是否存在
+    if [ ! -d "$ETC_SOURCE_DIR" ]; then
+        echo "    ℹ️  未找到 etc 配置源目录: $ETC_SOURCE_DIR"
+        return 0
+    fi
+
+    # 2. 递归遍历源目录中的所有文件
+    find "$ETC_SOURCE_DIR" -type f | while read -r source_file; do
+        # 计算相对于源目录的相对路径
+        local relative_path="${source_file#$ETC_SOURCE_DIR/}"
+        local dest_file="${ETC_TARGET_DIR}/${relative_path}"
+
+        echo "    → 处理配置: $relative_path"
+
+        # Preserve 模式核心逻辑：检查目标是否已存在
+        if [ -f "$dest_file" ]; then
+            echo "      ⏭️  配置文件已存在，为保活用户修改，跳过: $relative_path"
+        else
+            echo "      ✅ 配置文件不存在，执行初始安装。"
+            if ! $DRY_RUN; then
+                # 确保目标文件的目录存在
+                safe_mkdir "$(dirname "$dest_file")"
+                # 复制文件
+                cp "$source_file" "$dest_file"
+                # 建议设置严谨的权限，例如对于敏感配置可设为 600
+                chmod 600 "$dest_file"
+                echo "      ✓ 配置文件安装完成。"
+            fi
+        fi
+    done
+
+    echo "✓ etc 配置文件部署完成。"
+}
+
+
+
 #调用脚本执行
 run_post_install_scripts
 
-# 在文件复制后调用
+# 在文件复制后调用软链接处理
 create_symlinks
+create_corrected_symlinks
 
 if [ $DEPENDENCY_STATUS -ne 0 ]; then
     echo ""
