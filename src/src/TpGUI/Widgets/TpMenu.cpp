@@ -85,24 +85,26 @@ void TpMenu::exec(const int32_t &globalPosX, const int32_t &globalPosY)
     if (!menuData)
         return;
 
+    TpDialog::exec();
+
+    uint32_t menuHeight = menuData->itemList.size() * (menuData->itemHeight);
+    setSize(menuData->itemWidth, menuHeight);
+
     int32_t mainWindowWidth = TpApp::Inst()->mainWindow()->width();
     int32_t mainWindowHeight = TpApp::Inst()->mainWindow()->height();
 
     int32_t posX = globalPosX;
     int32_t posY = globalPosY;
 
-    if ((posX + this->width()) > mainWindowWidth)
+    if ((posX + width()) > mainWindowWidth)
     {
-        posX = posX - this->width();
+        posX = posX - width();
     }
 
-    if ((posY + this->height()) > mainWindowHeight)
+    if ((posY + height()) > mainWindowHeight)
     {
-        posY = posY - this->height();
+        posY = posY - height();
     }
-
-    uint32_t menuHeight = menuData->itemList.size() * (menuData->itemHeight);
-    setSize(menuData->itemWidth, menuHeight);
 
     move(posX, posY);
     setVisible(true);
@@ -218,19 +220,11 @@ TpString TpMenu::itemText(const uint32_t &index)
 
 bool TpMenu::onFocusEvent(TpFocusEvent *event)
 {
-    std::cout << "TpMenu::onFocusEvent " << std::endl;
+    // std::cout << "TpMenu::onFocusEvent " << std::endl;
     // if (!event->focused())
     // {
     // 	close();
     // }
-
-    return true;
-}
-
-bool TpMenu::onMousePressEvent(TpMouseEvent *event)
-{
-    if (event->button() != BUTTON_LEFT)
-        return true;
 
     return true;
 }
@@ -248,7 +242,6 @@ bool TpMenu::onMouseRleaseEvent(TpMouseEvent *event)
     onClicked.emit(clickIndex);
 
     setVisible(false);
-    // update();
 
     return true;
 }
