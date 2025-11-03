@@ -233,10 +233,6 @@ int32_t main(int32_t argc, char *argv[])
     TpDialog* testDialog = new TpDialog();
     testDialog->setBackGroundColor(_RGB(100, 230, 100));
     testDialog->setSize(250, 250);
-    
-    // TpTimer::sleep(1000);
-
-    // testDialog->setVisible(false);
     testDialog->setBeMoved(true);
 
     TpButton *testBtn = new TpButton(vScreen);

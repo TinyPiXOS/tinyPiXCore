@@ -206,6 +206,11 @@ public:
     /// @return 当前不透明度乘数
     virtual float windowOpacity();
 
+    /// @brief 将当前组件调整为父组件下的最顶级组件
+    virtual void bringToTop();
+    /// @brief 将当前组件调整为父组件下的最底层组件
+    virtual void bringToBottom();
+
 public:
     /// @brief 设置窗体布局，如果已经存在布局则设置失败，需要先释放旧布局指针
     /// @param layout 布局指针

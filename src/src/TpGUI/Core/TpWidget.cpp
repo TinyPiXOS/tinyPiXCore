@@ -545,6 +545,42 @@ float TpWidget::windowOpacity()
     return objData->windowOpacity;
 }
 
+void TpWidget::bringToTop()
+{
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
+    if (!parentWidget)
+        return;
+
+    // 将本窗体添加至父窗体子节点链表末尾
+    TpObjectData *objData = static_cast<TpObjectData *>(parentWidget->objectSets());
+    if (objData->objectList.contains(this))
+    {
+        if (objData->objectList.back() != this)
+        {
+            objData->objectList.remove(this);
+            objData->objectList.emplace_back(this);
+        }
+    }
+}
+
+void TpWidget::bringToBottom()
+{
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
+    if (!parentWidget)
+        return;
+
+    // 将本窗体添加至父窗体子节点链表起始
+    TpObjectData *objData = static_cast<TpObjectData *>(parentWidget->objectSets());
+    if (objData->objectList.contains(this))
+    {
+        if (objData->objectList.front() != this)
+        {
+            objData->objectList.remove(this);
+            objData->objectList.emplace_front(this);
+        }
+    }
+}
+
 bool TpWidget::setLayout(TpLayout *layout)
 {
     TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
