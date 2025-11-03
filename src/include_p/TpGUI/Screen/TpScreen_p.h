@@ -517,7 +517,6 @@ static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
         set->visible = visible;
     }
 
-    // object->setVisible(visible);
     object->onVisibleEvent(&event);
     doTransUpdate(object);
 
