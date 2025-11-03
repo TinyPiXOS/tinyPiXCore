@@ -260,12 +260,16 @@ public:
             {
                 TpObject *vScreen = set->vScreen;
 
+                std::cout << "case TpApp::TP_RETURN_ACT111111: " << std::endl;
+
                 if (vScreen == message.user_data0)
                 {
                     TpScreen *screenObj = static_cast<TpScreen *>(vScreen);
 
+                    std::cout << "case TpApp::TP_RETURN_ACT2222: " << std::endl;
                     // exclude desktop
-                    if (screenObj->objectLayer() != Tp::TP_WM_DESK)
+                    // if (screenObj->objectLayer() != Tp::TP_WM_DESK)
+                    if (screenObj->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
                     {
                         if (vScreen)
                         {

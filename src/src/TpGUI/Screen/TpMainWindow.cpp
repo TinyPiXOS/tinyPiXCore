@@ -47,7 +47,8 @@ TpMainWindow::TpMainWindow(const char *type)
 
     setBackGroundColor(_RGBA(255, 255, 255, 255));
 
-    setVisible(true);
+    tinyPiX_wf_set_visible(set->agent, true);
+    set->visible = true;
 }
 
 TpMainWindow::~TpMainWindow()

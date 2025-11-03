@@ -10,6 +10,7 @@
 #include "TpVariant.h"
 #include "TpDefaultCss.h"
 #include "TpApp_p.h"
+#include "TpApp.h"
 
 struct TpFixScreenData
 {
@@ -107,6 +108,14 @@ bool TpFixScreen::onActiveEvent(TpActiveEvent *event)
     TpFixScreenData *screenData = static_cast<TpFixScreenData *>(data_);
     if (!screenData)
         return false;
+
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+    if (appData->mainWindow)
+    {
+        TpObjectData *mainWindowObjData = (TpObjectData *)appData->mainWindow->objectSets();
+        tinyPiX_wf_set_visible(mainWindowObjData->agent, visible());
+        mainWindowObjData->visible = visible();
+    }
 
     return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
 }
