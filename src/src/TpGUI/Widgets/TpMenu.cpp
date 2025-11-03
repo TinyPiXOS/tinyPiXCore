@@ -4,6 +4,7 @@
 #include "TpDef.h"
 #include "TpImage.h"
 #include "TpFont.h"
+#include "TpApp.h"
 
 struct MenuItemData
 {
@@ -84,18 +85,18 @@ void TpMenu::exec(const int32_t &globalPosX, const int32_t &globalPosY)
     if (!menuData)
         return;
 
-    int32_t width = TpScreen::screenWidth();
-    int32_t height = TpScreen::screenHeight();
+    int32_t mainWindowWidth = TpApp::Inst()->mainWindow()->width();
+    int32_t mainWindowHeight = TpApp::Inst()->mainWindow()->height();
 
     int32_t posX = globalPosX;
     int32_t posY = globalPosY;
 
-    if ((posX + this->width()) > width)
+    if ((posX + this->width()) > mainWindowWidth)
     {
         posX = posX - this->width();
     }
 
-    if ((posY + this->height()) > height)
+    if ((posY + this->height()) > mainWindowHeight)
     {
         posY = posY - this->height();
     }
@@ -103,9 +104,9 @@ void TpMenu::exec(const int32_t &globalPosX, const int32_t &globalPosY)
     uint32_t menuHeight = menuData->itemList.size() * (menuData->itemHeight);
     setSize(menuData->itemWidth, menuHeight);
 
-    this->move(posX, posY);
-    this->setVisible(true);
-    this->update();
+    move(posX, posY);
+    setVisible(true);
+    update();
 }
 
 uint32_t TpMenu::addItem(const TpString &text)

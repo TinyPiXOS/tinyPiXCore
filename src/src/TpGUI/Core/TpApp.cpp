@@ -198,7 +198,7 @@ TpClipboard *TpApp::clipboard()
     return clipboard;
 }
 
-TpMainWindow *TpApp::mainWindow()
+TpWidget *TpApp::mainWindow()
 {
     TpAppData *set = static_cast<TpAppData *>(data_);
     return set->mainWindow;

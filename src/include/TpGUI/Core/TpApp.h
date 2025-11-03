@@ -12,9 +12,7 @@ TP_DEF_VOID_TYPE_VAR(ITpAppData);
 class TpObject;
 class TpClipboard;
 class TpWidget;
-class TpScreen;
 class TpCssParser;
-class TpMainWindow;
 
 class TpApp
 {
@@ -97,7 +95,7 @@ public:
 
     /// @brief 获取应用的主窗口；无主窗口则返回nullptr
     /// @return 应用主窗口指针
-    virtual TpMainWindow* mainWindow();
+    virtual TpWidget* mainWindow();
 
     /// @brief 获取全局单例CSS解析器
     /// @return css解析器智能指针

@@ -45,8 +45,6 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
             this->broadSetTop();
         }
     }
-
-    // tinyPiX_wf_set_visible(set->agent, true);
 }
 
 TpScreen::~TpScreen()
@@ -266,33 +264,22 @@ bool TpScreen::moved()
     return moved;
 }
 
-void TpScreen::setWindowOpacity(float opacity)
-{
-    TpWidget::setWindowOpacity(opacity);
-
-    // TODU 屏蔽旧版本针对于dialog的透明度设置，测试新版接口无误后可删除此注释代码
-    // TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    // tinyPiX_wf_set_alpha(set->agent, 255 * opacity);
-}
-
 void TpScreen::bringToTop()
 {
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    if (!set)
+        return;
 
-    if (set)
-    {
-        tinyPiX_wf_bring_to_top(set->agent);
-    }
+    tinyPiX_wf_bring_to_top(set->agent);
 }
 
 void TpScreen::bringToBottom()
 {
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    if (!set)
+        return;
 
-    if (set)
-    {
-        tinyPiX_wf_bring_to_bottom(set->agent);
-    }
+    tinyPiX_wf_bring_to_bottom(set->agent);
 }
 
 void TpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
@@ -455,46 +442,6 @@ bool TpScreen::returns()
     }
 
     return returns;
-}
-
-TpSize TpScreen::screenSize()
-{
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    uint32_t sWidth = 0;
-    uint32_t sHeight = 0;
-
-    if (set)
-    {
-        tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
-    }
-
-    return TpSize(sWidth, sHeight);
-}
-
-int32_t TpScreen::screenWidth()
-{
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    uint32_t sWidth = 0;
-
-    if (set)
-    {
-        tinyPiX_wf_get_display_size(set->agent, &sWidth, nullptr);
-    }
-
-    return sWidth;
-}
-
-int32_t TpScreen::screenHeight()
-{
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    uint32_t sHeight = 0;
-
-    if (set)
-    {
-        tinyPiX_wf_get_display_size(set->agent, nullptr, &sHeight);
-    }
-
-    return sHeight;
 }
 
 int32_t TpScreen::dispatchEvent(void *events)

@@ -42,13 +42,22 @@ struct TpDialogData
     // 对话框阻塞信号量
     Semaphore sema;
 
-    bool isExec = false;
+    // 遮罩窗体，模态显示时用于遮罩屏幕
+    TpWidget *maskWidget = nullptr;
+    // bool isExec = false;
 };
 
 TpDialog::TpDialog(const char *type)
     : TpScreen(type)
 {
     TpDialogData *dialogData = new TpDialogData();
+
+    TpWidget *mainScreen = TpApp::Inst()->mainWindow();
+    dialogData->maskWidget = new TpWidget(mainScreen);
+    dialogData->maskWidget->setBackGroundColor(_RGBA(255, 255, 255, 100));
+    dialogData->maskWidget->setRect(mainScreen->pos().x(), mainScreen->pos().y(), mainScreen->width(), mainScreen->height());
+    dialogData->maskWidget->setVisible(false);
+
     data_ = dialogData;
 
     TpApp::Inst()->sendRegister(this);
@@ -77,24 +86,24 @@ TpDialog::~TpDialog()
     }
 }
 
-uint32_t TpDialog::exec()
+void TpDialog::exec()
 {
     TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
     if (!dialogData)
-        return 0;
+        return;
 
-    dialogData->isExec = true;
+    dialogData->maskWidget->setVisible(true);
+    dialogData->maskWidget->bringToTop();
+    bringToTop();
 
     // 调整窗口到居中位置
-    TpMainWindow *mainScreen = TpApp::Inst()->mainWindow();
+    TpWidget *mainScreen = TpApp::Inst()->mainWindow();
     move((mainScreen->width() - width()) / 2.0, mainScreen->pos().y() + (mainScreen->height() - height()) / 2.0);
 
     setVisible(true);
     update();
 
     // dialogData->sema.wait();
-
-    return 1;
 }
 
 void TpDialog::close()
@@ -112,7 +121,8 @@ void TpDialog::close()
 void TpDialog::setVisible(bool visible)
 {
     TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
-    dialogData->isExec = false;
+    if (dialogData->maskWidget && (visible == false))
+        dialogData->maskWidget->setVisible(false);
 
     TpScreen::setVisible(visible);
 }
@@ -120,25 +130,4 @@ void TpDialog::setVisible(bool visible)
 Tp::TpObjectType TpDialog::objectType()
 {
     return Tp::TP_FLOAT_OBJECT;
-}
-
-bool TpDialog::onPaintEvent(TpPaintEvent *event)
-{
-    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
-
-    // 绘制一层近似透明遮罩
-    if (dialogData->isExec)
-    {
-        TpMainWindow *mainScreen = TpApp::Inst()->mainWindow();
-        auto rectShape = tvg::Shape::gen();
-
-        rectShape->appendRect(mainScreen->pos().x(), mainScreen->pos().y(), mainScreen->width(), mainScreen->height());
-        rectShape->fill(255, 255, 255, 50);
-
-        std::pair<void *, void *> canvasPtrIter = canvasPtr();
-        tvg::Scene *diaScene = static_cast<tvg::Scene *>(canvasPtrIter.second);
-        diaScene->push(std::move(rectShape));
-    }
-
-    return TpScreen::onPaintEvent(event);
 }
