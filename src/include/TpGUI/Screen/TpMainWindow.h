@@ -34,6 +34,8 @@ protected:
     virtual bool onResizeEvent(TpResizeEvent *event) final override { return true; };
 
 private:
+    virtual void setVisible(bool visible = true) final override {};
+
     virtual void setRect(const TpRect &rect) final override {};
     virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) final override {};
 
