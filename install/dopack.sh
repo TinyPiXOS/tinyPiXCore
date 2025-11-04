@@ -40,7 +40,7 @@ declare -A PATH_MAPPINGS=(
 	["./{ARCH}/res"]="update:/usr/res/TinyPiX"
 
     #System
-#    ["./system"]="overwrite:/System"
+    ["./system"]="overwrite:/System"
 
 	# 系统基本构建环境（必须使用preserve模式）
 #	["./build/{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX/build"
@@ -279,6 +279,7 @@ cat > "$TMP_ROOT_DIR/installer.sh" <<'EOF'
 #!/bin/bash
 # TinyPiXOS 智能安装器 (完整覆盖版)
 PACKAGE_MODE="$PACKAGE_MODE_VALUE"
+PACKAGE_MODE="online"
 SCRIPTS_DIR="config"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
