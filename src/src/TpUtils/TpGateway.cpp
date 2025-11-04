@@ -8,6 +8,7 @@
 #include "nanomsg/pubsub.h"
 #include "nanomsg/pipeline.h"
 #include "nanomsg/pair.h"
+#include "nanomsg/reqrep.h"
 
 #include "TpVector.h"
 #include "TpHash.h"

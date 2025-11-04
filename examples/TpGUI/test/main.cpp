@@ -222,14 +222,14 @@ IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 TpImage getImage()
 {
     IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
-    std::cout << "appPid " << getpid() << " , " << surfacePtr << std::endl;
     if (!surfacePtr)
         return TpImage();
 
     tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
 
     TpImage resImage;
-    resImage.load(appDisplayImage->matrix(), TpRect(0, 0, appDisplayImage->width(), appDisplayImage->height()));
+    resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()),
+                  TpRect(0, 36, appDisplayImage->width(), appDisplayImage->height() - 36));
 
     TpImage copyImage = resImage;
 
@@ -248,15 +248,14 @@ int32_t main(int32_t argc, char *argv[])
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
 
     TpLabel *bgLabel = new TpLabel(vScreen);
+    bgLabel->setBorderColor(_RGB(255, 0, 0));
     bgLabel->setRect(250, 50, 450, 450);
 
     TpButton *testBtn = new TpButton(vScreen);
     testBtn->setText("获取当前进程截图");
     testBtn->setRect(50, 50, 150, 50);
     connect(testBtn, onClicked, [=](bool)
-            {
-                bgLabel->setBackGroundImage(getImage());
-            });
+            { bgLabel->setBackGroundImage(getImage()); });
 
     // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     // thorVGPaint->setRect(600, 100, 500, 500);

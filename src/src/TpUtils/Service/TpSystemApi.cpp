@@ -13,6 +13,8 @@
 #include "TpSurface.h"
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
+#include "TpApp.h"
+#include "TpApp_p.h"
 #include <mutex>
 
 const TpString globalAppFilePathStr = "/System/app/";
@@ -21,6 +23,7 @@ struct TpSystemApiData
 {
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
+    // TODO 将缓存数据放入Service中，远程IPC调用
     std::mutex readAppMutex;
     // 已启动应用的UUID和pid映射表
     TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
@@ -136,8 +139,49 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
 
     tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
 
+    // 如果有工具栏，需要裁剪掉工具栏位置
+    TpRect imageRect;
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+    if (appData->deskStatusBarInfo_.statusBarVislble)
+    {
+        if (appData->deskStatusBarInfo_.statusBarLocation == 0)
+        {
+            imageRect.setX(0);
+            imageRect.setY(appData->deskStatusBarInfo_.statusBarHeight);
+            imageRect.setWidth(appDisplayImage->width());
+            imageRect.setHeight(appDisplayImage->height() - appData->deskStatusBarInfo_.statusBarHeight);
+        }
+        else if (appData->deskStatusBarInfo_.statusBarLocation == 1)
+        {
+            imageRect.setX(0);
+            imageRect.setY(0);
+            imageRect.setWidth(appDisplayImage->width() - appData->deskStatusBarInfo_.statusBarWidth);
+            imageRect.setHeight(appDisplayImage->height());
+        }
+        else if (appData->deskStatusBarInfo_.statusBarLocation == 2)
+        {
+            imageRect.setX(0);
+            imageRect.setY(0);
+            imageRect.setWidth(appDisplayImage->width());
+            imageRect.setHeight(appDisplayImage->height() - appData->deskStatusBarInfo_.statusBarHeight);
+        }
+        else if (appData->deskStatusBarInfo_.statusBarLocation == 3)
+        {
+            imageRect.setX(appData->deskStatusBarInfo_.statusBarWidth);
+            imageRect.setY(0);
+            imageRect.setWidth(appDisplayImage->width() - appData->deskStatusBarInfo_.statusBarWidth);
+            imageRect.setHeight(appDisplayImage->height());
+        }
+        else
+        {
+            imageRect.setX(0);
+            imageRect.setY(appData->deskStatusBarInfo_.statusBarHeight);
+            imageRect.setWidth(appDisplayImage->width());
+            imageRect.setHeight(appDisplayImage->height() - appData->deskStatusBarInfo_.statusBarHeight);
+        }
+    }
     TpImage resImage;
-    resImage.load(appDisplayImage->matrix(), TpRect(0, 0, appDisplayImage->width(), appDisplayImage->height()));
+    resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()), imageRect);
 
     tinyPiX_surface_free(surfacePtr);
 
