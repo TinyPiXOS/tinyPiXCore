@@ -7,11 +7,17 @@ TMP_ROOT_DIR="package_build"	# 生成的临时文件的名字
 KEEP_TMP_DIR=false		# 是否保留中间生成的打包源文件
 SCRIPTS_DIR="config"	# 禁止修改，如果需要修改，需要同步修“改智能安装器“部分的SCRIPTS_DIR
 
-if [ $# -ge 1 ]; then
-    ARCH="$1"
-else
-    ARCH="auto"  # 默认自动检测
+if [ $# -lt 2 ]; then
+    echo "❌ 错误: 需要提供两个参数"
+    echo "用法: $0 <架构> <是否在线>"
+    echo "  架构: x86_64 或 arm_64"
+    echo "  是否在线: 1 (在线模式) 或 0 (离线模式)"
+    exit 1
 fi
+
+# 获取参数
+ARCH="$1"
+ONLINE_MODE="$2"
 
 # 源目录 → 目标路径映射 (完整保留多路径映射)
 declare -A PATH_MAPPINGS=(
@@ -37,12 +43,12 @@ declare -A PATH_MAPPINGS=(
     ["./system"]="overwrite:/System"
 
 	# 系统基本构建环境（必须使用preserve模式）
-	["./build/{ARCH}/lib"]="preserve:/usr/lib/TinyPiX/build"
-	["./build/{ARCH}/bin"]="preserve:/usr/bin/TinyPiX/build"
-	["./build/{ARCH}/libexec"]="preserve:/usr/libexec/TinyPiX/build"
+	["./build/{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX/build"
+	["./build/{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX/build"
+	["./build/{ARCH}/libexec"]="overwrite:/usr/libexec/TinyPiX/build"
 	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
 
-	["./build/{ARCH}/systemd*.service"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
+	["./build/{ARCH}/systemd"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
 )
 # =====================================================
 
@@ -155,6 +161,11 @@ echo "===== 开始灵活路径打包 ====="
 ACTUAL_ARCH=$(resolve_architecture)
 #拼接输出文件名
 OUTPUT_NAME="${BASE_NAME}_${ACTUAL_ARCH}.run"
+#打包模式
+PACKAGE_MODE_VALUE="local"  # 默认为离线模式
+if [ "$ONLINE_MODE" = "1" ]; then
+    PACKAGE_MODE_VALUE="online"
+fi
 
 # 1. 创建临时根目录
 echo "▸ 创建临时工作区: $TMP_ROOT_DIR"
@@ -188,6 +199,13 @@ declare -A target_groups
 declare -A mode_map  # 存储目标路径到模式的映射
 echo "▸ 处理路径映射 (ARCH=$ACTUAL_ARCH)"
 for src_key in "${!PATH_MAPPINGS[@]}"; do
+
+    #如果是在线模式跳过build目录
+    if [ "$PACKAGE_MODE" = "online" ] && [[ "$src_key" == *"build"* ]]; then
+        echo "  ⏭️  在线模式: 跳过 $src_key"
+        continue
+    fi
+
     # 获取原始映射值
     mapping_value="${PATH_MAPPINGS[$src_key]}"
     echo "  - 源键: $src_key => 映射值: $mapping_value"
@@ -260,6 +278,7 @@ done
 cat > "$TMP_ROOT_DIR/installer.sh" <<'EOF'
 #!/bin/bash
 # TinyPiXOS 智能安装器 (完整覆盖版)
+PACKAGE_MODE="$PACKAGE_MODE_VALUE"
 SCRIPTS_DIR="config"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
@@ -517,24 +536,29 @@ check_and_install_packages() {
 	'
 }
 
-if check_network; then
-    has_network=0  # 有网络
+
+if [ "$PACKAGE_MODE" = "online" ]; then
+    if check_network; then
+        has_network=0  # 有网络
+    else
+        has_network=1  # 无网络
+    fi
+
+    # 安装依赖包，传递网络状态和包列表
+    # 保存依赖包安装状态
+    DEPENDENCY_STATUS=0
+    PACKAGES_TO_INSTALL_MANUALLY=()
+
+    # 安装依赖包
+    check_and_install_packages $has_network "${packages[@]}"
+    DEPENDENCY_STATUS=$?
+
+    # 根据状态码记录需要手动安装的包
+    if [ $DEPENDENCY_STATUS -ne 0 ]; then
+        PACKAGES_TO_INSTALL_MANUALLY=("${packages[@]}")
+    fi
 else
-    has_network=1  # 无网络
-fi
-
-# 安装依赖包，传递网络状态和包列表
-# 保存依赖包安装状态
-DEPENDENCY_STATUS=0
-PACKAGES_TO_INSTALL_MANUALLY=()
-
-# 安装依赖包
-check_and_install_packages $has_network "${packages[@]}"
-DEPENDENCY_STATUS=$?
-
-# 根据状态码记录需要手动安装的包
-if [ $DEPENDENCY_STATUS -ne 0 ]; then
-    PACKAGES_TO_INSTALL_MANUALLY=("${packages[@]}")
+    echo "💿 离线安装模式 - 使用包内预置的第三方依赖"
 fi
 
 # ====================== 文件复制逻辑 ======================
@@ -545,7 +569,7 @@ while IFS= read -r mapping; do
     # 跳过空行和注释
     [[ "$mapping" == \#* ]] || [[ -z "$mapping" ]] && continue
     
-    # 使用两次分割提取三个部分
+    # 解析映射行：源路径<|>模式<|>目标路径
     part1="${mapping%%<|>*}"
     rest="${mapping#*<|>}"
     part2="${rest%%<|>*}"
@@ -561,88 +585,106 @@ while IFS= read -r mapping; do
     mode_part="$part2"
     dest_part="$part3"
     
-    # 调试输出
-    echo "  - 映射行解析:"
-    echo "    src_part: $src_part"
-    echo "    mode_part: $mode_part"
-    echo "    dest_part: $dest_part"
-    
-    # 计算完整源路径
+    # 计算完整路径
     src_path="${SCRIPT_DIR}/${src_part}"
     full_dest="${TARGET_DIR}${dest_part}"
     
-    # 计算完整源路径
-    src_path="${SCRIPT_DIR}/${src_part}"
-    full_dest="${TARGET_DIR}${dest_part}"
-    
-    if [ ! -d "$src_path" ]; then
-        echo "❌ 错误: 源目录不存在 - $src_path" >&2
-        echo "    映射行: $mapping" >&2
-        echo "    脚本目录: $SCRIPT_DIR" >&2
-        echo "    源路径: $src_path" >&2
+    # 验证源路径是否存在
+    if [ ! -e "$src_path" ]; then
+        echo "❌ 错误: 源路径不存在 - $src_path" >&2
         continue
     fi
 
+    # 调试信息
+    echo "  - 处理映射: $src_path => $full_dest (模式: $mode_part)"
+    
     if $DRY_RUN; then
-        echo "🔍 [模拟] $src_path => $full_dest (模式: $mode_part)"
+        echo "    [模拟运行] 跳过实际操作"
         continue
     fi
     
-    echo "▸ 处理映射: $src_path => $full_dest (模式: $mode_part)"
-    
-    # 第一次遇到目标路径时，根据模式处理
-    if [ -z "${processed_targets[$full_dest]}" ]; then
-        case "$mode_part" in
-            overwrite)
-                # 覆盖模式：清空目标目录
-                echo "  🗑️  清空目标目录: $full_dest"
-                rm -rf "$full_dest" 2>/dev/null
-                ;;
-            merge|update)
-                # 合并/更新模式：保留目标目录
-                if [ ! -d "$full_dest" ]; then
-                    echo "  📁 创建目标目录: $full_dest"
-                    mkdir -p "$full_dest"
-                else
-                    echo "  🔄 保留目标目录内容 (模式: $mode_part)"
-                fi
-                ;;
-            *)
-                echo "⚠️  未知拷贝模式: $mode_part, 使用默认覆盖模式" >&2
-                rm -rf "$full_dest" 2>/dev/null
-                ;;
-        esac
-        processed_targets["$full_dest"]=1
-    fi
-    
-    # 确保目标目录存在
-    mkdir -p "$full_dest"
-    
-    # 根据拷贝模式执行不同操作
+    # 根据模式处理目标目录初始化
     case "$mode_part" in
         overwrite)
-            # 完全覆盖
-            echo "  → 完全覆盖: $src_path/ => $full_dest/"
-            rsync -a --delete "$src_path/" "$full_dest/"
+            if [ -e "$full_dest" ]; then
+                echo "    🗑️  覆盖模式: 清空目标目录"
+                rm -rf "$full_dest"
+            fi
             ;;
-        merge)
-            # 合并目录（不删除目标目录已有文件）
-            echo "  → 合并内容: $src_path/ => $full_dest/"
-            rsync -a "$src_path/" "$full_dest/"
+        preserve)
+            echo "    🔒 使用保活模式处理目录: $full_dest"
+            # 检查目标目录是否已存在
+            if [ -e "$full_dest" ] || [ -L "$full_dest" ]; then
+                echo "      ⏭️  目标目录已存在，为保活用户配置，跳过部署。"
+            else
+                echo "      ✅ 目标目录不存在，执行初始安装。"
+                # 递归复制整个目录（包括子目录）
+                if [ -d "$src_path" ]; then
+                    cp -r "$src_path" "$full_dest"
+                    echo "      ✓ 目录初始安装完成。"
+                else
+                    cp "$src_path" "$full_dest"
+                    echo "      ✓ 文件初始安装完成。"
+                fi
+            fi
             ;;
-        update)
-            # 只更新较新的文件
-            echo "  → 更新内容: $src_path/ => $full_dest/ (仅更新)"
-            rsync -a -u "$src_path/" "$full_dest/"
+        merge|update)
+            # 这些模式保留现有内容，如果目录不存在则创建
+            if [ ! -d "$full_dest" ]; then
+                echo "    📁 创建目标目录 (模式: $mode_part)"
+                mkdir -p "$full_dest"
+            else
+                echo "    🔄 保留目标目录内容 (模式: $mode_part)"
+            fi
             ;;
         *)
-            # 默认使用覆盖模式
-            echo "⚠️  未知拷贝模式: $mode_part, 使用覆盖模式" >&2
-            rsync -a --delete "$src_path/" "$full_dest/"
+            echo "⚠️  未知模式: $mode_part，使用默认覆盖模式" >&2
+            if [ -e "$full_dest" ]; then
+                rm -rf "$full_dest"
+            fi
             ;;
     esac
     
-    # 确保所有文件可访问
+    # 确保目标目录存在（对于需要创建的情况）
+    if [ ! -d "$full_dest" ]; then
+        mkdir -p "$full_dest"
+    fi
+    
+    # 根据模式执行复制操作
+    case "$mode_part" in
+        overwrite)
+            echo "    → 执行完全覆盖"
+            rsync -a --delete "$src_path/" "$full_dest/"
+            ;;
+        merge)
+            echo "    → 执行合并（覆盖同名文件）"
+            rsync -a "$src_path/" "$full_dest/"
+            ;;
+        update)
+            echo "    → 执行更新（仅更新较新文件）"
+            rsync -a -u "$src_path/" "$full_dest/"
+            ;;
+        preserve)
+            # ✅ 统一使用rsync的-n（dry-run）参数进行存在性检查
+            echo "    → 执行保活安装（仅当目标不存在时）"
+            # 使用rsync的dry-run模式检查是否有文件需要复制
+            if rsync -a -n --include="*/" --include="*" --exclude="*" "$src_path/" "$full_dest/" | grep -q .; then
+                echo "    ✅ 目标目录为空，执行初始安装"
+                rsync -a "$src_path/" "$full_dest/"
+            else
+                echo "    ⏭️  目标目录已存在内容，跳过复制"
+            fi
+            ;;
+        *)
+            echo "⚠️  未知模式，使用默认覆盖模式" >&2
+            rsync -a --delete "$src_path/" "$full_dest/"
+            ;;
+    esac || {
+        echo "❌ 复制操作失败: $src_path => $full_dest" >&2
+        continue
+    }
+    
+    # 设置权限（所有模式通用）
     chmod -R a+rX "$full_dest"
     
 done < "$MAPPING_FILE"
@@ -765,8 +807,8 @@ create_corrected_symlinks() {
     
     local SYSTEM_BIN_DIR="${TARGET_DIR}/usr/bin"
     local SYSTEM_LIB_DIR="${TARGET_DIR}/usr/lib"
-    local TINYPIX_BIN_DIR="${TARGET_DIR}/usr/bin/TinyPix"
-    local TINYPIX_LIB_DIR="${TARGET_DIR}/usr/lib/TinyPix"
+    local TINYPIX_BIN_DIR="${TARGET_DIR}/usr/bin/TinyPiX"
+    local TINYPIX_LIB_DIR="${TARGET_DIR}/usr/lib/TinyPiX"
     
     # 1. 处理第三方二进制文件 (位于 build 子目录，智能链接)
     if [ -d "${TINYPIX_BIN_DIR}/build" ]; then
@@ -777,7 +819,7 @@ create_corrected_symlinks() {
             
             # 核心逻辑：只有系统路径不存在时才创建链接
             if [ ! -e "$system_bin_path" ] && [ ! -L "$system_bin_path" ]; then
-                echo "    ✅ 创建第三方命令链接: $bin_name -> TinyPix/build/$bin_name"
+                echo "    ✅ 创建第三方命令链接: $bin_name -> TinyPiX/build/$bin_name"
                 if ! $DRY_RUN; then
                     ln -sf "$bin" "$system_bin_path"
                 fi
@@ -803,7 +845,7 @@ create_corrected_symlinks() {
                 
                 # 只创建系统缺失的链接
                 if [ ! -e "$major_link" ] && [ ! -L "$major_link" ]; then
-                    echo "    ✅ 创建版本库链接: ${base_name}.${major_version} -> TinyPix/build/$lib_name"
+                    echo "    ✅ 创建版本库链接: ${base_name}.${major_version} -> TinyPiX/build/$lib_name"
                     if ! $DRY_RUN; then
                         ln -sf "$lib" "$major_link"
                     fi
@@ -812,7 +854,7 @@ create_corrected_symlinks() {
                 fi
                 
                 if [ ! -e "$base_link" ] && [ ! -L "$base_link" ]; then
-                    echo "    ✅ 创建基础库链接: $base_name -> TinyPix/build/$lib_name"
+                    echo "    ✅ 创建基础库链接: $base_name -> TinyPiX/build/$lib_name"
                     if ! $DRY_RUN; then
                         ln -sf "$lib" "$base_link"
                     fi
@@ -823,7 +865,7 @@ create_corrected_symlinks() {
                 # 非版本化库
                 local link_path="${SYSTEM_LIB_DIR}/${lib_name}"
                 if [ ! -e "$link_path" ] && [ ! -L "$link_path" ]; then
-                    echo "    ✅ 创建库链接: $lib_name -> TinyPix/build/$lib_name"
+                    echo "    ✅ 创建库链接: $lib_name -> TinyPiX/build/$lib_name"
                     if ! $DRY_RUN; then
                         ln -sf "$lib" "$link_path"
                     fi
@@ -838,30 +880,39 @@ create_corrected_symlinks() {
 
 # ====================== service文件安装 ======================
 install_systemd_services() {
-  	local SERVICE_SOURCE_DIR="${TARGET_DIR}/usr/lib/TinyPiX/systemd"
+     local SERVICE_SOURCE_DIR="${TARGET_DIR}/usr/lib/TinyPiX/systemd"
     local SYSTEMD_TARGET_DIR="/etc/systemd/system"
 
     echo "▸ 开始部署 systemd 服务文件 (模式: preserve)..."
 
     # 1. 检查源目录是否存在
     if [ ! -d "$SERVICE_SOURCE_DIR" ]; then
-        echo "    ℹ️  未找到服务文件源目录: $SERVICE_SOURCE_DIR"
+        echo "    ℹ️ 未找到服务文件源目录: $SERVICE_SOURCE_DIR"
         return 0
     fi
 
     # 2. 确保目标目录存在
     safe_mkdir "$SYSTEMD_TARGET_DIR"
 
-    # 3. 遍历并处理所有 .service 文件
+    # 3. 使用 find 命令递归查找所有 .service 文件（包括子目录）
+    # 这就是 find 命令应该放置的位置！
     find "$SERVICE_SOURCE_DIR" -name "*.service" | while read -r service_file; do
+        # 计算相对于源目录的相对路径
+        local relative_path="${service_file#$SERVICE_SOURCE_DIR/}"
         local service_name=$(basename "$service_file")
-        local systemd_dest="${SYSTEMD_TARGET_DIR}/${service_name}"
+        
+        # 在目标路径中保持相同的目录结构
+        local systemd_dest="${SYSTEMD_TARGET_DIR}/${relative_path}"
+        local dest_dir=$(dirname "$systemd_dest")
+        
+        echo "    → 处理服务: $relative_path"
 
-        echo "    → 处理服务: $service_name"
-
+        # 确保目标目录存在
+        safe_mkdir "$dest_dir"
+        
         # Preserve 模式核心逻辑：检查目标是否已存在
         if [ -e "$systemd_dest" ] || [ -L "$systemd_dest" ]; then
-            echo "      ⏭️  系统已存在服务 '$service_name'，为保活现有配置，跳过部署。"
+            echo "      ⏭️  系统已存在服务 '$relative_path'，为保活现有配置，跳过部署。"
         else
             echo "      ✅ 目标不存在，执行初始安装。"
             if ! $DRY_RUN; then
@@ -873,7 +924,7 @@ install_systemd_services() {
         fi
     done
 
-    # 4. 重新加载 systemd 配置（关键步骤！）
+    # 4. 重新加载 systemd 配置
     if ! $DRY_RUN; then
         echo "▸ 重新加载 systemd 配置..."
         if systemctl daemon-reload; then
@@ -935,13 +986,21 @@ run_post_install_scripts
 create_symlinks
 create_corrected_symlinks
 
-if [ $DEPENDENCY_STATUS -ne 0 ]; then
-    echo ""
-    echo "⚠️  以下依赖包需要手动安装:"
-    for pkg in "${packages[@]}"; do
-        echo "   $pkg"
-    done
-    echo ""
+#系统服务文件
+install_systemd_services
+#etc文件
+deploy_etc_configs
+
+#在线安装需要输出未成功安装的安装包
+if [ "$PACKAGE_MODE" = "online" ]; then
+    if [ $DEPENDENCY_STATUS -ne 0 ]; then
+        echo ""
+        echo "⚠️  以下依赖包需要手动安装:"
+        for pkg in "${packages[@]}"; do
+            echo "   $pkg"
+        done
+        echo ""
+    fi
 fi
 
 echo -e "\n✅ 安装成功完成"
