@@ -57,7 +57,7 @@ TpObject::TpObject(TpObject *parent)
     // set->enableColor = TpApp::Inst()->appConfigSet()->enable;
     set->enableImage = true;
 
-    set->alpha = 0xff;
+    set->windowOpacity = 1.0;
 
     set->layout = nullptr;
 

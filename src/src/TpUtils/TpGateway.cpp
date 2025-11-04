@@ -8,6 +8,7 @@
 #include "nanomsg/pubsub.h"
 #include "nanomsg/pipeline.h"
 #include "nanomsg/pair.h"
+#include "nanomsg/reqrep.h"
 
 #include "TpVector.h"
 #include "TpHash.h"
@@ -83,6 +84,8 @@ public:
         // 订阅所有主题
         if (nn_setsockopt(subSocket, NN_SUB, NN_SUB_SUBSCRIBE, "", 0) < 0)
         {
+            nn_close(pubSocket);
+            nn_close(subSocket);
             return false;
         }
 
@@ -148,7 +151,7 @@ public:
         memcpy(ptr + sizeof(uint32_t), topic, topicLen);
         memcpy(ptr + sizeof(uint32_t) + topicLen, data, size);
 
-        char* topicEnd = ptr + sizeof(uint32_t) + topicLen - 1;
+        char *topicEnd = ptr + sizeof(uint32_t) + topicLen - 1;
         *topicEnd = '\0';
 
         int rc = nn_send(pubSocket, &msg, NN_MSG, NN_DONTWAIT);
@@ -161,7 +164,7 @@ public:
         return true;
     }
 
-    bool subscribe(const char *topic, TpGateway *receiver)
+    bool subscribe(const char *topic, ITpGatewayHander *receiver)
     {
         std::lock_guard<std::mutex> lock(subMutex);
         subscriptions[topic].emplace_back(Subscription(receiver, nullptr));
@@ -175,7 +178,7 @@ public:
         return true;
     }
 
-    bool unsubscribe(const char *topic, TpGateway *receiver)
+    bool unsubscribe(const char *topic, ITpGatewayHander *receiver)
     {
         std::lock_guard<std::mutex> lock(subMutex);
         auto it = subscriptions.find(topic);
@@ -223,13 +226,13 @@ public:
 private:
     struct Subscription
     {
-        TpGateway *receiver = nullptr;
+        ITpGatewayHander *receiver = nullptr;
         RecvDataFunc callback;
 
         Subscription()
         {
         }
-        Subscription(TpGateway *recv, RecvDataFunc callback)
+        Subscription(ITpGatewayHander *recv, RecvDataFunc callback)
             : receiver(recv), callback(callback)
         {
         }
@@ -255,7 +258,6 @@ private:
         {
             char *msg = nullptr;
             int bytes = nn_recv(subSocket, &msg, NN_MSG, 0);
-
             if (bytes > 0)
             {
                 // 将消息处理任务提交给线程池
@@ -275,7 +277,7 @@ private:
             uint32_t topicLen = *reinterpret_cast<uint32_t *>(msg);
             if (topicLen > 0 && static_cast<uint32_t>(bytes) > sizeof(uint32_t) + topicLen)
             {
-                const char* topic = msg + sizeof(uint32_t);
+                const char *topic = msg + sizeof(uint32_t);
                 const void *data = msg + sizeof(uint32_t) + topicLen;
                 uint32_t dataSize = bytes - sizeof(uint32_t) - topicLen;
 
@@ -290,7 +292,6 @@ private:
         TpVector<Subscription> subs;
 
         TpString recvTopic(topic);
-
         recvTopic.erase(std::remove_if(recvTopic.begin(),
                                        recvTopic.end(),
                                        [](char c)
@@ -317,6 +318,9 @@ private:
             else if (sub.callback)
             {
                 sub.callback(recvTopic.c_str(), data, size);
+            }
+            else
+            {
             }
         }
     }
@@ -366,7 +370,7 @@ bool publishGatewayData(const char *topic, const void *data, const uint32_t &siz
     return gClient.publish(topic, data, size);
 }
 
-bool subscribeGatewayData(const char *topic, TpGateway *obj)
+bool subscribeGatewayData(const char *topic, ITpGatewayHander *obj)
 {
     std::lock_guard<std::mutex> lock(gClientMutex);
     return gClient.subscribe(topic, obj);
@@ -378,7 +382,7 @@ bool subscribeGatewayData(const char *topic, RecvDataFunc func)
     return gClient.subscribe(topic, func);
 }
 
-bool unsubscribeGatewayData(const char *topic, TpGateway *obj)
+bool unsubscribeGatewayData(const char *topic, ITpGatewayHander *obj)
 {
     std::lock_guard<std::mutex> lock(gClientMutex);
     return gClient.unsubscribe(topic, obj);

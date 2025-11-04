@@ -27,6 +27,7 @@
 #include "TpShareMemory.h"
 #include "TpFixScreen.h"
 #include "TpGateway.h"
+#include "TpMainWindow.h"
 #include "thorVG/thorvg.h"
 
 #include <tinyPiXApi.h>
@@ -48,32 +49,35 @@
 
 #if 1 // 慎重修改，需和桌面保持协议一致
 
-// 应用上线标识;应用启动时发送该主题；桌面会通知应用工具栏信息
-const static TpString ApplicationRunTopic = "ApplicationRunTopicConfig";
-/// @brief 桌面工具栏信息
-const static TpString DeskTopBarInfoTopic = "DeskTopBarConfig";
-/// @brief 读取桌面信息;
-struct DeskTopBarInfo
+/// @brief 应用上线标识;应用启动时发送该主题；桌面会通知应用状态栏信息
+const static TpString DeskApplicationRunTopic = "DeskApplicationRunTopicConfig";
+/// @brief 桌面发布状态栏信息主题
+const static TpString DeskStatusBarInfoTopic = "DeskStatusBarConfig";
+/// @brief 读取桌面状态栏信息;慎重修改，需和桌面保持协议一致
+struct DeskStatusBarInfo
 {
-    /// @brief 顶部工具栏宽度值
-    int32_t topBarWidth;
-    /// @brief 顶部工具栏高度值
-    int32_t topBarHeight;
-    /// @brief 顶部工具栏是否显示；true显示，false隐藏
-    bool topBarisVislble;
+    /// @brief 状态栏位置；0=上，1=右，2=下，3=左，其它值=上
+    int32_t statusBarLocation;
+    /// @brief 状态栏宽度值
+    int32_t statusBarWidth;
+    /// @brief 顶状态栏高度值
+    int32_t statusBarHeight;
+    /// @brief 状态栏是否显示；true显示，false隐藏
+    bool statusBarVislble;
 
-    DeskTopBarInfo() : topBarWidth(0), topBarHeight(0), topBarisVislble(false)
+    DeskStatusBarInfo() : statusBarLocation(0), statusBarWidth(0), statusBarHeight(0), statusBarVislble(false)
     {
     }
 
-    bool operator==(const DeskTopBarInfo &others)
-    {
-        return (topBarWidth == others.topBarWidth) &&
-               (topBarHeight == others.topBarHeight) &&
-               (topBarisVislble == others.topBarisVislble);
-    }
+    virtual ~DeskStatusBarInfo() {}
 
-    virtual ~DeskTopBarInfo() {}
+    bool operator==(const DeskStatusBarInfo &others)
+    {
+        return (statusBarLocation == others.statusBarLocation) &&
+               (statusBarWidth == others.statusBarWidth) &&
+               (statusBarHeight == others.statusBarHeight) &&
+               (statusBarVislble == others.statusBarVislble);
+    }
 };
 #endif
 
@@ -144,7 +148,7 @@ struct TpAppData
 
     // 桌面信息；无桌面则数据无用
     bool isDesk = false;
-    DeskTopBarInfo desktopBarInfo_;
+    DeskStatusBarInfo deskStatusBarInfo_;
 };
 
 class appExe : public TpThread
@@ -256,12 +260,16 @@ public:
             {
                 TpObject *vScreen = set->vScreen;
 
+                std::cout << "case TpApp::TP_RETURN_ACT111111: " << std::endl;
+
                 if (vScreen == message.user_data0)
                 {
                     TpScreen *screenObj = static_cast<TpScreen *>(vScreen);
 
+                    std::cout << "case TpApp::TP_RETURN_ACT2222: " << std::endl;
                     // exclude desktop
-                    if (screenObj->objectLayer() != Tp::TP_WM_DESK)
+                    // if (screenObj->objectLayer() != Tp::TP_WM_DESK)
+                    if (screenObj->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
                     {
                         if (vScreen)
                         {
@@ -476,18 +484,52 @@ static bool bindVScreen(TpAppData *appData, TpFixScreen *object)
 }
 
 // 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(TpAppData *appData, TpObjectData *mainWindowObjData)
+static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpObjectData *mainWindowObjData)
 {
-    // 调整窗口大小
-    int32_t fixScreenY = 0;
-    if (!appData->isDesk && appData->desktopBarInfo_.topBarisVislble)
+    // 偏移的XY坐标；和相对于物理屏幕需要裁剪的的宽高值
+    int32_t mainWindowX = 0;
+    int32_t mainWindowY = 0;
+    int32_t offsetW = 0;
+    int32_t offsetH = 0;
+
+    if (!appData->isDesk && appData->deskStatusBarInfo_.statusBarVislble)
     {
-        fixScreenY = appData->desktopBarInfo_.topBarHeight;
+        int32_t statusBarLocation = appData->deskStatusBarInfo_.statusBarLocation;
+        if (statusBarLocation == 0)
+        {
+            mainWindowY = appData->deskStatusBarInfo_.statusBarHeight;
+            offsetH = mainWindowY;
+        }
+        else if (statusBarLocation == 1)
+        {
+            offsetW = appData->deskStatusBarInfo_.statusBarWidth;
+        }
+        else if (statusBarLocation == 2)
+        {
+            offsetH = appData->deskStatusBarInfo_.statusBarHeight;
+        }
+        else if (statusBarLocation == 3)
+        {
+            mainWindowX = appData->deskStatusBarInfo_.statusBarWidth;
+            offsetW = mainWindowX;
+        }
+        else
+        {
+            mainWindowY = appData->deskStatusBarInfo_.statusBarHeight;
+            offsetH = mainWindowY;
+        }
     }
 
+    // 调整窗口大小和坐标
     uint32_t rW = 0, rH = 0;
     tinyPiX_wf_get_display_size(mainWindowObjData->agent, &rW, &rH);
-    tinyPiX_wf_set_rect(mainWindowObjData->agent, 0, fixScreenY, rW, rH - fixScreenY);
+    tinyPiX_wf_set_rect(mainWindowObjData->agent, mainWindowX, mainWindowY, rW - offsetW, rH - offsetH);
+
+    mainWindowObjData->offsetX = mainWindowX;
+    mainWindowObjData->offsetY = mainWindowY;
+
+    mainWindowObjData->absoluteRect.setX(mainWindowX);
+    mainWindowObjData->absoluteRect.setY(mainWindowY);
 }
 
 static inline bool holdAppSecondRun(const char *runPath, const char *uuid)

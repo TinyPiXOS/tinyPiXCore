@@ -5,11 +5,11 @@
 #include <functional>
 
 /// @brief 网关数据接收接口类
-class TpGateway
+class ITpGatewayHander
 {
 public:
     virtual void recvData(const char *topic, const void *data, const uint32_t &size) = 0;
-    ~TpGateway() {}
+    ~ITpGatewayHander() {}
 };
 using RecvDataFunc = std::function<void(const char *, const void *, uint32_t)>;
 
@@ -22,11 +22,11 @@ bool initializeGateway(const char *serverAddress = nullptr);
 bool publishGatewayData(const char *topic, const void *data, const uint32_t &size);
 
 /// @brief 订阅接口
-bool subscribeGatewayData(const char *topic, TpGateway *obj);
+bool subscribeGatewayData(const char *topic, ITpGatewayHander *obj);
 bool subscribeGatewayData(const char *topic, RecvDataFunc func);
 
 /// @brief 取消订阅
-bool unsubscribeGatewayData(const char *topic, TpGateway *obj);
+bool unsubscribeGatewayData(const char *topic, ITpGatewayHander *obj);
 bool unsubscribeGatewayData(const char *topic, RecvDataFunc func);
 
 /// @brief 关闭网关连接

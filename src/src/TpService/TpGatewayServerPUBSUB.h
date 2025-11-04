@@ -1,14 +1,14 @@
-#ifndef GATEWAY_SERVER_H
-#define GATEWAY_SERVER_H
+#ifndef __GATEWAY_SERVER_PUB_SUB_H
+#define __GATEWAY_SERVER_PUB_SUB_H
 
 #include <string>
 #include <atomic>
 #include <memory>
 
-class TpGatewayServer
+class TpGatewayServerPUBSUB
 {
 public:
-    virtual ~TpGatewayServer() = default;
+    virtual ~TpGatewayServerPUBSUB() = default;
 
     virtual bool start(uint16_t tcp_port = 5555) = 0;
     virtual void stop() = 0;
@@ -16,7 +16,6 @@ public:
     // virtual size_t getClientCount() const = 0;
     virtual size_t getMessageRate() = 0;
 };
-
-std::shared_ptr<TpGatewayServer> createGatewayServer();
+std::shared_ptr<TpGatewayServerPUBSUB> createGatewayServer();
 
 #endif // GATEWAY_SERVER_H

@@ -292,7 +292,7 @@ static inline void childPaint(TpObjectData *set, TpPaintEvent *events)
         if (!child->visible())
             continue;
 
-        if (child->alpha() == 0)
+        if (tpFuzzyCompare(child->windowOpacity(), 0))
             continue;
 
         TpObjectData *childSet = (TpObjectData *)child->objectSets();

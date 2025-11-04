@@ -12,7 +12,7 @@ int32_t main(int32_t argc, char *argv[])
 
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	app.bindVScreen(vScreen);
+	
 
 	TpOnOffButton *onOffBtn1 = new TpOnOffButton(vScreen, TpOnOffButton::TP_HORIZONTAL);
 	onOffBtn1->setRect(120, 120, 150, 75);

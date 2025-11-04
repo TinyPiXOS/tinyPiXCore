@@ -10,7 +10,7 @@ int32_t main(int32_t argc, char *argv[])
 
     TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    app.bindVScreen(vScreen);
+    
 
     TpButton *button1 = new TpButton("北京市", vScreen);
     button1->setProperty("type", "ControlPanelPowerButton");
