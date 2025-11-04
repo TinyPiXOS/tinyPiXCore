@@ -40,15 +40,15 @@ declare -A PATH_MAPPINGS=(
 	["./{ARCH}/res"]="update:/usr/res/TinyPiX"
 
     #System
-    ["./system"]="overwrite:/System"
+#    ["./system"]="overwrite:/System"
 
 	# 系统基本构建环境（必须使用preserve模式）
-	["./build/{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX/build"
-	["./build/{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX/build"
-	["./build/{ARCH}/libexec"]="overwrite:/usr/libexec/TinyPiX/build"
-	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
+#	["./build/{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX/build"
+#	["./build/{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX/build"
+#	["./build/{ARCH}/libexec"]="overwrite:/usr/libexec/TinyPiX/build"
+#	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
 
-	["./build/{ARCH}/systemd"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
+#	["./build/{ARCH}/systemd"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
 )
 # =====================================================
 
