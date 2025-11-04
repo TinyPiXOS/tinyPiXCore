@@ -878,6 +878,15 @@ void TpWidget::setBorderColor(int32_t color, bool enable)
 
     set->borderColor = color;
     set->enableBorderColor = enable;
+
+    // CSS解析完，初始化默认状态下CSS数据对象
+    enabledCss()->setBorderColor(color);
+    pressedCss()->setBorderColor(color);
+    hoveredCss()->setBorderColor(color);
+    checkedCss()->setBorderColor(color);
+    disableCss()->setBorderColor(color);
+
+    update();
 }
 
 void TpWidget::setBorderColor(const TpBrush &borderBrush, bool enable)
@@ -1114,22 +1123,6 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
         painter->setBrush(TpBrush(Tp::NoBrush));
     }
 
-    if (set->enableBorderColor)
-    {
-        painter->pen().setColor(curCssData->borderColor());
-
-        if (curCssData->borderColorIsGradient())
-        {
-            painter->pen().setBrush(TpBrush(curCssData->borderColorGradiant()));
-        }
-        else
-        {
-            painter->pen().setBrush(TpBrush(Tp::NoBrush));
-        }
-
-        painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
-    }
-
     if (set->enableImage && !set->cacheImage.isNull())
     {
         int32_t imageX = 0;
@@ -1161,6 +1154,21 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
         }
 
         painter->drawImage(imageX, imageY, set->cacheImage, minRad);
+    }
+
+    if (set->enableBorderColor)
+    {
+        painter->setPen(curCssData->borderColor());
+        painter->setBrush(TpBrush(Tp::NoBrush));
+
+        // painter->pen().setBrush(TpBrush(Tp::NoBrush));
+
+        if (curCssData->borderColorIsGradient())
+        {
+            painter->pen().setBrush(TpBrush(curCssData->borderColorGradiant()));
+        }
+
+        painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
     }
 
     // 窗体更新，如果有布局更新布局

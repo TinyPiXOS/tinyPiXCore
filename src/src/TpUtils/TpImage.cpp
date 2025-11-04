@@ -84,12 +84,6 @@ bool TpImage::load(const TpString &filename)
     if (!imageData)
         return false;
 
-    // if (imageData->loadBuffer)
-    // {
-    //     delete[] imageData->loadBuffer;
-    //     imageData->loadBuffer = nullptr;
-    // }
-
     imageData->fileName = filename;
 
     imageData->tvgPicture->load(filename.c_str());
@@ -103,12 +97,12 @@ bool TpImage::load(const TpString &filename)
     return true;
 }
 
-bool TpImage::load(void *martix, const TpRect &rect)
+bool TpImage::load(void *martix, const TpSize &size, const TpRect &clipRect)
 {
     if (!martix)
         return false;
 
-    if (rect.width() == 0 || rect.height() == 0)
+    if (size.width() == 0 || size.height() == 0)
         return false;
 
     TpImageData *imageData = static_cast<TpImageData *>(data_);
@@ -117,22 +111,49 @@ bool TpImage::load(void *martix, const TpRect &rect)
 
     imageData->fileName = "";
 
-    // if (imageData->loadBuffer)
-    // {
-    //     delete[] imageData->loadBuffer;
-    //     imageData->loadBuffer = nullptr;
-    // }
+    // 裁剪图片
+    if (clipRect.width() != 0 && clipRect.height() != 0)
+    {
+        // 只加载裁剪数据
+        // 分配新的 buffer，只包含裁剪区域
+        uint32_t *croppedBuffer = new uint32_t[clipRect.width() * clipRect.height()];
 
-    // imageData->loadBuffer = new uint32_t[rect.width() * rect.height()];
-    // memcpy(imageData->loadBuffer, martix, sizeof(uint32_t) * rect.width() * rect.height());
+        // 从原始 buffer 复制裁剪区域的像素
+        uint32_t *srcBuffer = (uint32_t *)martix;
+        for (int y = 0; y < clipRect.height(); y++)
+        {
+            int srcY = clipRect.y() + y;
+            if (srcY >= 0 && srcY < size.height())
+            {
+                for (int x = 0; x < clipRect.width(); x++)
+                {
+                    int srcX = clipRect.x() + x;
+                    if (srcX >= 0 && srcX < size.width())
+                    {
+                        croppedBuffer[y * clipRect.width() + x] =
+                            srcBuffer[srcY * size.width() + srcX];
+                    }
+                }
+            }
+        }
 
-    imageData->tvgPicture->load((uint32_t*)martix, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888, true);
-    // imageData->tvgPicture->load(imageData->loadBuffer, rect.width(), rect.height(), tvg::ColorSpace::ARGB8888);
+        //  加载裁剪后的 buffer
+        imageData->tvgPicture->load(croppedBuffer,
+                                    clipRect.width(),
+                                    clipRect.height(),
+                                    tvg::ColorSpace::ARGB8888,
+                                    true);
 
-    imageData->actualWidth = rect.width();
-    imageData->actualHeight = rect.height();
-
-    // imageData->tvgPicture->size(&imageData->actualWidth, &imageData->actualHeight);
+        // 释放临时 buffer
+        delete[] croppedBuffer;
+    }
+    else
+    {
+        // 加载全量数据
+        imageData->tvgPicture->load((uint32_t *)martix, size.width(), size.height(), tvg::ColorSpace::ARGB8888, true);
+        imageData->actualWidth = size.width();
+        imageData->actualHeight = size.height();
+    }
 
     return true;
 }

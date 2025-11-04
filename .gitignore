@@ -109,3 +109,5 @@ examples/TpGUI/TpTemperatureWidget/temp
 examples/TpUtils/TpGateway/client1
 examples/TpUtils/TpGateway/client2
 examples/TpGUI/TpMessgaeBox/messgaeBox
+examples/TpUtils/TpGateway/PubSub/client2
+examples/TpUtils/TpGateway/REP/repClient

@@ -121,7 +121,7 @@ extern DECLSPEC void STDCALL umount_tmpfs(const tpChar *target);
 /**set limit**/
 extern DECLSPEC void STDCALL set_unlimited_files();
 /**check pixwm run**/
-extern DECLSPEC tpBool STDCALL check_pixwm_run(const tpChar *runPath);
+extern DECLSPEC tpInt32 STDCALL check_pixwm_run(const tpChar *runPath);
 /**create deamon**/
 extern DECLSPEC void STDCALL daemon_create();
 

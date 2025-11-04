@@ -1,4 +1,4 @@
-#include "TpGatewayServer.h"
+#include "TpGatewayServerPUBSUB.h"
 #include "nanomsg/nn.h"
 #include "nanomsg/pubsub.h"
 #include <unordered_map>
@@ -10,6 +10,7 @@
 #include <atomic>
 #include <cstring>
 #include "TpString.h"
+#include "TpGatewayServerPUBSUB.h"
 
 // 平台特定的IPC地址
 #ifdef _WIN32
@@ -21,7 +22,7 @@
 // 消息最大尺寸
 const uint32_t MAX_MSG_SIZE = 10 * 1024 * 1024; // 10MB
 
-class GatewayServerImpl : public TpGatewayServer
+class GatewayServerPUBSUBImpl : public TpGatewayServerPUBSUB
 {
     int32_t pubSocket_ = -1;
     int32_t subSocket_ = -1;
@@ -132,9 +133,9 @@ class GatewayServerImpl : public TpGatewayServer
     }
 
 public:
-    GatewayServerImpl() = default;
+    GatewayServerPUBSUBImpl() = default;
 
-    ~GatewayServerImpl() override
+    ~GatewayServerPUBSUBImpl() override
     {
         stop();
     }
@@ -197,8 +198,8 @@ public:
 
         // 启动工作线程
         running_ = true;
-        receiverThread_ = std::thread(&GatewayServerImpl::receiverThread, this);
-        publisherThread_ = std::thread(&GatewayServerImpl::publisherThread, this);
+        receiverThread_ = std::thread(&GatewayServerPUBSUBImpl::receiverThread, this);
+        publisherThread_ = std::thread(&GatewayServerPUBSUBImpl::publisherThread, this);
 
         return true;
     }
@@ -238,8 +239,8 @@ public:
     }
 };
 
-// 创建GatewayServer实例
-std::shared_ptr<TpGatewayServer> createGatewayServer()
+// 创建GatewayServer发布订阅实例
+std::shared_ptr<TpGatewayServerPUBSUB> createGatewayServer()
 {
-    return std::make_shared<GatewayServerImpl>();
+    return std::make_shared<GatewayServerPUBSUBImpl>();
 }
