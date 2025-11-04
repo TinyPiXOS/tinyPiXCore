@@ -22,13 +22,6 @@ bool MainWindowService::appChange(int32_t id, int32_t pid, int32_t visible, int3
     return true;
 }
 
-bool MainWindowService::onResizeEvent(TpResizeEvent *event)
-{
-    std::cout << "mainWindowService::onResizeEvent" << std::endl;
-
-    return true;
-}
-
 bool MainWindowService::onActiveEvent(TpActiveEvent *event)
 {
     std::cout << "mainWindowService::onActiveEvent" << std::endl;

@@ -7,6 +7,7 @@
 #include "TpApp.h"
 #include "TpPainter.h"
 #include "TpButton.h"
+#include "TpMainWindow.h"
 
 #ifndef TOP_MARGIN
 #define TOP_MARGIN 12
@@ -383,7 +384,7 @@ void TpVirtualKeyboard::show()
 {
     TpVirtualKeyboardData *vkData = static_cast<TpVirtualKeyboardData *>(data_);
 
-    TpWidget *mainScreen = TpApp::Inst()->vScreen();
+    TpWidget *mainScreen = TpApp::Inst()->mainWindow();
 
     setSize(mainScreen->width(), 300);
     move(0, mainScreen->height() - height());

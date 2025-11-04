@@ -21,48 +21,36 @@ public:
     };
 
 public:
-    TpMessageBox(const char *type = "tinyPiX_USE_Float");
-
+    TpMessageBox(MessageType type = TpMessageBox::Information);
+    TpMessageBox(const TpString &text, MessageType type = TpMessageBox::Information);
     virtual ~TpMessageBox();
 
     /// @brief 模态显示消息对话框
     /// @return 返回点击ID索引
-    uint32_t exec();
+    void exec() override;
 
-    /// @brief 设置消息框类型
-    /// @param type 类型枚举
-    void setMessageType(const MessageType &type);
-
-    /// @brief 设置消息框按钮列表，最大最好不要超过四个，否则显示效果受影响
-    /// @param buttonList 按钮文本列表
-    void setButtonList(const TpVector<TpString> &buttonList);
-
-public:
-    static uint32_t information(const TpString &text, const TpString &btnText = "确认");
-    static uint32_t question(const TpString &text, const TpString &yesBtnText = "确认", const TpString &cancleBtnText = "取消");
-    static uint32_t error(const TpString &text, const TpString &yesBtnText = "确认");
-    static uint32_t warning(const TpString &text, const TpString &yesBtnText = "确认");
-
-public:
     /// @brief 设置按钮文本
     /// @param text 文本内容
     virtual void setText(const TpString &text);
 
-    /// @brief 获取按钮文本字体
-    /// @return 字体指针
-    virtual TpFont *font();
+    /// @brief 设置消息框类型；内部根据类型自动生成交互按钮
+    /// @param type 类型枚举
+    void setMessageType(MessageType type);
+
+    /// @brief 设置消息框按钮列表，最大最好不要超过四个
+    /// @param buttonList 按钮文本列表
+    void setButtonList(const TpVector<TpString> &buttonList);
 
 public
 signals:
-
-protected:
-    virtual void setVisible(bool visible = true) override;
+    /// @brief 消息框关闭信号
+    /// @param int32_t 用户点击的交互按钮索引，从0开始
+    declare_signal(onClose, int32_t);
 
 protected:
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onResizeEvent(TpResizeEvent *event) override;
-
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 protected:

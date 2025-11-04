@@ -1400,7 +1400,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
         return false;
 
     // 缓存频繁使用的计算和属性
-    Tp::ItpObjectType type = inputObjectChild->objectType();
+    Tp::TpObjectType type = inputObjectChild->objectType();
     const TpRect objectAbsRect = inputObjectChild->toScreen();
     const int32_t objWidth = inputObjectChild->width();
     const int32_t objHeight = inputObjectChild->height();
@@ -1410,7 +1410,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     eventData->object = inputObjectChild;
     eventData->surface = input->surface;
 
-    if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_TOP_OBJECT)
+    if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FIXSCREEN_OBJECT)
     {
         eventData->offsetX = 0;
         eventData->offsetY = 0;
@@ -1421,7 +1421,8 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
         eventData->offsetY = objectAbsRect.y() - offsetYVal;
     }
 
-    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    // eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, inputObjectChild);
     if (eventData->canvas == nullptr)
     {
         eventData->surface = nullptr;
@@ -1478,7 +1479,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     }
 
     TpObject *top = input->object->topObject();
-    if (top && (top != input->object) && top->objectType() == Tp::TP_FLOAT_OBJECT)
+    if (top && (top != input->object) && (top->objectType() == Tp::TP_FLOAT_OBJECT || top->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
     {
         clipRect.setX(clipRect.x() - offsetXVal);
         clipRect.setY(clipRect.y() - offsetYVal);

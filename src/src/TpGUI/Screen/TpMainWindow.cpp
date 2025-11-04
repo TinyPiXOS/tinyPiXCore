@@ -13,12 +13,7 @@
 
 struct TpMainWindowData
 {
-    uint8_t alpha;
-    uint32_t color;
-    int32_t attr;
-
     TpMainWindowData()
-        : alpha(0), color(0), attr(0)
     {
     }
 };
@@ -29,28 +24,31 @@ TpMainWindow::TpMainWindow(const char *type)
     TpMainWindowData *screenData = new TpMainWindowData();
     data_ = screenData;
 
-    if (this->objectType() != Tp::TP_TOP_OBJECT)
+    if (this->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
+        return;
     }
 
-    TpObjectData *set = static_cast<TpObjectData *>(this->objectSets());
-    if (set)
+    // 判断是否已经有mainwindow了
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+    if (appData->mainWindow)
     {
-        uint32_t rW = 0, rH = 0;
-        tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
-
-        set->absoluteRect.setRect(0, 0, rW, rH);
-        set->logicalRect.setRect(0, 0, rW, rH);
-
-        screenData->alpha = 0xff;
-        screenData->color = TpColors::Black;
-        screenData->attr = TpMainWindow::ITP_POP_STYLE;
-
-        this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
+        TpApp::Inst()->sendDelete(this);
+        return;
     }
+    appData->mainWindow = this;
 
+    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     set->top = this->topObject();
+
+    // 调整窗口大小
+    refreshMainWindow(appData, this, set);
+
+    setBackGroundColor(_RGBA(255, 255, 255, 255));
+
+    tinyPiX_wf_set_visible(set->agent, true);
+    set->visible = true;
 }
 
 TpMainWindow::~TpMainWindow()
@@ -64,47 +62,67 @@ TpMainWindow::~TpMainWindow()
     }
 }
 
-Tp::ItpObjectType TpMainWindow::objectType()
+Tp::TpObjectType TpMainWindow::objectType()
 {
-    return Tp::TP_TOP_OBJECT;
+    return Tp::TP_MAIN_WINDOW_OBJECT;
 }
 
-int32_t TpMainWindow::setVScreenAttribute(uint8_t alpha, uint32_t color, int32_t screenAttr)
+void TpMainWindow::setBackGroundColor(const TpColors &color, bool enable)
 {
-    TpMainWindowData *screenData = static_cast<TpMainWindowData *>(data_);
-    if (!screenData)
-        return false;
-
-    switch (screenAttr)
-    {
-    case TpMainWindow::ITP_FULL_STYLE:
-    case TpMainWindow::ITP_POP_STYLE:
-    {
-    }
-    break;
-    default:
-        return false;
-    }
-
-    TpObjectData *set = (TpObjectData *)this->objectSets();
-
-    if (set)
-    {
-        screenData->alpha = alpha;
-        screenData->color = color;
-        screenData->attr = screenAttr;
-
-        return tinyPiX_wf_send_app_state(set->agent, TP_INVALIDATE_VALUE, this->visible(), this->objectActive(), color, alpha, screenAttr);
-    }
-
-    return false;
+    // TpMainWindow 不能透明,且必须有背景色
+    TpColors newColor = color;
+    newColor.setAlpha(255);
+    TpScreen::setBackGroundColor(newColor, true);
 }
 
-bool TpMainWindow::onActiveEvent(TpActiveEvent *event)
+void TpMainWindow::setBackGroundColor(int32_t color, bool enable)
 {
-    TpMainWindowData *screenData = static_cast<TpMainWindowData *>(data_);
-    if (!screenData)
-        return false;
+    TpScreen::setBackGroundColor(_RGBA(_R(color), _G(color), _B(color), 255), true);
+}
 
-    return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
+void TpMainWindow::setBackGroundColor(const TpBrush &bgBrush, bool enable)
+{
+    TpBrush newBrush = bgBrush;
+    TpColors setColorObj = newBrush.color();
+    setColorObj.setAlpha(255);
+    newBrush.setColor(setColorObj);
+
+    TpGradient *brushGradiwnt = newBrush.gradient();
+    if (brushGradiwnt)
+    {
+        TpList<std::pair<float, int32_t>> colorAtList = brushGradiwnt->getColors();
+        for (auto &colorAt : colorAtList)
+        {
+            colorAt.second = _RGBA(_R(colorAt.second), _G(colorAt.second), _B(colorAt.second), 255);
+            brushGradiwnt->setColorAt(colorAt.first, colorAt.second);
+        }
+    }
+
+    TpScreen::setBackGroundColor(newBrush, true);
+}
+
+void TpMainWindow::setEnableBackGroundColor(bool enable)
+{
+    TpScreen::setEnableBackGroundColor(true);
+}
+
+void TpMainWindow::setBorderColor(const TpColors &color, bool enable)
+{
+    // TpMainWindow没有边框颜色
+    TpScreen::setBorderColor(color, false);
+}
+
+void TpMainWindow::setBorderColor(int32_t color, bool enable)
+{
+    TpScreen::setBorderColor(color, false);
+}
+
+void TpMainWindow::setBorderColor(const TpBrush &borderBrush, bool enable)
+{
+    TpScreen::setBorderColor(borderBrush, false);
+}
+
+void TpMainWindow::setEnabledBorderColor(bool enable)
+{
+    TpScreen::setEnabledBorderColor(false);
 }

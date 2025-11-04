@@ -12,7 +12,6 @@ TP_DEF_VOID_TYPE_VAR(ITpAppData);
 class TpObject;
 class TpClipboard;
 class TpWidget;
-class TpScreen;
 class TpCssParser;
 
 class TpApp
@@ -73,7 +72,11 @@ public:
     };
 
 public:
-    TpApp(int32_t argc, char *argv[]);
+    /// @brief 主事件循环构造函数
+    /// @param argc 参数数量
+    /// @param argv 入口参数
+    /// @param deskTopStrKey 桌面唯一标识；普通应用无需处理
+    TpApp(int32_t argc, char *argv[], const TpString& deskStrKey = "");
     virtual ~TpApp();
 
 public:
@@ -82,20 +85,17 @@ public:
     static TpApp *Inst();
 
 public:
-    /// @brief 绑定应用主窗体
-    /// @param object 主窗体对象指针
-    /// @return 绑定结果
-    virtual bool bindVScreen(TpScreen *object);
     /// @brief 开启tpApp主事件循环
     /// @return 启动结果
     virtual bool run();
 
-public:
+    /// @brief 获取剪切板单例指针
+    /// @return 剪切板指针
     virtual TpClipboard *clipboard();
 
-    /// @brief 获取当前程序主窗体
-    /// @return 主窗体指针
-    virtual TpScreen *vScreen();
+    /// @brief 获取应用的主窗口；无主窗口则返回nullptr
+    /// @return 应用主窗口指针
+    virtual TpWidget* mainWindow();
 
     /// @brief 获取全局单例CSS解析器
     /// @return css解析器智能指针
@@ -108,10 +108,6 @@ public:
     /// @brief 获取系统主题类型
     /// @return 系统主观类型
     Tp::SystemTheme style();
-
-    /// @brief 获取当前应用界面抓图;暂未实现
-    /// @return 图片资源对象
-    TpImage grabWindow();
 
     /// @brief 唤醒虚拟键盘
     /// @return object 唤醒对象；虚拟键盘的输入将会给入该对象

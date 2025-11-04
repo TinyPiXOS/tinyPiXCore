@@ -24,7 +24,7 @@ public:
         Height,
         /// @brief 窗体宽度 int32_t
         Width,
-        /// @brief 整体透明度​​（0透明，255不透明 int32_t
+        /// @brief 整体不透明度​​（0透明，1不透明 float
         WindowOpacity,
         /// @brief 背景颜色 int32_t
         BackgroundColor,

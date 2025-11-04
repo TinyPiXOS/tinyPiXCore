@@ -35,8 +35,8 @@ int example_socket_client(int32_t argc, char *argv[],const TpString& adapter)
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
-	app.bindVScreen(vScreen);
+	 weekly
+	
 
 	tpUInt8 buff[10]="senddata\n";
 
@@ -82,8 +82,8 @@ int example_socket_server(int32_t argc, char *argv[],const TpString& adapter)
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
-	app.bindVScreen(vScreen);
+	 weekly
+	
 
 	TpBluetoothServer bt_server(adapter,TpBluetoothService::TP_BLUET_RFCOMM_PROTOCOL);
 	bt_server.listen(TpBluetoothAddress::any(),1);

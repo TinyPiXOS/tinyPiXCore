@@ -75,6 +75,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLottieAnimation.cpp
     ${SOURCE_PATH}/src_p/TpGUI/Core/TpObjectStack.cpp
     ${SOURCE_PATH}/src_p/TpGUI/Core/TpAutoObject.cpp
+    ${SOURCE_PATH}/src_p/TpGUI/Screen/TpFixScreen.cpp
 )
 
 include_directories(/usr/include/cairo)
@@ -90,6 +91,7 @@ include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpGUI)
 include_directories(${SOURCE_PATH}/include_p/TpGUI/Widgets)
 include_directories(${SOURCE_PATH}/include_p/TpGUI/Core)
+include_directories(${SOURCE_PATH}/include_p/TpGUI/Screen)
 include_directories(${SOURCE_PATH}/include_p/TpUtils)
 
 # 添加动态库目标

@@ -10,8 +10,8 @@ int32_t main(int32_t argc, char *argv[])
 
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display weekly
-	app.bindVScreen(vScreen);
+	 weekly
+	
 
 	TpLineEdit *testEdit = new TpLineEdit(vScreen);
 

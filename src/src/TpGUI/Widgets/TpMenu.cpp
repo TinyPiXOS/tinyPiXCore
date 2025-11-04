@@ -4,6 +4,7 @@
 #include "TpDef.h"
 #include "TpImage.h"
 #include "TpFont.h"
+#include "TpApp.h"
 
 struct MenuItemData
 {
@@ -84,28 +85,30 @@ void TpMenu::exec(const int32_t &globalPosX, const int32_t &globalPosY)
     if (!menuData)
         return;
 
-    int32_t width = TpScreen::screenWidth();
-    int32_t height = TpScreen::screenHeight();
-
-    int32_t posX = globalPosX;
-    int32_t posY = globalPosY;
-
-    if ((posX + this->width()) > width)
-    {
-        posX = posX - this->width();
-    }
-
-    if ((posY + this->height()) > height)
-    {
-        posY = posY - this->height();
-    }
+    TpDialog::exec();
 
     uint32_t menuHeight = menuData->itemList.size() * (menuData->itemHeight);
     setSize(menuData->itemWidth, menuHeight);
 
-    this->move(posX, posY);
-    this->setVisible(true);
-    this->update();
+    int32_t mainWindowWidth = TpApp::Inst()->mainWindow()->width();
+    int32_t mainWindowHeight = TpApp::Inst()->mainWindow()->height();
+
+    int32_t posX = globalPosX;
+    int32_t posY = globalPosY;
+
+    if ((posX + width()) > mainWindowWidth)
+    {
+        posX = posX - width();
+    }
+
+    if ((posY + height()) > mainWindowHeight)
+    {
+        posY = posY - height();
+    }
+
+    move(posX, posY);
+    setVisible(true);
+    update();
 }
 
 uint32_t TpMenu::addItem(const TpString &text)
@@ -217,19 +220,11 @@ TpString TpMenu::itemText(const uint32_t &index)
 
 bool TpMenu::onFocusEvent(TpFocusEvent *event)
 {
-    std::cout << "TpMenu::onFocusEvent " << std::endl;
+    // std::cout << "TpMenu::onFocusEvent " << std::endl;
     // if (!event->focused())
     // {
     // 	close();
     // }
-
-    return true;
-}
-
-bool TpMenu::onMousePressEvent(TpMouseEvent *event)
-{
-    if (event->button() != BUTTON_LEFT)
-        return true;
 
     return true;
 }
@@ -247,7 +242,6 @@ bool TpMenu::onMouseRleaseEvent(TpMouseEvent *event)
     onClicked.emit(clickIndex);
 
     setVisible(false);
-    // update();
 
     return true;
 }

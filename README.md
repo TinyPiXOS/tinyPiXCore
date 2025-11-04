@@ -24,6 +24,10 @@ TinyPiXOS的诞生标志着我们从零起步，完成了基础技术栈的完�
 
 TpWM是 TinyPiXOS 的窗口管理引擎，是 TinyPiXOS 的核心支撑要件。整个引擎设计以精简接口为切入点，摒弃复杂冗余的接口设计理念，结合类似RISC精简指令集的设计思想，为窗口设计人员提供任意组装和拼接的高效途径，可以打造出千变万化的自定义产品。
 
+## TpService
+
+TpService 是 ​​TiniPiXOS​​ 框架的后台服务模块，基于 ​​nanomsg​​ 实现高效通信，目前主要提供 ​​进程间通信（IPC）​​ 和 ​​局域网设备间通信​​ 功能，并计划逐步扩展为更强大的系统服务节点。
+
 ## TpGUI
 
 TpGUI 库为 TinyPiXOS 应用程序提供了核心 GUI 框架，实现了一个全面的基于小部件的用户界面系统，具有 CSS 样式、事件处理和动画功能。该库是在 TinyPiXOS 平台上构建图形应用程序的基础。
@@ -119,11 +123,11 @@ TinyPiXOS整体架构图
 
 ### 源码下载
 
-拉取代码，可以使用Github地址直接下拉，或者使用Gitee同步仓库拉取
+拉取代码，可以使用Gitee地址直接下拉，或者使用同步仓库Github拉取
 
 ```bash
-git clone https://github.com/TinyPiXOS/TinyPiXOS.git
-# git clone https://gitee.com/tinypixos/TinyPiXOS.git
+# git clone https://github.com/TinyPiXOS/TinyPiXOS.git
+git clone https://gitee.com/tinypixos/TinyPiXOS.git
 ```
 
 ### 依赖库清单
@@ -149,17 +153,11 @@ git clone https://github.com/TinyPiXOS/TinyPiXOS.git
 
 ### 构建安装
 
-- ​**安装 TpWM 基础库**
-
-```bash
-# 需要先安装完成 TpWM 相关依赖；参考官网 TpWM 安装教程
-```
-
 - ​**安装 依赖环境**
 
 ```bash
 sudo apt install \
-  libcairo2-dev libpango1.0-dev libglib2.0-dev \
+  libsdl2-dev libcairo2-dev libpango1.0-dev libglib2.0-dev \
   libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
   libgbm-dev libgles2 libegl-dev \
   libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
@@ -216,6 +214,8 @@ make install
   `/usr/res/TinyPiX`
 - ​**数据文件安装路径**​  
   `/usr/data/TinyPiX`
+- ​**系统支持文件安装路径**​  
+  `/System`
 
 #### 应用程序库引入
 
@@ -234,6 +234,36 @@ target_link_libraries(你的应用程序名称 TpUtils)
 include_directories(/usr/include/TinyPiX/TpExtUtils)
 link_directories("/usr/lib")
 target_link_libraries(你的应用程序名称 TpExtUtils)
+```
+
+#### 配置文件解析
+
+### 2. 配置文件解析
+
+配置文件路径：`/System/conf/tinyPiX.conf`
+
+示例配置，请勿复制注释至tinyPiX.conf：
+
+```ini
+[display-setting]
+width     = 1080   # 屏幕宽度（建议保持默认）
+height    = 720    # 屏幕高度（建议保持默认）
+format    = 32     # 颜色深度（不建议修改）
+
+[attribute-setting]
+daemon      = 0    # 0=前台运行，1=后台运行
+acclerate   = 1    # 0=禁用硬件加速，1=启用
+brightness  = 255  # 屏幕亮度（0-255）
+sharemem    = 0    # 0=硬盘空间；1=内存空间
+shareone    = 1    # 0=多应用不使用共享内存；1=使用共享内存
+
+[system-setting]
+simulator   = 1
+quitwait    = 15
+
+[mode-setting]
+startdir = /opt/project-main/tinyPiXApp/Application/deskTop/bin/
+startapp = TpDesktop
 ```
 
 ## 贡献代码
@@ -302,4 +332,10 @@ TinyPiXOS开发者服务邮箱
 
 <div align="center">
 <img src="https://file.tinypixos.com/tinypixos/团队.png" width="550" height="300" alt="核心团队">
+</div>
+
+## 支持作者
+
+<div align="center">
+<img src="https://file.tinypixos.com/tinypixos/微信赞赏二维码.png" width="300" height="300" alt="核心团队">
 </div>

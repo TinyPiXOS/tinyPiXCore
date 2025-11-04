@@ -6,27 +6,25 @@
 
 int32_t main(int32_t argc, char *argv[])
 {
-	TpApp app(argc, argv);
+    TpApp app(argc, argv);
 
-	TpMainWindow *vScreen = new TpMainWindow();
-	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display
-	app.bindVScreen(vScreen);
+    TpMainWindow *vScreen = new TpMainWindow();
+    vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 
-	TpMenu *menu = new TpMenu();
-	menu->addItem("Item1");
-	menu->addItem("Item2");
-	menu->addItem("Item3");
+    TpMenu *menu = new TpMenu();
+    menu->addItem("Item11111");
+    menu->addItem("Item22222");
+    menu->addItem("Item33333");
 
-	TpButton *showMenuBtn = new TpButton(vScreen);
-	showMenuBtn->setText("显示弹出菜单");
-	showMenuBtn->setProperty("type", "ControlPanelPowerButton");
-	showMenuBtn->setSize(300, 64);
-	showMenuBtn->move(20, 20);
-	connect(showMenuBtn, onClicked, [&](bool)
-			{ menu->exec(330, 20); });
+    TpButton *showMenuBtn = new TpButton(vScreen);
+    showMenuBtn->setText("显示弹出菜单");
+    showMenuBtn->setProperty("type", "ControlPanelPowerButton");
+    showMenuBtn->setSize(300, 64);
+    showMenuBtn->move(20, 20);
+    connect(showMenuBtn, onClicked, [&](bool)
+            { menu->exec(330, 20); });
 
-	vScreen->update();
+    vScreen->update();
 
-	return app.run();
+    return app.run();
 }

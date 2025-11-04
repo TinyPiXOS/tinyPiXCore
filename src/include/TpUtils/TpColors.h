@@ -468,40 +468,21 @@ public:
     };
 
 public:
-    TpColors() : isNull_(true)
-    {
-        this->colorSet_ = _RGBA(0, 0, 0, 255);
-    }
+    TpColors();
+    TpColors(int32_t colorSet);
+    TpColors(const TpColors &color);
+    TpColors(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
+    virtual ~TpColors();
 
-    TpColors(int32_t colorSet) : isNull_(false)
-    {
-        this->colorSet_ = colorSet;
-    }
+    inline uint8_t red() const { return _R(data_); }
+    inline uint8_t green() const { return _G(data_); }
+    inline uint8_t blue() const { return _B(data_); }
+    inline uint8_t alpha() const { return _A(data_); }
 
-    TpColors(const TpColors &color) : isNull_(false)
-    {
-        this->colorSet_ = color.rgba();
-    }
-
-    TpColors(const uint8_t &r, const uint8_t &g, const uint8_t &b, const uint8_t &a = 255) : isNull_(false)
-    {
-        this->colorSet_ = _RGBA(r, g, b, a);
-    }
-
-    uint8_t red()
-    {
-        return _R(this->colorSet_);
-    }
-
-    uint8_t green()
-    {
-        return _G(this->colorSet_);
-    }
-
-    uint8_t blue()
-    {
-        return _B(this->colorSet_);
-    }
+    void setRed(uint8_t r);
+    void setGreen(uint8_t g);
+    void setBlue(uint8_t b);
+    void setAlpha(uint8_t a);
 
     /// @brief 设置颜色为空，重置为黑色
     inline void setNull();
@@ -519,54 +500,13 @@ public:
 
     /// @brief 获取RGBA值
     /// @return 颜色值
-    inline int32_t rgba() const { return this->colorSet_; }
+    inline int32_t rgba() const { return data_; }
 
-public:
-    virtual ~TpColors()
-    {
-    }
-
-public:
-    TpColors operator=(int32_t color)
-    {
-        isNull_ = false;
-        this->colorSet_ = color;
-        return *this;
-    }
-
-public:
-    static int32_t transColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-    {
-        return _RGBA(r, g, b, a);
-    }
-
-    static void transColor(int32_t color, uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *a)
-    {
-        if (r)
-        {
-            *r = _R(color);
-        }
-
-        if (g)
-        {
-            *g = _G(color);
-        }
-
-        if (b)
-        {
-            *b = _B(color);
-        }
-
-        if (a)
-        {
-            *a = _A(color);
-        }
-    }
-
-public:
-    int32_t colorSet_;
+    TpColors operator=(int32_t color);
+    TpColors operator=(const TpColors& others);
 
 private:
+    int32_t data_;
     bool isNull_;
 };
 
