@@ -25,7 +25,7 @@ INC = -I/usr/include \
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
 LIB = -L/usr/lib \
-        -ldl -lpthread -lSDL2 -lSDL2_image -lSDL2_gfx -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm   -lGLESv2 -lEGL -lTpUtils  -lPiXExternUtils -lTpGUI 
+        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm   -lGLESv2 -lEGL -lTpUtils  -lPiXExternUtils -lTpGUI 
 #伪目标：需要依赖的目标
 #.PHONY:Audio Video Hard Record#即使该目标存在也重新生成
 #all:Audio Video Hard Record clean#

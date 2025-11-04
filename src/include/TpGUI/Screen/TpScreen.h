@@ -21,7 +21,8 @@ public:
     virtual void setText(const TpString &text);
 
 public:
-    virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h) override;
+    virtual void setRect(const TpRect &rect) override;
+    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) override;
 
     /// @brief 设置窗口宽高
     /// @param width
@@ -47,19 +48,16 @@ public:
     virtual bool moved();
 
 public:
-    virtual void setAlpha(const uint8_t &alpha = 0xff) override;
-
-public:
-    virtual void bringToTop();
-    virtual void bringToBottom();
+    virtual void bringToTop() override;
+    virtual void bringToBottom() override;
 
 public:
     virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit = false) override;
     virtual void update(bool onlyBlit = false) override;
 
 public:
-    virtual Tp::ItpObjectType objectType();
-    virtual Tp::ItpObjectSysLayer objectLayer();
+    virtual Tp::TpObjectType objectType();
+    virtual Tp::TpObjectSysLayer objectLayer();
     virtual int32_t objectSysID();
     virtual bool objectActive();
 
@@ -74,11 +72,6 @@ public:
     virtual void deleteLater() override;
 
     virtual bool returns();
-
-public:
-    virtual TpSize screenSize();
-    virtual int32_t screenWidth();
-    virtual int32_t screenHeight();
 
 public:
     /// @brief 外部禁止调用

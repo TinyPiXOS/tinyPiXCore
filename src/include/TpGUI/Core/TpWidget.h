@@ -76,7 +76,7 @@ public:
     /// @brief 设置widget矩形区域
     /// @param rect X、Y、W、H
     virtual void setRect(const TpRect &rect);
-    virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h);
+    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h);
 
 public:
     /// @brief 获取widget相对于屏幕的矩形区域
@@ -199,12 +199,17 @@ public:
     virtual const TpPoint pos();
 
 public:
-    /// @brief 设置窗体透明度，窗体及内部组件均会被影响
-    /// @param alpha 透明度值，0-255
-    virtual void setAlpha(const uint8_t &alpha = 0xff);
-    /// @brief 获取窗体当前透明度
-    /// @return 当前透明度值
-    virtual uint8_t alpha();
+    /// @brief 设置窗口的不透明度乘数；当前窗口及所有子窗口都会响应
+    /// @param opacity [0,1]；0=0%不透明，1=100%不透明
+    virtual void setWindowOpacity(float opacity);
+    /// @brief 获取窗体当前不透明度乘数
+    /// @return 当前不透明度乘数
+    virtual float windowOpacity();
+
+    /// @brief 将当前组件调整为父组件下的最顶级组件
+    virtual void bringToTop();
+    /// @brief 将当前组件调整为父组件下的最底层组件
+    virtual void bringToBottom();
 
 public:
     /// @brief 设置窗体布局，如果已经存在布局则设置失败，需要先释放旧布局指针
@@ -264,7 +269,7 @@ public:
     /// @brief 设置背景颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用背景颜色显示
-    virtual void setBackGroundColor(TpColors &color, bool enable = true);
+    virtual void setBackGroundColor(const TpColors &color, bool enable = true);
     /// @brief 设置背景颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用背景颜色显示
@@ -273,7 +278,7 @@ public:
     /// @brief 设置背景填充效果
     /// @param bgBrush 填充效果
     /// @param enable 启动/禁用背景颜色显示
-    virtual void setBackGroundColor(const TpBrush& bgBrush, bool enable = true);
+    virtual void setBackGroundColor(const TpBrush &bgBrush, bool enable = true);
 
     /// @brief 获取当前背景颜色RGBA
     /// @return RGBA值
@@ -288,7 +293,7 @@ public:
     /// @brief 设置边框颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用边框颜色显示
-    virtual void setBorderColor(TpColors &color, bool enable = true);
+    virtual void setBorderColor(const TpColors &color, bool enable = true);
     /// @brief 设置边框颜色
     /// @param color 颜色值
     /// @param enable 启动/禁用边框颜色显示
@@ -296,7 +301,7 @@ public:
     /// @brief 设置边框填充效果;渐变效果等
     /// @param bgBrush 填充效果
     /// @param enable 启动/禁用边框颜色显示
-    virtual void setBorderColor(const TpBrush& borderBrush, bool enable = true);
+    virtual void setBorderColor(const TpBrush &borderBrush, bool enable = true);
     /// @brief 获取当前边框颜色RGBA
     /// @return RGBA值
     virtual uint32_t borderColor();
@@ -365,7 +370,7 @@ public:
 public:
     /// @brief 获取对象类型，一般禁止重写
     /// @return 对象类型
-    virtual Tp::ItpObjectType objectType() /*final*/;
+    virtual Tp::TpObjectType objectType() /*final*/;
 
     virtual bool appChange(int32_t id, int32_t pid, int32_t visible, int32_t active, int32_t color, uint8_t alpha, int32_t require) { return true; }
 
@@ -375,7 +380,7 @@ public:
 public:
     /// @brief 补充CSS样式，系统内置CSS除非同名否则不会被覆盖
     /// @param _styleSheetStr CSS样式字符串或者文件
-    void setStyleSheet(const TpString &_styleSheetStr);
+    virtual void setStyleSheet(const TpString &_styleSheetStr);
 
     /// @brief 获取当前系统的CSS样式字符串
     /// @return CSS字符串

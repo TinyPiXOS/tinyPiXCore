@@ -57,7 +57,7 @@ TpObject::TpObject(TpObject *parent)
     // set->enableColor = TpApp::Inst()->appConfigSet()->enable;
     set->enableImage = true;
 
-    set->alpha = 0xff;
+    set->windowOpacity = 1.0;
 
     set->layout = nullptr;
 
@@ -262,9 +262,9 @@ TpObject *TpObject::topObject()
     if (!set)
         return top;
 
-    Tp::ItpObjectType type = objectType();
+    Tp::TpObjectType type = objectType();
 
-    if (type == Tp::TP_TOP_OBJECT || type == Tp::TP_FLOAT_OBJECT)
+    if (type == Tp::TP_FIXSCREEN_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FLOAT_OBJECT)
     {
         set->top = this;
     }
@@ -275,9 +275,9 @@ TpObject *TpObject::topObject()
             pParent = set->parent;
             while (pParent)
             {
-                Tp::ItpObjectType type = pParent->objectType();
+                Tp::TpObjectType type = pParent->objectType();
 
-                if (type == Tp::TP_TOP_OBJECT || type == Tp::TP_FLOAT_OBJECT)
+                if (type == Tp::TP_FIXSCREEN_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FLOAT_OBJECT)
                 {
                     set->top = pParent;
                     break;

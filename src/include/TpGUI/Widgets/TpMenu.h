@@ -34,12 +34,12 @@ public:
 	/// @return 返回按钮ID，当前menu下唯一
 	uint32_t addItem(const TpString &text, const TpString &iconPath);
 
-	/// @brief 添加子菜单
+	/// @brief 添加子菜单;暂未实现
 	/// @param menuName 子菜单名称
 	/// @param menu 子菜单指针，外部无需释放
 	void addMenu(const TpString &menuName, TpMenu *menu);
 
-	/// @brief 添加子菜单
+	/// @brief 添加子菜单;暂未实现
 	/// @param menuName 子菜单名称
 	/// @return 返回子菜单指针，子菜单指针，外部无需释放
 	TpMenu *addMenu(const TpString &menuName);
@@ -72,7 +72,6 @@ signals:
 
 protected:
 	virtual bool onFocusEvent(TpFocusEvent *event) override;
-	virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
 	virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
 	virtual bool onLeaveEvent(TpLeaveEvent *event) override;

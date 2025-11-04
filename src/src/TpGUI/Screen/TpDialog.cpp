@@ -3,6 +3,9 @@
 #include "TpDefaultCss.h"
 #include "TpDef.h"
 #include <semaphore.h>
+#include "TpMainWindow.h"
+#include "TpPainter.h"
+#include "thorVG/thorvg.h"
 
 class Semaphore
 {
@@ -38,13 +41,26 @@ struct TpDialogData
 {
     // 对话框阻塞信号量
     Semaphore sema;
+
+    // 遮罩窗体，模态显示时用于遮罩屏幕
+    TpWidget *maskWidget = nullptr;
+    // bool isExec = false;
 };
 
-TpDialog::TpDialog(const char *type) : TpScreen(type)
+TpDialog::TpDialog(const char *type)
+    : TpScreen(type)
 {
     TpDialogData *dialogData = new TpDialogData();
+
+    TpWidget *mainScreen = TpApp::Inst()->mainWindow();
+    dialogData->maskWidget = new TpWidget(mainScreen);
+    dialogData->maskWidget->setBackGroundColor(_RGBA(255, 255, 255, 100));
+    dialogData->maskWidget->setRect(mainScreen->pos().x(), mainScreen->pos().y(), mainScreen->width(), mainScreen->height());
+    dialogData->maskWidget->setVisible(false);
+
     data_ = dialogData;
-    // TpApp::Inst()->sendRegister(this);
+
+    TpApp::Inst()->sendRegister(this);
 
     if (this->objectType() != Tp::TP_FLOAT_OBJECT)
     {
@@ -55,28 +71,39 @@ TpDialog::TpDialog(const char *type) : TpScreen(type)
     set->top = this->topObject();
 
     refreshBaseCss();
+
+    setVisible(false);
 }
 
 TpDialog::~TpDialog()
 {
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (dialogData)
+    {
+        delete dialogData;
+        dialogData = nullptr;
+        data_ = nullptr;
+    }
 }
 
-uint32_t TpDialog::exec()
+void TpDialog::exec()
 {
     TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
     if (!dialogData)
-        return 0;
+        return;
+
+    dialogData->maskWidget->setVisible(true);
+    dialogData->maskWidget->bringToTop();
+    bringToTop();
 
     // 调整窗口到居中位置
-    TpScreen *mainScreen = TpApp::Inst()->vScreen();
-    move((mainScreen->width() - width()) / 2.0, (mainScreen->height() - height()) / 2.0);
+    TpWidget *mainScreen = TpApp::Inst()->mainWindow();
+    move((mainScreen->width() - width()) / 2.0, mainScreen->pos().y() + (mainScreen->height() - height()) / 2.0);
 
     setVisible(true);
     update();
 
     // dialogData->sema.wait();
-
-    return 1;
 }
 
 void TpDialog::close()
@@ -85,21 +112,22 @@ void TpDialog::close()
     if (!dialogData)
         return;
 
-    TpScreen::setVisible(false);
-    // setVisible(false);
+    setVisible(false);
     // update();
 
-    dialogData->sema.post();
+    // dialogData->sema.post();
 }
 
-Tp::ItpObjectType TpDialog::objectType()
+void TpDialog::setVisible(bool visible)
+{
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (dialogData->maskWidget && (visible == false))
+        dialogData->maskWidget->setVisible(false);
+
+    TpScreen::setVisible(visible);
+}
+
+Tp::TpObjectType TpDialog::objectType()
 {
     return Tp::TP_FLOAT_OBJECT;
-}
-
-bool TpDialog::onPaintEvent(TpPaintEvent *event)
-{
-    // dialog使用模拟宽高；即每个dialog起始都是全屏的，只是根据设置的尺寸绘制对应的背景
-
-    return TpScreen::onPaintEvent(event);
 }

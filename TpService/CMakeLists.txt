@@ -15,7 +15,8 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/main.cpp
-    ${SOURCE_PATH}/src/TpService/TpGatewayServer.cpp
+    ${SOURCE_PATH}/src/TpService/TpGatewayServerPUBSUB.cpp
+    ${SOURCE_PATH}/src/TpService/TpGatewayServerREP.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)
@@ -39,7 +40,7 @@ target_link_libraries(TpService
     ${NANOMSG_STATIC_LIB}
     dl
     pthread
-    TpWMEngine
+    ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     TpGUI
     TpUtils
     TpExtUtils

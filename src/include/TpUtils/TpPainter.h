@@ -15,6 +15,7 @@ class TpPainter;
 class TpSurface;
 class TpRect;
 class TpFont;
+class TpWidget;
 
 /// @brief 绘制镂空遮罩
 class TpHollowMask
@@ -134,7 +135,7 @@ TP_DEF_VOID_TYPE_VAR(ITpCanvasData);
 class TpPainter
 {
 public:
-    TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, int32_t width, int32_t height);
+    TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, TpWidget* object);
     virtual ~TpPainter();
 
     void paintTest();

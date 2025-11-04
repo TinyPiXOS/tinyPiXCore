@@ -19,6 +19,7 @@
 #include "TpSurface.h"
 #include "png.h"
 #include "TpMainWindow.h"
+#include "Service/TpSystemApi.h"
 
 // class ThorVgPaintWidget : public TpWidget
 class ThorVgPaintWidget : public TpDialog
@@ -30,7 +31,6 @@ public:
         // setBackGroundColor(_RGBA(100, 100, 100, 200));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
         setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
-        // setAlpha(150);
         testBattery_ = new TpBattery(this);
         testBattery_->setValue(100);
         testBattery_->setRect(10, 100, 200, 80);
@@ -190,38 +190,72 @@ private:
     TpBattery *testBattery_;
 };
 
+class TestWidget : public TpWidget
+{
+public:
+    TestWidget(TpWidget *parent) : TpWidget(parent)
+    {
+    }
+    ~TestWidget() {}
+
+    virtual bool onMousePressEvent(TpMouseEvent *event) override
+    {
+        std::cout << "clickPos : " << event->pos().x() << " , " << event->pos().y() << std::endl;
+        std::cout << "clickGlobalPos : " << event->globalPos().x() << " , " << event->globalPos().y() << std::endl;
+        return true;
+    }
+
+    virtual bool onPaintEvent(TpPaintEvent *event) override
+    {
+        TpWidget::onPaintEvent(event);
+
+        TpPainter *painter = event->painter();
+        painter->setPen(TpPen(_RGB(255, 165, 255), 3));
+        painter->setBrush(TpBrush(_RGB(255, 165, 255)));
+        painter->drawRect(0, 0, 50, 50);
+        return true;
+    }
+};
+
+IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
+
+TpImage getImage()
+{
+    IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
+    if (!surfacePtr)
+        return TpImage();
+
+    tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
+
+    TpImage resImage;
+    resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()),
+                  TpRect(0, 36, appDisplayImage->width(), appDisplayImage->height() - 36));
+
+    TpImage copyImage = resImage;
+
+    tinyPiX_surface_free(surfacePtr);
+
+    return copyImage;
+}
+
 int32_t main(int32_t argc, char *argv[])
 {
     TpApp app(argc, argv);
     app.setStyle(Tp::SmartDeviceGUIStyle);
 
     TpMainWindow *vScreen = new TpMainWindow();
-
-    // TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
-    app.bindVScreen(vScreen);
 
-    TpDialog *dia = new TpDialog();
-    dia->setBackGroundColor(_RGBA(243, 243, 243, 100));
-    dia->setRect(0, 0, 300, 300);
-    dia->setAlpha(128);
-    dia->setRoundCorners(50);
-    dia->setVisible(true);
-    dia->setBeMoved(true);
+    TpLabel *bgLabel = new TpLabel(vScreen);
+    bgLabel->setBorderColor(_RGB(255, 0, 0));
+    bgLabel->setRect(250, 50, 450, 450);
 
-    // TpLabel *bgLabel = new TpLabel(vScreen);
-    // bgLabel->setBackGroundColor(_RGB(200, 80, 80));
-    // bgLabel->setRect(300, 50, 500, 500);
-
-    // TestClass *testObj = new TestClass();
-    // testObj->setBgLabel(bgLabel);
-
-    // TpButton *testBtn = new TpButton(vScreen);
-    // testBtn->setText("获取截图");
-    // testBtn->setRect(50, 50, 150, 50);
-    // connect(testBtn, onClicked, testObj, &TestClass::SlotTestFunc);
+    TpButton *testBtn = new TpButton(vScreen);
+    testBtn->setText("获取当前进程截图");
+    testBtn->setRect(50, 50, 150, 50);
+    connect(testBtn, onClicked, [=](bool)
+            { bgLabel->setBackGroundImage(getImage()); });
 
     // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     // thorVGPaint->setRect(600, 100, 500, 500);

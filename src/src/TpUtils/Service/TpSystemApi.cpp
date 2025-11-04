@@ -13,6 +13,8 @@
 #include "TpSurface.h"
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
+#include "TpApp.h"
+#include "TpApp_p.h"
 #include <mutex>
 
 const TpString globalAppFilePathStr = "/System/app/";
@@ -21,6 +23,7 @@ struct TpSystemApiData
 {
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
+    // TODO 将缓存数据放入Service中，远程IPC调用
     std::mutex readAppMutex;
     // 已启动应用的UUID和pid映射表
     TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
@@ -121,8 +124,6 @@ void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
 
 TpImage TpSystemApi::appImage(const TpString &uuid)
 {
-    // return TpImage();
-
     TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
     if (!apiData)
         return TpImage();
@@ -131,18 +132,56 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
         return TpImage();
 
     int32_t appPid = apiData->appUuidPidMap.value(uuid);
-
-    // 获取winID
-    int appId = tinyPiX_sys_find_win_main_id_bypid(apiData->globalAgent, appPid);
-
-    IPiWFSurface *surfacePtr = tinyPiX_sys_get_obj_surface(apiData->globalAgent, appId, appPid);
+    IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(apiData->globalAgent, appPid);
+    // std::cout << "appPid " << appPid << " , " << surfacePtr << std::endl;
     if (!surfacePtr)
         return TpImage();
 
     tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
 
+    // 如果有工具栏，需要裁剪掉工具栏位置
+    TpRect imageRect;
+    TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
+    if (appData->deskStatusBarInfo_.statusBarVislble)
+    {
+        if (appData->deskStatusBarInfo_.statusBarLocation == 0)
+        {
+            imageRect.setX(0);
+            imageRect.setY(appData->deskStatusBarInfo_.statusBarHeight);
+            imageRect.setWidth(appDisplayImage->width());
+            imageRect.setHeight(appDisplayImage->height() - appData->deskStatusBarInfo_.statusBarHeight);
+        }
+        else if (appData->deskStatusBarInfo_.statusBarLocation == 1)
+        {
+            imageRect.setX(0);
+            imageRect.setY(0);
+            imageRect.setWidth(appDisplayImage->width() - appData->deskStatusBarInfo_.statusBarWidth);
+            imageRect.setHeight(appDisplayImage->height());
+        }
+        else if (appData->deskStatusBarInfo_.statusBarLocation == 2)
+        {
+            imageRect.setX(0);
+            imageRect.setY(0);
+            imageRect.setWidth(appDisplayImage->width());
+            imageRect.setHeight(appDisplayImage->height() - appData->deskStatusBarInfo_.statusBarHeight);
+        }
+        else if (appData->deskStatusBarInfo_.statusBarLocation == 3)
+        {
+            imageRect.setX(appData->deskStatusBarInfo_.statusBarWidth);
+            imageRect.setY(0);
+            imageRect.setWidth(appDisplayImage->width() - appData->deskStatusBarInfo_.statusBarWidth);
+            imageRect.setHeight(appDisplayImage->height());
+        }
+        else
+        {
+            imageRect.setX(0);
+            imageRect.setY(appData->deskStatusBarInfo_.statusBarHeight);
+            imageRect.setWidth(appDisplayImage->width());
+            imageRect.setHeight(appDisplayImage->height() - appData->deskStatusBarInfo_.statusBarHeight);
+        }
+    }
     TpImage resImage;
-    resImage.load(appDisplayImage->matrix(), TpRect(0, 0, appDisplayImage->width(), appDisplayImage->height()));
+    resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()), imageRect);
 
     tinyPiX_surface_free(surfacePtr);
 
@@ -303,8 +342,6 @@ TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppList()
     {
         PiShmBytes appIdInfo = appIdList[i];
 
-        std::cout << "App Index " << i << std::endl;
-        std::cout << "App Id " << appIdInfo.s_id << "  Pid " << appIdInfo.p_id << std::endl;
         if (runAppPidList.contains(appIdInfo.p_id))
         {
             TpString curAppUuid = apiData->appUuidPidMap.key(appIdInfo.p_id);

@@ -53,6 +53,7 @@
                 "-lTpUtils",
                 "-lTpGUI", 
                 "-lTpExtUtils",
+                "-lTpWMEngine",
                 "-lrime", 
                 ""
             ],

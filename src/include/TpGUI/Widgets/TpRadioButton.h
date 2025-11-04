@@ -13,42 +13,42 @@ class TpString;
 class TpRadioButton : public TpWidget
 {
 public:
-	TpRadioButton(TpWidget *parent = nullptr);
-	TpRadioButton(const TpString &text, TpWidget *parent = nullptr);
+    TpRadioButton(TpWidget *parent = nullptr);
+    TpRadioButton(const TpString &text, TpWidget *parent = nullptr);
 
-	virtual ~TpRadioButton();
-
-public:
-	/// @brief 根据字体宽度和高度绘制，当设置时对齐将无效
-	/// @param enable 是否自动调整
-	virtual void setAutoFit(bool enable = false);
-
-	/// @brief 设置按钮与文本间距值
-	/// @param space 间距
-	virtual void setSpacing(uint32_t space = 1);
-
-	virtual void setRect(const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h) override;
+    virtual ~TpRadioButton();
 
 public:
-	/// @brief 设置按钮文本
-	/// @param text 
-	virtual void setText(const TpString &text);
+    /// @brief 根据字体宽度和高度绘制，当设置时对齐将无效
+    /// @param enable 是否自动调整
+    virtual void setAutoFit(bool enable = false);
 
-	virtual TpFont *font();
+    /// @brief 设置按钮与文本间距值
+    /// @param space 间距
+    virtual void setSpacing(uint32_t space = 1);
+
+    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) override;
+
+public:
+    /// @brief 设置按钮文本
+    /// @param text
+    virtual void setText(const TpString &text);
+
+    virtual TpFont *font();
 
     virtual TpString pluginType() override { return TO_STRING(TpRadioButton); }
 
 public
 signals:
-	declare_signal(onClicked, bool);
+    declare_signal(onClicked, bool);
 
 protected:
-	virtual bool onMousePressEvent(TpMouseEvent *event) override;
-	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
-	virtual bool onPaintEvent(TpPaintEvent *event);
+    virtual bool onMousePressEvent(TpMouseEvent *event) override;
+    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
+    virtual bool onPaintEvent(TpPaintEvent *event);
 
 private:
-	ItpRadioButtonData *data_;
+    ItpRadioButtonData *data_;
 };
 
 #endif
