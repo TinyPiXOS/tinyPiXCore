@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
 
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	vScreen->setVisible(true); // vScreen setvisible will be update display
-	app.bindVScreen(vScreen);
+	
+	
 
 	std::thread::id mainThreadId = std::this_thread::get_id();
 

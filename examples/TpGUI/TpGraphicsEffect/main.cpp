@@ -10,7 +10,7 @@ int32_t main(int32_t argc, char *argv[])
 
     TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    app.bindVScreen(vScreen);
+    
 
     TpLabel *imgLabel = new TpLabel(vScreen);
     imgLabel->setRect(30, 30, 500, 500);

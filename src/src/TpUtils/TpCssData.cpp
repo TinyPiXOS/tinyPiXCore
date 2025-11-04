@@ -295,7 +295,7 @@ void TpCssData::setBorderColor(const int32_t &color)
 {
     TpCssDataData *cssData = static_cast<TpCssDataData *>(data_);
     cssData->cssDataMap["border-color"] = TpString::number(color);
-    cssData->borderColor_.parse(cssData->cssDataMap["border-color"]);
+    cssData->borderColor_.parse(TpString::number(color));
 }
 
 bool TpCssData::borderColorIsGradient()

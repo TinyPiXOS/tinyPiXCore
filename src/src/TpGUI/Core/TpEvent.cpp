@@ -1421,7 +1421,8 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
         eventData->offsetY = objectAbsRect.y() - offsetYVal;
     }
 
-    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    // eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
+    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, inputObjectChild);
     if (eventData->canvas == nullptr)
     {
         eventData->surface = nullptr;
@@ -1478,7 +1479,7 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     }
 
     TpObject *top = input->object->topObject();
-    if (top && (top != input->object) && top->objectType() == Tp::TP_FLOAT_OBJECT)
+    if (top && (top != input->object) && (top->objectType() == Tp::TP_FLOAT_OBJECT || top->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
     {
         clipRect.setX(clipRect.x() - offsetXVal);
         clipRect.setY(clipRect.y() - offsetYVal);

@@ -48,11 +48,8 @@ public:
     virtual bool moved();
 
 public:
-    virtual void setAlpha(const uint8_t &alpha = 0xff) override;
-
-public:
-    virtual void bringToTop();
-    virtual void bringToBottom();
+    virtual void bringToTop() override;
+    virtual void bringToBottom() override;
 
 public:
     virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit = false) override;
@@ -75,11 +72,6 @@ public:
     virtual void deleteLater() override;
 
     virtual bool returns();
-
-public:
-    virtual TpSize screenSize();
-    virtual int32_t screenWidth();
-    virtual int32_t screenHeight();
 
 public:
     /// @brief 外部禁止调用

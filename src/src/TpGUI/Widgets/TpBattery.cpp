@@ -14,7 +14,7 @@ struct TpBatteryData
     int32_t alarmValue = 20;
     int32_t value = 0;
 
-    int32_t borderWidth = 1;
+    int32_t borderWidth = 2;
     int32_t whiteBorderColor = _RGB(255, 255, 255);
     int32_t whiteColor = _RGB(255, 255, 255);
     int32_t blackBorderColor = _RGB(159, 159, 159);
@@ -104,9 +104,6 @@ int32_t TpBattery::alamColor()
 
 bool TpBattery::onPaintEvent(TpPaintEvent *event)
 {
-    static uint64_t paintCount = 0;
-    // std::cout << "TpBattery::onPaintEvent " << paintCount++ << std::endl;
-
     TpBatteryData *batteryData = static_cast<TpBatteryData *>(data_);
 
     // TpWidget::onPaintEvent(event);
@@ -120,36 +117,37 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
 
     double headWidth = width() / 12;
     double batteryWidth = width() - headWidth;
-    // TpRect batteryRect = TpRect(TpPoint(5, 5), TpPoint(batteryWidth, height() - 5));
-    TpRect batteryRect = TpRect(TpPoint(0, 0), TpPoint(batteryWidth, height()));
+    // 起始坐标偏移线宽，保证绘制在区域内
+    TpRect batteryRect = TpRect(TpPoint(linew, linew), TpPoint(batteryWidth, height() - linew));
 
-    // 边框
-    double borderRadius = batteryRect.height() * 0.3;
-
+    // 绘制边框
+    double borderRadius = batteryRect.height() / 30;
     painter->pen().setColor(borderColor);
     painter->pen().setWidth(linew);
-
-    painter->drawRect(batteryRect.x(), batteryRect.y(), batteryRect.width(), batteryRect.height(), borderRadius);
+    painter->drawRect(batteryRect, borderRadius);
 
     // 电量
     if (batteryData->value != 0)
     {
         int32_t powerColoer = batteryData->value > batteryData->alarmValue ? powerColor : batteryData->alarmColor;
 
-        double margin = std::min(width(), height()) * 0.06;
+        double margin = std::min(width(), height()) / 50.0;
         margin = std::max(margin, linew);
+        // margin=0;
 
-        double unit = (batteryRect.width() - (margin * 2) - linew * 2) / 100;
-        TpPointF topLeft(batteryRect.left() + margin + linew, batteryRect.top() + margin + linew);
-        TpPointF bottomRight(batteryData->value * unit + margin + linew, batteryRect.bottom() - margin - linew);
+        // double linew = 0;
+
+        double unit = (batteryRect.width() - (margin * 2)) / 100;
+        TpPointF topLeft(batteryRect.left() + margin, batteryRect.top() + margin);
+        TpPointF bottomRight(batteryData->value * unit + margin + 2, batteryRect.bottom() - margin);
         TpRectF rect(topLeft, bottomRight);
 
-        double bgRadius = rect.height() * 0.3;
+        double bgRadius = rect.height() / 30.0;
 
         painter->pen().setColor(powerColoer);
         painter->setBrush(TpBrush(powerColoer));
 
-        painter->drawRect(rect.x(), rect.y(), rect.width(), rect.height(), bgRadius);
+        painter->drawRect(rect.x(), rect.y(), rect.width(), rect.height(), borderRadius);
     }
 
     // 绘制数值
@@ -157,11 +155,11 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
     TpString text = TpString::number(batteryData->value);
     // 设置电量文字字体、大小
     // TpFont font(DEFAULT_FONT_FAMILY, batteryRect.w / 10);
-    TpFont font(DEFAULT_FONT_FAMILY, height() / 2);
+    TpFont font(DEFAULT_FONT_FAMILY, batteryRect.height() * 0.55);
     font.setText(text);
     font.setFontColor(fontColor, fontColor);
-    uint32_t textX = (batteryRect.width() - font.pixelWidth()) / 2.0;
-    uint32_t textY = (batteryRect.height() - font.pixelHeight()) / 2.0 + 1;
+    uint32_t textX = batteryRect.left() + (batteryRect.width() - font.pixelWidth()) / 2.0;
+    uint32_t textY = batteryRect.top() + (batteryRect.height() - font.pixelHeight()) / 2.0 + 1;
     painter->drawText(font, textX, textY, text);
 
     // 绘制头部

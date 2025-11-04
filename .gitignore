@@ -4,6 +4,11 @@ install/x86_64
 install/x86_32
 install/arm_64
 install/arm_32
+install/build_x86_64
+install/build_x86_32
+install/build_arm_64
+install/build_arm_32
+install/build
 install/system
 CMakeFiles/
 .cmake/
@@ -103,3 +108,6 @@ TpWM/TpWM_symlink.cmake
 examples/TpGUI/TpTemperatureWidget/temp
 examples/TpUtils/TpGateway/client1
 examples/TpUtils/TpGateway/client2
+examples/TpGUI/TpMessgaeBox/messgaeBox
+examples/TpUtils/TpGateway/PubSub/client2
+examples/TpUtils/TpGateway/REP/repClient

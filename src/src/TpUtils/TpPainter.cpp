@@ -10,7 +10,7 @@
 #include <thread>
 #include <cmath>
 
-TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, int32_t width, int32_t height)
+TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, TpWidget* object)
 {
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -27,18 +27,13 @@ TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offse
     painterData->offsetX = offsetX;
     painterData->offsetY = offsetY;
 
-    painterData->width = width;
-    painterData->height = height;
-
-    // painterData->offsetX = 0;
-    // painterData->offsetY = 0;
+    painterData->paintWidget = object;
 
     painterData->TpSurfacePtr = surface;
     painterData->beUsed = (surface != nullptr);
 
     // TODO判断是GPU环境还是CPU环境
     // painterData->swCanvas = tvg::SwCanvas::gen();
-
     // refreshCanvasTarget(painterData);
 
     this->data_ = painterData;
@@ -57,9 +52,6 @@ TpPainter::~TpPainter()
 
     painterData->TpSurfacePtr = nullptr;
     painterData->beUsed = false;
-
-    // delete painterData->swCanvas;
-    // delete painterData->glCanvas;
 
     delete painterData;
     painterData = nullptr;
@@ -463,10 +455,6 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
         float drawX = -(rotatedCenterX - originalCenterX);
         float drawY = -(rotatedCenterY - originalCenterY);
 
-        // std::cout << "原始中心点坐标： " << originalCenterX << " , " << originalCenterY << std::endl;
-        // std::cout << "旋转后中心点坐标： " << rotatedCenterX << " , " << rotatedCenterY << std::endl;
-        // std::cout << "新的绘制顶点坐标 " << drawX << " , " << drawY << std::endl;
-
         // 调整绘制位置：减去偏移量，使中心点回到原位
         pictureCopy->translate(
             painterData->offsetX + point.x() + drawX,
@@ -738,7 +726,7 @@ void TpPainter::sync(void *object)
         TpWidget *paintWidget = static_cast<TpWidget *>(object);
         TpObjectData *paintWidgetData = static_cast<TpObjectData *>(paintWidget->objectSets());
 
-        paintWidgetData->grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
+        paintWidgetData->grapImage.load(painterData->TpSurfacePtr->matrix(), TpSize(painterData->clipRect.width(), painterData->clipRect.height()));
 
         // static int32_t saveIndexS = 0;
         // TpString savePngPath = "/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";

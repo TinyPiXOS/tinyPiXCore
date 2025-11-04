@@ -240,10 +240,6 @@ TpRect TpWidget::toScreen()
     if (!set)
         return TpRect();
 
-    // TpRect resRect = set->absoluteRect;
-    // resRect.setY(processDeskTopBarY(this, resRect.y()));
-    // resRect.setHeight(processDeskTopBarHeight(this, resRect.height()));
-
     return set->absoluteRect;
 }
 
@@ -514,22 +510,75 @@ const TpPoint TpWidget::pos()
     return point;
 }
 
-void TpWidget::setAlpha(const uint8_t &alpha)
+void TpWidget::setWindowOpacity(float opacity)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::objectSets());
+    if (!objData)
         return;
 
-    set->alpha = alpha;
+    if (opacity < 0)
+        opacity = 0;
+    if (opacity > 1)
+        opacity = 1;
+
+    objData->windowOpacity = opacity;
+
+    // 遍历所有子窗口设置Alpha
+    TpList<TpObject *> childList = TpObject::objectList();
+    for (const auto &childPtr : childList)
+    {
+        TpWidget *childWidget = dynamic_cast<TpWidget *>(childPtr);
+        if (!childWidget)
+            continue;
+        childWidget->setWindowOpacity(opacity);
+    }
+
+    update();
 }
 
-uint8_t TpWidget::alpha()
+float TpWidget::windowOpacity()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::objectSets());
+    if (!objData)
         return 0;
 
-    return set->alpha;
+    return objData->windowOpacity;
+}
+
+void TpWidget::bringToTop()
+{
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
+    if (!parentWidget)
+        return;
+
+    // 将本窗体添加至父窗体子节点链表末尾
+    TpObjectData *objData = static_cast<TpObjectData *>(parentWidget->objectSets());
+    if (objData->objectList.contains(this))
+    {
+        if (objData->objectList.back() != this)
+        {
+            objData->objectList.remove(this);
+            objData->objectList.emplace_back(this);
+        }
+    }
+}
+
+void TpWidget::bringToBottom()
+{
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent());
+    if (!parentWidget)
+        return;
+
+    // 将本窗体添加至父窗体子节点链表起始
+    TpObjectData *objData = static_cast<TpObjectData *>(parentWidget->objectSets());
+    if (objData->objectList.contains(this))
+    {
+        if (objData->objectList.front() != this)
+        {
+            objData->objectList.remove(this);
+            objData->objectList.emplace_front(this);
+        }
+    }
 }
 
 bool TpWidget::setLayout(TpLayout *layout)
@@ -748,7 +797,7 @@ void TpWidget::setEnableBackGroundImage(bool enable)
     set->enableImage = enable;
 }
 
-void TpWidget::setBackGroundColor(TpColors &color, bool enable)
+void TpWidget::setBackGroundColor(const TpColors &color, bool enable)
 {
     setBackGroundColor(color.rgba(), enable);
 }
@@ -761,8 +810,6 @@ void TpWidget::setBackGroundColor(int32_t color, bool enable)
 
     set->backColor = color;
     set->enableColor = enable;
-
-    // TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
 
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setBackgroundColor(color);
@@ -777,6 +824,7 @@ void TpWidget::setBackGroundColor(const TpBrush &bgBrush, bool enable)
     TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
     if (!set)
         return;
+
     set->backBrush = bgBrush;
     set->enableColor = enable;
 
@@ -817,7 +865,7 @@ void TpWidget::setEnableBackGroundColor(bool enable)
     set->enableColor = enable;
 }
 
-void TpWidget::setBorderColor(TpColors &color, bool enable)
+void TpWidget::setBorderColor(const TpColors &color, bool enable)
 {
     setBorderColor(color.rgba(), enable);
 }
@@ -830,6 +878,15 @@ void TpWidget::setBorderColor(int32_t color, bool enable)
 
     set->borderColor = color;
     set->enableBorderColor = enable;
+
+    // CSS解析完，初始化默认状态下CSS数据对象
+    enabledCss()->setBorderColor(color);
+    pressedCss()->setBorderColor(color);
+    hoveredCss()->setBorderColor(color);
+    checkedCss()->setBorderColor(color);
+    disableCss()->setBorderColor(color);
+
+    update();
 }
 
 void TpWidget::setBorderColor(const TpBrush &borderBrush, bool enable)
@@ -1019,8 +1076,6 @@ bool TpWidget::onLeaveEvent(TpLeaveEvent *event)
 bool TpWidget::onPaintEvent(TpPaintEvent *event)
 {
     bool ret = event->isCanDraw();
-    uint8_t alpha = 0xff;
-
     if (!ret)
         return false;
 
@@ -1044,7 +1099,9 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
     {
         if (objectType() == Tp::TP_FLOAT_OBJECT)
         {
-            if ((curCssData->backgroundColor() & 0xff) != 0xff)
+            int curAlpha = _A(curCssData->backgroundColor());
+            curAlpha *= windowOpacity();
+            if ((curAlpha & 0xff) != 0xff)
             {
                 painter->erase();
             }
@@ -1064,22 +1121,6 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
         // std::cout << "背景颜色： " << 0 << " " << rect.width() << " " << rect.height() << std::endl;
         painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
         painter->setBrush(TpBrush(Tp::NoBrush));
-    }
-
-    if (set->enableBorderColor)
-    {
-        painter->pen().setColor(curCssData->borderColor());
-
-        if (curCssData->borderColorIsGradient())
-        {
-            painter->pen().setBrush(TpBrush(curCssData->borderColorGradiant()));
-        }
-        else
-        {
-            painter->pen().setBrush(TpBrush(Tp::NoBrush));
-        }
-
-        painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
     }
 
     if (set->enableImage && !set->cacheImage.isNull())
@@ -1113,6 +1154,21 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
         }
 
         painter->drawImage(imageX, imageY, set->cacheImage, minRad);
+    }
+
+    if (set->enableBorderColor)
+    {
+        painter->setPen(curCssData->borderColor());
+        painter->setBrush(TpBrush(Tp::NoBrush));
+
+        // painter->pen().setBrush(TpBrush(Tp::NoBrush));
+
+        if (curCssData->borderColorIsGradient())
+        {
+            painter->pen().setBrush(TpBrush(curCssData->borderColorGradiant()));
+        }
+
+        painter->drawRect(0, 0, rect.width(), rect.height(), minRad);
     }
 
     // 窗体更新，如果有布局更新布局
