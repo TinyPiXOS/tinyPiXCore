@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
-include(../cmake/CreateSymlink.cmake)
 include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录
@@ -109,15 +108,7 @@ set(SQLITE3_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libsqlite3.a)
 # 库链接到可执行目标
 target_link_libraries(TpGUI PUBLIC
     ${SQLITE3_STATIC_LIB}
-    dl pthread TpWMEngine TpUtils TpExtUtils
-)
-
-# 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
-install(TARGETS TpGUI LIBRARY DESTINATION ${INSTALL_LIB_DIR})
-
-# 创建软链接
-CmakeCreateSymlink(
-    TARGET TpGUI
-    INSTALL_DIR ${INSTALL_LIB_DIR}
-    LINK_DIR ${LINK_LIB_DIR}             
+    dl pthread
+    ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
+    TpUtils TpExtUtils
 )

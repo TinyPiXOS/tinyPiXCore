@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
-include(../cmake/CreateSymlink.cmake)
 include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录
@@ -197,13 +196,3 @@ target_link_libraries(TpExtUtils ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_L
 	gio-2.0 asound avcodec avfilter avformat avutil 
 	swresample SDL2 avdevice swscale bluetooth dbus-1 usb-1.0 udev
 	${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so)
-
-# 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
-install(TARGETS TpExtUtils LIBRARY DESTINATION ${INSTALL_LIB_DIR})
-
-# 创建软链接
-CmakeCreateSymlink(
-    TARGET TpExtUtils
-    INSTALL_DIR ${INSTALL_LIB_DIR}
-    LINK_DIR ${LINK_LIB_DIR}             
-)

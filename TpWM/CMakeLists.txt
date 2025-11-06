@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include(../cmake/TargetArchConfig.cmake)
 include(../cmake/GlobalConfig.cmake)
-include(../cmake/CreateSymlink.cmake)
 
 # 添加源码目录
 set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
@@ -43,11 +42,11 @@ target_link_libraries(TpWM
 )
 
 # 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
-install(TARGETS TpWM RUNTIME DESTINATION ${INSTALL_BIN_DIR})
+# install(TARGETS TpWM RUNTIME DESTINATION ${INSTALL_BIN_DIR})
 
-# 创建软链接
-CmakeCreateSymlink(
-    TARGET TpWM
-    INSTALL_DIR ${INSTALL_BIN_DIR}
-    LINK_DIR ${LINK_BIN_DIR}             
-)
+# # 创建软链接
+# CmakeCreateSymlink(
+#     TARGET TpWM
+#     INSTALL_DIR ${INSTALL_BIN_DIR}
+#     LINK_DIR ${LINK_BIN_DIR}             
+# )

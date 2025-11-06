@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 引入cmake模块
-include(../cmake/CreateSymlink.cmake)
 include(../cmake/TargetArchConfig.cmake)
 
 # 添加源码目录
@@ -175,14 +174,4 @@ target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthr
     cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
-)
-
-# 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
-install(TARGETS TpUtils LIBRARY DESTINATION ${INSTALL_LIB_DIR})
-
-# 创建软链接
-CmakeCreateSymlink(
-    TARGET TpUtils
-    INSTALL_DIR ${INSTALL_LIB_DIR}
-    LINK_DIR ${LINK_LIB_DIR}
 )
