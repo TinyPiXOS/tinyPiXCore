@@ -2,6 +2,9 @@
 function(LoadCrossSDK
     SDK_PATH                    # SDK根目录
 )
+    # 默认包含目录
+    set(SYSTEM_INCLUDE_PATH "/usr/include" PARENT_SCOPE)
+    
     if(CMAKE_CROSSCOMPILING)
         # 验证SDK路径是否存在
         if(NOT EXISTS ${SDK_PATH})
@@ -12,6 +15,7 @@ function(LoadCrossSDK
         # 设置全局变量，使用PARENT_SCOPE让变量在函数外部可见
         set(LOAD_SDK_LIB_PATH "${SDK_PATH}/lib" PARENT_SCOPE)
         set(LOAD_SDK_INCLUDE_PATH "${SDK_PATH}/include" PARENT_SCOPE)
+        set(SYSTEM_INCLUDE_PATH "${SDK_PATH}/include" PARENT_SCOPE)
         message(STATUS "已加载交叉编译 SDK: ${SDK_PATH}")
     else()
         message(STATUS "非交叉编译模式, SDK 未加载")

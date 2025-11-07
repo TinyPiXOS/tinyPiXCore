@@ -9,7 +9,7 @@
 #ifndef _APP_MANAGE_CONF_H_
 #define _APP_MANAGE_CONF_H_
 #include <stdint.h>
-#include "md5.h"
+#include "openssl/md5.h"
 
 #define MAX_PATH 2048
 

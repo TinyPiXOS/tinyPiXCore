@@ -77,7 +77,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpGUI/Screen/TpFixScreen.cpp
 )
 
-include_directories(/usr/include/cairo)
+include_directories(${SYSTEM_INCLUDE_PATH}/cairo)
+
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
@@ -100,15 +101,21 @@ add_library(TpGUI SHARED ${SOURCE_FILES})
 # set_target_properties(TpGUI PROPERTIES VERSION 1.0 SOVERSION 1)
 
 # 指定依赖动态库目录
-link_directories("/usr/lib")
+if(CMAKE_CROSSCOMPILING)
+    link_directories("${LOAD_SDK_LIB_PATH}")
+else()
+    link_directories("/usr/lib")
+endif()
 
 # 指定静态库的路径
 set(SQLITE3_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libsqlite3.a)
+set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
 # 库链接到可执行目标
 target_link_libraries(TpGUI PUBLIC
-    ${SQLITE3_STATIC_LIB}
+    ${SQLITE3_STATIC_LIB} ${THORVG_STATIC_LIB}
     dl pthread
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
-    TpUtils TpExtUtils
+    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
+    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpExtUtils.so
 )

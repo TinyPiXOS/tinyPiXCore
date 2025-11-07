@@ -74,6 +74,9 @@
         "tpgradient_p": "c",
         "types.h": "c",
         "optional": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "file_creat.h": "c",
+        "utilslib.h": "c",
+        "appmanage_conf.h": "c"
     }
 }

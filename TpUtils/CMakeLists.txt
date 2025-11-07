@@ -119,19 +119,30 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/TpShareTrans.cpp
 )
 
-include_directories(/usr/include)
-include_directories(/usr/include/SDL2)
-include_directories(/usr/include/freetype2)
-include_directories(/usr/include/cairo)
-include_directories(/usr/include/pango-1.0)
-include_directories(/usr/include/harfbuzz)
-include_directories(/usr/include/glib-2.0)
-include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
-include_directories(/usr/lib/aarch64-linux-gnu/glib-2.0/include)
-include_directories(/usr/include/glib-2.0)
-include_directories(/usr/include/librsvg-2.0/librsvg/)
-include_directories(/usr/include/librsvg-2.0)
-include_directories(/usr/include/gdk-pixbuf-2.0)
+if(CMAKE_CROSSCOMPILING)
+    include_directories(${LOAD_SDK_INCLUDE_PATH}/glib-2.0)
+    include_directories(${LOAD_SDK_LIB_PATH}/glib-2.0/include)
+else()
+    # 查找 pkg-config
+    find_package(PkgConfig REQUIRED)
+    # 查找 glib-2.0
+    pkg_check_modules(GLIB REQUIRED glib-2.0)
+
+    include_directories(${GLIB_INCLUDE_DIRS})
+endif()
+
+# 添加包含目录
+include_directories(${SYSTEM_INCLUDE_PATH})
+include_directories(${SYSTEM_INCLUDE_PATH}/SDL2)
+include_directories(${SYSTEM_INCLUDE_PATH}/freetype2)
+include_directories(${SYSTEM_INCLUDE_PATH}/cairo)
+include_directories(${SYSTEM_INCLUDE_PATH}/pango-1.0)
+include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
+include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0/librsvg/)
+include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0)
+include_directories(${SYSTEM_INCLUDE_PATH}/gdk-pixbuf-2.0)
+include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
+
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpExtUtils)
@@ -164,14 +175,37 @@ add_library(TpUtils SHARED ${SOURCE_FILES})
 # set_target_properties(TpUtils PROPERTIES VERSION 1.0 SOVERSION 1)
 
 # 指定依赖动态库目录
-link_directories("/usr/lib")
+if(CMAKE_CROSSCOMPILING)
+    link_directories("${LOAD_SDK_LIB_PATH}")
+else()
+    link_directories("/usr/lib")
+endif()
+
+LoadSDKLibrary(SDL2_LIBRARY SDL2)
+LoadSDKLibrary(CAIRO_LIBRARY cairo)
+LoadSDKLibrary(PANGO_LIBRARY pango-1.0)
+LoadSDKLibrary(GOBJECT_LIBRARY gobject-2.0)
+LoadSDKLibrary(GLIB_LIBRARY glib-2.0)
+LoadSDKLibrary(PANGOCAIRO_LIBRARY pangocairo-1.0)
+LoadSDKLibrary(FONTCONFIG_LIBRARY fontconfig)
+LoadSDKLibrary(FREETYPE_LIBRARY freetype)
+LoadSDKLibrary(GBM_LIBRARY gbm)
+LoadSDKLibrary(GLESV2_LIBRARY GLESv2)
+LoadSDKLibrary(EGL_LIBRARY EGL)
+LoadSDKLibrary(GIO_LIBRARY gio-2.0)
+LoadSDKLibrary(RSVG_LIBRARY rsvg-2)
 
 # 依赖的静态库
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
 set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
-target_link_libraries(TpUtils ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} dl pthread SDL2
-    cairo pango-1.0 gobject-2.0 glib-2.0 pangocairo-1.0 fontconfig freetype gbm GLESv2 EGL gio-2.0 rsvg-2
+target_link_libraries(TpUtils PUBLIC 
+    dl pthread 
+    ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB} 
+    ${SDL2_LIBRARY} ${CARIO_LIBRARY} ${PANGO_LIBRARY}
+    ${GOBJECT_LIBRARY} ${GLIB_LIBRARY} ${PANGOCAIRO_LIBRARY}
+    ${FONTCONFIG_LIBRARY} ${FREETYPE_LIBRARY} ${GBM_LIBRARY}
+    ${GLESV2_LIBRARY} ${EGL_LIBRARY} ${GIO_LIBRARY} ${RSVG_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
 )

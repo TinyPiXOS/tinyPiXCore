@@ -15,7 +15,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 # 指定动态库目录
-link_directories("/usr/lib")
+if(CMAKE_CROSSCOMPILING)
+    link_directories("${LOAD_SDK_LIB_PATH}")
+else()
+    link_directories("/usr/lib")
+endif()
 
 # 定义源码路径宏
 set(SOURCE_FILES

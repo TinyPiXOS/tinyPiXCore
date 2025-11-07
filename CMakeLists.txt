@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(TinyPiXOS VERSION 1.0.0 LANGUAGES C CXX)
 
+# 不再提示未使用变量警告
+if(POLICY CMP0072)
+    cmake_policy(SET CMP0072 NEW)
+endif()
+
 # 添加SDK路径选项，支持命令行传入
 set(DEFAULT_SDK_PATH "/home/hawk/Public/arm_64")
 set(SDK_PATH ${DEFAULT_SDK_PATH})

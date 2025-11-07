@@ -10,7 +10,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include "md5.h"	//#include <openssl/md5.h>
+#include <openssl/md5.h>	//#include <openssl/md5.h>
 #include "../manage/utilslib.h"
 #include "appm_creat.h"
 #include "file_creat.h"

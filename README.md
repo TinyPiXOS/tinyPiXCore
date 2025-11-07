@@ -200,6 +200,28 @@ make
 make install
 ```
 
+- ​**交叉编译构建 TinyPiXOS Arm64-Debug版本(32位版本将64修改为32即可)**
+
+```bash
+cmake --preset=arm64-debug \
+    -DCMAKE_C_COMPILER=/your/custom/path/arm-linux-gnueabihf-gcc \
+    -DCMAKE_CXX_COMPILER=/your/custom/path/arm-linux-gnueabihf-g++ \
+    -DARM_SDK_PATH=/your/sdk/path
+make
+make install
+```
+
+- ​**交叉编译构建 TinyPiXOS Arm64-Release版本(32位版本将64修改为32即可)**
+
+```bash
+cmake --preset=arm64-release \
+    -DCMAKE_C_COMPILER=/your/custom/path/arm-linux-gnueabihf-gcc \
+    -DCMAKE_CXX_COMPILER=/your/custom/path/arm-linux-gnueabihf-g++ \
+    -DARM_SDK_PATH=/your/sdk/path
+make
+make install
+```
+
 ### 使用说明
 
 #### 目录结构

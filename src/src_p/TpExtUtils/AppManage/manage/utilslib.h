@@ -17,7 +17,7 @@
 #include <sys/mman.h>
 #include <ctype.h>
 #include <regex.h>
-#include "md5.h"
+#include <openssl/md5.h>
 #include "../inc/appmanage_conf.h"
 
 void delete_end_space(char *str);

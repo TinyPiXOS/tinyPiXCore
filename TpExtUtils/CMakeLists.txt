@@ -63,7 +63,6 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/lib/obex/obex_session.c
 	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/lib/obex/obex_client.c
 	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/lib/obex/obex_object_push.c
-#	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/obexnames.c
 	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/sdpregister.c
 	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/blt_audio.c
 	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/blt_agent.c
@@ -95,7 +94,6 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/TpExtUtils/TpNetPcap.cpp
 	${SOURCE_PATH}/src_p/TpExtUtils/TpDbusConnectManage.cpp
 	${SOURCE_PATH}/src/TpExtUtils/TpAppDataDisk.cpp
-#	${SOURCE_PATH}/src/TpExtUtils/TpDisplayManage.cpp
 	${SOURCE_PATH}/src/TpExtUtils/TpDisplay.cpp
 	${SOURCE_PATH}/src/TpExtUtils/TpCompress.cpp
 	${SOURCE_PATH}/src/TpExtUtils/TpCpu.cpp
@@ -141,19 +139,33 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src/TpExtUtils/TpHardwarePwm.cpp
 	${SOURCE_PATH}/src/TpExtUtils/TpLogin.cpp
 	${SOURCE_PATH}/src/TpExtUtils/TpSerialPort.cpp
+    #	${SOURCE_PATH}/src_p/TpExtUtils/bluetooth/src/obexnames.c
+    #	${SOURCE_PATH}/src/TpExtUtils/TpDisplayManage.cpp
 )
 
-include_directories(/usr/include)
-include_directories(/usr/include/SDL2)
-include_directories(/usr/include/freetype2)
-include_directories(/usr/include/cairo)
-include_directories(/usr/include/pango-1.0)
-include_directories(/usr/include/harfbuzz)
-include_directories(/usr/include/glib-2.0)
-include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
-include_directories(/usr/lib/aarch64-linux-gnu/glib-2.0/include)
-include_directories(/usr/include/dbus-1.0/)
-include_directories(/usr/lib/x86_64-linux-gnu/dbus-1.0/include/)
+if(CMAKE_CROSSCOMPILING)
+    include_directories(${LOAD_SDK_INCLUDE_PATH}/glib-2.0)
+    include_directories(${LOAD_SDK_LIB_PATH}/glib-2.0/include)
+else()
+    # 查找 pkg-config
+    find_package(PkgConfig REQUIRED)
+    # 查找 glib-2.0
+    pkg_check_modules(GLIB REQUIRED glib-2.0)
+
+    include_directories(${GLIB_INCLUDE_DIRS})
+endif()
+
+# 添加包含目录
+include_directories(${SYSTEM_INCLUDE_PATH})
+include_directories(${SYSTEM_INCLUDE_PATH}/SDL2)
+include_directories(${SYSTEM_INCLUDE_PATH}/freetype2)
+include_directories(${SYSTEM_INCLUDE_PATH}/cairo)
+include_directories(${SYSTEM_INCLUDE_PATH}/pango-1.0)
+include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
+include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0/librsvg/)
+include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0)
+include_directories(${SYSTEM_INCLUDE_PATH}/gdk-pixbuf-2.0)
+
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
@@ -183,6 +195,31 @@ include_directories(${SOURCE_PATH}/src_p/TpExtUtils/devmanager/include)
 # 添加动态库目标
 add_library(TpExtUtils SHARED ${SOURCE_FILES})
 
+# 指定依赖动态库目录
+if(CMAKE_CROSSCOMPILING)
+    link_directories("${LOAD_SDK_LIB_PATH}")
+else()
+    link_directories("/usr/lib")
+endif()
+
+LoadSDKLibrary(SDL2_LIBRARY SDL2)
+LoadSDKLibrary(GLIB_LIBRARY glib-2.0)
+LoadSDKLibrary(GIO_LIBRARY gio-2.0)
+LoadSDKLibrary(SSL_LIBRARY ssl)
+LoadSDKLibrary(JSONC_LIBRARY json-c)
+LoadSDKLibrary(ASOUND_LIBRARY asound)
+LoadSDKLibrary(AVCODEC_LIBRARY avcodec)
+LoadSDKLibrary(AVFILTER_LIBRARY avfilter)
+LoadSDKLibrary(AVFORMAT_LIBRARY avformat)
+LoadSDKLibrary(AVUTIL_LIBRARY avutil)
+LoadSDKLibrary(SWRESAMPLE_LIBRARY swresample)
+LoadSDKLibrary(AVDEVICE_LIBRARY avdevice)
+LoadSDKLibrary(SWSCALE_LIBRARY swscale)
+LoadSDKLibrary(BLUETOOTH_LIBRARY bluetooth)
+LoadSDKLibrary(DBUS_LIBRARY dbus-1)
+LoadSDKLibrary(USB_LIBRARY usb-1.0)
+LoadSDKLibrary(UDEV_LIBRARY udev)
+
 # 设置动态库版本 VERSION 是库的当前版本号，而 SOVERSION 是API的兼容性版本号。
 # set_target_properties(TpExtUtils PROPERTIES VERSION 1.0 SOVERSION 1)
 
@@ -191,8 +228,11 @@ set(PCAP_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libpcap.a)
 set(TPARCHIVE_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libtparchive.a)
 
 # 将pthread库链接到可执行目标
-target_link_libraries(TpExtUtils ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} dl
-	pthread TpUtils ssl json-c glib-2.0 
-	gio-2.0 asound avcodec avfilter avformat avutil 
-	swresample SDL2 avdevice swscale bluetooth dbus-1 usb-1.0 udev
+target_link_libraries(TpExtUtils PUBLIC
+    dl pthread TpUtils
+    ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} 
+    ${GLIB_LIBRARY} ${GIO_LIBRARY} ${SDL2_LIBRARY} ${SSL_LIBRARY}
+    ${JSONC_LIBRARY} ${ASOUND_LIBRARY} ${AVCODEC_LIBRARY} ${AVFILTER_LIBRARY} ${AVFORMAT_LIBRARY}
+    ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${AVDEVICE_LIBRARY} ${SWSCALE_LIBRARY}
+    ${BLUETOOTH_LIBRARY} ${DBUS_LIBRARY} ${USB_LIBRARY} ${UDEV_LIBRARY}
 	${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so)

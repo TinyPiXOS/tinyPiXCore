@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include(../cmake/TargetArchConfig.cmake)
 include(../cmake/GlobalConfig.cmake)
+include(../cmake/LoadCrossSDK.cmake)
 
 # 添加源码目录
 set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../src")
@@ -16,7 +17,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpWM/main.c
 )
 
-include_directories(/usr/include/SDL2)
+include_directories(${SYSTEM_INCLUDE_PATH})
+include_directories(${SYSTEM_INCLUDE_PATH}/SDL2)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpWMEngine)
@@ -32,21 +34,17 @@ target_compile_definitions(TpWM PRIVATE TP_USE_SDL2 ENABLE_LOGO)
 # set_target_properties(TpWM PROPERTIES VERSION 1.0 SOVERSION 1)
 
 # 指定依赖动态库目录
-link_directories("/usr/lib")
+if(CMAKE_CROSSCOMPILING)
+    link_directories("${LOAD_SDK_LIB_PATH}")
+else()
+    link_directories("/usr/lib")
+endif()
+
+LoadSDKLibrary(SDL2_LIBRARY SDL2)
 
 # 库链接到可执行目标
 target_link_libraries(TpWM
-    SDL2
     pthread
+    ${SDL2_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
 )
-
-# 如果你需要将动态库安装到特定的目录，可以修改DESTINATION路径
-# install(TARGETS TpWM RUNTIME DESTINATION ${INSTALL_BIN_DIR})
-
-# # 创建软链接
-# CmakeCreateSymlink(
-#     TARGET TpWM
-#     INSTALL_DIR ${INSTALL_BIN_DIR}
-#     LINK_DIR ${LINK_BIN_DIR}             
-# )
