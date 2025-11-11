@@ -1,74 +1,18 @@
-/* liucy has been here，but nothing to see and nothing left ^_^!*/
-
-/*
-** Copyright (c) 2007-2021 By Alexander.King.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and/or associated documentation files (the
-** "Materials"), to deal in the Materials without restriction, including
-** without limitation the rights to use, copy, modify, merge, publish,
-** distribute, sublicense, and/or sell copies of the Materials, and to
-** permit persons to whom the Materials are furnished to do so, subject to
-** the following conditions:
-**
-** The above copyright notice and this permission notice shall be included
-** in all copies or substantial portions of the Materials.
-**
-** THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
-*/
-#include "TpEvent.h"
-#include "TpSurface.h"
-#include "TpPainter.h"
-#include "TpRect.h"
-#include "TpWidget.h"
-#include <cstring>
-#include "TpDef.h"
-
-//--------------------------TpEvent------------------------------/
-TpEvent::TpEvent() : eventData_(nullptr)
-{
-}
-
-TpEvent::~TpEvent()
-{
-}
-
-//--------------------------TpShowEvent------------------------------/
-
-// TpShowEvent::TpShowEvent() : TpEvent()
-// {
-// }
-
-// TpShowEvent::~TpShowEvent()
-// {
-// }
-
-// bool TpShowEvent::construct(ItpEventData *eventData)
-// {
-// 	return true;
-// }
-
-// TpEvent::ItpEventType TpShowEvent::eventType()
-// {
-// 	return TpEvent::EVENT_WINDOW_SHOW_TYPE;
-// }
+#include <TpEvent.h>
+#include <TpSurface.h>
+#include <TpPainter.h>
+#include <TpRect.h>
+#include <TpWidget.h>
+#include <TpDef.h>
+#include <TpPoint.h>
+#include <TpString.h>
 
 //--------------------------TpKeyboardEvent------------------------------/
-TpKeyboardEvent::TpKeyboardEvent() : TpEvent()
+TpKeyboardEvent::TpKeyboardEvent(TpEvent::TpEventType type) : TpEvent()
 {
     ItpKeyboardSet *set = new ItpKeyboardSet();
-
-    if (set)
-    {
-        set->type = TpEvent::EVENT_NONE_TYPE;
-        TpEvent::eventData_ = set;
-    }
+    TpEvent::eventData_ = set;
+    TpEvent::eventType_ = type;
 }
 
 TpKeyboardEvent::~TpKeyboardEvent()
@@ -78,38 +22,26 @@ TpKeyboardEvent::~TpKeyboardEvent()
     if (set)
     {
         delete set;
+        set = nullptr;
+        TpEvent::eventData_ = nullptr;
     }
 }
 
-bool TpKeyboardEvent::construct(ItpEventData *eventData)
+bool TpKeyboardEvent::construct(ITpEventData *eventData)
 {
     ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
 
-    if (set)
-    {
-        ItpKeyboardSet *pEventData = (ItpKeyboardSet *)eventData;
+    if (!set)
+        return false;
 
-        if (pEventData)
-        {
-            *set = *pEventData;
-            return true;
-        }
+    ItpKeyboardSet *pEventData = (ItpKeyboardSet *)eventData;
+    if (pEventData)
+    {
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpKeyboardEvent::eventType()
-{
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 uint8_t TpKeyboardEvent::which()
@@ -214,15 +146,12 @@ bool TpKeyboardEvent::isPrintable()
 }
 
 //--------------------------TpMouseEvent------------------------------/
-TpMouseEvent::TpMouseEvent() : TpEvent()
+TpMouseEvent::TpMouseEvent(TpEvent::TpEventType type) : TpEvent()
 {
     ItpMouseSet *set = new ItpMouseSet();
 
-    if (set)
-    {
-        set->type = TpEvent::EVENT_NONE_TYPE;
-        TpEvent::eventData_ = set;
-    }
+    TpEvent::eventType_ = type;
+    TpEvent::eventData_ = set;
 }
 
 TpMouseEvent::~TpMouseEvent()
@@ -237,7 +166,7 @@ TpMouseEvent::~TpMouseEvent()
     }
 }
 
-bool TpMouseEvent::construct(ItpEventData *eventData)
+bool TpMouseEvent::construct(ITpEventData *eventData)
 {
     ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
 
@@ -250,22 +179,8 @@ bool TpMouseEvent::construct(ItpEventData *eventData)
         return false;
 
     *set = *pEventData;
-    // set->type = EVENT_MOUSE_KEY_TYPE;
 
     return true;
-}
-
-TpEvent::ItpEventType TpMouseEvent::eventType()
-{
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 int32_t TpMouseEvent::which()
@@ -331,7 +246,7 @@ TpWheelEvent::TpWheelEvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_WHEEL_EVENT;
         TpEvent::eventData_ = set;
     }
 }
@@ -348,7 +263,7 @@ TpWheelEvent::~TpWheelEvent()
     }
 }
 
-bool TpWheelEvent::construct(ItpEventData *eventData)
+bool TpWheelEvent::construct(ITpEventData *eventData)
 {
     ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
 
@@ -361,7 +276,6 @@ bool TpWheelEvent::construct(ItpEventData *eventData)
         return false;
 
     *set = *pEventData;
-    set->type = EVENT_WHEEL_EVENT;
 
     if (pEventData->button == BUTTON_WHEELUP)
         angleDelta_ = 10;
@@ -371,19 +285,6 @@ bool TpWheelEvent::construct(ItpEventData *eventData)
     return true;
 }
 
-TpEvent::ItpEventType TpWheelEvent::eventType()
-{
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
-}
-
 //--------------------------TpFingerEvent------------------------------/
 TpFingerEvent::TpFingerEvent() : TpEvent()
 {
@@ -391,7 +292,7 @@ TpFingerEvent::TpFingerEvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_FINGER_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -406,37 +307,21 @@ TpFingerEvent::~TpFingerEvent()
     }
 }
 
-bool TpFingerEvent::construct(ItpEventData *eventData)
+bool TpFingerEvent::construct(ITpEventData *eventData)
 {
     ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpFingerSet *pEventData = (ItpFingerSet *)eventData;
+    if (pEventData)
     {
-        ItpFingerSet *pEventData = (ItpFingerSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_FINGER_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpFingerEvent::eventType()
-{
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 int32_t TpFingerEvent::touchFingerType()
@@ -564,7 +449,7 @@ TpDollAREvent::TpDollAREvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_DOLLAR_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -579,37 +464,21 @@ TpDollAREvent::~TpDollAREvent()
     }
 }
 
-bool TpDollAREvent::construct(ItpEventData *eventData)
+bool TpDollAREvent::construct(ITpEventData *eventData)
 {
     ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpDollarSet *pEventData = (ItpDollarSet *)eventData;
+    if (pEventData)
     {
-        ItpDollarSet *pEventData = (ItpDollarSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_DOLLAR_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpDollAREvent::eventType()
-{
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 int32_t TpDollAREvent::dollarType()
@@ -709,7 +578,7 @@ TpMultiGestureEvent::TpMultiGestureEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_DOLLAR_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -724,36 +593,21 @@ TpMultiGestureEvent::~TpMultiGestureEvent()
     }
 }
 
-bool TpMultiGestureEvent::construct(ItpEventData *eventData)
+bool TpMultiGestureEvent::construct(ITpEventData *eventData)
 {
     ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpMultiGestureSet *pEventData = (ItpMultiGestureSet *)eventData;
+    if (pEventData)
     {
-        ItpMultiGestureSet *pEventData = (ItpMultiGestureSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_DOLLAR_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
+
     return false;
-}
-
-TpEvent::ItpEventType TpMultiGestureEvent::eventType()
-{
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 int32_t TpMultiGestureEvent::timestamp()
@@ -867,7 +721,7 @@ TpMoveEvent::TpMoveEvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_OBJECT_MOVE_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -882,37 +736,22 @@ TpMoveEvent::~TpMoveEvent()
     }
 }
 
-bool TpMoveEvent::construct(ItpEventData *eventData)
+bool TpMoveEvent::construct(ITpEventData *eventData)
 {
     ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpObjectMoveSet *pEventData = (ItpObjectMoveSet *)eventData;
+
+    if (pEventData)
     {
-        ItpObjectMoveSet *pEventData = (ItpObjectMoveSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_OBJECT_MOVE_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpMoveEvent::eventType()
-{
-    ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 int32_t TpMoveEvent::newX()
@@ -945,12 +784,8 @@ int32_t TpMoveEvent::newY()
 TpResizeEvent::TpResizeEvent() : TpEvent()
 {
     ItpObjectResizeSet *set = new ItpObjectResizeSet(); // EVENT_OBJECT_RESIZE_TYPE
-
-    if (set)
-    {
-        set->type = TpEvent::EVENT_NONE_TYPE;
-        TpEvent::eventData_ = set;
-    }
+    TpEvent::eventType_ = TpEvent::EVENT_OBJECT_RESIZE_TYPE;
+    TpEvent::eventData_ = set;
 }
 
 TpResizeEvent::~TpResizeEvent()
@@ -963,7 +798,7 @@ TpResizeEvent::~TpResizeEvent()
     }
 }
 
-bool TpResizeEvent::construct(ItpEventData *eventData)
+bool TpResizeEvent::construct(ITpEventData *eventData)
 {
     ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
 
@@ -974,25 +809,10 @@ bool TpResizeEvent::construct(ItpEventData *eventData)
     if (pEventData)
     {
         *set = *pEventData;
-        set->type = EVENT_OBJECT_RESIZE_TYPE;
-
         return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpResizeEvent::eventType()
-{
-    ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 int32_t TpResizeEvent::question()
@@ -1041,7 +861,7 @@ TpFocusEvent::TpFocusEvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_OBJECT_FOCUS_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -1056,37 +876,22 @@ TpFocusEvent::~TpFocusEvent()
     }
 }
 
-bool TpFocusEvent::construct(ItpEventData *eventData)
+bool TpFocusEvent::construct(ITpEventData *eventData)
 {
     ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpObjectFocusSet *pEventData = (ItpObjectFocusSet *)eventData;
+
+    if (pEventData)
     {
-        ItpObjectFocusSet *pEventData = (ItpObjectFocusSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_OBJECT_FOCUS_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpFocusEvent::eventType()
-{
-    ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 bool TpFocusEvent::focused()
@@ -1106,12 +911,8 @@ bool TpFocusEvent::focused()
 TpLeaveEvent::TpLeaveEvent() : TpEvent()
 {
     ItpObjectLeaveSet *set = new ItpObjectLeaveSet(); // EVENT_OBJECT_LEAVE_TYPE
-
-    if (set)
-    {
-        set->type = TpEvent::EVENT_OBJECT_LEAVE_TYPE;
-        TpEvent::eventData_ = set;
-    }
+    TpEvent::eventType_ = TpEvent::EVENT_OBJECT_LEAVE_TYPE;
+    TpEvent::eventData_ = set;
 }
 
 TpLeaveEvent::~TpLeaveEvent()
@@ -1124,37 +925,22 @@ TpLeaveEvent::~TpLeaveEvent()
     }
 }
 
-bool TpLeaveEvent::construct(ItpEventData *eventData)
+bool TpLeaveEvent::construct(ITpEventData *eventData)
 {
     ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpObjectLeaveSet *pEventData = (ItpObjectLeaveSet *)eventData;
+
+    if (pEventData)
     {
-        ItpObjectLeaveSet *pEventData = (ItpObjectLeaveSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_OBJECT_LEAVE_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpLeaveEvent::eventType()
-{
-    ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 bool TpLeaveEvent::leave()
@@ -1174,12 +960,8 @@ bool TpLeaveEvent::leave()
 TpVisibleEvent::TpVisibleEvent() : TpEvent()
 {
     ItpObjectVisibleSet *set = new ItpObjectVisibleSet(); // EVENT_OBJECT_VISIBLE_TYPE
-
-    if (set)
-    {
-        set->type = TpEvent::EVENT_NONE_TYPE;
-        TpEvent::eventData_ = set;
-    }
+    TpEvent::eventType_ = TpEvent::EVENT_OBJECT_VISIBLE_TYPE;
+    TpEvent::eventData_ = set;
 }
 
 TpVisibleEvent::~TpVisibleEvent()
@@ -1192,37 +974,22 @@ TpVisibleEvent::~TpVisibleEvent()
     }
 }
 
-bool TpVisibleEvent::construct(ItpEventData *eventData)
+bool TpVisibleEvent::construct(ITpEventData *eventData)
 {
     ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpObjectVisibleSet *pEventData = (ItpObjectVisibleSet *)eventData;
+
+    if (pEventData)
     {
-        ItpObjectVisibleSet *pEventData = (ItpObjectVisibleSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_OBJECT_VISIBLE_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpVisibleEvent::eventType()
-{
-    ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 bool TpVisibleEvent::visible()
@@ -1245,8 +1012,8 @@ TpPaintEvent::TpPaintEvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
         set->canDraw = false;
+        TpEvent::eventType_ = TpEvent::EVENT_OBJECT_PAINT_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -1264,19 +1031,6 @@ TpPaintEvent::~TpPaintEvent()
 
         delete set;
     }
-}
-
-TpEvent::ItpEventType TpPaintEvent::eventType()
-{
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 TpPainter *TpPaintEvent::painter()
@@ -1384,7 +1138,7 @@ bool TpPaintEvent::isCanDraw()
     return canDraw;
 }
 
-bool TpPaintEvent::construct(ItpEventData *inputData)
+bool TpPaintEvent::construct(ITpEventData *inputData)
 {
     ItpObjectPaintSet *eventData = static_cast<ItpObjectPaintSet *>(TpEvent::eventData_);
     if (!eventData)
@@ -1488,7 +1242,6 @@ bool TpPaintEvent::construct(ItpEventData *inputData)
     eventData->updateRect = input->updateRect;
     eventData->rect = inputObjectChild->rect();
     eventData->canvas->setClipRect(clipRect);
-    eventData->type = EVENT_OBJECT_PAINT_TYPE;
 
     return true;
 }
@@ -1500,7 +1253,7 @@ TpActiveEvent::TpActiveEvent() : TpEvent()
 
     if (set)
     {
-        set->type = TpEvent::EVENT_NONE_TYPE;
+        TpEvent::eventType_ = TpEvent::EVENT_OBJECT_ACTIVE_TYPE;
         TpEvent::eventData_ = set;
     }
 }
@@ -1515,37 +1268,22 @@ TpActiveEvent::~TpActiveEvent()
     }
 }
 
-bool TpActiveEvent::construct(ItpEventData *eventData)
+bool TpActiveEvent::construct(ITpEventData *eventData)
 {
     ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::eventData_;
 
-    if (set)
+    if (!set)
+        return false;
+
+    ItpObjectActiveSet *pEventData = (ItpObjectActiveSet *)eventData;
+
+    if (pEventData)
     {
-        ItpObjectActiveSet *pEventData = (ItpObjectActiveSet *)eventData;
-
-        if (pEventData)
-        {
-            *set = *pEventData;
-            set->type = EVENT_OBJECT_ACTIVE_TYPE;
-
-            return true;
-        }
+        *set = *pEventData;
+        return true;
     }
 
     return false;
-}
-
-TpEvent::ItpEventType TpActiveEvent::eventType()
-{
-    ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::eventData_;
-    TpEvent::ItpEventType type = TpEvent::EVENT_NONE_TYPE;
-
-    if (set)
-    {
-        type = set->type;
-    }
-
-    return type;
 }
 
 bool TpActiveEvent::isActived()
@@ -1563,18 +1301,14 @@ bool TpActiveEvent::isActived()
 
 TpThemeChangeEvent::TpThemeChangeEvent()
 {
+    TpEvent::eventType_ = TpEvent::EVENT_THEME_CHANGE_TYPE;
 }
 
 TpThemeChangeEvent::~TpThemeChangeEvent()
 {
 }
 
-bool TpThemeChangeEvent::construct(ItpEventData *eventData)
+bool TpThemeChangeEvent::construct(ITpEventData *eventData)
 {
     return true;
-}
-
-TpEvent::ItpEventType TpThemeChangeEvent::eventType()
-{
-    return EVENT_THEME_CHANGE_TYPE;
 }

@@ -5,13 +5,11 @@
 #ifndef __TP_APP_PRIVATE_H
 #define __TP_APP_PRIVATE_H
 
-#include "TpObject.h"
 #include "TpClipboard.h"
 #include "TpMessage.h"
 #include "TpAutoObject.h"
 #include "TpScreen.h"
 #include "TpConfig.h"
-#include "TpThread.h"
 #include "TpTimer.h"
 #include "TpMD5.h"
 #include "TpDefaultCss.h"
@@ -23,18 +21,20 @@
 #include "TpMap.h"
 #include "TpRect.h"
 #include "TpObjectFunction.hpp"
+#include "TpObject_p.h"
 #include "TpMainWindow.h"
 #include "TpShareMemory.h"
 #include "TpFixScreen.h"
 #include "TpGateway.h"
 #include "TpMainWindow.h"
 #include "thorVG/thorvg.h"
+#include "TpCoreApp_p.h"
+#include <TpThread.h>
+#include <TpApp.h>
 
 #include <tinyPiXApi.h>
-#include <mutex>
 #include <unistd.h>
 #include <getopt.h>
-#include <functional>
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -44,8 +44,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <thread>
-#include <queue>
 
 #if 1 // 慎重修改，需和桌面保持协议一致
 
@@ -81,13 +79,6 @@ struct DeskStatusBarInfo
 };
 #endif
 
-struct ItpProcessInfo
-{
-    int32_t id;
-    pid_t pid;
-    char process[PROCESS_MAX_NAME_LENGTH];
-};
-
 struct UpdateCommand
 {
     TpWidget *updateObj = nullptr;
@@ -102,13 +93,9 @@ struct UpdateCommand
     }
 };
 
-class appExe;
+class AppExec;
 struct TpAppData
 {
-    // 主线程ID
-    std::thread::id mainThreadId;
-
-    TpList<TpObject *> objectList;
     std::map<TpObject *, bool> vReserveMap;
     // 所有floatscreen列表，用于更新主题样式
     TpList<TpWidget *> floatScreenList;
@@ -124,14 +111,9 @@ struct TpAppData
 
     TpMessage *message;
 
-    appExe *thread;
+    AppExec *appExecThread;
 
     int32_t eventType;
-    ItpProcessInfo pInfo;
-    // ItpConfigSet appConfigurationSet;
-
-    bool running;
-    bool waitRun;
 
     Tp::SystemTheme systemTheme = Tp::Default;
     tpShared<TpCssParser> cssParser_ = tpMakeShared<TpCssParser>();
@@ -139,9 +121,6 @@ struct TpAppData
     // 全局唯一单例虚拟键盘
     TpVirtualKeyboard *virtualKeyboard = nullptr;
     TpWidget *curInputObj = nullptr;
-
-    std::mutex queueSlotMutex_;
-    std::queue<std::function<void()>> slotTasks_;
 
     std::mutex queueUpdateMutex_;
     std::queue<UpdateCommand> updateTasks_;
@@ -151,36 +130,34 @@ struct TpAppData
     DeskStatusBarInfo deskStatusBarInfo_;
 };
 
-class appExe : public TpThread
+// UI应用处理线程
+class AppExec : public TpThread
 {
 public:
-    appExe() : TpThread() {};
+    AppExec() : TpThread() {};
 
-    appExe(TpApp *app) : TpThread()
+    AppExec(TpAppData *appData, TpCoreAppData *coreAppData)
+        : TpThread(), appData_(appData), coreAppData_(coreAppData) {};
+
+    virtual ~AppExec()
     {
-        theApp = app;
-    };
-
-    virtual ~appExe() {
-
+        appData_ = nullptr;
+        coreAppData_ = nullptr;
     };
 
     virtual void run()
     {
-        TpAppData *set = (TpAppData *)theApp->appObjectSet();
         ItpUserEvent message;
         bool ret = false;
-        if (!set)
+        if (!appData_ || !coreAppData_)
             return;
 
         while (true)
         {
-            if (set->vScreen == nullptr)
-            {
+            if (appData_->vScreen == nullptr)
                 break;
-            }
 
-            ret = set->message->recvWait(&message);
+            ret = appData_->message->recvWait(&message);
             if (!ret)
                 continue;
 
@@ -189,7 +166,7 @@ public:
             case TpApp::TP_REGISTER_ACT:
             {
                 // add to objectList
-                set->gMutex.lock();
+                appData_->gMutex.lock();
                 TpWidget *childWidgetObj = (TpWidget *)message.user_data0;
                 if (childWidgetObj)
                 {
@@ -197,54 +174,53 @@ public:
                     {
                     case Tp::TP_FLOAT_OBJECT:
                     {
-                        set->vReserveMap[childWidgetObj] = childWidgetObj->visible();
+                        appData_->vReserveMap[childWidgetObj] = childWidgetObj->visible();
                     }
                     break;
                     }
-                    set->objectList.push_back(childWidgetObj);
-                    set->gMutex.unlock();
+                    coreAppData_->objectList.emplace_back(childWidgetObj);
+                    appData_->gMutex.unlock();
                 }
             }
             break;
             case TpApp::TP_DELETE_ACT:
             {
                 TpObject *object = (TpObject *)message.user_data0;
-
                 if (object == nullptr)
                 {
                     continue;
                 }
 
-                set->gMutex.lock();
+                appData_->gMutex.lock();
 
                 if (object)
                 {
-                    std::map<TpObject *, bool>::iterator mapiter = set->vReserveMap.find(object);
+                    std::map<TpObject *, bool>::iterator mapiter = appData_->vReserveMap.find(object);
 
-                    if (mapiter != set->vReserveMap.end())
+                    if (mapiter != appData_->vReserveMap.end())
                     {
-                        set->vReserveMap.erase(mapiter);
+                        appData_->vReserveMap.erase(mapiter);
                     }
 
-                    auto objFindIter = std::find(set->objectList.begin(), set->objectList.end(), object);
-                    if (objFindIter != set->objectList.end())
+                    auto objFindIter = std::find(coreAppData_->objectList.begin(), coreAppData_->objectList.end(), object);
+                    if (objFindIter != coreAppData_->objectList.end())
                     {
-                        set->objectList.remove(*objFindIter);
+                        coreAppData_->objectList.remove(*objFindIter);
                     }
 
-                    auto floatFindIter = std::find(set->floatScreenList.begin(), set->floatScreenList.end(), object);
-                    if (floatFindIter != set->floatScreenList.end())
+                    auto floatFindIter = std::find(appData_->floatScreenList.begin(), appData_->floatScreenList.end(), object);
+                    if (floatFindIter != appData_->floatScreenList.end())
                     {
-                        set->floatScreenList.remove(*floatFindIter);
+                        appData_->floatScreenList.remove(*floatFindIter);
                     }
 
-                    if (object == set->vScreen)
+                    if (object == appData_->vScreen)
                     {
                         goto finished;
                     }
                 }
             deleted:
-                set->gMutex.unlock();
+                appData_->gMutex.unlock();
 
                 delete object;
                 object = nullptr;
@@ -258,15 +234,12 @@ public:
             break;
             case TpApp::TP_RETURN_ACT:
             {
-                TpObject *vScreen = set->vScreen;
-
-                std::cout << "case TpApp::TP_RETURN_ACT111111: " << std::endl;
+                TpObject *vScreen = appData_->vScreen;
 
                 if (vScreen == message.user_data0)
                 {
                     TpScreen *screenObj = static_cast<TpScreen *>(vScreen);
 
-                    std::cout << "case TpApp::TP_RETURN_ACT2222: " << std::endl;
                     // exclude desktop
                     // if (screenObj->objectLayer() != Tp::TP_WM_DESK)
                     if (screenObj->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
@@ -276,17 +249,17 @@ public:
                             screenObj->setVisible(false);
                         }
 
-                        set->gMutex.lock();
+                        appData_->gMutex.lock();
 
-                        std::map<TpObject *, bool>::iterator iter = set->vReserveMap.begin();
-                        for (; iter != set->vReserveMap.end(); iter++)
+                        std::map<TpObject *, bool>::iterator iter = appData_->vReserveMap.begin();
+                        for (; iter != appData_->vReserveMap.end(); iter++)
                         {
                             TpWidget *tmp = static_cast<TpWidget *>(iter->first);
                             iter->second = tmp->visible();
                             tmp->setVisible(false);
                         }
 
-                        set->gMutex.unlock();
+                        appData_->gMutex.unlock();
                     }
                 }
             }
@@ -296,20 +269,20 @@ public:
                 bool actived = message.user_code;
                 TpObject *object = (TpObject *)message.user_data0;
 
-                TpObject *vScreen = set->vScreen;
+                TpObject *vScreen = appData_->vScreen;
 
                 if (((TpScreen *)vScreen)->objectLayer() != Tp::TP_WM_DESK)
                 {
-                    set->gMutex.lock();
+                    appData_->gMutex.lock();
 
                     if (actived)
                     {
-                        std::map<TpObject *, bool>::iterator mapiter = set->vReserveMap.begin();
-                        for (; mapiter != set->vReserveMap.end(); mapiter++)
+                        std::map<TpObject *, bool>::iterator mapiter = appData_->vReserveMap.begin();
+                        for (; mapiter != appData_->vReserveMap.end(); mapiter++)
                         {
                             TpWidget *tmp = static_cast<TpWidget *>(mapiter->first);
 
-                            if (tmp != set->vScreen)
+                            if (tmp != appData_->vScreen)
                             {
                                 tmp->setVisible(mapiter->second);
                             }
@@ -317,12 +290,12 @@ public:
                     }
                     else
                     {
-                        std::map<TpObject *, bool>::iterator mapiter = set->vReserveMap.begin();
-                        for (; mapiter != set->vReserveMap.end(); mapiter++)
+                        std::map<TpObject *, bool>::iterator mapiter = appData_->vReserveMap.begin();
+                        for (; mapiter != appData_->vReserveMap.end(); mapiter++)
                         {
                             TpWidget *tmp = static_cast<TpWidget *>(mapiter->first);
 
-                            if (tmp != set->vScreen)
+                            if (tmp != appData_->vScreen)
                             {
                                 mapiter->second = tmp->visible();
                                 tmp->setVisible(false);
@@ -330,26 +303,25 @@ public:
                         }
                     }
 
-                    set->gMutex.unlock();
+                    appData_->gMutex.unlock();
                 }
             }
             break;
             }
         }
     appover:
-        set->running = false;
+        coreAppData_->running = false;
 
-        if (set->waitRun == false)
+        if (coreAppData_->waitRun == false)
         {
             exit(0);
         }
     };
 
 private:
-    TpApp *theApp;
+    TpAppData *appData_;
+    TpCoreAppData *coreAppData_;
 };
-
-static TpApp *appInst = nullptr;
 
 // 刷新指令下发
 static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
@@ -478,13 +450,13 @@ static bool bindVScreen(TpAppData *appData, TpFixScreen *object)
         appData->gMutex.unlock();
     }
 
-    appData->thread->start();
+    appData->appExecThread->start();
 
     return ret;
 }
 
 // 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpObjectData *mainWindowObjData)
+static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
 {
     // 偏移的XY坐标；和相对于物理屏幕需要裁剪的的宽高值
     int32_t mainWindowX = 0;
@@ -530,136 +502,6 @@ static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpOb
 
     mainWindowObjData->absoluteRect.setX(mainWindowX);
     mainWindowObjData->absoluteRect.setY(mainWindowY);
-}
-
-static inline bool holdAppSecondRun(const char *runPath, const char *uuid)
-{
-    int32_t fd;
-    int32_t lock_result;
-    struct flock lock;
-    char pFileName[PATH_MAX] = {0};
-    sprintf(pFileName, "%s/.%s", runPath, uuid);
-
-    fd = open(pFileName, O_RDWR | O_CREAT, 0644);
-
-    if (fd < 0)
-    {
-        return true;
-    }
-
-    lock_result = lockf(fd, F_TEST, 0);
-
-    if (lock_result < 0)
-    {
-        return true;
-    }
-
-    lock_result = lockf(fd, F_LOCK, 0);
-
-    if (lock_result < 0)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-static inline bool decideRunOnce(const char *appName)
-{
-    char tempPath[PATH_MAX] = {0};
-    char *currentPath = get_current_dir_name();
-
-    if (currentPath == nullptr)
-    {
-        return false;
-    }
-
-    sprintf(tempPath, "%s/%s", currentPath, appName);
-    const char *md5 = TpMD5::getnerateMD5(tempPath, strlen(tempPath));
-
-    if (md5 == nullptr)
-    {
-        return false;
-    }
-
-    return holdAppSecondRun(currentPath, md5);
-}
-
-static inline bool checkDigitals(char *args)
-{
-    if (args == NULL)
-    {
-        return false;
-    }
-
-    int32_t length = strlen(args), i;
-    char key;
-
-    if (length == 0)
-    {
-        return false;
-    }
-
-    for (i = 0; i < length; ++i)
-    {
-        key = args[i];
-
-        if (key < '0' ||
-            key > '9')
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-static inline bool parseArgs(TpAppData *set, int32_t argc, char *argv[])
-{
-    bool ret = false;
-    char ch;
-
-    while ((ch = getopt(argc, argv, "p:i:n")) != -1)
-    {
-        switch (ch)
-        {
-        case 'p':
-        {
-            ret = checkDigitals(optarg);
-
-            if (ret)
-            {
-                set->pInfo.id = atoi(optarg);
-            }
-        }
-        break;
-        case 'i':
-        {
-            ret = checkDigitals(optarg);
-
-            if (ret)
-            {
-                set->pInfo.pid = atoi(optarg);
-            }
-        }
-        break;
-        case 'n':
-        {
-            int32_t length = strlen(optarg);
-
-            if (length > 0)
-            {
-                memcpy(set->pInfo.process, optarg, length);
-            }
-        }
-        break;
-        default:
-            return false;
-            break;
-        }
-    }
-
-    return true;
 }
 
 static void sendThemeChangedEvent(TpAppData *setData, const Tp::SystemTheme &sysTheme)

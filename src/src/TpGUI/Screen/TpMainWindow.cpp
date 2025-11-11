@@ -11,19 +11,9 @@
 #include "TpDefaultCss.h"
 #include "TpApp_p.h"
 
-struct TpMainWindowData
-{
-    TpMainWindowData()
-    {
-    }
-};
-
 TpMainWindow::TpMainWindow(const char *type)
     : TpScreen(type)
 {
-    TpMainWindowData *screenData = new TpMainWindowData();
-    data_ = screenData;
-
     if (this->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
     {
         TpApp::Inst()->sendDelete(this);
@@ -39,27 +29,20 @@ TpMainWindow::TpMainWindow(const char *type)
     }
     appData->mainWindow = this;
 
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    set->top = this->topObject();
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    widgetData->top = this->topObject();
 
     // 调整窗口大小
-    refreshMainWindow(appData, this, set);
+    refreshMainWindow(appData, this, widgetData);
 
     setBackGroundColor(_RGBA(255, 255, 255, 255));
 
-    tinyPiX_wf_set_visible(set->agent, true);
-    set->visible = true;
+    tinyPiX_wf_set_visible(widgetData->agent, true);
+    widgetData->visible = true;
 }
 
 TpMainWindow::~TpMainWindow()
 {
-    TpMainWindowData *screenData = static_cast<TpMainWindowData *>(data_);
-    if (screenData)
-    {
-        delete screenData;
-        screenData = nullptr;
-        data_ = nullptr;
-    }
 }
 
 Tp::TpObjectType TpMainWindow::objectType()

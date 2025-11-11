@@ -1,7 +1,7 @@
 #ifndef __TP_USB_MANAGER_H
 #define __TP_USB_MANAGER_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSignalSlot.h"
 #include "TpUsbDeviceInfo.h"
 

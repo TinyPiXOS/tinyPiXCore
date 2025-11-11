@@ -1,7 +1,7 @@
 #ifndef __TP_PAINTER_PATH_H
 #define __TP_PAINTER_PATH_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpRect.h"
 #include "TpPoint.h"
 

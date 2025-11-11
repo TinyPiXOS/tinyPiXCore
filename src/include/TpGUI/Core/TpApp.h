@@ -1,20 +1,19 @@
-
 #ifndef __TP_VAPP_H
 #define __TP_VAPP_H
 
-#include <TpUtils.h>
-#include <string>
+#include <TpGUI.h>
+#include <TpString.h>
 #include <functional>
 #include "TpImage.h"
-
-TP_DEF_VOID_TYPE_VAR(ITpAppData);
+#include "TpCoreApp.h"
 
 class TpObject;
 class TpClipboard;
 class TpWidget;
 class TpCssParser;
 
-class TpApp
+TP_DEF_VOID_TYPE_VAR(ITpAppData);
+class TpApp : public TpCoreApp
 {
 public:
     /**
@@ -76,18 +75,17 @@ public:
     /// @param argc 参数数量
     /// @param argv 入口参数
     /// @param deskTopStrKey 桌面唯一标识；普通应用无需处理
-    TpApp(int32_t argc, char *argv[], const TpString& deskStrKey = "");
+    TpApp(int32_t argc, char *argv[], const TpString &deskStrKey = "");
     virtual ~TpApp();
 
-public:
-    /// @brief 获取tpApp全局单例指针
+    /// @brief 获取主函数创建的 TpApp 全局单例指针
     /// @return 指针对象
     static TpApp *Inst();
 
 public:
     /// @brief 开启tpApp主事件循环
     /// @return 启动结果
-    virtual bool run();
+    virtual bool run() override;
 
     /// @brief 获取剪切板单例指针
     /// @return 剪切板指针
@@ -95,7 +93,7 @@ public:
 
     /// @brief 获取应用的主窗口；无主窗口则返回nullptr
     /// @return 应用主窗口指针
-    virtual TpWidget* mainWindow();
+    virtual TpWidget *mainWindow();
 
     /// @brief 获取全局单例CSS解析器
     /// @return css解析器智能指针
@@ -116,10 +114,6 @@ public:
     /// @brief 休眠虚拟键盘
     void dormantVirtualKeyboard();
 
-    /// @brief 获取当前线程是否是主线程
-    /// @return 主线程返回true，否则返回false
-    bool isMainThread();
-
 public:
     virtual bool isExistObject(TpObject *object, bool autoRemove = false);
 
@@ -135,12 +129,10 @@ public:
     /// @param type 事件禁用类型
     virtual void setDisableEventType(int32_t type);
     virtual int32_t disableEventType();
+    
     virtual ITpAppData *appObjectSet();
 
 public:
-    /// @brief 队列类型信号槽处理；用户无需调用
-    void postEvent(std::function<void()> task);
-
     /// @brief 提交刷新时间异步处理；用户无需调用
     /// @param updateObj 刷新对象指针
     /// @param x 刷新区域X

@@ -1,7 +1,8 @@
-#include "TpTemperatureWidget.h"
-#include "TpPainter.h"
-#include "TpLinearGradient.h"
-#include "TpFont.h"
+#include <TpTemperatureWidget.h>
+#include <TpPainter.h>
+#include <TpLinearGradient.h>
+#include <TpFont.h>
+#include <TpEvent.h>
 
 struct TpTemperatureWidgetData
 {

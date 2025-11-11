@@ -5,103 +5,53 @@
 #include "TpWidget.h"
 #include "TpPainter.h"
 #include "thorVG/thorvg.h"
+#include "TpObject_p.h"
+#include "TpWidget_p.h"
 
-static inline TpPoint selfToScreenPoint(TpObject *object, int32_t x, int32_t y)
-{
-    TpPoint point(x, y);
-
-    TpObjectData *set = static_cast<TpObjectData *>(object->objectSets());
-    if (!set)
-        return point;
-
-    TpWidget *parentWidget = static_cast<TpWidget *>(set->parent);
-    if (!parentWidget)
-        return point;
-
-    TpRect rect = parentWidget->toScreen();
-    point.setX(point.x() + rect.x());
-    point.setY(point.y() + rect.y());
-
-    return point;
-}
-
-static inline void broadObjectSetTop(TpObject *object, TpObject *top) // clear topobject
+// clear topobject
+static inline void broadObjectSetTop(TpObject *object, TpObject *top)
 {
     TpObjectData *set = static_cast<TpObjectData *>(object->objectSets());
     if (!set)
         return;
 
     set->top = top;
+    if (!set->top)
+        return;
 
-    if (set->top)
+    // 如果对象不是UI对象，不继续处理
+    TpWidget *tmpObjWidget = dynamic_cast<TpWidget *>(object);
+    if (!tmpObjWidget)
+        return;
+
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(set);
+
+    TpObject *parent = object->parent();
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent);
+    if (parent && parentWidget)
     {
-        TpObject *parent = object->parent();
+        TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->objectSets());
 
-        if (parent)
+        widgetData->absoluteRect.setX(widgetData->logicalRect.x() + parentWidgetData->absoluteRect.x());
+        widgetData->absoluteRect.setY(widgetData->logicalRect.y() + parentWidgetData->absoluteRect.y());
+    }
+
+    TpWidget *topWidget = static_cast<TpWidget *>(widgetData->top);
+    if (topWidget)
+    {
+        widgetData->offsetX = topWidget->toScreen().x();
+        widgetData->offsetY = topWidget->toScreen().y();
+
+        if (widgetData->objectList.size())
         {
-            TpObjectData *parent_set = (TpObjectData *)parent->objectSets();
-            set->absoluteRect.setX(set->logicalRect.x() + parent_set->absoluteRect.x());
-            set->absoluteRect.setY(set->logicalRect.y() + parent_set->absoluteRect.y());
-        }
+            std::list<TpObject *>::iterator iter = widgetData->objectList.begin();
 
-        TpWidget *parentWidget = static_cast<TpWidget *>(set->top);
-        if (parentWidget)
-        {
-            set->offsetX = parentWidget->toScreen().x();
-            set->offsetY = parentWidget->toScreen().y();
-
-            if (set->objectList.size())
+            for (; iter != widgetData->objectList.end(); iter++)
             {
-                std::list<TpObject *>::iterator iter = set->objectList.begin();
-
-                for (; iter != set->objectList.end(); iter++)
-                {
-                    broadObjectSetTop(*iter, set->top);
-                }
+                broadObjectSetTop(*iter, widgetData->top);
             }
         }
     }
-}
-
-static inline bool addObject(TpObjectData *set, TpObject *object, TpObject *parent)
-{
-    if (object == nullptr ||
-        object->objectType() == Tp::TP_FIXSCREEN_OBJECT ||
-        object->objectType() == Tp::TP_MAIN_WINDOW_OBJECT ||
-        object->objectType() == Tp::TP_FLOAT_OBJECT)
-    {
-        return false;
-    }
-
-    set->gMutex.lock();
-    TpObjectData *child_set = (TpObjectData *)object->objectSets();
-    child_set->parent = parent;
-    set->objectList.push_back(object);
-    broadObjectSetTop(object, object->topObject());
-    set->gMutex.unlock();
-
-    return true;
-}
-
-static inline bool delObject(TpObjectData *set, TpObject *object)
-{
-    if (object == nullptr)
-    {
-        return false;
-    }
-
-    set->gMutex.lock();
-
-    TpObjectData *child_set = (TpObjectData *)object->objectSets();
-    set->objectList.remove(object);
-
-    set->tmp.deleteObject(object);
-
-    child_set->parent = nullptr;
-    broadObjectSetTop(object, nullptr);
-    set->gMutex.unlock();
-
-    return true;
 }
 
 static inline TpObject *findObject(TpObjectData *set, int32_t id)
@@ -159,13 +109,13 @@ static inline TpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
     return point;
 }
 
-static inline TpWidget *findObject(TpObjectData *set, int32_t x, int32_t y)
+static inline TpWidget *findObject(TpWidgetData *widgetData, int32_t x, int32_t y)
 {
     TpWidget *object = nullptr;
 
-    set->gMutex.lock();
+    widgetData->gMutex.lock();
 
-    std::list<TpObject *> list = set->objectList;
+    std::list<TpObject *> list = widgetData->objectList;
     std::list<TpObject *>::iterator iter = list.begin();
 
     for (; iter != list.end(); iter++)
@@ -177,12 +127,10 @@ static inline TpWidget *findObject(TpObjectData *set, int32_t x, int32_t y)
         if (!childWidgetPtr->visible())
             continue;
 
-        // childWidgetPtr->TestFunction();
-
-        TpObjectData *child_set = (TpObjectData *)childWidgetPtr->objectSets();
+        TpWidgetData *childWidgetData = static_cast<TpWidgetData *>(childWidgetPtr->objectSets());
         bool ret = false;
 
-        TpRect absRect(child_set->absoluteRect);
+        TpRect absRect(childWidgetData->absoluteRect);
         ret = absRect.contains(x, y);
 
         if (ret)
@@ -194,11 +142,11 @@ static inline TpWidget *findObject(TpObjectData *set, int32_t x, int32_t y)
     if (object)
     {
         TpWidget *result = nullptr;
-        TpObjectData *child_set = (TpObjectData *)object->objectSets();
 
-        if (child_set)
+        TpWidgetData *objData = (TpWidgetData *)object->objectSets();
+        if (objData)
         {
-            result = findObject(child_set, x, y);
+            result = findObject(objData, x, y);
         }
 
         if (result)
@@ -207,7 +155,7 @@ static inline TpWidget *findObject(TpObjectData *set, int32_t x, int32_t y)
         }
     }
 
-    set->gMutex.unlock();
+    widgetData->gMutex.unlock();
 
     return object;
 }

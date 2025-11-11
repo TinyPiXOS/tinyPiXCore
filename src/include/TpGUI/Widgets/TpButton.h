@@ -35,6 +35,9 @@ public:
     /// @brief 设置按钮文本
     /// @param text 文本内容
     virtual void setText(const TpString &text);
+    /// @brief 获取按钮文本
+    /// @return 文本内容
+    TpString text() const;
 
     /// @brief 获取按钮文本字体
     /// @return 字体指针

@@ -1,7 +1,8 @@
-#include "TpHumidityWidget.h"
-#include "TpPainter.h"
-#include "TpLinearGradient.h"
-#include "TpFont.h"
+#include <TpHumidityWidget.h>
+#include <TpPainter.h>
+#include <TpLinearGradient.h>
+#include <TpFont.h>
+#include <TpEvent.h>
 
 struct TpHumidityWidgetData
 {

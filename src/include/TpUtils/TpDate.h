@@ -1,7 +1,7 @@
 #ifndef __TP_DATE_H
 #define __TP_DATE_H
 
-#include <TpUtils.h>
+#include <TpCore.h>
 #include <TpString.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpDateData);

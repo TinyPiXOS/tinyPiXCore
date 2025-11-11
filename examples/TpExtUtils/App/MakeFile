@@ -20,12 +20,12 @@ INC = -I/usr/include \
         -I/usr/include/glib-2.0 \
         -I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
         -I/usr/include/TinyPiX/TpGUI/app \
-        -I/usr/include/TinyPiX/TpWM
+        -I/usr/include/TinyPiX/TpWM -I/usr/include/TinyPiX/TpCore
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
 LIB = -L/usr/lib \
-        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lTpUtils -lTpGUI  -lPiXExternUtils
+        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lTpUtils -lTpGUI -lTpCore  -lPiXExternUtils
 #伪目标：需要依赖的目标
 .PHONY:Install Dopack Remove#即使该目标存在也重新生成
 all:Install Dopack Remove clean#

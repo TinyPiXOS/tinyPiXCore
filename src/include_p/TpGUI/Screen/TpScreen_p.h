@@ -26,9 +26,7 @@ static std::function<void(TpWidget *, ItpMouseSet)> longPressCallback = [](TpWid
     // std::cout << " onLongPress ***********" << std::endl;
 
     ItpMouseSet longPressData = mouseSet;
-    longPressData.type = TpEvent::EVENT_MOUSE_LONG_PRESS_TYPE;
-
-    TpMouseEvent keyEvent;
+    TpMouseEvent keyEvent(TpEvent::EVENT_MOUSE_LONG_PRESS_TYPE);
     keyEvent.construct(&longPressData);
 
     IssueObjEvent(obj, keyEvent, onMouseLongPressEvent, obj->enabled());
@@ -117,10 +115,9 @@ static inline void stopLongPressCheck()
 
 static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, std::list<TpObject *> &list, ItpEvent *events, TpWidget *pressObject)
 {
-    TpMouseEvent motionEvent;
+    TpMouseEvent motionEvent(TpEvent::EVENT_MOUSE_MOVE_TYPE);
     ItpMouseSet mInput;
     mInput.which = events->mouseMotionEvent.which;
-    mInput.type = TpEvent::EVENT_MOUSE_MOVE_TYPE;
 
     std::list<TpObject *>::iterator iter = list.begin();
 
@@ -176,7 +173,8 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
     mInput.which = events->mouseButtonEvent.which;
     mInput.button = events->mouseButtonEvent.button;
     mInput.state = events->mouseButtonEvent.state;
-    mInput.type = mInput.state ? TpEvent::EVENT_MOUSE_PRESS_TYPE : TpEvent::EVENT_MOUSE_RELEASE_TYPE;
+
+    TpEvent::TpEventType mouseEventType = mInput.state ? TpEvent::EVENT_MOUSE_PRESS_TYPE : TpEvent::EVENT_MOUSE_RELEASE_TYPE;
 
     TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
@@ -196,7 +194,7 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
     if (mInput.button == BUTTON_WHEELUP || mInput.button == BUTTON_WHEELDOWN)
     {
         TpWheelEvent wheelEvent;
-        mInput.type = TpEvent::EVENT_WHEEL_EVENT;
+        mouseEventType = TpEvent::EVENT_WHEEL_EVENT;
         wheelEvent.construct(&mInput);
 
         IssueObjEvent(childObj, wheelEvent, onWheelEvent, childObj->enabled());
@@ -224,7 +222,7 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
             if (elapsed < doubleClickInterval)
             {
                 // 如果是双击，触发双击事件
-                mInput.type = TpEvent::EVENT_MOUSE_DOUBLE_CLICK_TYPE;
+                mouseEventType = TpEvent::EVENT_MOUSE_DOUBLE_CLICK_TYPE;
             }
 
             // 重置上一次点击时间
@@ -232,10 +230,10 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
         }
     }
 
-    TpMouseEvent keyEvent;
+    TpMouseEvent keyEvent(mouseEventType);
     keyEvent.construct(&mInput);
 
-    if (mInput.type == TpEvent::EVENT_MOUSE_DOUBLE_CLICK_TYPE)
+    if (mouseEventType == TpEvent::EVENT_MOUSE_DOUBLE_CLICK_TYPE)
     {
         // 终止长按计算线程
         stopLongPressCheck();
@@ -323,14 +321,14 @@ static inline void broaDollar(TpObjectData *set, ItpDollarSet &input, TpObject *
     IssueObjEvent(childObj, event, onDollAREvent, childObj->enabled());
 }
 
-static inline void broadMultiGesture(TpObjectData *set, ItpMultiGestureSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broadMultiGesture(TpWidgetData *widgetData, ItpMultiGestureSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
 {
     TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
         return;
 
     uint32_t rW = 0, rH = 0;
-    tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
+    tinyPiX_wf_get_display_size(widgetData->agent, &rW, &rH);
     TpMultiGestureEvent event;
 
     input.timestamp = events->gestrueEvent.timestamp;
@@ -344,7 +342,7 @@ static inline void broadMultiGesture(TpObjectData *set, ItpMultiGestureSet &inpu
 
     std::list<TpObject *>::iterator iter = list.begin();
 
-    TpWidget *setCurChildObj = static_cast<TpWidget *>(set->tmp.curObject);
+    TpWidget *setCurChildObj = static_cast<TpWidget *>(widgetData->tmp.curObject);
     if (setCurChildObj)
     {
         input.x = events->gestrueEvent.x * rW - setCurChildObj->toScreen().x();
@@ -445,17 +443,15 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
     if (leaved == false)
     {
         // notice cur object, leave out
-        TpObjectData *set = (TpObjectData *)object->objectSets();
-        if (set->tmp.curmotion != object)
+        TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
+        if (widgetData->tmp.curmotion != object)
         {
             // 如果鼠标坐标没有移出当前对象区域，不触发leve事件
-            if (set->tmp.curmotion && (!set->tmp.curmotion->rect().contains(mouseX, mouseY)))
+            if (widgetData->tmp.curmotion && (!widgetData->tmp.curmotion->rect().contains(mouseX, mouseY)))
             {
                 // leaveout
-
                 // 如果该对象安装了事件过滤器，先将事件传给事件过滤器
-                // std::cout << " LeaveEvent11111111111 " << std::endl;
-                IssueObjEvent(set->tmp.curmotion, event, onLeaveEvent, set->tmp.curmotion->enabled());
+                IssueObjEvent(widgetData->tmp.curmotion, event, onLeaveEvent, widgetData->tmp.curmotion->enabled());
             }
         }
     }
@@ -477,19 +473,17 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
     input.question = TpResizeEvent::TP_RESOLUTION_CHANGE;
     event.construct(&input);
 
-    TpObjectData *set = (TpObjectData *)object->objectSets();
+    TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
 
-#if 1
-    set->absoluteRect.setRect(0, 0, nw, nh);
-    set->logicalRect.setRect(0, 0, nw, nh);
-#endif
+    widgetData->absoluteRect.setRect(0, 0, nw, nh);
+    widgetData->logicalRect.setRect(0, 0, nw, nh);
 
-    if (!set->reserveImage.isNull())
+    if (!widgetData->reserveImage.isNull())
     {
         bool ret = (nw > 0 && nh > 0);
         if (ret)
         {
-            set->cacheImage = set->reserveImage.scaled(nw, nh);
+            widgetData->cacheImage = widgetData->reserveImage.scaled(nw, nh);
         }
 
         doTransUpdate(object);
@@ -509,11 +503,10 @@ static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
     input.visible = visible;
     event.construct(&input);
 
-    TpObjectData *set = (TpObjectData *)object->objectSets();
-
-    if (set)
+    TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
+    if (widgetData)
     {
-        set->visible = visible;
+        widgetData->visible = visible;
     }
 
     object->onVisibleEvent(&event);
@@ -534,10 +527,10 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
 
     if (object->objectType() == Tp::TP_FLOAT_OBJECT)
     {
-        TpObjectData *set = (TpObjectData *)object->objectSets();
+        TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
 
-        set->absoluteRect.setX(nx);
-        set->absoluteRect.setY(ny);
+        widgetData->absoluteRect.setX(nx);
+        widgetData->absoluteRect.setY(ny);
 
         object->broadSetTop();
         object->onMoveEvent(&event);

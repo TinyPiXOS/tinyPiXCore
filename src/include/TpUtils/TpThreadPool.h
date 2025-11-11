@@ -1,7 +1,7 @@
 #ifndef __TP_THREAD_POOL_H
 #define __TP_THREAD_POOL_H
 
-#include <TpUtils.h>
+#include <TpCore.h>
 #include <TpString.h>
 #include <functional>
 

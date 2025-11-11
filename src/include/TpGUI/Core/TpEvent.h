@@ -4,120 +4,25 @@
 #include "TpObject.h"
 #include "event.h"
 #include <functional>
+#include <TpCoreEvent.h>
 
 #define KEYBOARD_STRING_LEN 32
 
-TP_DEF_VOID_TYPE_VAR(ItpEventData);
 TP_DEF_VOID_TYPE_VAR(ItpSufaceData);
 
 class TpPainter;
 class TpSurface;
 class TpRect;
-
-class TpEvent
-{
-public:
-    friend class TpShowEvent;
-    friend class TpKeyboardEvent;
-    friend class TpMouseEvent;
-    friend class TpWheelEvent;
-    friend class TpFingerEvent;
-    friend class TpDollAREvent;
-    friend class TpMultiGestureEvent;
-
-    friend class TpMoveEvent;
-    friend class TpResizeEvent;
-    friend class TpFocusEvent;
-    friend class TpLeaveEvent;
-    friend class TpVisibleEvent;
-    friend class TpPaintEvent;
-    friend class TpActiveEvent;
-
-public:
-    /// @brief 事件类型枚举
-    enum ItpEventType
-    {
-        /// @brief 无类型
-        EVENT_NONE_TYPE = -1,
-
-        /// @brief 窗口显示事件
-        EVENT_WINDOW_SHOW_TYPE,
-
-        /// @brief 键盘按下事件
-        EVENT_KEYBOARD_PRESS_TYPE,
-        /// @brief 键盘释放事件
-        EVENT_KEYBOARD_RELEASE_TYPE,
-
-        /// @brief 鼠标按下事件
-        EVENT_MOUSE_PRESS_TYPE,
-        /// @brief 鼠标释放
-        EVENT_MOUSE_RELEASE_TYPE,
-        /// @brief 鼠标双击
-        EVENT_MOUSE_DOUBLE_CLICK_TYPE,
-        /// @brief 鼠标移动
-        EVENT_MOUSE_MOVE_TYPE,
-        /// @brief 鼠标长按
-        EVENT_MOUSE_LONG_PRESS_TYPE,
-
-        /// @brief 滚轮事件
-        EVENT_WHEEL_EVENT,
-
-        EVENT_FINGER_TYPE,
-        EVENT_DOLLAR_TYPE,
-        EVENT_MULTIGESTURE_TYPE,
-
-        EVENT_OBJECT_MOVE_TYPE,
-        /// @brief 窗口大小变化事件
-        EVENT_OBJECT_RESIZE_TYPE,
-        EVENT_OBJECT_FOCUS_TYPE,
-        EVENT_OBJECT_LEAVE_TYPE,
-        EVENT_OBJECT_VISIBLE_TYPE,
-        EVENT_OBJECT_ROTATE_TYPE,
-        EVENT_OBJECT_PAINT_TYPE,
-        EVENT_OBJECT_ACTIVE_TYPE,
-
-        EVENT_THEME_CHANGE_TYPE,
-    };
-
-public:
-    TpEvent();
-    virtual ~TpEvent();
-
-public:
-    /// @brief 事件数据解析
-    /// @param eventData 事件数据
-    /// @return 解析构建结果
-    virtual bool construct(ItpEventData *eventData) = 0;
-
-    /// @brief 获取事件类型
-    /// @return 类型枚举
-    virtual ItpEventType eventType() = 0;
-
-protected:
-    ItpEventData *eventData_;
-};
-
-/// @brief 窗口显示事件；暂未实现
-// class TpShowEvent : public TpEvent
-// {
-// public:
-// 	TpShowEvent();
-// 	virtual ~TpShowEvent();
-
-// public:
-// 	virtual bool construct(ItpEventData *eventData);
-// 	virtual ItpEventType eventType();
-// };
+class TpPoint;
 
 class TpKeyboardEvent : public TpEvent
 {
 public:
-    TpKeyboardEvent();
+    TpKeyboardEvent(TpEvent::TpEventType type);
     virtual ~TpKeyboardEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual uint8_t which();        // device index
@@ -137,18 +42,14 @@ public:
 class TpMouseEvent : public TpEvent
 {
 public:
-    TpMouseEvent();
+    TpMouseEvent(TpEvent::TpEventType type);
     virtual ~TpMouseEvent();
 
 public:
     /// @brief 构建数据；用户可忽略此函数
     /// @param eventData 数据指针
     /// @return 构建结果
-    virtual bool construct(ItpEventData *eventData) override;
-
-    /// @brief 获取事件类型
-    /// @return 类型枚举
-    virtual ItpEventType eventType() override;
+    virtual bool construct(ITpEventData *eventData) override;
 
 public:
     /// @brief device index
@@ -182,11 +83,7 @@ public:
     /// @brief 构建数据；用户可忽略此函数
     /// @param eventData 数据指针
     /// @return 构建结果
-    virtual bool construct(ItpEventData *eventData) override;
-
-    /// @brief 获取事件类型
-    /// @return 类型枚举
-    virtual ItpEventType eventType() override;
+    virtual bool construct(ITpEventData *eventData) override;
 
 public:
     /// @brief 滚轮滚动值；正值为页面向上滚动。其它值为页面向下滚动
@@ -213,10 +110,7 @@ public:
     virtual ~TpFingerEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual int32_t touchFingerType();
@@ -245,10 +139,7 @@ public:
     virtual ~TpDollAREvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual int32_t dollarType();
@@ -267,10 +158,7 @@ public:
     virtual ~TpMultiGestureEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual int32_t timestamp();
@@ -290,10 +178,7 @@ public:
     virtual ~TpMoveEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual int32_t newX();
@@ -315,10 +200,9 @@ public:
     virtual ~TpResizeEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
+    virtual bool construct(ITpEventData *eventData);
 
 public:
-    virtual ItpEventType eventType();
     virtual int32_t question();
 
 public:
@@ -333,10 +217,7 @@ public:
     virtual ~TpFocusEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual bool focused();
@@ -349,10 +230,7 @@ public:
     virtual ~TpLeaveEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     /// @brief 鼠标是否悬停本窗口
@@ -367,10 +245,7 @@ public:
     virtual ~TpVisibleEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual bool visible();
@@ -383,8 +258,6 @@ public:
     virtual ~TpPaintEvent();
 
 public:
-    virtual ItpEventType eventType();
-
     virtual TpPainter *painter();          // must set offsetX and offsetY
     virtual tpShared<TpSurface> surface(); // must set clipRect
 
@@ -399,7 +272,7 @@ public:
 
 public:
     /// @brief 构建绘制事件数据；用户无需调用
-    virtual bool construct(ItpEventData *inputData) override;
+    virtual bool construct(ITpEventData *inputData) override;
 };
 
 class TpActiveEvent : public TpEvent
@@ -409,15 +282,13 @@ public:
     virtual ~TpActiveEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData);
-
-public:
-    virtual ItpEventType eventType();
+    virtual bool construct(ITpEventData *eventData);
 
 public:
     virtual bool isActived();
 };
 
+/// @brief 主题切换事件；暂未实现
 class TpThemeChangeEvent : public TpEvent
 {
 public:
@@ -425,8 +296,6 @@ public:
     virtual ~TpThemeChangeEvent();
 
 public:
-    virtual bool construct(ItpEventData *eventData) override;
-
-    virtual TpEvent::ItpEventType eventType() override;
+    virtual bool construct(ITpEventData *eventData) override;
 };
 #endif

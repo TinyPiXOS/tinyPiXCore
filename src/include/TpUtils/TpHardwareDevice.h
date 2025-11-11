@@ -1,7 +1,7 @@
 #ifndef __TP_HARDWARE_DEVICE_H
 #define __TP_HARDWARE_DEVICE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ITpHardwareDevice);
 

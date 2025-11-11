@@ -1,7 +1,7 @@
 #ifndef __TP_SERIAL_PORT_H
 #define __TP_SERIAL_PORT_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpHardwareDevice.h"
 #include "TpSignalSlot.h"
 

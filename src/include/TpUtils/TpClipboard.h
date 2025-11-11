@@ -2,7 +2,7 @@
 #ifndef __TP_CLIP_BOARD_H
 #define __TP_CLIP_BOARD_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include <string>
 
 TP_DEF_VOID_TYPE_VAR(ItpClipboardData);

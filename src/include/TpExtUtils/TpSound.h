@@ -1,7 +1,7 @@
 #ifndef __TP_SOUND_H
 #define __TP_SOUND_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpAudioInterface.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpSoundData);

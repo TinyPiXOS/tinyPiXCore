@@ -2,7 +2,7 @@
 #include "TpMainWindow.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
-#include "TpUtils.h"
+#include <TpGUI.h>
 #include "TpImage.h"
 #include "TpBattery.h"
 #include "TpLabel.h"
@@ -240,6 +240,7 @@ TpImage getImage()
 
 int32_t main(int32_t argc, char *argv[])
 {
+    std::cout << "Main" <<std::endl;
     TpApp app(argc, argv);
     app.setStyle(Tp::SmartDeviceGUIStyle);
 

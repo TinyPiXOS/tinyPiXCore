@@ -1,10 +1,10 @@
 #ifndef TPSHARE_MEMORY_H
 #define TPSHARE_MEMORY_H
 
-#include "TpString.h"
+#include <TpString.h>
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ITpShareMemoryData);
-
 /**
  * @class TpShareMemory
  * @brief 跨进程共享内存管理类

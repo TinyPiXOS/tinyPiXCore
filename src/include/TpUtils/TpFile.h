@@ -1,7 +1,7 @@
 #ifndef __TP_FILE_H
 #define __TP_FILE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 #include "TpFileInfo.h"
 

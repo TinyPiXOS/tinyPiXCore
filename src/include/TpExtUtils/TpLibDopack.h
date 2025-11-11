@@ -1,7 +1,7 @@
 #ifndef __TP_LIB_DOPACK_H
 #define __TP_LIB_DOPACK_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpLibDopackData);

@@ -1,7 +1,7 @@
 #ifndef __TP_CONFIG_H
 #define __TP_CONFIG_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpVector.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpConfigData);

@@ -1,7 +1,7 @@
 #ifndef __TP_GPIO_H
 #define __TP_GPIO_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpHardwareDevice.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpGpioData);

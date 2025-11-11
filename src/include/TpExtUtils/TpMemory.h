@@ -1,7 +1,7 @@
 #ifndef __TP_MEMORY_INFO_H
 #define __TP_MEMORY_INFO_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 
 /// @brief 三种获取方式
 /// @brief 1.构造后直接读param或：直接返回构造时候的信息

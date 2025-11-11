@@ -1,7 +1,7 @@
 #ifndef _TP_BLUETOOTH_SERVER_H_
 #define _TP_BLUETOOTH_SERVER_H_
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSignalSlot.h"
 #include "TpBluetoothDevice.h"
 #include "TpBluetoothAddress.h"

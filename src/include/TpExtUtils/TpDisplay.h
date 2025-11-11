@@ -3,7 +3,7 @@
 
 #include "TpVector.h"
 #include "TpString.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpList.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpDisplayInfoData);

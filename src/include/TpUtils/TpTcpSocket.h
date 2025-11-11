@@ -1,7 +1,7 @@
 #ifndef __TP_TCP_SOCKET_H
 #define __TP_TCP_SOCKET_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSignalSlot.h"
 #include "TpSocket.h"
 

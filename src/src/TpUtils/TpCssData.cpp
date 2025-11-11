@@ -1,7 +1,8 @@
-#include "TpCssData.h"
-#include "TpUtils.h"
-#include "TpLinearGradient.h"
-#include "TpRadialGradient.h"
+#include <TpCssData.h>
+#include <TpCore.h>
+#include <TpLinearGradient.h>
+#include <TpRadialGradient.h>
+#include <TpGUI.h>
 
 // 颜色属性封装
 class ColorProperty

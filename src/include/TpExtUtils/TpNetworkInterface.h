@@ -2,7 +2,7 @@
 #define __TP_NETWORK_INTERFACE_H
 
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSignalSlot.h"
 #include "TpWirelessInfo.h"
 

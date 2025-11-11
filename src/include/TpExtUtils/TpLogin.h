@@ -1,7 +1,7 @@
 #ifndef __TP_LOGIN_H
 #define __TP_LOGIN_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpLoginData);
 

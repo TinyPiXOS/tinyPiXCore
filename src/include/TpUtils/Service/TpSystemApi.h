@@ -1,7 +1,7 @@
 #ifndef __TP_SYSTEM_API_H
 #define __TP_SYSTEM_API_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSize.h"
 #include "TpVector.h"
 #include "Service/TpAppConfigIO.h"

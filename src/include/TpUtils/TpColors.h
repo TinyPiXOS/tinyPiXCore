@@ -1,7 +1,7 @@
 #ifndef __TP_COLORS_H
 #define __TP_COLORS_H
 
-#include <TpUtils.h>
+#include <TpCore.h>
 
 class TpColors
 {

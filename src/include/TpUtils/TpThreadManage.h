@@ -1,7 +1,7 @@
 #ifndef _THREAD_MANAGE_H_
 #define _THREAD_MANAGE_H_
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include <functional>
 
 TP_DEF_VOID_TYPE_VAR(ItpThreadManageData);

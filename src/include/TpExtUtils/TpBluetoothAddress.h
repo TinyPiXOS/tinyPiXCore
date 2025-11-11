@@ -1,7 +1,7 @@
 #ifndef _TP_BLUETOOTH_ADDRESS_H_
 #define _TP_BLUETOOTH_ADDRESS_H_
 
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpBluetoothAddressData);
 

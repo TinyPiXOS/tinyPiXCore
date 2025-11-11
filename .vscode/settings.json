@@ -77,6 +77,19 @@
         "variant": "cpp",
         "file_creat.h": "c",
         "utilslib.h": "c",
-        "appmanage_conf.h": "c"
+        "appmanage_conf.h": "c",
+        "any": "cpp",
+        "strstream": "cpp",
+        "codecvt": "cpp",
+        "complex": "cpp",
+        "csetjmp": "cpp",
+        "forward_list": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "slist": "cpp",
+        "shared_mutex": "cpp",
+        "span": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp"
     }
 }

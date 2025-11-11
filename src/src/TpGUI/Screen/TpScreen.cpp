@@ -1,46 +1,44 @@
 #include "TpScreen.h"
-#include "TpChildWidget_p.h"
+#include "TpWidget_p.h"
 #include "TpScreen_p.h"
 
 TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t h)
     : TpWidget(nullptr)
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    if (!set)
-        return;
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    widgetData->objectType = type;
 
-    set->objectType = type;
-    set->agent = tinyPiX_wf_create(type, x, y, w, h);
+    widgetData->agent = tinyPiX_wf_create(type, x, y, w, h);
 
-    if (set->agent == nullptr)
+    if (widgetData->agent == nullptr)
     {
         this->close();
     }
     else
     {
-        tinyPiX_wf_args_assign(set->agent, this);
+        tinyPiX_wf_args_assign(widgetData->agent, this);
 
-        tinyPiX_wf_event_assign(set->agent, transferEvent);
-        tinyPiX_wf_focus_assign(set->agent, transferFocus);
-        tinyPiX_wf_leave_assign(set->agent, transferLeave);
-        tinyPiX_wf_resize_assign(set->agent, transferResize);
-        tinyPiX_wf_visible_assign(set->agent, transferVisible);
-        tinyPiX_wf_moved_assign(set->agent, transferMoved);
-        tinyPiX_wf_actived_assign(set->agent, transferActive);
-        tinyPiX_wf_quit_assign(set->agent, transferQuit);
-        tinyPiX_wf_return_assign(set->agent, transferReturn);
-        tinyPiX_wf_app_assign(set->agent, transferAppState);
+        tinyPiX_wf_event_assign(widgetData->agent, transferEvent);
+        tinyPiX_wf_focus_assign(widgetData->agent, transferFocus);
+        tinyPiX_wf_leave_assign(widgetData->agent, transferLeave);
+        tinyPiX_wf_resize_assign(widgetData->agent, transferResize);
+        tinyPiX_wf_visible_assign(widgetData->agent, transferVisible);
+        tinyPiX_wf_moved_assign(widgetData->agent, transferMoved);
+        tinyPiX_wf_actived_assign(widgetData->agent, transferActive);
+        tinyPiX_wf_quit_assign(widgetData->agent, transferQuit);
+        tinyPiX_wf_return_assign(widgetData->agent, transferReturn);
+        tinyPiX_wf_app_assign(widgetData->agent, transferAppState);
 
-        set->top = this;
-        tinyPiX_wf_get_rect(set->agent, &x, &y, &w, &h);
+        widgetData->top = this;
+        tinyPiX_wf_get_rect(widgetData->agent, &x, &y, &w, &h);
 
-        set->offsetX = x;
-        set->offsetY = y;
+        widgetData->offsetX = x;
+        widgetData->offsetY = y;
 
-        set->absoluteRect.setRect(x, y, w, h);
-        set->logicalRect.setRect(0, 0, w, h);
+        widgetData->absoluteRect.setRect(x, y, w, h);
+        widgetData->logicalRect.setRect(0, 0, w, h);
 
-        if (set->top)
+        if (widgetData->top)
         {
             this->broadSetTop();
         }
@@ -65,15 +63,14 @@ void TpScreen::setVisible(bool visible)
 {
     TpWidget::setVisible(visible);
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
     // if (set->visible != visible)
     {
-        tinyPiX_wf_set_visible(set->agent, visible);
-        set->visible = visible;
+        tinyPiX_wf_set_visible(widgetData->agent, visible);
+        widgetData->visible = visible;
     }
 
     if (visible == false)
@@ -101,26 +98,6 @@ bool TpScreen::actived()
     return actived;
 }
 
-void TpScreen::setText(const char *text)
-{
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (set)
-    {
-        bool ret = tinyPiX_wf_set_title(set->agent, text);
-
-        if (ret)
-        {
-            TpWidget::setText(text);
-        }
-    }
-}
-
-void TpScreen::setText(const TpString &text)
-{
-    this->setText(text.c_str());
-}
-
 void TpScreen::setRect(const TpRect &rect)
 {
     setRect(rect.x(), rect.y(), rect.width(), rect.height());
@@ -132,15 +109,14 @@ void TpScreen::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
     if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
         return;
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    tinyPiX_wf_set_rect(set->agent, x, y, w, h);
+    tinyPiX_wf_set_rect(widgetData->agent, x, y, w, h);
 
-    set->offsetX = x;
-    set->offsetY = y;
+    widgetData->offsetX = x;
+    widgetData->offsetY = y;
 
     TpWidget::setRect(x, y, w, h);
 }
@@ -151,12 +127,11 @@ void TpScreen::setSize(const int32_t &width, const int32_t &height)
     if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
         return;
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    tinyPiX_wf_set_rect(set->agent, set->offsetX, set->offsetY, width, height);
+    tinyPiX_wf_set_rect(widgetData->agent, widgetData->offsetX, widgetData->offsetY, width, height);
 
     TpWidget::setSize(width, height);
 }
@@ -167,12 +142,11 @@ void TpScreen::setWidth(const int32_t &width)
     if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
         return;
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    tinyPiX_wf_set_rect(set->agent, set->offsetX, set->offsetY, width, height());
+    tinyPiX_wf_set_rect(widgetData->agent, widgetData->offsetX, widgetData->offsetY, width, height());
 
     TpWidget::setWidth(width);
 }
@@ -183,12 +157,11 @@ void TpScreen::setHeight(const int32_t &height)
     if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
         return;
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    tinyPiX_wf_set_rect(set->agent, set->offsetX, set->offsetY, width(), height);
+    tinyPiX_wf_set_rect(widgetData->agent, widgetData->offsetX, widgetData->offsetY, width(), height);
 
     TpWidget::setHeight(height);
 }
@@ -199,27 +172,27 @@ void TpScreen::move(int32_t x, int32_t y)
     if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
         return;
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    Tp::TpObjectSysLayer layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+    Tp::TpObjectSysLayer layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(widgetData->agent);
 
     if (layer >= Tp::TP_WM_USE_FLOAT)
     {
         int32_t ox = 0, oy = 0;
 
-        tinyPiX_wf_get_rect(set->agent, &ox, &oy, nullptr, nullptr);
-        tinyPiX_wf_set_position(set->agent, x, y);
+        tinyPiX_wf_get_rect(widgetData->agent, &ox, &oy, nullptr, nullptr);
+        tinyPiX_wf_set_position(widgetData->agent, x, y);
 
-        set->offsetX = x;
-        set->offsetY = y;
+        widgetData->offsetX = x;
+        widgetData->offsetY = y;
 
-        set->logicalRect.setX(0);
-        set->logicalRect.setY(0);
+        widgetData->logicalRect.setX(0);
+        widgetData->logicalRect.setY(0);
 
-        set->absoluteRect.setX(x);
-        set->absoluteRect.setY(y);
+        widgetData->absoluteRect.setX(x);
+        widgetData->absoluteRect.setY(y);
 
         this->broadSetTop();
     }
@@ -229,57 +202,53 @@ void TpScreen::move(int32_t x, int32_t y)
 
 const TpPoint TpScreen::pos()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpPoint();
 
-    return TpPoint(set->absoluteRect.x(), set->absoluteRect.y());
+    return TpPoint(widgetData->absoluteRect.x(), widgetData->absoluteRect.y());
 }
 
 void TpScreen::setBeMoved(bool moved)
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return;
 
-    if (set)
+    Tp::TpObjectSysLayer layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(widgetData->agent);
+
+    if (layer >= Tp::TP_WM_USE_FLOAT)
     {
-        Tp::TpObjectSysLayer layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
-
-        if (layer >= Tp::TP_WM_USE_FLOAT)
-        {
-            tinyPiX_wf_set_bemoved(set->agent, moved);
-        }
+        tinyPiX_wf_set_bemoved(widgetData->agent, moved);
     }
 }
 
 bool TpScreen::moved()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    bool moved = false;
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return false;
 
-    if (set)
-    {
-        moved = tinyPiX_wf_get_bemoved(set->agent);
-    }
-
-    return moved;
+    tinyPiX_wf_get_bemoved(widgetData->agent);
+    return true;
 }
 
 void TpScreen::bringToTop()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    tinyPiX_wf_bring_to_top(set->agent);
+    tinyPiX_wf_bring_to_top(widgetData->agent);
 }
 
 void TpScreen::bringToBottom()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    tinyPiX_wf_bring_to_bottom(set->agent);
+    tinyPiX_wf_bring_to_bottom(widgetData->agent);
 }
 
 void TpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
@@ -297,28 +266,28 @@ void TpScreen::update(bool onlyBlit)
 
 Tp::TpObjectType TpScreen::objectType()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     Tp::TpObjectType type = Tp::TP_UNKOWN_OBJECT;
 
-    if (set)
-    {
-        Tp::TpObjectSysLayer layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return type;
 
-        switch (layer)
-        {
-        case Tp::TP_WM_DESK:
-        case Tp::TP_WM_WIN:
-        {
-            type = Tp::TP_MAIN_WINDOW_OBJECT;
-        }
-        break;
-        case Tp::TP_WM_USE_FLOAT:
-        case Tp::TP_WM_SYS_FLOAT:
-        {
-            type = Tp::TP_FLOAT_OBJECT;
-        }
-        break;
-        }
+    Tp::TpObjectSysLayer layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(widgetData->agent);
+
+    switch (layer)
+    {
+    case Tp::TP_WM_DESK:
+    case Tp::TP_WM_WIN:
+    {
+        type = Tp::TP_MAIN_WINDOW_OBJECT;
+    }
+    break;
+    case Tp::TP_WM_USE_FLOAT:
+    case Tp::TP_WM_SYS_FLOAT:
+    {
+        type = Tp::TP_FLOAT_OBJECT;
+    }
+    break;
     }
 
     return type;
@@ -326,51 +295,46 @@ Tp::TpObjectType TpScreen::objectType()
 
 Tp::TpObjectSysLayer TpScreen::objectLayer()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     Tp::TpObjectSysLayer layer = Tp::TP_WM_NONE;
 
-    if (set)
-    {
-        layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(set->agent);
-    }
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return layer;
+
+    layer = (Tp::TpObjectSysLayer)tinyPiX_wf_get_layer(widgetData->agent);
 
     return layer;
 }
 
 int32_t TpScreen::objectSysID()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     int32_t id = TP_INVALIDATE_VALUE;
 
-    if (set)
-    {
-        id = tinyPiX_wf_get_id(set->agent);
-    }
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return id;
+
+    id = tinyPiX_wf_get_id(widgetData->agent);
 
     return id;
 }
 
 bool TpScreen::objectActive()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    bool actived = false;
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return false;
 
-    if (set)
-    {
-        actived = tinyPiX_wf_get_active(set->agent);
-    }
-
+    bool actived = tinyPiX_wf_get_active(widgetData->agent);
     return actived;
 }
 
 void TpScreen::setParent(TpObject *parent)
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (set)
-    {
-        set->parent = nullptr;
-    }
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return;
+    widgetData->parent = nullptr;
 }
 
 TpObject *TpScreen::parent()
@@ -385,12 +349,6 @@ TpObject *TpScreen::topObject()
 
 void TpScreen::deleteLater()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-    bool exitOK = true;
-
-    if (!set)
-        return;
-
     ItpUserEvent message;
 
     switch (this->objectType())
@@ -414,31 +372,27 @@ void TpScreen::deleteLater()
     }
     break;
     default:
-        exitOK = false;
+    break;
     }
 }
 
 bool TpScreen::returns()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     bool returns = true;
 
-    if (set)
-    {
-        ItpUserEvent message;
+    ItpUserEvent message;
 
-        switch (this->objectType())
-        {
-        case Tp::TP_MAIN_WINDOW_OBJECT:
-        case Tp::TP_FIXSCREEN_OBJECT:
-        {
-            message.type = TpApp::TP_RETURN_ACT;
-            TpApp::Inst()->sendReturn(this);
-        }
-        break;
-        default:
-            returns = false;
-        }
+    switch (this->objectType())
+    {
+    case Tp::TP_MAIN_WINDOW_OBJECT:
+    case Tp::TP_FIXSCREEN_OBJECT:
+    {
+        message.type = TpApp::TP_RETURN_ACT;
+        TpApp::Inst()->sendReturn(this);
+    }
+    break;
+    default:
+        returns = false;
     }
 
     return returns;
@@ -449,7 +403,7 @@ int32_t TpScreen::dispatchEvent(void *events)
     ItpEvent *eventPtr = (ItpEvent *)events;
 
     TpPoint point;
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
 
     bool ret = false;
 
@@ -468,9 +422,8 @@ int32_t TpScreen::dispatchEvent(void *events)
                 return false;
             }
 
-            if (set->tmp.curfocus && set->tmp.curfocus->enabled())
+            if (widgetData->tmp.curfocus && widgetData->tmp.curfocus->enabled())
             {
-                TpKeyboardEvent event;
                 ItpKeyboardSet input;
                 input.which = eventPtr->keyboardEvent.which;
                 input.state = eventPtr->keyboardEvent.state;
@@ -481,17 +434,16 @@ int32_t TpScreen::dispatchEvent(void *events)
                 memset(input.shortCut, 0, strlen((char *)eventPtr->keyboardEvent.keysym.shortcut));
                 memcpy(input.shortCut, eventPtr->keyboardEvent.keysym.shortcut, strlen((char *)eventPtr->keyboardEvent.keysym.shortcut));
 
-                input.type = input.state ? TpEvent::EVENT_KEYBOARD_PRESS_TYPE : TpEvent::EVENT_KEYBOARD_RELEASE_TYPE;
-
+                TpKeyboardEvent event(input.state ? TpEvent::EVENT_KEYBOARD_PRESS_TYPE : TpEvent::EVENT_KEYBOARD_RELEASE_TYPE);
                 event.construct(&input);
 
                 if (input.state)
                 {
-                    IssueObjEvent(set->tmp.curfocus, event, onKeyPressEvent, set->tmp.curfocus->enabled());
+                    IssueObjEvent(widgetData->tmp.curfocus, event, onKeyPressEvent, widgetData->tmp.curfocus->enabled());
                 }
                 else
                 {
-                    IssueObjEvent(set->tmp.curfocus, event, onKeyReleaseEvent, set->tmp.curfocus->enabled());
+                    IssueObjEvent(widgetData->tmp.curfocus, event, onKeyReleaseEvent, widgetData->tmp.curfocus->enabled());
                 }
             }
         }
@@ -501,7 +453,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         return true;
     }
 
-    set->tmp.curObject = this->find(point);
+    widgetData->tmp.curObject = this->find(point);
 
     switch (eventPtr->type)
     {
@@ -515,44 +467,44 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         std::list<TpObject *> motionList;
 
-        set->tmp.curmotion = set->tmp.curObject;
+        widgetData->tmp.curmotion = widgetData->tmp.curObject;
         TpLeaveEvent leaveEvent;
         ItpObjectLeaveSet lInput;
 
-        if (set->tmp.curmotion != set->tmp.lstmotion)
+        if (widgetData->tmp.curmotion != widgetData->tmp.lstmotion)
         {
-            if (set->tmp.curmotion)
+            if (widgetData->tmp.curmotion)
             {
-                lInput.object = set->tmp.lstmotion;
+                lInput.object = widgetData->tmp.lstmotion;
                 lInput.leaved = true;
                 leaveEvent.construct(&lInput);
 
                 // 如果lstmotion为空，则必然要触发当前进入的对象的leaveIn事件
                 // 但是如果鼠标上一针坐标已经在当前对象了，就不需要重复触发
-                if (set->tmp.lstmotion)
+                if (widgetData->tmp.lstmotion)
                 {
-                    TpRect curMotionRect = set->tmp.curmotion->toScreen();
-                    if (!curMotionRect.contains(set->tmp.lastPoint))
+                    TpRect curMotionRect = widgetData->tmp.curmotion->toScreen();
+                    if (!curMotionRect.contains(widgetData->tmp.lastPoint))
                     {
-                        IssueObjEvent(set->tmp.curmotion, leaveEvent, onLeaveEvent, set->tmp.curmotion->enabled());
+                        IssueObjEvent(widgetData->tmp.curmotion, leaveEvent, onLeaveEvent, widgetData->tmp.curmotion->enabled());
                     }
                 }
                 else
                 {
-                    IssueObjEvent(set->tmp.curmotion, leaveEvent, onLeaveEvent, set->tmp.curmotion->enabled());
+                    IssueObjEvent(widgetData->tmp.curmotion, leaveEvent, onLeaveEvent, widgetData->tmp.curmotion->enabled());
                 }
 
                 // 判断是否也进入了当前对象的父对象
-                TpWidget *curParent = dynamic_cast<TpWidget *>(set->tmp.curmotion->parent());
+                TpWidget *curParent = dynamic_cast<TpWidget *>(widgetData->tmp.curmotion->parent());
                 while (curParent)
                 {
                     TpRect curParentRect = curParent->toScreen();
 
                     /*  如果上一个对象为空，说明是程序刚启动，第一次进入，直接触发所有的leaveIn即可
                         如果不为空，则需要判断，如果上一个鼠标坐标不在该窗口，当前坐标在该窗口则触发leaveIn，否则不触发*/
-                    if (set->tmp.lstmotion)
+                    if (widgetData->tmp.lstmotion)
                     {
-                        if (curParentRect.contains(point) && !curParentRect.contains(set->tmp.lastPoint))
+                        if (curParentRect.contains(point) && !curParentRect.contains(widgetData->tmp.lastPoint))
                         {
                             IssueObjEvent(curParent, leaveEvent, onLeaveEvent, curParent->enabled());
                         }
@@ -566,14 +518,14 @@ int32_t TpScreen::dispatchEvent(void *events)
                 }
             }
 
-            if (set->tmp.lstmotion)
+            if (widgetData->tmp.lstmotion)
             {
-                lInput.object = set->tmp.lstmotion;
+                lInput.object = widgetData->tmp.lstmotion;
                 lInput.leaved = false;
                 leaveEvent.construct(&lInput);
 
                 // 根据当前鼠标坐标判断是否也离开了上一个对象及父对象
-                TpWidget *curParent = set->tmp.lstmotion;
+                TpWidget *curParent = widgetData->tmp.lstmotion;
                 while (curParent)
                 {
                     TpRect curParentRect = curParent->toScreen();
@@ -588,13 +540,13 @@ int32_t TpScreen::dispatchEvent(void *events)
                 }
             }
 
-            set->tmp.lastPoint = point;
-            set->tmp.lstmotion = set->tmp.curmotion;
+            widgetData->tmp.lastPoint = point;
+            widgetData->tmp.lstmotion = widgetData->tmp.curmotion;
         }
 
-        generateParentList(set->tmp.curmotion, motionList);
+        generateParentList(widgetData->tmp.curmotion, motionList);
 
-        broadMotion(set->mousePressObject, set->tmp.curmotion, motionList, eventPtr, set->mousePressObject);
+        broadMotion(widgetData->mousePressObject, widgetData->tmp.curmotion, motionList, eventPtr, widgetData->mousePressObject);
         // broadMotion(set->tmp.dragObject, set->tmp.curmotion, motionList, eventPtr);
 
         // 鼠标移动取消长按事件
@@ -613,42 +565,39 @@ int32_t TpScreen::dispatchEvent(void *events)
         // this->find(point);
 
         std::list<TpObject *> keyList;
-        set->tmp.curfocus = set->tmp.curObject;
+        widgetData->tmp.curfocus = widgetData->tmp.curObject;
         TpFocusEvent focusEvent;
         ItpObjectFocusSet fInput;
 
-        if (set->tmp.curfocus != set->tmp.lstfocus)
+        if (widgetData->tmp.curfocus != widgetData->tmp.lstfocus)
         {
-            if (set->tmp.curfocus && set->tmp.curfocus->enabled())
+            if (widgetData->tmp.curfocus && widgetData->tmp.curfocus->enabled())
             {
                 // obtain focus
-                fInput.object = set->tmp.lstfocus;
+                fInput.object = widgetData->tmp.lstfocus;
                 fInput.focused = true;
                 focusEvent.construct(&fInput);
 
-                IssueObjEvent(set->tmp.curfocus, focusEvent, onFocusEvent, set->tmp.curfocus->enabled());
+                IssueObjEvent(widgetData->tmp.curfocus, focusEvent, onFocusEvent, widgetData->tmp.curfocus->enabled());
             }
 
-            if (set->tmp.lstfocus && set->tmp.lstfocus->enabled())
+            if (widgetData->tmp.lstfocus && widgetData->tmp.lstfocus->enabled())
             {
                 // lost focus
-                fInput.object = set->tmp.curfocus;
+                fInput.object = widgetData->tmp.curfocus;
                 fInput.focused = false;
                 focusEvent.construct(&fInput);
 
-                IssueObjEvent(set->tmp.lstfocus, focusEvent, onFocusEvent, set->tmp.lstfocus->enabled());
+                IssueObjEvent(widgetData->tmp.lstfocus, focusEvent, onFocusEvent, widgetData->tmp.lstfocus->enabled());
             }
 
-            set->tmp.lstfocus = set->tmp.curfocus;
+            widgetData->tmp.lstfocus = widgetData->tmp.curfocus;
         }
 
-        generateParentList(set->tmp.curmotion, keyList);
-        broadMouseKey(set->tmp.curfocus, keyList, eventPtr, set->mousePressObject);
+        generateParentList(widgetData->tmp.curmotion, keyList);
+        broadMouseKey(widgetData->tmp.curfocus, keyList, eventPtr, widgetData->mousePressObject);
 
-        set->mousePressObject = eventPtr->mouseButtonEvent.state ? set->tmp.curfocus : nullptr;
-
-        // set->tmp.dragObject = (eventPtr->type == TP_MOUSEBUTTONDOWN) ? set->tmp.curObject : nullptr;
-        // std::cout << " set->tmp.dragObject " << set->tmp.dragObject << std::endl;
+        widgetData->mousePressObject = eventPtr->mouseButtonEvent.state ? widgetData->tmp.curfocus : nullptr;
     }
     break;
     case TP_FINGERDOWN:
@@ -683,8 +632,8 @@ int32_t TpScreen::dispatchEvent(void *events)
         break;
         }
 
-        generateParentList(set->tmp.curObject, fingerList);
-        broadFinger(set, input, set->tmp.curObject, fingerList, eventPtr);
+        generateParentList(widgetData->tmp.curObject, fingerList);
+        broadFinger(widgetData, input, widgetData->tmp.curObject, fingerList, eventPtr);
     }
     break;
     case TP_DOLLARGESTURE:
@@ -696,7 +645,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         }
 
         // don't know how to do
-        if (set->tmp.curObject == nullptr)
+        if (widgetData->tmp.curObject == nullptr)
         {
             return false;
         }
@@ -716,8 +665,8 @@ int32_t TpScreen::dispatchEvent(void *events)
         break;
         }
 
-        generateParentList(set->tmp.curObject, dollarList);
-        broaDollar(set, input, set->tmp.curObject, dollarList, eventPtr);
+        generateParentList(widgetData->tmp.curObject, dollarList);
+        broaDollar(widgetData, input, widgetData->tmp.curObject, dollarList, eventPtr);
     }
     break;
     case TP_MULTIGESTURE:
@@ -728,7 +677,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         }
 
         // don't know how to do
-        if (set->tmp.curObject == nullptr)
+        if (widgetData->tmp.curObject == nullptr)
         {
             return false;
         }
@@ -736,8 +685,8 @@ int32_t TpScreen::dispatchEvent(void *events)
         std::list<TpObject *> multiList;
         ItpMultiGestureSet input;
 
-        generateParentList(set->tmp.curObject, multiList);
-        broadMultiGesture(set, input, set->tmp.curObject, multiList, eventPtr);
+        generateParentList(widgetData->tmp.curObject, multiList);
+        broadMultiGesture(widgetData, input, widgetData->tmp.curObject, multiList, eventPtr);
     }
     break;
     default:

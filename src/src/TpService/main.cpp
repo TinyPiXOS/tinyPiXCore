@@ -4,7 +4,7 @@
 #include <chrono>
 #include <thread>
 #include "TpGatewayServerPUBSUB.h"
-#include "TpGatewayServerREP.h"
+// #include "TpGatewayServerREP.h"
 
 std::atomic<bool> grunning{true};
 
@@ -13,6 +13,7 @@ void signalHandler(int signal)
     grunning = false;
 }
 
+#if 0
 // 请求问答服务端线程函数
 void dealFuncREP()
 {
@@ -48,9 +49,15 @@ void dealFuncREP()
     // 停止服务器
     repServer->stop();
 }
+#endif
 
 int main()
 {
+    TpString testString = "123123213";
+    std::cout << testString << std::endl;
+
+    // TpString* testPtr = new TpString();
+
     // 注册信号处理
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);

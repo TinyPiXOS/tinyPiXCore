@@ -1,7 +1,7 @@
 #ifndef __TP_DATE_PRIVATE_H
 #define __TP_DATE_PRIVATE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpVector.h"
 #include "TpString.h"
 #include "TpMap.h"

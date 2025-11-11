@@ -1,7 +1,7 @@
 #ifndef __TP_SURFACE_H
 #define __TP_SURFACE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include <TpString.h>
 #include "TpGlobal.h"
 #include "TpRect.h"

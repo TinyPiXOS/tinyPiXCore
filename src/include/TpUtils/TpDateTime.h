@@ -1,7 +1,7 @@
 #ifndef __TP_DATE_TIME_H
 #define __TP_DATE_TIME_H
 
-#include <TpUtils.h>
+#include <TpCore.h>
 #include <TpString.h>
 #include "TpDate.h"
 #include "TpTime.h"

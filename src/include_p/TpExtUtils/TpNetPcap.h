@@ -13,7 +13,7 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netinet/ether.h>
-#include "TpUtils.h"
+#include <TpCore.h>
 
 #define MAX_CONNECTIONS 256
 

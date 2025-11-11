@@ -1,7 +1,7 @@
 #ifndef __TP_CURSOR_H
 #define __TP_CURSOR_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpPoint.h"
 
 /// @brief 鼠标工具类 暂未实现

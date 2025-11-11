@@ -1,7 +1,7 @@
 #ifndef __TP_PEN_H
 #define __TP_PEN_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpColors.h"
 
 class TpBrush;

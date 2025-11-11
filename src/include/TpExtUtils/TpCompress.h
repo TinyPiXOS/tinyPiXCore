@@ -1,7 +1,7 @@
 #ifndef __TP_COMMPRESS_H
 #define __TP_COMMPRESS_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpCompressData);
 class TpCompress

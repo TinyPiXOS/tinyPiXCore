@@ -17,10 +17,6 @@ public:
     virtual bool actived();
 
 public:
-    virtual void setText(const char *text = nullptr);
-    virtual void setText(const TpString &text);
-
-public:
     virtual void setRect(const TpRect &rect) override;
     virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) override;
 

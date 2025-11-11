@@ -1,7 +1,7 @@
 #ifndef __TP_SYSTEM_MANAGE_H
 #define __TP_SYSTEM_MANAGE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpProcessInfo.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpProcessManageData);

@@ -1,7 +1,7 @@
 #ifndef __TP_TCP_SERVER_H
 #define __TP_TCP_SERVER_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSignalSlot.h"
 #include "TpHostAddress.h"
 #include "TpSocket.h"

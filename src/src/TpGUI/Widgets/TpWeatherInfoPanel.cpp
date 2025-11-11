@@ -1,8 +1,9 @@
-#include "TpWeatherInfoPanel.h"
-#include "TpImage.h"
-#include "TpPainter.h"
-#include "TpFont.h"
-#include "TpLinearGradient.h"
+#include <TpWeatherInfoPanel.h>
+#include <TpImage.h>
+#include <TpPainter.h>
+#include <TpFont.h>
+#include <TpLinearGradient.h>
+#include <TpEvent.h>
 
 struct TpWeatherInfoPanelData
 {

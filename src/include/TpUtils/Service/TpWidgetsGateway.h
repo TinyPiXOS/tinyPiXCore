@@ -1,7 +1,7 @@
 #ifndef __TP_WIDGETS_GATEWAY_H
 #define __TP_WIDGETS_GATEWAY_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpPainter.h"
 #include "TpString.h"
 #include "TpGateway.h"

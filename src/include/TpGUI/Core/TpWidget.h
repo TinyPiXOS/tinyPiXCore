@@ -3,15 +3,34 @@
 
 #include "TpObject.h"
 #include "TpVariant.h"
-#include "TpEvent.h"
 #include "TpCssParser.h"
-#include "TpImage.h"
-#include "TpRect.h"
-#include "TpBrush.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpChildWidgetData);
+class TpRect;
+class TpPoint;
+class TpSurface;
+class TpColors;
+class TpLayout;
+class TpBrush;
+class TpImage;
+
+class TpEvent;
+class TpWheelEvent;
+class TpKeyboardEvent;
+class TpMouseEvent;
+class TpFingerEvent;
+class TpDollAREvent;
+class TpMultiGestureEvent;
+class TpMoveEvent;
+class TpResizeEvent;
+class TpFocusEvent;
+class TpLeaveEvent;
+class TpVisibleEvent;
+class TpPaintEvent;
+class TpActiveEvent;
+class TpThemeChangeEvent;
 
 class TpGraphicsBlurEffect;
+
 class TpWidget
     : public TpObject
 {
@@ -55,9 +74,6 @@ public:
     bool enabled();
 
 public:
-    virtual void setText(const TpString &text);
-    virtual TpString text();
-
     /// @brief 获取虚拟键盘输入；需要获取时重写此虚函数
     /// @param text 输入文本
     virtual void virtualKeyboardInput(const Tp::VirtualKeyboardInputType &type, const TpString &text) {};
@@ -396,6 +412,8 @@ public:
     /// @return 窗口图片
     TpImage grabWindow();
 
+    virtual void broadSetTop();
+
 public:
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
     /// @return 类名字符串
@@ -426,10 +444,7 @@ protected:
 public:
     /// @brief 对象
     /// @return
-    virtual bool objectActive() /*final*/;
-
-private:
-    ItpChildWidgetData *data_;
+    virtual bool objectActive() { return false; }
 };
 
 #endif

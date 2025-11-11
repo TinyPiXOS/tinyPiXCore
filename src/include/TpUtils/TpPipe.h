@@ -7,8 +7,9 @@
 #ifndef __TP_PIPE_H
 #define __TP_PIPE_H
 
-#include "TpString.h"
-#include "TpVector.h"
+#include <TpString.h>
+#include <TpVector.h>
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ITpPipeData);
 /**

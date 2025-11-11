@@ -35,21 +35,27 @@ add_custom_target(copyDependFiles ALL
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_PACKAGE_ROOT_PATH}/../system
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/system ${INSTALL_PACKAGE_ROOT_PATH}/../system
 
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_INCLUDE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_RESOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_DATA_DIR}
+
     COMMENT "生成数据文件至 ${INSTALL_PACKAGE_ROOT_PATH}"
 )
 
 # 添加子目录
-add_subdirectory(TpWM)
-add_subdirectory(TpUtils)
-add_subdirectory(TpExtUtils)
-add_subdirectory(TpGUI)
-add_subdirectory(TpService)
+add_subdirectory(project/TpCore)
+add_subdirectory(project/TpUtils)
+add_subdirectory(project/TpExtUtils)
+add_subdirectory(project/TpGUI)
+add_subdirectory(project/TpWM)
+add_subdirectory(project/TpService)
 # add_subdirectory(examplesApp)
 
-add_dependencies(TpWM copyDependFiles)
+add_dependencies(TpCore copyDependFiles)
 add_dependencies(TpUtils copyDependFiles)
 add_dependencies(TpExtUtils copyDependFiles)
 add_dependencies(TpGUI copyDependFiles)
+add_dependencies(TpWM copyDependFiles)
 add_dependencies(TpService copyDependFiles)
 
 # 安装头文件
@@ -83,15 +89,14 @@ add_custom_target(create_symlinks
     ${COPY_DEPEND_COMMANDS}
     COMMAND ${CMAKE_COMMAND} -E echo "开始创建符号链接..."
     COMMAND ${CMAKE_COMMAND} 
-        -DINSTALL_LIB_DIR=${INSTALL_LIB_DIR}
-        -DLINK_LIB_DIR=${LINK_LIB_DIR}
+        -DINSTALL_DIR=${INSTALL_LIB_DIR}
+        -DLINK_DIR=${INSTALL_LIB_DIR}
         -P "${CMAKE_SOURCE_DIR}/cmake/CreateSymlink.cmake"
     COMMAND ${CMAKE_COMMAND} 
-        -DINSTALL_LIB_DIR=${INSTALL_BIN_DIR}
-        -DLINK_LIB_DIR=${LINK_BIN_DIR}
+        -DINSTALL_DIR=${INSTALL_BIN_DIR}
+        -DLINK_DIR=${LINK_BIN_DIR}
         -P "${CMAKE_SOURCE_DIR}/cmake/CreateSymlink.cmake"
-    COMMENT "正在拷贝可执行程序到 ${INSTALL_BIN_DIR} 并创建符号链接到 ${LINK_BIN_DIR}
-        正在拷贝依赖库文件到 ${INSTALL_LIB_DIR} 并创建符号链接到 ${LINK_LIB_DIR}"
+    COMMENT "正在拷贝可执行程序到 ${INSTALL_BIN_DIR} 并创建符号链接到 ${LINK_BIN_DIR}"
     VERBATIM
 )
 

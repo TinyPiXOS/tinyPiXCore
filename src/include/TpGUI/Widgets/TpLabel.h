@@ -4,7 +4,7 @@
 #include "TpWidget.h"
 #include <string>
 
-TP_DEF_VOID_TYPE_VAR(ItpTextLabelData);
+TP_DEF_VOID_TYPE_VAR(ITpLabelData);
 
 class TpFont;
 class TpLabel : public TpWidget
@@ -30,6 +30,10 @@ public:
 	/// @param text 文本字符串
 	virtual void setText(const TpString &text);
 
+    /// @brief 获取显示文本
+    /// @return 文本字符串
+    TpString text() const;
+
 public:
 	/// @brief 获取文本字体指针
 	/// @return 字体指针
@@ -50,7 +54,7 @@ protected:
 	virtual TpString pluginType() override { return TO_STRING(TpLabel); }
 
 private:
-	ItpTextLabelData *textLabelSet;
+	ITpLabelData *data_;
 };
 
 #endif

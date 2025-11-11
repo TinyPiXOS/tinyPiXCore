@@ -2,7 +2,7 @@
 #define _TP_BLUETOOTH_SERVICE_H_
 
 #include <map>
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpVariant.h"
 #include "TpVector.h"
 #include "TpBluetoothDevice.h"

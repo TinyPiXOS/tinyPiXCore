@@ -31,8 +31,11 @@ public:
 
 public:
     /// @brief 设置按钮文本
-    /// @param text
+    /// @param text 文本字符串
     virtual void setText(const TpString &text);
+    /// @brief 获取文本
+    /// @return 文本字符串
+    TpString text() const;
 
     virtual TpFont *font();
 

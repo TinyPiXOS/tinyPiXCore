@@ -35,17 +35,17 @@ TpFixScreen::TpFixScreen(const char *type)
         TpApp::Inst()->sendDelete(this);
     }
 
-    TpObjectData *set = static_cast<TpObjectData *>(this->objectSets());
-    if (!set)
-        return;
-
     setVisible(true);
 
-    uint32_t rW = 0, rH = 0;
-    tinyPiX_wf_get_display_size(set->agent, &rW, &rH);
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
+        return;
 
-    set->absoluteRect.setRect(0, 0, rW, rH);
-    set->logicalRect.setRect(0, 0, rW, rH);
+    uint32_t rW = 0, rH = 0;
+    tinyPiX_wf_get_display_size(widgetData->agent, &rW, &rH);
+
+    widgetData->absoluteRect.setRect(0, 0, rW, rH);
+    widgetData->logicalRect.setRect(0, 0, rW, rH);
 
     screenData->alpha = 0xff;
     screenData->color = TpColors::Black;
@@ -53,7 +53,7 @@ TpFixScreen::TpFixScreen(const char *type)
 
     this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);
 
-    set->top = this->topObject();
+    widgetData->top = this->topObject();
 }
 
 TpFixScreen::~TpFixScreen()
@@ -112,7 +112,7 @@ bool TpFixScreen::onActiveEvent(TpActiveEvent *event)
     TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
     if (appData->mainWindow)
     {
-        TpObjectData *mainWindowObjData = (TpObjectData *)appData->mainWindow->objectSets();
+        TpWidgetData *mainWindowObjData = (TpWidgetData *)appData->mainWindow->objectSets();
         tinyPiX_wf_set_visible(mainWindowObjData->agent, visible());
         mainWindowObjData->visible = visible();
     }

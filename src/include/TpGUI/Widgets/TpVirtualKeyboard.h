@@ -4,7 +4,7 @@
 #include "TpDialog.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 
 class TpButton;
 

@@ -1,22 +1,40 @@
 #include "TpWidget.h"
 #include "TpApp_p.h"
-#include "TpChildWidget_p.h"
+#include "TpWidget_p.h"
 
 TpWidget::TpWidget(TpWidget *parent)
     : TpObject(parent)
 {
-    data_ = new TpWidgetCssData();
+    TpWidgetData *widgetData = new TpWidgetData();
+
+    widgetData->visible = false;
+
+    widgetData->offsetX = 0;
+    widgetData->offsetY = 0;
+
+    widgetData->backColor = _RGB(248, 248, 248);
+    widgetData->enableColor = true;
+    widgetData->enableImage = true;
+
+    widgetData->windowOpacity = 1.0;
+
+    widgetData->layout = nullptr;
+
+    // 移除父类的数据；创建widget的指针
+    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::data_);
+    if (objData)
+    {
+        delete objData;
+        objData = nullptr;
+        TpObject::data_ = nullptr;
+    }
+
+    widgetData->top = this->topObject();
+    TpObject::data_ = widgetData;
 
     TpApp::Inst()->sendRegister(this);
 
     setParent(parent);
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (set)
-    {
-        set->top = this->topObject();
-    }
-
     setVisible(true);
 
     // 根据CPU核心数；分配绘图引擎线程数
@@ -28,12 +46,25 @@ TpWidget::~TpWidget()
 {
     tvg::Initializer::term();
 
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(TpObject::data_);
     if (childData)
     {
+        disconnectAllSignal(childData);
+
+        childData->gMutex.lock();
+
+        if (childData->parent)
+        {
+            TpObjectData *parentSet = (TpObjectData *)childData->parent->objectSets();
+            delObject(parentSet, this);
+        }
+
+        childData->objectList.clear();
+        childData->gMutex.unlock();
+
         delete childData;
         childData = nullptr;
-        data_ = nullptr;
+        TpObject::data_ = nullptr;
     }
 }
 
@@ -44,7 +75,7 @@ void TpWidget::setProperty(const TpString &_name, const TpVariant &_value)
     // 如果更新控件type，更新样式
     if (_name.compare("type") == 0)
     {
-        TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+        TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
 
         childData->enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
         childData->pressCssData = readCss(pluginType(), TpCssParser::Pressed);
@@ -60,12 +91,12 @@ void TpWidget::setProperty(const TpString &_name, const TpVariant &_value)
 
 void TpWidget::deleteLater()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
 
     // 顶层窗口缓存清除
-    if (set->top)
+    if (widgetData->top)
     {
-        TpObjectData *topData = static_cast<TpObjectData *>(set->top->objectSets());
+        TpWidgetData *topData = static_cast<TpWidgetData *>(widgetData->top->objectSets());
         topData->tmp.deleteObject(this);
 
         TpList<TpObject *> thisChildList = this->objectList();
@@ -78,12 +109,9 @@ void TpWidget::deleteLater()
 
     setParent(nullptr);
 
-    // set->tmp.deleteObject(this);
-
     uninstallEventFilter();
 
     TpObject::deleteLater();
-    // TpApp::Inst()->sendDelete(this);
 }
 
 void TpWidget::close()
@@ -98,10 +126,10 @@ void TpWidget::show()
 
 void TpWidget::showMaximum()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     uint32_t sWidth = 0;
     uint32_t sHeight = 0;
-    tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
+    tinyPiX_wf_get_display_size(widgetData->agent, &sWidth, &sHeight);
 
     setRect(0, 0, sWidth, sHeight);
     setVisible(true);
@@ -111,15 +139,14 @@ void TpWidget::showMaximum()
 
 void TpWidget::setVisible(bool visible)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    if (!widgetData)
         return;
 
-    if (visible == set->visible)
+    if (visible == widgetData->visible)
         return;
 
-    set->visible = visible;
+    widgetData->visible = visible;
     ItpObjectVisibleSet input;
 
     input.object = this;
@@ -138,23 +165,23 @@ void TpWidget::setVisible(bool visible)
 
 bool TpWidget::visible()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    if (!widgetData)
         return false;
 
-    return set->visible;
+    return widgetData->visible;
 }
 
 void TpWidget::setEnabled(const bool &enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    if (!widgetData)
         return;
 
-    set->enable = enable;
+    widgetData->enable = enable;
 
     // 所有子组件均要同步设置禁用状态
-    for (const auto &childObj : set->objectList)
+    for (const auto &childObj : TpObject::objectList())
     {
         TpWidget *childWidget = dynamic_cast<TpWidget *>(childObj);
         if (!childWidget)
@@ -166,56 +193,29 @@ void TpWidget::setEnabled(const bool &enable)
 
 bool TpWidget::enabled()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    if (!widgetData)
         return false;
 
-    return set->enable;
-}
-
-void TpWidget::setText(const TpString &text)
-{
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
-        return;
-
-    if (text.length() < OBJECT_MAX_TEXT_LENGTH - 1)
-    {
-        memcpy(set->text, text.c_str(), text.length());
-        set->text[text.length()] = '\0'; // 确保字符串以空字符结尾
-    }
-    else
-    {
-        memcpy(set->text, text.c_str(), OBJECT_MAX_TEXT_LENGTH - 1);
-        set->text[OBJECT_MAX_TEXT_LENGTH - 1] = '\0'; // 防止缓冲区溢出
-    }
-}
-
-TpString TpWidget::text()
-{
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
-        return "";
-
-    return set->text;
+    return widgetData->enable;
 }
 
 int32_t TpWidget::offsetX()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return set->offsetX;
+    return widgetData->offsetX;
 }
 
 int32_t TpWidget::offsetY()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return set->offsetY;
+    return widgetData->offsetY;
 }
 
 void TpWidget::setRect(const TpRect &rect)
@@ -225,39 +225,39 @@ void TpWidget::setRect(const TpRect &rect)
 
 void TpWidget::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    changeXY(this, set, x, y);
+    changeXY(this, widgetData, x, y);
 
     setSize(w, h);
 }
 
 TpRect TpWidget::toScreen()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpRect();
 
-    return set->absoluteRect;
+    return widgetData->absoluteRect;
 }
 
 TpRect TpWidget::rect()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpRect();
 
-    return set->logicalRect;
+    return widgetData->logicalRect;
 }
 
 TpSize TpWidget::screenSize()
 {
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     uint32_t sWidth = 0;
     uint32_t sHeight = 0;
-    tinyPiX_wf_get_display_size(set->agent, &sWidth, &sHeight);
+    tinyPiX_wf_get_display_size(widgetData->agent, &sWidth, &sHeight);
 
     return TpSize(sWidth, sHeight);
 }
@@ -280,39 +280,39 @@ TpSize TpWidget::size()
 
 void TpWidget::setWidth(const int32_t &width)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    changeWidth(this, set, width);
+    changeWidth(this, widgetData, width);
 }
 
 void TpWidget::setHeight(const int32_t &height)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    changeHeight(this, set, height);
+    changeHeight(this, widgetData, height);
 }
 
 int32_t TpWidget::width()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return set->logicalRect.width();
+    return widgetData->logicalRect.width();
 }
 
 int32_t TpWidget::height()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return set->logicalRect.height();
-    // return processDeskTopBarHeight(this, set->logicalRect.height());
+    return widgetData->logicalRect.height();
+    // return processDeskTopBarHeight(this, widgetData->logicalRect.height());
 }
 
 void TpWidget::setMinimumSize(const int32_t &width, const int32_t &height)
@@ -328,53 +328,53 @@ void TpWidget::setMinimumSize(const TpSize &minimumSize)
 
 TpSize TpWidget::minimumSize()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpSize();
-    return TpSize(set->minimumWidth, set->minimumHeight);
+    return TpSize(widgetData->minimumWidth, widgetData->minimumHeight);
 }
 
 void TpWidget::setMinumumWidth(const int32_t &width)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->minimumWidth = width;
+    widgetData->minimumWidth = width;
 
-    if (this->width() < set->minimumWidth)
-        setWidth(set->minimumWidth);
+    if (this->width() < widgetData->minimumWidth)
+        setWidth(widgetData->minimumWidth);
 }
 
 int32_t TpWidget::minumumWidth()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
-    return set->minimumWidth;
+    return widgetData->minimumWidth;
 }
 
 void TpWidget::setMinumumHeight(const int32_t &height)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
     if (height == 1350)
         int a = 0;
 
-    set->minimumHeight = height;
+    widgetData->minimumHeight = height;
 
-    if (this->height() < set->minimumHeight)
-        setHeight(set->minimumHeight);
+    if (this->height() < widgetData->minimumHeight)
+        setHeight(widgetData->minimumHeight);
 }
 
 int32_t TpWidget::minumumHeight()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
-    return set->minimumHeight;
+    return widgetData->minimumHeight;
 }
 
 void TpWidget::setMaximumSize(const int32_t &width, const int32_t &height)
@@ -390,49 +390,49 @@ void TpWidget::setMaximumSize(const TpSize &maximumSize)
 
 TpSize TpWidget::maximumSize()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpSize();
-    return TpSize(set->maximumWidth, set->maximumHeight);
+    return TpSize(widgetData->maximumWidth, widgetData->maximumHeight);
 }
 
 void TpWidget::setMaxumumWidth(const int32_t &width)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->maximumWidth = width;
+    widgetData->maximumWidth = width;
 
-    if (this->width() < set->maximumWidth)
-        setWidth(set->maximumWidth);
+    if (this->width() < widgetData->maximumWidth)
+        setWidth(widgetData->maximumWidth);
 }
 
 int32_t TpWidget::maxumumWidth()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
-    return set->maximumWidth;
+    return widgetData->maximumWidth;
 }
 
 void TpWidget::setMaxumumHeight(const int32_t &height)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
-    set->maximumHeight = height;
+    widgetData->maximumHeight = height;
 
-    if (this->height() > set->maximumHeight)
-        setHeight(set->maximumHeight);
+    if (this->height() > widgetData->maximumHeight)
+        setHeight(widgetData->maximumHeight);
 }
 
 int32_t TpWidget::maxumumHeight()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
-    return set->maximumHeight;
+    return widgetData->maximumHeight;
 }
 
 void TpWidget::setFixedSize(const int32_t &width, const int32_t &height)
@@ -443,12 +443,12 @@ void TpWidget::setFixedSize(const int32_t &width, const int32_t &height)
 
 void TpWidget::setFixedWidth(const int32_t &width)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->minimumWidth = width;
-    set->maximumWidth = width;
+    widgetData->minimumWidth = width;
+    widgetData->maximumWidth = width;
 
     setMinumumWidth(width);
     setMaxumumWidth(width);
@@ -457,12 +457,12 @@ void TpWidget::setFixedWidth(const int32_t &width)
 
 void TpWidget::setFixedHeight(const int32_t &height)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->minimumHeight = height;
-    set->maximumHeight = height;
+    widgetData->minimumHeight = height;
+    widgetData->maximumHeight = height;
 
     setMinumumHeight(height);
     setMaxumumHeight(height);
@@ -476,44 +476,44 @@ bool TpWidget::isFixedSize()
 
 bool TpWidget::isFixedWidth()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
-    return (set->minimumWidth == set->maximumWidth);
+    return (widgetData->minimumWidth == widgetData->maximumWidth);
 }
 
 bool TpWidget::isFixedHeight()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
-    return (set->minimumHeight == set->maximumHeight);
+    return (widgetData->minimumHeight == widgetData->maximumHeight);
 }
 
 void TpWidget::move(int32_t x, int32_t y)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    changeXY(this, set, x, y);
+    changeXY(this, widgetData, x, y);
     // update();
 }
 
 const TpPoint TpWidget::pos()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpPoint();
 
-    TpPoint point(set->logicalRect.x(), set->logicalRect.y());
+    TpPoint point(widgetData->logicalRect.x(), widgetData->logicalRect.y());
     return point;
 }
 
 void TpWidget::setWindowOpacity(float opacity)
 {
-    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!objData)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
     if (opacity < 0)
@@ -521,7 +521,7 @@ void TpWidget::setWindowOpacity(float opacity)
     if (opacity > 1)
         opacity = 1;
 
-    objData->windowOpacity = opacity;
+    widgetData->windowOpacity = opacity;
 
     // 遍历所有子窗口设置Alpha
     TpList<TpObject *> childList = TpObject::objectList();
@@ -538,11 +538,11 @@ void TpWidget::setWindowOpacity(float opacity)
 
 float TpWidget::windowOpacity()
 {
-    TpObjectData *objData = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!objData)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return objData->windowOpacity;
+    return widgetData->windowOpacity;
 }
 
 void TpWidget::bringToTop()
@@ -583,36 +583,26 @@ void TpWidget::bringToBottom()
 
 bool TpWidget::setLayout(TpLayout *layout)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
     if (!layout)
         return false;
 
-    if (layout == set->layout)
+    if (layout == widgetData->layout)
         return false;
 
-    if (set->layout)
+    if (widgetData->layout)
         return false;
 
-    if (set->layoutMutex.try_lock())
+    if (widgetData->layoutMutex.try_lock())
     {
-        // set->layoutMutex.lock();
-
-        // if (set->layout)
-        // {
-        // 	delObject(set, set->layout);
-        // 	set->layout = nullptr;
-        // }
-
-        set->layout = layout;
+        widgetData->layout = layout;
         layout->setParent(this);
-        set->layout->update();
+        widgetData->layout->update();
 
-        // addObject(set, set->layout, this);
-
-        set->layoutMutex.unlock();
+        widgetData->layoutMutex.unlock();
     }
 
     return true;
@@ -620,11 +610,11 @@ bool TpWidget::setLayout(TpLayout *layout)
 
 TpLayout *TpWidget::layout()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return nullptr;
 
-    return set->layout;
+    return widgetData->layout;
 }
 
 void TpWidget::update(const TpRect &rect, bool onlyBlit)
@@ -637,11 +627,11 @@ void TpWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
     if (!visible())
         return;
 
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    TpWidget *topScreenWidget = static_cast<TpWidget *>(set->top);
+    TpWidget *topScreenWidget = static_cast<TpWidget *>(widgetData->top);
     if (!topScreenWidget)
         return;
 
@@ -674,57 +664,57 @@ void TpWidget::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
 
 void TpWidget::update(bool onlyBlit)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    update(set->logicalRect.x(), set->logicalRect.y(), set->logicalRect.width(), set->logicalRect.height(), onlyBlit);
+    update(widgetData->logicalRect.x(), widgetData->logicalRect.y(), widgetData->logicalRect.width(), widgetData->logicalRect.height(), onlyBlit);
 }
 
 void TpWidget::setCheckable(const bool &_checkable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->checkable = _checkable;
+    widgetData->checkable = _checkable;
 }
 
 bool TpWidget::checkable()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    return set->checkable;
+    return widgetData->checkable;
 }
 
 void TpWidget::setChecked(const bool &_isChecked)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->isChecked = _isChecked;
+    widgetData->isChecked = _isChecked;
     update();
 }
 
 bool TpWidget::checked()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    return set->isChecked;
+    return widgetData->isChecked;
 }
 
 void TpWidget::setRoundCorners(const uint32_t &round)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->round = round;
+    widgetData->round = round;
 
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setRoundCorners(round);
@@ -736,65 +726,65 @@ void TpWidget::setRoundCorners(const uint32_t &round)
 
 uint32_t TpWidget::roundCorners()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return set->round;
+    return widgetData->round;
 }
 
 TpImage TpWidget::backGroundCacheImage()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpImage();
 
-    return set->cacheImage;
+    return widgetData->cacheImage;
 }
 
 void TpWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
     if (image.isNull())
         return;
 
-    set->reserveImage = image;
-    set->enableImage = true;
-    set->keepAspectRatio = keepAspectRatio;
+    widgetData->reserveImage = image;
+    widgetData->enableImage = true;
+    widgetData->keepAspectRatio = keepAspectRatio;
 
-    refreshCacheImage(set);
+    refreshCacheImage(widgetData);
 
     update();
 }
 
 TpImage TpWidget::backGroundImage()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpImage();
 
-    return set->reserveImage;
+    return widgetData->reserveImage;
 }
 
 bool TpWidget::enableBackGroundImage()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    return set->enableImage;
+    return widgetData->enableImage;
 }
 
 void TpWidget::setEnableBackGroundImage(bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->enableImage = enable;
+    widgetData->enableImage = enable;
 }
 
 void TpWidget::setBackGroundColor(const TpColors &color, bool enable)
@@ -804,12 +794,12 @@ void TpWidget::setBackGroundColor(const TpColors &color, bool enable)
 
 void TpWidget::setBackGroundColor(int32_t color, bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->backColor = color;
-    set->enableColor = enable;
+    widgetData->backColor = color;
+    widgetData->enableColor = enable;
 
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setBackgroundColor(color);
@@ -821,48 +811,48 @@ void TpWidget::setBackGroundColor(int32_t color, bool enable)
 
 void TpWidget::setBackGroundColor(const TpBrush &bgBrush, bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->backBrush = bgBrush;
-    set->enableColor = enable;
+    widgetData->backBrush = bgBrush;
+    widgetData->enableColor = enable;
 
     // CSS解析完，初始化默认状态下CSS数据对象
-    enabledCss()->setBackgroundColor(set->backBrush.gradient());
-    pressedCss()->setBackgroundColor(set->backBrush.gradient());
-    hoveredCss()->setBackgroundColor(set->backBrush.gradient());
-    checkedCss()->setBackgroundColor(set->backBrush.gradient());
-    disableCss()->setBackgroundColor(set->backBrush.gradient());
+    enabledCss()->setBackgroundColor(widgetData->backBrush.gradient());
+    pressedCss()->setBackgroundColor(widgetData->backBrush.gradient());
+    hoveredCss()->setBackgroundColor(widgetData->backBrush.gradient());
+    checkedCss()->setBackgroundColor(widgetData->backBrush.gradient());
+    disableCss()->setBackgroundColor(widgetData->backBrush.gradient());
 
     update();
 }
 
 uint32_t TpWidget::backGroundColor()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return 0;
 
-    return set->backColor;
+    return widgetData->backColor;
 }
 
 bool TpWidget::enableBackGroundColor()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    return set->enableColor;
+    return widgetData->enableColor;
 }
 
 void TpWidget::setEnableBackGroundColor(bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->enableColor = enable;
+    widgetData->enableColor = enable;
 }
 
 void TpWidget::setBorderColor(const TpColors &color, bool enable)
@@ -872,12 +862,12 @@ void TpWidget::setBorderColor(const TpColors &color, bool enable)
 
 void TpWidget::setBorderColor(int32_t color, bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->borderColor = color;
-    set->enableBorderColor = enable;
+    widgetData->borderColor = color;
+    widgetData->enableBorderColor = enable;
 
     // CSS解析完，初始化默认状态下CSS数据对象
     enabledCss()->setBorderColor(color);
@@ -891,82 +881,82 @@ void TpWidget::setBorderColor(int32_t color, bool enable)
 
 void TpWidget::setBorderColor(const TpBrush &borderBrush, bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
-    set->borderBrush = borderBrush;
-    set->enableBorderColor = enable;
+    widgetData->borderBrush = borderBrush;
+    widgetData->enableBorderColor = enable;
 
     // CSS解析完，初始化默认状态下CSS数据对象
-    enabledCss()->setBorderColor(set->borderBrush.gradient());
-    pressedCss()->setBorderColor(set->borderBrush.gradient());
-    hoveredCss()->setBorderColor(set->borderBrush.gradient());
-    checkedCss()->setBorderColor(set->borderBrush.gradient());
-    disableCss()->setBorderColor(set->borderBrush.gradient());
+    enabledCss()->setBorderColor(widgetData->borderBrush.gradient());
+    pressedCss()->setBorderColor(widgetData->borderBrush.gradient());
+    hoveredCss()->setBorderColor(widgetData->borderBrush.gradient());
+    checkedCss()->setBorderColor(widgetData->borderBrush.gradient());
+    disableCss()->setBorderColor(widgetData->borderBrush.gradient());
 }
 
 uint32_t TpWidget::borderColor()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return _RGB(0, 0, 0);
 
-    return set->borderColor;
+    return widgetData->borderColor;
 }
 
 bool TpWidget::enableBorderColor()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    return set->enableBorderColor;
+    return widgetData->enableBorderColor;
 }
 
 void TpWidget::setEnabledBorderColor(bool enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->enableBorderColor = enable;
+    widgetData->enableBorderColor = enable;
 }
 
 void TpWidget::setGraphicsEffect(const TpGraphicsBlurEffect &blurEffect)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
-    set->enableBlur = true;
-    set->blurEffect = blurEffect;
+    widgetData->enableBlur = true;
+    widgetData->blurEffect = blurEffect;
     update();
 }
 
 TpGraphicsBlurEffect TpWidget::graphicsEffect()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return TpGraphicsBlurEffect();
-    return set->blurEffect;
+    return widgetData->blurEffect;
 }
 
 void TpWidget::setEnableGraphicsEffect(const bool &enable)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->enableBlur = enable;
+    widgetData->enableBlur = enable;
     update();
 }
 
 bool TpWidget::enableGraphicsEffect()
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    return set->enableBlur;
+    return widgetData->enableBlur;
 }
 
 void SetTopFunc(TpObject *topObj, TpObjectData *findSetData)
@@ -985,20 +975,19 @@ void TpWidget::setParent(TpObject *parent)
 {
     TpObject::setParent(parent);
 
-    TpObjectData *set = (TpObjectData *)TpObject::objectSets();
-
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return;
 
-    set->top = this->topObject();
-
-    if (parent == nullptr)
-        set->top = nullptr;
+    if (parent)
+    {
+        broadObjectSetTop(this, this->topObject());
+    }
 
     // 遍历this的所有子节点，所有子节点查询一下top
-    if (set->top)
+    if (widgetData->top)
     {
-        SetTopFunc(set->top, set);
+        SetTopFunc(widgetData->top, widgetData);
     }
 }
 
@@ -1007,9 +996,9 @@ bool TpWidget::onMousePressEvent(TpMouseEvent *event)
     if (event->button() != BUTTON_LEFT)
         return true;
 
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    set->isPress = true;
-    set->pressPoint = event->globalPos();
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    widgetData->isPress = true;
+    widgetData->pressPoint = event->globalPos();
 
     update();
 
@@ -1021,13 +1010,13 @@ bool TpWidget::onMouseRleaseEvent(TpMouseEvent *event)
     if (event->button() != BUTTON_LEFT)
         return true;
 
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    set->isPress = false;
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    widgetData->isPress = false;
 
     TpPoint mouseGlobalPos = event->globalPos();
     bool isUpdate = false;
 
-    if ((std::abs(mouseGlobalPos.x() - set->pressPoint.x()) <= 5) && (std::abs(mouseGlobalPos.y() - set->pressPoint.y()) <= 5))
+    if ((std::abs(mouseGlobalPos.x() - widgetData->pressPoint.x()) <= 5) && (std::abs(mouseGlobalPos.y() - widgetData->pressPoint.y()) <= 5))
     {
         if (checkable())
         {
@@ -1044,20 +1033,20 @@ bool TpWidget::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpWidget::onResizeEvent(TpResizeEvent *event)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return false;
 
-    if (set->layoutMutex.try_lock())
+    if (widgetData->layoutMutex.try_lock())
     {
-        // set->layoutMutex.lock();
+        // widgetData->layoutMutex.lock();
 
-        if (set->layout)
+        if (widgetData->layout)
         {
-            set->layout->update();
+            widgetData->layout->update();
         }
 
-        set->layoutMutex.unlock();
+        widgetData->layoutMutex.unlock();
     }
 
     return true;
@@ -1065,9 +1054,9 @@ bool TpWidget::onResizeEvent(TpResizeEvent *event)
 
 bool TpWidget::onLeaveEvent(TpLeaveEvent *event)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    set->isHover = event->leave();
-    set->isPress = false;
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    widgetData->isHover = event->leave();
+    widgetData->isPress = false;
     update();
 
     return true;
@@ -1079,15 +1068,16 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
     if (!ret)
         return false;
 
-    TpPainter *painter = event->painter();
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    if (!widgetData)
+        return false;
+
+    if (!widgetData->visible)
         return false;
 
     TpRect rect = event->rect();
 
-    if (!set->visible)
-        return ret;
+    TpPainter *painter = event->painter();
 
     // 判断组件当前状态，决定取出哪个CSS样式
     tpShared<TpCssData> curCssData = currentStatusCss();
@@ -1095,7 +1085,7 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
     // uint32_t minRad = (width() > height() ? height() : width()) * curCssData->roundCorners();
     uint32_t minRad = curCssData->roundCorners();
 
-    if (set->enableColor)
+    if (widgetData->enableColor)
     {
         if (objectType() == Tp::TP_FLOAT_OBJECT)
         {
@@ -1123,16 +1113,16 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
         painter->setBrush(TpBrush(Tp::NoBrush));
     }
 
-    if (set->enableImage && !set->cacheImage.isNull())
+    if (widgetData->enableImage && !widgetData->cacheImage.isNull())
     {
         int32_t imageX = 0;
         int32_t imageY = 0;
 
         // 如果保持了纵横比，保持图片居中显示
-        if (set->keepAspectRatio)
+        if (widgetData->keepAspectRatio)
         {
-            int32_t imageWidth = set->cacheImage.width();
-            int32_t imageHeight = set->cacheImage.height();
+            int32_t imageWidth = widgetData->cacheImage.width();
+            int32_t imageHeight = widgetData->cacheImage.height();
 
             if (imageWidth > width())
             {
@@ -1153,10 +1143,10 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
             }
         }
 
-        painter->drawImage(imageX, imageY, set->cacheImage, minRad);
+        painter->drawImage(imageX, imageY, widgetData->cacheImage, minRad);
     }
 
-    if (set->enableBorderColor)
+    if (widgetData->enableBorderColor)
     {
         painter->setPen(curCssData->borderColor());
         painter->setBrush(TpBrush(Tp::NoBrush));
@@ -1172,13 +1162,13 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
     }
 
     // 窗体更新，如果有布局更新布局
-    if (set->layout)
+    if (widgetData->layout)
     {
-        if (set->layoutMutex.try_lock())
+        if (widgetData->layoutMutex.try_lock())
         {
-            set->layout->update();
+            widgetData->layout->update();
 
-            set->layoutMutex.unlock();
+            widgetData->layoutMutex.unlock();
         }
     }
 
@@ -1187,7 +1177,7 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
 
 void TpWidget::onThemeChangeEvent(TpThemeChangeEvent *event)
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (!childData)
         return;
 
@@ -1212,21 +1202,20 @@ TpWidget *TpWidget::find(const TpPoint &point)
 
 TpWidget *TpWidget::find(int32_t x, int32_t y)
 {
-    TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
-    if (!set)
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (!widgetData)
         return nullptr;
 
     TpWidget *object = this;
 
-    TpRect absRect(set->absoluteRect);
+    TpRect absRect(widgetData->absoluteRect);
 
     bool ret = absRect.contains(x, y);
 
     if (ret)
         object = this;
 
-    TpWidget *result = findObject(set, x, y);
-
+    TpWidget *result = findObject(widgetData, x, y);
     if (result)
         object = result;
 
@@ -1256,16 +1245,25 @@ tpShared<TpCssData> TpWidget::readCss(const TpString &_className, const TpCssPar
 
 TpImage TpWidget::grabWindow()
 {
-    TpObjectData *widgetData = static_cast<TpObjectData *>(this->objectSets());
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     if (!widgetData)
         return TpImage();
 
     return widgetData->grapImage;
 }
 
+void TpWidget::broadSetTop()
+{
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (widgetData)
+    {
+        broadObjectSetTop(this, widgetData->top);
+    }
+}
+
 std::pair<void *, void *> TpWidget::canvasPtr()
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (childData->swCanvas == nullptr)
     {
         childData->swCanvas = tvg::SwCanvas::gen();
@@ -1282,19 +1280,19 @@ tpShared<TpCssData> TpWidget::currentStatusCss()
     {
         curCssData = enabledCss();
 
-        TpObjectData *set = static_cast<TpObjectData *>(TpObject::objectSets());
+        TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
 
-        if (set->checkable && set->isChecked)
+        if (widgetData->checkable && widgetData->isChecked)
         {
             curCssData = checkedCss();
         }
         else
         {
-            if (set->isHover)
+            if (widgetData->isHover)
             {
                 curCssData = hoveredCss();
             }
-            if (set->isPress)
+            if (widgetData->isPress)
                 curCssData = pressedCss();
         }
     }
@@ -1304,7 +1302,7 @@ tpShared<TpCssData> TpWidget::currentStatusCss()
 
 tpShared<TpCssData> TpWidget::enabledCss()
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1318,7 +1316,7 @@ tpShared<TpCssData> TpWidget::enabledCss()
 
 tpShared<TpCssData> TpWidget::disableCss()
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1332,7 +1330,7 @@ tpShared<TpCssData> TpWidget::disableCss()
 
 tpShared<TpCssData> TpWidget::hoveredCss()
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1346,7 +1344,7 @@ tpShared<TpCssData> TpWidget::hoveredCss()
 
 tpShared<TpCssData> TpWidget::pressedCss()
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1360,7 +1358,7 @@ tpShared<TpCssData> TpWidget::pressedCss()
 
 tpShared<TpCssData> TpWidget::checkedCss()
 {
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     if (childData == nullptr)
         return tpMakeShared<TpCssData>(TpHash<TpString, TpString>{});
 
@@ -1375,7 +1373,7 @@ tpShared<TpCssData> TpWidget::checkedCss()
 void TpWidget::refreshBaseCss()
 {
     // 每次刷新CSS要从配置文件重新读取，避免产生继承关系时，子类未刷新正确自己的CSS数据
-    TpWidgetCssData *childData = static_cast<TpWidgetCssData *>(data_);
+    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
     childData->enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
     childData->disabledCssData = readCss(pluginType(), TpCssParser::Disabled);
     childData->hoverCssData = readCss(pluginType(), TpCssParser::Hover);
@@ -1387,9 +1385,4 @@ void TpWidget::refreshBaseCss()
     setMaximumSize(normalCss->maximumWidth(), normalCss->maximumHeight());
     setSize(normalCss->width(), normalCss->height());
     setRoundCorners(normalCss->roundCorners());
-}
-
-bool TpWidget::objectActive()
-{
-    return false;
 }

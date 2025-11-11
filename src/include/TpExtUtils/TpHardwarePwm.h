@@ -1,7 +1,7 @@
 #ifndef __TP_HARDWARE_I2C_H
 #define __TP_HARDWARE_I2C_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpHardwareDevice.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpHardwarePwm);

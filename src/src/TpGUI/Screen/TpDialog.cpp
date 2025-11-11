@@ -2,49 +2,15 @@
 #include "TpApp.h"
 #include "TpDefaultCss.h"
 #include "TpDef.h"
-#include <semaphore.h>
 #include "TpMainWindow.h"
 #include "TpPainter.h"
 #include "thorVG/thorvg.h"
-
-class Semaphore
-{
-public:
-    explicit Semaphore(unsigned int initCount = 0)
-    {
-        sem_init(&m_sem, 0, initCount);
-    }
-    ~Semaphore()
-    {
-        sem_destroy(&m_sem);
-    }
-
-    bool wait()
-    {
-        return (sem_wait(&m_sem) == 0);
-    }
-    bool post(int n = 1)
-    {
-        while (n-- > 0)
-        {
-            if (sem_post(&m_sem) != 0)
-                return false;
-        }
-        return true;
-    }
-
-private:
-    sem_t m_sem;
-};
+#include "TpObject_p.h"
 
 struct TpDialogData
 {
-    // 对话框阻塞信号量
-    Semaphore sema;
-
     // 遮罩窗体，模态显示时用于遮罩屏幕
     TpWidget *maskWidget = nullptr;
-    // bool isExec = false;
 };
 
 TpDialog::TpDialog(const char *type)

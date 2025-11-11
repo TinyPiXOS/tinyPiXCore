@@ -1,7 +1,8 @@
 #ifndef __TP_THREAD_MANAGE_H
 #define __TP_THREAD_MANAGE_H
 
-#include "TpString.h"
+#include <TpString.h>
+#include <TpCore.h>
 
 class TpFileInfoWR
 {

@@ -46,9 +46,6 @@ private:
 private:
     virtual void setWindowOpacity(float opacity) final override {};
     virtual float windowOpacity() final override { return 1.0; };
-
-private:
-    ITpMainWindowData *data_;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef __TP_APP_DOPACK_H
 #define __TP_APP_DOPACK_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 #include "TpUuid.h"
 

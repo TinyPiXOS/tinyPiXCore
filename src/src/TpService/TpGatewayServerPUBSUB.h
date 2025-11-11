@@ -1,9 +1,9 @@
 #ifndef __GATEWAY_SERVER_PUB_SUB_H
 #define __GATEWAY_SERVER_PUB_SUB_H
 
-#include <string>
 #include <atomic>
 #include <memory>
+#include "TpString.h"
 
 class TpGatewayServerPUBSUB
 {

@@ -1,7 +1,7 @@
 #ifndef __TP_SYSTEM_INFO_H
 #define __TP_SYSTEM_INFO_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 #include "TpDiskManage.h"
 #include "TpCpu.h"

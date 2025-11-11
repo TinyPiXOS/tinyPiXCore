@@ -1,7 +1,7 @@
 #ifndef __TP_GRAPHICSEFFECT_H
 #define __TP_GRAPHICSEFFECT_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpColors.h"
 #include "TpList.h"
 

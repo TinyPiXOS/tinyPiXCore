@@ -63,12 +63,18 @@ void TpButton::setText(const TpString &text)
     if (!buttonData)
         return;
 
-    TpWidget::setText(text);
-
     buttonData->textLabel->setText(text);
     buttonData->textLabel->update();
 
     refreshLayout();
+}
+
+TpString TpButton::text() const
+{
+    TpButtonData *buttonData = static_cast<TpButtonData *>(this->data_);
+    if (!buttonData)
+        return TpString();
+    return buttonData->textLabel->text();
 }
 
 TpFont *TpButton::font()

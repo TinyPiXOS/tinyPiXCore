@@ -111,7 +111,7 @@ TpCollapsibleFileWidget::TpCollapsibleFileWidget(TpWidget *parent)
     widgetData->filItemLayout->setFlexDirection(TpFlexLayout::Row);
     widgetData->filItemLayout->setJustifyContent(TpFlexLayout::MainFlexStart); // 默认, 从主轴 开始位置 开始
     widgetData->filItemLayout->setAlignItems(TpFlexLayout::CrossFlexStart);    // 顶部对齐
-    widgetData->filItemLayout->installEventFilter(this);
+    // widgetData->filItemLayout->installEventFilter(this);
 
     tpShared<TpCssData> curCssData = currentStatusCss();
 

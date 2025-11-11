@@ -1,5 +1,5 @@
 #include "TpProcess.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpFileInfo.h"
 #include <unistd.h>
 #include <sys/wait.h>

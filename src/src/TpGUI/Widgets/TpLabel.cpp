@@ -8,8 +8,10 @@
 #include <cstring>
 #include <iostream>
 
-struct ItpTextLabelSet
+struct TpLabelData
 {
+    TpString text = "";
+
     TpFont *font = nullptr;
     Tp::AlignmentFlag align;
     bool enableFit;
@@ -19,7 +21,7 @@ struct ItpTextLabelSet
     bool wrap = false;
 };
 
-TpVector<TpString> wrapText(ItpTextLabelSet *data, const TpString &text, const uint32_t &winWidth)
+TpVector<TpString> wrapText(TpLabelData *data, const TpString &text, const uint32_t &winWidth)
 {
     TpVector<TpString> subStrList;
 
@@ -73,8 +75,8 @@ TpVector<TpString> wrapText(ItpTextLabelSet *data, const TpString &text, const u
 TpLabel::TpLabel(TpWidget *parent)
     : TpWidget(parent)
 {
-    ItpTextLabelSet *set = new ItpTextLabelSet();
-    this->textLabelSet = set;
+    TpLabelData *set = new TpLabelData();
+    this->data_ = set;
 
     if (!set)
         return;
@@ -98,7 +100,7 @@ TpLabel::TpLabel(TpWidget *parent)
 TpLabel::TpLabel(const TpString &text, TpWidget *parent)
     : TpWidget(parent)
 {
-    ItpTextLabelSet *set = new ItpTextLabelSet();
+    TpLabelData *set = new TpLabelData();
 
     if (!set)
         return;
@@ -115,14 +117,14 @@ TpLabel::TpLabel(const TpString &text, TpWidget *parent)
 
     this->setEnableBackGroundImage(false);
     this->setEnableBackGroundColor(false);
-    this->textLabelSet = set;
+    this->data_ = set;
 
     setText(text);
 }
 
 TpLabel::~TpLabel()
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
 
     if (set)
     {
@@ -137,7 +139,7 @@ TpLabel::~TpLabel()
 
 void TpLabel::setAutoFit(bool enable)
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
 
     if (set)
     {
@@ -155,56 +157,61 @@ void TpLabel::setText(const TpString &text)
     if (text.empty())
         return;
 
-    TpWidget::setText(text);
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
-
-    if (!set)
+    TpLabelData *labelData = static_cast<TpLabelData *>(data_);
+    if (!labelData)
         return;
 
-    set->font->setText(text);
+    labelData->text = text;
+    labelData->font->setText(text);
 
-    if (set->enableFit)
+    if (labelData->enableFit)
     {
-        TpSize size = set->font->pixelSize();
-        this->setRect(this->rect().x(), this->rect().y(), size.width(), size.height());
+        TpSize size = labelData->font->pixelSize();
+        setRect(rect().x(), this->rect().y(), size.width(), size.height());
     }
 
     // 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
     if (!isFixedWidth())
     {
-        set->font->setText(this->text());
-
-        if (set->wrap)
+        if (labelData->wrap)
         {
-            TpVector<TpString> subStrList = wrapText(set, this->text(), width());
+            TpVector<TpString> subStrList = wrapText(labelData, this->text(), width());
             if (subStrList.size() != 0)
-                setMinumumHeight(set->font->pixelHeight() * subStrList.size() + set->textSpacing * (subStrList.size() - 1));
+                setMinumumHeight(labelData->font->pixelHeight() * subStrList.size() + labelData->textSpacing * (subStrList.size() - 1));
 
-            if (set->font->pixelWidth() > TpDisplay::dp2Px(131))
+            if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
             {
                 setMinumumWidth(TpDisplay::dp2Px(131));
             }
             else
             {
-                setMinumumWidth(set->font->pixelWidth());
+                setMinumumWidth(labelData->font->pixelWidth());
             }
         }
         else
         {
-            setMinumumWidth(set->font->pixelWidth());
+            setMinumumWidth(labelData->font->pixelWidth());
         }
     }
     if (!isFixedHeight())
     {
-        setMinumumHeight(set->font->pixelHeight());
+        setMinumumHeight(labelData->font->pixelHeight());
     }
 
     update();
 }
 
+TpString TpLabel::text() const
+{
+    TpLabelData *labelData = static_cast<TpLabelData *>(data_);
+    if (!labelData)
+        return TpString();
+    return labelData->text;
+}
+
 void TpLabel::setWordWrap(bool wrap)
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
 
     set->wrap = wrap;
 }
@@ -216,7 +223,7 @@ void TpLabel::setRect(const TpRect &rect)
 
 void TpLabel::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
 
     if (set)
     {
@@ -233,7 +240,7 @@ void TpLabel::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 
 TpFont *TpLabel::font()
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
     TpFont *font = nullptr;
 
     if (set)
@@ -246,7 +253,7 @@ TpFont *TpLabel::font()
 
 void TpLabel::setAlign(const Tp::AlignmentFlag align)
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
 
     if (set)
     {
@@ -256,7 +263,7 @@ void TpLabel::setAlign(const Tp::AlignmentFlag align)
 
 bool TpLabel::onPaintEvent(TpPaintEvent *event)
 {
-    ItpTextLabelSet *set = (ItpTextLabelSet *)this->textLabelSet;
+    TpLabelData *set = (TpLabelData *)this->data_;
     if (!set)
         return true;
 

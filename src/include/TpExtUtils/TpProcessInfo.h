@@ -14,7 +14,7 @@
 #include <algorithm>
 #include "TpHash.h"
 #include "TpMap.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 
 

@@ -2,7 +2,7 @@
 #define __TP_VIDEO_INTERFACE_H
 
 #include <functional>
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpVideoInfData);
 

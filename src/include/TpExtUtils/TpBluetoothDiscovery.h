@@ -1,7 +1,7 @@
 #ifndef _TP_BLUETOOTH_DISCOVER_H_
 #define _TP_BLUETOOTH_DISCOVER_H_
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpBluetoothDevice.h"
 #include "TpBluetoothAddress.h"
 #include "TpSignalSlot.h"

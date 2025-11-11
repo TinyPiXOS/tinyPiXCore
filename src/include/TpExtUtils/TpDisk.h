@@ -2,7 +2,7 @@
 #define __TP_DISK_INFO_H
 
 #include "TpString.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpDiskInfoData);
 

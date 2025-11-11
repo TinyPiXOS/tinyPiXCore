@@ -1,6 +1,7 @@
-#include "TpCircularProgressBar.h"
-#include "TpPainter.h"
-#include "TpFont.h"
+#include <TpCircularProgressBar.h>
+#include <TpPainter.h>
+#include <TpFont.h>
+#include <TpEvent.h>
 
 struct TpCircularProgressBarData
 {

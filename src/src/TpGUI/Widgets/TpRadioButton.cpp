@@ -71,7 +71,7 @@ TpRadioButton::TpRadioButton(const TpString &text, TpWidget *parent)
 
 TpRadioButton::~TpRadioButton()
 {
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
 
     if (set)
     {
@@ -87,7 +87,7 @@ TpRadioButton::~TpRadioButton()
 
 void TpRadioButton::setAutoFit(bool enable)
 {
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
 
     if (!set)
         return;
@@ -102,7 +102,7 @@ void TpRadioButton::setAutoFit(bool enable)
 
 void TpRadioButton::setSpacing(uint32_t space)
 {
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
 
     if (set)
     {
@@ -112,7 +112,7 @@ void TpRadioButton::setSpacing(uint32_t space)
 
 void TpRadioButton::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
 
     if (!set)
         return;
@@ -132,9 +132,7 @@ void TpRadioButton::setText(const TpString &text)
     if (text.empty())
         return;
 
-    TpWidget::setText(text);
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
-
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
     if (!set)
         return;
 
@@ -146,9 +144,17 @@ void TpRadioButton::setText(const TpString &text)
     }
 }
 
+TpString TpRadioButton::text() const
+{
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
+    if (!set)
+        return TpString();
+    return set->font->text();
+}
+
 TpFont *TpRadioButton::font()
 {
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
     TpFont *font = nullptr;
 
     if (set)
@@ -163,7 +169,7 @@ bool TpRadioButton::onMousePressEvent(TpMouseEvent *event)
 {
     TpWidget::onMousePressEvent(event);
 
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
     if (!set)
         return true;
 
@@ -178,7 +184,7 @@ bool TpRadioButton::onMouseRleaseEvent(TpMouseEvent *event)
 {
     TpWidget::onMouseRleaseEvent(event);
 
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
     if (!set)
         return true;
 
@@ -191,7 +197,7 @@ bool TpRadioButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpRadioButton::onPaintEvent(TpPaintEvent *event)
 {
-    TpRadioButtonData *set = (TpRadioButtonData *)this->data_;
+    TpRadioButtonData *set = static_cast<TpRadioButtonData *>(data_);
     if (!set)
         return true;
 

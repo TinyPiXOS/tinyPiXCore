@@ -1,7 +1,7 @@
 #ifndef __TP_CHINESE_CALENDAR_H
 #define __TP_CHINESE_CALENDAR_H
 
-#include <TpUtils.h>
+#include <TpCore.h>
 #include <TpString.h>
 #include <TpDate.h>
 

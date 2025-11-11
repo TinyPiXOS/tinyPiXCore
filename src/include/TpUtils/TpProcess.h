@@ -1,11 +1,12 @@
 #ifndef __TP_PROCESS_H
 #define __TP_PROCESS_H
 
-#include "TpString.h"
-#include "TpVector.h"
+#include <TpString.h>
+#include <TpVector.h>
+#include <TpCore.h>
 
 /// @brief 进程管理类
-TP_DEF_VOID_TYPE_VAR(ItpProcessData);
+TP_DEF_VOID_TYPE_VAR(ITpProcessData);
 class TpProcess
 {
 public:
@@ -48,7 +49,7 @@ public:
     virtual TpString launchProcessName();
 
 private:
-    ItpProcessData *data_;
+    ITpProcessData *data_;
 };
 
 #endif

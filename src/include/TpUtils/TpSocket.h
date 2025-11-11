@@ -2,8 +2,9 @@
 #define __TP_SOCKET_H_
 
 #include "TpString.h"
+#include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpSocketData);
+TP_DEF_VOID_TYPE_VAR(ITpSocketData);
 
 typedef int TpSockfd;
 
@@ -122,7 +123,7 @@ public:
 
 protected:
     //	TpSockfd sockfd;
-    ItpSocketData *data_;
+    ITpSocketData *data_;
 };
 
 #endif

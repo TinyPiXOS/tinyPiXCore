@@ -2,7 +2,7 @@
 #define __TP_CPU_INFO_H
 
 #include "TpThreadManage.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpList.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpCpuData);

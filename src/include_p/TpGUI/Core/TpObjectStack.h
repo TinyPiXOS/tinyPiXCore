@@ -1,7 +1,7 @@
 #ifndef __TP_VOBJECT_STACK_H
 #define __TP_VOBJECT_STACK_H
 
-#include <TpUtils.h>
+#include <TpGUI.h>
 #include "TpDef.h"
 
 TP_DEF_VOID_TYPE_VAR(IPiVObjectStack);

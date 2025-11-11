@@ -1,7 +1,7 @@
 #ifndef __TP_MD5_H
 #define __TP_MD5_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include <string>
 
 TP_DEF_VOID_TYPE_VAR(ITpMD5Data);

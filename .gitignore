@@ -40,25 +40,31 @@ examples/TpGUI/TpTabWidget/tabWidget
 examples/TpGUI/TpVirtualKeyboard/virtualKeyboard
 examples/TpGUI/treewidget/treewidget
 
-TpUtils/cmake_install.cmake
-TpUtils/Makefile
-TpUtils/CMakeFiles/
+project/TpUtils/cmake_install.cmake
+project/TpUtils/Makefile
+project/TpUtils/CMakeFiles/
 
-TpExtUtils/cmake_install.cmake
-TpExtUtils/Makefile
-TpExtUtils/CMakeFiles/
+project/TpExtUtils/cmake_install.cmake
+project/TpExtUtils/Makefile
+project/TpExtUtils/CMakeFiles/
 
-TpService/cmake_install.cmake
-TpService/Makefile
-TpService/CMakeFiles/
+project/TpService/cmake_install.cmake
+project/TpService/Makefile
+project/TpService/CMakeFiles/
 
-TpGUI/cmake_install.cmake
-TpGUI/Makefile
-TpGUI/CMakeFiles/
+project/TpGUI/cmake_install.cmake
+project/TpGUI/Makefile
+project/TpGUI/CMakeFiles/
 
-TpWM/cmake_install.cmake
-TpWM/Makefile
-TpWM/CMakeFiles/
+project/TpWM/cmake_install.cmake
+project/TpWM/Makefile
+project/TpWM/CMakeFiles/
+
+project/TpGUI/TpGUI_symlink.cmake
+project/TpService/TpService_symlink.cmake
+project/TpExtUtils/TpExtUtils_symlink.cmake
+project/TpUtils/TpUtils_symlink.cmake
+project/TpWM/TpWM_symlink.cmake
 
 examples/TpUtils/TpThreadPool/threadPool
 examples/TpUtils/cssParser/cssParser
@@ -80,10 +86,6 @@ examples/TpGUI/TpBattery/battery
 examples/TpGUI/thorVGTest/thorVGTest
 examples/TpGUI/TpDialog/dialog
 examples/TpGUI/TpLottieAnimation/lottieAnimation
-TpGUI/TpGUI_symlink.cmake
-TpService/TpService_symlink.cmake
-TpExtUtils/TpExtUtils_symlink.cmake
-TpUtils/TpUtils_symlink.cmake
 examples/TpGUI/test/thorVGTest
 examples/TpGUI/TpBattery/battery
 examples/TpGUI/TpButton/button
@@ -104,7 +106,6 @@ examples/TpUtils/TpShareMemory/recvMain
 examples/TpUtils/TpShareMemory/send
 examples/TpGUI/TpGradient/gradient
 examples/TpGUI/TpGraphicsEffect/graphics
-TpWM/TpWM_symlink.cmake
 examples/TpGUI/TpTemperatureWidget/temp
 examples/TpUtils/TpGateway/client1
 examples/TpUtils/TpGateway/client2

@@ -2,6 +2,7 @@
 #include "TpApp_p.h"
 
 TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
+    : TpCoreApp(argc, argv)
 {
     // 初始化网关
     bool gatewayInitRes = initializeGateway();
@@ -10,55 +11,39 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     uint32_t cores = std::thread::hardware_concurrency();
     tvg::Initializer::init(cores / 2);
 
-    TpAppData *set = new TpAppData();
+    TpAppData *appData = new TpAppData();
 
+    // 确保应用单例运行
     bool ret = decideRunOnce(argv[0]);
     if (ret)
         std::exit(0);
 
-    set->mainThreadId = std::this_thread::get_id();
+    appData->clipboard = TpClipboard::Inst();
+    appData->vScreen = nullptr;
+    appData->message = new TpMessage();
+    appData->eventType = TP_DIS_NONE;
 
-    set->clipboard = TpClipboard::Inst();
-    set->vScreen = nullptr;
-    set->message = new TpMessage();
-
-    set->pInfo.id = TP_INVALIDATE_VALUE;
-    set->pInfo.pid = TP_INVALIDATE_VALUE;
-    set->eventType = TP_DIS_NONE;
-
-    set->running = true;
-    set->waitRun = false;
-
-    set->thread = new appExe(this);
-
-    memset(set->pInfo.process, 0, PROCESS_MAX_NAME_LENGTH);
-    parseArgs(set, argc, argv);
+    appData->appExecThread = new AppExec(appData, static_cast<TpCoreAppData *>(TpCoreApp::data_));
 
     TpAutoObject::Inst()->autoFreeObject = true;
 
-    if (appInst)
-    {
-        std::cout << "detects app instance more once!, exit......" << std::endl;
-        std::exit(0);
-    }
-
-    appInst = this;
-    data_ = set;
+    appPtr = this;
+    data_ = appData;
 
     // 绑定物理窗口；判断是否是桌面
     if (deskStrKey.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
     {
-        set->isDesk = true;
-        bindVScreen(set, new TpFixScreen("tinyPiX_DeskTop_0x43ef3dc14"));
+        appData->isDesk = true;
+        bindVScreen(appData, new TpFixScreen("tinyPiX_DeskTop_0x43ef3dc14"));
     }
     else
     {
-        bindVScreen(set, new TpFixScreen());
+        bindVScreen(appData, new TpFixScreen());
     }
 
     // APP创建，解析初始CSS样式
-    TpString cssFilePath = parseThemeFile(set->systemTheme);
-    set->cssParser_->parseCss(cssFilePath);
+    TpString cssFilePath = parseThemeFile(appData->systemTheme);
+    appData->cssParser_->parseCss(cssFilePath);
 
     // 接收桌面工具栏信息
     auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
@@ -67,7 +52,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
         DeskStatusBarInfo *recvInfo = (DeskStatusBarInfo *)data;
 
         // std::cout << "桌面信息：" << recvInfo->statusBarLocation << " , " << recvInfo->statusBarWidth
-                //   << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
+        //   << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
 
         // 主屏幕根据Bar数据是否变化决定是否刷新主屏
         if (*recvInfo == set->deskStatusBarInfo_)
@@ -79,7 +64,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
         if (!set->mainWindow)
             return;
 
-        TpObjectData *mainWindowData = static_cast<TpObjectData *>(set->mainWindow->objectSets());
+        TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(set->mainWindow->objectSets());
         refreshMainWindow(set, set->mainWindow, mainWindowData);
     };
 
@@ -87,7 +72,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     subscribeGatewayData(DeskStatusBarInfoTopic.c_str(), RecvDeskBarFunc);
 
     // 尝试读取桌面信息；如果没有桌面则读取失败
-    if (!set->isDesk)
+    if (!appData->isDesk)
     {
         // 通知桌面应用启动
         bool pubRunData = true;
@@ -113,9 +98,9 @@ TpApp::~TpApp()
             delete set->message;
         }
 
-        if (set->thread)
+        if (set->appExecThread)
         {
-            delete set->thread;
+            delete set->appExecThread;
         }
 
         set->vReserveMap.clear();
@@ -126,64 +111,55 @@ TpApp::~TpApp()
 
 TpApp *TpApp::Inst()
 {
-    return appInst;
+    return dynamic_cast<TpApp *>(appPtr);
 }
 
 bool TpApp::run()
 {
-    TpAppData *set = static_cast<TpAppData *>(data_);
+    TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
+    if (!coreAppData)
+        return coreAppData->running;
 
-    if (!set)
-        return set->running;
+    TpAppData *appData = static_cast<TpAppData *>(data_);
+    if (!appData)
+        return coreAppData->running;
 
-    set->waitRun = true;
+    coreAppData->waitRun = true;
 
-    if (set->vScreen == nullptr)
+    if (appData->vScreen == nullptr)
         return false;
 
-    while (set->running)
+    while (coreAppData->running)
     {
         // 异步调用信号槽
         std::queue<std::function<void()>> cacheTaskList;
 
         {
-            std::lock_guard<std::mutex> lock(set->queueSlotMutex_);
-            cacheTaskList = set->slotTasks_;
-            set->slotTasks_ = std::queue<std::function<void()>>();
+            std::lock_guard<std::mutex> lock(coreAppData->queueSlotMutex_);
+            cacheTaskList = coreAppData->slotTasks_;
+            coreAppData->slotTasks_ = std::queue<std::function<void()>>();
         }
-
-        // std::cout << "执行槽函数前  "  << cacheTaskList.size()  << std::endl;
 
         while (!cacheTaskList.empty())
         {
             auto task = cacheTaskList.front();
             cacheTaskList.pop();
-            // lock.unlock();
             task();
-            // lock.lock();
         }
-
-        // std::cout << "执行槽函数后 "  << std::endl;
 
         // 异步刷新UI
         std::queue<UpdateCommand> cacheUpdateTaskList;
         {
-            std::lock_guard<std::mutex> lock(set->queueUpdateMutex_);
-            cacheUpdateTaskList = set->updateTasks_;
-            set->updateTasks_ = std::queue<UpdateCommand>();
+            std::lock_guard<std::mutex> lock(appData->queueUpdateMutex_);
+            cacheUpdateTaskList = appData->updateTasks_;
+            appData->updateTasks_ = std::queue<UpdateCommand>();
         }
         DownUpdateCommand(cacheUpdateTaskList);
-
-        // set->vScreen->update();
-        // for (const auto &dia : set->floatScreenList)
-        // {
-        //     dia->update();
-        // }
 
         TpTimer::sleep(16);
     }
 
-    return set->running;
+    return coreAppData->running;
 }
 
 TpClipboard *TpApp::clipboard()
@@ -260,40 +236,34 @@ void TpApp::dormantVirtualKeyboard()
 bool TpApp::isExistObject(TpObject *object, bool autoRemove)
 {
     TpAppData *set = static_cast<TpAppData *>(data_);
+    if (!set)
+        return false;
+
+    TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
+
     bool ret = false;
 
     if (object == nullptr)
-    {
         return false;
-    }
 
-    if (set)
+    set->gMutex.lock();
+    std::list<TpObject *> *curList = &coreAppData->objectList;
+
+    auto iter = std::find_if(curList->begin(), curList->end(), [object](const TpObject *obj)
+                             { return (object == obj); });
+
+    if (iter != curList->end())
     {
-        set->gMutex.lock();
-        std::list<TpObject *> *curList = &set->objectList;
-
-        auto iter = std::find_if(curList->begin(), curList->end(), [object](const TpObject *obj)
-                                 { return (object == obj); });
-
-        if (iter != curList->end())
+        if (autoRemove)
         {
-            if (autoRemove)
-            {
-                curList->erase(iter);
-            }
-            ret = true;
+            curList->erase(iter);
         }
-
-        set->gMutex.unlock();
+        ret = true;
     }
+
+    set->gMutex.unlock();
 
     return ret;
-}
-
-bool TpApp::isMainThread()
-{
-    TpAppData *set = static_cast<TpAppData *>(data_);
-    return std::this_thread::get_id() == set->mainThreadId;
 }
 
 bool TpApp::sendRegister(TpObject *object)
@@ -447,19 +417,6 @@ int32_t TpApp::disableEventType()
     }
 
     return type;
-}
-
-void TpApp::postEvent(std::function<void()> task)
-{
-    TpAppData *set = static_cast<TpAppData *>(data_);
-
-    if (!set->running)
-        return;
-
-    {
-        std::lock_guard<std::mutex> lock(set->queueSlotMutex_);
-        set->slotTasks_.push(task);
-    }
 }
 
 void TpApp::postUpdateEvent(TpWidget *updateObj, const int32_t &x, const int32_t &y, const int32_t &w, const int32_t &h, bool onlyBlit)

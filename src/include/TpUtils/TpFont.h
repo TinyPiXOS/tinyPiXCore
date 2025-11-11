@@ -1,8 +1,9 @@
 #ifndef __TP_FONT_H
 #define __TP_FONT_H
 
-#include "TpUtils.h"
-#include "TpSignalSlot.h"
+#include <TpCore.h>
+#include <TpSize.h>
+#include <TpSignalSlot.h>
 
 #define TINY_FONT_NORMAL 0x00
 #define TINY_FONT_ITALIC 0x01
@@ -13,7 +14,7 @@
 #define TINY_FONT_ALL 0x1f
 #define DEFAULT_FONT_FAMILY "Source Han Sans CN"
 
-TP_DEF_VOID_TYPE_VAR(ItpFontData);
+TP_DEF_VOID_TYPE_VAR(ITpFontData);
 TP_DEF_VOID_TYPE_VAR(IPiFontFamily);
 
 class TpSurface;
@@ -137,7 +138,7 @@ private:
     friend class TpPainter;
 
 private:
-    ItpFontData *data_;
+    ITpFontData *data_;
 };
 
 class TpFontFamily

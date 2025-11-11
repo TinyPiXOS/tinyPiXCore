@@ -1,7 +1,7 @@
 #ifndef __TP_MESSAGE_H
 #define __TP_MESSAGE_H
 
-#include <TpUtils.h>
+#include <TpCore.h>
 #include "TpCDef.h"
 
 /**

@@ -1,7 +1,7 @@
 #ifndef __TP_APP_CONFIG_IO_H
 #define __TP_APP_CONFIG_IO_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 #include "TpVector.h"
 

@@ -1,7 +1,7 @@
 #ifndef __TP_DBUS_CONNECT_MANAGE_H
 #define __TP_DBUS_CONNECT_MANAGE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 
 TP_DEF_VOID_TYPE_VAR(ItpDbusConnectManageData);
 

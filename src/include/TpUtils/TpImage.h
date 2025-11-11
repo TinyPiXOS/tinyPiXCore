@@ -1,7 +1,7 @@
 #ifndef __TP_IMAGE_H
 #define __TP_IMAGE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 #include "TpVector.h"
 #include "TpGlobal.h"

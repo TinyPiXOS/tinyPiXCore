@@ -1,7 +1,7 @@
 #ifndef __TP_GRADIENT_PRIVATE_H
 #define __TP_GRADIENT_PRIVATE_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpString.h"
 #include "TpList.h"
 #include "thorVG/thorvg.h"
