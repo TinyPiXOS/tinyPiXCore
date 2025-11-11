@@ -241,20 +241,24 @@ make install
 
 #### 应用程序库引入
 
+```bash
+export LD_LIBRARY_PATH="/usr/lib/TinyPiX:$LD_LIBRARY_PATH"
+```
+
 ```cmake
 # TpGUI引入：
 include_directories(/usr/include/TinyPiX/TpGUI)
-link_directories("/usr/lib")
+link_directories("/usr/lib/TinyPiX")
 target_link_libraries(你的应用程序名称 TpGUI)
 
 # TpUtils引入：
 include_directories(/usr/include/TinyPiX/TpUtils)
-link_directories("/usr/lib")
+link_directories("/usr/lib/TinyPiX")
 target_link_libraries(你的应用程序名称 TpUtils)
 
 # TpExtUtils引入
 include_directories(/usr/include/TinyPiX/TpExtUtils)
-link_directories("/usr/lib")
+link_directories("/usr/lib/TinyPiX")
 target_link_libraries(你的应用程序名称 TpExtUtils)
 ```
 

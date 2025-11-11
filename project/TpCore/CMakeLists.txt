@@ -27,6 +27,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpCore/TpTimer.cpp
 )
 
+include_directories(${SYSTEM_INCLUDE_PATH})
+
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
 include_directories(${SOURCE_PATH}/include/TpWM)
@@ -46,7 +48,10 @@ else()
     link_directories("/usr/lib")
 endif()
 
+LoadSDKLibrary(SSL_LIBRARY ssl)
+
 # 库链接到可执行目标
 target_link_libraries(TpCore PUBLIC
     dl pthread
+    ${SSL_LIBRARY}
 )

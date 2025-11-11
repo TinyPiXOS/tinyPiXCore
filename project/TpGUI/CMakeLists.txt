@@ -74,6 +74,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpGUI/Screen/TpFixScreen.cpp
 )
 
+include_directories(${SYSTEM_INCLUDE_PATH})
 include_directories(${SYSTEM_INCLUDE_PATH}/cairo)
 
 include_directories(${SOURCE_PATH}/include)
