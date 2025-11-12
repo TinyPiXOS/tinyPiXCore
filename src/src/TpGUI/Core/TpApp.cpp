@@ -11,7 +11,19 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     uint32_t cores = std::thread::hardware_concurrency();
     tvg::Initializer::init(cores / 2);
 
+    TpCoreAppData *coreData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
+    if (coreData)
+    {
+        delete coreData;
+        coreData = nullptr;
+        TpCoreApp::data_ = nullptr;
+    }
+
     TpAppData *appData = new TpAppData();
+
+    appData->mainThreadId = std::this_thread::get_id();
+    appData->running = true;
+    appData->waitRun = false;
 
     // 确保应用单例运行
     bool ret = decideRunOnce(argv[0]);
@@ -23,12 +35,12 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     appData->message = new TpMessage();
     appData->eventType = TP_DIS_NONE;
 
-    appData->appExecThread = new AppExec(appData, static_cast<TpCoreAppData *>(TpCoreApp::data_));
+    appData->appExecThread = new AppExec(appData);
 
     TpAutoObject::Inst()->autoFreeObject = true;
 
     appPtr = this;
-    data_ = appData;
+    TpCoreApp::data_ = appData;
 
     // 绑定物理窗口；判断是否是桌面
     if (deskStrKey.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
@@ -116,28 +128,24 @@ TpApp *TpApp::Inst()
 
 bool TpApp::run()
 {
-    TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
-    if (!coreAppData)
-        return coreAppData->running;
-
-    TpAppData *appData = static_cast<TpAppData *>(data_);
+    TpAppData *appData = static_cast<TpAppData *>(TpCoreApp::data_);
     if (!appData)
-        return coreAppData->running;
+        return appData->running;
 
-    coreAppData->waitRun = true;
+    appData->waitRun = true;
 
     if (appData->vScreen == nullptr)
         return false;
 
-    while (coreAppData->running)
+    while (appData->running)
     {
         // 异步调用信号槽
         std::queue<std::function<void()>> cacheTaskList;
 
         {
-            std::lock_guard<std::mutex> lock(coreAppData->queueSlotMutex_);
-            cacheTaskList = coreAppData->slotTasks_;
-            coreAppData->slotTasks_ = std::queue<std::function<void()>>();
+            std::lock_guard<std::mutex> lock(appData->queueSlotMutex_);
+            cacheTaskList = appData->slotTasks_;
+            appData->slotTasks_ = std::queue<std::function<void()>>();
         }
 
         while (!cacheTaskList.empty())
@@ -159,7 +167,7 @@ bool TpApp::run()
         TpTimer::sleep(16);
     }
 
-    return coreAppData->running;
+    return appData->running;
 }
 
 TpClipboard *TpApp::clipboard()
@@ -233,86 +241,6 @@ void TpApp::dormantVirtualKeyboard()
     set->virtualKeyboard->close();
 }
 
-bool TpApp::isExistObject(TpObject *object, bool autoRemove)
-{
-    TpAppData *set = static_cast<TpAppData *>(data_);
-    if (!set)
-        return false;
-
-    TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
-
-    bool ret = false;
-
-    if (object == nullptr)
-        return false;
-
-    set->gMutex.lock();
-    std::list<TpObject *> *curList = &coreAppData->objectList;
-
-    auto iter = std::find_if(curList->begin(), curList->end(), [object](const TpObject *obj)
-                             { return (object == obj); });
-
-    if (iter != curList->end())
-    {
-        if (autoRemove)
-        {
-            curList->erase(iter);
-        }
-        ret = true;
-    }
-
-    set->gMutex.unlock();
-
-    return ret;
-}
-
-bool TpApp::sendRegister(TpObject *object)
-{
-    TpAppData *set = static_cast<TpAppData *>(data_);
-    bool registerObject = false;
-
-    if (!set)
-        return registerObject;
-
-    if (object == nullptr)
-        return registerObject;
-
-    if (object->objectType() == Tp::TP_FLOAT_OBJECT)
-    {
-        TpWidget *floatScreenWidget = dynamic_cast<TpWidget *>(object);
-        if (floatScreenWidget)
-            set->floatScreenList.emplace_back(floatScreenWidget);
-    }
-
-    ItpUserEvent message;
-    message.type = TP_REGISTER_ACT;
-    message.user_data0 = object;
-
-    registerObject = set->message->sendWait(&message);
-
-    return registerObject;
-}
-
-bool TpApp::sendDelete(TpObject *object)
-{
-    if (!object)
-        return false;
-
-    TpAppData *set = static_cast<TpAppData *>(this->data_);
-    bool deleteObject = false;
-
-    if (!set)
-        return false;
-
-    ItpUserEvent message;
-    message.type = TP_DELETE_ACT;
-    message.user_data0 = object;
-
-    bool sendRes = set->message->sendWait(&message);
-
-    return sendRes;
-}
-
 bool TpApp::sendReturn(TpObject *object)
 {
     TpAppData *set = static_cast<TpAppData *>(data_);
@@ -367,6 +295,22 @@ bool TpApp::sendActive(TpObject *object, bool actived)
     }
 
     return beActived;
+}
+
+bool TpApp::sendRegister(TpObject *object)
+{
+    TpCoreApp::sendRegister(object);
+
+    if (object->objectType() == Tp::TP_FLOAT_OBJECT)
+    {
+        TpAppData *appData = static_cast<TpAppData *>(data_);
+
+        TpWidget *floatScreenWidget = dynamic_cast<TpWidget *>(object);
+        if (floatScreenWidget)
+            appData->floatScreenList.emplace_back(floatScreenWidget);
+    }
+
+    return true;
 }
 
 bool TpApp::sendAbort(TpObject *object)

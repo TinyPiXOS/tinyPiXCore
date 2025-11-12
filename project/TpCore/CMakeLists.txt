@@ -11,6 +11,7 @@ include(../../cmake/TargetArchConfig.cmake)
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpCore/TpCoreApp.cpp
+    ${SOURCE_PATH}/src/TpCore/TpObject.cpp
     ${SOURCE_PATH}/src/TpCore/TpRect.cpp
     ${SOURCE_PATH}/src/TpCore/TpRectF.cpp
     ${SOURCE_PATH}/src/TpCore/TpPoint.cpp
@@ -25,6 +26,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpCore/TpStack.cpp
     ${SOURCE_PATH}/src/TpCore/TpRegex.cpp
     ${SOURCE_PATH}/src/TpCore/TpTimer.cpp
+    ${SOURCE_PATH}/src_p/TpCore/TpAutoObject.cpp
+    ${SOURCE_PATH}/src_p/TpCore/TpMessage.cpp
 )
 
 include_directories(${SYSTEM_INCLUDE_PATH})

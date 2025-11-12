@@ -11,7 +11,6 @@ include(../../cmake/TargetArchConfig.cmake)
 # 定义源码路径宏
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Core/TpApp.cpp
-    ${SOURCE_PATH}/src/TpGUI/Core/TpObject.cpp
     ${SOURCE_PATH}/src/TpGUI/Core/TpWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/Core/TpEvent.cpp
     ${SOURCE_PATH}/src/TpGUI/Screen/TpScreen.cpp
@@ -70,7 +69,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpHumidityWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLottieAnimation.cpp
     ${SOURCE_PATH}/src_p/TpGUI/Core/TpObjectStack.cpp
-    ${SOURCE_PATH}/src_p/TpGUI/Core/TpAutoObject.cpp
     ${SOURCE_PATH}/src_p/TpGUI/Screen/TpFixScreen.cpp
 )
 

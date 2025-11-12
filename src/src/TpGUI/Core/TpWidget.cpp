@@ -973,6 +973,11 @@ void SetTopFunc(TpObject *topObj, TpObjectData *findSetData)
 
 void TpWidget::setParent(TpObject *parent)
 {
+    // TpWidget 只能设置 TpWidget 类型的父对象
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent);
+    if (parent && !parentWidget)
+        return;
+
     TpObject::setParent(parent);
 
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);

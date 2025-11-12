@@ -54,42 +54,6 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top)
     }
 }
 
-static inline TpObject *findObject(TpObjectData *set, int32_t id)
-{
-    TpObject *object = nullptr;
-
-    if (id < 0)
-    {
-        return nullptr;
-    }
-
-    set->gMutex.lock();
-
-    std::list<TpObject *> list = set->objectList;
-    std::list<TpObject *>::iterator iter = list.begin();
-
-    for (; iter != list.end(); iter++)
-    {
-        if ((*iter)->objectID() == id)
-        {
-            object = *iter;
-            break;
-        }
-
-        TpObjectData *child_set = (TpObjectData *)(*iter)->objectSets();
-        object = findObject(child_set, id);
-
-        if (object)
-        {
-            break;
-        }
-    }
-
-    set->gMutex.unlock();
-
-    return object;
-}
-
 static inline TpPoint selfToObjectPoint(TpObject *object, int32_t x, int32_t y)
 {
     TpPoint point = {x, y};

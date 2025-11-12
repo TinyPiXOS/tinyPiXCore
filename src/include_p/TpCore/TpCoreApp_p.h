@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <openssl/md5.h>
 #include <openssl/evp.h>
+#include "TpMessage.h"
 
 #include <TpObject.h>
 #include <TpCoreApp.h>
@@ -26,6 +27,10 @@ struct TpCoreAppData
 
     // 主线程ID
     std::thread::id mainThreadId;
+
+    std::mutex gMutex;
+
+    TpMessage *message;
 
     // 信号槽缓存队列
     std::mutex queueSlotMutex_;

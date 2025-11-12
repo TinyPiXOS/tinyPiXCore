@@ -1,7 +1,7 @@
 #ifndef __TP_VAUTO_OBJECT_H
 #define __TP_VAUTO_OBJECT_H
 
-#include <TpGUI.h>
+#include <TpCore.h>
 #include <mutex>
 #include <list>
 

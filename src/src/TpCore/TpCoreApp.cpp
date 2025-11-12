@@ -1,6 +1,10 @@
 #include "TpCoreApp.h"
 #include <TpCoreApp_p.h>
 #include <TpTimer.h>
+#include <TpObject.h>
+#include <TpCore.h>
+#include <TpCDef.h>
+
 // #include <csignal>
 
 TpCoreApp::TpCoreApp(int32_t argc, char *argv[])
@@ -11,7 +15,6 @@ TpCoreApp::TpCoreApp(int32_t argc, char *argv[])
 
     TpCoreAppData *coreData = new TpCoreAppData();
     coreData->mainThreadId = std::this_thread::get_id();
-
     coreData->running = true;
     coreData->waitRun = false;
 
@@ -77,6 +80,75 @@ bool TpCoreApp::isMainThread()
 {
     TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(data_);
     return std::this_thread::get_id() == coreAppData->mainThreadId;
+}
+
+bool TpCoreApp::isExistObject(TpObject *object, bool autoRemove)
+{
+    TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(data_);
+
+    bool ret = false;
+
+    if (object == nullptr)
+        return false;
+
+    coreAppData->gMutex.lock();
+    std::list<TpObject *> *curList = &coreAppData->objectList;
+
+    auto iter = std::find_if(curList->begin(), curList->end(), [object](const TpObject *obj)
+                             { return (object == obj); });
+
+    if (iter != curList->end())
+    {
+        if (autoRemove)
+        {
+            curList->erase(iter);
+        }
+        ret = true;
+    }
+
+    coreAppData->gMutex.unlock();
+
+    return ret;
+}
+
+bool TpCoreApp::sendRegister(TpObject *object)
+{
+    TpCoreAppData *coreAppData = static_cast<TpCoreAppData *>(data_);
+    bool registerObject = false;
+
+    if (!coreAppData)
+        return registerObject;
+
+    if (object == nullptr)
+        return registerObject;
+
+    ItpUserEvent message;
+    message.type = TP_REGISTER_ACT;
+    message.user_data0 = object;
+
+    registerObject = coreAppData->message->sendWait(&message);
+
+    return registerObject;
+}
+
+bool TpCoreApp::sendDelete(TpObject *object)
+{
+    if (!object)
+        return false;
+
+    TpCoreAppData *set = static_cast<TpCoreAppData *>(data_);
+    bool deleteObject = false;
+
+    if (!set)
+        return false;
+
+    ItpUserEvent message;
+    message.type = TP_DELETE_ACT;
+    message.user_data0 = object;
+
+    bool sendRes = set->message->sendWait(&message);
+
+    return sendRes;
 }
 
 void TpCoreApp::postEvent(std::function<void()> task)

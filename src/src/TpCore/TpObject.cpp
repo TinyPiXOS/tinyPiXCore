@@ -1,6 +1,6 @@
 #include "TpObject.h"
 #include <TpObject_p.h>
-#include "Core/TpObjectFunction.hpp"
+// #include "Core/TpObjectFunction.hpp"
 #include <TpCoreEvent.h>
 
 TpObject::TpObject(TpObject *parent)
@@ -16,7 +16,7 @@ TpObject::TpObject(TpObject *parent)
 
 TpObject::~TpObject()
 {
-    TpApp::Inst()->isExistObject(this, true);
+    TpCoreApp::Inst()->isExistObject(this, true);
 
     TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
@@ -112,7 +112,7 @@ void TpObject::deleteLater()
 
     disconnectAllSignal(set);
 
-    TpApp::Inst()->sendDelete(this);
+    TpCoreApp::Inst()->sendDelete(this);
 }
 
 int32_t TpObject::objectID()

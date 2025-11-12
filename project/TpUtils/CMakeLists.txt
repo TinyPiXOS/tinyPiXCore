@@ -95,7 +95,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/tweeny/tween.tcc
     ${SOURCE_PATH}/src_p/TpUtils/tweeny/tweenone.tcc
     ${SOURCE_PATH}/src_p/TpUtils/tweeny/tweenpoint.tcc
-    ${SOURCE_PATH}/src_p/TpUtils/TpMessage.cpp
 	${SOURCE_PATH}/src_p/TpUtils/TpHostAddress.cpp
 	${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifier.cpp
 	${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifierManager.cpp

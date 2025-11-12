@@ -6,7 +6,6 @@
 #define __TP_APP_PRIVATE_H
 
 #include "TpClipboard.h"
-#include "TpMessage.h"
 #include "TpAutoObject.h"
 #include "TpScreen.h"
 #include "TpConfig.h"
@@ -94,13 +93,11 @@ struct UpdateCommand
 };
 
 class AppExec;
-struct TpAppData
+struct TpAppData : TpCoreAppData
 {
     std::map<TpObject *, bool> vReserveMap;
     // 所有floatscreen列表，用于更新主题样式
     TpList<TpWidget *> floatScreenList;
-
-    std::mutex gMutex;
 
     // 物理屏幕窗口
     TpFixScreen *vScreen;
@@ -108,8 +105,6 @@ struct TpAppData
     TpMainWindow *mainWindow = nullptr;
 
     TpClipboard *clipboard;
-
-    TpMessage *message;
 
     AppExec *appExecThread;
 
@@ -136,20 +131,19 @@ class AppExec : public TpThread
 public:
     AppExec() : TpThread() {};
 
-    AppExec(TpAppData *appData, TpCoreAppData *coreAppData)
-        : TpThread(), appData_(appData), coreAppData_(coreAppData) {};
+    AppExec(TpAppData *appData)
+        : TpThread(), appData_(appData) {};
 
     virtual ~AppExec()
     {
         appData_ = nullptr;
-        coreAppData_ = nullptr;
     };
 
     virtual void run()
     {
         ItpUserEvent message;
         bool ret = false;
-        if (!appData_ || !coreAppData_)
+        if (!appData_ )
             return;
 
         while (true)
@@ -178,7 +172,7 @@ public:
                     }
                     break;
                     }
-                    coreAppData_->objectList.emplace_back(childWidgetObj);
+                    appData_->objectList.emplace_back(childWidgetObj);
                     appData_->gMutex.unlock();
                 }
             }
@@ -202,10 +196,10 @@ public:
                         appData_->vReserveMap.erase(mapiter);
                     }
 
-                    auto objFindIter = std::find(coreAppData_->objectList.begin(), coreAppData_->objectList.end(), object);
-                    if (objFindIter != coreAppData_->objectList.end())
+                    auto objFindIter = std::find(appData_->objectList.begin(), appData_->objectList.end(), object);
+                    if (objFindIter != appData_->objectList.end())
                     {
-                        coreAppData_->objectList.remove(*objFindIter);
+                        appData_->objectList.remove(*objFindIter);
                     }
 
                     auto floatFindIter = std::find(appData_->floatScreenList.begin(), appData_->floatScreenList.end(), object);
@@ -310,9 +304,9 @@ public:
             }
         }
     appover:
-        coreAppData_->running = false;
+        appData_->running = false;
 
-        if (coreAppData_->waitRun == false)
+        if (appData_->waitRun == false)
         {
             exit(0);
         }
@@ -320,7 +314,6 @@ public:
 
 private:
     TpAppData *appData_;
-    TpCoreAppData *coreAppData_;
 };
 
 // 刷新指令下发

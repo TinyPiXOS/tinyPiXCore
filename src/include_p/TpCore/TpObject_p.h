@@ -2,15 +2,6 @@
 #define __TP_OBJECT_PRIVATE_H
 
 #include "TpAutoObject.h"
-#include "TpWidget.h"
-#include "TpEvent.h"
-#include "TpApp.h"
-#include "TpPainter.h"
-#include "TpLayout.h"
-#include "TpDef.h"
-#include "TpObjectStack.h"
-#include <TpSurface.h>
-#include <TpColors.h>
 #include <TpRect.h>
 #include <TpPoint.h>
 #include <tinyPiXUtils.h>
@@ -103,6 +94,42 @@ static inline bool delObject(TpObjectData *set, TpObject *object)
     set->gMutex.unlock();
 
     return true;
+}
+
+static inline TpObject *findObject(TpObjectData *set, int32_t id)
+{
+    TpObject *object = nullptr;
+
+    if (id < 0)
+    {
+        return nullptr;
+    }
+
+    set->gMutex.lock();
+
+    std::list<TpObject *> list = set->objectList;
+    std::list<TpObject *>::iterator iter = list.begin();
+
+    for (; iter != list.end(); iter++)
+    {
+        if ((*iter)->objectID() == id)
+        {
+            object = *iter;
+            break;
+        }
+
+        TpObjectData *child_set = (TpObjectData *)(*iter)->objectSets();
+        object = findObject(child_set, id);
+
+        if (object)
+        {
+            break;
+        }
+    }
+
+    set->gMutex.unlock();
+
+    return object;
 }
 
 #endif
