@@ -5,7 +5,7 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
-
+#include <openssl/evp.h>
 #include <openssl/md5.h>
 #include "../inc/appmanage_conf.h"
 #include "utilslib.h"
@@ -291,7 +291,46 @@ int compute_md5(const char *file_path, uint8_t output[MD5_DIGEST_LENGTH])
 		perror("Unable to open file");
 		return -1;
 	}
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    if (!mdctx) {
+        fclose(file);
+        fprintf(stderr, "Failed to create EVP MD context\n");
+        return -1;
+    }
 
+    // 初始化摘要上下文，使用 MD5 算法
+    if (EVP_DigestInit_ex(mdctx, EVP_md5(), NULL) != 1) {
+        fclose(file);
+        EVP_MD_CTX_free(mdctx);
+        fprintf(stderr, "Failed to initialize digest\n");
+        return -1;
+    }
+
+    uint8_t buffer[BUFFER_SIZE];
+    size_t bytesRead = 0;
+    unsigned int digest_len = 0;
+
+    // 读取文件并更新摘要
+    while ((bytesRead = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
+        if (EVP_DigestUpdate(mdctx, buffer, bytesRead) != 1) {
+            fclose(file);
+            EVP_MD_CTX_free(mdctx);
+            fprintf(stderr, "Failed to update digest\n");
+            return -1;
+        }
+    }
+
+    // 获取最终的摘要值
+    if (EVP_DigestFinal_ex(mdctx, output, &digest_len) != 1) {
+        fclose(file);
+        EVP_MD_CTX_free(mdctx);
+        fprintf(stderr, "Failed to finalize digest\n");
+        return -1;
+    }
+
+    EVP_MD_CTX_free(mdctx);
+#else
 	MD5_CTX md5;
 	MD5_Init(&md5);
 
@@ -303,10 +342,10 @@ int compute_md5(const char *file_path, uint8_t output[MD5_DIGEST_LENGTH])
 	}
 
 	MD5_Final(output, &md5);
+#endif
 	fclose(file);
 	return 0;
 }
-
 // 将MD5哈希值转换为十六进制字符串
 void md5_to_string(uint8_t hash[MD5_DIGEST_LENGTH], char output[33]) {
     for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
