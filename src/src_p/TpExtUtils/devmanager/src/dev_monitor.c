@@ -200,7 +200,7 @@ static void *pthread_device_monitor(void *arg)
 		if (ret > 0 && (fds[1].revents & POLLIN)) 
 		{
 			char buf[8];
-			read(pipe_fd_r, buf, sizeof(buf));  // 清除数据
+			ssize_t bytes_read = read(pipe_fd_r, buf, sizeof(buf));  // 清除数据
 			//printf("收到退出指令，退出主循环。\n");
 		}
 

@@ -58,10 +58,10 @@ void record_config_free(struct MediaParams *conf)
 //返回长度，直接写入文件头。
 int creat_wav_header(AudioWavHeader *wav_record,struct AudioStreamParams *params)
 {
-	strcpy(wav_record->rld,"RIFF");
+	strncpy(wav_record->rld,"RIFF",4);
 //	wav_record.rLen=0;        //文件大小
-	strcpy(wav_record->wld,"WAVE");     //格式类型（wave）
-	strcpy(wav_record->fld,"fmt ");       //"fmt"
+	strncpy(wav_record->wld,"WAVE",4);     //格式类型（wave）
+	strncpy(wav_record->fld,"fmt ",4);       //"fmt"
 	wav_record->fLen=16;   //sizeof(wave format matex)   
 	wav_record->wFormatTag=1;   //编码格式
 	wav_record->wChannels=params->wChannels;    //声道数
@@ -69,7 +69,7 @@ int creat_wav_header(AudioWavHeader *wav_record,struct AudioStreamParams *params
 	wav_record->nAvgBitsPerSample=params->nSamplesPersec*params->wChannels*2;             //WAVE文件采样大小
 	wav_record->wBlockAlign=params->wChannels*params->wBitsPerSample/8;                  //块对齐
 	wav_record->wBitsPerSample=params->wBitsPerSample;   // 样本数据位数  
-	strcpy(wav_record->dld,"data");        //"data"
+	strncpy(wav_record->dld,"data",4);        //"data"
 	return 0;
 }
 

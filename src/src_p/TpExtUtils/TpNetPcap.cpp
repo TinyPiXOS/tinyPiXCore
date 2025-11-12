@@ -76,7 +76,11 @@ void get_process_connections(TpString net_type, TpNetConnects *connection)
 	}
 
 	char line[256];
-	fgets(line, sizeof(line), file); // 跳过标题行
+	if (fgets(line, sizeof(line), file) == NULL)  // 跳过标题行
+	{
+		fclose(file);
+		connection->connection_count = connection_count;
+	}
 	while (fgets(line, sizeof(line), file) != NULL && connection_count < MAX_CONNECTIONS)
 	{
 		// 解析 TCP 连接信息
