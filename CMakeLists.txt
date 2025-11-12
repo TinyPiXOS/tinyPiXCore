@@ -108,3 +108,15 @@ install(CODE "
         WORKING_DIRECTORY \${CMAKE_BINARY_DIR}
     )
 ")
+
+# 添加卸载目标
+add_custom_target(uninstall
+    COMMAND "${CMAKE_COMMAND}" 
+    -DINSTALL_LIB_DIR=${INSTALL_LIB_DIR}
+    -DINSTALL_INCLUDE_DIR=${INSTALL_INCLUDE_DIR}
+    -DINSTALL_RESOURCE_DIR=${INSTALL_RESOURCE_DIR}
+    -DINSTALL_DATA_DIR=${INSTALL_DATA_DIR}
+    -DINSTALL_BIN_DIR=${INSTALL_BIN_DIR}
+    -P "${CMAKE_SOURCE_DIR}/cmake/CmakeUninstall.cmake"
+    COMMENT "Uninstalling"
+)

@@ -222,6 +222,12 @@ make
 make install
 ```
 
+### 卸载
+
+```bash
+make uninstall
+```
+
 ### 使用说明
 
 #### 目录结构
