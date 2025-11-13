@@ -1,7 +1,6 @@
 #ifndef __TP_DISK_INFO_MANAGE_H
 #define __TP_DISK_INFO_MANAGE_H
 
-#include "TpThreadManage.h"
 #include "TpDisk.h"
 #include "TpSignalSlot.h"
 

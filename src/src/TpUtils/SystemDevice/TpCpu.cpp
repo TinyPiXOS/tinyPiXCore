@@ -19,7 +19,7 @@
 
 #include "TpCpu.h"
 #include "TpSystemDataManage.h"
-
+#include "TpThreadManage.h"
 
 struct TpCpuInfoParam
 {

@@ -2,7 +2,6 @@
 #define __TP_NETWORK_INFO_H
 
 #include <TpCore.h>
-#include "TpThreadManage.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpNetworkInfoData);
 

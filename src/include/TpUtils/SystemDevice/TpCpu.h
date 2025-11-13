@@ -1,7 +1,6 @@
 #ifndef __TP_CPU_INFO_H
 #define __TP_CPU_INFO_H
 
-#include "TpThreadManage.h"
 #include <TpCore.h>
 #include "TpList.h"
 

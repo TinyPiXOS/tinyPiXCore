@@ -19,6 +19,7 @@
 #include <dirent.h>
 #include "TpDiskManage.h"
 #include "TpSystemInfoDef.h"
+#include "TpThreadManage.h"
 
 struct TpDiskManageData
 {
