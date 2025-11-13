@@ -3,8 +3,8 @@
 
 #include "TpVector.h"
 #include "TpString.h"
-#include "TpUtils/StructPackage/DataPackagerMacro.h"
-#include "TpUtils/StructPackage/DataPackager.hpp"
+#include "TpCore/StructPackage/DataPackagerMacro.h"
+#include "TpCore/StructPackage/DataPackager.hpp"
 
 /// @brief 与服务通信相关数据定义；
 

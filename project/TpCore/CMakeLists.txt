@@ -26,6 +26,24 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpCore/TpStack.cpp
     ${SOURCE_PATH}/src/TpCore/TpRegex.cpp
     ${SOURCE_PATH}/src/TpCore/TpTimer.cpp
+    ${SOURCE_PATH}/src/TpCore/TpFile.cpp
+    ${SOURCE_PATH}/src/TpCore/TpDir.cpp
+    ${SOURCE_PATH}/src/TpCore/TpFileInfo.cpp
+    ${SOURCE_PATH}/src/TpCore/TpDate.cpp
+    ${SOURCE_PATH}/src/TpCore/TpTime.cpp
+    ${SOURCE_PATH}/src/TpCore/TpDateTime.cpp
+    ${SOURCE_PATH}/src/TpCore/TpJsonDocument.cpp
+    ${SOURCE_PATH}/src/TpCore/TpJsonArray.cpp
+    ${SOURCE_PATH}/src/TpCore/TpJsonObject.cpp
+    ${SOURCE_PATH}/src/TpCore/TpJsonValue.cpp
+    ${SOURCE_PATH}/src/TpCore/TpProcess.cpp
+    ${SOURCE_PATH}/src/TpCore/TpUuid.cpp
+    ${SOURCE_PATH}/src/TpCore/TpMD5.cpp
+    ${SOURCE_PATH}/src/TpCore/TpConfig.cpp
+    ${SOURCE_PATH}/src/TpCore/TpPipe.cpp
+    ${SOURCE_PATH}/src/TpCore/TpShareMemory.cpp
+    ${SOURCE_PATH}/src/TpCore/TpThreadPool.cpp
+    ${SOURCE_PATH}/src/TpCore/TpThread.cpp
     ${SOURCE_PATH}/src_p/TpCore/TpAutoObject.cpp
     ${SOURCE_PATH}/src_p/TpCore/TpMessage.cpp
 )

@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "TpUtils/JsonStructPackage/JsonStructBuffer.h"
+#include "TpCore/JsonStructPackage/JsonStructBuffer.h"
 
 #define JSON_NI_EXPAND(args) args
 

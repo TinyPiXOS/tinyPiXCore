@@ -1,17 +1,6 @@
-/***
- * @Author: hywang
- * @Date: 2024-08-07 10:03:04
- * @LastEditors: hywang
- * @LastEditTime: 2024-08-12 15:56:48
- * @FilePath: /pix-singlegui/PixSingleGUI/src/ExternUtils/TpCssParser.cpp
- * @Description:
- * @
- * @PiXOS
- */
-
 #include "TpCssParser.h"
-#include "TpUtils/JsonStructPackage/JsonStructPackageHeader.h"
-#include "TpUtils/CSSParser/CSSParser/CSSParser.hpp"
+#include "TpCore/JsonStructPackage/JsonStructPackageHeader.h"
+#include "TpGUI/CSSParser/CSSParser/CSSParser.hpp"
 #include "KeywordItem.hpp"
 #include "gumbo.h"
 #include "GumboInterface.h"

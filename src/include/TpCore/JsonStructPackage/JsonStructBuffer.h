@@ -4,10 +4,10 @@
 #include <vector>
 #include <string>
 
-#include "TpUtils/JsonStructPackage/rapidjson/rapidjson.h"
-#include "TpUtils/JsonStructPackage/rapidjson/document.h"
-#include "TpUtils/JsonStructPackage/rapidjson/stringbuffer.h"
-#include "TpUtils/JsonStructPackage/rapidjson/writer.h"
+#include "TpCore/JsonStructPackage/rapidjson/rapidjson.h"
+#include "TpCore/JsonStructPackage/rapidjson/document.h"
+#include "TpCore/JsonStructPackage/rapidjson/stringbuffer.h"
+#include "TpCore/JsonStructPackage/rapidjson/writer.h"
 
 class JsonStructBuffer
 {
