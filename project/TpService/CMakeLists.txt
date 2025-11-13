@@ -39,21 +39,34 @@ set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
 # 或者为特定目标设置
 target_link_options(TpService PRIVATE
     "LINKER:-rpath,${INSTALL_LIB_DIR}"
-    "LINKER:-rpath-link,${INSTALL_LIB_DIR}"
+    "LINKER:-rpath-link,${ARM_SDK_PATH}/lib"
 )
 
+find_library(GLOG_LIBRARY glog HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
+find_library(YAML_CPP_LIBRARY yaml-cpp HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
+find_library(LEVELDB_LIBRARY leveldb HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
+find_library(MARISA_LIBRARY marisa HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
+find_library(OPENCC_LIBRARY opencc HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
+set(OPENSSL_CRYPTO_LIBRARY ${ARM_SDK_PATH}/lib/libcrypto.so)
+set(OPENSSL_SSL_LIBRARY ${ARM_SDK_PATH}/lib/libssl.so)
 # 库链接到可执行目标
 target_link_libraries(TpService
     dl
     pthread
     ${NANOMSG_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
+    ${GLOG_LIBRARY}
+    ${YAML_CPP_LIBRARY}
+    ${LEVELDB_LIBRARY}
+    ${MARISA_LIBRARY}
+    ${OPENCC_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpExtUtils.so
-
+        ${OPENSSL_CRYPTO_LIBRARY}
+    ${OPENSSL_SSL_LIBRARY}
     # ${SDL2_LIBRARY} ${CARIO_LIBRARY} ${PANGO_LIBRARY}
     # ${GOBJECT_LIBRARY} ${GLIB_LIBRARY} ${PANGOCAIRO_LIBRARY}
     # ${FONTCONFIG_LIBRARY} ${FREETYPE_LIBRARY} ${GBM_LIBRARY}
