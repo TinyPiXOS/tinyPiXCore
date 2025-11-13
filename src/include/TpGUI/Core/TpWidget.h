@@ -44,7 +44,7 @@ public:
     /// @param _value 属性值
     virtual void setProperty(const TpString &_name, const TpVariant &_value) override;
 
-    /// @brief 删除自己，用于UI组件的删除，不会立即删除在下一个时间循环删除该指针
+    /// @brief 删除自己，用于UI组件的删除，不会立即删除在下一个事件循环删除该指针
     virtual void deleteLater() override;
 
 public:
