@@ -1,8 +1,6 @@
 #ifndef _TP_SOCKET_NOTIFIER_H_
 #define _TP_SOCKET_NOTIFIER_H_
 
-#include "TpSocket.h"
-
 #include <map>
 #include <functional>
 #include <sys/epoll.h>

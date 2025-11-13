@@ -10,20 +10,20 @@
 #include <map>
 #include <unordered_map>
 
-
-class TpSocketNotifierManager {
+class TpSocketNotifierManager
+{
 public:
-	static TpSocketNotifierManager& instance();
-	void registerNotifier(TpSocketNotifier* notifier);
-	void unregisterNotifier(TpSocketNotifier* notifier);
+    static TpSocketNotifierManager &instance();
+    void registerNotifier(TpSocketNotifier *notifier);
+    void unregisterNotifier(TpSocketNotifier *notifier);
 
     void stop();
 
 private:
     TpSocketNotifierManager();
     ~TpSocketNotifierManager();
-    TpSocketNotifierManager(const TpSocketNotifierManager&) = delete;
-    TpSocketNotifierManager& operator=(const TpSocketNotifierManager&) = delete;
+    TpSocketNotifierManager(const TpSocketNotifierManager &) = delete;
+    TpSocketNotifierManager &operator=(const TpSocketNotifierManager &) = delete;
 
     void eventLoop();
 
@@ -32,7 +32,7 @@ private:
     bool running_;
 
     std::mutex mutex_;
-    std::vector<TpSocketNotifier*> notifiers_;
+    std::vector<TpSocketNotifier *> notifiers_;
 };
 
 #endif

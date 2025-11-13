@@ -361,14 +361,10 @@ double TpString::toDouble() const
 }
 
 // 转换为无符号短整型
-uint16_t TpString::toUShort(bool *ok, int base) const
+uint16_t TpString::toUShort(int base) const
 {
     if (this->empty())
-    {
-        if (ok)
-            *ok = false;
         return 0;
-    }
 
     // 使用 strtoul 进行转换，因为它可以检测溢出
     char *endPtr = nullptr;
@@ -381,21 +377,14 @@ uint16_t TpString::toUShort(bool *ok, int base) const
                    (errno == 0) &&              // 没有发生错误
                    (value <= USHRT_MAX);        // 值在 uint16_t 范围内
 
-    if (ok)
-        *ok = success;
-
     return success ? static_cast<uint16_t>(value) : 0;
 }
 
 // 转换为无符号整型
-uint32_t TpString::toUInt(bool *ok, int base) const
+uint32_t TpString::toUInt(int base) const
 {
     if (this->empty())
-    {
-        if (ok)
-            *ok = false;
         return 0;
-    }
 
     // 使用 strtoul 进行转换
     char *endPtr = nullptr;
@@ -408,10 +397,45 @@ uint32_t TpString::toUInt(bool *ok, int base) const
                    (errno == 0) &&              // 没有发生错误
                    (value <= UINT_MAX);         // 值在 uint32_t 范围内
 
-    if (ok)
-        *ok = success;
-
     return success ? static_cast<uint32_t>(value) : 0;
+}
+
+int64_t TpString::toLong(int base) const
+{
+    if (this->empty())
+        return 0;
+
+    // 使用 strtoul 进行转换
+    char *endPtr = nullptr;
+    errno = 0; // 清除错误状态
+    unsigned long value = std::strtoul(this->c_str(), &endPtr, base);
+
+    // 检查转换是否成功
+    bool success = (endPtr != this->c_str()) && // 至少有一个字符被转换
+                   (*endPtr == '\0') &&         // 整个字符串都被转换
+                   (errno == 0) &&              // 没有发生错误
+                   (value <= UINT_MAX);         // 值在 uint32_t 范围内
+
+    return success ? static_cast<int64_t>(value) : 0;
+}
+
+uint64_t TpString::toULong(int base) const
+{
+    if (this->empty())
+        return 0;
+
+    // 使用 strtoul 进行转换
+    char *endPtr = nullptr;
+    errno = 0; // 清除错误状态
+    unsigned long value = std::strtoul(this->c_str(), &endPtr, base);
+
+    // 检查转换是否成功
+    bool success = (endPtr != this->c_str()) && // 至少有一个字符被转换
+                   (*endPtr == '\0') &&         // 整个字符串都被转换
+                   (errno == 0) &&              // 没有发生错误
+                   (value <= UINT_MAX);         // 值在 uint32_t 范围内
+
+    return success ? static_cast<uint64_t>(value) : 0;
 }
 
 // 转换为大写

@@ -2,7 +2,7 @@
 #define TP_STRING_H
 
 #include <string>
-#include <cstring> 
+#include <cstring>
 #include "TpList.h"
 
 class TpRegex;
@@ -206,19 +206,27 @@ public:
 
     /**
      * @brief 转换为16位无符号整数
-     * @param ok 可选，指示转换是否成功
      * @param base 进制（2/8/10/16，默认为10）
      * @return 转换结果
      */
-    uint16_t toUShort(bool *ok = nullptr, int base = 10) const;
+    uint16_t toUShort(int base = 10) const;
 
     /**
      * @brief 转换为32位无符号整数
-     * @param ok 可选，指示转换是否成功
      * @param base 进制（2/8/10/16，默认为10）
      * @return 转换结果
      */
-    uint32_t toUInt(bool *ok = nullptr, int base = 10) const;
+    uint32_t toUInt(int base = 10) const;
+
+    /// @brief 转为长整形
+    /// @param base 进制（2/8/10/16，默认为10）
+    /// @return 转换结果
+    int64_t toLong(int base = 10) const;
+
+    /// @brief 转为无符号长整形
+    /// @param base 进制（2/8/10/16，默认为10）
+    /// @return 转换结果
+    uint64_t toULong(int base = 10) const;
 
     /**
      * @brief 转换为大写字符串

@@ -142,7 +142,6 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
-include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include/TpGUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/Widgets)
 include_directories(${SOURCE_PATH}/include/TpGUI/GUI)
@@ -184,6 +183,5 @@ target_link_libraries(TpGUI PUBLIC
     dl pthread
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
-    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpExtUtils.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
 )

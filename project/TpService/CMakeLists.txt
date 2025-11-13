@@ -19,7 +19,6 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
-include_directories(${SOURCE_PATH}/include/TpExtUtils)
 include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpUtils)
 

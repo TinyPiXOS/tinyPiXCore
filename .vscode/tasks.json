@@ -16,7 +16,6 @@
                 "-I/usr/include/SDL2", 
                 "-I/usr/include/TinyPiX", 
                 "-I/usr/include/TinyPiX/TpUtils", 
-                "-I/usr/include/TinyPiX/TpExtUtils", 
                 "-I/usr/include/TinyPiX/TpGUI", 
                 "-I/usr/include/TinyPiX/TpGUI/Core", 
                 "-I/usr/include/TinyPiX/TpGUI/Screen", 

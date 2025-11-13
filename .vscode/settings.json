@@ -90,6 +90,21 @@
         "shared_mutex": "cpp",
         "span": "cpp",
         "typeindex": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "variable_array.h": "c",
+        "obex_agent_manager.h": "c",
+        "select.h": "c",
+        "media.h": "c",
+        "media_file_list.h": "c",
+        "audio_play.h": "c",
+        "media_codec.h": "c",
+        "video_play.h": "c",
+        "media_play_temp.h": "c",
+        "media_timer.h": "c",
+        "asoundlib.h": "c",
+        "audio_codec.h": "c",
+        "filter.h": "c",
+        "media_config.h": "c",
+        "video_display.h": "c"
     }
 }

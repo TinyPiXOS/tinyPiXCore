@@ -1,7 +1,6 @@
 
 #include "TpSocketNotifier.h"
 #include "TpSocketNotifierManager.h"
-#include "TpSocket.h"
 #include <unistd.h>
 #include <iostream>
 #include <map>

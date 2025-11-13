@@ -44,10 +44,6 @@ project/TpUtils/cmake_install.cmake
 project/TpUtils/Makefile
 project/TpUtils/CMakeFiles/
 
-project/TpExtUtils/cmake_install.cmake
-project/TpExtUtils/Makefile
-project/TpExtUtils/CMakeFiles/
-
 project/TpService/cmake_install.cmake
 project/TpService/Makefile
 project/TpService/CMakeFiles/
@@ -62,7 +58,6 @@ project/TpWM/CMakeFiles/
 
 project/TpGUI/TpGUI_symlink.cmake
 project/TpService/TpService_symlink.cmake
-project/TpExtUtils/TpExtUtils_symlink.cmake
 project/TpUtils/TpUtils_symlink.cmake
 project/TpWM/TpWM_symlink.cmake
 
@@ -112,26 +107,3 @@ examples/TpUtils/TpGateway/client2
 examples/TpGUI/TpMessgaeBox/messgaeBox
 examples/TpUtils/TpGateway/PubSub/client2
 examples/TpUtils/TpGateway/REP/repClient
-examples/TpExtUtils/App/tpDopack
-examples/TpExtUtils/App/tpInstall
-examples/TpExtUtils/App/tpRemove
-examples/TpExtUtils/appManage/Dopack
-examples/TpExtUtils/appManage/Install
-examples/TpExtUtils/bluetooth/Audio
-examples/TpExtUtils/bluetooth/Bluetooth
-examples/TpExtUtils/bluetooth/Obex
-examples/TpExtUtils/bluetooth/Rfcomm
-examples/TpExtUtils/bluetooth/Sdp
-examples/TpExtUtils/device/Usb
-examples/TpExtUtils/diskManage/Disk
-examples/TpExtUtils/diskManage/diskManage
-examples/TpExtUtils/media/Record
-examples/TpExtUtils/media/Video
-examples/TpExtUtils/network/Network
-examples/TpExtUtils/other/Custom
-examples/TpExtUtils/other/Power
-examples/TpExtUtils/pwm/Pwm
-examples/TpExtUtils/serial/Serial
-examples/TpExtUtils/SystemLib/Archive
-examples/TpExtUtils/SystemLib/Process
-examples/TpExtUtils/SystemLib/System
