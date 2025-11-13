@@ -756,8 +756,6 @@ void TpWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
     widgetData->keepAspectRatio = keepAspectRatio;
 
     refreshCacheImage(widgetData);
-
-    update();
 }
 
 TpImage TpWidget::backGroundImage()
