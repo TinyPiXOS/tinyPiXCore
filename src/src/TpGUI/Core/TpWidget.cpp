@@ -104,6 +104,9 @@ void TpWidget::deleteLater()
         {
             child->uninstallEventFilter();
             topData->tmp.deleteObject(child);
+
+            // 删除所有子节点
+            child->deleteLater();
         }
     }
 
@@ -756,8 +759,6 @@ void TpWidget::setBackGroundImage(TpImage image, bool keepAspectRatio)
     widgetData->keepAspectRatio = keepAspectRatio;
 
     refreshCacheImage(widgetData);
-
-    update();
 }
 
 TpImage TpWidget::backGroundImage()

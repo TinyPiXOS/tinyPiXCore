@@ -238,9 +238,21 @@ TpImage getImage()
     return copyImage;
 }
 
+class TpTestLabel : public TpLabel
+{
+public:
+    TpTestLabel(TpWidget *parent) : TpLabel(parent)
+    {
+    }
+    ~TpTestLabel()
+    {
+        std::cout << "TpTestLabel析构" << std::endl;
+    }
+};
+
 int32_t main(int32_t argc, char *argv[])
 {
-    std::cout << "Main" <<std::endl;
+    std::cout << "Main" << std::endl;
     TpApp app(argc, argv);
     app.setStyle(Tp::SmartDeviceGUIStyle);
 
@@ -251,6 +263,13 @@ int32_t main(int32_t argc, char *argv[])
     TpLabel *bgLabel = new TpLabel(vScreen);
     bgLabel->setBorderColor(_RGB(255, 0, 0));
     bgLabel->setRect(250, 50, 450, 450);
+
+    TestWidget *testWidget = new TestWidget(vScreen);
+    testWidget->setRect(250, 50, 300, 300);
+
+    TpTestLabel *testLabel = new TpTestLabel(testWidget);
+    testLabel->setText("哈哈哈哈");
+    testLabel->setRect(20, 20, 200, 50);
 
     TpButton *testBtn = new TpButton(vScreen);
     testBtn->setText("获取当前进程截图");

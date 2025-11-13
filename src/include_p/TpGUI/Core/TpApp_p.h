@@ -143,7 +143,7 @@ public:
     {
         ItpUserEvent message;
         bool ret = false;
-        if (!appData_ )
+        if (!appData_)
             return;
 
         while (true)
@@ -407,9 +407,15 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         tinyPiX_wf_unlock_mutex(topScreenSet->agent);
     }
 
+    // static int32_t testRefreshIndex = 0;
+
     for (const auto &updateInfo : pixwmMergeUpdateRect)
     {
         const TpRect &updateRect = updateInfo.second;
+
+        // std::cout << "TpWM刷新： " << testRefreshIndex++ << "  ;" << updateRect.x() << " : " << updateRect.y() << " , " << updateRect.width() << " , "
+        //           << updateRect.height() << std::endl;
+
         tinyPiX_wf_update(updateInfo.first, updateRect.x(), updateRect.y(), updateRect.width(), updateRect.height(), true, false);
     }
 }
