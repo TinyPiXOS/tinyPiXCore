@@ -1,6 +1,6 @@
 #include "TpSlideProgressBar.h"
 #include "TpImage.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpPainter.h"
 
 struct TpSlideProgressBarData

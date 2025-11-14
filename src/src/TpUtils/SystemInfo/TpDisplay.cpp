@@ -21,7 +21,7 @@
 #include <sys/ioctl.h>
 #include <math.h>
 #include "TpConfig.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 
 #define DRM_DEVICE_PATH "/dev/dri/card0"
 #define TINYPIX_CONF_PATH	"/System/conf/tinyPiX.conf"

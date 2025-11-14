@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../inc/appmanage_conf.h"
+#include "AppManage/appmanage_conf.h"
 #include "file_creat.h"
 #include "json_conf.h"
 

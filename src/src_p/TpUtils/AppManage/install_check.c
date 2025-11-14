@@ -19,8 +19,15 @@
 #include "install.h"
 #include "unpack.h"
 #include "conf_json.h"
-#include "../inc/appmanage_conf.h"
+#include "AppManage/appmanage_conf.h"
 #include "utilslib.h"
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <regex.h>
+#include <string.h>
+#include <ctype.h>
 
 struct ArchMapping arch_maps[] = {
     {"x86_64", "amd64"},

@@ -3,11 +3,11 @@
 
 #include <TpCore.h>
 #include "TpString.h"
-#include "SystemDevice/TpDiskManage.h"
-#include "SystemDevice/TpCpu.h"
-#include "SystemDevice/TpGpu.h"
-#include "SystemDevice/TpMemory.h"
-#include "SystemDevice/TpDisk.h"
+#include "SystemInfo/TpDiskManage.h"
+#include "SystemInfo/TpCpu.h"
+#include "SystemInfo/TpGpu.h"
+#include "SystemInfo/TpMemory.h"
+#include "SystemInfo/TpDisk.h"
 #include "TpNetworkManage.h"
 #include "TpNetworkInfo.h"
 

@@ -2,7 +2,7 @@
 #include "TpLabel.h"
 #include "TpButton.h"
 #include "TpImage.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpEvent.h"
 #include "TpFont.h"
 

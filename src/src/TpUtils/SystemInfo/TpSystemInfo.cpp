@@ -17,10 +17,10 @@
 
 #include "TpFile.h"
 #include "TpSystemInfo.h"
-#include "SystemDevice/TpDiskManage.h"
-#include "SystemDevice/TpCpuManage.h"
+#include "SystemInfo/TpDiskManage.h"
+#include "SystemInfo/TpCpuManage.h"
+#include "SystemInfo/TpMemory.h"
 //#include "TpGpuManage.h"
-#include "SystemDevice/TpMemory.h"
 
 struct TpSystemInfoData
 {

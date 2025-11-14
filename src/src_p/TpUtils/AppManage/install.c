@@ -24,7 +24,7 @@
 #include "conf_json.h"
 #include "utilslib.h"
 #include "purview.h"
-#include "../inc/appmanage_conf.h"
+#include "AppManage/appmanage_conf.h"
 
 uint8_t buf_temp[1024];
 

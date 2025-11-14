@@ -105,6 +105,15 @@
         "audio_codec.h": "c",
         "filter.h": "c",
         "media_config.h": "c",
-        "video_display.h": "c"
+        "video_display.h": "c",
+        "md5.h": "c",
+        "appm_creat.h": "c",
+        "json_conf.h": "c",
+        "conf_json.h": "c",
+        "app_script.h": "c",
+        "ctype.h": "c",
+        "g_utils.h": "c",
+        "tputilsclib.h": "c",
+        "install.h": "c"
     }
 }

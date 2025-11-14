@@ -1,7 +1,7 @@
 #include "TpCarouselButton.h"
 #include "TpPainter.h"
 #include "TpEvent.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 
 struct TpCarouselButtonData
 {

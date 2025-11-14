@@ -1,5 +1,5 @@
 #include <iostream>
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpDisplayManage.h"
 
 int main()

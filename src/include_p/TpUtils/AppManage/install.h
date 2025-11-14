@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "string.h"
-#include "../inc/appmanage_conf.h"
+#include "AppManage/appmanage_conf.h"
 
 #ifdef __cplusplus
 extern "C"

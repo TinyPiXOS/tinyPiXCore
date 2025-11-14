@@ -3,7 +3,7 @@
 #include "TpFont.h"
 #include "TpEvent.h"
 #include "TpRect.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 
 #include <cstring>
 #include <iostream>

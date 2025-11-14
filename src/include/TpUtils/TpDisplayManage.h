@@ -1,7 +1,7 @@
 #ifndef __TP_DIAPLAY_MANAGE_H
 #define __TP_DIAPLAY_MANAGE_H
 
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpString.h"
 #include "TpList.h"
 
