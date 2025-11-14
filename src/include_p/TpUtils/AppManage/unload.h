@@ -6,7 +6,7 @@ extern "C" {                //  告诉编译器下列代码要以C链接约定�
 #endif
 
 #include <stdio.h>
-#include "../inc/appmanage_conf.h"
+#include "AppManage/appmanage_conf.h"
 
 int appm_app_unload(TpAppID uuid);
 

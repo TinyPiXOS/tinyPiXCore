@@ -13,9 +13,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/TpInputMethod.cpp
     ${SOURCE_PATH}/src/TpUtils/TpSVG.cpp
     ${SOURCE_PATH}/src/TpUtils/TpChineseCalendar.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpHardwareDevice.cpp
     ${SOURCE_PATH}/src/TpUtils/TpGateway.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpSystemInfo.cpp
 
     ${SOURCE_PATH}/src/TpUtils/Service/TpSystemApi.cpp
     ${SOURCE_PATH}/src/TpUtils/Service/TpAppConfigIO.cpp
@@ -31,14 +29,16 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Network/TpNetworkInterface.cpp
     ${SOURCE_PATH}/src/TpUtils/Network/TpWirelessInfo.cpp
 
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpCpu.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpCpuManage.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpGpu.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpDisk.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpDiskManage.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpMemory.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpProcessInfo.cpp
-    ${SOURCE_PATH}/src/TpUtils/SystemDevice/TpProcessManage.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpu.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpuManage.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpGpu.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpDisk.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpDiskManage.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpMemory.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpProcessInfo.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpProcessManage.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpDisplay.cpp
+    ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpSystemInfo.cpp
 
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothAddress.cpp
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothUuid.cpp
@@ -76,6 +76,19 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Media/TpMediaFile.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpSound.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpRecordInterface.cpp
+
+    ${SOURCE_PATH}/src/TpUtils/AppManage/TpAppDataDisk.cpp
+    ${SOURCE_PATH}/src/TpUtils/AppManage/TpAppInstall.cpp
+    ${SOURCE_PATH}/src/TpUtils/AppManage/TpAppDopack.cpp
+
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpUsbDevice.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpUsbDeviceInfo.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpUsbManager.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpGpio.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpHardwareI2c.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpHardwarePwm.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpSerialPort.cpp
+    ${SOURCE_PATH}/src/TpUtils/Hardware/TpHardwareDevice.cpp
 
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_timer.c
@@ -136,45 +149,34 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/utils/variable_array.c
     ${SOURCE_PATH}/src_p/TpUtils/utils/utthread.c
 
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/json_conf.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/appm_creat.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/file_creat_lib.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/file_creat.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/utilslib.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/system_permission.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/secret_key.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/conf_json.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/install_check.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/install.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/appinfo.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/purview.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/unload.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/unpack.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/update.c
+    ${SOURCE_PATH}/src/TpUtils/AppManage/TpLibDopack.cpp
 
 
     ${SOURCE_PATH}/src_p/TpUtils/fileUtils.c
 
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/dopack/json_conf.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/dopack/appm_creat.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/dopack/file_creat_lib.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/dopack/file_creat.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/utilslib.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/system_permission.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/secret_key.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/conf_json.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/install_check.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/install.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/appinfo.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/purview.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/unload.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/unpack.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/manage/update.c
-
     ${SOURCE_PATH}/src_p/TpUtils/usb/src/usb_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_monitor.c
-    ${SOURCE_PATH}/src/TpUtils/TpAppDataDisk.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpDisplay.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpCompress.cpp
 
-    ${SOURCE_PATH}/src/TpUtils/TpAppInstall.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpLibDopack.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpAppDopack.cpp
+    ${SOURCE_PATH}/src/TpUtils/TpCompress.cpp
     ${SOURCE_PATH}/src/TpUtils/TpSystemBatteryInfo.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpUsbDevice.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpUsbDeviceInfo.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpUsbManager.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpGpio.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpHardwareI2c.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpHardwarePwm.cpp
+
     ${SOURCE_PATH}/src/TpUtils/TpLogin.cpp
-    ${SOURCE_PATH}/src/TpUtils/TpSerialPort.cpp
 
     # ${SOURCE_PATH}/src_p/TpUtils/bluetooth/src/obexnames.c
     # ${SOURCE_PATH}/src/TpUtils/TpDisplayManage.cpp
@@ -214,11 +216,12 @@ include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils/JsonStructPackage)
 
 include_directories(${SOURCE_PATH}/include/TpUtils/Network)
-
-include_directories(${SOURCE_PATH}/include/TpUtils/SystemDevice)
-
+include_directories(${SOURCE_PATH}/include/TpUtils/SystemInfo)
 include_directories(${SOURCE_PATH}/include/TpUtils/Bluetooth)
 include_directories(${SOURCE_PATH}/include/TpUtils/Media)
+include_directories(${SOURCE_PATH}/include/TpUtils/AppManage)
+include_directories(${SOURCE_PATH}/include/TpUtils/Hardware)
+
 
 include_directories(${SOURCE_PATH}/include/TpGUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/GUI)
@@ -230,12 +233,12 @@ include_directories(${SOURCE_PATH}/include_p/TpGUI)
 include_directories(${SOURCE_PATH}/include_p/TpGUI/GUI)
 
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Media)
-
 include_directories(${SOURCE_PATH}/include_p/TpUtils/SystemLib)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/tweeny)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/utils)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Network)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/TpDbus)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/AppManage)
 
 include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include)
@@ -243,9 +246,6 @@ include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include/lib)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include/lib/bluez)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include/lib/obex)
 
-include_directories(${SOURCE_PATH}/src_p/TpUtils/AppManage/manage)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/AppManage/dopack)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/AppManage/inc)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/usb/include)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/devmanager/include)
 
@@ -307,9 +307,10 @@ target_link_libraries(TpUtils PUBLIC
     ${GOBJECT_LIBRARY} ${GLIB_LIBRARY} ${PANGOCAIRO_LIBRARY}
     ${FONTCONFIG_LIBRARY} ${FREETYPE_LIBRARY} ${GBM_LIBRARY}
     ${GLESV2_LIBRARY} ${EGL_LIBRARY} ${GIO_LIBRARY} ${RSVG_LIBRARY}
-    ${OPENSSL_LIBRARY} ${AVFILTER_LIBRARY} ${AVFORMAT_LIBRARY}
+    ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB}
+    ${SSL_LIBRARY} ${AVFILTER_LIBRARY} ${AVFORMAT_LIBRARY}
     ${JSONC_LIBRARY} ${ASOUND_LIBRARY} ${AVCODEC_LIBRARY} ${SWSCALE_LIBRARY}
-    ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${AVDEVICE_LIBRARY} 
+    ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${AVDEVICE_LIBRARY}
     ${BLUETOOTH_LIBRARY} ${DBUS_LIBRARY} ${USB_LIBRARY} ${UDEV_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so

@@ -4,7 +4,7 @@
 #include "TpString.h"
 #include "TpVBoxLayout.h"
 #include "TpImage.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpFileInfo.h"
 #include "TpDir.h"
 #include "TpCheckBox.h"

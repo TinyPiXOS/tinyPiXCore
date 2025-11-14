@@ -5,7 +5,7 @@
 #include "TpHBoxLayout.h"
 #include "TpVBoxLayout.h"
 #include "TpGridLayout.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpFont.h"
 #include "TpLine.h"
 #include "TpFlexLayout.h"

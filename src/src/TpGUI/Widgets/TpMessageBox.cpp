@@ -1,7 +1,7 @@
 #include "TpMessageBox.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 
 static int32_t BtnFontColor = _RGB(38, 38, 38);
 

@@ -7,7 +7,7 @@
 #include "HTMLCSSRefAdaptor.h"
 #include "TpFile.h"
 #include "TpRegex.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpCssParser_p.h"
 #include "TpJsonDocument.h"
 

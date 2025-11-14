@@ -8,8 +8,8 @@ extern "C" {				//告诉编译器下列代码要以C链接约定的模式进行�
 #include <stdio.h>
 #include "archive.h"
 #include "archive_entry.h"
-#include "../inc/appmanage_conf.h"
-#include "file_creat.h"
+#include "AppManage/appmanage_conf.h"
+#include "AppManage/file_creat.h"
 
 #define PKGFILE_LIBRARY		"lib"
 #define PKGFILE_SIGNATURE	"signature"

@@ -11,10 +11,10 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <openssl/md5.h>	//#include <openssl/md5.h>
-#include "../manage/utilslib.h"
-#include "appm_creat.h"
+#include "AppManage/utilslib.h"
+#include "AppManage/appm_creat.h"
 #include "file_creat.h"
-#include "json_conf.h"
+#include "AppManage/json_conf.h"
 
 
 //根据私钥生成签名文件

@@ -1,7 +1,7 @@
 #include "TpMusicPlayerView.h"
 #include "TpLabel.h"
 #include "TpButton.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpFont.h"
 
 struct TpMusicPlayerViewData

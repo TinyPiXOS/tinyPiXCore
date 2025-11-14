@@ -16,8 +16,8 @@
 #include <errno.h>
 #include "file_creat.h"
 #include "appm_creat.h"
-#include "../manage/install.h"
-#include "../manage/utilslib.h"
+#include "AppManage/install.h"
+#include "AppManage/utilslib.h"
 
 static long calculate_directory_size(const char* dir_path);
 /*
