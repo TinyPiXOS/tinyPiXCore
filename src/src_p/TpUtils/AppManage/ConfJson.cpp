@@ -15,6 +15,7 @@
 #include <stdarg.h> //#include <json-c/json.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
+#include <openssl/evp.h>
 #include "ConfJson.h"
 #include "utilslib.h"
 #include "install.h"
