@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "archive.h"
 #include "archive_entry.h"
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "AppManage/TpFileCreat.h"
 
 #define PKGFILE_LIBRARY		"lib"

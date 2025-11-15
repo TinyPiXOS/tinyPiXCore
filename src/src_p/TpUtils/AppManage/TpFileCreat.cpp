@@ -365,65 +365,68 @@ int TpFileCreat::file_startsh_creat(char *path)
 
 int TpFileCreat::file_config_creat_lib(archive *a, const char *path, LibPackageConfig *conf)
 {
-    //	char filename[MAX_PATH];
-    //	memset(filename,0,MAX_PATH);
-    //	snprintf(filename, MAX_PATH, "%s/config",path);
-    FILE *file = fopen(path, "w");
-    if (file == NULL)
+    TpFile file(path);
+    if (!file.open(TpFile::WriteOnly))
     {
         perror("Failed to open file\n");
         return -1;
     }
-    fprintf(file, "#TinyPix SystemLib\n");
 
-    fprintf(file, "architecture:%s\n", conf->architecture);
-    //	fprintf(file, "architecture:%s\n", get_architecture_string(conf->arch));
-    fprintf(file, "diskSpace:%u\n", conf->diskspace);
-    char buf[MAX_LEN_APP_NAME];
-    // 库文件
-    if (conf->lib_count > 0)
+    file.write("#TinyPix SystemLib\n");
+    file.write("architecture:" + conf->architecture + "\n");
+    file.write("diskSpace:" + TpString(conf->diskspace) + "\n");
+
+    if (conf->systemLib.size() > 0)
     {
-        char *lib_name;
-        fprintf(file, "export lib=");
-        for (int i = 0; i < conf->lib_count; i++)
+        file.write("export lib=");
+        for (int i = 0; i < conf->systemLib.size(); i++)
         {
-            TpFileInfo libPathInfo(conf->system_lib[i]);
+            TpFileInfo libPathInfo(conf->systemLib[i]);
             if (libPathInfo.isDir())
             {
-                fclose(file);
+                file.close();
                 return -1;
             }
-            if ((lib_name = strrchr(conf->system_lib[i], '/')) == NULL)
-                lib_name = conf->system_lib[i];
-            fprintf(file, "%s@%d.%d.%d ", lib_name, conf->version[i].x, conf->version[i].y, conf->version[i].z);
-            snprintf(buf, sizeof(buf), ".%s", lib_name);
-            add_file_to_archive(a, conf->system_lib[i], buf); // config打包
+            // 提取库文件名
+            TpString libPath = conf->systemLib[i];
+            TpString libName = libPath.substr(libPath.lastIndexOf("/") + 1);
+
+            // 格式化版本信息
+            TpString versionInfo = libName + "@" + TpString::number(conf->version[i].x) + "." +
+                                   TpString::number(conf->version[i].y) + "." + TpString::number(conf->version[i].z);
+            file.write(versionInfo);
+
+            TpString buf = "." + libName;
+            add_file_to_archive(a, conf->systemLib[i].c_str(), buf.c_str()); // config打包
         }
-        fprintf(file, "\n");
+        file.write("\n");
     }
 
     // 其他文件
-    if (conf->file_count > 0)
+    if (conf->file.size() > 0)
     {
-        char *file_name;
-        fprintf(file, "export file=");
-        for (int i = 0; i < conf->file_count; i++)
+        file.write("export file=");
+        for (int i = 0; i < conf->file.size(); i++)
         {
             TpFileInfo confPathInfo(conf->file[i]);
             if (confPathInfo.isDir())
             {
-                fclose(file);
+                file.close();
                 return -1;
             }
-            if ((file_name = strrchr(conf->file[i], '/')) == NULL)
-                file_name = conf->file[i];
-            fprintf(file, "./%s ", file_name);
-            snprintf(buf, sizeof(buf), ".%s", file_name);
-            add_file_to_archive(a, conf->file[i], buf); // config打包
+
+            // 提取库文件名
+            TpString filePath = conf->file[i];
+            TpString fileName = filePath.substr(filePath.lastIndexOf("/") + 1);
+
+            TpString buf = "." + fileName;
+            file.write(buf);
+
+            add_file_to_archive(a, conf->file[i].c_str(), buf.c_str()); // config打包
         }
-        fprintf(file, "\n");
+        file.write("\n");
     }
 
-    fclose(file);
+    file.close();
     return 0;
 }

@@ -36,7 +36,6 @@ public:
     int save(const TpString &path);
 
 private:
-    void classFree();
     ItpLibDopackData *data_;
 };
 

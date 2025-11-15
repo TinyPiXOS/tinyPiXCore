@@ -15,7 +15,7 @@
 #include "install.h"
 #include "unload.h"
 #include "Unpack.h"
-#include "appmanage_conf.h"
+#include "AppmanageConf.h"
 #include "InstallCheck.h"
 #include "TpAppInstall.h"
 #include "utilslib.h"

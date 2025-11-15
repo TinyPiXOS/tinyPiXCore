@@ -8,7 +8,7 @@
 
 #include <openssl/evp.h>
 #include <openssl/md5.h>
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "utilslib.h"
 #include <string.h>
 #include <ctype.h>

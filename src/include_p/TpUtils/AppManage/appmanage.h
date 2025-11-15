@@ -6,7 +6,7 @@
 #include <vector>
 #include "install.h"
 #include "unload.h"
-#include "../inc/appmanage_conf.h"
+#include "../inc/AppmanageConf.h"
 #include "install_check.h"
 
 #ifdef __cplusplus

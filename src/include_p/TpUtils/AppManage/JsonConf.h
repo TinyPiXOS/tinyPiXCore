@@ -1,7 +1,7 @@
 #ifndef JSON_CONFIG_PARSER_H
 #define JSON_CONFIG_PARSER_H
 
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "TpFileCreat.h"
 #include <TpJsonDocument.h>
 #include <TpJsonObject.h>

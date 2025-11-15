@@ -1,7 +1,7 @@
 #ifndef _PURVIEW_H_
 #define _PURVIEW_H_
 
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 
 int Appm_Install_Purview_Init();
 int Appm_Install_Purview(TpAppID uuid, TypePackage type);

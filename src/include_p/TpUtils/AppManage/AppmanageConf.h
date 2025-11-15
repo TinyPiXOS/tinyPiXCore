@@ -70,7 +70,7 @@ struct PackageUserParam
 
 struct AppPackageConfig
 {
-    uint8_t install_flag;             // 已经安装的标志
+    uint8_t installFlag;             // 已经安装的标志
     TpString appID;                   // UUID，后续更改为struct
     TpString appName;                 // NAME
     TpString organization;            // 组织/公司
@@ -103,16 +103,12 @@ JSONTRANSLATE(AppPackageConfig, appID)
 
 struct LibPackageConfig
 {
-    char architecture[16]; // 硬件平台
+    TpString architecture;          // 硬件平台
     TpEnumArchType arch;
     uint32_t diskspace;              // 占用内存空间
-    char *system_lib[MAX_ITEMS_LIB]; // 系统库名称
     struct TpVersion version[MAX_ITEMS_LIB];
-    //	char version[MAX_ITEMS_LIB][16];	//库对应的版本号，0.0.0会强制更新，
-    int lib_count;
-
-    char *file[MAX_ITEMS_LIB]; // 其他文件
-    int file_count;
+    TpVector<TpString> systemLib;
+    TpVector<TpString> file;
 };
 
 // 安装包信息

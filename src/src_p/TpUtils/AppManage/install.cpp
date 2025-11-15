@@ -25,7 +25,7 @@
 #include "ConfJson.h"
 #include "utilslib.h"
 #include "Purview.h"
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 
 uint8_t buf_temp[1024];
 
@@ -705,7 +705,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     write_install_schedule(schedule, 0);
 
     // 应用未安装，需要新建文件目录
-    if (conf->install_flag != 1)
+    if (conf->installFlag != 1)
     {
         printf("应用未安装\n");
         if (install_creat_path((char *)app.uuid.c_str()) < 0)
@@ -736,7 +736,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     // Appm_Install_Unpack(&app,user);
     // 移除安装包
     //	Appm_Remove_Package(pik_name);
-    if (conf->install_flag == 0)
+    if (conf->installFlag == 0)
     {
         printf("应用未安装，设置用户权限\n");
         Appm_Install_Purview(uuid, type);
@@ -748,15 +748,15 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
 }
 
 // 库的安装就是解包的过程
-int Appm_Install_Library(const char *path_lib, struct LibPackageConfig *conf, struct PackageUserParam *user)
+int Appm_Install_Library(const char *pathLib, struct LibPackageConfig *conf, struct PackageUserParam *user)
 {
-    char *lib_path = (char *)malloc(PATH_MAX_LENGTH);
-
-    for (int i = 0; i < conf->lib_count; i++)
+    // 不再需要手动分配内存，直接使用TpString
+    for (size_t i = 0; i < conf->systemLib.size(); i++)
     {
-        snprintf(lib_path, PATH_MAX_LENGTH, LIBS_INSTALL_PATH "/%s", conf->system_lib[i]);
-        extract_file_pack(path_lib, conf->system_lib[i], lib_path);
+        TpString libPath = TpString(LIBS_INSTALL_PATH) + "/" + conf->systemLib[i];
+        extract_file_pack(pathLib, conf->systemLib[i].c_str(), (char *)libPath.c_str());
     }
+
     return 0;
 }
 

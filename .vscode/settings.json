@@ -77,7 +77,7 @@
         "variant": "cpp",
         "file_creat.h": "c",
         "utilslib.h": "c",
-        "appmanage_conf.h": "c",
+        "AppmanageConf.h": "c",
         "any": "cpp",
         "strstream": "cpp",
         "codecvt": "cpp",

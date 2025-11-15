@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <regex.h>
 #include <openssl/md5.h>
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 
 void delete_end_space(char *str);
 void trim_newline(char *str);

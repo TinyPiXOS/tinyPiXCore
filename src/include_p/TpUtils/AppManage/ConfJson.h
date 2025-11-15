@@ -1,7 +1,7 @@
 #ifndef _CONF_JSON_H_
 #define _CONF_JSON_H_
 
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "json.h"
 
 enum PackageExportType
