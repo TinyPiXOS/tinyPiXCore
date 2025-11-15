@@ -108,8 +108,8 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         break;
     }
 
-    file.write("appID:" + conf.app_id + "\n");
-    file.write("appName:" + conf.app_name + "\n");
+    file.write("appID:" + conf.appID + "\n");
+    file.write("appName:" + conf.appName + "\n");
     file.write("organization:" + conf.organization + "\n");
 
     // 格式化版本号
@@ -118,12 +118,12 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
                           "." + TpString::number(conf.version.z);
     file.write(versionStr);
 
-    if (!conf.appexec_name.empty())
+    if (!conf.appexecName.empty())
     {
-        int lastSlashPos = conf.appexec_name.lastIndexOf('/');
+        int lastSlashPos = conf.appexecName.lastIndexOf('/');
         if (lastSlashPos != -1)
         {
-            TpString execName = conf.appexec_name.substr(lastSlashPos + 1);
+            TpString execName = conf.appexecName.substr(lastSlashPos + 1);
             file.write("appexecName:" + execName + "\n");
         }
     }
@@ -135,12 +135,12 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
     file.write("provides:" + conf.provides + "\n");
 
     // 支持的文件类型
-    if (conf.file_extension.size() > 0)
+    if (conf.fileExtension.size() > 0)
     {
         file.write("fileExtension:");
-        for (int i = 0; i < conf.file_extension.size(); i++)
+        for (int i = 0; i < conf.fileExtension.size(); i++)
         {
-            file.write(conf.file_extension[i] + " ");
+            file.write(conf.fileExtension[i] + " ");
         }
         file.write("\n");
     }
@@ -162,12 +162,12 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
     }
 
     // 可执行文件
-    if (!conf.appexec_name.empty())
+    if (!conf.appexecName.empty())
     {
-        int lastSlashPos = conf.appexec_name.lastIndexOf('/');
+        int lastSlashPos = conf.appexecName.lastIndexOf('/');
         if (lastSlashPos != -1)
         {
-            TpString execPath = conf.appexec_name.substr(lastSlashPos);
+            TpString execPath = conf.appexecName.substr(lastSlashPos);
             file.write("export appexec=." + execPath + "\n");
         }
     }
@@ -188,15 +188,15 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
     file.write("export start=./start.sh\n");
 
     // 其他文件
-    if (conf.otherfile.size() > 0)
+    if (conf.otherFiles.size() > 0)
     {
         file.write("export userfile=");
-        for (int i = 0; i < conf.otherfile.size(); i++)
+        for (int i = 0; i < conf.otherFiles.size(); i++)
         {
-            int lastSlashPos = conf.otherfile[i].lastIndexOf('/');
+            int lastSlashPos = conf.otherFiles[i].lastIndexOf('/');
             if (lastSlashPos != -1)
             {
-                TpString filePath = conf.otherfile[i].substr(lastSlashPos);
+                TpString filePath = conf.otherFiles[i].substr(lastSlashPos);
                 file.write("." + filePath + " ");
             }
         }
@@ -216,15 +216,15 @@ int TpFileCreat::appm_generate_package_source(AppPackageConfig *config, const Tp
     TpDir::mkpath(path);
 
     // 根据结构体内容拷贝
-    if (config->appexec_name.empty())
+    if (config->appexecName.empty())
         return -1;
 
-    fileCopySingle(path + "/bin", config->appexec_name);
+    fileCopySingle(path + "/bin", config->appexecName);
     fileCopySingle(path, config->icon);
-    fileCopyList(path + "/bin", config->bin);
+    fileCopyList(path + "/bin", config->binFiles);
     fileCopyList(path + "/lib", config->lib);
-    fileCopyList(path + "/assert", config->assert);
-    fileCopyList(path, config->otherfile);
+    fileCopyList(path + "/assert", config->assertFiles);
+    fileCopyList(path, config->otherFiles);
 
     // 计算文件大小
     if (config->diskspace == 0)

@@ -341,7 +341,7 @@ int install_config_file(const struct TpAppInfo *app)
         if (line.startsWith("export "))
         {
             destFile.write(line + "\n");
-            config_export_analysis_json((char *)line.c_str(), static_obj);
+            ConfigJsonParser::config_export_analysis_json((char *)line.c_str(), static_obj);
             continue;
         }
 
@@ -351,14 +351,14 @@ int install_config_file(const struct TpAppInfo *app)
         }
 
         destFile.write(line + "\n");
-        config_keyvalue_analysis_json((char *)line.c_str(), static_obj);
+        ConfigJsonParser::config_keyvalue_analysis_json((char *)line.c_str(), static_obj);
     }
 
     json_object_object_add(root, "static", static_obj);
 
     // 写入JSON文件
     TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid + ".json";
-    write_json_object_file(root, jsonPath.c_str()); // 不加密写入json
+    ConfigJsonParser::write_json_object_file(root, jsonPath.c_str()); // 不加密写入json
     // write_json_object_file_encryption(root, jsonPath.c_str()); // 加密写入json
 
     json_object_put(root);
@@ -696,10 +696,10 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     struct TpAppInfo app;
     struct InstallSchedule *schedule = user->schedule;
 
-    uuid.value = conf->app_id;
+    uuid.value = conf->appID;
     app.path_pik = path_pik;
     app.type = type;
-    app.uuid = conf->app_id;
+    app.uuid = conf->appID;
     app.icon = conf->icon;
 
     write_install_schedule(schedule, 0);
@@ -738,7 +738,6 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     //	Appm_Remove_Package(pik_name);
     if (conf->install_flag == 0)
     {
-        // add_appuuid_install_safe(uuid,APP_INSTALL_CONF_PATH);		//写入install.conf
         printf("应用未安装，设置用户权限\n");
         Appm_Install_Purview(uuid, type);
     }

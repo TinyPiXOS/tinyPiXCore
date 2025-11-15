@@ -138,10 +138,10 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
     }
 
     // 解析基本字段
-    config.app_id = GetStringValue(root, "appID", true);
-    config.app_name = GetStringValue(root, "appName", true);
+    config.appID = GetStringValue(root, "appID", true);
+    config.appName = GetStringValue(root, "appName", true);
     config.organization = GetStringValue(root, "organization");
-    config.appexec_name = GetStringValue(root, "appexecName");
+    config.appexecName = GetStringValue(root, "appexecName");
     config.architecture = GetStringValue(root, "architecture");
     config.section = GetStringValue(root, "section");
     config.priority = GetStringValue(root, "priority");
@@ -175,7 +175,7 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
         TpJsonValue arrayVal = root.value("otherFiles");
         if (arrayVal.isArray())
         {
-            config.otherfile = ParseStringArray(arrayVal.toArray());
+            config.otherFiles = ParseStringArray(arrayVal.toArray());
         }
     }
 
@@ -184,7 +184,7 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
         TpJsonValue arrayVal = root.value("fileExtension");
         if (arrayVal.isArray())
         {
-            config.file_extension = ParseStringArray(arrayVal.toArray());
+            config.fileExtension = ParseStringArray(arrayVal.toArray());
         }
     }
 
@@ -193,7 +193,7 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
         TpJsonValue arrayVal = root.value("binFiles");
         if (arrayVal.isArray())
         {
-            config.bin = ParseStringArray(arrayVal.toArray());
+            config.binFiles = ParseStringArray(arrayVal.toArray());
         }
     }
 
@@ -202,7 +202,7 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
         TpJsonValue arrayVal = root.value("assertFiles");
         if (arrayVal.isArray())
         {
-            config.assert = ParseStringArray(arrayVal.toArray());
+            config.assertFiles = ParseStringArray(arrayVal.toArray());
         }
     }
 }

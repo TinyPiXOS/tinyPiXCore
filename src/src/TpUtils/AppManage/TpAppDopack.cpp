@@ -56,10 +56,6 @@ TpAppDopack::TpAppDopack()
     AppPackageConfig *params = &adpData->params;
 
     adpData->type = TYPE_PACKAGE_NONE;
-    params->description = NULL;
-    params->icon = NULL;
-    params->appexec_name = NULL;
-    params->signature = NULL;
     params->diskspace = 0;
     params->version.x = 0;
     params->version.y = 0;
@@ -100,7 +96,7 @@ int TpAppDopack::setPackageType(TpPackageType pack_type)
 void TpAppDopack::setAppID(const TpString &id)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    adpData->params.app_id = id;
+    adpData->params.appID = id;
 }
 
 void TpAppDopack::setAppID(const TpUuid id)
@@ -112,7 +108,7 @@ void TpAppDopack::setAppID(const TpUuid id)
 void TpAppDopack::setAppName(const TpString &name)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    adpData->params.app_name = name;
+    adpData->params.appName = name;
 }
 
 // 版本
@@ -234,43 +230,43 @@ void TpAppDopack::setIcon(const TpString &icon)
 void TpAppDopack::setAppPath(const TpString &app)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    adpData->params.appexec_name = app;
+    adpData->params.appexecName = app;
 }
 
 // 静态文件
 void TpAppDopack::addAssert(const TpString &assert)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    if (adpData->params.assert.contains(assert))
+    if (adpData->params.assertFiles.contains(assert))
         return;
-    adpData->params.assert.emplace_back(assert);
+    adpData->params.assertFiles.emplace_back(assert);
 }
 
 // 可执行文件
 void TpAppDopack::addBin(const TpString &bin)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    if (adpData->params.bin.contains(bin))
+    if (adpData->params.binFiles.contains(bin))
         return;
-    adpData->params.bin.emplace_back(bin);
+    adpData->params.binFiles.emplace_back(bin);
 }
 
 // 其他文件
 void TpAppDopack::addFile(const TpString &file)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    if (adpData->params.otherfile.contains(file))
+    if (adpData->params.otherFiles.contains(file))
         return;
-    adpData->params.otherfile.emplace_back(file);
+    adpData->params.otherFiles.emplace_back(file);
 }
 
 // 支持的文件后缀
 void TpAppDopack::addExtension(const TpString &type)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    if (adpData->params.file_extension.contains(type))
+    if (adpData->params.fileExtension.contains(type))
         return;
-    adpData->params.file_extension.emplace_back(type);
+    adpData->params.fileExtension.emplace_back(type);
 }
 
 // 安装包的名字

@@ -13,6 +13,7 @@
 #include "openssl/md5.h"
 #include "TpString.h"
 #include "TpVector.h"
+#include "JsonStructPackage/JsonStructPackageHeader.h"
 
 #define MAX_PATH 2048
 
@@ -69,35 +70,36 @@ struct PackageUserParam
 
 struct AppPackageConfig
 {
-    uint8_t install_flag;              // 已经安装的标志
-    TpString app_id;                   // UUID，后续更改为struct
-    TpString app_name;                 // NAME
-    TpString organization;             // 组织/公司
-    TpVersion version;                 // 版本
-    TpString architecture;             // 硬件平台
-    TpEnumArchType arch;               // 硬件平台，后续会改为此结构体
-    TpString section;                  // 应用所属分类（常见值：utils、graphics、games），后续更改为enum
-    TpString priority;                 // 安装优先级（optional=非必需，standard=基础组件，required=系统关键组件），后续更改为enum
-    TpString essential;                // 是否为系统核心组件（yes=不可卸载，no=可卸载）。后续更改为bool或enum
-    TpString provides;                 // 应用提供的功能标识
-    TpString author;                   // 作者
-    TpString contact;                  // 作者联系方式
-    int diskspace;                     // 安装所需的最小磁盘空间
-    TpString description;              // 软件描述
-    TpString appexec_name;             // 可执行文件的名字以及路径
-    TpString signature;                // 数字签名
-    TpString icon;                     // 图标路径
-    TpVector<TpString> depend;         // 引用的开源库名字和版本
-    TpVector<TpString> lib;            // 自己的库的路径(暂时不用，直接使用启动脚本的配置)
-    TpVector<TpString> assert;         // 作者自己的一些静态文件，会全部被复制到assert目录下
-    TpVector<TpString> bin;            // 可执行文件
-    TpVector<TpString> otherfile;      // 作者自己的其他文件，会被复制到根目录下，安装时候复制到app目录下
-    TpVector<TpString> file_extension; // 支持打开的文件类型
+    uint8_t install_flag;             // 已经安装的标志
+    TpString appID;                   // UUID，后续更改为struct
+    TpString appName;                 // NAME
+    TpString organization;            // 组织/公司
+    TpVersion version;                // 版本
+    TpString architecture;            // 硬件平台
+    TpEnumArchType arch;              // 硬件平台，后续会改为此结构体
+    TpString section;                 // 应用所属分类（常见值：utils、graphics、games），后续更改为enum
+    TpString priority;                // 安装优先级（optional=非必需，standard=基础组件，required=系统关键组件），后续更改为enum
+    TpString essential;               // 是否为系统核心组件（yes=不可卸载，no=可卸载）。后续更改为bool或enum
+    TpString provides;                // 应用提供的功能标识
+    TpString author;                  // 作者
+    TpString contact;                 // 作者联系方式
+    int diskspace;                    // 安装所需的最小磁盘空间
+    TpString description;             // 软件描述
+    TpString appexecName;             // 可执行文件的名字以及路径
+    TpString signature;               // 数字签名
+    TpString icon;                    // 图标路径
+    TpVector<TpString> depend;        // 引用的开源库名字和版本
+    TpVector<TpString> lib;           // 自己的库的路径(暂时不用，直接使用启动脚本的配置)
+    TpVector<TpString> assertFiles;   // 作者自己的一些静态文件，会全部被复制到assert目录下
+    TpVector<TpString> binFiles;      // 可执行文件
+    TpVector<TpString> otherFiles;    // 作者自己的其他文件，会被复制到根目录下，安装时候复制到app目录下
+    TpVector<TpString> fileExtension; // 支持打开的文件类型
 
     AppPackageConfig()
     {
     }
 };
+JSONTRANSLATE(AppPackageConfig, appID)
 
 struct LibPackageConfig
 {

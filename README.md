@@ -160,7 +160,7 @@ sudo apt install \
   libsdl2-dev libcairo2-dev libpango1.0-dev libglib2.0-dev \
   libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
   libgbm-dev libgles2 libegl-dev \
-  libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
+  libasound2-dev libssl-dev libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libswresample-dev \
   libavfilter-dev libavdevice-dev librsvg2-dev bluez libbluetooth-dev \
   libdbus-1-dev bluez-alsa-utils libasound2-plugin-bluez bluez-obexd  libusb-1.0-0-dev \

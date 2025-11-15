@@ -228,7 +228,7 @@ TpString TpAppInstall::getAppName()
     if (!package_is_app(&appData->conf))
         return "";
 
-    return appData->conf.appConf.app_name;
+    return appData->conf.appConf.appName;
 }
 
 TpString TpAppInstall::getAppUUID() // 获取应用UUID
@@ -240,7 +240,7 @@ TpString TpAppInstall::getAppUUID() // 获取应用UUID
     if (!package_is_app(&appData->conf))
         return "";
 
-    return appData->conf.appConf.app_id;
+    return appData->conf.appConf.appID;
 }
 
 TpString TpAppInstall::getNowVersion() // 获取已安装的版本,根据uuid获取，暂时不支持获取系统库版本
@@ -252,7 +252,7 @@ TpString TpAppInstall::getNowVersion() // 获取已安装的版本,根据uuid获
     TpString version = "0.0.0";
 
     TpVersion s_ver;
-    appm_get_app_version(appData->conf.appConf.app_id.c_str(), &s_ver);
+    appm_get_app_version(appData->conf.appConf.appID.c_str(), &s_ver);
 
     version = TpString::number(s_ver.x) + "." +
               TpString::number(s_ver.y) + "." +

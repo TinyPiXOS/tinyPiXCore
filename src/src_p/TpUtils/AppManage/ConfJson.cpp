@@ -19,10 +19,14 @@
 #include "utilslib.h"
 #include "install.h"
 #include "secret_key.h"
+#include "TpJsonArray.h"
+#include "TpJsonObject.h"
+#include "TpJsonDocument.h"
+#include "TpFile.h"
 
 #define BUFFER_SIZE 1024
 
-typedef int (*CallbackInstallConfRW)(TpAppID, const char *);
+typedef int (*CallbackInstallConfRW)(TpAppID, const TpString &);
 
 // 提取json文件中某个对象的值
 
@@ -30,6 +34,49 @@ typedef int (*CallbackInstallConfRW)(TpAppID, const char *);
 // values:键值，例如：value1@value2@value3
 // seg:分隔符
 // key1,...,多个键值
+// void configJsonArrayAnalysis(TpString values, TpJsonArray& libArray, const TpString& seq, int num, ...)
+// {
+//     va_list args;
+//     TpString keyValue;
+
+//     printf("values=%s\n", values.c_str());
+
+//     // 使用TpString的split方法替代strtok_r
+//     TpList<TpString> tokens = values.split(seq[0]); // 假设seq是单个字符分隔符
+
+//     for (const TpString& token : tokens) {
+//         keyValue = token.trimmed(); // 去除前后空格
+//         printf("keyValue=%s\n", keyValue.c_str());
+
+//         if (num == 0) {
+//             libArray.append(TpJsonValue(keyValue));
+//             continue;
+//         }
+
+//         int i = 0;
+//         TpJsonObject obj;
+//         TpList<TpString> valueTokens = keyValue.split('@');
+
+//         va_start(args, num);
+//         while (i < num && i < valueTokens.count()) {
+//             TpString valueN = valueTokens.at(i).trimmed();
+//             if (valueN.isEmpty()) {
+//                 break;
+//             }
+
+//             printf("valueN=%s\n", valueN.c_str());
+//             char* str = va_arg(args, char*);
+//             printf("key=%s\n", str);
+
+//             obj.insert(TpString(str), TpJsonValue(valueN));
+//             i++;
+//         }
+//         va_end(args);
+
+//         libArray.append(TpJsonValue(obj));
+//     }
+// }
+
 void config_json_array_analysis(char *values, struct json_object *lib_array, const char *seq, int num, ...)
 {
     va_list args; //
@@ -92,109 +139,6 @@ void config_json_object_analysis(char *values, struct json_object *object, char 
     va_end(args); // 清理 va_list 变量
 }
 
-// 配置信息写入json
-int config_add_to_json(PackageExportType type, json_object *export_obj, const char *key, const char *value)
-{
-    size_t len = strlen(value) + 1;
-    char *key_value = (char *)malloc(len);
-    memcpy(key_value, value, len);
-    switch (type)
-    {
-    case EXPORT_LIBS:
-    {
-        struct json_object *array = json_object_new_array();
-        config_json_array_analysis(key_value, array, " ", 0);
-        json_object_object_add(export_obj, key, array);
-        break;
-    }
-    case EXPORT_DEPEND:
-    {
-        struct json_object *array = json_object_new_array();
-        config_json_array_analysis(key_value, array, " ", 2, "name", "version");
-        json_object_object_add(export_obj, key, array);
-        break;
-    }
-    case EXPORT_MUST:
-    {
-        json_object_object_add(export_obj, key, json_object_new_string((const char *)key_value));
-        break;
-    }
-    default:
-        break;
-    }
-    free(key_value);
-    return 0;
-}
-
-// 配置文件中的export行目解析
-int config_export_analysis_json(char *line, json_object *export_obj)
-{
-    char *key = NULL, *value = NULL;
-    key = line + 7;
-    value = strchr(key, '=');
-    if (!value)
-    {
-        fprintf(stderr, "无效的 export 行：%s\n", line);
-        return -1;
-    }
-    *value = '\0';
-    value++;
-    PackageExportType type;
-    if (strcmp(key, "lib") == 0)
-    {
-        type = EXPORT_LIBS;
-    }
-    else if (strcmp(key, "depend") == 0)
-    {
-        type = EXPORT_DEPEND;
-    }
-    else if (strcmp(key, "icon") == 0 || strcmp(key, "start") == 0 || strcmp(key, "remove") == 0)
-    { // icon start remove
-        type = EXPORT_MUST;
-    }
-    config_add_to_json(type, export_obj, key, value);
-    return 0;
-}
-
-//
-
-// 配置文件普通行目解析
-int config_keyvalue_analysis_json(char *line, json_object *export_obj)
-{
-    char *key = NULL, *value = NULL;
-    // 分离key和value
-    key = line;
-    value = strchr(key, ':');
-    if (!value)
-    {
-        fprintf(stderr, "无效的 key value 行：%s\n", line);
-        return -1;
-    }
-    *value = '\0';
-    value++;
-
-    if (strcmp(key, "author") == 0)
-    {
-        struct json_object *obj = json_object_new_object();
-        char *end = strchr(value, '>'); // 去掉结尾
-        if (end)
-            *end = '\0';
-        config_json_object_analysis(value, obj, (char *)" <", 2, "name", "email");
-        json_object_object_add(export_obj, key, obj);
-    }
-    else if (strcmp(key, "fileExtension") == 0)
-    {
-        struct json_object *array = json_object_new_array();
-        config_json_array_analysis(value, array, " ", 0);
-        json_object_object_add(export_obj, key, array);
-    }
-    else
-    {
-        json_object_object_add(export_obj, key, json_object_new_string((const char *)value));
-    }
-    return 0;
-}
-
 // 从某个object中递归查找该object中某个key的值
 static const char *find_key_from_obj(struct json_object *obj, const char *target_key)
 {
@@ -239,42 +183,6 @@ static const char *find_key_from_obj(struct json_object *obj, const char *target
     return NULL;
 }
 
-// 从未加密的json文件中查找key的值
-int find_key_from_file(const char *file_path, const char *key, char *value)
-{
-    FILE *file = fopen(file_path, "r");
-    if (file == NULL)
-        return -1;
-    fseek(file, 0, SEEK_END);
-    long length = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    char *data = (char *)malloc(length + 1);
-    if (!data)
-    {
-        perror("Failed to allocate memory");
-        fclose(file);
-        return -1;
-    }
-    fread(data, 1, length, file);
-    fclose(file);
-    data[length] = '\0';
-
-    // 解析 JSON 数据
-    struct json_object *json_obj = json_tokener_parse(data);
-    free(data);
-
-    if (!json_obj)
-    {
-        fprintf(stderr, "JSON parsing error\n");
-        return -1;
-    }
-    const char *value_temp = find_key_from_obj(json_obj, key);
-    strcpy(value, value_temp);
-    //	printf("value:%s", value_temp);
-    return 0;
-}
-
 // 读取json对象
 
 // 根据key和value查找并删除对应的对象
@@ -305,120 +213,36 @@ static int del_object_by_keyvalue(struct json_object *objects_array, const char 
 }
 
 // 当install.conf文件不存在的时候新建该文件
-int creat_install_conf(const char *install_path)
+int createInstallConfig(const TpString &installPath)
 {
-    FILE *file = fopen(install_path, "w");
-    if (file == NULL)
-    {
+    // 创建TpFile对象
+    TpFile file(installPath);
+    // 以写模式打开文件
+    if (!file.open(TpFile::WriteOnly))
         return -1;
-    }
-    struct json_object *json_obj;
-    struct json_object *app_install;
 
-    // 创建一个新的 JSON 对象
-    json_obj = json_object_new_object();
-    if (json_obj == NULL)
+    // 创建JSON对象
+    TpJsonObject jsonObj;
+
+    // 添加基本字段
+    jsonObj.insert("numbers", 0);
+
+    // 添加"appInstall" 键 值为空数组
+    TpJsonArray appInstallArray;
+    jsonObj.insert("appInstall", appInstallArray);
+
+    // 将JSON对象转换为字符串并写入文件
+    TpJsonDocument jsonDoc(jsonObj);
+    TpString jsonString = jsonDoc.toJson();
+    uint64_t bytesWritten = file.write(jsonString);
+
+    if (bytesWritten == 0)
     {
-        printf("Failed to create new JSON object\n");
-        return -1;
-    }
-
-    json_object_object_add(json_obj, "numbers", json_object_new_int(0));
-
-    // 添加 "appInstall" 键，值为一个空数组
-    app_install = json_object_new_array();
-    json_object_object_add(json_obj, "appInstall", app_install);
-
-    // 将 JSON 对象写入文件
-
-    if (json_object_to_file_ext(install_path, json_obj, JSON_C_TO_STRING_PRETTY) < 0)
-    {
-        printf("Failed to write JSON to file: %s\n", install_path);
-        json_object_put(json_obj);
+        file.close();
         return -1;
     }
 
-    printf("JSON data written to: %s\n", install_path);
-
-    // 释放 JSON 对象
-    json_object_put(json_obj);
-
-    return 0;
-}
-
-// install.conf新增一个应用信息
-static int add_appuuid_install(TpAppID uuid, const char *install_path)
-{
-    creat_install_conf(install_path);
-    struct json_object *root = json_object_from_file(install_path);
-    if (root == NULL)
-    {
-        printf("errr\n");
-        return -1;
-    }
-    struct json_object *objects_array;
-    if (!json_object_object_get_ex(root, "appInstall", &objects_array))
-    {
-        fprintf(stderr, "Error: 'objects' array not found.\n");
-        json_object_put(root);
-        return -1;
-    }
-
-    struct json_object *new_obj = json_object_new_object();
-    json_object_object_add(new_obj, "id", json_object_new_string(uuid.value.c_str()));
-    // 继续增加其他key和value
-
-    struct json_object *numbers;
-    if (json_object_object_get_ex(root, "numbers", &numbers))
-    {
-        int num = json_object_get_int(numbers);
-        num += 1;
-        json_object_set_int(numbers, num);
-    }
-
-    json_object_array_add(objects_array, new_obj);
-    //	json_object_to_file(install_path, root);
-    json_object_to_file_ext(install_path, root, JSON_C_TO_STRING_PRETTY);
-    json_object_put(root);
-
-    return 0;
-}
-
-// install.conf删除一个应用信息
-static int del_appuuid_install(TpAppID uuid, const char *install_path)
-{
-
-    struct json_object *root = json_object_from_file(install_path);
-    if (root == NULL)
-    {
-        return -1;
-    }
-    struct json_object *objects_array;
-    if (!json_object_object_get_ex(root, "appInstall", &objects_array))
-    {
-        fprintf(stderr, "Error: 'objects' array not found.\n");
-        json_object_put(root);
-        return -1;
-    }
-    if (del_object_by_keyvalue(objects_array, "id", uuid.value.c_str()) == 0) // 根据id的值查找并删除
-    {
-        struct json_object *numbers;
-        if (json_object_object_get_ex(root, "numbers", &numbers))
-        {
-            int num = json_object_get_int(numbers);
-            num -= 1;
-            json_object_set_int(numbers, num);
-        }
-
-        // json_object_to_file(install_path, root);
-        json_object_to_file_ext(install_path, root, JSON_C_TO_STRING_PRETTY);
-    }
-    else
-    {
-        json_object_put(root);
-        return -1;
-    }
-    json_object_put(root);
+    file.close();
     return 0;
 }
 
@@ -447,116 +271,6 @@ static int file_unlock(int fd)
     lock.l_len = 0;
     fcntl(fd, F_SETLK, &lock);
 
-    return 0;
-}
-
-static int appuuid_install_safe_rw(TpAppID uuid, const char *install_path, CallbackInstallConfRW callback)
-{
-    int origFd = open(install_path, O_RDWR);
-    if (origFd < 0)
-    {
-        perror("open original file");
-        return -1;
-    }
-
-    // 加独占锁，防止其他进程修改
-    if (flock(origFd, LOCK_EX) < 0)
-    {
-        perror("flock");
-        close(origFd);
-        return -1;
-    }
-
-    char *tmpTemplate = open_directories_temp(APP_INSTALL_PATH);
-    printf("创建临时文件%s\n", tmpTemplate);
-    int tmpFd = open(tmpTemplate, O_RDWR | O_CREAT | O_EXCL, 0600); // mkstemp(tmpTemplate);
-    if (tmpFd < 0)
-    {
-        perror("mkstemp");
-        flock(origFd, LOCK_UN);
-        close(origFd);
-        return -1;
-    }
-
-    // 逐块读取原文件并写入临时文件
-    char buffer[BUFFER_SIZE];
-    ssize_t bytesRead;
-    while ((bytesRead = read(origFd, buffer, BUFFER_SIZE)) > 0)
-    {
-        ssize_t bytesWritten = write(tmpFd, buffer, bytesRead);
-        if (bytesWritten != bytesRead)
-        {
-            perror("write temporary file");
-            close(tmpFd);
-            unlink(tmpTemplate);
-            flock(origFd, LOCK_UN);
-            close(origFd);
-            return -1;
-        }
-    }
-    // 读取完成，关闭原文件
-    close(origFd);
-
-    if (callback(uuid, tmpTemplate) < 0)
-    {
-        close(tmpFd);
-        flock(origFd, LOCK_UN);
-        free(tmpTemplate);
-        return -1;
-    }
-
-    // 确保数据写入磁盘
-    fsync(tmpFd);
-    close(tmpFd);
-
-    // 用临时文件原子性替换原文件
-    if (rename(tmpTemplate, install_path) != 0)
-    {
-        perror("rename");
-        unlink(tmpTemplate);
-        close_directories_temp(tmpTemplate);
-        return -1;
-    }
-
-    // 释放锁
-    flock(origFd, LOCK_UN);
-    free(tmpTemplate);
-    return 0;
-}
-
-// 安全新增应用到install文件
-int add_appuuid_install_safe(TpAppID uuid, const char *install_path)
-{
-    return appuuid_install_safe_rw(uuid, install_path, add_appuuid_install);
-}
-// 安全删除应用从install文件
-int del_appuuid_install_safe(TpAppID uuid, const char *install_path)
-{
-    // del_appuuid_install(uuid,install_path);
-    return appuuid_install_safe_rw(uuid, install_path, del_appuuid_install);
-}
-
-// 不加密写入json对象到文件
-int write_json_object_file(json_object *root, const char *file_path)
-{
-    printf("写入json配置文件:%s\n", file_path);
-    FILE *file_j = fopen(file_path, "w");
-    if (!file_j)
-    {
-        fprintf(stderr, "create or open json file error,path:%s", file_path);
-        return -1;
-    }
-
-    const char *str_json = json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_NOSLASHESCAPE); // 转字符串
-    printf("%s\n", str_json);                                                                                              // 打印测试
-    if (fprintf(file_j, "%s\n", str_json) < 0)                                                                             // 写入文件
-    {
-        fprintf(stderr, "write to json file error,path:%s", file_path);
-        fclose(file_j);
-        return -1;
-    }
-
-    fclose(file_j);
     return 0;
 }
 
@@ -735,8 +449,163 @@ static char *read_json_string_file_key(const char *file_path, const unsigned cha
     return json_str;
 }
 
-// 加密写入json文件
-int write_json_object_file_encryption(json_object *root, const char *file_path)
+int ConfigJsonParser::config_export_analysis_json(char *line, json_object *export_obj)
+{
+    char *key = NULL, *value = NULL;
+    key = line + 7;
+    value = strchr(key, '=');
+    if (!value)
+    {
+        fprintf(stderr, "无效的 export 行：%s\n", line);
+        return -1;
+    }
+    *value = '\0';
+    value++;
+    PackageExportType type;
+    if (strcmp(key, "lib") == 0)
+    {
+        type = EXPORT_LIBS;
+    }
+    else if (strcmp(key, "depend") == 0)
+    {
+        type = EXPORT_DEPEND;
+    }
+    else if (strcmp(key, "icon") == 0 || strcmp(key, "start") == 0 || strcmp(key, "remove") == 0)
+    { // icon start remove
+        type = EXPORT_MUST;
+    }
+    config_add_to_json(type, export_obj, key, value);
+    return 0;
+}
+
+int ConfigJsonParser::config_keyvalue_analysis_json(char *line, json_object *export_obj)
+{
+    char *key = NULL, *value = NULL;
+    // 分离key和value
+    key = line;
+    value = strchr(key, ':');
+    if (!value)
+    {
+        fprintf(stderr, "无效的 key value 行：%s\n", line);
+        return -1;
+    }
+    *value = '\0';
+    value++;
+
+    if (strcmp(key, "author") == 0)
+    {
+        struct json_object *obj = json_object_new_object();
+        char *end = strchr(value, '>'); // 去掉结尾
+        if (end)
+            *end = '\0';
+        config_json_object_analysis(value, obj, (char *)" <", 2, "name", "email");
+        json_object_object_add(export_obj, key, obj);
+    }
+    else if (strcmp(key, "fileExtension") == 0)
+    {
+        struct json_object *array = json_object_new_array();
+        config_json_array_analysis(value, array, " ", 0);
+        json_object_object_add(export_obj, key, array);
+    }
+    else
+    {
+        json_object_object_add(export_obj, key, json_object_new_string((const char *)value));
+    }
+    return 0;
+}
+
+int ConfigJsonParser::find_key_from_file(const char *file_path, const char *key, char *value)
+{
+    FILE *file = fopen(file_path, "r");
+    if (file == NULL)
+        return -1;
+    fseek(file, 0, SEEK_END);
+    long length = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char *data = (char *)malloc(length + 1);
+    if (!data)
+    {
+        perror("Failed to allocate memory");
+        fclose(file);
+        return -1;
+    }
+    fread(data, 1, length, file);
+    fclose(file);
+    data[length] = '\0';
+
+    // 解析 JSON 数据
+    struct json_object *json_obj = json_tokener_parse(data);
+    free(data);
+
+    if (!json_obj)
+    {
+        fprintf(stderr, "JSON parsing error\n");
+        return -1;
+    }
+    const char *value_temp = find_key_from_obj(json_obj, key);
+    strcpy(value, value_temp);
+    //	printf("value:%s", value_temp);
+    return 0;
+}
+
+int ConfigJsonParser::config_add_to_json(PackageExportType type, json_object *export_obj, const char *value, const char *key)
+{
+    size_t len = strlen(value) + 1;
+    char *key_value = (char *)malloc(len);
+    memcpy(key_value, value, len);
+    switch (type)
+    {
+    case EXPORT_LIBS:
+    {
+        struct json_object *array = json_object_new_array();
+        config_json_array_analysis(key_value, array, " ", 0);
+        json_object_object_add(export_obj, key, array);
+        break;
+    }
+    case EXPORT_DEPEND:
+    {
+        struct json_object *array = json_object_new_array();
+        config_json_array_analysis(key_value, array, " ", 2, "name", "version");
+        json_object_object_add(export_obj, key, array);
+        break;
+    }
+    case EXPORT_MUST:
+    {
+        json_object_object_add(export_obj, key, json_object_new_string((const char *)key_value));
+        break;
+    }
+    default:
+        break;
+    }
+    free(key_value);
+    return 0;
+}
+
+int ConfigJsonParser::write_json_object_file(json_object *root, const char *file_path)
+{
+    printf("写入json配置文件:%s\n", file_path);
+    FILE *file_j = fopen(file_path, "w");
+    if (!file_j)
+    {
+        fprintf(stderr, "create or open json file error,path:%s", file_path);
+        return -1;
+    }
+
+    const char *str_json = json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_NOSLASHESCAPE); // 转字符串
+    printf("%s\n", str_json);                                                                                              // 打印测试
+    if (fprintf(file_j, "%s\n", str_json) < 0)                                                                             // 写入文件
+    {
+        fprintf(stderr, "write to json file error,path:%s", file_path);
+        fclose(file_j);
+        return -1;
+    }
+
+    fclose(file_j);
+    return 0;
+}
+
+int ConfigJsonParser::write_json_object_file_encryption(json_object *root, const char *file_path)
 {
     secret_update_key(); // 更新密钥
 
@@ -751,8 +620,7 @@ int write_json_object_file_encryption(json_object *root, const char *file_path)
     return 0;
 }
 
-// 从加密的json文件读取字符串json
-char *read_json_string_file_encryption(const char *file_path)
+char *ConfigJsonParser::read_json_string_file_encryption(const char *file_path)
 {
     unsigned char *key = secret_get_key();
     if (!key)

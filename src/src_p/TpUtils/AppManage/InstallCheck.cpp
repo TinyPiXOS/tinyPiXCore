@@ -129,7 +129,7 @@ int get_app_version_json(const char *uuid, struct TpVersion *ver)
         free(path_conf);
         return 1;
     }
-    find_key_from_file(path_conf, "version", ver_str);
+    ConfigJsonParser::find_key_from_file(path_conf, "version", ver_str);
     string_to_version((const char *)ver_str, ver);
     return 0;
 }
@@ -346,7 +346,7 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             //     printf("config->icon=%s,\n", config->icon);
             // }
         }
-        if (find_directory(APP_INSTALL_PATH, config->app_id.c_str()) > 0)
+        if (find_directory(APP_INSTALL_PATH, config->appID.c_str()) > 0)
         {
             printf("应用已安装\n");
             config->install_flag = 1;
@@ -493,7 +493,7 @@ int appm_check_version(struct PackageConfigInfo *conf)
     {
     case TYPE_PACKAGE_APP:
     case TYPE_PACKAGE_SAPP:
-        return install_check_app_version(conf->appConf.app_id.c_str(), conf->appConf.version);
+        return install_check_app_version(conf->appConf.appID.c_str(), conf->appConf.version);
         break;
     case TYPE_PACKAGE_LIB:
         return install_check_lib_version(&conf->libConf);
