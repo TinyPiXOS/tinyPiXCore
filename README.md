@@ -8,7 +8,7 @@
 
 </div>
 
-TinyPiXOS 包括窗口管理器（TpWM）、GUI库（TpGUI）、工具库（TpUtil）、扩展库（TpExtUtils）四大部分。
+TinyPiXOS 包括窗口管理器（TpWM）、核心库（TpCore）、GUI库（TpGUI）、工具库（TpUtil）四大部分。
 
 ---
 
@@ -28,6 +28,18 @@ TpWM是 TinyPiXOS 的窗口管理引擎，是 TinyPiXOS 的核心支撑要件。
 
 TpService 是 ​​TiniPiXOS​​ 框架的后台服务模块，基于 ​​nanomsg​​ 实现高效通信，目前主要提供 ​​进程间通信（IPC）​​ 和 ​​局域网设备间通信​​ 功能，并计划逐步扩展为更强大的系统服务节点。
 
+## TpCore
+
+TpCore 库为 TinyPiXOS 应用程序的核心库，提供了信号槽、核心数据结构、文件操作、JSON 处理、泛类型等。
+
+---
+
+- 统一数据抽象：提供 TpString、TpList、TpHash、TpVector 等作为框架中所有数据操作的通用容器基类,建立统一的数据结构管理体系,确保类型安全与内存效率。
+- 高效序列化机制：统一处理二进制与 JSON 格式的数据转换,支持结构体与内存缓冲区的快速互转,适用于高性能数据存储与传输。
+- 事件驱动调度：内建信号槽系统,基于观察者模式实现松耦合的组件间通信,支持异步事件传播与回调处理。
+
+---
+
 ## TpGUI
 
 TpGUI 库为 TinyPiXOS 应用程序提供了核心 GUI 框架，实现了一个全面的基于小部件的用户界面系统，具有 CSS 样式、事件处理和动画功能。该库是在 TinyPiXOS 平台上构建图形应用程序的基础。
@@ -44,19 +56,7 @@ TpGUI 库为 TinyPiXOS 应用程序提供了核心 GUI 框架，实现了一个�
 
 ## TpUtils
 
-TpUtils​​ 是 TinyPiXOS 中的基础实用程序库，提供核心数据结构、文件作、CSS 解析、JSON 处理、系统集成 API 和通信机制。该库用作其他 TinyPiXOS 组件的基本功能所依赖的基础层。
-
----
-
-- 统一数据抽象：提供 TpString、TpList、TpHash、TpVector 等作为框架中所有数据操作的通用容器基类,建立统一的数据结构管理体系,确保类型安全与内存效率。
-- 高效序列化机制：统一处理二进制与 JSON 格式的数据转换,支持结构体与内存缓冲区的快速互转,适用于高性能数据存储与传输。
-- 事件驱动调度：内建信号槽系统,基于观察者模式实现松耦合的组件间通信,支持异步事件传播与回调处理。
-
----
-
-## TpExtUtils
-
-TpExtUtils 库为 TinyPiXOS 应用程序提供全面的系统级集成功能。该库充当高级应用程序逻辑和低级系统资源之间的桥梁，为媒体处理、网络通信、蓝牙连接、应用程序生命周期管理、硬件监控和设备管理提供标准化接口。
+TpUtils​​ 库为 TinyPiXOS 应用程序提供全面的系统级集成功能。该库充当高级应用程序逻辑和低级系统资源之间的桥梁，为媒体处理、网络通信、蓝牙连接、应用程序生命周期管理、硬件监控和设备管理提供标准化接口。
 
 ---
 
@@ -69,6 +69,7 @@ TpExtUtils 库为 TinyPiXOS 应用程序提供全面的系统级集成功能。�
 - 显示系统集成:TpDisplay 提供 DPI 缩放计算与 TpWM 窗口管理器的分辨率适配,支持多显示器配置与运行时分辨率切换。
 
 ---
+
 
 # 二、系统优势 🌟
 
@@ -252,6 +253,12 @@ export LD_LIBRARY_PATH="/usr/lib/TinyPiX:$LD_LIBRARY_PATH"
 ```
 
 ```cmake
+# TpCore引入
+include_directories(/usr/include/TinyPiX/TpCore)
+link_directories("/usr/lib/TinyPiX")
+link_directories("/usr/lib/TpWM")
+target_link_libraries(你的应用程序名称 TpCore)
+
 # TpGUI引入：
 include_directories(/usr/include/TinyPiX/TpGUI)
 link_directories("/usr/lib/TinyPiX")
@@ -261,11 +268,6 @@ target_link_libraries(你的应用程序名称 TpGUI)
 include_directories(/usr/include/TinyPiX/TpUtils)
 link_directories("/usr/lib/TinyPiX")
 target_link_libraries(你的应用程序名称 TpUtils)
-
-# TpExtUtils引入
-include_directories(/usr/include/TinyPiX/TpExtUtils)
-link_directories("/usr/lib/TinyPiX")
-target_link_libraries(你的应用程序名称 TpExtUtils)
 ```
 
 #### 配置文件解析

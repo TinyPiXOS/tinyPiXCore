@@ -532,7 +532,6 @@ int appm_free_package_info(struct PackageConfigInfo *conf)
         free_AppPackageConfig(&conf->appConf);
         break;
     case TYPE_PACKAGE_LIB:
-        free_LibPackageConfig(&conf->libConf);
         break;
     default:
         break;

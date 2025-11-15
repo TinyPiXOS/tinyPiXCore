@@ -14,7 +14,7 @@
 #include <grp.h>
 #include "Purview.h"
 #include "typesDef.h"
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "install.h"
 #include "utilslib.h"
 #include "system_permission.h"

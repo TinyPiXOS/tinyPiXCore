@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "TpFileCreat.h"
 #include "JsonConf.h"
 

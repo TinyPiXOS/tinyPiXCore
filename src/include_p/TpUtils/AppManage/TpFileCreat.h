@@ -2,7 +2,7 @@
 #define _FILE_CREAT_H_
 
 #include <stdint.h>
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "app_script.h"
 #include "TpString.h"
 #include "TpVector.h"

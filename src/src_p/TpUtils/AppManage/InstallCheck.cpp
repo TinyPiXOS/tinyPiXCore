@@ -19,7 +19,7 @@
 #include "install.h"
 #include "Unpack.h"
 #include "ConfJson.h"
-#include "AppManage/appmanage_conf.h"
+#include "AppManage/AppmanageConf.h"
 #include "utilslib.h"
 #include <unistd.h>
 #include <dirent.h>
@@ -242,10 +242,13 @@ int extract_lib_config_lib(char *libs, struct LibPackageConfig *config)
     {
         char *ver = strchr(lib_name, '@');
         ver[0] = '\0';
-        config->system_lib[config->lib_count] = (char *)malloc(strlen(lib_name) + 1);
-        strcpy(config->system_lib[config->lib_count], lib_name);
-        string_to_version(ver + 1, &config->version[config->lib_count]);
-        config->lib_count++;
+
+        if (!config->systemLib.contains(lib_name))
+        {
+            config->systemLib.emplace_back(lib_name);
+        }
+
+        string_to_version(ver + 1, &config->version[config->systemLib.size() - 1]);
         lib_name = strtok_r(NULL, " ", &libs_ptr);
     }
     return 0;
@@ -305,55 +308,62 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
         {
             if (line[0] == '#') // 跳过注释行
                 continue;
+
             // 移除换行符
             trim_newline(line);
 
-            // if (strncmp(line, "appName:", 8) == 0)
-            // {
-            //     strncpy(config->app_name, line + 8, sizeof(config->app_name));
-            // }
-            // else if (strncmp(line, "appID:", 6) == 0)
-            // {
-            //     strncpy(config->app_id, line + 6, sizeof(config->app_id));
-            // }
-            // else if (strncmp(line, "version:", 8) == 0)
-            // {
-            //     // struct TpVersion ver;
-            //     string_to_version((const char *)line + 8, &(config->version));
-            // }
-            // else if (strncmp(line, "appexecName:", 12) == 0)
-            // {
-            //     int len = strlen(line + 12) + 1;
-            //     config->appexec_name = malloc(len);
-            //     strncpy(config->appexec_name, line + 12, len);
-            // }
-            // else if (strncmp(line, "architecture:", 13) == 0)
-            // {
-            //     strncpy(config->architecture, line + 13, sizeof(config->architecture));
-            // }
-            // else if (strncmp(line, "diskSpace:", 10) == 0)
-            // {
-            //     long int size;
-            //     if (string_to_number(line + 10, &size) == 0)
-            //         config->diskspace = (uint32_t)size;
-            //     else
-            //         config->diskspace = 0;
-            // }
-            // else if (strncmp(line, "export icon=", 12) == 0)
-            // {
-            //     config->icon = strdup(line + 12);
-            //     delete_end_space(config->icon);
-            //     printf("config->icon=%s,\n", config->icon);
-            // }
+            if (strncmp(line, "appName:", 8) == 0)
+            {
+                config->appName.assign(line + 8, 128);
+                // strncpy(config->appName, line + 8, 128);
+            }
+            else if (strncmp(line, "appID:", 6) == 0)
+            {
+                config->appID.assign(line + 6, 37);
+                // strncpy(config->app_id, line + 6, sizeof(config->app_id));
+            }
+            else if (strncmp(line, "version:", 8) == 0)
+            {
+                // struct TpVersion ver;
+                string_to_version((const char *)line + 8, &(config->version));
+            }
+            else if (strncmp(line, "appexecName:", 12) == 0)
+            {
+                int len = strlen(line + 12) + 1;
+
+                config->appexecName.assign(line + 12, len);
+
+                // config->appexec_name = malloc(len);
+                // strncpy(config->appexec_name, line + 12, len);
+            }
+            else if (strncmp(line, "architecture:", 13) == 0)
+            {
+                config->architecture.assign(line + 13, 64);
+                // strncpy(config->architecture, line + 13, sizeof(config->architecture));
+            }
+            else if (strncmp(line, "diskSpace:", 10) == 0)
+            {
+                long int size;
+                if (string_to_number(line + 10, &size) == 0)
+                    config->diskspace = (uint32_t)size;
+                else
+                    config->diskspace = 0;
+            }
+            else if (strncmp(line, "export icon=", 12) == 0)
+            {
+                config->icon = strdup(line + 12);
+                delete_end_space((char *)config->icon.c_str());
+                // printf("config->icon=%s,\n", config->icon);
+            }
         }
         if (find_directory(APP_INSTALL_PATH, config->appID.c_str()) > 0)
         {
             printf("应用已安装\n");
-            config->install_flag = 1;
+            config->installFlag = 1;
             // return 0;
         }
         else
-            config->install_flag = 0;
+            config->installFlag = 0;
         break;
     }
     case TYPE_PACKAGE_LIB: // 系统库安装包配置文件解析
@@ -368,7 +378,8 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             trim_newline(line);
             if (strncmp(line, "architecture:", 13) == 0)
             {
-                strncpy(config->architecture, line + 13, sizeof(config->architecture));
+                config->architecture.assign(line + 13, 16);
+                // strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
             else if (strncmp(line, "diskSpace:", 10) == 0)
             {
@@ -440,16 +451,6 @@ int free_AppPackageConfig(struct AppPackageConfig *conf)
     return 0;
 }
 
-// struct LibPackageConfig释放
-int free_LibPackageConfig(struct LibPackageConfig *conf)
-{
-    for (int i = 0; i < conf->lib_count; i++)
-    {
-        free(conf->system_lib[i]);
-    }
-    return 0;
-}
-
 int appm_check_arch(struct PackageConfigInfo *conf)
 {
     TpString arch;
@@ -465,7 +466,7 @@ int appm_check_arch(struct PackageConfigInfo *conf)
     default:
         return 0;
     }
-    return install_check_arch((char*)arch.c_str());
+    return install_check_arch((char *)arch.c_str());
 }
 
 int appm_check_space(struct PackageConfigInfo *conf)
@@ -518,7 +519,7 @@ int appm_get_app_is_install(struct PackageConfigInfo *conf)
     {
     case TYPE_PACKAGE_APP:
     case TYPE_PACKAGE_SAPP:
-        return (conf->appConf.install_flag > 0 ? 1 : 0);
+        return (conf->appConf.installFlag > 0 ? 1 : 0);
         break;
     case TYPE_PACKAGE_LIB:
     default:
