@@ -6,7 +6,7 @@ G++ = g++
 INC = -I/usr/include \
         -I/usr/include/SDL2 \
         -I/usr/include/TinyPiX \
-        -I/usr/include/TinyPiX/TpExtUtils \
+        -I/usr/include/TinyPiX/TpCore \
         -I/usr/include/TinyPiX/TpUtils \
         -I/usr/include/TinyPiX/TpGUI \
         -I/usr/include/TinyPiX/TpGUI/Core \
@@ -25,15 +25,17 @@ INC = -I/usr/include \
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
 LIB = -L/usr/lib \
-        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm   -lGLESv2 -lEGL -lTpUtils  -lTpExtUtils -lTpGUI -lTpCore 
+        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm   -lGLESv2 -lEGL -lTpUtils   -lTpGUI -lTpCore 
 #伪目标：需要依赖的目标
 #.PHONY:Audio Video Hard Record#即使该目标存在也重新生成
 #all:Audio Video Hard Record clean#
-.PHONY:Ap3216 #即使该目标存在也重新生成
-all:Ap3216 clean#
-Ap3216:
-	$(G++) -c ap3216.cpp $(INC)
+.PHONY:Sht20 #即使该目标存在也重新生成
+all:Sht20 clean#
+Sht20:
+	$(G++) -c sht20.cpp $(INC)
 	$(G++) -c main.cpp $(INC)
-	$(G++) -o Ap3216 ap3216.o main.o $(LIB) $(INC)
+	$(G++) -o Sht20 sht20.o main.o $(LIB) $(INC)
+
 clean:
 	rm *.o
+

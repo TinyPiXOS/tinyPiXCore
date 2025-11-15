@@ -33,6 +33,14 @@ public:
     /// @param value 要添加的JSON值
     void append(const TpJsonValue &value);
 
+    /// @brief 向数组末尾添加JSON对象
+    /// @param object 要添加的JSON对象
+    void append(const TpJsonObject &object);
+
+    /// @brief 向数组末尾添加JSON数组
+    /// @param array 要添加的JSON数组
+    void append(const TpJsonArray &array);
+
     /// @brief 获取数组的第一个元素
     /// @return 数组的第一个元素
     TpJsonValue first();

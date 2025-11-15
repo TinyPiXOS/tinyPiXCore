@@ -6,7 +6,7 @@ G++ = g++
 INC = -I/usr/include \
         -I/usr/include/SDL2 \
         -I/usr/include/TinyPiX \
-        -I/usr/include/TinyPiX/TpExtUtils \
+        -I/usr/include/TinyPiX/TpCore \
         -I/usr/include/TinyPiX/TpUtils \
         -I/usr/include/TinyPiX/TpGUI \
         -I/usr/include/TinyPiX/TpGUI/Core \
@@ -25,20 +25,23 @@ INC = -I/usr/include \
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
 LIB = -L/usr/lib \
-        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lTpUtils -lTpGUI -lTpCore  -lTpExtUtils
+        -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lTpUtils -lTpGUI -lTpCore  
 #伪目标：需要依赖的目标
-.PHONY:Install Dopack Remove#即使该目标存在也重新生成
-all:Install Dopack Remove clean#
+.PHONY:Audio Video Hard Record#即使该目标存在也重新生成
+all:Audio Video Hard Record clean#
 
-Install:
-	$(G++) -c install.cpp $(INC)
-	$(G++) -o Install install.o $(LIB) $(INC)
-Dopack:
-	$(G++) -c dopack.cpp $(INC)
-	$(G++) -o Dopack dopack.o $(LIB) $(INC)
-Remove:
-	$(G++) -c remove.cpp $(INC)
-	$(G++) -o Remove remove.o $(LIB) $(INC)
+Audio:
+	$(G++) -c audio.cpp $(INC)
+	$(G++) -o Audio audio.o $(LIB) $(INC)
+Video:
+	$(G++) -c video.cpp $(INC)
+	$(G++) -o Video video.o $(LIB) $(INC)
+Hard:
+	$(G++) -c hard.cpp $(INC)
+	$(G++) -o Hard hard.o $(LIB) $(INC)
+Record:
+	$(G++) -c record.cpp $(INC)
+	$(G++) -o Record record.o $(LIB) $(INC)
 clean:
 	rm *.o
 

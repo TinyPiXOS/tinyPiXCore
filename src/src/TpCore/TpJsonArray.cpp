@@ -1,4 +1,5 @@
 #include <TpJsonArray.h>
+#include <TpJsonObject.h>
 
 TpJsonArray::TpJsonArray()
 {
@@ -37,7 +38,7 @@ TpJsonValue TpJsonArray::at(const uint32_t &index) const
     rapidjson::Document tmpJsonDoc;
     tmpJsonDoc.CopyFrom(jsonValue, tmpJsonDoc.GetAllocator());
 
-    TpJsonValue tmpJsonValue ;
+    TpJsonValue tmpJsonValue;
     tmpJsonValue.value_.Swap(tmpJsonDoc);
 
     return tmpJsonValue;
@@ -63,6 +64,30 @@ void TpJsonArray::append(const TpJsonValue &value)
     doc_.PushBack(newValue, doc_.GetAllocator());
 
     // doc_.PushBack(tmpJsonValue.value_, doc_.GetAllocator());
+}
+
+void TpJsonArray::append(const TpJsonObject &object)
+{
+    if (!doc_.IsArray())
+        return;
+
+    TpJsonObject &tmpJsonObject = const_cast<TpJsonObject &>(object);
+
+    rapidjson::Value newValue;
+    newValue.CopyFrom(tmpJsonObject.doc_, doc_.GetAllocator());
+    doc_.PushBack(newValue, doc_.GetAllocator());
+}
+
+void TpJsonArray::append(const TpJsonArray &array)
+{
+    if (!doc_.IsArray())
+        return;
+
+    TpJsonArray &tmpJsonArray = const_cast<TpJsonArray &>(array);
+
+    rapidjson::Value newValue;
+    newValue.CopyFrom(tmpJsonArray.doc_, doc_.GetAllocator());
+    doc_.PushBack(newValue, doc_.GetAllocator());
 }
 
 TpJsonValue TpJsonArray::first()

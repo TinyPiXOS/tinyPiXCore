@@ -1,0 +1,73 @@
+{
+    "key1": 110119,
+    "key2": "qazxswed",
+    "key3": "qweqweasd",
+    "keyJson": {
+        "sonKey": "zxcvvb"
+    },
+    "keyArray": [
+        1,
+        2,
+        3
+    ],
+    "keyArrayStr": [
+        "att1",
+        "att2",
+        "att3"
+    ],
+    "keyArrayObj": [
+        {
+            "key1": 110119,
+            "key3": "qweqweasd",
+            "keyJson": {
+                "sonKey": "zxcvvb"
+            }
+        },
+        {
+            "key1": 110120,
+            "key3": "qweqweasd",
+            "keyJson": {
+                "sonKey": "zxcvvb"
+            }
+        }
+    ],
+    "key4": true,
+    "key5": "这是一个字符串",
+    "key6": [
+        {
+            "key0": "++++++++++++++",
+            "key1": 0
+        },
+        {
+            "key1": "++++++++++++++",
+            "key2": 1
+        },
+        {
+            "key2": "++++++++++++++",
+            "key3": 2
+        }
+    ],
+    "key7": [
+        [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
+    ]
+}
