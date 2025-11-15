@@ -51,7 +51,7 @@ clean-src:
 librime:
 	cd $(src_dir)/librime; \
 	cmake . -B $(build) \
-	-DCMAKE_BUILD_TYPE:STRING=Releas \
+	-DCMAKE_BUILD_TYPE:STRING=Release \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
 	--no-warn-unused-cli \
 	-G Ninja \
@@ -87,5 +87,5 @@ thorvg:
 	--prefix=$(prefix)/thorvg \
 	--libdir=lib \
 	&& ninja -C builddir install; \
-	cp $(prefix)/thorvg/include/* $(core_root)/src/include_p/TpUtils/thorVG/; \
+	cp $(prefix)/thorvg/include/* $(core_root)/src/include_p/TpGUI/thorVG/; \
 	cp $(prefix)/thorvg/lib/libthorvg.a $(core_root)/src/depend_lib/static/$(libDir)/;
