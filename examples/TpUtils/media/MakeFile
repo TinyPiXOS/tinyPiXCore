@@ -1,47 +1,54 @@
-G++ = g++
-#源码路径
-#SRC=../src
-#头文件路径
-#INC = -I../inc
-INC = -I/usr/include \
-        -I/usr/include/SDL2 \
-        -I/usr/include/TinyPiX \
-        -I/usr/include/TinyPiX/TpCore \
-        -I/usr/include/TinyPiX/TpUtils \
-        -I/usr/include/TinyPiX/TpGUI \
-        -I/usr/include/TinyPiX/TpGUI/Core \
-        -I/usr/include/TinyPiX/TpGUI/Screen \
-        -I/usr/include/TinyPiX/TpGUI/Widgets \
-        -I.  \
-        -I/usr/include/freetype2 \
-        -I/usr/include/cairo \
-        -I/usr/include/pango-1.0 \
-        -I/usr/include/harfbuzz \
-        -I/usr/include/glib-2.0 \
-        -I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
-        -I/usr/include/TinyPiX/TpGUI/app \
-        -I/usr/include/TinyPiX/TpWM -I/usr/include/TinyPiX/TpCore
+#make CROSS_COMPILE=aarch64-linux-gnu- LIB_PATH="-L/home/pix/pix_depend/tinyPiXNix_2.0/sysroot/arm_64/lib -L/home/pix/pix_dev/TinyPiXOS/install/arm_64/lib"
+CROSS_COMPILE ?= 
+G++ = $(CROSS_COMPILE)g++
+
+LIB_BASE_PATH ?= /usr
+
+LIB_PATH := -L$(LIB_BASE_PATH)/lib
+
+INC = -I. \
+      -I$(LIB_BASE_PATH)/include \
+      -I$(LIB_BASE_PATH)/include/SDL2 \
+      -I$(LIB_BASE_PATH)/include/freetype2 \
+      -I$(LIB_BASE_PATH)/include/cairo \
+      -I$(LIB_BASE_PATH)/include/pango-1.0 \
+      -I$(LIB_BASE_PATH)/include/harfbuzz \
+      -I$(LIB_BASE_PATH)/include/glib-2.0 \
+      -I$(LIB_BASE_PATH)/lib/x86_64-linux-gnu/glib-2.0/include \
+      -I$(LIB_BASE_PATH)/include/TinyPiX \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpCore \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpUtils \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpGUI \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpGUI/Core \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpGUI/Screen \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpGUI/Widgets \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpGUI/app \
+      -I$(LIB_BASE_PATH)/include/TinyPiX/TpWM
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
 LIB = -L/usr/lib \
         -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL -lTpUtils -lTpGUI -lTpCore  
+
+CFLAGS = -Wall -O2 -g
+LDFLAGS = $(LIB_PATH) -Wl,-rpath,$(LIB_BASE_PATH)/lib
+
 #伪目标：需要依赖的目标
 .PHONY:Audio Video Hard Record#即使该目标存在也重新生成
 all:Audio Video Hard Record clean#
 
 Audio:
-	$(G++) -c audio.cpp $(INC)
-	$(G++) -o Audio audio.o $(LIB) $(INC)
+	$(G++) $(CFLAGS) -c audio.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Audio audio.o $(LIB) $(INC)
 Video:
-	$(G++) -c video.cpp $(INC)
-	$(G++) -o Video video.o $(LIB) $(INC)
+	$(G++) $(CFLAGS) -c video.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Video video.o $(LIB) $(INC)
 Hard:
-	$(G++) -c hard.cpp $(INC)
-	$(G++) -o Hard hard.o $(LIB) $(INC)
+	$(G++) $(CFLAGS) -c hard.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Hard hard.o $(LIB) $(INC)
 Record:
-	$(G++) -c record.cpp $(INC)
-	$(G++) -o Record record.o $(LIB) $(INC)
+	$(G++) $(CFLAGS) -c record.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Record record.o $(LIB) $(INC)
 clean:
 	rm *.o
 
