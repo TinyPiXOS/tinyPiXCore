@@ -22,8 +22,6 @@ include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpUtils)
 
-# 添加动态库目标
-add_executable(TpService ${SOURCE_FILES})
 
 # 指定依赖动态库目录
 if(CMAKE_CROSSCOMPILING)
@@ -31,6 +29,11 @@ if(CMAKE_CROSSCOMPILING)
 else()
     link_directories("/usr/lib")
 endif()
+
+# 添加动态库目标
+add_executable(TpService ${SOURCE_FILES})
+
+
 
 # 指定静态库的路径
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
@@ -41,14 +44,23 @@ target_link_options(TpService PRIVATE
     "LINKER:-rpath-link,${ARM_SDK_PATH}/lib"
 )
 
-find_library(GLOG_LIBRARY glog HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
-find_library(YAML_CPP_LIBRARY yaml-cpp HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
-find_library(LEVELDB_LIBRARY leveldb HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
-find_library(MARISA_LIBRARY marisa HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
-find_library(OPENCC_LIBRARY opencc HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
-
-set(OPENSSL_CRYPTO_LIBRARY ${ARM_SDK_PATH}/lib/libcrypto.so)
-set(OPENSSL_SSL_LIBRARY ${ARM_SDK_PATH}/lib/libssl.so)
+find_library(GLOG_LIBRARY glog PATHS ${ARM_SDK_PATH}/lib)
+find_library(YAML_CPP_LIBRARY yaml-cpp PATHS ${ARM_SDK_PATH}/lib)
+find_library(LEVELDB_LIBRARY leveldb PATHS ${ARM_SDK_PATH}/lib)
+find_library(MARISA_LIBRARY marisa PATHS ${ARM_SDK_PATH}/lib)
+find_library(OPENCC_LIBRARY opencc PATHS ${ARM_SDK_PATH}/lib)
+# find_library(CRYPTO_LIBRARY
+#     NAMES crypto3
+#     HINTS ${ARM_SDK_PATH}/lib  # 指定基础路径
+#     PATH_SUFFIXES openssl3     # 自动添加子目录后缀
+#     NO_DEFAULT_PATH           # 可选：避免搜索系统路径
+# )
+# find_library(OPENSSL_LIBRARY
+#     NAMES ssl3
+#     HINTS ${ARM_SDK_PATH}/lib
+#     PATH_SUFFIXES openssl3
+#     NO_DEFAULT_PATH
+# )
 # 库链接到可执行目标
 target_link_libraries(TpService
     dl
@@ -64,9 +76,13 @@ target_link_libraries(TpService
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
-    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpExtUtils.so
-        ${OPENSSL_CRYPTO_LIBRARY}
-    ${OPENSSL_SSL_LIBRARY}
+#    ${CRYPTO_LIBRARY}
+#    ${OPENSSL_LIBRARY}
+    pango-1.0
+    cairo
+    pangocairo-1.0
+    #${OPENSSL_CRYPTO_LIBRARY}
+    #${OPENSSL_SSL_LIBRARY}
     # ${SDL2_LIBRARY} ${CARIO_LIBRARY} ${PANGO_LIBRARY}
     # ${GOBJECT_LIBRARY} ${GLIB_LIBRARY} ${PANGOCAIRO_LIBRARY}
     # ${FONTCONFIG_LIBRARY} ${FREETYPE_LIBRARY} ${GBM_LIBRARY}

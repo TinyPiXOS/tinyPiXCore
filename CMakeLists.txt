@@ -47,7 +47,7 @@ add_subdirectory(project/TpCore)
 add_subdirectory(project/TpUtils)
 add_subdirectory(project/TpGUI)
 add_subdirectory(project/TpWM)
-# add_subdirectory(project/TpService)
+add_subdirectory(project/TpService)
 # add_subdirectory(examplesApp)
 
 add_dependencies(TpCore copyDependFiles)

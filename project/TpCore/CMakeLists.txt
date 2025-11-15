@@ -69,10 +69,13 @@ else()
     link_directories("/usr/lib")
 endif()
 
-LoadSDKLibrary(SSL_LIBRARY ssl)
+#LoadSDKLibrary(SSL_LIBRARY ssl)
+set(OPENSSL3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libssl.a)
+set(CRYPTO3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libcrypto.a)
 
 # 库链接到可执行目标
 target_link_libraries(TpCore PUBLIC
     dl pthread
-    ${SSL_LIBRARY}
+#    ${SSL_LIBRARY}
+    ${CRYPTO3_LIB_STATIC_LIB} ${OPENSSL3_LIB_STATIC_LIB}
 )
