@@ -14,9 +14,9 @@
 #include <algorithm>
 #include "TpBluetoothService.h"
 #include "TpDbusConnectManage.h"
-#include "include/blt_device.h"
-#include "include/blt_service_reg.h"
-#include "include/blt_sdp.h"
+#include "blt_device.h"
+#include "blt_service_reg.h"
+#include "blt_sdp.h"
 
 struct TpBluetoothServiceData
 {

@@ -44,12 +44,12 @@ extern "C"
     // app的 信息
     struct TpAppInfo
     {
-        char *uuid;           // uuid
-        TypePackage type;     // 安装包类型
-        const char *path_pik; // 原始包名
-        char *pikname;        // 安装包名字(不含有后缀)
-        char *config_file;
-        char *icon; // 图标路径
+        TpString uuid;     // uuid
+        TypePackage type;  // 安装包类型
+        TpString path_pik; // 原始包名
+        TpString pikname;  // 安装包名字(不含有后缀)
+        TpString config_file;
+        TpString icon; // 图标路径
     };
 
     struct AppInstallInfo

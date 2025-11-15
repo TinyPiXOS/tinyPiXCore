@@ -135,7 +135,7 @@ void TpJsonObject::insert(const TpString &key, const TpJsonArray &value)
     }
 }
 
-TpJsonValue TpJsonObject::value(const TpString &key)
+TpJsonValue TpJsonObject::value(const TpString &key) const
 {
     if (!doc_.IsObject())
         return TpJsonValue();
@@ -143,7 +143,7 @@ TpJsonValue TpJsonObject::value(const TpString &key)
     if (!doc_.HasMember(key.c_str()))
         return TpJsonValue();
 
-    rapidjson::Value &jsonValue = doc_[key.c_str()];
+    const rapidjson::Value &jsonValue = doc_[key.c_str()];
 
     // 数据拷贝一份
     rapidjson::Document tmpJsonDoc;

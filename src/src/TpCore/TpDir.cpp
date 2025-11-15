@@ -168,6 +168,83 @@ bool TpDir::mkpath(const TpString &dirPath)
     return true;
 }
 
+bool TpDir::removeRecursively(const TpString &dirPath)
+{
+    if (dirPath.empty())
+        return false;
+
+    if (!TpDir::exists(dirPath))
+        return false;
+
+    return system(("rm -rf " + dirPath).c_str()) == 0;
+}
+
+bool TpDir::exists(const TpString &dirPath)
+{
+    if (dirPath.empty())
+        return false;
+
+    struct stat info;
+    return stat(dirPath.c_str(), &info) == 0 && S_ISDIR(info.st_mode);
+}
+
+uint64_t TpDir::size(const TpString &dirPath)
+{
+    uint64_t totalSize = 0;
+
+    if (dirPath.empty())
+        return totalSize;
+
+    TpFileInfo inputDirInfo(dirPath);
+    if (!inputDirInfo.isDir())
+        return totalSize;
+
+    DIR *dir;
+    struct dirent *entry;
+    struct stat statbuf;
+
+    // 打开目录
+    if ((dir = opendir(dirPath.c_str())) == nullptr)
+        return 0;
+
+    // 遍历目录项
+    while ((entry = readdir(dir)) != nullptr)
+    {
+        // 跳过 "." 和 ".."
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+        {
+            continue;
+        }
+
+        TpString fullPath = dirPath + "/" + entry->d_name;
+
+        // 获取文件/目录状态
+        if (lstat(fullPath.c_str(), &statbuf) == -1)
+        {
+            // 无法获取状态，跳过
+            continue;
+        }
+
+        if (S_ISDIR(statbuf.st_mode))
+        {
+            // 如果是目录，递归计算大小
+            totalSize += TpDir::size(TpString(fullPath.c_str()));
+        }
+        else if (S_ISREG(statbuf.st_mode))
+        {
+            // 如果是普通文件，累加大小
+            totalSize += statbuf.st_size;
+        }
+        else
+        {
+        }
+        // 忽略符号链接和其他特殊文件
+    }
+
+    closedir(dir);
+    return totalSize;
+}
+
 void TpDir::setPath(const TpString &path)
 {
     TpDirData *dirData = (TpDirData *)this->data_;

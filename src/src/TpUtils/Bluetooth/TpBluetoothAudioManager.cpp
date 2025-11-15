@@ -7,8 +7,8 @@
 //------------------------------------------------------------------------------------------------------------------------//
 
 #include <iostream>
-#include "include/bluetooth_inc.h"
-#include "include/blt_audio.h"
+#include "bluetooth_inc.h"
+#include "blt_audio.h"
 #include "TpBluetoothAudioManager.h"
 #include "TpDbusConnectManage.h"
 

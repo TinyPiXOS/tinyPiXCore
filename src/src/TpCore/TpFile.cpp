@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <sys/stat.h>
 #include <cstring>
+#include <TpDir.h>
+#include <TpFileInfo.h>
 
 struct TpFileData
 {
@@ -86,6 +88,13 @@ bool TpFile::copy(const TpString &fileName, const TpString &newName)
 {
     if (!TpFile::exists(fileName))
         return false;
+
+    // 如果目标目录不存在则创建目录
+    TpString destDir = TpFileInfo::absolutePath(newName);
+    if (!TpDir::exists(destDir))
+    {
+        TpDir::mkpath(destDir);
+    }
 
     std::ifstream src(fileName, std::ios::binary);
     std::ofstream dst(newName, std::ios::binary);

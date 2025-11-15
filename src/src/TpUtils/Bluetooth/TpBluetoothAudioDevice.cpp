@@ -7,10 +7,10 @@
 //------------------------------------------------------------------------------------------------------------------------//
 
 #include <iostream>
-#include "include/blt_hard.h"
-#include "include/blt_device.h"
+#include "blt_hard.h"
+#include "blt_device.h"
 // #include "bluetooth/include/blt_dbus.h"
-#include "include/bluetooth_inc.h"
+#include "bluetooth_inc.h"
 #include "TpBluetoothAddress.h"
 #include "TpDbusConnectManage.h"
 #include "TpBluetoothAudioDevice.h"

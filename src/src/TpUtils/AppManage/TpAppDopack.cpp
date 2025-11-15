@@ -1,494 +1,360 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
-		APP(库)打包
+        APP(库)打包
 说 明 :
 日 期 : 2024.11.05
 
-/*///------------------------------------------------------------------------------------------------------------------------//
+/*/
+//------------------------------------------------------------------------------------------------------------------------//
 
 #include <iostream>
 #include <string>
 #include <stdint.h>
 #include <cstring>
 #include <vector>
-#include "file_creat.h"
-#include "install_check.h"
+#include "TpFileCreat.h"
+#include "InstallCheck.h"
 #include "TpAppDopack.h"
+#include "appm_creat.h"
 
-
-//释放
-static void loop_free(void **data,int count)
+// 释放
+static void loop_free(void **data, int count)
 {
-	for(int i=0;i<count;i++)
-	{
-		if(data[i])	free(data[i]);
-	}
-}
-
-void free_ScriptInfo(struct ScriptInfo *config)
-{
-	if(!config)
-		return;
-	if(config->arg_count > 0){
-		loop_free((void**)config->args, config->arg_count);
-	}
-	config->arg_count=0;
-
-	if(config->dep_count > 0){
-		loop_free((void**)config->dependencies, config->dep_count);
-	}
-	config->dep_count=0;
-
-	if(config->env_var_count > 0){
-		loop_free((void**)config->env_vars, config->env_var_count);
-		loop_free((void**)config->env_type, config->env_var_count);
-	}
-	config->env_var_count=0;
-}
-
-//给路径的末尾添加“/”
-static void addTrailingSlash(TpString& path) {
-    if (!path.empty() && path.back() != '/') {
-        path += '/';  // 等价于 path.push_back('/')
+    for (int i = 0; i < count; i++)
+    {
+        if (data[i])
+            free(data[i]);
     }
 }
 
+// 给路径的末尾添加“/”
+static void addTrailingSlash(TpString &path)
+{
+    if (!path.empty() && path.back() != '/')
+    {
+        path += '/'; // 等价于 path.push_back('/')
+    }
+}
 
-
-
-struct TpAppDopackData{
-    TpString path_s;		//安装包相关文件生成的位置
-	TpString name;			//安装包名称
-    struct AppPackageConfig params;	//安装包配置
-	TypePackage type;				//安装包类型
-	struct ScriptInfo config;	//启动脚本参数
-	TpAppDopackData(){
-		type=TYPE_PACKAGE_DEFAULT;
-	}
+struct TpAppDopackData
+{
+    TpString path_s;         // 安装包相关文件生成的位置
+    TpString name;           // 安装包名称
+    AppPackageConfig params; // 安装包配置
+    TypePackage type;        // 安装包类型
+    ScriptInfo config;       // 启动脚本参数
+    TpAppDopackData()
+    {
+        type = TYPE_PACKAGE_DEFAULT;
+    }
 };
 
-
-TpAppDopack::TpAppDopack() 
+TpAppDopack::TpAppDopack()
 {
-	data_ = new TpAppDopackData();
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct AppPackageConfig *params=&adpData->params;
+    data_ = new TpAppDopackData();
 
-//	std::strncpy(params->app_id, appId.c_str(), sizeof(params->app_id) - 1);
-//	std::strncpy(params->app_name, appName.c_str(), sizeof(params->app_name) - 1);
-//	std::strncpy(params->version, version.c_str(), sizeof(params->version) - 1);
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    AppPackageConfig *params = &adpData->params;
 
-	adpData->type=TYPE_PACKAGE_NONE;
-	params->description=NULL;
-	params->icon=NULL;
-	params->appexec_name=NULL;
-	params->signature=NULL;
-	params->diskspace=0;
-	params->version.x=0;
-	params->version.y=0;
-	params->version.z=0;
-
-	// Initialize other parameters with empty strings
-	std::memset(params->app_id, 0, sizeof(params->app_id));
-	std::memset(params->app_name, 0, sizeof(params->app_name));
-//	std::memset(params->version, 0, sizeof(params->version));
-	std::memset(params->architecture, 0, sizeof(params->architecture));
-	std::memset(params->section, 0, sizeof(params->section));
-	std::memset(params->priority, 0, sizeof(params->priority));
-	std::memset(params->essential, 0, sizeof(params->essential));
-	std::memset(params->author, 0, sizeof(params->author));
-	std::memset(params->provides, 0, sizeof(params->provides));
-//	std::memset(params->description, 0, sizeof(params->description));
-	std::memset(params->depend, 0, sizeof(params->depend));
-	std::memset(params->lib, 0, sizeof(params->lib));
-	std::memset(params->assert, 0, sizeof(params->assert));
-//	std::memset(params->icon, 0, sizeof(params->icon));
-//	std::memset(params->start, 0, sizeof(params->start));
-//	std::memset(params->remove, 0, sizeof(params->remove));
-	std::memset(params->otherfile, 0, sizeof(params->otherfile));
-	std::memset(params->file_extension, 0, sizeof(params->file_extension));
-
-	params->otherfile_count = 0;
-	params->lib_count = 0;
-	params->depend_count = 0;
-	params->assert_count = 0;
-	params->extension_count = 0;
-
-	memset(&adpData->config,0,sizeof(struct ScriptInfo));
+    adpData->type = TYPE_PACKAGE_NONE;
+    params->description = NULL;
+    params->icon = NULL;
+    params->appexec_name = NULL;
+    params->signature = NULL;
+    params->diskspace = 0;
+    params->version.x = 0;
+    params->version.y = 0;
+    params->version.z = 0;
 }
 
-TpAppDopack::~TpAppDopack() {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	classFree();
-}
-
-
-//安装包类型
-int TpAppDopack::setPackageType(TpPackageType pack_type) 
+TpAppDopack::~TpAppDopack()
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	switch(pack_type) {
-		case TP_PACKAGE_TYPE_APP:
-			adpData->type=TYPE_PACKAGE_APP;
-			break;
-		case TP_PACKAGE_TYPE_SAPP:
-			adpData->type=TYPE_PACKAGE_SAPP;
-			break;
-		default:
-			adpData->type=TYPE_PACKAGE_NONE;
-			break;
-	}
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    if (adpData)
+    {
+        delete adpData;
+        adpData = nullptr;
+        data_ = nullptr;
+    }
 }
 
-//UUID/APPID
-void TpAppDopack::setAppID(const TpString& id)
+// 安装包类型
+int TpAppDopack::setPackageType(TpPackageType pack_type)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.app_id, id.c_str(), sizeof(adpData->params.app_id) - 1);
-}
-void TpAppDopack::setAppID(const TpUuid id)
-{
-		TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-}
-
-//APP NAME
-void TpAppDopack::setAppName(const TpString& name)
-{
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.app_name, name.c_str(), sizeof(adpData->params.app_name) - 1);
-}
-//版本
-void TpAppDopack::setVersion(tpUInt8 x,tpUInt8 y,tpUInt8 z){
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-//	std::strncpy(adpData->params.version, version.c_str(), sizeof(adpData->params.version) - 1);
-	adpData->params.version.x=x;
-	adpData->params.version.y=y;
-	adpData->params.version.z=z;
-}
-//硬件平台
-void TpAppDopack::setArchitecture(const TpString& architecture) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.architecture, architecture.c_str(), sizeof(adpData->params.architecture) - 1);
-}
-
-void TpAppDopack::setSection(const TpString& section) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.section, section.c_str(), sizeof(adpData->params.section) - 1);
-}
-
-void TpAppDopack::setPriority(const TpString& priority) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.priority, priority.c_str(), sizeof(adpData->params.priority) - 1);
-}
-
-void TpAppDopack::setEssential(const TpString& essential) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.essential, essential.c_str(), sizeof(adpData->params.essential) - 1);
-}
-//作者信息，Name
-void TpAppDopack::setAuthor(const TpString& author) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.author, author.c_str(), sizeof(adpData->params.author) - 1);
-}
-//作者联系方式,email
-void TpAppDopack::setContact(const TpString& contact) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    std::strncpy(adpData->params.contact, contact.c_str(), sizeof(adpData->params.contact) - 1);
-}
-
-void TpAppDopack::setProvides(const TpString& provides) {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.provides, provides.c_str(), sizeof(adpData->params.provides) - 1);
-}
-//组织，公司
-void TpAppDopack::setOrganization(const TpString& organization){
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	std::strncpy(adpData->params.organization, organization.c_str(), sizeof(adpData->params.organization) - 1);
-}
-//安装所需空间
-void TpAppDopack::setDiskSpace(int size){
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	adpData->params.diskspace = size;
-}
-//应用描述
-int TpAppDopack::setDescription(const TpString& description) 
-{
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	if((adpData->params.description = (char *)malloc(description.size() + 1))==NULL)
-		return -1;
-	printf("addr desc:%p\n",adpData->params.description);
-	std::strcpy(adpData->params.description, description.c_str());
-	return 0;
-}
-
-//数字签名
-int TpAppDopack::setSignature(const TpString& signature) 
-{
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    if((adpData->params.signature = (char *)malloc(signature.size() + 1))==NULL)
-        return -1;
-    std::strcpy(adpData->params.signature, signature.c_str());
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    switch (pack_type)
+    {
+    case TP_PACKAGE_TYPE_APP:
+        adpData->type = TYPE_PACKAGE_APP;
+        break;
+    case TP_PACKAGE_TYPE_SAPP:
+        adpData->type = TYPE_PACKAGE_SAPP;
+        break;
+    default:
+        adpData->type = TYPE_PACKAGE_NONE;
+        break;
+    }
     return 0;
 }
-//开源库：传入格式:libname@version
-int TpAppDopack::addDepend(const TpString& depend,tpUInt8 ver_x,tpUInt8 ver_y,tpUInt8 ver_z) 
+
+// UUID/APPID
+void TpAppDopack::setAppID(const TpString &id)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct AppPackageConfig *params=&adpData->params;
-
-	TpString depend_ver = depend+"@"+TpString::number(ver_x)+"."+TpString::number(ver_y)+"."+TpString::number(ver_z);
-	if(params->depend_count==MAX_ITEMS)
-		return -1;
-	if((params->depend[params->depend_count] = (char *)malloc(depend_ver.size() + 1))==NULL)
-		return -1;
-	std::strcpy(params->depend[params->depend_count], depend_ver.c_str());
-	params->depend_count++;
-	//在启动脚本中添加此依赖库
-	addStartDepend(depend);
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.app_id = id;
 }
-//私有库:传入路径
-int TpAppDopack::addLib(const TpString& lib) 
+
+void TpAppDopack::setAppID(const TpUuid id)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct AppPackageConfig *params=&adpData->params;
-	if(adpData->params.lib_count==MAX_ITEMS)
-		return -1;
-	if((adpData->params.lib[adpData->params.lib_count] = (char *)malloc(lib.size() + 1))==NULL)
-	    return -1;
-	std::strcpy(adpData->params.lib[adpData->params.lib_count], lib.c_str());
-	adpData->params.lib_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
 }
-//图标
-int TpAppDopack::setIcon(const TpString& icon) 
+
+// APP NAME
+void TpAppDopack::setAppName(const TpString &name)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	if((adpData->params.icon = (char *)malloc(icon.size() + 1))==NULL)
-	    return -1;
-    std::strcpy(adpData->params.icon, icon.c_str());
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.app_name = name;
 }
-//可执行文件路径
-int TpAppDopack::setAppPath(const TpString& app) 
+
+// 版本
+void TpAppDopack::setVersion(tpUInt8 x, tpUInt8 y, tpUInt8 z)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-
-	if((adpData->params.appexec_name = (char *)malloc(app.size() + 1))==NULL)
-		return -1;
-	std::strcpy(adpData->params.appexec_name, app.c_str());
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    //	std::strncpy(adpData->params.version, version.c_str(), sizeof(adpData->params.version) - 1);
+    adpData->params.version.x = x;
+    adpData->params.version.y = y;
+    adpData->params.version.z = z;
 }
-//静态文件
-int TpAppDopack::addAssert(const TpString& assert)
+// 硬件平台
+void TpAppDopack::setArchitecture(const TpString &architecture)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	if(adpData->params.assert_count==MAX_ITEMS)
-		return -1;
-	if((adpData->params.assert[adpData->params.assert_count] = (char *)malloc(assert.size() + 1))==NULL)
-	    return -1;
-	std::strcpy(adpData->params.assert[adpData->params.assert_count], assert.c_str());
-	adpData->params.assert_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.architecture = architecture;
 }
 
-//可执行文件
-int TpAppDopack::addBin(const TpString& bin)
+void TpAppDopack::setSection(const TpString &section)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	if(adpData->params.bin_count==MAX_ITEMS)
-		return -1;
-	if((adpData->params.bin[adpData->params.bin_count] = (char *)malloc(bin.size() + 1))==NULL)
-	    return -1;
-	std::strcpy(adpData->params.bin[adpData->params.bin_count], bin.c_str());
-	adpData->params.bin_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.section = section;
 }
 
-//其他文件
-int TpAppDopack::addFile(const TpString& file)
+void TpAppDopack::setPriority(const TpString &priority)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	if(adpData->params.otherfile_count==MAX_ITEMS)
-		return -1;
-	if((adpData->params.otherfile[adpData->params.otherfile_count] = (char *)malloc(file.size() + 1))==NULL)
-	    return -1;
-	std::strcpy(adpData->params.otherfile[adpData->params.otherfile_count], file.c_str());
-	adpData->params.otherfile_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.priority = priority;
 }
-//支持的文件后缀
-int TpAppDopack::addExtension(const TpString& type)
+
+void TpAppDopack::setEssential(const TpString &essential)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	if(adpData->params.extension_count==MAX_ITEMS)
-		return -1;
-	if((adpData->params.file_extension[adpData->params.extension_count] = (char *)malloc(type.size() + 1))==NULL)
-	    return -1;
-	std::strcpy(adpData->params.file_extension[adpData->params.extension_count], type.c_str());
-	adpData->params.extension_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.essential = essential;
 }
 
-/*
-void Configurator::setStart(const std::string& start) {
-    std::strncpy(adpData->params.start, start.c_str(), sizeof(adpData->params.start) - 1);
-}
-*/
-/*
-void Configurator::setRemove(const std::string& remove) {
-    std::strncpy(adpData->params.remove, remove.c_str(), sizeof(adpData->params.remove) - 1);
-}
-*/
-
-//安装包的名字
-int TpAppDopack::setPackageName(const TpString& name)
+// 作者信息，Name
+void TpAppDopack::setAuthor(const TpString &author)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	adpData->name=name;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.author = author;
 }
 
-//生成安装包
-int TpAppDopack::creatPackage(const TpString& path)
+// 作者联系方式,email
+void TpAppDopack::setContact(const TpString &contact)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct ScriptInfo *config=&adpData->config;	//启动脚本参数
-	if(adpData->name.empty())
-	{
-		fprintf(stderr,"Installation package name not set\n");
-		return -1;
-	}
-	adpData->path_s=path;
-	addTrailingSlash(adpData->path_s);	//保证末尾是“/”
-
-	TpString path_source=adpData->path_s + adpData->name;				//	<path>/appname
-	char *path_source_c=(char*)malloc(path_source.size() + 1);		
-	std::strcpy(path_source_c, path_source.c_str());
-
-	if(appm_generate_package_source(&adpData->params,path_source_c,adpData->type)<0){
-		std::cerr<<"Error: Creat error"<<std::endl;
-		free(path_source_c);
-		return -1;
-	}
-
-	//启动脚本
-	TpString path_start=path_source+"/start.sh";							//	<path>/appname/start.sh
-	char *path_start_c=(char *)malloc(path_start.size()+1);
-	std::strcpy(path_start_c, path_start.c_str());
-	appm_generate_startup_script(config, path_start_c);
-	free(path_start_c);
-
-
-	TpString path_package=path_source + PACKAGE_FILE_SUFFIX;			//	<path>/appname.pik
-	char *path_package_c=(char*)malloc(path_package.size() + 1);		
-	std::strcpy(path_package_c, path_package.c_str());
-	appm_creat_package_path(path_source_c,path_package_c);
-
-	free(path_source_c);
-	free(path_package_c);
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.contact = contact;
 }
 
-void TpAppDopack::classFree() 
+void TpAppDopack::setProvides(const TpString &provides)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct AppPackageConfig *params=&adpData->params;
-
-    if(params->description)	free(params->description);
-	if(params->icon)	free(params->icon);
-	if(params->appexec_name) free(params->appexec_name);
-	if(params->signature) free(params->signature);
-	loop_free((void **)params->depend, params->depend_count);
-	params->depend_count=0;
-	loop_free((void **)params->lib, params->lib_count);
-	params->lib_count=0;
-	loop_free((void **)params->assert, params->assert_count);
-	params->assert_count=0;
-	loop_free((void **)params->otherfile, params->otherfile_count);
-	params->otherfile_count=0;
-
-	free_ScriptInfo(&adpData->config);
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.provides = provides;
 }
 
+// 组织，公司
+void TpAppDopack::setOrganization(const TpString &organization)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.organization = organization;
+}
+
+// 安装所需空间
+void TpAppDopack::setDiskSpace(int size)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.diskspace = size;
+}
+
+// 应用描述
+void TpAppDopack::setDescription(const TpString &description)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.description = description;
+}
+
+// 数字签名
+void TpAppDopack::setSignature(const TpString &signature)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.signature = signature;
+}
+
+// 开源库：传入格式:libname@version
+void TpAppDopack::addDepend(const TpString &depend, tpUInt8 ver_x, tpUInt8 ver_y, tpUInt8 ver_z)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    AppPackageConfig *params = &adpData->params;
+
+    TpString depend_ver = depend + "@" + TpString::number(ver_x) + "." + TpString::number(ver_y) + "." + TpString::number(ver_z);
+
+    if (params->depend.contains(depend_ver))
+        return;
+
+    params->depend.emplace_back(depend_ver);
+
+    // 在启动脚本中添加此依赖库
+    addStartDepend(depend);
+}
+
+// 私有库:传入路径
+void TpAppDopack::addLib(const TpString &lib)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+
+    if (adpData->params.lib.contains(lib))
+        return;
+
+    adpData->params.lib.emplace_back(lib);
+}
+
+void TpAppDopack::setIcon(const TpString &icon)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.icon = icon;
+}
+
+void TpAppDopack::setAppPath(const TpString &app)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->params.appexec_name = app;
+}
+
+// 静态文件
+void TpAppDopack::addAssert(const TpString &assert)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    if (adpData->params.assert.contains(assert))
+        return;
+    adpData->params.assert.emplace_back(assert);
+}
+
+// 可执行文件
+void TpAppDopack::addBin(const TpString &bin)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    if (adpData->params.bin.contains(bin))
+        return;
+    adpData->params.bin.emplace_back(bin);
+}
+
+// 其他文件
+void TpAppDopack::addFile(const TpString &file)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    if (adpData->params.otherfile.contains(file))
+        return;
+    adpData->params.otherfile.emplace_back(file);
+}
+
+// 支持的文件后缀
+void TpAppDopack::addExtension(const TpString &type)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    if (adpData->params.file_extension.contains(type))
+        return;
+    adpData->params.file_extension.emplace_back(type);
+}
+
+// 安装包的名字
+void TpAppDopack::setPackageName(const TpString &name)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->name = name;
+}
+
+// 生成安装包
+void TpAppDopack::creatPackage(const TpString &path)
+{
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    struct ScriptInfo *config = &adpData->config; // 启动脚本参数
+    if (adpData->name.empty())
+    {
+        fprintf(stderr, "Installation package name not set\n");
+        return;
+    }
+    adpData->path_s = path;
+    addTrailingSlash(adpData->path_s); // 保证末尾是“/”
+
+    TpString path_source = adpData->path_s + adpData->name; //	<path>/appname
+
+    if (TpFileCreat::appm_generate_package_source(&adpData->params, (char *)path_source.c_str(), adpData->type) < 0)
+    {
+        std::cerr << "Error: Creat error" << std::endl;
+        return;
+    }
+
+    // 启动脚本
+    TpString path_start = path_source + "/start.sh"; //	<path>/appname/start.sh
+    TpFileCreat::appmGenerateStartupScript(config, path_start.c_str());
+
+    TpString path_package = path_source + PACKAGE_FILE_SUFFIX; //	<path>/appname.pik
+    appm_creat_package_path(path_source.c_str(), path_package.c_str());
+}
 
 // 添加环境变量
-int TpAppDopack::addEnvironmentVar(const TpString& key, const TpString& value) 
+void TpAppDopack::addEnvironmentVar(const TpString &key, const TpString &value)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct ScriptInfo *config=&adpData->config;	//启动脚本参数
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    ScriptInfo *config = &adpData->config; // 启动脚本参数
 
-	if (config->env_var_count == MAX_ITEMS) 
-		return -1;
-	char *entry_k = (char*)malloc(key.size() + 1); // +1 for'\0'
-	char *entry_v = (char*)malloc(value.size() + 1); // +1
-	if(entry_k == NULL)
-	    return -1;
-	if(entry_v == NULL)
-		return -1;
-	memset(entry_k, 0,key.size() + 1);
-	memset(entry_v, 0, value.size() + 1);
-//	printf("entry=%s,len=%d\n",entry,(int)(key.size() + value.size() + 2));
-	std::strcpy(entry_k, key.c_str());
-	std::strcat(entry_v, value.c_str());
-	printf("export:%s=%s\n",entry_k,entry_v);
-	config->env_type[config->env_var_count] = entry_k;
-	config->env_vars[config->env_var_count] = entry_v;
-	config->env_var_count++;
-	return 0;
+    if (!config->env_type.contains(key))
+    {
+        config->env_type.emplace_back(key);
+    }
+    if (!config->env_vars.contains(value))
+    {
+        config->env_vars.emplace_back(value);
+    }
 }
 
 // 添加依赖库（一般是系统通用的库）
-//库名字
-int TpAppDopack::addStartDepend(const TpString& lib) 
+// 库名字
+void TpAppDopack::addStartDepend(const TpString &lib)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct ScriptInfo *config=&adpData->config;	//启动脚本参数
-
-	if (config->dep_count == MAX_ITEMS) 
-		return -1;
-	if((config->dependencies[config->dep_count]=(char*)malloc(lib.size() + 1))==NULL)
-		return -1;
-	std::strcpy(config->dependencies[config->dep_count], lib.c_str());
-	config->dep_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    ScriptInfo *config = &adpData->config; // 启动脚本参数
+    if (config->dependencies.contains(lib))
+        return;
+    config->dependencies.emplace_back(lib);
 }
 
 // 添加启动参数
-int TpAppDopack::addStartArg(const TpString& arg)
+void TpAppDopack::addStartArg(const TpString &arg)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct ScriptInfo *config=&adpData->config;	//启动脚本参数
-
-	if (config->arg_count == MAX_ITEMS)
-		return -1;
-	if((config->args[config->arg_count]=(char*)malloc(arg.size() + 1))==NULL)
-		return -1;
-	std::strcpy(config->args[config->arg_count], arg.c_str());
-	config->arg_count++;
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    ScriptInfo *config = &adpData->config; // 启动脚本参数
+    if (config->args.contains(arg))
+        return;
+    config->args.emplace_back(arg);
 }
 
-//添加可执行文件名称
-int TpAppDopack::setExecPath(const TpString& name)
+// 添加可执行文件名称
+void TpAppDopack::setExecPath(const TpString &name)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-	struct ScriptInfo *config=&adpData->config;	//启动脚本参数
-
-	std::strncpy(config->exec_path, name.c_str(), sizeof(config->exec_path) - 1);
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    adpData->config.exec_path = name;
 }
 
-int TpAppDopack::getAllConfig(const TpString& path_json)
+void TpAppDopack::getAllConfig(const TpString &path_json)
 {
-	TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-
-	char *path_json_c=(char *)malloc(path_json.size()+1);
-	std::strcpy(path_json_c, path_json.c_str());
-	
-	appm_analysis_dopack_json(path_json_c, &adpData->params, &adpData->config);
-
-	free(path_json_c);
-	return 0;
+    TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
+    appm_analysis_dopack_json(path_json.c_str(), &adpData->params, &adpData->config);
 }
-

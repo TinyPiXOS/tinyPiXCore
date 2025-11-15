@@ -8,7 +8,7 @@
 #include <bluetooth/l2cap.h>
 #include "TpSocketNotifier.h"
 #include "TpDbusConnectManage.h"
-#include "include/bluetooth_inc.h"
+#include "bluetooth_inc.h"
 #include "TpBluetoothServer.h"
 
 struct TpBluetoothServerData

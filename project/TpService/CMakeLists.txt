@@ -46,6 +46,7 @@ find_library(YAML_CPP_LIBRARY yaml-cpp HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH
 find_library(LEVELDB_LIBRARY leveldb HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
 find_library(MARISA_LIBRARY marisa HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
 find_library(OPENCC_LIBRARY opencc HINTS ${ARM_SDK_PATH}/lib NO_DEFAULT_PATH)
+
 set(OPENSSL_CRYPTO_LIBRARY ${ARM_SDK_PATH}/lib/libcrypto.so)
 set(OPENSSL_SSL_LIBRARY ${ARM_SDK_PATH}/lib/libssl.so)
 # 库链接到可执行目标

@@ -10,7 +10,7 @@ TpJsonArray::TpJsonArray(const TpJsonArray &array)
     *this = array;
 }
 
-uint32_t TpJsonArray::count()
+uint32_t TpJsonArray::count() const
 {
     if (!doc_.IsArray())
         return 0;
@@ -23,7 +23,7 @@ bool TpJsonArray::isEmpty() const
     return doc_.IsNull();
 }
 
-TpJsonValue TpJsonArray::at(const uint32_t &index)
+TpJsonValue TpJsonArray::at(const uint32_t &index) const
 {
     if (!doc_.IsArray())
         return TpJsonValue();
@@ -31,16 +31,21 @@ TpJsonValue TpJsonArray::at(const uint32_t &index)
     if (index >= doc_.Size())
         return TpJsonValue();
 
-    rapidjson::Value &jsonValue = doc_[index];
+    const rapidjson::Value &jsonValue = doc_[index];
 
     // 数据拷贝一份
     rapidjson::Document tmpJsonDoc;
     tmpJsonDoc.CopyFrom(jsonValue, tmpJsonDoc.GetAllocator());
 
-    TpJsonValue* tmpJsonValue = new TpJsonValue();
-    tmpJsonValue->value_.Swap(tmpJsonDoc);
+    TpJsonValue tmpJsonValue ;
+    tmpJsonValue.value_.Swap(tmpJsonDoc);
 
-    return *tmpJsonValue;
+    return tmpJsonValue;
+
+    // TpJsonValue *tmpJsonValue = new TpJsonValue();
+    // tmpJsonValue->value_.Swap(tmpJsonDoc);
+
+    // return *tmpJsonValue;
 }
 
 void TpJsonArray::append(const TpJsonValue &value)

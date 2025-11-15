@@ -56,7 +56,7 @@ public:
     /// @param key 键名字符串
     /// @return 对应的JSON值
     /// @note 如果键不存在，返回无效的JsonValue
-    TpJsonValue value(const TpString &key);
+    TpJsonValue value(const TpString &key) const;
 
     /// @brief 移除JSON对象中的指定键及其值
     /// @param key 要移除的键名

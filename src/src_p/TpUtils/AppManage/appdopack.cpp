@@ -352,7 +352,7 @@ int TpStartShInfo::Save(const TpString& path) {
 	std::strcpy(path_c, path.c_str());
 	printf("cvreat:%s\n", path_c);
 	//std::cout << "creat:" << addr << std::endl;
-	appm_generate_startup_script(&config, path_c);
+	appmGenerateStartupScript(&config, path_c);
 	free(path_c);
 	return 0;
 }

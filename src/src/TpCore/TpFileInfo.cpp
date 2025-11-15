@@ -5,12 +5,8 @@
 #include "TpFile.h"
 #include "TpString.h"
 #include "TpVector.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#else
+#include "TpDir.h"
 #include <sys/stat.h>
-#endif
 
 struct TpFileInfoData
 {
@@ -102,6 +98,51 @@ bool TpFileInfo::exists(const TpString &file)
     return fileObj.exists();
 }
 
+TpString TpFileInfo::absolutePath(const TpString &file)
+{
+    if (file.empty())
+        return "";
+
+    char absPath[PATH_MAX];
+    if (realpath(file.c_str(), absPath))
+    {
+        return TpString(absPath);
+    }
+    return ""; // 错误处理
+}
+
+TpString TpFileInfo::fileName(const TpString &file)
+{
+    if (file.empty())
+        return "";
+
+    size_t pos = file.find_last_of('/');
+    TpString inputFile = file;
+    return (pos != TpString::npos) ? file.substr(pos + 1) : inputFile;
+}
+
+TpString TpFileInfo::baseName(const TpString &file)
+{
+    if (file.empty())
+        return "";
+
+    TpString name = TpFileInfo::fileName(file);
+    size_t dotPos = name.find_last_of('.');
+    return (dotPos != TpString::npos) ? name.substr(0, dotPos) : name;
+}
+
+uint64_t TpFileInfo::size(const TpString &file)
+{
+    if (file.empty())
+        return 0;
+
+    TpFileInfo inputFile(file);
+    if (inputFile.isDir())
+        return TpDir::size(file);
+
+    return inputFile.size();
+}
+
 void TpFileInfo::setFile(const TpString &file)
 {
     TpFileInfoData *fileInfoData = static_cast<TpFileInfoData *>(data_);
@@ -152,7 +193,7 @@ TpString TpFileInfo::absoluteFilePath() const
 
     // 解析路径中的 "." 和 ".."
     TpString absPath = TpString(cwd) + "/" + fileInfoData->path;
-    return resolvePath(absPath); 
+    return resolvePath(absPath);
 }
 
 TpString TpFileInfo::canonicalFilePath() const

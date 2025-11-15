@@ -13,8 +13,8 @@
 #include "TpSocket.h"
 #include "TpDbusConnectManage.h"
 #include "TpSocketNotifier.h"
-#include "include/bluetooth_inc.h"
-#include "include/blt_device.h"
+#include "bluetooth_inc.h"
+#include "blt_device.h"
 #include "TpBluetoothSocket.h"
 
 struct TpBluetoothSocketData{

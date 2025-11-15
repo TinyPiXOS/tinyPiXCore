@@ -7,8 +7,8 @@
 
 #include "TpBluetoothTransfer.h"
 #include "TpDbusConnectManage.h"
-#include "include/blt_file.h"
-#include "include/blt_dbussignal.h"
+#include "blt_file.h"
+#include "blt_dbussignal.h"
 
 struct TpBluetoothTransferData{
 	BluetObexPush *obex_push;

@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include "TpBluetoothUuid.h"
-#include "include/blt_sdp.h"
+#include "blt_sdp.h"
 
 enum TpBluetoothUuidType
 {

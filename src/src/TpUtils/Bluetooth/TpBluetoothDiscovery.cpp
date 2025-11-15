@@ -11,9 +11,9 @@
 #include <functional>
 #include "TpDbusConnectManage.h"
 #include "TpSystemDataManage.h"
-#include "include/blt_hard.h"
-#include "include/blt_dbussignal.h"
-#include "include/bluetooth_inc.h"
+#include "blt_hard.h"
+#include "blt_dbussignal.h"
+#include "bluetooth_inc.h"
 #include "TpBluetoothDiscovery.h"
 #include "TpBluetoothLocal.h"
 

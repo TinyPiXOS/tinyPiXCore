@@ -24,9 +24,9 @@ public:
         // Writable = 0x020,                ///< (已注释)可写文件
         // Executable = 0x040,              ///< (已注释)可执行文件
 
-        Hidden = 0x100,                     ///< @brief 包含隐藏文件和目录
+        Hidden = 0x100, ///< @brief 包含隐藏文件和目录
 
-        AccessMask = 0x3F0,                 ///< @brief 访问权限过滤掩码
+        AccessMask = 0x3F0, ///< @brief 访问权限过滤掩码
 
         AllDirs = 0x400,                   ///< @brief 包含所有目录（包括.和..）
         CaseSensitive = 0x800,             ///< @brief 区分大小写的过滤
@@ -71,6 +71,19 @@ public:
     /// @param dirPath 要创建的完整目录路径
     /// @return 创建成功返回true，否则返回false
     static bool mkpath(const TpString &dirPath);
+
+    /// @brief 静态方法：递归删除目录及其所有内容
+    /// @brief dirPath 目录路径
+    /// @return 删除成功返回true，否则返回false
+    static bool removeRecursively(const TpString &dirPath);
+
+    /// @brief 检查目录是否存在
+    /// @return 存在返回true，否则返回false
+    static bool exists(const TpString &dirPath);
+
+    /// @brief 获取文件夹大小（字节数）
+    /// @return 文件夹大小（字节数）
+    static uint64_t size(const TpString &dirPath);
 
 public:
     /// @brief 设置目录路径

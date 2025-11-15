@@ -18,7 +18,7 @@ public:
 
     /// @brief 获取数组中元素的数量
     /// @return 数组元素数量
-    uint32_t count();
+    uint32_t count() const;
 
     /// @brief 检查数组是否为空
     /// @return 空返回true，否则返回false
@@ -27,7 +27,7 @@ public:
     /// @brief 获取指定索引位置的元素
     /// @param index 要获取的数组索引
     /// @return 索引位置对应的JSON值
-    TpJsonValue at(const uint32_t &index);
+    TpJsonValue at(const uint32_t &index) const;
 
     /// @brief 向数组末尾添加元素
     /// @param value 要添加的JSON值

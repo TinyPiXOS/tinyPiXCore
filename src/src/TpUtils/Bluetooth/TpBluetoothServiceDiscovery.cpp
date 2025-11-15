@@ -1,6 +1,6 @@
 
 #include <thread>
-#include "include/blt_sdp.h"
+#include "blt_sdp.h"
 #include "TpBluetoothServiceDiscovery.h"
 
 struct TpBluetoothServiceDiscoveryData

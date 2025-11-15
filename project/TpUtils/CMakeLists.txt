@@ -106,36 +106,36 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_manage.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_play.c
 
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/agent-helper.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/g_utils.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/bluez_alsa.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/freedesktop_systemd.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/media_transport.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/service.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/bluez/adapter.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/bluez/agent_manager.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/bluez/device.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/bluez/profile.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/bluez/filter.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/obex/obex_agent_manager.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/obex/obex_agent.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/obex/obex_transfer.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/obex/obex_session.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/obex/obex_client.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/lib/obex/obex_object_push.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/sdpregister.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_audio.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_agent.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_dbussignal.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_device.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_file.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_gatt.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_glibscan.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_hard.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_hid.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_sdp.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_service.c
-    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/src/blt_service_reg.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/AgentHelper.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/GUtils.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/BluezAlsa.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/FreedesktopSystemd.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/MediaTransport.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/Service.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/bluez/Adapter.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/bluez/AgentManager.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/bluez/device.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/bluez/Profile.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/bluez/filter.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/obex/ObexAgentManager.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/obex/obex_agent.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/obex/obex_transfer.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/obex/obex_session.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/obex/obex_client.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/obex/obex_object_push.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/sdpregister.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_audio.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_agent.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_dbussignal.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_device.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_file.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_gatt.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_glibscan.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_hard.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_hid.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_sdp.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_service.c
+    ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_service_reg.c
 
     ${SOURCE_PATH}/src_p/TpUtils/TpDbus/manager.c
     ${SOURCE_PATH}/src_p/TpUtils/TpDbus/properties.c
@@ -149,25 +149,22 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/utils/variable_array.c
     ${SOURCE_PATH}/src_p/TpUtils/utils/utthread.c
 
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/json_conf.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/appm_creat.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/JsonConf.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/appm_creat.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/file_creat_lib.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/file_creat.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/utilslib.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/TpFileCreat.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/utilslib.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/system_permission.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/secret_key.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/conf_json.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/install_check.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/install.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/appinfo.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/purview.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/unload.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/unpack.c
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/update.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/SecretKey.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/ConfJson.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/InstallCheck.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/install.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/Purview.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/unload.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/Unpack.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/Update.cpp
     ${SOURCE_PATH}/src/TpUtils/AppManage/TpLibDopack.cpp
 
-
-    ${SOURCE_PATH}/src_p/TpUtils/fileUtils.c
 
     ${SOURCE_PATH}/src_p/TpUtils/usb/src/usb_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_manager.c
@@ -222,7 +219,6 @@ include_directories(${SOURCE_PATH}/include/TpUtils/Media)
 include_directories(${SOURCE_PATH}/include/TpUtils/AppManage)
 include_directories(${SOURCE_PATH}/include/TpUtils/Hardware)
 
-
 include_directories(${SOURCE_PATH}/include/TpGUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/GUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/Widgets)
@@ -239,12 +235,9 @@ include_directories(${SOURCE_PATH}/include_p/TpUtils/utils)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Network)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/TpDbus)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/AppManage)
-
-include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include/lib)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include/lib/bluez)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/Bluetooth/include/lib/obex)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth/bluez)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth/obex)
 
 include_directories(${SOURCE_PATH}/src_p/TpUtils/usb/include)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/devmanager/include)

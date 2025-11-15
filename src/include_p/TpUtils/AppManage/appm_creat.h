@@ -1,15 +1,11 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#ifdef __cplusplus
-extern "C" {				//告诉编译器下列代码要以C链接约定的模式进行链接
-#endif
-
 #include <stdio.h>
 #include "archive.h"
 #include "archive_entry.h"
 #include "AppManage/appmanage_conf.h"
-#include "AppManage/file_creat.h"
+#include "AppManage/TpFileCreat.h"
 
 #define PKGFILE_LIBRARY		"lib"
 #define PKGFILE_SIGNATURE	"signature"
@@ -26,9 +22,5 @@ int appm_creat_libpackage_config(const char *archive_name,struct LibPackageConfi
 int appm_creat_apppackage_config(const char *archive_name,struct AppPackageConfig *conf);
 int add_file_to_archive(struct archive *a, const char *file_path, const char *entry_name);
 int appm_analysis_dopack_json(const char *json_path,struct AppPackageConfig *conf,struct ScriptInfo *script);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

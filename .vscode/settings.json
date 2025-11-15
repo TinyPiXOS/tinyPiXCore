@@ -114,6 +114,25 @@
         "ctype.h": "c",
         "g_utils.h": "c",
         "tputilsclib.h": "c",
-        "install.h": "c"
+        "install.h": "c",
+        "jsonconf.h": "c",
+        "obex_session.h": "c",
+        "gutils.h": "c",
+        "service.h": "c",
+        "bluezalsa.h": "c",
+        "freedesktopsystemd.h": "c",
+        "device.h": "c",
+        "profile.h": "c",
+        "bluetooth_inc.h": "c",
+        "obex_object_push.h": "c",
+        "spp_client.h": "c",
+        "obexagentmanager.h": "c",
+        "blt_device.h": "c",
+        "adapter.h": "c",
+        "agenthelper.h": "c",
+        "confjson.h": "c",
+        "blt_dbussignal.h": "c",
+        "appinfo.h": "c",
+        "string.h": "c"
     }
 }
