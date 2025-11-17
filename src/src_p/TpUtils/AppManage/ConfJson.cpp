@@ -276,9 +276,9 @@ static int file_unlock(int fd)
 }
 
 // 加密写入json对象到文件
-static int write_json_object_file_key(json_object *root, const char *file_path, const unsigned char *key)
+static int write_json_object_file_key(json_object *root, const TpString &filePath, const unsigned char *key)
 {
-    FILE *file_j = fopen(file_path, "wb");
+    FILE *file_j = fopen(filePath.c_str(), "wb");
     if (!file_j)
         return -1;
 
@@ -350,9 +350,9 @@ static int write_json_object_file_key(json_object *root, const char *file_path, 
     return 0;
 }
 
-static char *read_encrypted_file(const char *file_path, unsigned char **iv, unsigned char **ciphertext, size_t *cipher_len)
+static char *read_encrypted_file(const TpString &filePath, unsigned char **iv, unsigned char **ciphertext, size_t *cipher_len)
 {
-    FILE *fp = fopen(file_path, "rb");
+    FILE *fp = fopen(filePath.c_str(), "rb");
     if (!fp)
         return NULL;
 
@@ -428,13 +428,13 @@ static char *decrypt_json(const unsigned char *key, const unsigned char *iv, con
     return json_str;
 }
 
-static char *read_json_string_file_key(const char *file_path, const unsigned char *key)
+static char *read_json_string_file_key(const TpString &filePath, const unsigned char *key)
 {
     unsigned char *iv = NULL, *ciphertext = NULL;
     size_t cipher_len = 0;
 
     // 读取文件并提取数据
-    if (!read_encrypted_file(file_path, &iv, &ciphertext, &cipher_len))
+    if (!read_encrypted_file(filePath, &iv, &ciphertext, &cipher_len))
     {
         return NULL;
     }
@@ -475,7 +475,9 @@ int ConfigJsonParser::config_export_analysis_json(char *line, json_object *expor
     { // icon start remove
         type = EXPORT_MUST;
     }
-    config_add_to_json(type, export_obj, key, value);
+    else
+    {}
+    configAddToJson(type, export_obj, key, value);
     return 0;
 }
 
@@ -515,81 +517,66 @@ int ConfigJsonParser::config_keyvalue_analysis_json(char *line, json_object *exp
     return 0;
 }
 
-int ConfigJsonParser::find_key_from_file(const char *file_path, const char *key, char *value)
+int ConfigJsonParser::findKeyFromFile(const TpString &filePath, const TpString &key, TpString &value)
 {
-    FILE *file = fopen(file_path, "r");
-    if (file == NULL)
+    TpFile file(filePath);
+    if (!file.open(TpFile::ReadOnly))
         return -1;
-    fseek(file, 0, SEEK_END);
-    long length = ftell(file);
-    fseek(file, 0, SEEK_SET);
 
-    char *data = (char *)malloc(length + 1);
-    if (!data)
-    {
-        perror("Failed to allocate memory");
-        fclose(file);
-        return -1;
-    }
-    fread(data, 1, length, file);
-    fclose(file);
-    data[length] = '\0';
+    TpString data = file.readAll();
 
     // 解析 JSON 数据
-    struct json_object *json_obj = json_tokener_parse(data);
-    free(data);
-
+    struct json_object *json_obj = json_tokener_parse(data.c_str());
     if (!json_obj)
     {
         fprintf(stderr, "JSON parsing error\n");
         return -1;
     }
-    const char *value_temp = find_key_from_obj(json_obj, key);
-    strcpy(value, value_temp);
+
+    const char *value_temp = find_key_from_obj(json_obj, key.c_str());
+
+    value = value_temp;
     //	printf("value:%s", value_temp);
     return 0;
 }
 
-int ConfigJsonParser::config_add_to_json(PackageExportType type, json_object *export_obj, const char *value, const char *key)
+int ConfigJsonParser::configAddToJson(PackageExportType type, json_object *exportObj, const TpString &value, const TpString &key)
 {
-    size_t len = strlen(value) + 1;
-    char *key_value = (char *)malloc(len);
-    memcpy(key_value, value, len);
     switch (type)
     {
     case EXPORT_LIBS:
     {
         struct json_object *array = json_object_new_array();
-        config_json_array_analysis(key_value, array, " ", 0);
-        json_object_object_add(export_obj, key, array);
+        config_json_array_analysis((char *)value.c_str(), array, " ", 0);
+        json_object_object_add(exportObj, key.c_str(), array);
         break;
     }
     case EXPORT_DEPEND:
     {
         struct json_object *array = json_object_new_array();
-        config_json_array_analysis(key_value, array, " ", 2, "name", "version");
-        json_object_object_add(export_obj, key, array);
+        config_json_array_analysis((char *)value.c_str(), array, " ", 2, "name", "version");
+        json_object_object_add(exportObj, key.c_str(), array);
         break;
     }
     case EXPORT_MUST:
     {
-        json_object_object_add(export_obj, key, json_object_new_string((const char *)key_value));
+        json_object_object_add(exportObj, key.c_str(), json_object_new_string(value.c_str()));
         break;
     }
     default:
         break;
     }
-    free(key_value);
+
     return 0;
 }
 
-int ConfigJsonParser::write_json_object_file(json_object *root, const char *file_path)
+int ConfigJsonParser::writeJsonObjectFile(json_object *root, const TpString &filePath)
 {
-    printf("写入json配置文件:%s\n", file_path);
-    FILE *file_j = fopen(file_path, "w");
+    // printf("写入json配置文件:%s\n", filePath);
+    FILE *file_j = fopen(filePath.c_str(), "w");
     if (!file_j)
     {
-        fprintf(stderr, "create or open json file error,path:%s", file_path);
+        // fprintf(stderr, "create or open json file error,path:%s", filePath);
         return -1;
     }
 
@@ -597,7 +584,7 @@ int ConfigJsonParser::write_json_object_file(json_object *root, const char *file
     printf("%s\n", str_json);                                                                                              // 打印测试
     if (fprintf(file_j, "%s\n", str_json) < 0)                                                                             // 写入文件
     {
-        fprintf(stderr, "write to json file error,path:%s", file_path);
+        // fprintf(stderr, "write to json file error,path:%s", filePath);
         fclose(file_j);
         return -1;
     }
@@ -606,7 +593,7 @@ int ConfigJsonParser::write_json_object_file(json_object *root, const char *file
     return 0;
 }
 
-int ConfigJsonParser::write_json_object_file_encryption(json_object *root, const char *file_path)
+int ConfigJsonParser::writeJsonObjectFileEncryption(json_object *root, const TpString &filePath)
 {
     secret_update_key(); // 更新密钥
 
@@ -617,11 +604,11 @@ int ConfigJsonParser::write_json_object_file_encryption(json_object *root, const
         return -1;
     }
     printf("[debug]:secret_get_key ok \n");
-    write_json_object_file_key(root, file_path, key);
+    write_json_object_file_key(root, filePath, key);
     return 0;
 }
 
-char *ConfigJsonParser::read_json_string_file_encryption(const char *file_path)
+char *ConfigJsonParser::readJsonStrFileEncryption(const TpString &filePath)
 {
     unsigned char *key = secret_get_key();
     if (!key)
@@ -629,5 +616,5 @@ char *ConfigJsonParser::read_json_string_file_encryption(const char *file_path)
         fprintf(stderr, "get key error\n");
         return NULL;
     }
-    return read_json_string_file_key(file_path, key);
+    return read_json_string_file_key(filePath, key);
 }

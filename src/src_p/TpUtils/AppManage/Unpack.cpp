@@ -286,7 +286,7 @@ void package_config_handle_info(FILE *file, struct archive *a, char *line)
 // dest_dir
 int install_export_files(struct AppInstallInfo *app, char *values, AppInstallPathType install_type)
 {
-    // config_add_to_json(type,export_obj,key,files);
+    // configAddToJson(type,export_obj,key,files);
     char *strtok_ptr;
     char *file_name = strtok_r(values, " ", &strtok_ptr);
     while (file_name)
@@ -366,7 +366,7 @@ int package_config_handle_export(FILE *file, struct AppInstallInfo *app, char *l
     else
         files[len - 1] = ' ';
     install_export_files(app, files, install_type);
-    // config_add_to_json(type,export_obj,key,files);
+    // configAddToJson(type,export_obj,key,files);
     return 0;
 }
 

@@ -115,7 +115,8 @@ int get_app_version_json(const char *uuid, struct TpVersion *ver)
     if (path_conf == NULL)
         return -1;
     char uuid_json[64];
-    char ver_str[16]; // 本机已安装的应用的版本号
+
+    TpString verStr;    // 本机已安装的应用的版本号
 
     memset(uuid_json, 0, sizeof(uuid_json));
     snprintf(uuid_json, sizeof(uuid_json), "%s.json", uuid);
@@ -129,8 +130,8 @@ int get_app_version_json(const char *uuid, struct TpVersion *ver)
         free(path_conf);
         return 1;
     }
-    ConfigJsonParser::find_key_from_file(path_conf, "version", ver_str);
-    string_to_version((const char *)ver_str, ver);
+    ConfigJsonParser::findKeyFromFile(path_conf, "version", verStr);
+    string_to_version(verStr.c_str(), ver);
     return 0;
 }
 

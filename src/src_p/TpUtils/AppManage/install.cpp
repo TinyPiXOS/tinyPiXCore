@@ -358,8 +358,8 @@ int install_config_file(const struct TpAppInfo *app)
 
     // 写入JSON文件
     TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid + ".json";
-    ConfigJsonParser::write_json_object_file(root, jsonPath.c_str()); // 不加密写入json
-    // write_json_object_file_encryption(root, jsonPath.c_str()); // 加密写入json
+    ConfigJsonParser::writeJsonObjectFile(root, jsonPath); // 不加密写入json
+    // writeJsonObjectFileEncryption(root, jsonPath.c_str()); // 加密写入json
 
     json_object_put(root);
     sourceFile.close();
