@@ -14,7 +14,7 @@ int32_t main(int32_t argc, char *argv[])
     
     vScreen->update();
 
-#if 0
+
 	TpLabel *label1 = new TpLabel(vScreen);
 	label1->font()->setFontColor(_RGBA(255, 0, 0, 255), 0);
 	label1->font()->setAntialias(TpFont::TINY_FONT_ANTIALIAS_GOOD);
@@ -90,7 +90,7 @@ int32_t main(int32_t argc, char *argv[])
 	// label6->setRoundCorners(100);
 	label6->setVisible(true);
 	label6->update();
-#endif
+
 
     return app.run();
 }
