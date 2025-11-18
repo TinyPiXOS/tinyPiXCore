@@ -39,14 +39,14 @@ Audio:
 	$(G++) $(CFLAGS) -c audio.cpp $(INC_PATH)
 	$(G++) $(CFLAGS) -o Audio audio.o $(LIB) $(LIB_PATH)
 Video:
-	$(G++) $(CFLAGS) -c video.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Video video.o $(LIB) $(LIB_PATH)
+	$(G++) $(CFLAGS) -c video.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Video video.o $(LIB) $(INC)
 Hard:
-	$(G++) $(CFLAGS) -c hard.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Hard hard.o $(LIB) $(LIB_PATH)
+	$(G++) $(CFLAGS) -c hard.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Hard hard.o $(LIB) $(INC)
 Record:
-	$(G++) $(CFLAGS) -c Record.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Record Record.o $(LIB) $(LIB_PATH)
+	$(G++) $(CFLAGS) -c record.cpp $(INC) $(LDFLAGS)
+	$(G++) $(CFLAGS) -o Record record.o $(LIB) $(INC)
 clean:
 	rm *.o
 

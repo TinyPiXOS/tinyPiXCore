@@ -1,6 +1,6 @@
-#include "TpApp.h"
-#include "TpMainWindow.h"
-#include "TpButton.h"
+#include "GUI/TpApp.h"
+#include "GUI/TpMainWindow.h"
+#include "Widgets/TpButton.h"
 #include "TpVariant.h"
 #include "TpCursor.h"
 

@@ -19,6 +19,7 @@ INC_PATH ?= -I. \
       -I/usr/include/TinyPiX/TpCore \
       -I/usr/include/TinyPiX/TpUtils \
       -I/usr/include/TinyPiX/TpGUI \
+	  -I/usr/include/TinyPiX/TpGUI/GUI \
       -I/usr/include/TinyPiX/TpGUI/Core \
       -I/usr/include/TinyPiX/TpGUI/Screen \
       -I/usr/include/TinyPiX/TpGUI/Widgets \
@@ -32,21 +33,11 @@ LIB =  -lTpUtils -lTpCore -lTpGUI -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb 
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标
-.PHONY:Audio Video Hard Record#即使该目标存在也重新生成
-all:Audio Video Hard Record clean#
+.PHONY:Temp#即使该目标存在也重新生成
+all:Temp clean#
 
-Audio:
-	$(G++) $(CFLAGS) -c audio.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Audio audio.o $(LIB) $(LIB_PATH)
-Video:
-	$(G++) $(CFLAGS) -c video.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Video video.o $(LIB) $(LIB_PATH)
-Hard:
-	$(G++) $(CFLAGS) -c hard.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Hard hard.o $(LIB) $(LIB_PATH)
-Record:
-	$(G++) $(CFLAGS) -c Record.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Record Record.o $(LIB) $(LIB_PATH)
+Temp:
+	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Temp main.o $(LIB) $(LIB_PATH)
 clean:
 	rm *.o
-
