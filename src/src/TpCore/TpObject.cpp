@@ -16,7 +16,8 @@ TpObject::TpObject(TpObject *parent)
 
 TpObject::~TpObject()
 {
-    TpCoreApp::Inst()->isExistObject(this, true);
+    if (TpCoreApp::Inst())
+        TpCoreApp::Inst()->isExistObject(this, true);
 
     TpObjectData *set = static_cast<TpObjectData *>(data_);
     if (!set)
@@ -45,6 +46,12 @@ void TpObject::setProperty(const TpString &_name, const TpVariant &_value)
     TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     set->objPropertyMap[_name] = _value;
+
+    auto it = m_properties.find(_name);
+    if (it != m_properties.end())
+    {
+        it->second.second(_value);
+    }
 }
 
 TpVariant TpObject::property(const TpString &_name)
@@ -52,7 +59,18 @@ TpVariant TpObject::property(const TpString &_name)
     TpObjectData *set = static_cast<TpObjectData *>(data_);
 
     if (set->objPropertyMap.contains(_name))
+    {
         return set->objPropertyMap[_name];
+    }
+    else
+    {
+        auto it = m_properties.find(_name);
+        if (it != m_properties.end())
+        {
+            return it->second.first();
+        }
+    }
+
     return TpVariant();
 }
 

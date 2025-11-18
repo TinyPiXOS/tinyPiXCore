@@ -4,7 +4,8 @@
 #include <TpCore.h>
 #include <TpString.h>
 #include <TpList.h>
-#include <functional>
+#include <TpHash.h>
+#include <TpProperty.h>
 
 class TpVariant;
 class TpEvent;
@@ -73,6 +74,13 @@ public:
     /// @return 数据指针
     virtual ITpObjectData *objectSets();
 
+protected:
+    void registerProperty(const TpString &name, const TpPropertyReadCallFunc &readFunc, const TpPropertyWriteCallFunc &writeFunc)
+    {
+        m_properties[name].first = readFunc;
+        m_properties[name].second = writeFunc;
+    }
+
 private:
     void addConnection(void *signal, std::function<void()> disconnector);
 
@@ -81,6 +89,8 @@ private:
 
 protected:
     ITpObjectData *data_;
+    // <READ, WRITE>
+    TpHash<TpString, std::pair<TpPropertyReadCallFunc, TpPropertyWriteCallFunc>> m_properties;
 };
 
 #endif
