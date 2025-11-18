@@ -1,5 +1,6 @@
 build/
 out/
+install/
 install/x86_64
 install/x86_32
 install/arm_64
