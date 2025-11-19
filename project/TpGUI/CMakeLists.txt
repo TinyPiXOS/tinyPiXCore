@@ -135,8 +135,6 @@ else()
 endif()
 
 include_directories(${SYSTEM_INCLUDE_PATH})
-include_directories(${SYSTEM_INCLUDE_PATH}/cairo)
-include_directories(${SYSTEM_INCLUDE_PATH}/pango-1.0)
 include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
 
 include_directories(${SOURCE_PATH}/include)

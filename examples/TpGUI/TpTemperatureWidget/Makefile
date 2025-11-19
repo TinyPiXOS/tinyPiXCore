@@ -10,8 +10,6 @@ INC_PATH ?= -I. \
       -I/usr/include \
       -I/usr/include/SDL2 \
       -I/usr/include/freetype2 \
-      -I/usr/include/cairo \
-      -I/usr/include/pango-1.0 \
       -I/usr/include/harfbuzz \
       -I/usr/include/glib-2.0 \
       -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
@@ -28,7 +26,7 @@ INC_PATH ?= -I. \
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
-LIB =  -lTpUtils -lTpCore -lTpGUI -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog -ldl -lpthread -lSDL2  -lcairo -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpangocairo-1.0  -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL 
+LIB =  -lTpUtils -lTpCore -lTpGUI -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog -ldl -lpthread -lSDL2   -lgobject-2.0 -lglib-2.0   -lfontconfig -lfreetype -lgbm -lGLESv2 -lEGL 
 
 CFLAGS = #-Wall -O2 -g
 
