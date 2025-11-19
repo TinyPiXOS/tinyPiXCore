@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdio.h>
-#include "TpAppInstall.h"
+#include "TpUtils/AppManage/TpAppInstall.h"
 
 
 int install_app(const char *pack_path)

@@ -1,5 +1,6 @@
 build/
 out/
+install/
 install/x86_64
 install/x86_32
 install/arm_64
@@ -110,6 +111,7 @@ examples/TpGUI/TpMessgaeBox/messgaeBox
 examples/TpUtils/TpGateway/PubSub/client2
 examples/TpUtils/TpGateway/REP/repClient
 examples/TpCore/TpJsonParser/jsonParser
+examples/TpCore/TpProperty/property
 
 examples/TpUtils/bluetooth/Audio
 examples/TpUtils/bluetooth/Bluetooth

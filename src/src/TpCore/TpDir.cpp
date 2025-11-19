@@ -161,6 +161,11 @@ bool TpDir::mkpath(const TpString &dirPath)
     TpString currentPath;
     for (const auto &part : dirPath.split('/'))
     {
+		if(part.empty())
+		{
+			currentPath = pathJoin("/", part);
+			continue;
+		}
         currentPath = pathJoin(currentPath, part);
         if (::mkdir(currentPath.c_str(), 0755) != 0 && errno != EEXIST)
             return false;

@@ -74,6 +74,20 @@ int example_creat_system_lib()
 }
 
 
+//C Example
+int app_manage (int argc, char *argv[])
+{
+//	Appm_Unpack("/home/pix/AppManage/test.pik");
+	//test
+//	Appm_Install_Unpack("mytestapp");
+//	app_install_test();
+//	MD5_Test();
+//	conf_json_test();
+//	file_startsh_creat("/home/pix/AppManage/AppM_1.1.0");
+	return 0;
+}
+
+
 int main()
 {
 	example_creat_app_pack();

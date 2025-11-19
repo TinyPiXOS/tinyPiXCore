@@ -21,6 +21,6 @@ int appm_creat_package_path(const char * path, const char * archive_name);
 int appm_creat_libpackage_config(const char *archive_name,struct LibPackageConfig *conf);
 int appm_creat_apppackage_config(const char *archive_name,struct AppPackageConfig *conf);
 int add_file_to_archive(struct archive *a, const char *file_path, const char *entry_name);
-int appm_analysis_dopack_json(const char *json_path,struct AppPackageConfig *conf,struct ScriptInfo *script);
+int appm_analysis_dopack_json(const TpString& json_path,struct AppPackageConfig *conf,struct ScriptInfo *script);
 
 #endif

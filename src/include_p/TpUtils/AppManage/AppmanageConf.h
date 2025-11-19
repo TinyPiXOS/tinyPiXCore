@@ -29,7 +29,7 @@
 #define PACKAGE_TYPE_CONFIG_SAPP "#TinyPix SystemApp"
 #define PACKAGE_TYPE_CONFIG_UAPP "#TinyPix UserApp"
 
-#define PACKAGE_FILE_SUFFIX ".TpK"
+#define PACKAGE_FILE_SUFFIX ".tpk"
 
 // 硬件架构
 enum TpEnumArchType

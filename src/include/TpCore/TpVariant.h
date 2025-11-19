@@ -64,7 +64,7 @@ public:
             char *m_strVal;
             void *m_pSetVal;
 
-           TpVector<TpVariant> *m_vectorVal; // 向量指针
+            TpVector<TpVariant> *m_vectorVal; // 向量指针
             struct CustomData
             {
                 void *ptr;                    // 数据
@@ -249,124 +249,25 @@ public:
     bool operator!=(const VariantValue &value);
     bool operator!=(const TpVariant &value);
 
-    operator bool() const
-    {
-        if (!isBool())
-            return false;
-        return data_.data.m_bVal;
-    }
-    operator int8_t() const
-    {
-        if (!isInt8())
-            return 0;
-        return data_.data.m_i1Val;
-    }
+    operator bool() const;
+    operator int8_t() const;
+    operator uint8_t() const;
+    operator int16_t() const;
+    operator uint16_t() const;
+    operator int32_t() const;
+    operator uint32_t() const;
+    operator int64_t() const;
+    operator uint64_t() const;
+    operator float() const;
+    operator double() const;
+    operator const char *() const;
+    operator std::string() const;
+    operator TpString() const;
+    operator TpRect() const;
+    operator TpSize() const;
+    operator TpPoint() const;
 
-    operator uint8_t() const
-    {
-        if (!isUint8())
-            return 0;
-        return data_.data.m_ui1Val;
-    }
-    operator int16_t() const
-    {
-        if (!isInt16())
-            return 0;
-        return data_.data.m_i2Val;
-    }
-
-    operator uint16_t() const
-    {
-        if (!isUint16())
-            return 0;
-        return data_.data.m_ui2Val;
-    }
-
-    operator int32_t() const
-    {
-        if (!isInt32())
-            return 0;
-        return data_.data.m_i4Val;
-    }
-
-    operator uint32_t() const
-    {
-        if (!isUint32())
-            return 0;
-        return data_.data.m_ui4Val;
-    }
-
-    operator int64_t() const
-    {
-        if (!isInt64())
-            return 0;
-        return data_.data.m_i8Val;
-    }
-
-    operator uint64_t() const
-    {
-        if (!isUint64())
-            return 0;
-        return data_.data.m_ui4Val;
-    }
-
-    operator float() const
-    {
-        if (!isFloat())
-            return 0.0;
-        return data_.data.m_r4Val;
-    }
-
-    operator double() const
-    {
-        if (!isDouble())
-            return 0.0;
-        return data_.data.m_r8Val;
-    }
-
-    operator const char *() const
-    {
-        if (!isConstChar())
-            return "";
-        return data_.data.m_strVal;
-    }
-
-    operator std::string() const
-    {
-        if (!isString())
-            return "";
-        return std::string(data_.data.m_strVal);
-    }
-
-    operator TpString() const
-    {
-        if (!isString())
-            return "";
-        return std::string(data_.data.m_strVal);
-    }
-
-    operator TpRect() const
-    {
-        if (!isRect())
-            return TpRect();
-        return TpRect(data_.data.mRectValue);
-    }
-
-    operator TpSize() const
-    {
-        if (!isSize())
-            return TpSize();
-        return TpSize(data_.data.mSizeValue);
-    }
-
-    operator TpPoint() const
-    {
-        if (!isPoint())
-            return TpPoint();
-        return TpPoint(data_.data.mPointValue);
-    }
-
-    bool isVector() const { return data_.m_vt == static_cast<uint16_t>(VariantType::VectorVar); }
+    inline bool isVector() const { return data_.m_vt == static_cast<uint16_t>(VariantType::VectorVar); }
     const TpVector<TpVariant> *toVectorPtr() const;
 
     // 自定义类型检查
@@ -380,148 +281,41 @@ public:
         {
             return *static_cast<T *>(data_.data.custom.ptr);
         }
-        throw std::bad_cast();
+        return T();
     }
 
     bool isBool() const { return (uint16_t)VariantType::BoolVar == data_.m_vt; }
-
     bool isInt8() const { return (uint16_t)VariantType::Int1Var == data_.m_vt; }
-
     bool isUint8() const { return (uint16_t)VariantType::Uint1Var == data_.m_vt; }
-
     bool isInt16() const { return (uint16_t)VariantType::Int2Var == data_.m_vt; }
-
     bool isUint16() const { return (uint16_t)VariantType::Uint2Var == data_.m_vt; }
-
     bool isInt32() const { return (uint16_t)VariantType::Int4Var == data_.m_vt; }
-
     bool isUint32() const { return (uint16_t)VariantType::Uint4Var == data_.m_vt; }
-
     bool isInt64() const { return (uint16_t)VariantType::Int8Var == data_.m_vt; }
-
     bool isUint64() const { return (uint16_t)VariantType::Uint8Var == data_.m_vt; }
-
     bool isFloat() const { return (uint16_t)VariantType::Real4Var == data_.m_vt; }
-
     bool isDouble() const { return (uint16_t)VariantType::Real8Var == data_.m_vt; }
-
     bool isConstChar() const { return (uint16_t)VariantType::BstrVar == data_.m_vt; }
-
     bool isString() const { return (uint16_t)VariantType::BstrVar == data_.m_vt; }
-
     bool isRect() const { return (uint16_t)VariantType::RectVar == data_.m_vt; }
-
     bool isSize() const { return (uint16_t)VariantType::SizeVar == data_.m_vt; }
-
     bool isPoint() const { return (uint16_t)VariantType::PointVar == data_.m_vt; }
 
-    bool toBool(const bool &defaultValue = false) const
-    {
-        if (!isBool())
-            return defaultValue;
-
-        return bool(*this);
-    }
-
-    int8_t toInt8(const int8_t &defaultValue = 0) const
-    {
-        if (!isInt8())
-            return defaultValue;
-        return int8_t(*this);
-    }
-
-    uint8_t toUInt8(const uint8_t &defaultValue = 0) const
-    {
-        if (!isUint8())
-            return defaultValue;
-        return uint8_t(*this);
-    }
-
-    int16_t toInt16(const int16_t &defaultValue = 0) const
-    {
-        if (!isInt16())
-            return defaultValue;
-        return int16_t(*this);
-    }
-
-    uint16_t toUInt16(const uint16_t &defaultValue = 0) const
-    {
-        if (!isUint16())
-            return defaultValue;
-        return uint16_t(*this);
-    }
-
-    int32_t toInt32(const int32_t &defaultValue = 0) const
-    {
-        if (!isInt32())
-            return defaultValue;
-        return int32_t(*this);
-    }
-
-    uint32_t toUInt32(const uint32_t &defaultValue = 0) const
-    {
-        if (!isUint32())
-            return defaultValue;
-        return uint32_t(*this);
-    }
-
-    int64_t toInt64(const int64_t &defaultValue = 0) const
-    {
-        if (!isInt64())
-            return defaultValue;
-        return int64_t(*this);
-    }
-
-    uint64_t toUint64(const uint64_t &defaultValue = 0) const
-    {
-        if (!isUint64())
-            return defaultValue;
-        return uint64_t(*this);
-    }
-
-    float toFloat(const float &defaultValue = 0) const
-    {
-        if (!isFloat())
-            return defaultValue;
-        return float(*this);
-    }
-
-    double toDouble(const double &defaultValue = 0) const
-    {
-        if (!isDouble())
-            return defaultValue;
-        return double(*this);
-    }
-
-    TpString toString(const TpString &defaultValue = "") const
-    {
-        if (!isString())
-            return defaultValue;
-
-        return std::string(data_.data.m_strVal);
-        // return static_cast<TpString>(*this);
-    }
-
-    TpRect toRect(const TpRect &defaultValue = TpRect()) const
-    {
-        if (!isRect())
-            return defaultValue;
-        return TpRect(*this);
-    }
-
-    TpSize toSize(const TpSize &defaultValue = TpSize()) const
-    {
-        if (!isSize())
-            return defaultValue;
-        return TpSize(*this);
-    }
-
-    TpPoint toPoint(const TpPoint &defaultValue = TpPoint()) const
-    {
-        if (!isPoint())
-            return defaultValue;
-        return TpPoint(*this);
-    }
+    bool toBool(const bool &defaultValue = false) const;
+    int8_t toInt8(const int8_t &defaultValue = 0) const;
+    uint8_t toUInt8(const uint8_t &defaultValue = 0) const;
+    int16_t toInt16(const int16_t &defaultValue = 0) const;
+    uint16_t toUInt16(const uint16_t &defaultValue = 0) const;
+    int32_t toInt32(const int32_t &defaultValue = 0) const;
+    uint32_t toUInt32(const uint32_t &defaultValue = 0) const;
+    int64_t toInt64(const int64_t &defaultValue = 0) const;
+    uint64_t toUint64(const uint64_t &defaultValue = 0) const;
+    float toFloat(const float &defaultValue = 0) const;
+    double toDouble(const double &defaultValue = 0) const;
+    TpString toString(const TpString &defaultValue = "") const;
+    TpRect toRect(const TpRect &defaultValue = TpRect()) const;
+    TpSize toSize(const TpSize &defaultValue = TpSize()) const;
+    TpPoint toPoint(const TpPoint &defaultValue = TpPoint()) const;
 
     TpVector<bool> ToBoolArray() const;
     TpVector<int8_t> ToInt8Array() const;
@@ -536,22 +330,21 @@ public:
     TpVector<double> ToDoubleArray() const;
     TpVector<std::string> ToStringArray() const;
 
-    std::set<bool> &ToBoolSet();
-    std::set<int8_t> &ToInt8Set();
-    std::set<uint8_t> &ToUint8Set();
-    std::set<int16_t> &ToInt16Set();
-    std::set<uint16_t> &ToUint16Set();
-    std::set<int32_t> &ToInt32Set();
-    std::set<uint32_t> &ToUint32Set();
-    std::set<int64_t> &ToInt64Set();
-    std::set<uint64_t> &ToUint64Set();
-    std::set<float> &ToFloatSet();
-    std::set<double> &ToDoubleSet();
-    std::set<std::string> &ToStringSet();
+    std::set<bool> ToBoolSet() const;
+    std::set<int8_t> ToInt8Set() const;
+    std::set<uint8_t> ToUint8Set() const;
+    std::set<int16_t> ToInt16Set() const;
+    std::set<uint16_t> ToUint16Set() const;
+    std::set<int32_t> ToInt32Set() const;
+    std::set<uint32_t> ToUint32Set() const;
+    std::set<int64_t> ToInt64Set() const;
+    std::set<uint64_t> ToUint64Set() const;
+    std::set<float> ToFloatSet() const;
+    std::set<double> ToDoubleSet() const;
+    std::set<std::string> ToStringSet() const;
 
-    uint16_t getVariantType() const;
-
-    const char *variantTypeName() const;
+    uint16_t variantType() const;
+    TpString variantTypeName() const;
 
 private:
     bool Compare(const VariantValue &value);

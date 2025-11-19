@@ -63,8 +63,8 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
         TpAppData *set = static_cast<TpAppData *>(data_);
         DeskStatusBarInfo *recvInfo = (DeskStatusBarInfo *)data;
 
-        // std::cout << "桌面信息：" << recvInfo->statusBarLocation << " , " << recvInfo->statusBarWidth
-        //   << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
+        std::cout << "桌面信息：" << recvInfo->statusBarLocation << " , " << recvInfo->statusBarWidth
+          << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
 
         // 主屏幕根据Bar数据是否变化决定是否刷新主屏
         if (*recvInfo == set->deskStatusBarInfo_)
@@ -88,6 +88,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     {
         // 通知桌面应用启动
         bool pubRunData = true;
+        std::cout << "发布应用上线!" <<std::endl;
         publishGatewayData(DeskApplicationRunTopic.c_str(), &pubRunData, sizeof(bool));
     }
 }

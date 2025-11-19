@@ -138,7 +138,11 @@ tpShared<TpCssData> TpCssParser::readCss(const TpString &_className, const TpStr
     TpString type = _uiType.empty() ? DefaultCssTypeName : _uiType;
 
     // 先取出当前类型CSS的基本数据
-    auto cssDefauleData = cssTypeMap.value(type);
+    TpHash<TpString, TpString> cssDefauleData;
+    if (cssTypeMap.contains(type))
+        cssDefauleData = cssTypeMap.value(type);
+    else
+        cssDefauleData = cssTypeMap.value(DefaultCssTypeName);
 
     // 根据鼠标状态，拼接类型后缀
     type = translateUiType(type, _status);
