@@ -6,6 +6,7 @@
 #include "archive_entry.h"
 #include "ConfJson.h"
 #include "install.h"
+#include "TpJsonObject.h"
 
 // #define PACKAGE_TYPE_APP 	0X10
 // #define PACKAGE_TYPE_APPS 	0X11
@@ -20,7 +21,8 @@ struct UnpackEntry
 };
 
 int extract_from_archive(struct archive *a, const char *sour_dir, const char *dest_dir);
-int extract_archive_package_config(struct AppInstallInfo *app, json_object *root);
+//int extract_archive_package_config(struct AppInstallInfo *app, json_object *root);
+int extract_archive_package_config(struct AppInstallInfo *app,  TpJsonObject root);
 int extract_file_pack(const char *pack, const char *entry, char *unpack_path); //
 int extract_archive_file(const char *filename, const char *sour_dir, const char *dest_dir);
 void create_directories(const char *path);

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdio.h>
-#include "TpAppInstall.h"
+#include "TpUtils/AppManage/TpAppInstall.h"
 
 int main(int argc,char **argv)
 {

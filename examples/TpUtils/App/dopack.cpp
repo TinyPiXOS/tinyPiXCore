@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdio.h>
-#include "TpAppDopack.h"
-#include "TpLibDopack.h"
+#include "TpUtils/AppManage/TpAppDopack.h"
+#include "TpUtils/AppManage/TpLibDopack.h"
 
 
 //使用json文件的内容来自动生成安装包
@@ -12,6 +12,7 @@ int example_creat_app_pack_json(const char *json,const char *pack,const char *pa
 	package.getAllConfig(json);///home/pix/AppManage/keyboard/dopack.json
 	package.setPackageName(pack);		//必须设置安装包名称，佛则不会打包，会自动拼接后缀keyboardPackage
 	package.creatPackage(path);///home/pix/AppManage
+	return 0;
 }
 
 int main(int argc,char **argv)

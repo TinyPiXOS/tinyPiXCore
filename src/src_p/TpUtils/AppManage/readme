@@ -1,11 +1,8 @@
 说明：
 	应用管理服务，负责应用的打包安装升级卸载
-程序版本：V1.3.7
 开发环境：ubuntu18.04，ubuntu20.04
 创建日期：2024/11.21
 依赖库：
-	可以直接把./lib中的所有.so复制到系统目录，即可不用安装下列依赖库
-
     libarchive	打包解包（BSD协议）
 				下载安装包后使用autoconf -i命令来生成configure文件然后再./configure,然后make和makeinstall
 				(需要autoconf版本大于等于2.7.1，重新安装autoconf后需要在重新安装一下automake)
@@ -26,13 +23,6 @@
 	lib:依赖的开源库
 	inc:使用开源库需要的头文件,以及通用的配置信息文件
 	doc:dopack.conf文档(用于生成安装包的参考配置文件，可以在此文件基础上修改)
-编译：
-	make		
-	make clean	清除编译信息
-
-运行：
-	AppManager
-	AppDopack	打包
 
 更新计划：
 	启动脚本需要更加完善

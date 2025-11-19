@@ -16,7 +16,7 @@
 #include "AppManage/appm_creat.h"
 #include "TpFileCreat.h"
 #include "AppManage/JsonConf.h"
-
+#include "TpFile.h"
 // 根据私钥生成签名文件
 // 需要生成签名的文件，私钥文件，返回的签名文件
 /*
@@ -94,6 +94,7 @@ int add_file_to_archive(struct archive *a, const char *file_path, const char *en
     close(fd);
     return 0;
 }
+
 
 // 判断目录以及文件合法性（最小应用程序文件应该包含的东西）
 int validity_check()
@@ -265,14 +266,21 @@ int appm_creat_apppackage_config(const char *archive_name, struct AppPackageConf
 // json_path:json文件路径和名字
 // conf:应用配置参数
 // script:启动脚本参数
-int appm_analysis_dopack_json(const char *json_path, struct AppPackageConfig *conf, struct ScriptInfo *script)
+int appm_analysis_dopack_json(const TpString& json_path, struct AppPackageConfig *conf, struct ScriptInfo *script)
 {
-    printf("解析%s文件\n", json_path);
+	std::cout<< "[Debug]： 解析用户json:" << json_path <<std::endl;
     printf("get AppPackageConfig\n");
+	std::cout<< "[Debug]： get AppPackageConfig" << std::endl;
+	TpFile file(json_path);
+	if (!file.open(TpFile::ReadOnly))
+	{
+		return -1;
+	}
+	TpString json_str=file.readAll();
+    JsonConfigParser::GetPackageConfig(json_str, *conf);
+	std::cout<< "[Debug]： get ScriptInfo" << std::endl;
+    JsonConfigParser::GetStartupInfo(json_str, *script);
 
-    JsonConfigParser::GetPackageConfig(json_path, *conf);
-    printf("get ScriptInfo\n");
-    JsonConfigParser::GetStartupInfo(json_path, *script);
-
+	file.close();
     return 0;
 }

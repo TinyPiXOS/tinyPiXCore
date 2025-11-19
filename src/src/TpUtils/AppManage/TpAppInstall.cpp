@@ -24,7 +24,6 @@ struct TpAppInstallData
 {
     char *pack_path_c;      // 安装包路径
     PackageConfigInfo conf; // 安装包中的信息
-
     PackageUserParam user; // 用户参数
 
     std::thread thread_t;
@@ -33,8 +32,6 @@ struct TpAppInstallData
     {
         is_runing = false;
         pack_path_c = NULL;
-        memset(&conf, 0, sizeof(struct PackageConfigInfo));
-        memset(&user, 0, sizeof(struct PackageUserParam));
     }
 };
 

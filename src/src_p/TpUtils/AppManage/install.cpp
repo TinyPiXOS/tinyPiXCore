@@ -129,27 +129,29 @@ static int montage_config_key_value(char *key_prefix, int size, uint8_t type, co
 }
 
 // 从安装包的路径或名字中去掉后缀提取名字
-static int get_pikname_from_path(const char *path_pik, char *pikname, int len)
+static int get_pikname_from_path(const TpString& path_pik, TpString& pikname)
 {
-    const char *pik = strrchr(path_pik, '/');
-    const char *filename_start; // 指向文件名起始位置
-
-    if (pik == NULL)
-    {
+    // 查找最后一个路径分隔符
+    size_t last_slash_pos = path_pik.find_last_of('/');
+    std::string filename;
+    
+    if (last_slash_pos == std::string::npos) {
         // 没有斜杠，整个路径就是文件名
-        filename_start = path_pik;
-    }
-    else
-    {
+        filename = path_pik;
+    } else {
         // 有斜杠，文件名在斜杠后
-        filename_start = pik + 1;
+        filename = path_pik.substr(last_slash_pos + 1);
     }
-
-    snprintf(pikname, len, "%s", filename_start);
-    char *dest = strstr(pikname, PACKAGE_FILE_SUFFIX);
-    if (dest == NULL) // 目录不对，文件后缀名不对
+    
+    // 查找包文件后缀
+    size_t suffix_pos = filename.find(PACKAGE_FILE_SUFFIX);
+    if (suffix_pos == std::string::npos) {
+        // 目录不对，文件后缀名不对
         return -1;
-    dest[0] = '\0';
+    }
+    
+    // 提取不包含后缀的文件名
+    pikname = filename.substr(0, suffix_pos);
     return 0;
 }
 
@@ -293,7 +295,8 @@ int install_file(const char *path_s, const char *path_d)
 int install_config_file(const struct TpAppInfo *app)
 {
     int err = 0;
-    struct json_object *root = json_object_new_object();
+	//struct json_object *root = json_object_new_object();
+    TpJsonObject root;
 
     // 拼接UUID目录
     TpString destPath = TpString(APP_INSTALL_PATH) + "/" + app->uuid + "/" + TpString(APP_CONFIG);
@@ -305,7 +308,8 @@ int install_config_file(const struct TpAppInfo *app)
     if (!destFile.open(TpFile::WriteOnly))
     {
         fprintf(stderr, "Failed to open file %s for writing\n", destPath.c_str());
-        json_object_put(root);
+        //json_object_put(root);
+		//root.~TpJsonObject();
         return -1;
     }
 
@@ -315,14 +319,16 @@ int install_config_file(const struct TpAppInfo *app)
     if (!sourceFile.open(TpFile::ReadOnly))
     {
         fprintf(stderr, "Failed to open file %s for reading\n", sourcePath.c_str());
-        json_object_put(root);
+        //json_object_put(root);
+		//root.~TpJsonObject();
         destFile.close();
         return -1;
     }
 
     printf("===安装配置和json文件\n");
 
-    struct json_object *static_obj = json_object_new_object();
+//    struct json_object *static_obj = json_object_new_object();
+    TpJsonObject static_obj;
 
     // 逐行读取安装包配置文件信息
     TpString line;
@@ -354,14 +360,16 @@ int install_config_file(const struct TpAppInfo *app)
         ConfigJsonParser::config_keyvalue_analysis_json((char *)line.c_str(), static_obj);
     }
 
-    json_object_object_add(root, "static", static_obj);
+    //json_object_object_add(root, "static", static_obj);
+	root.insert("static", static_obj);
 
     // 写入JSON文件
     TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid + ".json";
     ConfigJsonParser::writeJsonObjectFile(root, jsonPath); // 不加密写入json
     // writeJsonObjectFileEncryption(root, jsonPath.c_str()); // 加密写入json
 
-    json_object_put(root);
+    //json_object_put(root);
+	//root.~TpJsonObject();
     sourceFile.close();
     destFile.close();
     return err;
@@ -670,7 +678,8 @@ int Appm_Install_Archive(struct TpAppInfo *app, struct PackageUserParam *user)
     write_install_schedule(schedule, 80);
     // 安装其他文件
     // struct json_object *root=json_object_new_object();
-    extract_archive_package_config(&app_install, NULL);
+    //extract_archive_package_config(&app_install, NULL);
+	extract_archive_package_config(&app_install, TpJsonObject());
     // printf("%s\n", json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_NOSLASHESCAPE));
     // json_object_put(root);
     write_install_schedule(schedule, 90);
@@ -712,13 +721,13 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
             return -1;
     }
     // 获取应用名
-    if (app.pikname.empty())
+    if (app.path_pik.empty())
     {
-        fprintf(stderr, "Error:获取应用安装包名失败\n");
+        fprintf(stderr, "[Error]: 获取应用安装包名失败\n");
         install_remove_appfile((char *)app.uuid.c_str());
         return -1;
     }
-    if (get_pikname_from_path(path_pik, (char *)app.pikname.c_str(), strlen(path_pik)) < 0)
+    if (get_pikname_from_path(path_pik, app.pikname) < 0)
     {
         fprintf(stderr, "Error:获取应用安装包名(无后缀)失败，%s\n", path_pik);
         install_remove_appfile((char *)app.uuid.c_str());
@@ -763,16 +772,18 @@ int Appm_Install_Library(const char *pathLib, struct LibPackageConfig *conf, str
 // 安装
 int appm_install_package(const char *path_pack, struct PackageConfigInfo *conf, struct PackageUserParam *user)
 {
-    //	printf("package type: %d\n",conf->type);
     if (conf->md5_flag != 1)
     {
-        fprintf(stderr, "Install package damage\n");
+        fprintf(stderr, "[Error]: Install package damage\n");
         return -1;
     }
 
     // 创建/System/tmp
-    if (!TpDir::mkpath(TMP_FILE_PATH))
+    if (!TpDir::mkpath(TpString(TMP_FILE_PATH)))
+	{
+		fprintf(stderr, "[Error]: mkpath error\n");
         return -1;
+	}
 
     printf("安装类型%d\n", conf->type);
     switch (conf->type)

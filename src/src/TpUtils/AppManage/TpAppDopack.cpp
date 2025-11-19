@@ -352,5 +352,5 @@ void TpAppDopack::setExecPath(const TpString &name)
 void TpAppDopack::getAllConfig(const TpString &path_json)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    appm_analysis_dopack_json(path_json.c_str(), &adpData->params, &adpData->config);
+    appm_analysis_dopack_json(path_json, &adpData->params, &adpData->config);
 }

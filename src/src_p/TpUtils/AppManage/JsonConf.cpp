@@ -137,6 +137,7 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
         throw JsonConfigException("Empty JSON document: " + configPath);
     }
 
+	std::cout<< "json:\n" << doc.toJson() << std::endl;
     // 解析基本字段
     config.appID = GetStringValue(root, "appID", true);
     config.appName = GetStringValue(root, "appName", true);

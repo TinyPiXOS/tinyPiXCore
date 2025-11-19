@@ -1,6 +1,8 @@
 build/
 out/
-install/
+install/*
+!install/dopack.sh
+!install/config
 install/x86_64
 install/x86_32
 install/arm_64
@@ -134,3 +136,5 @@ examples/TpUtils/SystemLib/Archive
 examples/TpUtils/SystemLib/Process
 examples/TpUtils/SystemLib/System
 examples/TpUtils/TpHardwarePwm/Pwm
+
+

@@ -310,12 +310,13 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             if (line[0] == '#') // 跳过注释行
                 continue;
 
+			printf("[Debug]: 读取config行: %s",line);
             // 移除换行符
             trim_newline(line);
 
             if (strncmp(line, "appName:", 8) == 0)
             {
-                config->appName.assign(line + 8, 128);
+				config->appName = TpString(line + 8);
                 // strncpy(config->appName, line + 8, 128);
             }
             else if (strncmp(line, "appID:", 6) == 0)
@@ -330,16 +331,15 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             }
             else if (strncmp(line, "appexecName:", 12) == 0)
             {
-                int len = strlen(line + 12) + 1;
-
-                config->appexecName.assign(line + 12, len);
-
+                //int len = strlen(line + 12) + 1;
+				config->appexecName = TpString(line + 12);
                 // config->appexec_name = malloc(len);
                 // strncpy(config->appexec_name, line + 12, len);
             }
             else if (strncmp(line, "architecture:", 13) == 0)
             {
-                config->architecture.assign(line + 13, 64);
+                //config->architecture.assign(line + 13, 64);
+				config->architecture = TpString(line + 13);
                 // strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
             else if (strncmp(line, "diskSpace:", 10) == 0)
@@ -352,9 +352,8 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             }
             else if (strncmp(line, "export icon=", 12) == 0)
             {
-                config->icon = strdup(line + 12);
-                delete_end_space((char *)config->icon.c_str());
-                // printf("config->icon=%s,\n", config->icon);
+				config->icon = TpString(line + 12);
+				config->icon.erase(config->icon.find_last_not_of(" \t\n\r\f\v") + 1);
             }
         }
         if (find_directory(APP_INSTALL_PATH, config->appID.c_str()) > 0)

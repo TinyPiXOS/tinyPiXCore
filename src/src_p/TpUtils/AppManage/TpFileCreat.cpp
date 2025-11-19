@@ -24,27 +24,27 @@
 #include "TpDir.h"
 
 /*
-        示例：
-        appID:f03c8f8c-dd9b-453f-b2d4-d049c073e252
-        appName:mytestapp
-        organization:MyCompany
-        Version:1.0.0
-        appexecName:MyAppLication
-        Architecture:amd64 i386
-        DiskSpace:1024000
-        FileExtension:.pdf .png .jpg
-        Section:free
-        Priority:optional
-        Essential:no
-        Author:Chingan 2111956539@qq.com
-        Provides:MyAdcSoftware
-        Description:adc detect
-        export depend:libalsa@1.1.0 libbluez-5@5.0.21 libmylib@0.0.1
-        export lib=./lib
-        export icon=./icon
-        export start=./start.sh
-        export remove=./remove.sh
-        export myfile=./myfile
+示例：
+appID:f03c8f8c-dd9b-453f-b2d4-d049c073e252
+appName:mytestapp
+organization:MyCompany
+Version:1.0.0
+appexecName:MyAppLication
+Architecture:amd64 i386
+DiskSpace:1024000
+FileExtension:.pdf .png .jpg
+Section:free
+Priority:optional
+Essential:no
+Author:Chingan 2111956539@qq.com
+Provides:MyAdcSoftware
+Description:adc detect
+export depend:libalsa@1.1.0 libbluez-5@5.0.21 libmylib@0.0.1
+export lib=./lib
+export icon=./icon
+export start=./start.sh
+export remove=./remove.sh
+export myfile=./myfile
 
 */
 

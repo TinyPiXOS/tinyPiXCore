@@ -18,6 +18,7 @@
 #include "install.h"
 #include "utilslib.h"
 #include "InstallCheck.h"
+#include "TpDir.h"
 
 // 新建文件目录
 // unpack_test/control/control
@@ -72,6 +73,7 @@ int close_unpack_entry(struct UnpackEntry *unpack)
 // 从归档条目(包)中查找某个条目(文件)并写入到某个文件,成功返回0
 int archive_find_entry(struct archive *a, const char *file_r, const char *file_w)
 {
+	printf("[Debug]: 从归档中提取%s到%s\n",file_r,file_w);
     struct archive_entry *entry;
     int r;
     int err = -1;
@@ -380,7 +382,8 @@ char *appm_get_package_config(struct TpAppInfo *info)
 // 根据包中的config文件解包，
 // filename:原始包
 // dest_dir:解包路径
-int extract_archive_package_config(struct AppInstallInfo *app_install, json_object *root)
+//int extract_archive_package_config(struct AppInstallInfo *app_install, json_object *root)
+int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObject root)
 {
     printf("根据config文件解包=====\n");
     /*	uint8_t md5_r[MD5_DIGEST_LENGTH];
@@ -424,7 +427,7 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, json_obje
     // int install_type=0;
     // PackageExportType type=EXPORT_NONE;
     // char *key=NULL;
-    struct json_object *static_obj = json_object_new_object();
+
     while (fgets(line, PATH_MAX_LENGTH, file))
     {
         printf("line=%s\n", line);
@@ -448,7 +451,7 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, json_obje
         package_config_handle_export(file, app_install, line, line_len, &last_line);
     }
     free(line);
-    // json_object_object_add(root, "static", static_obj);
+
     //  关闭归档
     close_unpack_entry(&unpack);
     //	close_directories_temp(config_file);
@@ -460,7 +463,7 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, json_obje
 // 会单独解析config文件获取信息，建议在构造函数中调用
 int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
 {
-    printf("appm_get_package_info============\n");
+    printf("[Debug]: appm_get_package_info:%s\n",filename);
     struct UnpackEntry unpack;
     int ret = 0;
     // 读取并删除MD5信息
@@ -488,6 +491,8 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
         add_md5_to_file(filename, md5_r);
         return -1;
     }
+
+	TpDir::mkpath(TMP_FILE_PATH);
     char *config_file = open_directories_temp(TMP_FILE_PATH); // 创建临时文件保存config
     if (archive_find_entry(unpack.a, "./config", config_file) < 0)
     {
@@ -496,6 +501,7 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
         add_md5_to_file(filename, md5_r);
         return -1;
     }
+	printf("从config获取应用信息\n");
     extract_config_info(config_file, conf); // 从config获取应用信息
 
     char *last_slash = (char *)strrchr(conf->appConf.icon.c_str(), '/');                    // Linux路径分隔符
@@ -509,8 +515,8 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
         add_md5_to_file(filename, md5_r);
         return -1;
     }
-    conf->appConf.icon = icon_file;
-
+    conf->appConf.icon = TpString(icon_file);
+	printf("ok\n");
     // 关闭归档
     close_unpack_entry(&unpack);
 
