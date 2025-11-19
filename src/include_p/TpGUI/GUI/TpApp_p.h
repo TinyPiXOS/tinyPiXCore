@@ -30,6 +30,7 @@
 #include "TpCoreApp_p.h"
 #include <TpThread.h>
 #include <TpApp.h>
+#include <TpDir.h>
 
 #include <tinyPiXApi.h>
 #include <unistd.h>

@@ -87,6 +87,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLottieAnimation.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpObjectStack.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpFixScreen.cpp
+    ${SOURCE_PATH}/src_p/TpGUI/GUI/TpFontConfig.cpp
     ${SOURCE_PATH}/src_p/TpGUI/CSSParser/CSSParser/CSSParser.cpp
     ${SOURCE_PATH}/src_p/TpGUI/CSSParser/CSSParser/CSSLex.cpp
     ${SOURCE_PATH}/src_p/TpGUI/CSSParser/CSSParser/Keyword/KeywordItem.cpp

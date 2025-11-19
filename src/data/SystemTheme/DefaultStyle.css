@@ -223,7 +223,7 @@ TpMenuPanelItem {
     padding-bottom: 15dp;
     padding-left: 20dp;
     padding-right: 20dp;
-    icon-size: 35dp;
+    icon-size: 34dp;
 }
 
 TpMenuPanelItem:checked {

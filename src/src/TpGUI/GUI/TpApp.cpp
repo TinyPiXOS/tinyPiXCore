@@ -1,5 +1,6 @@
 #include "TpApp.h"
 #include "TpApp_p.h"
+#include "TpFontConfig.h"
 
 TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     : TpCoreApp(argc, argv)
@@ -42,6 +43,13 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     appPtr = this;
     TpCoreApp::data_ = appData;
 
+    // 初始化字体
+    TpFontConfig::Inst();
+
+    // APP创建，解析初始CSS样式
+    TpString cssFilePath = parseThemeFile(appData->systemTheme);
+    appData->cssParser_->parseCss(cssFilePath);
+
     // 绑定物理窗口；判断是否是桌面
     if (deskStrKey.compare("tinyPiX_DeskTop_0x43ef3dc14") == 0)
     {
@@ -53,9 +61,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
         bindVScreen(appData, new TpFixScreen());
     }
 
-    // APP创建，解析初始CSS样式
-    TpString cssFilePath = parseThemeFile(appData->systemTheme);
-    appData->cssParser_->parseCss(cssFilePath);
+#if 1 // 处理桌面 topbar信息
 
     // 接收桌面工具栏信息
     auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
@@ -64,7 +70,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
         DeskStatusBarInfo *recvInfo = (DeskStatusBarInfo *)data;
 
         std::cout << "桌面信息：" << recvInfo->statusBarLocation << " , " << recvInfo->statusBarWidth
-          << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
+                  << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
 
         // 主屏幕根据Bar数据是否变化决定是否刷新主屏
         if (*recvInfo == set->deskStatusBarInfo_)
@@ -88,9 +94,11 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     {
         // 通知桌面应用启动
         bool pubRunData = true;
-        std::cout << "发布应用上线!" <<std::endl;
+        // std::cout << "发布应用上线!" <<std::endl;
         publishGatewayData(DeskApplicationRunTopic.c_str(), &pubRunData, sizeof(bool));
     }
+
+#endif
 }
 
 TpApp::~TpApp()
@@ -99,27 +107,22 @@ TpApp::~TpApp()
 
     TpAppData *set = static_cast<TpAppData *>(data_);
 
-    if (set)
-    {
-        if (set->clipboard)
-        {
-            delete set->clipboard;
-        }
+    if (!set)
+        return;
 
-        if (set->message)
-        {
-            delete set->message;
-        }
+    if (set->clipboard)
+        delete set->clipboard;
 
-        if (set->appExecThread)
-        {
-            delete set->appExecThread;
-        }
+    if (set->message)
+        delete set->message;
 
-        set->vReserveMap.clear();
+    if (set->appExecThread)
+        delete set->appExecThread;
 
-        delete set;
-    }
+    set->vReserveMap.clear();
+
+    delete set;
+    data_ = nullptr;
 }
 
 TpApp *TpApp::Inst()

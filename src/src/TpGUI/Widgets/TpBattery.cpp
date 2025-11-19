@@ -153,14 +153,16 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
     // 绘制数值
     fontColor = batteryData->value > batteryData->alarmValue ? fontColor : batteryData->alarmColor;
     TpString text = TpString::number(batteryData->value);
+    
     // 设置电量文字字体、大小
-    // TpFont font(DEFAULT_FONT_FAMILY, batteryRect.w / 10);
-    TpFont font(DEFAULT_FONT_FAMILY, batteryRect.height() * 0.55);
+    TpFont font;
+    font.setFontSize(batteryRect.height() * 0.55);
     font.setText(text);
-    font.setFontColor(fontColor, fontColor);
-    uint32_t textX = batteryRect.left() + (batteryRect.width() - font.pixelWidth()) / 2.0;
-    uint32_t textY = batteryRect.top() + (batteryRect.height() - font.pixelHeight()) / 2.0 + 1;
-    painter->drawText(font, textX, textY, text);
+    font.setFontColor(fontColor);
+    font.setLayout(batteryRect.width(), batteryRect.height());
+    font.setAlign(Tp::AlignCenter);
+
+    painter->drawText(font, 0, batteryRect.top(), text);
 
     // 绘制头部
     TpPointF headRectTopLeft(batteryRect.right(), height() / 3);

@@ -42,6 +42,9 @@ struct TpObjectData
     TpObjectData()
     {
     }
+    virtual ~TpObjectData()
+    {
+    }
 };
 
 static void disconnectAllSignal(TpObjectData *set)

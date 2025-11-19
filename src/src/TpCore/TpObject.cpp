@@ -19,25 +19,25 @@ TpObject::~TpObject()
     if (TpCoreApp::Inst())
         TpCoreApp::Inst()->isExistObject(this, true);
 
-    TpObjectData *set = static_cast<TpObjectData *>(data_);
-    if (!set)
+    TpObjectData *objData = static_cast<TpObjectData *>(data_);
+    if (!objData)
         return;
 
-    disconnectAllSignal(set);
+    disconnectAllSignal(objData);
 
-    set->gMutex.lock();
+    objData->gMutex.lock();
 
-    if (set->parent)
+    if (objData->parent)
     {
-        TpObjectData *parentSet = (TpObjectData *)set->parent->objectSets();
+        TpObjectData *parentSet = (TpObjectData *)objData->parent->objectSets();
         delObject(parentSet, this);
     }
 
-    set->objectList.clear();
-    set->gMutex.unlock();
+    objData->objectList.clear();
+    objData->gMutex.unlock();
 
-    delete set;
-    set = nullptr;
+    delete objData;
+    objData = nullptr;
     data_ = nullptr;
 }
 
@@ -124,11 +124,20 @@ TpObject *TpObject::find(int32_t id)
 void TpObject::deleteLater()
 {
     // 立刻终止信号槽绑定
-    TpObjectData *set = static_cast<TpObjectData *>(data_);
-    if (!set)
+    TpObjectData *objData = static_cast<TpObjectData *>(data_);
+    if (!objData)
         return;
 
-    disconnectAllSignal(set);
+    disconnectAllSignal(objData);
+
+    // 删除所有子节点
+    for (auto childIter = objData->objectList.begin(); childIter != objData->objectList.end(); ++childIter)
+    {
+        (*childIter)->uninstallEventFilter();
+        (*childIter)->deleteLater();
+        childIter = objData->objectList.begin();
+    }
+    objData->objectList.clear();
 
     TpCoreApp::Inst()->sendDelete(this);
 }

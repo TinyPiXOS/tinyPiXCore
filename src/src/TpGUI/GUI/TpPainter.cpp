@@ -7,11 +7,12 @@
 #include "TpPainterPath_p.h"
 #include "TpObject_p.h"
 #include "TpWidget_p.h"
+#include "TpFont_p.h"
 
 #include <thread>
 #include <cmath>
 
-TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, TpWidget* object)
+TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, TpWidget *object)
 {
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
@@ -69,110 +70,120 @@ void TpPainter::paintTest()
         return;
 
     refreshCanvasTarget(painterData);
+
 #if 1
 
     auto fontScene = tvg::Scene::gen();
     // 加载字体文件
-    // tvg::Text::load("/home/hawk/Public/TinyPiXOS/src/data/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf");
-    tvg::Text::load("/root/examplesApp/data/SourceHanSerifCN-Regular.ttf");
-    tvg::Text::load("/root/examplesApp/data/SourceHanSerifCN-Bold.ttf");
+    // tvg::Text::load("/home/hawk/Public/TinyPiXOS/src/data/fonts/SourceHanSerifCN/SourceHanSerifCN-Regular.ttf");
+    // tvg::Text::load("/home/hawk/Public/TinyPiXOS/src/data/fonts/SourceHanSerifCN/SourceHanSerifCN-Bold.ttf");
+    // tvg::Text::load("/home/hawk/Public/TinyPiXOS/src/data/fonts/SourceHanSerifCN/SourceHanSerifCN-SemiBold.ttf");
 
-    // ===== 普通文本 =====  
-    auto normalText = tvg::Text::gen();  
-    normalText->font("SourceHanSerifCN-Bold");  
-    normalText->size(12);  
-    normalText->text("普通文本");  
-    normalText->fill(255, 200, 0);  
-    normalText->translate(0, 0);  
-    fontScene->push(normalText);  
-  
-    // ===== 斜体文本 =====  
-    auto italicText = tvg::Text::gen();  
-    italicText->font("SourceHanSerifCN-Regular");  
-    italicText->size(12);  
-    italicText->text("斜体文本");  
-    italicText->fill(255, 200, 0);  
-    italicText->italic(0.18f);  // 应用斜体效果  
-    italicText->translate(0, 30);  
-    fontScene->push(italicText);  
-  
-    // ===== 带轮廓的文本 =====  
-    auto outlineText = tvg::Text::gen();  
-    outlineText->font("SourceHanSerifCN-Regular");  
-    outlineText->size(18);  
-    outlineText->text("轮廓文本");  
-    outlineText->fill(255, 255, 0);      // 黄色填充  
-    outlineText->outline(2, 255, 100, 0);  // 蓝色轮廓,宽度1  
-    outlineText->translate(0, 60);  
-    fontScene->push(outlineText);  
-  
-    // ===== 斜体 + 轮廓组合 =====  
-    auto combinedText = tvg::Text::gen();  
-    combinedText->font("SourceHanSerifCN-Regular");  
-    combinedText->size(12);  
-    combinedText->text("斜体+轮廓");  
-    combinedText->fill(255, 100, 100);  
-    combinedText->italic(0.2f);           // 斜体  
-    combinedText->outline(2, 255, 255, 255);  // 白色轮廓  
-    combinedText->translate(0, 90);  
-    fontScene->push(combinedText);  
+    // ===== 普通文本 =====
+    auto normalText = tvg::Text::gen();
+    normalText->font("SourceHanSerifCN-Bold");
+    normalText->size(12);
+    normalText->text("普通文本");
+    normalText->fill(255, 200, 0);
+    normalText->translate(0, 0);
+    fontScene->push(normalText);
+
+    // 加粗
+    auto boldText = tvg::Text::gen();
+    boldText->font("SourceHanSerifCN-SemiBold");
+    boldText->size(12);
+    boldText->text("加粗文本SourceHanSerifCN-SemiBold");
+    boldText->fill(255, 200, 0);
+    boldText->translate(200, 0);
+    fontScene->push(boldText);
+
+    // ===== 斜体文本 =====
+    auto italicText = tvg::Text::gen();
+    italicText->font("SourceHanSerifCN-Regular");
+    italicText->size(12);
+    italicText->text("斜体文本");
+    italicText->fill(255, 200, 0);
+    italicText->italic(0.18f); // 应用斜体效果
+    italicText->translate(0, 30);
+    fontScene->push(italicText);
+
+    // ===== 带轮廓的文本 =====
+    auto outlineText = tvg::Text::gen();
+    outlineText->font("SourceHanSerifCN-Regular");
+    outlineText->size(18);
+    outlineText->text("轮廓文本");
+    outlineText->fill(255, 255, 0);       // 黄色填充
+    outlineText->outline(2, 255, 100, 0); // 蓝色轮廓,宽度1
+    outlineText->translate(0, 60);
+    fontScene->push(outlineText);
+
+    // ===== 斜体 + 轮廓组合 =====
+    auto combinedText = tvg::Text::gen();
+    combinedText->font("SourceHanSerifCN-Regular");
+    combinedText->size(12);
+    combinedText->text("斜体+轮廓");
+    combinedText->fill(255, 100, 100);
+    combinedText->italic(0.2f);              // 斜体
+    combinedText->outline(2, 255, 255, 255); // 白色轮廓
+    combinedText->translate(0, 90);
+    fontScene->push(combinedText);
 
     // 添加到 Canvas 并绘制
     // painterData->tvgScene->push(std::move(text));
 
-        // ===== 横向布局示例 =====  
-    auto horizontalText = tvg::Text::gen();  
-    horizontalText->font("SourceHanSerifCN-Regular");  
-    horizontalText->size(12);  
-    horizontalText->text("这是一段横向排列的中文文本示例");  
-    horizontalText->fill(255, 255, 255);  // 白色文字  
-      
-    // 设置横向布局约束和对齐方式  
-    horizontalText->layout(400, 0);  // 宽度限制为400,高度不限制  
-    horizontalText->align(0.0f, 0.0f);  // 左对齐,顶部对齐  
-    horizontalText->translate(0, 120);  // 位置  
+    // ===== 横向布局示例 =====
+    auto horizontalText = tvg::Text::gen();
+    horizontalText->font("SourceHanSerifCN-Regular");
+    horizontalText->size(12);
+    horizontalText->text("这是一段横向排列的中文文本示例");
+    horizontalText->fill(255, 255, 255); // 白色文字
+
+    // 设置横向布局约束和对齐方式
+    horizontalText->layout(400, 0);    // 宽度限制为400,高度不限制
+    horizontalText->align(0.0f, 0.0f); // 左对齐,顶部对齐
+    horizontalText->translate(0, 120); // 位置
 
     fontScene->push(horizontalText);
 
-    // ===== 横向居中布局示例 =====  
-    auto horizontalCenterText = tvg::Text::gen();  
-    horizontalCenterText->font("SourceHanSerifCN-Regular");  
-    horizontalCenterText->size(12);  
-    horizontalCenterText->text("这是居中对齐的横向文本");  
-    horizontalCenterText->fill(255, 200, 0);  // 橙色文字  
-      
-    horizontalCenterText->layout(400, 0);  
-    horizontalCenterText->align(0.5f, 0.0f);  // 水平居中,顶部对齐  
-    horizontalCenterText->translate(0, 150);  
+    // ===== 横向居中布局示例 =====
+    auto horizontalCenterText = tvg::Text::gen();
+    horizontalCenterText->font("SourceHanSerifCN-Regular");
+    horizontalCenterText->size(12);
+    horizontalCenterText->text("这是居中对齐的横向文本");
+    horizontalCenterText->fill(255, 200, 0); // 橙色文字
+
+    horizontalCenterText->layout(400, 0);
+    horizontalCenterText->align(0.5f, 0.0f); // 水平居中,顶部对齐
+    horizontalCenterText->translate(0, 150);
 
     fontScene->push(horizontalCenterText);
 
-    // ===== 横向右对齐布局示例 =====  
-    auto horizontalRightText = tvg::Text::gen();  
-    horizontalRightText->font("SourceHanSerifCN-Regular");  
-    horizontalRightText->size(12);  
-    horizontalRightText->text("这是右对齐的横向文本");  
-    horizontalRightText->fill(0, 255, 255);  // 青色文字  
-      
-    horizontalRightText->layout(400, 0);  
-    horizontalRightText->align(1.0f, 0.0f);  // 右对齐,顶部对齐  
-    horizontalRightText->translate(0, 180);  
+    // ===== 横向右对齐布局示例 =====
+    auto horizontalRightText = tvg::Text::gen();
+    horizontalRightText->font("SourceHanSerifCN-Regular");
+    horizontalRightText->size(12);
+    horizontalRightText->text("这是右对齐的横向文本");
+    horizontalRightText->fill(0, 255, 255); // 青色文字
+
+    horizontalRightText->layout(400, 0);
+    horizontalRightText->align(1.0f, 0.0f); // 右对齐,顶部对齐
+    horizontalRightText->translate(0, 180);
 
     fontScene->push(horizontalRightText);
 
-    // ===== 竖向布局示例(通过旋转实现) =====  
-    auto verticalText = tvg::Text::gen();  
-    verticalText->font("SourceHanSerifCN-Regular");  
-    verticalText->size(12);  
-    verticalText->text("竖向文本");  
-    verticalText->fill(255, 100, 0);  // 红色文字  
-      
-    // 竖向布局:先设置横向布局,然后旋转90度  
-    verticalText->layout(100, 0);  // 高度限制为200  
-    verticalText->align(0.0f, 0.0f);  
-    
-    verticalText->translate(20, 210);  
-      // 旋转90度 (π/2 弧度)  
+    // ===== 竖向布局示例(通过旋转实现) =====
+    auto verticalText = tvg::Text::gen();
+    verticalText->font("SourceHanSerifCN-Regular");
+    verticalText->size(12);
+    verticalText->text("竖向文本");
+    verticalText->fill(255, 100, 0); // 红色文字
+
+    // 竖向布局:先设置横向布局,然后旋转90度
+    verticalText->layout(100, 0); // 高度限制为200
+    verticalText->align(0.0f, 0.0f);
+
+    verticalText->translate(20, 210);
+    // 旋转90度 (π/2 弧度)
 
     verticalText->rotate(90.0f);
 
@@ -183,25 +194,26 @@ void TpPainter::paintTest()
     wrappedText->font("SourceHanSerifCN-Regular");
     wrappedText->size(12);
     wrappedText->text("这是一段很长的文本,需要自动换行显示。ThorVG支持多种换行模式,包括字符换行和单词换行。");
-    wrappedText->fill(150, 255, 150);  // 绿色文字
+    wrappedText->fill(150, 255, 150); // 绿色文字
 
-    wrappedText->layout(100, 0);  // 宽度限制为100
+    wrappedText->layout(100, 0); // 宽度限制为100
     wrappedText->align(0.0f, 0.0f);
-    wrappedText->wrap(tvg::TextWrap::Smart);  // 按单词换行
+    wrappedText->wrap(tvg::TextWrap::Smart); // 按单词换行
     wrappedText->translate(0, 300);
 
     fontScene->push(wrappedText);
 
-    // 8. 获取文本边界框信息  
-    float x, y, w, h;  
-    if (verticalText->bounds(&x, &y, &w, &h) == tvg::Result::Success) {  
-        std::cout << "verticalText Text bounds:" << std::endl;  
-        std::cout << "  Position: (" << x << ", " << y << ")" << std::endl;  
-        std::cout << "  Size: " << w << " x " << h << std::endl;  
-    }  
+    // 8. 获取文本边界框信息
+    float x, y, w, h;
+    if (verticalText->bounds(&x, &y, &w, &h) == tvg::Result::Success)
+    {
+        std::cout << "verticalText Text bounds:" << std::endl;
+        std::cout << "  Position: (" << x << ", " << y << ")" << std::endl;
+        std::cout << "  Size: " << w << " x " << h << std::endl;
+    }
 
     // painterData->tvgScene->push(fontScene);
-    
+
 #endif
 
     // auto tmpScene = tvg::Scene::gen();
@@ -209,8 +221,8 @@ void TpPainter::paintTest()
     auto tmpScene = static_cast<tvg::Scene *>(fontScene->duplicate());
 
     auto clipShape = tvg::Shape::gen();
-    clipShape->appendRect(0, 300, 300, 300);  // 玻璃面板位置
-    clipShape->fill(255, 255, 255, 128);  // 填充透明色
+    clipShape->appendRect(0, 300, 300, 300); // 玻璃面板位置
+    clipShape->fill(255, 255, 255, 128);     // 填充透明色
     fontScene->clip(clipShape);
     // fontScene->push(tvg::SceneEffect::GaussianBlur, 30.0, 0, 0, 80);
 
@@ -219,18 +231,17 @@ void TpPainter::paintTest()
     // 创建背景矩形
     auto background = tvg::Shape::gen();
     background->appendRect(0, 300, 300, 300);
-    background->fill(255, 0, 0, 200);  // 红色,半透明 (alpha=128)
-    
-    // 先添加背景,再添加其他内容  
-    scene->push(background);  
+    background->fill(255, 0, 0, 200); // 红色,半透明 (alpha=128)
+
+    // 先添加背景,再添加其他内容
+    scene->push(background);
     scene->push(fontScene);
     scene->push(tvg::SceneEffect::GaussianBlur, 30.0, 0, 0, 80);
 
     painterData->tvgScene->push(tmpScene);
 
     painterData->tvgScene->push(scene);
-    
-    
+
     // painterData->swCanvas->draw();
     // painterData->swCanvas->sync();
 }
@@ -490,8 +501,11 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
     // painterData->swCanvas->sync();
 }
 
-void TpPainter::drawText(TpFont &font, int32_t x, int32_t y, const TpString &text)
+void TpPainter::drawText(const TpFont &font, int32_t x, int32_t y, const TpString &text)
 {
+    if (text.empty())
+        return;
+
     TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     if (!painterData)
         return;
@@ -502,21 +516,16 @@ void TpPainter::drawText(TpFont &font, int32_t x, int32_t y, const TpString &tex
     x = OFFSET_X(painterData, x);
     y = OFFSET_Y(painterData, y);
 
-    uint32_t *textBuffer = font.drawText(text.c_str());
+    TpFontData *fontData = static_cast<TpFontData *>(font.data_);
+    tvg::Text *fontTextPtr = static_cast<tvg::Text *>(fontData->tvgTextPtr->duplicate());
 
-    TpSize pixelSize = font.pixelSize();
-    tvg::Picture *picture = tvg::Picture::gen();
-    picture->load(textBuffer, pixelSize.width(), pixelSize.height(), tvg::ColorSpace::ARGB8888, true);
-    picture->translate(x, y);
+    fontTextPtr->translate(x, y);
 
     refreshCanvasTarget(painterData);
-    painterData->tvgScene->push(std::move(picture));
-
-    delete[] textBuffer;
-    textBuffer = nullptr;
+    painterData->tvgScene->push(std::move(fontTextPtr));
 }
 
-void TpPainter::drawText(TpFont &font, int32_t x, int32_t y)
+void TpPainter::drawText(const TpFont &font, int32_t x, int32_t y)
 {
     drawText(font, x, y, font.text());
 }

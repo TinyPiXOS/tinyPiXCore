@@ -290,12 +290,12 @@ public:
     /// @param x X坐标
     /// @param y Y坐标
     /// @param text 文本字符串内容
-    virtual void drawText(TpFont &font, int32_t x, int32_t y, const TpString &text);
+    virtual void drawText(const TpFont &font, int32_t x, int32_t y, const TpString &text);
     /// @brief 绘制文本
     /// @param font 文本字体；内部需设置文本字符串
     /// @param x X坐标
     /// @param y Y坐标
-    virtual void drawText(TpFont &font, int32_t x, int32_t y);
+    virtual void drawText(const TpFont &font, int32_t x, int32_t y);
 
     /// @brief 绘制自定义路径
     /// @param path 自定义路径

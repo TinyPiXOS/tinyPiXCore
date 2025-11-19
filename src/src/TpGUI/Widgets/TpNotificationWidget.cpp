@@ -46,7 +46,7 @@ TpNotificationWidget::TpNotificationWidget(TpWidget *parent)
 
     // 初始化字体
     widgetData->m_title_font.setFontSize(14);
-    widgetData->m_title_font.setFontStyle(TINY_FONT_BOLD);
+    widgetData->m_title_font.setBold(true);
     widgetData->m_title_font.setFontForeColor(TITLE_COLOR);
 
     widgetData->m_time_font.setFontSize(12);

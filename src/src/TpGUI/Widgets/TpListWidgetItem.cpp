@@ -69,15 +69,6 @@ TpListWidgetItem::~TpListWidgetItem()
     TpListCheckBoxGroupItemData *itemData = static_cast<TpListCheckBoxGroupItemData *>(data_);
     if (itemData)
     {
-        itemData->titleLabel->setParent(nullptr);
-        itemData->selectIconLabel->setParent(nullptr);
-
-        delete itemData->titleLabel;
-        itemData->titleLabel = nullptr;
-
-        delete itemData->selectIconLabel;
-        itemData->selectIconLabel = nullptr;
-
         delete itemData;
         itemData = nullptr;
         data_ = nullptr;

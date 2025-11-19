@@ -68,8 +68,8 @@ void TpIconTopButton::setIconSize(const uint32_t &width, const uint32_t &height)
     buttonData->iconLabel->setHeight(height);
 
     buttonData->textLabel->setWidth(width);
-    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight());
-    buttonData->textLabel->move(0, height + TpDisplay::dp2Px(6));
+    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight() + 1);
+    buttonData->textLabel->move(0, height + TpDisplay::dp2Px(5));
 
     setWidth(width);
     setHeight(height + buttonData->textLabel->font()->pixelHeight() + TpDisplay::dp2Px(6));
@@ -93,7 +93,7 @@ void TpIconTopButton::setTextVisible(const bool &visible)
 
     if (visible)
     {
-        setHeight(buttonData->iconLabel->height() * 1.25 + TpDisplay::dp2Px(6));
+        setHeight(buttonData->iconLabel->height() + buttonData->textLabel->font()->pixelHeight() + TpDisplay::dp2Px(6));
     }
     else
     {
@@ -225,7 +225,8 @@ void TpIconTopButton::Init()
     buttonData->iconLabel->setEnableBackGroundColor(false);
     buttonData->textLabel->setEnableBackGroundColor(false);
 
-    buttonData->textLabel->setAlign(Tp::AlignHCenter);
+    buttonData->textLabel->setAlign(Tp::AlignCenter);
+    // buttonData->textLabel->setBackGroundColor(_RGB(255,0,0));
 
     tpShared<TpCssData> curCssData = currentStatusCss();
     setIconSize(curCssData->iconSize(), curCssData->iconSize());

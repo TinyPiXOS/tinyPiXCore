@@ -45,27 +45,6 @@ TpWidget::TpWidget(TpWidget *parent)
 TpWidget::~TpWidget()
 {
     tvg::Initializer::term();
-
-    TpWidgetData *childData = static_cast<TpWidgetData *>(TpObject::data_);
-    if (childData)
-    {
-        disconnectAllSignal(childData);
-
-        childData->gMutex.lock();
-
-        if (childData->parent)
-        {
-            TpObjectData *parentSet = (TpObjectData *)childData->parent->objectSets();
-            delObject(parentSet, this);
-        }
-
-        childData->objectList.clear();
-        childData->gMutex.unlock();
-
-        delete childData;
-        childData = nullptr;
-        TpObject::data_ = nullptr;
-    }
 }
 
 void TpWidget::setProperty(const TpString &_name, const TpVariant &_value)
@@ -99,22 +78,24 @@ void TpWidget::deleteLater()
         TpWidgetData *topData = static_cast<TpWidgetData *>(widgetData->top->objectSets());
         topData->tmp.deleteObject(this);
 
-        TpList<TpObject *> thisChildList = this->objectList();
-        for (const auto &child : thisChildList)
+        // 删除所有子节点
+        for (auto childIter = widgetData->objectList.begin(); childIter != widgetData->objectList.end(); ++childIter)
         {
-            child->uninstallEventFilter();
-            topData->tmp.deleteObject(child);
+            (*childIter)->uninstallEventFilter();
+            topData->tmp.deleteObject((*childIter));
+            (*childIter)->deleteLater();
 
-            // 删除所有子节点
-            child->deleteLater();
+            childIter = widgetData->objectList.begin();
         }
+
+        widgetData->objectList.clear();
     }
+
+    TpObject::deleteLater();
 
     setParent(nullptr);
 
     uninstallEventFilter();
-
-    TpObject::deleteLater();
 }
 
 void TpWidget::close()

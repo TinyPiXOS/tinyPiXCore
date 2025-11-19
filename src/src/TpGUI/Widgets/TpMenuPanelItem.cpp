@@ -32,6 +32,7 @@ TpMenuPanelItem::TpMenuPanelItem(TpWidget *parent)
     itemData->iconLabel->setVisible(false);
     itemData->iconLabel->setFixedSize(curCssData->iconSize(), curCssData->iconSize());
     itemData->iconLabel->installEventFilter(this);
+    // itemData->iconLabel->setBackGroundColor(_RGB(255, 0, 0));
 
     itemData->titleLabel = new TpLabel(this);
     itemData->titleLabel->font()->setFontSize(curCssData->fontSize());
@@ -75,22 +76,6 @@ TpMenuPanelItem::~TpMenuPanelItem()
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
     if (itemData)
     {
-        itemData->iconLabel->setParent(nullptr);
-        delete itemData->iconLabel;
-        itemData->iconLabel = nullptr;
-
-        itemData->titleLabel->setParent(nullptr);
-        delete itemData->titleLabel;
-        itemData->titleLabel = nullptr;
-
-        itemData->subTitleLabel->setParent(nullptr);
-        delete itemData->subTitleLabel;
-        itemData->subTitleLabel = nullptr;
-
-        itemData->expandLabel->setParent(nullptr);
-        delete itemData->expandLabel;
-        itemData->expandLabel = nullptr;
-
         delete itemData;
         itemData = nullptr;
         data_ = nullptr;
@@ -108,7 +93,6 @@ void TpMenuPanelItem::setIcon(const TpString &iconPath)
         return;
 
     itemData->iconLabel->setVisible(true);
-
     itemData->iconLabel->setBackGroundImage(TpImage(iconPath));
 }
 
