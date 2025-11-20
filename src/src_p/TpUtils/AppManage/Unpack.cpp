@@ -420,7 +420,8 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
     }
 
     printf("loop anylise,config=%s\n", config_file);
-    app_install->app->config_file = config_file;
+    app_install->app->config_file = TpString(config_file);
+    free(config_file);
     char *line = (char *)malloc(PATH_MAX_LENGTH);
     uint8_t last_line = 0;
     // int install_type=0;

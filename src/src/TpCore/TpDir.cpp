@@ -1,9 +1,12 @@
 #include "TpDir.h"
 #include "TpVector.h"
 
+#include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <algorithm>
 #include <dirent.h>
+#include "TpFile.h"
 
 struct TpDirData
 {
@@ -464,4 +467,310 @@ bool TpDir::removeRecursively()
         return false;
 
     return system(("rm -rf " + dirData->dirPath).c_str()) == 0;
+}
+
+
+
+/// @brief 检查路径是文件还是目录
+/// @param path 路径
+/// @return 0:不存在, 1:文件, 2:目录
+static int getPathType(const TpString &path)
+{
+    struct stat statbuf;
+    if (lstat(path.c_str(), &statbuf) == -1) {
+        return 0; // 不存在
+    }
+    
+    if (S_ISDIR(statbuf.st_mode)) {
+        return 2; // 目录
+    } else if (S_ISREG(statbuf.st_mode)) {
+        return 1; // 文件
+    }
+    
+    return 0; // 其他类型视为不存在
+}
+
+/// @brief 专门为copy函数设计的路径处理函数（处理不存在的路径）
+/// @param path 输入路径
+/// @return 处理后的绝对路径
+static TpString getPathForCopy(const TpString &path)
+{
+    if (path.empty()) {
+        return "";
+    }
+    
+    TpString result = path;
+    std::replace(result.begin(), result.end(), '\\', '/');
+    
+    // 如果是绝对路径，直接返回
+    if (!result.empty() && result[0] == '/') {
+        return result;
+    }
+    
+    // 对于相对路径，添加当前工作目录
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) == nullptr) {
+        // 如果获取当前目录失败，返回原始路径
+        return result;
+    }
+    
+    TpString currentDir(cwd);
+    if (!currentDir.empty() && currentDir.back() != '/') {
+        currentDir += '/';
+    }
+    
+    // 组合路径
+    result = currentDir + result;
+    
+    // 规范化路径：处理 . 和 ..
+    TpVector<TpString> parts;
+    size_t start = 0, end = 0;
+    
+    // 分割路径
+    while ((end = result.find('/', start)) != TpString::npos) {
+        if (end != start) {
+            TpString part = result.substr(start, end - start);
+            parts.push_back(part);
+        }
+        start = end + 1;
+    }
+    if (start < result.size()) {
+        parts.push_back(result.substr(start));
+    }
+    
+    // 处理 . 和 ..
+    TpVector<TpString> normalizedParts;
+    for (const auto &part : parts) {
+        if (part == TpString(".")) {
+            // 忽略当前目录
+            continue;
+        } else if (part == TpString("..")) {
+            // 回退到上级目录
+            if (!normalizedParts.empty()) {
+                normalizedParts.pop_back();
+            }
+        } else if (!part.empty()) {
+            normalizedParts.push_back(part);
+        }
+    }
+    
+    // 重建路径
+    if (normalizedParts.empty()) {
+        return "/";
+    }
+    
+    TpString absolutePath;
+    for (const auto &part : normalizedParts) {
+        absolutePath += "/" + part;
+    }
+    
+    // 如果原始路径以斜杠结尾，确保结果也以斜杠结尾
+    if (!path.empty() && path.back() == '/' && !absolutePath.empty() && absolutePath.back() != '/') {
+        absolutePath += '/';
+    }
+    
+    return absolutePath;
+}
+
+/// @brief 获取最终的目标路径
+/// @param sourcePath 源路径
+/// @param destinationPath 目标路径
+/// @param sourceIsDir 源路径是否是目录
+/// @return 最终的目标路径
+static TpString getFinalDestinationPath(const TpString &sourcePath, const TpString &destinationPath, bool sourceIsDir)
+{
+    TpString dest = destinationPath;
+    
+    // 如果目标路径以斜杠结尾，表示目标是一个目录
+    if (!dest.empty() && dest.back() == '/') {
+        // 获取源文件名或目录名
+        TpString srcName;
+        size_t lastSlash = sourcePath.find_last_of('/');
+        if (lastSlash == TpString::npos) {
+            srcName = sourcePath;
+        } else {
+            srcName = sourcePath.substr(lastSlash + 1);
+        }
+        
+        if (srcName.empty()) {
+            srcName = sourceIsDir ? "copied_directory" : "copied_file";
+        }
+        
+        dest += srcName;
+    }
+    // 如果目标路径已存在且是目录，将源文件/目录放入该目录
+    else if (TpDir::exists(dest)) {
+        // 获取源文件名或目录名
+        TpString srcName;
+        size_t lastSlash = sourcePath.find_last_of('/');
+        if (lastSlash == TpString::npos) {
+            srcName = sourcePath;
+        } else {
+            srcName = sourcePath.substr(lastSlash + 1);
+        }
+        
+        if (!srcName.empty()) {
+            dest = pathJoin(dest, srcName);
+        }
+    }
+    
+    return dest;
+}
+
+/// @brief 递归拷贝目录的实现
+/// @param sourcePath 源路径
+/// @param destinationPath 目标路径
+/// @return 拷贝成功返回true，否则返回false
+static bool copyDirImpl(const TpString &sourcePath, const TpString &destinationPath)
+{
+    // 检查源目录是否存在
+    if (!TpDir::exists(sourcePath)) {
+        std::cerr << "Source directory does not exist: " << sourcePath << std::endl;
+        return false;
+    }
+    
+    // 创建目标目录（包括所有父级目录）
+    if (!TpDir::mkpath(destinationPath)) {
+        std::cerr << "Failed to create destination directory: " << destinationPath << std::endl;
+        return false;
+    }
+    
+    // 打开源目录
+    DIR *dir = opendir(sourcePath.c_str());
+    if (!dir) {
+        std::cerr << "Failed to open source directory: " << sourcePath << std::endl;
+        return false;
+    }
+    
+    struct dirent *entry;
+    bool success = true;
+    
+    // 遍历源目录中的所有条目
+    while ((entry = readdir(dir)) != nullptr && success) {
+        TpString name = entry->d_name;
+        
+        // 跳过 "." 和 ".."
+        if (name == TpString(".") || name == TpString("..")) {
+            continue;
+        }
+        
+        TpString sourceEntryPath = pathJoin(sourcePath, name);
+        TpString destinationEntryPath = pathJoin(destinationPath, name);
+        
+        // 获取文件信息
+        struct stat statbuf;
+        if (lstat(sourceEntryPath.c_str(), &statbuf) == -1) {
+            std::cerr << "Failed to get file info: " << sourceEntryPath << std::endl;
+            continue;
+        }
+        
+        if (S_ISDIR(statbuf.st_mode)) {
+            // 如果是目录，递归拷贝
+            if (!copyDirImpl(sourceEntryPath, destinationEntryPath)) {
+                success = false;
+            }
+        } else if (S_ISREG(statbuf.st_mode)) {
+            // 如果是普通文件，使用TpFile::copy方法拷贝
+            if (!TpFile::copy(sourceEntryPath, destinationEntryPath)) {
+                std::cerr << "Failed to copy file: " << sourceEntryPath << std::endl;
+                success = false;
+            }
+        } else if (S_ISLNK(statbuf.st_mode)) {
+            // 如果是符号链接，跳过
+            std::cout << "Skipping symlink: " << sourceEntryPath << std::endl;
+        }
+    }
+    
+    closedir(dir);
+    return success;
+}
+
+/// @brief 拷贝单个文件
+/// @param sourcePath 源文件路径
+/// @param destinationPath 目标文件路径
+/// @return 拷贝成功返回true，否则返回false
+static bool copyFileImpl(const TpString &sourcePath, const TpString &destinationPath)
+{
+    // 检查源文件是否存在
+    if (!TpFile::exists(sourcePath)) {
+        std::cerr << "Source file does not exist: " << sourcePath << std::endl;
+        return false;
+    }
+    
+    // 创建目标文件的目录（如果不存在）
+    TpString destDir = TpFileInfo(destinationPath).path();
+    if (!TpDir::exists(destDir)) {
+        if (!TpDir::mkpath(destDir)) {
+            std::cerr << "Failed to create destination directory: " << destDir << std::endl;
+            return false;
+        }
+    }
+    
+    // 使用TpFile::copy拷贝文件
+    if (!TpFile::copy(sourcePath, destinationPath)) {
+        std::cerr << "Failed to copy file: " << sourcePath << " to " << destinationPath << std::endl;
+        return false;
+    }
+    
+    return true;
+}
+
+bool TpDir::copy(const TpString &sourcePath, const TpString &destinationPath)
+{
+    if (sourcePath.empty() || destinationPath.empty()) {
+        std::cerr << "Source or destination path is empty" << std::endl;
+        return false;
+    }
+    
+    // 使用专门的路径处理函数
+    TpString absSourcePath = getPathForCopy(sourcePath);
+    TpString absDestPath = getPathForCopy(destinationPath);
+    
+    if (absSourcePath.empty() || absDestPath.empty()) {
+        std::cerr << "Failed to process paths" << std::endl;
+        return false;
+    }
+    
+    // 检查源路径是否存在
+    int sourceType = getPathType(absSourcePath);
+    if (sourceType == 0) {
+        std::cerr << "Source path does not exist: " << absSourcePath << std::endl;
+        return false;
+    }
+    
+    bool sourceIsDir = (sourceType == 2);
+    
+    // 获取最终的目标路径
+    TpString finalDestPath = getFinalDestinationPath(absSourcePath, absDestPath, sourceIsDir);
+    
+    // 检查目标路径是否是源路径的子目录（避免循环拷贝，仅对目录有效）
+    if (sourceIsDir) {
+        TpString tempSource = absSourcePath;
+        if (tempSource.back() != '/') {
+            tempSource += '/';
+        }
+        
+        TpString tempDest = finalDestPath;
+        if (tempDest.back() != '/') {
+            tempDest += '/';
+        }
+        
+        if (tempDest.find(tempSource) == 0) {
+            std::cerr << "Destination is a subdirectory of source - would cause infinite loop" << std::endl;
+            return false;
+        }
+    }
+    
+    // 检查源路径和目标路径是否相同
+    if (absSourcePath == finalDestPath) {
+        std::cerr << "Source and destination paths are the same" << std::endl;
+        return false;
+    }
+    
+    // 根据源路径类型选择拷贝方式
+    if (sourceIsDir) {
+        return copyDirImpl(absSourcePath, finalDestPath);
+    } else {
+        return copyFileImpl(absSourcePath, finalDestPath);
+    }
 }

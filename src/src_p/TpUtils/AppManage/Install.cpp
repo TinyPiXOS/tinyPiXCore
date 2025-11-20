@@ -56,7 +56,8 @@ int appm_install_app_info_delete(struct TpAppInfo *app)
 
     if (!app->config_file.empty())
     {
-        close_directories_temp((char *)app->config_file.c_str());
+        //close_directories_temp((char *)app->config_file.c_str()); //
+        remove((char *)app->config_file.c_str());
     }
     return 0;
 }
@@ -752,7 +753,9 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     }
     write_install_schedule(schedule, 100);
 
-    close_directories_temp((char *)app.config_file.c_str());
+//    close_directories_temp((char *)app.config_file.c_str());
+    remove((char *)app.config_file.c_str());
+
     return 0;
 }
 

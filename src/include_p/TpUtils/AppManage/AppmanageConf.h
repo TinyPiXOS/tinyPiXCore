@@ -106,7 +106,7 @@ struct LibPackageConfig
     TpString architecture;          // 硬件平台
     TpEnumArchType arch;
     uint32_t diskspace;              // 占用内存空间
-    struct TpVersion version[MAX_ITEMS_LIB];
+    TpVector<struct TpVersion> version;
     TpVector<TpString> systemLib;
     TpVector<TpString> file;
 };

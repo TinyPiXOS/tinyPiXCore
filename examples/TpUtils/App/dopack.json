@@ -27,10 +27,15 @@
 	"dependencies": [
 	],
 	"assertFiles": [
+		"/home/pix/AppManage/mytestapp/assert/mysrc",
+		"/home/pix/AppManage/mytestapp/assert/picture"
 	],
 	"binFiles": [
+		"/home/pix/AppManage/mytestapp/bin_1",
+		"/home/pix/AppManage/mytestapp/bin_2"
 	],
 	"otherFiles": [
+		"/home/pix/AppManage/mytestapp/jiyc"
 	]
 	
 }

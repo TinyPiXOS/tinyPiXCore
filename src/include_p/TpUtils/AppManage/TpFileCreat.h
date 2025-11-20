@@ -44,19 +44,20 @@ public:
     static const char *get_architecture_string(TpEnumArchType arch);
     static void init_script_config(struct ScriptInfo *config);
     static void add_env_var(struct ScriptInfo *config, const TpString &key, const TpString &value);
-    static void add_dependency(struct ScriptInfo *config, const char *lib);
+    static void add_dependency(struct ScriptInfo *config, const TpString &lib);
     // 添加启动参数
-    static void add_arg(struct ScriptInfo *config, const char *arg);
+    static void add_arg(struct ScriptInfo *config, const TpString &arg);
     // 设置日志文件路径
-    static void set_log_file(struct ScriptInfo *config, const char *log_file);
+    static void set_log_file(struct ScriptInfo *config, const TpString &log_file);
     // 设置配置文件路径
-    static void set_config_file(struct ScriptInfo *config, const char *config_file);
-    static void set_exec_path(struct ScriptInfo *config, const char *exec_path);
+    static void set_config_file(struct ScriptInfo *config, const TpString &config_file);
+    static void set_exec_path(struct ScriptInfo *config, const TpString &exec_path);
 
-    static int file_startsh_creat(char *path);
+    static int file_startsh_creat(const TpString &path);
 
     // 生成库安装包中的配置文件并打包
     static int file_config_creat_lib(struct archive *a, const char *path, struct LibPackageConfig *conf);
+    
 };
 
 #endif

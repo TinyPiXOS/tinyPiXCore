@@ -20,9 +20,9 @@ public:
         AllEntries = Dirs | Files | Drives, ///< @brief 包含所有条目（目录、文件、驱动器）
         TypeMask = 0x00f,                   ///< @brief 类型过滤掩码
 
-        // Readable = 0x010,                ///< (已注释)可读文件
-        // Writable = 0x020,                ///< (已注释)可写文件
-        // Executable = 0x040,              ///< (已注释)可执行文件
+        // Readable = 0x010,                ///< 可读文件
+        // Writable = 0x020,                ///< 可写文件
+        // Executable = 0x040,              ///< 可执行文件
 
         Hidden = 0x100, ///< @brief 包含隐藏文件和目录
 
@@ -67,12 +67,12 @@ public:
     ~TpDir();
 
 public:
-    /// @brief 静态方法：递归创建目录
+    /// @brief 递归创建目录
     /// @param dirPath 要创建的完整目录路径
     /// @return 创建成功返回true，否则返回false
     static bool mkpath(const TpString &dirPath);
 
-    /// @brief 静态方法：递归删除目录及其所有内容
+    /// @brief 递归删除目录及其所有内容
     /// @brief dirPath 目录路径
     /// @return 删除成功返回true，否则返回false
     static bool removeRecursively(const TpString &dirPath);
@@ -84,6 +84,13 @@ public:
     /// @brief 获取文件夹大小（字节数）
     /// @return 文件夹大小（字节数）
     static uint64_t size(const TpString &dirPath);
+    
+    /// @brief 递归拷贝目录（类似于cp -r命令）
+    /// @param sourcePath 源目录路径
+    /// @param destinationPath 目标目录路径
+    /// @return 拷贝成功返回true，否则返回false
+    static bool copy(const TpString &sourcePath, const TpString &destinationPath);
+
 
 public:
     /// @brief 设置目录路径
@@ -147,7 +154,6 @@ public:
     /// @brief 递归删除目录及其所有内容
     /// @return 删除成功返回true，否则返回false
     bool removeRecursively();
-
 private:
     ItpDirData *data_;
 };
