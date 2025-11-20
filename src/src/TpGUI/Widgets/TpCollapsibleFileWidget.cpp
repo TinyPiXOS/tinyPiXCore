@@ -71,7 +71,7 @@ TpCollapsibleFileWidget::TpCollapsibleFileWidget(TpWidget *parent)
     widgetData->subTitleLabel = new TpLabel(this);
     // widgetData->subTitleLabel->setBackGroundColor(_RGB(255, 0, 0));
     widgetData->subTitleLabel->setFixedHeight(TpDisplay::dp2Px(30));
-    widgetData->subTitleLabel->font()->setFontColor(_RGB(140, 140, 140), _RGB(140, 140, 140));
+    widgetData->subTitleLabel->font()->setFontColor(_RGB(140, 140, 140));
     widgetData->subTitleLabel->installEventFilter(this);
 
     widgetData->countLabel = new TpLabel(this);
@@ -316,7 +316,7 @@ bool TpCollapsibleFileWidget::onPaintEvent(TpPaintEvent *event)
 
     if (widgetData->titleLabel)
     {
-        widgetData->titleLabel->font()->setFontColor(curCssData->color(), curCssData->color());
+        widgetData->titleLabel->font()->setFontColor(curCssData->color());
         widgetData->titleLabel->font()->setFontSize(curCssData->fontSize());
     }
 
@@ -327,7 +327,7 @@ bool TpCollapsibleFileWidget::onPaintEvent(TpPaintEvent *event)
 
     if (widgetData->countLabel)
     {
-        widgetData->countLabel->font()->setFontColor(curCssData->color(), curCssData->color());
+        widgetData->countLabel->font()->setFontColor(curCssData->color());
         widgetData->countLabel->font()->setFontSize(curCssData->fontSize());
     }
 

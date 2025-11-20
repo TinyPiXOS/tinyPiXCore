@@ -15,7 +15,7 @@ TpFilePathWidgetItem::TpFilePathWidgetItem(TpWidget *parent)
     setCheckable(true);
 
     tpShared<TpCssData> curCssData = currentStatusCss();
-    font()->setFontColor(curCssData->color(), curCssData->color());
+    font()->setFontColor(curCssData->color());
     font()->setFontSize(curCssData->fontSize());
 }
 
@@ -39,7 +39,7 @@ bool TpFilePathWidgetItem::onPaintEvent(TpPaintEvent *event)
     TpLabel::onPaintEvent(event);
 
     tpShared<TpCssData> curCssData = currentStatusCss();
-    font()->setFontColor(curCssData->color(), curCssData->color());
+    font()->setFontColor(curCssData->color());
 
     return true;
 }

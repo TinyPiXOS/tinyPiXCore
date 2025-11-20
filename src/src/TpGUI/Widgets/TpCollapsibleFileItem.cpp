@@ -124,7 +124,7 @@ TpCollapsibleFileItem::TpCollapsibleFileItem(TpWidget *parent)
     itemData->nameLabel = new TpLabel(this);
     itemData->nameLabel->setAlign(Tp::AlignHCenter);
     itemData->nameLabel->font()->setFontSize(curCssData->fontSize());
-    itemData->nameLabel->font()->setFontColor(curCssData->color(), curCssData->color());
+    itemData->nameLabel->font()->setFontColor(curCssData->color());
     itemData->nameLabel->setWordWrap(false);
     // itemData->nameLabel->setBackGroundColor(_RGB(255, 0, 0));
     itemData->nameLabel->installEventFilter(this);
@@ -132,14 +132,14 @@ TpCollapsibleFileItem::TpCollapsibleFileItem(TpWidget *parent)
     itemData->sizeLabel = new TpLabel(this);
     itemData->sizeLabel->setAlign(Tp::AlignHCenter);
     itemData->sizeLabel->font()->setFontSize(curCssData->fontSize());
-    itemData->sizeLabel->font()->setFontColor(_RGB(140, 140, 140), _RGB(140, 140, 140));
+    itemData->sizeLabel->font()->setFontColor(_RGB(140, 140, 140));
     itemData->sizeLabel->setText("0Kb");
     itemData->sizeLabel->installEventFilter(this);
 
     itemData->typeLabel = new TpLabel(this);
     itemData->typeLabel->setAlign(Tp::AlignHCenter);
     itemData->typeLabel->font()->setFontSize(curCssData->fontSize());
-    itemData->typeLabel->font()->setFontColor(_RGB(140, 140, 140), _RGB(140, 140, 140));
+    itemData->typeLabel->font()->setFontColor(_RGB(140, 140, 140));
     itemData->typeLabel->setText("未知");
     itemData->typeLabel->installEventFilter(this);
 

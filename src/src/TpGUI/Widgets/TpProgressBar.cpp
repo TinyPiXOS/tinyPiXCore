@@ -94,7 +94,7 @@ bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
     if (progressData->showText)
     {
         TpFont textFont;
-        textFont.setFontColor(curCssData->color(), curCssData->color());
+        textFont.setFontColor(curCssData->color());
         textFont.setFontSize(curCssData->fontSize());
 
         // 直接预留好百分比文本显示的最大宽度和高度，避免文本长度变化导致进度条尺寸变化

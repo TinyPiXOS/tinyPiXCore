@@ -178,7 +178,7 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
 
     // // 设置CSS
     // tpShared<TpCssData> curCssData = currentStatusCss();
-    // set->font->setFontColor(curCssData->color(), curCssData->color());
+    // set->font->setFontColor(curCssData->color());
     // set->font->setFontSize(curCssData->fontSize());
 
     labelData->font->setText(text());

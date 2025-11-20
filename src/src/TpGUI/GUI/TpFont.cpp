@@ -42,12 +42,6 @@ void TpFont::setLanguage(const TpString &language)
     }
 }
 
-void TpFont::setFontColor(int32_t color, int32_t color2)
-{
-    setFontForeColor(color);
-    setFontBackColor(color2);
-}
-
 void TpFont::setFontColor(int32_t color)
 {
     setFontForeColor(color);

@@ -24,7 +24,7 @@ TpMediaTileButton::TpMediaTileButton(TpWidget *parent)
     buttonData->textLabel = new TpLabel(this);
     buttonData->textLabel->setAlign(Tp::AlignHCenter);
     buttonData->textLabel->font()->setFontSize(curCssData->fontSize());
-    buttonData->textLabel->font()->setFontColor(curCssData->color(), curCssData->color());
+    buttonData->textLabel->font()->setFontColor(curCssData->color());
     buttonData->textLabel->installEventFilter(this);
 
     data_ = buttonData;

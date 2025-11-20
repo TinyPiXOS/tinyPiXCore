@@ -31,10 +31,10 @@ TpTemperatureWidget::TpTemperatureWidget(TpWidget *parent) : TpWidget(parent)
     tempData->colorList.emplace_back(_RGB(246, 130, 132));
     tempData->colorList.emplace_back(_RGB(123, 1, 1));
 
-    tempData->curTempFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    tempData->curTempFont.setFontColor(_RGB(54, 59, 100));
     tempData->curTempFont.setFontSize(15);
 
-    tempData->minMaxTemptFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    tempData->minMaxTemptFont.setFontColor(_RGB(54, 59, 100));
     tempData->minMaxTemptFont.setFontSize(13);
 }
 

@@ -6,6 +6,8 @@
 #include "TpEvent.h"
 #include "TpFont.h"
 
+#define BTN_MARGIN TpDisplay::dp2Px(8)
+
 struct TpIconTopButtonData
 {
     TpLabel *iconLabel;
@@ -68,11 +70,11 @@ void TpIconTopButton::setIconSize(const uint32_t &width, const uint32_t &height)
     buttonData->iconLabel->setHeight(height);
 
     buttonData->textLabel->setWidth(width);
-    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight() + 1);
-    buttonData->textLabel->move(0, height + TpDisplay::dp2Px(5));
+    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight());
+    buttonData->textLabel->move(0, height + BTN_MARGIN);
 
     setWidth(width);
-    setHeight(height + buttonData->textLabel->font()->pixelHeight() + TpDisplay::dp2Px(6));
+    setHeight(height + buttonData->textLabel->font()->pixelHeight() + BTN_MARGIN);
 }
 
 void TpIconTopButton::setIconSize(const TpSize &size)
@@ -93,7 +95,7 @@ void TpIconTopButton::setTextVisible(const bool &visible)
 
     if (visible)
     {
-        setHeight(buttonData->iconLabel->height() + buttonData->textLabel->font()->pixelHeight() + TpDisplay::dp2Px(6));
+        setHeight(buttonData->iconLabel->height() + buttonData->textLabel->font()->pixelHeight() + BTN_MARGIN);
     }
     else
     {

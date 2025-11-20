@@ -259,7 +259,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     TpWidget::onPaintEvent(event);
 
     tpShared<TpCssData> curCssData = currentStatusCss();
-    editData->textFont->setFontColor(curCssData->color(), curCssData->color());
+    editData->textFont->setFontColor(curCssData->color());
     editData->textFont->setFontSize(curCssData->fontSize());
 
     uint32_t leftMargin = curCssData->paddingLeft();
@@ -336,7 +336,7 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     {
         // 文本为空时绘制提示文本
         TpFont placeholderTextFont;
-        placeholderTextFont.setFontColor(_RGB(191, 191, 191), _RGB(191, 191, 191));
+        placeholderTextFont.setFontColor(_RGB(191, 191, 191));
         placeholderTextFont.setFontSize(curCssData->fontSize());
 
         placeholderTextFont.setText(editData->placeholerText);

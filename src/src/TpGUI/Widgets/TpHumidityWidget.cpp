@@ -29,10 +29,10 @@ TpHumidityWidget::TpHumidityWidget(TpWidget *parent) : TpWidget(parent)
     tempData->colorList.emplace_back(_RGB(204, 242, 252));
     tempData->colorList.emplace_back(_RGB(34, 132, 255));
 
-    tempData->titleTextFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    tempData->titleTextFont.setFontColor(_RGB(54, 59, 100));
     tempData->titleTextFont.setFontSize(13);
 
-    tempData->percentFont.setFontColor(_RGB(54, 59, 100), _RGB(54, 59, 100));
+    tempData->percentFont.setFontColor(_RGB(54, 59, 100));
     tempData->percentFont.setFontSize(13);
 }
 

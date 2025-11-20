@@ -24,9 +24,6 @@ public:
     /// @param language 字体名称
     virtual void setLanguage(const TpString &language);
 
-    // 临时接口，兼容以前写法
-    virtual void setFontColor(int32_t color, int32_t color2);
-
     /// @brief 设置字体轮廓和填充颜色
     /// @param color 颜色值
     virtual void setFontColor(int32_t color);

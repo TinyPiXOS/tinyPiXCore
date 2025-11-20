@@ -37,7 +37,7 @@ TpMusicPlayerView::TpMusicPlayerView(TpWidget *parent)
     musicData->curWordLabel = new TpLabel(this);
     musicData->curWordLabel->setAlign(Tp::AlignCenter);
     musicData->curWordLabel->font()->setFontSize(TpDisplay::dp2Px(10));
-    musicData->curWordLabel->font()->setFontColor(_RGB(181, 181, 181), _RGB(181, 181, 181));
+    musicData->curWordLabel->font()->setFontColor(_RGB(181, 181, 181));
 
     musicData->previousBtn = new ::TpButton(this);
     musicData->previousBtn->setButtonStyle(TpButton::IconOnly);
