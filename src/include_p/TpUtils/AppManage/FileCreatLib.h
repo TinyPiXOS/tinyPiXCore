@@ -36,7 +36,6 @@ struct ConfigInfo{
 
 
 //配置文件
-void add_describe_info(struct ConfigInfo *config, const char *key,const char *value);
 void add_depend_lib(struct ConfigInfo *config, const char *lib,const char *version);
 void add_private_lib(struct ConfigInfo *config, const char *lib);
 void add_export_info(struct ConfigInfo *config,const char *key ,const char *value);

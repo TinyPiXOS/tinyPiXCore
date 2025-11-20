@@ -4,8 +4,8 @@
 #include <string>
 #include <stdint.h>
 #include <vector>
-#include "install.h"
-#include "unload.h"
+#include "Install.h"
+#include "Unload.h"
 #include "../inc/AppmanageConf.h"
 #include "install_check.h"
 

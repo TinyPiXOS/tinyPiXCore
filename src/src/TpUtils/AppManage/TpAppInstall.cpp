@@ -12,13 +12,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <thread>
-#include "install.h"
-#include "unload.h"
+#include "Install.h"
+#include "Unload.h"
 #include "Unpack.h"
 #include "AppmanageConf.h"
 #include "InstallCheck.h"
 #include "TpAppInstall.h"
-#include "utilslib.h"
+#include "AppManage/AppmUtils.h"
+#include "utils/utilslib.h"
 
 struct TpAppInstallData
 {

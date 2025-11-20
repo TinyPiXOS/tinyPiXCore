@@ -12,10 +12,10 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <openssl/md5.h> //#include <openssl/md5.h>
-#include "AppManage/utilslib.h"
-#include "AppManage/appm_creat.h"
+#include "AppManage/AppmCreat.h"
 #include "TpFileCreat.h"
 #include "AppManage/JsonConf.h"
+#include "AppManage/AppmUtils.h"
 #include "TpFile.h"
 // 根据私钥生成签名文件
 // 需要生成签名的文件，私钥文件，返回的签名文件

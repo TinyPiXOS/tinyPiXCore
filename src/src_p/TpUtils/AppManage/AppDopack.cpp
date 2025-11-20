@@ -9,7 +9,7 @@
 #include <cstring>
 #include <string.h>
 #include <stdio.h>
-#include "appdopack.h"
+#include "AppDopack.h"
 
 
 
@@ -33,16 +33,16 @@ TpPackageInfo::TpPackageInfo() {
 
 	type=TYPE_PACKAGE_NONE;
 	params.description=NULL;
-	params.icon=NULL;
-	params.appexec_name=NULL;
-	params.signature=NULL;
+	// params.icon=NULL;
+	// params.appexec_name=NULL;
+	// params.signature=NULL;
 	params.diskspace=0;
 	params.version.x=0;
 	params.version.y=0;
 	params.version.z=0;
 
 	// Initialize other parameters with empty strings
-	std::memset(params.app_id, 0, sizeof(params.app_id));
+/*	std::memset(params.app_id, 0, sizeof(params.app_id));
 	std::memset(params.app_name, 0, sizeof(params.app_name));
 //	std::memset(params.version, 0, sizeof(params.version));
 	std::memset(params.architecture, 0, sizeof(params.architecture));
@@ -59,13 +59,13 @@ TpPackageInfo::TpPackageInfo() {
 //	std::memset(params.start, 0, sizeof(params.start));
 //	std::memset(params.remove, 0, sizeof(params.remove));
 	std::memset(params.otherfile, 0, sizeof(params.otherfile));
-	std::memset(params.file_extension, 0, sizeof(params.file_extension));
+	std::memset(params.file_extension, 0, sizeof(params.file_extension));*/
 
-	params.otherfile_count = 0;
+/*	params.otherfile_count = 0;
 	params.lib_count = 0;
 	params.depend_count = 0;
 	params.assert_count = 0;
-	params.extension_count = 0;
+	params.extension_count = 0;*/
 }
 
 TpPackageInfo::~TpPackageInfo() {

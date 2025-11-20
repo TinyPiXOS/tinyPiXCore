@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "AppManage/AppmanageConf.h"
-#include "app_script.h"
+#include "AppScript.h"
 #include "TpString.h"
 #include "TpVector.h"
 

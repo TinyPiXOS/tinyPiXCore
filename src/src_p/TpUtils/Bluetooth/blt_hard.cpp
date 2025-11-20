@@ -23,7 +23,7 @@
 #include "bluetooth_inc.h"
 #include "blt_hard.h"
 #include "blt_dbussignal.h"
-#include "TpUtilsclib.h"
+#include "utilslib.h"
 
 #define DEBUG_BLUETOOTH_SCAN
 

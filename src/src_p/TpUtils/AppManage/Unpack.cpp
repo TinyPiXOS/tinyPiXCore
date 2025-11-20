@@ -3,8 +3,7 @@
 说 明 :
 日 期 : 2024.8.20
 
-/*/
-//------------------------------------------------------------------------------------------------------------------------//
+/*///------------------------------------------------------------------------------------------------------------------------//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +14,8 @@
 // #include <openssl/rand.h>
 #include <fcntl.h>
 #include "Unpack.h"
-#include "install.h"
-#include "utilslib.h"
+#include "Install.h"
+#include "AppManage/AppmUtils.h"
 #include "InstallCheck.h"
 #include "TpDir.h"
 

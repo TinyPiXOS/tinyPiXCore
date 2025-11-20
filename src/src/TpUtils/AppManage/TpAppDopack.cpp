@@ -14,7 +14,7 @@
 #include "TpFileCreat.h"
 #include "InstallCheck.h"
 #include "TpAppDopack.h"
-#include "appm_creat.h"
+#include "AppmCreat.h"
 
 // 释放
 static void loop_free(void **data, int count)

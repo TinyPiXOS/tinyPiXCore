@@ -11,8 +11,9 @@
 #include <openssl/rand.h>
 #include <openssl/evp.h>
 #include <openssl/aes.h>
-#include "secret_key.h"
-#include "utilslib.h"
+#include "SecretKey.h"
+#include "AppManage/AppmUtils.h"
+#include "utils/utilslib.h"
 
 #define KEY_FILE_PATH "/etc/tpssl/tpappkey.bin"
 #define PASSPHRASE "tpAppManagerBinPassphrase"

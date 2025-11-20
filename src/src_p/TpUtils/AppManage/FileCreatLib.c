@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "file_creat_lib.h"
+#include "FileCreatLib.h"
 /*
 void init_script_config(struct ScriptInfo *config) {
     memset(config, 0, sizeof(struct ScriptInfo));

@@ -16,11 +16,11 @@
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 #include "InstallCheck.h"
-#include "install.h"
+#include "Install.h"
 #include "Unpack.h"
 #include "ConfJson.h"
 #include "AppManage/AppmanageConf.h"
-#include "utilslib.h"
+#include "AppManage/AppmUtils.h"
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>

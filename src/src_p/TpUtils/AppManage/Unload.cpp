@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "install.h"
-#include "unload.h"
-#include "utilslib.h"
+#include "Install.h"
+#include "Unload.h"
+#include "AppManage/AppmUtils.h"
 #include "Purview.h"
 #include "ConfJson.h"
 #include "typesDef.h"
