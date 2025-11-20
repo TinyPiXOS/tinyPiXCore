@@ -21,7 +21,7 @@ struct TpFontData
 
     TpSize wrapLayout = {100, 100};
 
-    Tp::AlignmentFlag alignFlag;
+    Tp::Alignment alignFlag;
 
     // 轮廓颜色
     int32_t fgColor;

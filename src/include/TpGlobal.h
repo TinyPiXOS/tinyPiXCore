@@ -117,6 +117,7 @@ namespace Tp
 
         AlignCenter = AlignVCenter | AlignHCenter
     };
+    typedef int32_t Alignment;
 
     enum ItemSelectionMode
     {

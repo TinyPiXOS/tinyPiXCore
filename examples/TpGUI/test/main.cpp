@@ -99,7 +99,6 @@ TpImage getImage()
 
 int32_t main(int32_t argc, char *argv[])
 {
-    std::cout << "Main" << std::endl;
     TpApp app(argc, argv);
     app.setStyle(Tp::SmartDeviceGUIStyle);
 
@@ -117,8 +116,20 @@ int32_t main(int32_t argc, char *argv[])
     // connect(testBtn, onClicked, [=](bool)
     //         { bgLabel->setBackGroundImage(getImage()); });
 
-    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    thorVGPaint->setRect(0, 0, 500, 500);
+    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    // thorVGPaint->setRect(0, 0, 500, 500);
+
+    TpLabel *textTestLabel = new TpLabel("自动获取", vScreen);
+    textTestLabel->setBackGroundColor(_RGB(255, 0, 0));
+    textTestLabel->setAlign(Tp::AlignLeft);
+    textTestLabel->font()->setFontSize(19);
+    textTestLabel->setRect(520, 20, textTestLabel->font()->pixelWidth(), textTestLabel->font()->pixelHeight());
+
+    TpLabel *textTestLabel2 = new TpLabel("以太网", vScreen);
+    textTestLabel2->setBackGroundColor(_RGB(255, 0, 0));
+    textTestLabel2->font()->setFontSize(19);
+    textTestLabel2->setAlign(Tp::AlignBottom);
+    textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
 
     vScreen->update();
 

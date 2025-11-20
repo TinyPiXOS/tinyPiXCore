@@ -63,7 +63,7 @@ struct TpLineEditData
     // 鼠标左键是否按下
     bool mouseIsPress;
 
-    Tp::AlignmentFlag align = Tp::AlignLeft;
+    Tp::Alignment align = Tp::AlignLeft;
 
     bool readOnly = false;
 
@@ -202,7 +202,7 @@ TpString TpLineEdit::placeholderText()
     return editData->placeholerText;
 }
 
-void TpLineEdit::setAlign(const Tp::AlignmentFlag align)
+void TpLineEdit::setAlign(const Tp::Alignment align)
 {
     TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
     if (!editData)

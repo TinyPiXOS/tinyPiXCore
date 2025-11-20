@@ -40,9 +40,9 @@ public:
     /// @return 文本字符串
     TpString placeholderText();
 
-    /// @brief 设置文本居中模式；当前仅支持水平靠左、靠右、居中
+    /// @brief 设置文本居中模式；
 	/// @param align 模式枚举值
-	void setAlign(const Tp::AlignmentFlag align = Tp::AlignLeft);
+	void setAlign(const Tp::Alignment align = Tp::AlignLeft);
 
     /// @brief 设置是否只读
     /// @param readOnly true为只读模式；false为编辑模式

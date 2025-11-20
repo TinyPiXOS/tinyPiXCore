@@ -69,9 +69,9 @@ public:
 
     /// @brief 设置基于Layout的居中属性
     /// @param align 布局属性
-    void setAlign(Tp::AlignmentFlag align = Tp::AlignLeft);
+    void setAlign(Tp::Alignment align = Tp::AlignLeft);
 
-    Tp::AlignmentFlag align();
+    Tp::Alignment align();
 
 public:
     /// @brief 获取字体大小 px

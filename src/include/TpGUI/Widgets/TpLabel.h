@@ -42,9 +42,9 @@ public:
     virtual TpFont *font();
 
 public:
-    /// @brief 设置文本居中模式；当前仅支持水平靠左、靠右、居中
+    /// @brief 设置文本居中模式
     /// @param align 模式枚举值
-    virtual void setAlign(const Tp::AlignmentFlag align = Tp::AlignLeft);
+    virtual void setAlign(const Tp::Alignment align = Tp::AlignLeft);
 
 public:
     virtual bool onPaintEvent(TpPaintEvent *event) override;

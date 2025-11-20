@@ -796,4 +796,64 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
     }
 }
 
+// 由于thorvg基于基线计算，所以如果顶部对齐，需要补偿 XY坐标
+TpPoint caculateTextOffset(Tp::Alignment alignFlag, const TpSize &textLayout, tvg::Text *textPtr)
+{
+    TpPoint offsetPoint;
+    float verticalOffset = 0;
+    float horizonOffset = 0;
+
+    // 水平对齐处理
+    bool needsHorizonOffset = (alignFlag & Tp::AlignLeft) ||
+                              !(alignFlag & (Tp::AlignRight | Tp::AlignHCenter));
+
+    if (needsHorizonOffset)
+    {
+        // 左对齐或默认（左对齐）：获取文本左边界的X坐标
+        float y, textWidth, textHeight;
+        textPtr->bounds(&horizonOffset, &y, &textWidth, &textHeight);
+    }
+    else if (alignFlag & Tp::AlignRight)
+    {
+        // 右对齐：计算使文本紧贴右边界的偏移量
+        float bx, by, bw, bh;
+        textPtr->bounds(&bx, &by, &bw, &bh);
+
+        float actualRight = bx + bw;
+        float layoutRight = textLayout.width();
+        horizonOffset = -(layoutRight - actualRight); // 向右平移使文本贴右
+    }
+    else
+    {
+    }
+
+    // 垂直对齐处理
+    bool needsVerticalOffset = (alignFlag & Tp::AlignTop) ||
+                               !(alignFlag & (Tp::AlignVCenter | Tp::AlignBottom));
+
+    if (needsVerticalOffset)
+    {
+        // 顶部对齐或默认（顶部对齐）：获取文本上边界的Y坐标
+        float x, textWidth, textHeight;
+        textPtr->bounds(&x, &verticalOffset, &textWidth, &textHeight);
+    }
+    else if (alignFlag & Tp::AlignBottom)
+    {
+        // 底部对齐：计算使文本紧贴底部边界的偏移量
+        float bx, by, bw, bh;
+        textPtr->bounds(&bx, &by, &bw, &bh);
+
+        float actualBottom = by + bh;
+        float layoutBottom = textLayout.height();
+        verticalOffset = -(layoutBottom - actualBottom); // 向下平移使文本贴底
+    }
+    else
+    {
+    }
+
+    offsetPoint.setX(horizonOffset);
+    offsetPoint.setY(verticalOffset);
+
+    return offsetPoint;
+}
 #endif

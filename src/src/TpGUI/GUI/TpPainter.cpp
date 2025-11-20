@@ -519,7 +519,10 @@ void TpPainter::drawText(const TpFont &font, int32_t x, int32_t y, const TpStrin
     TpFontData *fontData = static_cast<TpFontData *>(font.data_);
     tvg::Text *fontTextPtr = static_cast<tvg::Text *>(fontData->tvgTextPtr->duplicate());
 
-    fontTextPtr->translate(x, y);
+    // 计算文本基线偏移量
+    TpPoint offsetPoint = caculateTextOffset(fontData->alignFlag, fontData->wrapLayout, fontTextPtr);
+
+    fontTextPtr->translate(x - offsetPoint.x(), y - offsetPoint.y());
 
     refreshCanvasTarget(painterData);
     painterData->tvgScene->push(std::move(fontTextPtr));

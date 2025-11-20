@@ -4,6 +4,7 @@
 TpFont::TpFont(const TpString &language, int32_t defaultPtSize)
 {
     TpFontData *fontData = new TpFontData();
+    data_ = fontData;
 
     if (TpFontConfig::Inst()->containsFont(language))
     {
@@ -16,11 +17,9 @@ TpFont::TpFont(const TpString &language, int32_t defaultPtSize)
 
     fontData->ptsize = defaultPtSize;
     fontData->tvgTextPtr->size(defaultPtSize);
-    fontData->tvgTextPtr->align(0.0f, 0.0f);
+    setAlign(Tp::AlignLeft);
 
-    data_ = fontData;
-
-    setFontColor(_RGB(255, 255, 255));
+    setFontColor(_RGB(0, 0, 0));
 }
 
 TpFont::~TpFont()
@@ -123,6 +122,7 @@ void TpFont::setLayout(int32_t w, int32_t h)
 
     fontData->wrapLayout.setWidth(w);
     fontData->wrapLayout.setHeight(h);
+    setAlign(align());
 }
 
 int32_t TpFont::layoutWidth()
@@ -137,46 +137,51 @@ int32_t TpFont::layoutHeight()
     return fontData->wrapLayout.height();
 }
 
-void TpFont::setAlign(Tp::AlignmentFlag align)
+void TpFont::setAlign(Tp::Alignment align)
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     fontData->alignFlag = align;
 
     float x = 0;
     float y = 0;
-
-    switch (align)
+    // 处理水平对齐
+    if (align & Tp::AlignLeft)
     {
-    case Tp::AlignLeft:
-        x = 0;
-        break;
-    case Tp::AlignRight:
-        x = 0.95f;
-        break;
-    case Tp::AlignHCenter:
+        x = 0.0f;
+    }
+    else if (align & Tp::AlignRight)
+    {
+        x = 0.97f;
+    }
+    else if (align & Tp::AlignHCenter)
+    {
         x = 0.5f;
-        break;
-    case Tp::AlignTop:
-        y = 0;
-        break;
-    case Tp::AlignBottom:
-        y = 0.95f;
-        break;
-    case Tp::AlignVCenter:
+    }
+    else
+    {
+    }
+
+    // 处理垂直对齐
+    if (align & Tp::AlignTop)
+    {
+        y = 0.0f;
+    }
+    else if (align & Tp::AlignBottom)
+    {
+        y = 0.97f;
+    }
+    else if (align & Tp::AlignVCenter)
+    {
         y = 0.5f;
-        break;
-    case Tp::AlignCenter:
-        x = 0.5f;
-        y = 0.5f;
-        break;
-    default:
-        break;
+    }
+    else
+    {
     }
 
     fontData->tvgTextPtr->align(x, y);
 }
 
-Tp::AlignmentFlag TpFont::align()
+Tp::Alignment TpFont::align()
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     return fontData->alignFlag;
@@ -193,6 +198,8 @@ void TpFont::setFontSize(const int32_t &ptsize)
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     fontData->ptsize = TP_MAX(ptsize, 0);
     fontData->tvgTextPtr->size(fontData->ptsize);
+
+    setAlign(align());
 }
 
 void TpFont::setText(const TpString &text)
@@ -200,6 +207,8 @@ void TpFont::setText(const TpString &text)
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     fontData->text = text;
     fontData->tvgTextPtr->text(text.c_str());
+
+    setAlign(align());
 }
 
 TpString TpFont::text() const

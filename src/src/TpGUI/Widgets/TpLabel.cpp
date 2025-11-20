@@ -161,7 +161,7 @@ TpFont *TpLabel::font()
     return font;
 }
 
-void TpLabel::setAlign(const Tp::AlignmentFlag align)
+void TpLabel::setAlign(const Tp::Alignment align)
 {
     TpLabelData *labelData = static_cast<TpLabelData *>(data_);
     labelData->font->setAlign(align);
