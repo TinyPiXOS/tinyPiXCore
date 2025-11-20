@@ -93,8 +93,8 @@ int32_t main(int32_t argc, char *argv[])
     connect(hideBtn, onClicked, [=](bool)
             {
 		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::WindowOpacity);
-		widgetAnimation->setStartValue(255);
-		widgetAnimation->setEndValue(50);
+		widgetAnimation->setStartValue(1.0f);
+		widgetAnimation->setEndValue(0.5f);
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 
@@ -107,8 +107,8 @@ int32_t main(int32_t argc, char *argv[])
     connect(showBtn, onClicked, [=](bool)
             {
 		TpAnimation* widgetAnimation = new TpAnimation(exampleWidget, TpAnimation::WindowOpacity);
-		widgetAnimation->setStartValue(0);
-		widgetAnimation->setEndValue(255);
+		widgetAnimation->setStartValue(0.5f);
+		widgetAnimation->setEndValue(1.0f);
 		widgetAnimation->setDuration(1000);
 		widgetAnimation->start(); });
 

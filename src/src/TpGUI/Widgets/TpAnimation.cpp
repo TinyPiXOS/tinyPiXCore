@@ -376,11 +376,19 @@ void TpAnimation::AnimationRun()
         break;
     case WindowOpacity:
     {
-        if (startValue.isInt32() && endValue.isInt32())
+        if (startValue.isDouble() && endValue.isDouble())
         {
             const double opacity = lerp(
                 startValue.toDouble(),
                 endValue.toDouble(),
+                keyProgress);
+            animationData->targetWidget->setWindowOpacity(opacity);
+        }
+        else if (startValue.isFloat() && endValue.isFloat())
+        {
+            const double opacity = lerp(
+                startValue.toFloat(),
+                endValue.toFloat(),
                 keyProgress);
             animationData->targetWidget->setWindowOpacity(opacity);
         }
