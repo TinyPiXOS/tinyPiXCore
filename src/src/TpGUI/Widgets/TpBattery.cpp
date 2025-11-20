@@ -4,6 +4,7 @@
 #include "TpFont.h"
 #include "TpPointF.h"
 #include "TpRectF.h"
+#include "TpAnimation.h"
 
 struct TpBatteryData
 {
@@ -21,12 +22,20 @@ struct TpBatteryData
     int32_t blackColor = _RGB(0, 0, 0);
 
     TpBattery::BatteryStyle style = TpBattery::White;
+
+    TpAnimation *valueAnimation;
 };
 
 TpBattery::TpBattery(TpWidget *parent)
     : TpWidget(parent)
 {
-    data_ = new TpBatteryData();
+    TP_PROPERTY(int32_t, value, value, setValue);
+
+    TpBatteryData *batteryData = new TpBatteryData();
+    data_ = batteryData;
+
+    batteryData->valueAnimation = new TpAnimation(this, "value");
+    batteryData->valueAnimation->setDuration(500);
 
     // refreshBaseCss();
 }
@@ -36,6 +45,10 @@ TpBattery::~TpBattery()
     TpBatteryData *batteryData = static_cast<TpBatteryData *>(data_);
     if (batteryData)
     {
+        batteryData->valueAnimation->stop();
+        delete batteryData->valueAnimation;
+        batteryData->valueAnimation = nullptr;
+
         delete batteryData;
         batteryData = nullptr;
         data_ = nullptr;
@@ -55,7 +68,7 @@ TpBattery::BatteryStyle TpBattery::style()
     return batteryData->style;
 }
 
-void TpBattery::setValue(const int32_t &value)
+void TpBattery::setValue(int32_t value)
 {
     TpBatteryData *batteryData = static_cast<TpBatteryData *>(data_);
 
@@ -76,6 +89,15 @@ int32_t TpBattery::value()
 {
     TpBatteryData *batteryData = static_cast<TpBatteryData *>(data_);
     return batteryData->value;
+}
+
+void TpBattery::setValueAnimated(int32_t value)
+{
+    TpBatteryData *batteryData = static_cast<TpBatteryData *>(data_);
+    batteryData->valueAnimation->stop();
+    batteryData->valueAnimation->setStartValue(this->value());
+    batteryData->valueAnimation->setEndValue(value);
+    batteryData->valueAnimation->start(TpAnimation::KeepWhenStopped);
 }
 
 void TpBattery::setAlamValue(const int32_t &value)
@@ -153,7 +175,7 @@ bool TpBattery::onPaintEvent(TpPaintEvent *event)
     // 绘制数值
     fontColor = batteryData->value > batteryData->alarmValue ? fontColor : batteryData->alarmColor;
     TpString text = TpString::number(batteryData->value);
-    
+
     // 设置电量文字字体、大小
     TpFont font;
     font.setFontSize(batteryRect.height() * 0.55);

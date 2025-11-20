@@ -2,6 +2,7 @@
 #include "TpVariant.h"
 #include "TpTimer.h"
 #include "TpMap.h"
+#include "TpProperty.h"
 
 static uint32_t globalTimerInterval = 16;
 
@@ -9,6 +10,9 @@ struct TpAnimationData
 {
     TpAnimation::AnimationType animationType;
     TpAnimation::CustomAnimationFunc customFunc;
+
+    // 自定义动画属性名
+    TpString customPropertyName;
 
     uint32_t durationMs = 0;
 
@@ -46,6 +50,126 @@ struct TpAnimationData
     }
 };
 
+// 插值模板函数
+template <typename T>
+T lerp(const T &start, const T &end, float progress)
+{
+    T finalValue = start + (end - start) * progress;
+    if (start > end)
+    {
+        if (finalValue < end)
+            finalValue = end;
+    }
+    else
+    {
+        if (finalValue > end)
+            finalValue = end;
+    }
+
+    return finalValue;
+}
+
+// 特化Uint类型
+template <>
+uint32_t lerp<uint32_t>(const uint32_t &start, const uint32_t &end, float progress)
+{
+    int64_t finalValue = 0;
+    if (start > end)
+    {
+        finalValue = start - (start - end) * progress;
+        if (finalValue < end)
+            finalValue = end;
+    }
+    else
+    {
+        finalValue = start + (end - start) * progress;
+        if (finalValue > end)
+            finalValue = end;
+    }
+
+    return finalValue;
+};
+
+int32_t lerpColor(int32_t start, int32_t end, float progress)
+{
+    return _RGB(
+        _R(start) + (int32_t)((_R(end) - _R(start)) * progress),
+        _G(start) + (int32_t)((_G(end) - _G(start)) * progress),
+        _B(start) + (int32_t)((_B(end) - _B(start)) * progress));
+}
+
+TpVariant cacualteCustomValue(const TpVariant &startValue, const TpVariant &endValue, float keyProgress)
+{
+    // 检查类型是否匹配
+    // 类型不匹配，返回起始值
+    if (startValue.variantType() != endValue.variantType())
+        return startValue;
+
+    // 根据类型进行差值计算
+    switch ((TpVariant::VariantType)startValue.variantType())
+    {
+    case TpVariant::VariantType::BoolVar:
+        return TpVariant(keyProgress < 0.5f ? startValue.toBool() : endValue.toBool());
+    case TpVariant::VariantType::Int1Var:
+        return TpVariant(lerp(startValue.toInt8(), endValue.toInt8(), keyProgress));
+    case TpVariant::VariantType::Int2Var:
+        return TpVariant(lerp(startValue.toInt16(), endValue.toInt16(), keyProgress));
+    case TpVariant::VariantType::Int4Var:
+        return TpVariant(lerp(startValue.toInt32(), endValue.toInt32(), keyProgress));
+    case TpVariant::VariantType::Int8Var:
+        return TpVariant(lerp(startValue.toInt64(), endValue.toInt64(), keyProgress));
+    case TpVariant::VariantType::Uint1Var:
+        return TpVariant(lerp(startValue.toUInt8(), endValue.toUInt8(), keyProgress));
+    case TpVariant::VariantType::Uint2Var:
+        return TpVariant(lerp(startValue.toUInt16(), endValue.toUInt16(), keyProgress));
+    case TpVariant::VariantType::Uint4Var:
+        return TpVariant(lerp(startValue.toUInt32(), endValue.toUInt32(), keyProgress));
+    case TpVariant::VariantType::Uint8Var:
+        return TpVariant(lerp(startValue.toUint64(), endValue.toUint64(), keyProgress));
+    case TpVariant::VariantType::Real4Var:
+        return TpVariant(lerp(startValue.toFloat(), endValue.toFloat(), keyProgress));
+    case TpVariant::VariantType::Real8Var:
+        return TpVariant(lerp(startValue.toDouble(), endValue.toDouble(), keyProgress));
+    case TpVariant::VariantType::RectVar:
+    {
+        // 矩形类型：对每个分量进行差值
+        TpRect startRect = startValue.toRect();
+        TpRect endRect = endValue.toRect();
+        TpRect resultRect(
+            lerp(startRect.x(), endRect.x(), keyProgress),
+            lerp(startRect.y(), endRect.y(), keyProgress),
+            lerp(startRect.width(), endRect.width(), keyProgress),
+            lerp(startRect.height(), endRect.height(), keyProgress));
+        return TpVariant(resultRect);
+    }
+    case TpVariant::VariantType::SizeVar:
+    {
+        // 尺寸类型
+        TpSize startSize = startValue.toSize();
+        TpSize endSize = endValue.toSize();
+        TpSize resultSize(
+            lerp(startSize.width(), endSize.width(), keyProgress),
+            lerp(startSize.height(), endSize.height(), keyProgress));
+        return TpVariant(resultSize);
+    }
+    case TpVariant::VariantType::PointVar:
+    {
+        // 点类型
+        TpPoint startPoint = startValue.toPoint();
+        TpPoint endPoint = endValue.toPoint();
+        TpPoint resultPoint(
+            lerp(startPoint.x(), endPoint.x(), keyProgress),
+            lerp(startPoint.y(), endPoint.y(), keyProgress));
+        return TpVariant(resultPoint);
+    }
+    default:
+        // 不支持的类型，返回起始值
+        return startValue;
+    }
+
+    return startValue;
+}
+
 TpAnimation::TpAnimation(TpWidget *target, const AnimationType &propertyType)
     : TpObject(nullptr)
 {
@@ -54,6 +178,23 @@ TpAnimation::TpAnimation(TpWidget *target, const AnimationType &propertyType)
 
     animationData->targetWidget = target;
     animationData->animationType = propertyType;
+    animationData->stopped.store(true);
+    animationData->isDelete.store(false);
+
+    animationData->animationTimer.setInterval(globalTimerInterval);
+
+    connect(&animationData->animationTimer, timeout, this, &TpAnimation::AnimationRun);
+}
+
+TpAnimation::TpAnimation(TpWidget *target, const TpString &propertyName)
+    : TpObject(nullptr)
+{
+    TpAnimationData *animationData = new TpAnimationData();
+    data_ = animationData;
+
+    animationData->customPropertyName = propertyName;
+    animationData->targetWidget = target;
+    animationData->animationType = TpAnimation::CustomAnimation;
     animationData->stopped.store(true);
     animationData->isDelete.store(false);
 
@@ -83,6 +224,18 @@ TpWidget *TpAnimation::targetWidget()
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
     return animationData->targetWidget;
+}
+
+void TpAnimation::setPropertyName(const TpString &propertyName)
+{
+    TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
+    animationData->customPropertyName = propertyName;
+}
+
+TpString TpAnimation::propertyName()
+{
+    TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
+    return animationData->customPropertyName;
 }
 
 void TpAnimation::setLoopCount(const int32_t count)
@@ -143,7 +296,10 @@ TpVariant TpAnimation::endValue()
 void TpAnimation::start(const DeletionPolicy &runMode)
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
+    if (!animationData->stopped)
+        return;
 
+    animationData->deleteMode = runMode;
     animationData->stopped.store(false);
 
     animationData->curTimeMs = 0;
@@ -155,6 +311,9 @@ void TpAnimation::start(const DeletionPolicy &runMode)
 void TpAnimation::pause()
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
+    if (animationData->stopped)
+        return;
+
     animationData->stopped.store(true);
     animationData->animationTimer.stop();
 }
@@ -162,6 +321,8 @@ void TpAnimation::pause()
 void TpAnimation::stop()
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
+    if (animationData->stopped)
+        return;
 
     animationData->stopped.store(true);
 
@@ -199,54 +360,6 @@ void TpAnimation::setKeyValueAt(const float &percent, const TpVariant &value)
     {
         animationData->keyFrameValueList.emplace_back(std::make_pair(inputPercent, value));
     }
-}
-
-// 新增插值模板函数（头文件内声明）
-template <typename T>
-T lerp(const T &start, const T &end, float progress)
-{
-    T finalValue = start + (end - start) * progress;
-    if (start > end)
-    {
-        if (finalValue < end)
-            finalValue = end;
-    }
-    else
-    {
-        if (finalValue > end)
-            finalValue = end;
-    }
-
-    return finalValue;
-}
-
-// 特化Uint类型
-template <>
-uint32_t lerp<uint32_t>(const uint32_t &start, const uint32_t &end, float progress)
-{
-    int64_t finalValue = 0;
-    if (start > end)
-    {
-        finalValue = start - (start - end) * progress;
-        if (finalValue < end)
-            finalValue = end;
-    }
-    else
-    {
-        finalValue = start + (end - start) * progress;
-        if (finalValue > end)
-            finalValue = end;
-    }
-
-    return finalValue;
-};
-
-int32_t lerpColor(int32_t start, int32_t end, float progress)
-{
-    return _RGB(
-        _R(start) + (int32_t)((_R(end) - _R(start)) * progress),
-        _G(start) + (int32_t)((_G(end) - _G(start)) * progress),
-        _B(start) + (int32_t)((_B(end) - _B(start)) * progress));
 }
 
 void TpAnimation::AnimationRun()
@@ -406,14 +519,8 @@ void TpAnimation::AnimationRun()
     }
     case CustomAnimation:
     {
-        // if (animationData->customFunc)
-        // {
-        //     const TpVariant value = lerp(
-        //         startValue,
-        //         endValue,
-        //         progress);
-        //     animationData->customFunc(value);
-        // }
+        TpVariant curValue = cacualteCustomValue(startValue, endValue, keyProgress);
+        animationData->targetWidget->setProperty(animationData->customPropertyName, curValue);
         break;
     }
     default:

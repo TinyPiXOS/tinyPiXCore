@@ -28,7 +28,7 @@ public:
         WindowOpacity,
         /// @brief 背景颜色 int32_t
         BackgroundColor,
-        /// @brief 自定义动画 ，数值自定义；暂未启用
+        /// @brief 自定义动画;支持属性函数参数类型：整形、浮点型、TpRect、TpPoint、TpSize
         CustomAnimation
     };
     typedef std::function<void(const TpVariant &)> CustomAnimationFunc;
@@ -47,6 +47,11 @@ public:
     /// @param propertyType 动画类型
     TpAnimation(TpWidget *target, const AnimationType &propertyType);
 
+    /// @brief 创建自定义动画；需目标对象注册对应属性；参考 TpProperty
+    /// @param target 动画绑定目标
+    /// @param propertyName 动画关联属性名称
+    TpAnimation(TpWidget *target, const TpString &propertyName);
+
     virtual ~TpAnimation();
 
     /// @brief 设置动画绑定窗体
@@ -56,6 +61,14 @@ public:
     /// @brief 获取当前动画绑定窗体
     /// @return 窗体指针
     TpWidget *targetWidget();
+
+    /// @brief 设置属性名称；设置后动画类型为自定义动画；需目标对象注册对应属性；参考 TpProperty
+    /// @param propertyName 动画关联属性名称
+    void setPropertyName(const TpString &propertyName);
+
+    /// @brief 获取当前设置的属性名称
+    /// @return 
+    TpString propertyName();
 
     /// @brief 设置动画循环次数，默认为1次
     /// @param count -1为无限循环，需要手动终止动画

@@ -131,6 +131,12 @@ int32_t main(int32_t argc, char *argv[])
     textTestLabel2->setAlign(Tp::AlignBottom);
     textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
 
+    TpVariant testVariant(10);
+    std::cout << ":::" << testVariant.toInt8() << std::endl;
+    std::cout << ":::" << testVariant.toInt16() << std::endl;
+    std::cout << ":::" << testVariant.toInt32() << std::endl;
+    std::cout << ":::" << testVariant.toInt64() << std::endl;
+
     vScreen->update();
 
     return app.run();
