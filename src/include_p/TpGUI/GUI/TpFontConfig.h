@@ -44,6 +44,11 @@ public:
     /// @return 字体列表
     TpList<TpString> families();
 
+    /// @brief 指定字体文件路径加载字库
+    /// @param fontPath 字体(TTF)文件绝对路径
+    /// @return 加载结果
+    bool loadFont(const TpString &fontPath);
+
 private:
     TpFontConfig();
 

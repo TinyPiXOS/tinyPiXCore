@@ -204,6 +204,7 @@ include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
 #include_directories(${SYSTEM_INCLUDE_PATH}/json-c)
 
 include_directories(/usr/lib/x86_64-linux-gnu/dbus-1.0/include)
+include_directories(/usr/lib/aarch64-linux-gnu/dbus-1.0/include)
 
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)

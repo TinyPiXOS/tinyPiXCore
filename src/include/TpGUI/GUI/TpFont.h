@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include <TpList.h>
 
-#define DEFAULT_FONT_FAMILY "SourceHanSerifCN"
+#define DEFAULT_FONT_FAMILY "MiSans"
 
 TP_DEF_VOID_TYPE_VAR(ITpFontData);
 TP_DEF_VOID_TYPE_VAR(ITpFontFamilyData);
@@ -105,7 +105,14 @@ public:
     TpFontFamily();
     virtual ~TpFontFamily();
 
+    /// @brief 获取字体家族名称
+    /// @return 字体名称列表
     static TpList<TpString> families();
+
+    /// @brief 指定字体文件路径加载字库;使用该字体时字体名需与文件名保持一致
+    /// @param fontPath 字体(TTF)文件绝对路径
+    /// @return 加载结果
+    static bool loadFont(const TpString& fontPath);
 
 private:
     ITpFontFamilyData *familySet;

@@ -20,7 +20,7 @@ TpString TpFontConfig::fontName(const TpString &fontName, FontWeight fontWeight)
     switch (fontWeight)
     {
     case FONT_WEIGHT_NORMAL:
-        resFontName += "Regular";
+        resFontName += "Normal";
         break;
     case FONT_WEIGHT_BOLD:
         resFontName += "Bold";
@@ -44,6 +44,13 @@ TpString TpFontConfig::fontName(const TpString &fontName, FontWeight fontWeight)
         resFontName += "Regular";
         break;
     }
+    
+    TpVector<TpString> fontNameList = fontMap.value(fontName);
+    if (!fontNameList.contains(resFontName))
+    {
+        resFontName = fontNameList.front();
+    }
+
     return resFontName;
 }
 
@@ -59,10 +66,29 @@ TpList<TpString> TpFontConfig::families()
     return fontMap.keys();
 }
 
+bool TpFontConfig::loadFont(const TpString &fontPath)
+{
+    TpFileInfo ttfFile(fontPath);
+    if (!ttfFile.exists())
+        return false;
+
+    if (ttfFile.suffix().compare("ttf") != 0)
+        return false;
+
+    // 加载字体
+    tvg::Text::load(fontPath.c_str());
+    fontMap[ttfFile.baseName()] = TpVector<TpString>{ttfFile.baseName()};
+
+    return false;
+}
+
 TpFontConfig::TpFontConfig()
 {
     TpVector<TpString> defaultFontNameList;
-    TpDir fontDir("/usr/data/TinyPiX/fonts/" + TpString(DEFAULT_FONT_FAMILY));
+    TpString defaultFontDirPath = "/usr/data/TinyPiX/fonts/" + TpString(DEFAULT_FONT_FAMILY);
+
+#if 0 // 全量加载字体库
+    TpDir fontDir(defaultFontDirPath);
     for (const auto &fileInfo : fontDir.entryInfoList(TpDir::Files))
     {
         if (!fileInfo.isFile())
@@ -77,6 +103,12 @@ TpFontConfig::TpFontConfig()
 
         defaultFontNameList.emplace_back(fileInfo.baseName());
     }
+#else
+    // 仅加载默认字体
+    tvg::Text::load(TpString(defaultFontDirPath + "/" + TpString(DEFAULT_FONT_FAMILY) + "-Normal.ttf").c_str());
+    defaultFontNameList.emplace_back(TpString(DEFAULT_FONT_FAMILY) + "-Normal");
+#endif
+
     fontMap[TpString(DEFAULT_FONT_FAMILY)] = defaultFontNameList;
 }
 

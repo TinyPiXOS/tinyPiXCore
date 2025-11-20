@@ -12,7 +12,7 @@ TpFont::TpFont(const TpString &language, int32_t defaultPtSize)
     }
     else
     {
-        fontData->tvgTextPtr->font(DEFAULT_FONT_FAMILY);
+        fontData->tvgTextPtr->font(TpFontConfig::Inst()->fontName(DEFAULT_FONT_FAMILY, FONT_WEIGHT_NORMAL).c_str());
     }
 
     fontData->ptsize = defaultPtSize;
@@ -267,4 +267,9 @@ TpFontFamily::~TpFontFamily()
 TpList<TpString> TpFontFamily::families()
 {
     return TpFontConfig::Inst()->families();
+}
+
+bool TpFontFamily::loadFont(const TpString &fontPath)
+{
+    return TpFontConfig::Inst()->loadFont(fontPath);
 }
