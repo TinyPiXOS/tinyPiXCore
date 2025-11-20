@@ -414,8 +414,9 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
     {
         const TpRect &updateRect = updateInfo.second;
 
+        // static int testRefreshIndex = 0;
         // std::cout << "TpWM刷新： " << testRefreshIndex++ << "  ;" << updateRect.x() << " : " << updateRect.y() << " , " << updateRect.width() << " , "
-        //           << updateRect.height() << std::endl;
+                //   << updateRect.height() << std::endl;
 
         tinyPiX_wf_update(updateInfo.first, updateRect.x(), updateRect.y(), updateRect.width(), updateRect.height(), true, false);
     }

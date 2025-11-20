@@ -16,6 +16,12 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
     }
     else
     {
+        // 获取物理尺寸
+        uint32_t rW, rH;
+        tinyPiX_wf_get_display_size(widgetData->agent, &rW, &rH);
+        widgetData->displaySize.setWidth(rW);
+        widgetData->displaySize.setHeight(rH);
+
         tinyPiX_wf_args_assign(widgetData->agent, this);
 
         tinyPiX_wf_event_assign(widgetData->agent, transferEvent);
@@ -134,6 +140,9 @@ void TpScreen::setSize(const int32_t &width, const int32_t &height)
     tinyPiX_wf_set_rect(widgetData->agent, widgetData->offsetX, widgetData->offsetY, width, height);
 
     TpWidget::setSize(width, height);
+
+    // dialog尺寸变化时需全局刷新保证无残留
+    update(0, 0, widgetData->displaySize.width(), widgetData->displaySize.height());
 }
 
 void TpScreen::setWidth(const int32_t &width)
@@ -149,6 +158,9 @@ void TpScreen::setWidth(const int32_t &width)
     tinyPiX_wf_set_rect(widgetData->agent, widgetData->offsetX, widgetData->offsetY, width, height());
 
     TpWidget::setWidth(width);
+
+    // dialog尺寸变化时需全局刷新保证无残留
+    update(0, 0, widgetData->displaySize.width(), widgetData->displaySize.height());
 }
 
 void TpScreen::setHeight(const int32_t &height)
@@ -164,6 +176,9 @@ void TpScreen::setHeight(const int32_t &height)
     tinyPiX_wf_set_rect(widgetData->agent, widgetData->offsetX, widgetData->offsetY, width(), height);
 
     TpWidget::setHeight(height);
+
+    // dialog尺寸变化时需全局刷新保证无残留
+    update(0, 0, widgetData->displaySize.width(), widgetData->displaySize.height());
 }
 
 void TpScreen::move(int32_t x, int32_t y)
@@ -180,9 +195,9 @@ void TpScreen::move(int32_t x, int32_t y)
 
     if (layer >= Tp::TP_WM_USE_FLOAT)
     {
-        int32_t ox = 0, oy = 0;
+        // int32_t ox = 0, oy = 0;
 
-        tinyPiX_wf_get_rect(widgetData->agent, &ox, &oy, nullptr, nullptr);
+        // tinyPiX_wf_get_rect(widgetData->agent, &ox, &oy, nullptr, nullptr);
         tinyPiX_wf_set_position(widgetData->agent, x, y);
 
         widgetData->offsetX = x;
@@ -197,7 +212,8 @@ void TpScreen::move(int32_t x, int32_t y)
         this->broadSetTop();
     }
 
-    update();
+    // dialog移动时需全局刷新保证无残留
+    update(0, 0, widgetData->displaySize.width(), widgetData->displaySize.height());
 }
 
 const TpPoint TpScreen::pos()
@@ -372,7 +388,7 @@ void TpScreen::deleteLater()
     }
     break;
     default:
-    break;
+        break;
     }
 }
 

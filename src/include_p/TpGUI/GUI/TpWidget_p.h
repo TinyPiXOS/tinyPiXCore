@@ -55,6 +55,9 @@ struct TpWidgetData : TpObjectData
     /// @brief 逻辑坐标
     TpRect logicalRect;
 
+    // 物理屏幕尺寸
+    TpSize displaySize;
+
     // 窗口最小宽高
     uint32_t minimumWidth = 0;
     uint32_t minimumHeight = 0;
