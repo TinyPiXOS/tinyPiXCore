@@ -31,8 +31,6 @@ public:
         /// @brief 自定义动画;支持属性函数参数类型：整形、浮点型、TpRect、TpPoint、TpSize
         CustomAnimation
     };
-    typedef std::function<void(const TpVariant &)> CustomAnimationFunc;
-
     enum DeletionPolicy
     {
         /// @brief 动画停止时不释放指针
@@ -77,10 +75,6 @@ public:
     /// @brief 获取动画循环次数
     /// @return 循环次数
     int32_t loopCount();
-
-    /// @brief 设置自定义动画处理函数,暂未启用
-    /// @param func 自定义动画值修改函数
-    void setCustomAnimationFunc(CustomAnimationFunc func);
 
     /// @brief 设置动画持续时间
     /// @param timeMs 时间，单位ms

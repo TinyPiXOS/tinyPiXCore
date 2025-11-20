@@ -9,7 +9,6 @@ static uint32_t globalTimerInterval = 16;
 struct TpAnimationData
 {
     TpAnimation::AnimationType animationType;
-    TpAnimation::CustomAnimationFunc customFunc;
 
     // 自定义动画属性名
     TpString customPropertyName;
@@ -248,13 +247,6 @@ int32_t TpAnimation::loopCount()
 {
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
     return animationData->loopCount;
-}
-
-void TpAnimation::setCustomAnimationFunc(CustomAnimationFunc func)
-{
-    TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
-    animationData->customFunc = func;
-    animationData->targetWidget = nullptr;
 }
 
 void TpAnimation::setDuration(const uint32_t &timeMs)
