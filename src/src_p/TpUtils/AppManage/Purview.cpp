@@ -15,9 +15,9 @@
 #include "Purview.h"
 #include "typesDef.h"
 #include "AppManage/AppmanageConf.h"
-#include "install.h"
-#include "utilslib.h"
-#include "system_permission.h"
+#include "Install.h"
+#include "AppManage/AppmUtils.h"
+#include "SystemPermission.h"
 
 // 检查用户是否存在
 int check_user_exist(const char *user)

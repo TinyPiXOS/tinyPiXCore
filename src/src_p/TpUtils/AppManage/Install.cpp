@@ -18,12 +18,12 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <elf.h>
-#include "install.h"
+#include "Install.h"
 #include "Unpack.h"
 #include "TpDir.h"
 #include "TpFile.h"
 #include "ConfJson.h"
-#include "utilslib.h"
+#include "AppManage/AppmUtils.h"
 #include "Purview.h"
 #include "AppManage/AppmanageConf.h"
 

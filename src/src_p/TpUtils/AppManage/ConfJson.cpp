@@ -17,9 +17,9 @@
 #include <openssl/rand.h>
 #include <openssl/evp.h>
 #include "ConfJson.h"
-#include "utilslib.h"
-#include "install.h"
-#include "secret_key.h"
+#include "AppManage/AppmUtils.h"
+#include "Install.h"
+#include "SecretKey.h"
 #include "TpJsonArray.h"
 #include "TpJsonObject.h"
 #include "TpJsonDocument.h"

@@ -17,7 +17,7 @@
 #include <crypt.h>
 #include <time.h>
 
-#include "system_permission.h"
+#include "SystemPermission.h"
 
 //需要创建的组列表
 const char *GroupDevicesList[]={

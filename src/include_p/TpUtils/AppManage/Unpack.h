@@ -5,7 +5,7 @@
 #include "archive.h"
 #include "archive_entry.h"
 #include "ConfJson.h"
-#include "install.h"
+#include "Install.h"
 #include "TpJsonObject.h"
 
 // #define PACKAGE_TYPE_APP 	0X10

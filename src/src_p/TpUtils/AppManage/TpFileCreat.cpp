@@ -16,9 +16,9 @@
 #include <sys/types.h>
 #include <errno.h>
 #include "TpFileCreat.h"
-#include "appm_creat.h"
-#include "AppManage/install.h"
-#include "AppManage/utilslib.h"
+#include "AppmCreat.h"
+#include "AppManage/Install.h"
+#include "AppManage/AppmUtils.h"
 #include "TpFile.h"
 #include "TpFileInfo.h"
 #include "TpDir.h"

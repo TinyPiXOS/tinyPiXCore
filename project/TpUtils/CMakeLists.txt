@@ -150,17 +150,17 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/utils/utthread.c
 
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/JsonConf.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/appm_creat.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/file_creat_lib.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/AppmCreat.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/FileCreatLib.c
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/TpFileCreat.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/utilslib.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/system_permission.c
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/AppmUtils.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/SystemPermission.c
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/SecretKey.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/ConfJson.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/InstallCheck.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/install.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/Install.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Purview.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/unload.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/AppManage/Unload.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Unpack.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Update.cpp
     ${SOURCE_PATH}/src/TpUtils/AppManage/TpLibDopack.cpp
@@ -201,14 +201,13 @@ include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0/librsvg/)
 include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0)
 include_directories(${SYSTEM_INCLUDE_PATH}/gdk-pixbuf-2.0)
 include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
-include_directories(${SYSTEM_INCLUDE_PATH}/json-c)
+#include_directories(${SYSTEM_INCLUDE_PATH}/json-c)
 
 include_directories(/usr/lib/x86_64-linux-gnu/dbus-1.0/include)
 
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
 include_directories(${SOURCE_PATH}/include/TpWM)
-include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include/TpUtils/JsonStructPackage)
 

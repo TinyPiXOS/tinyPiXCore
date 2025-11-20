@@ -8,9 +8,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "install.h"
+#include "Install.h"
 #include "Update.h"
-#include "utilslib.h"
+#include "AppManage/AppmUtils.h"
 
 //
 // 升级的拷贝
@@ -47,17 +47,5 @@ int update_get_config(char *appname)
     }
 
     fclose(file_s);
-    return 0;
-}
-
-int Appm_Update()
-{
-    TpString uuid("fb1412cf-84de-4138-b401-215b6e9b1c11");
-    if (find_directory(APP_INSTALL_PATH, uuid.c_str()) == 0)
-    {
-        printf("app not installed\n");
-        return -1;
-    }
-
     return 0;
 }

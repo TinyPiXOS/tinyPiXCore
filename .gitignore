@@ -115,6 +115,9 @@ examples/TpUtils/TpGateway/REP/repClient
 examples/TpCore/TpJsonParser/jsonParser
 examples/TpCore/TpProperty/property
 
+examples/TpUtils/App/Dopack
+examples/TpUtils/App/Install
+examples/TpUtils/App/Remove
 examples/TpUtils/bluetooth/Audio
 examples/TpUtils/bluetooth/Bluetooth
 examples/TpUtils/bluetooth/Obex
