@@ -125,6 +125,11 @@ void TpFont::setLayout(int32_t w, int32_t h)
     setAlign(align());
 }
 
+void TpFont::setLayout(const TpSize &size)
+{
+    setLayout(size.width(), size.height());
+}
+
 int32_t TpFont::layoutWidth()
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);
@@ -135,6 +140,12 @@ int32_t TpFont::layoutHeight()
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     return fontData->wrapLayout.height();
+}
+
+TpSize TpFont::layoutSize()
+{
+    TpFontData *fontData = static_cast<TpFontData *>(data_);
+    return fontData->wrapLayout;
 }
 
 void TpFont::setAlign(Tp::Alignment align)

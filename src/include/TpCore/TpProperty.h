@@ -281,6 +281,11 @@ inline TpVector<TpVariant> parsePropertyValue<TpVector<TpVariant>>(const TpVaria
     return TpVector<TpVariant>();
 }
 
+/// @brief 注册对象属性
+/// @param T 属性参数类型；int、float、double...
+/// @param name 属性名称字符串
+/// @param readFunc 属性读取函数名
+/// @param writeFunc 属性写入函数名
 #define TP_PROPERTY(T, name, readFunc, writeFunc) \
     TpObject::registerProperty(#name, [=]() { return readFunc(); }, [=](const TpVariant &input) { writeFunc(parsePropertyValue<T>(input)); });
 
