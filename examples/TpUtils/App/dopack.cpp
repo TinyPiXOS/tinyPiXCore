@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "TpUtils/AppManage/TpAppDopack.h"
 #include "TpUtils/AppManage/TpLibDopack.h"
-
+#include "TpCore/TpDir.h"
 
 //使用json文件的内容来自动生成安装包
 int example_creat_app_pack_json(const char *json,const char *pack,const char *path)
@@ -28,3 +28,9 @@ int main(int argc,char **argv)
 
 	return 0;
 }
+
+/*int main()
+{
+	TpDir::copy(TpString("/home/pix/AppManage/mytestapp/assert/mysrc"),TpString("./TestApp/assert/"));
+
+}*/

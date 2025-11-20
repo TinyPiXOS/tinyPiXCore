@@ -258,7 +258,6 @@ int appm_creat_libpackage_config(const char *archive_name, struct LibPackageConf
 // 根据config结构体直接打包成安装包(不生成中间文件)
 int appm_creat_apppackage_config(const char *archive_name, struct AppPackageConfig *conf)
 {
-
     return 0;
 }
 

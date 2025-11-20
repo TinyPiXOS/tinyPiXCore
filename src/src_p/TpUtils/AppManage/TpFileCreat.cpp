@@ -48,32 +48,18 @@ export myfile=./myfile
 
 */
 
-// 使用TpFile拷贝单个文件
-bool fileCopySingle(const TpString &destDir, const TpString &sourceFile)
-{
-    if (sourceFile.empty())
-        return false;
 
-    if (!TpFile::exists(sourceFile))
-        return false;
-
-    // 构建目标文件路径
-    TpString destPath = destDir + "/" + TpFileInfo::fileName(sourceFile);
-
-    // 使用TpFile的静态copy方法
-    return TpFile::copy(sourceFile, destPath);
-}
-
-// 使用TpFile拷贝文件列表到指定目录
+// 拷贝文件列表到指定目录
 bool fileCopyList(const TpString &destDir, const TpVector<TpString> &fileList)
 {
     if (fileList.isEmpty())
         return true;
-
+    
     bool success = true;
     for (int i = 0; i < fileList.size(); i++)
     {
-        if (!fileCopySingle(destDir, fileList[i]))
+        printf("copy %s to %s \n",fileList[i].c_str(),destDir.c_str());
+        if(TpDir::copy(fileList[i],destDir))
         {
             success = false;
             // 记录错误日志，但继续处理其他文件
@@ -219,12 +205,16 @@ int TpFileCreat::appm_generate_package_source(AppPackageConfig *config, const Tp
     if (config->appexecName.empty())
         return -1;
 
-    fileCopySingle(path + "/bin", config->appexecName);
-    fileCopySingle(path, config->icon);
-    fileCopyList(path + "/bin", config->binFiles);
-    fileCopyList(path + "/lib", config->lib);
-    fileCopyList(path + "/assert", config->assertFiles);
-    fileCopyList(path, config->otherFiles);
+    //fileCopySingle( path + "/bin", config->appexecName);
+    TpDir::copy(config->appexecName, TpString(path + "/bin/"));
+
+    //fileCopySingle(path, config->icon);
+    TpDir::copy(config->icon, TpString(path + "/"));
+
+    fileCopyList(TpString(path + "/bin/"), config->binFiles);
+    fileCopyList(TpString(path + "/lib/"), config->lib);
+    fileCopyList(TpString(path + "/assert/"), config->assertFiles);
+    fileCopyList(TpString(path + "/"), config->otherFiles);
 
     // 计算文件大小
     if (config->diskspace == 0)
@@ -330,35 +320,35 @@ void TpFileCreat::add_env_var(ScriptInfo *config, const TpString &key, const TpS
     config->env_vars.emplace_back(entry);
 }
 
-void TpFileCreat::add_dependency(ScriptInfo *config, const char *lib)
+void TpFileCreat::add_dependency(ScriptInfo *config, const TpString &lib)
 {
     if (config->dependencies.contains(lib))
         return;
     config->dependencies.emplace_back(lib);
 }
 
-void TpFileCreat::add_arg(ScriptInfo *config, const char *arg)
+void TpFileCreat::add_arg(ScriptInfo *config, const TpString &arg)
 {
     if (config->args.contains(arg))
         return;
     config->args.emplace_back(arg);
 }
 
-void TpFileCreat::set_log_file(ScriptInfo *config, const char *log_file)
+void TpFileCreat::set_log_file(ScriptInfo *config, const TpString &log_file)
 {
-    config->log_file = strdup(log_file);
+    config->log_file = log_file;
 }
 
-void TpFileCreat::set_config_file(ScriptInfo *config, const char *config_file)
+void TpFileCreat::set_config_file(ScriptInfo *config, const TpString &config_file)
 {
-    config->config_file = strdup(config_file);
+    config->config_file = config_file;
 }
 
-void TpFileCreat::set_exec_path(ScriptInfo *config, const char *exec_path)
+void TpFileCreat::set_exec_path(ScriptInfo *config, const TpString &exec_path)
 {
 }
 
-int TpFileCreat::file_startsh_creat(char *path)
+int TpFileCreat::file_startsh_creat(const TpString &path)
 {
     return 0;
 }
