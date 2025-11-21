@@ -357,5 +357,5 @@ bool TpCollapsibleFileWidget::eventFilter(TpObject *watched, TpEvent *event)
     {
     }
 
-    return true;
+    return false;
 }

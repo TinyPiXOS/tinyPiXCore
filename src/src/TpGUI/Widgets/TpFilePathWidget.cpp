@@ -88,7 +88,7 @@ void TpFilePathWidget::setPath(const TpString &path)
         TpFilePathWidgetItem *newPathLabel = new TpFilePathWidgetItem(this);
         newPathLabel->setChecked(false);
         newPathLabel->setEnableBackGroundColor(true);
-        newPathLabel->setAlign(Tp::AlignHCenter);
+        newPathLabel->setAlign(Tp::AlignCenter);
         newPathLabel->setText(subPath);
         newPathLabel->setProperty("Path", curAllPath);
         newPathLabel->installEventFilter(this);
@@ -96,57 +96,6 @@ void TpFilePathWidget::setPath(const TpString &path)
 
         buttonData->pathLabelList.emplace_back(newPathLabel);
     }
-
-    // TpList<TpString> pathList = dealPath.split('/');
-    // for (const auto &subPath : pathList)
-    // {
-    //     if (subPath.empty())
-    //         continue;
-
-    //     curAllPath += "/" + subPath;
-
-    //     bool isCreateNewLabel = true;
-    //     for (; startFindIndex < buttonData->pathLabelList.size(); ++startFindIndex)
-    //     {
-    //         TpFilePathWidgetItem *curShowLabel = buttonData->pathLabelList.at(startFindIndex);
-    //         curShowLabel->setChecked(false);
-
-    //         TpString curShowPath = curShowLabel->property("Path").toString();
-    //         if (curShowPath.compare(curAllPath) == 0)
-    //         {
-    //             isCreateNewLabel = false;
-    //             ++startFindIndex;
-    //             break;
-    //         }
-    //     }
-
-    //     if (isCreateNewLabel == false)
-    //         continue;
-
-    //     TpFilePathWidgetItem *newPathLabel = new TpFilePathWidgetItem(this);
-    //     newPathLabel->setChecked(false);
-    //     newPathLabel->setEnableBackGroundColor(true);
-    //     newPathLabel->setAlign(Tp::AlignHCenter);
-    //     newPathLabel->setText(subPath);
-    //     newPathLabel->setProperty("Path", curAllPath);
-    //     newPathLabel->installEventFilter(this);
-    //     newPathLabel->setHeight(height());
-
-    //     if (startFindIndex == buttonData->pathLabelList.size())
-    //         ++startFindIndex;
-
-    //     buttonData->pathLabelList.emplace_back(newPathLabel);
-    // }
-
-    // // 释放不需要的路径
-    // uint32_t removeCount = buttonData->pathLabelList.size() - startFindIndex;
-    // for (int i = 0; i < removeCount; ++i)
-    // {
-    //     TpFilePathWidgetItem *curShowLabel = buttonData->pathLabelList.back();
-    //     buttonData->pathLabelList.pop_back();
-
-    //     curShowLabel->deleteLater();
-    // }
 
     // 最后一个item选中
     if (buttonData->pathLabelList.size() > 0)
@@ -291,7 +240,7 @@ bool TpFilePathWidget::eventFilter(TpObject *watched, TpEvent *event)
 
     }
 
-    return true;
+    return false;
 }
 
 void TpFilePathWidget::onThemeChangeEvent(TpThemeChangeEvent *event)
