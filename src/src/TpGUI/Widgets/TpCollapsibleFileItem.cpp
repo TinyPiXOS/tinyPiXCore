@@ -119,25 +119,23 @@ TpCollapsibleFileItem::TpCollapsibleFileItem(TpWidget *parent)
     itemData->iconLabel->setFixedSize(curCssData->iconSize(), curCssData->iconSize());
     itemData->iconLabel->installEventFilter(this);
 
-    // itemData->iconLabel->setBackGroundColor(_RGB(255, 0, 0));
-
     itemData->nameLabel = new TpLabel(this);
-    itemData->nameLabel->setAlign(Tp::AlignHCenter);
+    // itemData->nameLabel->setBackGroundColor(_RGB(255, 0, 0));
+    itemData->nameLabel->setAlign(Tp::AlignCenter);
     itemData->nameLabel->font()->setFontSize(curCssData->fontSize());
     itemData->nameLabel->font()->setFontColor(curCssData->color());
     itemData->nameLabel->setWordWrap(false);
-    // itemData->nameLabel->setBackGroundColor(_RGB(255, 0, 0));
     itemData->nameLabel->installEventFilter(this);
 
     itemData->sizeLabel = new TpLabel(this);
-    itemData->sizeLabel->setAlign(Tp::AlignHCenter);
+    itemData->sizeLabel->setAlign(Tp::AlignCenter);
     itemData->sizeLabel->font()->setFontSize(curCssData->fontSize());
     itemData->sizeLabel->font()->setFontColor(_RGB(140, 140, 140));
     itemData->sizeLabel->setText("0Kb");
     itemData->sizeLabel->installEventFilter(this);
 
     itemData->typeLabel = new TpLabel(this);
-    itemData->typeLabel->setAlign(Tp::AlignHCenter);
+    itemData->typeLabel->setAlign(Tp::AlignCenter);
     itemData->typeLabel->font()->setFontSize(curCssData->fontSize());
     itemData->typeLabel->font()->setFontColor(_RGB(140, 140, 140));
     itemData->typeLabel->setText("未知");
@@ -148,7 +146,7 @@ TpCollapsibleFileItem::TpCollapsibleFileItem(TpWidget *parent)
 
     itemData->mainLayout = new TpVBoxLayout();
     itemData->mainLayout->setContentsMargins(0, 0, 0, 0);
-    itemData->mainLayout->setSpacing(2);
+    itemData->mainLayout->setSpacing(0);
     itemData->mainLayout->addWidget(itemData->iconLabel);
     itemData->mainLayout->addWidget(itemData->nameLabel);
     itemData->mainLayout->addWidget(itemData->sizeLabel);
@@ -190,9 +188,9 @@ void TpCollapsibleFileItem::setName(const TpString &name)
     itemData->nameLabel->setText(name);
     // itemData->nameLabel->update();
 
-    setMinumumHeight(itemData->mainLayout->minumumSize().height());
+    // setMinumumHeight(itemData->mainLayout->minumumSize().height());
 
-    update();
+    // update();
 }
 
 void TpCollapsibleFileItem::setPath(const TpString &filePath)
@@ -345,5 +343,5 @@ bool TpCollapsibleFileItem::eventFilter(TpObject *watched, TpEvent *event)
 
     }
 
-    return true;
+    return false;
 }

@@ -65,18 +65,20 @@ TpCollapsibleFileWidget::TpCollapsibleFileWidget(TpWidget *parent)
     TpCollapsibleFileWidgetData *widgetData = new TpCollapsibleFileWidgetData();
 
     widgetData->titleLabel = new TpLabel(this);
-    widgetData->titleLabel->installEventFilter(this);
+    widgetData->titleLabel->setAlign(Tp::AlignVCenter);
     widgetData->titleLabel->setFixedHeight(TpDisplay::dp2Px(30));
+    widgetData->titleLabel->installEventFilter(this);
 
     widgetData->subTitleLabel = new TpLabel(this);
-    // widgetData->subTitleLabel->setBackGroundColor(_RGB(255, 0, 0));
+    widgetData->subTitleLabel->setAlign(Tp::AlignVCenter);
     widgetData->subTitleLabel->setFixedHeight(TpDisplay::dp2Px(30));
     widgetData->subTitleLabel->font()->setFontColor(_RGB(140, 140, 140));
     widgetData->subTitleLabel->installEventFilter(this);
 
     widgetData->countLabel = new TpLabel(this);
-    widgetData->countLabel->installEventFilter(this);
+    widgetData->countLabel->setAlign(Tp::AlignVCenter);
     widgetData->countLabel->setFixedHeight(TpDisplay::dp2Px(30));
+    widgetData->countLabel->installEventFilter(this);
 
     TpLine *subLine = new TpLine();
     subLine->setLineType(TpLine::VLine);

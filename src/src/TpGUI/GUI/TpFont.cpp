@@ -147,6 +147,9 @@ void TpFont::setAlign(Tp::Alignment align)
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     fontData->alignFlag = align;
 
+    if (fontData->text.empty())
+        return;
+
     float x = 0;
     float y = 0;
     // 处理水平对齐

@@ -185,8 +185,8 @@ TpCollapsibleFileItem {
     font-size: 9dp;
     icon-size: 75dp;
     gap: 20dp;
-    min-width: 131dp;
-    min-height: 130;
+    min-width: 100;
+    min-height: 135;
 }
 
 TpMediaTileButton {

@@ -8,69 +8,69 @@
 
 int32_t main(int32_t argc, char *argv[])
 {
-	TpApp app(argc, argv);
-	TpMainWindow *vScreen = new TpMainWindow();
-	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 200));
-	
+    TpApp app(argc, argv);
 
-	TpDialog *floatScreenH = new TpDialog();
-	floatScreenH->setBackGroundColor(_RGBA(255, 255, 255, 200));
-	floatScreenH->setRect(0, 0, 900, 600);
-	floatScreenH->setWindowOpacity(0.5);
-	floatScreenH->setBeMoved(true);
+    TpMainWindow *vScreen = new TpMainWindow();
+    vScreen->setBackGroundColor(_RGBA(128, 128, 128, 200));
 
-	TpDialog *floatScreenV = new TpDialog();
-	floatScreenV->setBackGroundColor(_RGBA(255, 255, 255, 200));
-	floatScreenV->setRect(10, 100, 400, 650);
-	floatScreenV->setWindowOpacity(0.5);
-	floatScreenV->setBeMoved(true);
+    TpDialog *floatScreenH = new TpDialog();
+    floatScreenH->setBackGroundColor(_RGBA(255, 255, 255, 200));
+    floatScreenH->setRect(0, 0, 900, 600);
+    // floatScreenH->setWindowOpacity(0.5);
+    floatScreenH->setBeMoved(true);
 
-	TpHBoxLayout *hLayout = new TpHBoxLayout();
-	hLayout->setDirection(TpBoxLayout::RightToLeft);
+    TpDialog *floatScreenV = new TpDialog();
+    floatScreenV->setBackGroundColor(_RGBA(255, 255, 255, 200));
+    floatScreenV->setRect(10, 100, 400, 650);
+    // floatScreenV->setWindowOpacity(0.5);
+    floatScreenV->setBeMoved(true);
 
-	TpVBoxLayout *vLayout = new TpVBoxLayout();
-	vLayout->setDirection(TpBoxLayout::BottomToTop);
+    TpHBoxLayout *hLayout = new TpHBoxLayout();
+    hLayout->setDirection(TpBoxLayout::RightToLeft);
 
-	TpVBoxLayout *sonLayout = new TpVBoxLayout();
-	sonLayout->setContentsMargins(0, 0, 0, 0);
+    TpVBoxLayout *vLayout = new TpVBoxLayout();
+    vLayout->setDirection(TpBoxLayout::BottomToTop);
 
-	TpHBoxLayout *son2Layout = new TpHBoxLayout();
-	son2Layout->setContentsMargins(0, 0, 0, 0);
+    TpVBoxLayout *sonLayout = new TpVBoxLayout();
+    sonLayout->setContentsMargins(0, 0, 0, 0);
 
-	for (int i = 0; i < 4; ++i)
-	{
-		TpButton *testButton = new TpButton("测试按钮" + TpString::number(i));
-		TpButton *testButton2 = new TpButton("测试按钮" + TpString::number(i));
-		TpButton *testButton3 = new TpButton("子按钮" + TpString::number(i));
-		TpButton *testButton4 = new TpButton("二级子按钮" + TpString::number(i));
+    TpHBoxLayout *son2Layout = new TpHBoxLayout();
+    son2Layout->setContentsMargins(0, 0, 0, 0);
 
-		testButton->setMinimumSize(100, 40);
-		testButton2->setMinimumSize(100, 40);
-		testButton3->setMinimumSize(100, 40);
-		testButton4->setMinimumSize(100, 40);
+    for (int i = 0; i < 4; ++i)
+    {
+        TpButton *testButton = new TpButton("测试按钮" + TpString::number(i));
+        TpButton *testButton2 = new TpButton("测试按钮" + TpString::number(i));
+        TpButton *testButton3 = new TpButton("子按钮" + TpString::number(i));
+        TpButton *testButton4 = new TpButton("二级子按钮" + TpString::number(i));
 
-		testButton->setBackGroundColor(_RGB(255, 15, 15));
-		testButton2->setBackGroundColor(_RGB(255, 15, 15));
+        testButton->setMinimumSize(100, 40);
+        testButton2->setMinimumSize(100, 40);
+        testButton3->setMinimumSize(100, 40);
+        testButton4->setMinimumSize(100, 40);
 
-		hLayout->addWidget(testButton, i + 1);
-		vLayout->addWidget(testButton2, i + 1);
+        testButton->setBackGroundColor(_RGB(255, 15, 15));
+        testButton2->setBackGroundColor(_RGB(255, 15, 15));
 
-		sonLayout->addWidget(testButton3, i + 1);
-		son2Layout->addWidget(testButton4, i + 1);
-	}
-	sonLayout->addLayout(son2Layout);
-	hLayout->addLayout(sonLayout, 3);
+        hLayout->addWidget(testButton, i + 1);
+        vLayout->addWidget(testButton2, i + 1);
 
-	hLayout->addSpacer(new TpSpacerItem(100, 20, TpSpacerItem::Expanding, TpSpacerItem::Minimum));
-	vLayout->addSpacer(new TpSpacerItem(100, 20, TpSpacerItem::Minimum, TpSpacerItem::Expanding));
+        sonLayout->addWidget(testButton3, i + 1);
+        son2Layout->addWidget(testButton4, i + 1);
+    }
+    sonLayout->addLayout(son2Layout);
+    hLayout->addLayout(sonLayout, 3);
 
-	floatScreenH->setLayout(hLayout);
-	floatScreenV->setLayout(vLayout);
+    hLayout->addSpacer(new TpSpacerItem(100, 20, TpSpacerItem::Expanding, TpSpacerItem::Minimum));
+    vLayout->addSpacer(new TpSpacerItem(100, 20, TpSpacerItem::Minimum, TpSpacerItem::Expanding));
 
-	floatScreenH->update();
-	floatScreenV->update();
+    floatScreenH->setLayout(hLayout);
+    floatScreenV->setLayout(vLayout);
 
-	vScreen->update();
+    floatScreenH->update();
+    floatScreenV->update();
 
-	return app.run();
+    vScreen->update();
+
+    return app.run();
 }
