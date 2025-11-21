@@ -135,6 +135,8 @@ static inline tvg::Fill *parseGradientPtr(TpPainterData *painterData)
     TpGradient *brushGradientPtr = nullptr;
 
     TpBrush gradientBrush = painterData->drawBrush;
+    TpBrush penBrush = painterData->drawPen.brush();
+
     if (gradientBrush.style() == Tp::LinearGradientPattern ||
         gradientBrush.style() == Tp::RadialGradientPattern)
     {
@@ -142,7 +144,6 @@ static inline tvg::Fill *parseGradientPtr(TpPainterData *painterData)
     }
     else
     {
-        TpBrush penBrush = painterData->drawPen.brush();
         if (penBrush.style() == Tp::LinearGradientPattern ||
             penBrush.style() == Tp::RadialGradientPattern)
         {
