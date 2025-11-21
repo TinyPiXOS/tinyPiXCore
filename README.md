@@ -159,7 +159,6 @@ git clone https://gitee.com/tinypixos/TinyPiXOS.git
 ```bash
 sudo apt install \
   libsdl2-dev libglib2.0-dev \
-  libfontconfig-dev libfreetype-dev \
   libgbm-dev libgles2 libegl-dev \
   libasound2-dev libssl-dev libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libswresample-dev \

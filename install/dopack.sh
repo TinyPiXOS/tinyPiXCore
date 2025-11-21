@@ -358,8 +358,7 @@ echo "映射文件: $MAPPING_FILE"
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
     libsdl2-dev libdrm-dev libudev-dev
-	libcairo2-dev libpango1.0-dev libglib2.0-dev \
-	libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
+	libglib2.0-dev \
 	libgbm-dev libgles2 libegl-dev \
 	libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
 	libavutil-dev libswscale-dev libswresample-dev \
