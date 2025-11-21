@@ -222,6 +222,15 @@ make
 make install
 ```
 
+### 环境变量
+
+将生成库目录添加至系统环境变量
+
+```bash
+gedit ~/.bashrc
+export LD_LIBRARY_PATH="/usr/lib/TinyPiX:$LD_LIBRARY_PATH"
+```
+
 ### 卸载
 
 ```bash
