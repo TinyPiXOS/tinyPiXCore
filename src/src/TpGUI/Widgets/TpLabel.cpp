@@ -94,14 +94,16 @@ void TpLabel::setText(const TpString &text)
     // 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
     if (!isFixedWidth())
     {
-        if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
-        {
-            setMinumumWidth(TpDisplay::dp2Px(131));
-        }
-        else
-        {
-            setMinumumWidth(labelData->font->pixelWidth());
-        }
+        setMinumumWidth(labelData->font->pixelWidth());
+
+        // if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
+        // {
+        //     setMinumumWidth(TpDisplay::dp2Px(131));
+        // }
+        // else
+        // {
+        //     setMinumumWidth(labelData->font->pixelWidth());
+        // }
     }
     if (!isFixedHeight())
     {
@@ -186,14 +188,16 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
     // 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
     if (!isFixedWidth())
     {
-        if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
-        {
-            setMinumumWidth(TpDisplay::dp2Px(131));
-        }
-        else
-        {
-            setMinumumWidth(labelData->font->pixelWidth());
-        }
+        setMinumumWidth(labelData->font->pixelWidth());
+
+        // if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
+        // {
+        //     setMinumumWidth(TpDisplay::dp2Px(131));
+        // }
+        // else
+        // {
+        //     setMinumumWidth(labelData->font->pixelWidth());
+        // }
     }
     // 下边计算完行数，设置最小高度
     if (!isFixedHeight())

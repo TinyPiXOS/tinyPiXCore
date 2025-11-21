@@ -1,5 +1,5 @@
 #include <iostream>
-#include "TpSound.h"
+#include "Media/TpSound.h"
 
 //硬件全局音量设置
 //硬件音量和实际设置值可讷讷个会有略微偏差

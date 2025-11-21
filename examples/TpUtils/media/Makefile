@@ -9,7 +9,6 @@ LIB_PATH ?= -L/usr/lib -L/usr/lib/TinyPiX
 INC_PATH ?= -I. \
       -I/usr/include \
       -I/usr/include/SDL2 \
-      
       -I/usr/include/harfbuzz \
       -I/usr/include/glib-2.0 \
       -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
@@ -43,8 +42,8 @@ Hard:
 	$(G++) $(CFLAGS) -c hard.cpp $(INC_PATH)
 	$(G++) $(CFLAGS) -o Hard hard.o $(LIB) $(LIB_PATH)
 Record:
-	$(G++) $(CFLAGS) -c Record.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Record Record.o $(LIB) $(LIB_PATH)
+	$(G++) $(CFLAGS) -c record.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Record record.o $(LIB) $(LIB_PATH)
 clean:
 	rm *.o
 
