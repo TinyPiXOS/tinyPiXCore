@@ -16,7 +16,8 @@ class TpJsonArray;
 class TpJsonValue
 {
 public:
-    rapidjson::Value value_; ///< @brief 底层的rapidjson值对象
+    rapidjson::Value value_;
+    rapidjson::Document document_;
 
     /// @brief 默认构造函数，创建空值（Null）
     TpJsonValue() : value_(rapidjson::kNullType) {}
@@ -47,11 +48,11 @@ public:
 
     /// @brief 从C字符串构造JSON值
     /// @param str C风格字符串
-    TpJsonValue(const char *str) : value_(str, strlen(str)) {}
+    TpJsonValue(const char *str) { value_.SetString(str, strlen(str), document_.GetAllocator()); }
 
     /// @brief 从字符串对象构造JSON值
     /// @param str tpString字符串对象
-    TpJsonValue(const TpString &str) : value_(str.c_str(), str.length()) {}
+    TpJsonValue(const TpString &str) { value_.SetString(str.c_str(), str.length(), document_.GetAllocator()); }
 
     /// @brief 拷贝构造函数
     /// @param others 源JSON值

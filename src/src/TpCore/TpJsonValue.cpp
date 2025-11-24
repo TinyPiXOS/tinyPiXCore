@@ -71,10 +71,9 @@ TpJsonArray TpJsonValue::toArray() const
 
 TpJsonValue& TpJsonValue::operator=(const TpJsonValue &others)
 {
-    rapidjson::Document jsonDoc;
-    jsonDoc.CopyFrom(others.value_, jsonDoc.GetAllocator());
-
-    value_.CopyFrom(others.value_, jsonDoc.GetAllocator(), true);  // true 表示深拷贝
+    // rapidjson::Document jsonDoc;
+    document_.CopyFrom(others.document_, document_.GetAllocator());
+    value_.CopyFrom(others.value_, document_.GetAllocator(), true);  // true 表示深拷贝
 
     return *this;
 }
