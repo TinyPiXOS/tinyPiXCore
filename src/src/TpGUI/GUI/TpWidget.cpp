@@ -78,23 +78,16 @@ void TpWidget::deleteLater()
         TpWidgetData *topData = static_cast<TpWidgetData *>(widgetData->top->objectSets());
         topData->tmp.deleteObject(this);
 
-        // 删除所有子节点
-        for (auto childIter = widgetData->objectList.begin(); childIter != widgetData->objectList.end(); ++childIter)
+        // 移除顶部节点缓存的widget节点
+        for (const auto &child : widgetData->objectList)
         {
-            (*childIter)->uninstallEventFilter();
-            topData->tmp.deleteObject((*childIter));
-            (*childIter)->deleteLater();
-
-            childIter = widgetData->objectList.begin();
+            topData->tmp.deleteObject(child);
         }
-
-        widgetData->objectList.clear();
     }
 
     TpObject::deleteLater();
 
     setParent(nullptr);
-
     uninstallEventFilter();
 }
 

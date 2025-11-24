@@ -26,7 +26,7 @@ TpListWidgetItem::TpListWidgetItem(TpWidget *parent)
     tpShared<TpCssData> normalCss = currentStatusCss();
     itemData->titleLabel->font()->setText("TpMenu");
     itemData->titleLabel->font()->setFontSize(normalCss->fontSize());
-    itemData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+    itemData->titleLabel->font()->setFontColor(normalCss->color());
 
     itemData->selectIconLabel->setFixedSize(itemData->titleLabel->font()->pixelHeight(), itemData->titleLabel->font()->pixelHeight());
 
@@ -52,7 +52,7 @@ TpListWidgetItem::TpListWidgetItem(const TpString &text, TpWidget *parent)
     tpShared<TpCssData> normalCss = currentStatusCss();
     itemData->titleLabel->font()->setText("TpMenu");
     itemData->titleLabel->font()->setFontSize(normalCss->fontSize());
-    itemData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+    itemData->titleLabel->font()->setFontColor(normalCss->color());
 
     itemData->selectIconLabel->setFixedSize(itemData->titleLabel->font()->pixelHeight(), itemData->titleLabel->font()->pixelHeight());
 
@@ -107,7 +107,7 @@ bool TpListWidgetItem::onPaintEvent(TpPaintEvent *event)
     tpShared<TpCssData> normalCss = currentStatusCss();
 
     itemData->titleLabel->font()->setFontSize(normalCss->fontSize());
-    itemData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+    itemData->titleLabel->font()->setFontColor(normalCss->color());
 
     itemData->selectIconLabel->setVisible(checked());
 

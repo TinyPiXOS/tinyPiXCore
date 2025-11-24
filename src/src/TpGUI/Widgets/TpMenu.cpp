@@ -52,7 +52,7 @@ TpMenu::TpMenu() : TpDialog(), data_(nullptr)
 
     menuData->font->setText("TpMenu");
     menuData->font->setFontSize(normalCss->fontSize());
-    menuData->font->setFontColor(normalCss->color(), normalCss->color());
+    menuData->font->setFontColor(normalCss->color());
 
     menuData->itemHeight = menuData->font->pixelHeight() + normalCss->paddingTop() + normalCss->paddingBottom();
 
@@ -280,7 +280,7 @@ bool TpMenu::onPaintEvent(TpPaintEvent *event)
 
     tpShared<TpCssData> normalCss = currentStatusCss();
     menuData->font->setFontSize(normalCss->fontSize());
-    menuData->font->setFontColor(normalCss->color(), normalCss->color());
+    menuData->font->setFontColor(normalCss->color());
 
     for (int i = 0; i < menuData->itemList.size(); ++i)
     {

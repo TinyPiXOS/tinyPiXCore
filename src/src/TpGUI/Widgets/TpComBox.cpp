@@ -40,14 +40,14 @@ TpComBox::TpComBox(TpWidget *parent)
 
     cbxData->titleLabel = new TpLabel(this);
     cbxData->titleLabel->font()->setFontSize(normalCss->fontSize());
-    cbxData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+    cbxData->titleLabel->font()->setFontColor(normalCss->color());
     // cbxData->titleLabel->font()->setFontStyle(TINY_FONT_BOLD);
     cbxData->titleLabel->setFixedHeight(normalCss->minimumHeight());
 
     cbxData->curItemLabel = new TpLabel(this);
     // cbxData->curItemLabel->setText("测试");
     cbxData->curItemLabel->font()->setFontSize(normalCss->fontSize());
-    cbxData->curItemLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+    cbxData->curItemLabel->font()->setFontColor(normalCss->color());
     cbxData->curItemLabel->installEventFilter(this);
     cbxData->titleLabel->setFixedHeight(normalCss->minimumHeight());
 

@@ -793,7 +793,7 @@ TpCandidateWidget::TpCandidateWidget(TpWidget *parent)
     : TpWidget(parent), cachePinyin_(""), textFont_(new TpFont()), curWordOffset_(0)
 {
     textFont_->setFontSize(15);
-    textFont_->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
+    textFont_->setFontColor(_RGB(38, 38, 38));
 
     // setBackGroundColor(_RGB(255, 0, 0));
 }

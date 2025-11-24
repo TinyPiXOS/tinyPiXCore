@@ -48,7 +48,7 @@ TpOnOffButton::TpOnOffButton(TpWidget *parent, const Direction &horizontal)
     btnData->direction = horizontal;
 
     // btnData->font = new TpFont();
-    // btnData->font->setFontColor(_RGB(0, 0, 0),_RGB(0, 0, 0));
+    // btnData->font->setFontColor(_RGB(0, 0, 0));
 
     setEnableBackGroundColor(false);
     setEnabledBorderColor(false);

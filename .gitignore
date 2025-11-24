@@ -141,3 +141,5 @@ examples/TpUtils/SystemLib/System
 examples/TpUtils/TpHardwarePwm/Pwm
 
 
+examples/TpGUI/TpCollapsibleFileWidget/fileWidget
+examples/TpGUI/TpLayout/layout

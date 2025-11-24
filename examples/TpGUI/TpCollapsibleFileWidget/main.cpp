@@ -5,33 +5,37 @@
 
 int32_t main(int32_t argc, char *argv[])
 {
-	TpApp app(argc, argv);
-	TpMainWindow *vScreen = new TpMainWindow();
-	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	
-	
+    TpApp app(argc, argv);
 
-    TpCollapsibleFileWidget *testFileWidget = new TpCollapsibleFileWidget(vScreen);
-    testFileWidget->setTitle("今天");
-    testFileWidget->setSubTitle("2月14日");
-    testFileWidget->setBackGroundColor(_RGB(0, 255, 0));
+    TpMainWindow *vScreen = new TpMainWindow();
+    vScreen->setBackGroundColor(_RGBA(230, 230, 230, 255));
 
-	for (int i = 0; i < 10; ++i)
-    {
-        TpCollapsibleFileItem *item = new TpCollapsibleFileItem();
-        // item->setFixedSize(100, 100);
-        // item->setBackGroundColor(_RGB(255, 0, 0));
-        item->setName(TpString::number(i) + ".png");
-        // item->setSize(i * 1e3);
-        item->setPath("");
+    TpCollapsibleFileItem *itemTest = new TpCollapsibleFileItem(vScreen);
+    itemTest->setName("cross");
+    itemTest->setPath("/home/hawk/Public/TinyPiXOS/examples/TpGUI/TpCollapsibleFileWidget/cross");
+    itemTest->setRect(50, 150, 150, 150);
 
-        testFileWidget->addFileItem(item);
-    }
+    // TpCollapsibleFileWidget *testFileWidget = new TpCollapsibleFileWidget(vScreen);
+    // testFileWidget->setTitle("今天");
+    // testFileWidget->setSubTitle("2月14日");
+    // testFileWidget->setBackGroundColor(_RGB(0, 255, 0));
 
-	// testFileWidget->setFixedSize(700, 150);
-	testFileWidget->setSize(700, 0);
-    testFileWidget->move(10, 10);
+    // for (int i = 0; i < 10; ++i)
+    // {
+    //     TpCollapsibleFileItem *item = new TpCollapsibleFileItem();
+    //     // item->setFixedSize(100, 100);
+    //     // item->setBackGroundColor(_RGB(255, 0, 0));
+    //     item->setName(TpString::number(i) + ".png");
+    //     // item->setSize(i * 1e3);
+    //     item->setPath("");
 
-	vScreen->update();
-	return app.run();
+    //     testFileWidget->addFileItem(item);
+    // }
+
+    // // testFileWidget->setFixedSize(700, 150);
+    // testFileWidget->setSize(700, 0);
+    // testFileWidget->move(10, 10);
+
+    vScreen->update();
+    return app.run();
 }

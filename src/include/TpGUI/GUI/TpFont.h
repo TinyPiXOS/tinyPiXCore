@@ -20,10 +20,9 @@ public:
     TpFont(const TpString &language = DEFAULT_FONT_FAMILY, int32_t defaultPtSize = 12);
     virtual ~TpFont();
 
+    /// @brief 设置字体名称；如果字体不存在则使用默认
+    /// @param language 字体名称
     virtual void setLanguage(const TpString &language);
-
-    // 临时接口，兼容以前写法
-    virtual void setFontColor(int32_t color, int32_t color2);
 
     /// @brief 设置字体轮廓和填充颜色
     /// @param color 颜色值
@@ -59,21 +58,31 @@ public:
     void setWrap(bool wrap);
     bool wrap();
 
-    /// @brief 布局宽高；根据布局宽高实现自动换行和居中
+    /// @brief 布局宽高；根据布局宽高实现自动换行和居中模式
     /// @param w 宽度值
     /// @param h 高度值
     void setLayout(int32_t w, int32_t h);
+    /// @brief 布局宽高；根据布局宽高实现自动换行和居中模式
+    /// @param size 布局尺寸
+    void setLayout(const TpSize &size);
 
+    /// @brief 获取布局宽度
+    /// @return 布局宽度
     int32_t layoutWidth();
+    /// @brief 获取布局高度
+    /// @return 布局高度
     int32_t layoutHeight();
+    /// @brief 获取布局尺寸
+    /// @return 布局尺寸
+    TpSize layoutSize();
 
-    /// @brief 设置基于Layout的居中属性
+    /// @brief 设置基于Layout的居中模式
     /// @param align 布局属性
     void setAlign(Tp::Alignment align = Tp::AlignLeft);
-
+    /// @brief 获取字体居中模式
+    /// @return 居中模式
     Tp::Alignment align();
 
-public:
     /// @brief 获取字体大小 px
     /// @return px值
     int32_t fontSize();
@@ -88,9 +97,14 @@ public:
     /// @return 文本字符串
     TpString text() const;
 
-public:
+    /// @brief 获取当前字体宽度
+    /// @return 宽度值
     virtual int32_t pixelWidth();
+    /// @brief 获取当前字体高度
+    /// @return 高度值
     virtual int32_t pixelHeight();
+    /// @brief 获取当前字体尺寸
+    /// @return 尺寸
     virtual TpSize pixelSize();
 
     friend class TpPainter;
@@ -112,7 +126,7 @@ public:
     /// @brief 指定字体文件路径加载字库;使用该字体时字体名需与文件名保持一致
     /// @param fontPath 字体(TTF)文件绝对路径
     /// @return 加载结果
-    static bool loadFont(const TpString& fontPath);
+    static bool loadFont(const TpString &fontPath);
 
 private:
     ITpFontFamilyData *familySet;

@@ -326,12 +326,12 @@ bool TpTabBar::onPaintEvent(TpPaintEvent *event)
 
         if (buttonData.isSelected)
         {
-            buttonData.textLabel->font()->setFontColor(focusCss->color(), focusCss->color());
+            buttonData.textLabel->font()->setFontColor(focusCss->color());
             buttonData.iconLabel->setBackGroundImage(buttonData.selectedIcon);
         }
         else
         {
-            buttonData.textLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+            buttonData.textLabel->font()->setFontColor(normalCss->color());
             buttonData.iconLabel->setBackGroundImage(buttonData.normalIcon);
         }
     }

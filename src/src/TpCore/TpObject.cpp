@@ -27,10 +27,18 @@ TpObject::~TpObject()
 
     objData->gMutex.lock();
 
+    // 从当前节点的父节点移除当前节点
     if (objData->parent)
     {
         TpObjectData *parentSet = (TpObjectData *)objData->parent->objectSets();
         delObject(parentSet, this);
+    }
+
+    // 删除当前节点的所有子节点
+    for (auto &child : objData->objectList)
+    {
+        delete child;
+        child = nullptr;
     }
 
     objData->objectList.clear();
@@ -131,13 +139,10 @@ void TpObject::deleteLater()
     disconnectAllSignal(objData);
 
     // 删除所有子节点
-    for (auto childIter = objData->objectList.begin(); childIter != objData->objectList.end(); ++childIter)
+    for (const auto &child : objData->objectList)
     {
-        (*childIter)->uninstallEventFilter();
-        (*childIter)->deleteLater();
-        childIter = objData->objectList.begin();
+        child->uninstallEventFilter();
     }
-    objData->objectList.clear();
 
     TpCoreApp::Inst()->sendDelete(this);
 }

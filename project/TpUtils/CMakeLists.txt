@@ -195,13 +195,11 @@ endif()
 # 添加包含目录
 include_directories(${SYSTEM_INCLUDE_PATH})
 include_directories(${SYSTEM_INCLUDE_PATH}/SDL2)
-include_directories(${SYSTEM_INCLUDE_PATH}/freetype2)
 include_directories(${SYSTEM_INCLUDE_PATH}/dbus-1.0)
 include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0/librsvg/)
 include_directories(${SYSTEM_INCLUDE_PATH}/librsvg-2.0)
 include_directories(${SYSTEM_INCLUDE_PATH}/gdk-pixbuf-2.0)
 include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
-#include_directories(${SYSTEM_INCLUDE_PATH}/json-c)
 
 include_directories(/usr/lib/x86_64-linux-gnu/dbus-1.0/include)
 include_directories(/usr/lib/aarch64-linux-gnu/dbus-1.0/include)
@@ -258,8 +256,6 @@ endif()
 LoadSDKLibrary(SDL2_LIBRARY SDL2)
 LoadSDKLibrary(GOBJECT_LIBRARY gobject-2.0)
 LoadSDKLibrary(GLIB_LIBRARY glib-2.0)
-LoadSDKLibrary(FONTCONFIG_LIBRARY fontconfig)
-LoadSDKLibrary(FREETYPE_LIBRARY freetype)
 LoadSDKLibrary(GBM_LIBRARY gbm)
 LoadSDKLibrary(GLESV2_LIBRARY GLESv2)
 LoadSDKLibrary(EGL_LIBRARY EGL)
@@ -293,13 +289,10 @@ target_link_libraries(TpUtils PUBLIC
     ${OPENSSL3_LIB_STATIC_LIB} ${CRYPTO3_LIB_STATIC_LIB} 
     ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} 
     ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB}
-    ${SDL2_LIBRARY}
-    ${GOBJECT_LIBRARY} ${GLIB_LIBRARY}
-    ${FONTCONFIG_LIBRARY} ${FREETYPE_LIBRARY} ${GBM_LIBRARY}
+    ${SDL2_LIBRARY} ${GOBJECT_LIBRARY} ${GLIB_LIBRARY} ${GBM_LIBRARY}
     ${GLESV2_LIBRARY} ${EGL_LIBRARY} ${GIO_LIBRARY} ${RSVG_LIBRARY}
-    ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB}
     ${AVFILTER_LIBRARY} ${AVFORMAT_LIBRARY}
-    ${JSONC_LIBRARY} ${ASOUND_LIBRARY} ${AVCODEC_LIBRARY} ${SWSCALE_LIBRARY}
+    ${ASOUND_LIBRARY} ${AVCODEC_LIBRARY} ${SWSCALE_LIBRARY}
     ${AVUTIL_LIBRARY} ${SWRESAMPLE_LIBRARY} ${AVDEVICE_LIBRARY}
     ${BLUETOOTH_LIBRARY} ${DBUS_LIBRARY} ${USB_LIBRARY} ${UDEV_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3

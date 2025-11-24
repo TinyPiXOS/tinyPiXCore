@@ -42,12 +42,6 @@ void TpFont::setLanguage(const TpString &language)
     }
 }
 
-void TpFont::setFontColor(int32_t color, int32_t color2)
-{
-    setFontForeColor(color);
-    setFontBackColor(color2);
-}
-
 void TpFont::setFontColor(int32_t color)
 {
     setFontForeColor(color);
@@ -125,6 +119,11 @@ void TpFont::setLayout(int32_t w, int32_t h)
     setAlign(align());
 }
 
+void TpFont::setLayout(const TpSize &size)
+{
+    setLayout(size.width(), size.height());
+}
+
 int32_t TpFont::layoutWidth()
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);
@@ -137,10 +136,19 @@ int32_t TpFont::layoutHeight()
     return fontData->wrapLayout.height();
 }
 
+TpSize TpFont::layoutSize()
+{
+    TpFontData *fontData = static_cast<TpFontData *>(data_);
+    return fontData->wrapLayout;
+}
+
 void TpFont::setAlign(Tp::Alignment align)
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);
     fontData->alignFlag = align;
+
+    if (fontData->text.empty())
+        return;
 
     float x = 0;
     float y = 0;

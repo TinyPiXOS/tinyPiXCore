@@ -143,7 +143,7 @@ bool TpSlider::onMousePressEvent(TpMouseEvent *event)
         {
             // 点击位置占高度度的百分比
             float pressPointPercent = 1.0 * mousePoint.y() / height();
-            float pressValue = pressPointPercent * (sliderData->maxValue - sliderData->minValue) + sliderData->minValue;
+            float pressValue = (1.0 - pressPointPercent) * (sliderData->maxValue - sliderData->minValue) + sliderData->minValue;
 
             if (pressValue != sliderData->value)
                 valueChanged.emit(pressValue);

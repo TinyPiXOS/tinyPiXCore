@@ -159,7 +159,6 @@ git clone https://gitee.com/tinypixos/TinyPiXOS.git
 ```bash
 sudo apt install \
   libsdl2-dev libglib2.0-dev \
-  libfontconfig-dev libfreetype-dev \
   libgbm-dev libgles2 libegl-dev \
   libasound2-dev libssl-dev libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libswresample-dev \
@@ -221,6 +220,15 @@ cmake --preset=arm64-release \
     -DARM_SDK_PATH=/your/sdk/path
 make
 make install
+```
+
+### 环境变量
+
+将生成库目录添加至系统环境变量
+
+```bash
+gedit ~/.bashrc
+export LD_LIBRARY_PATH="/usr/lib/TinyPiX:$LD_LIBRARY_PATH"
 ```
 
 ### 卸载

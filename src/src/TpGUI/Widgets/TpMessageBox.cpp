@@ -39,10 +39,10 @@ TpMessageBox::TpMessageBox(MessageType type)
     TpMessageBoxData *messageData = new TpMessageBoxData();
 
     messageData->font->setFontSize(20);
-    messageData->font->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
+    messageData->font->setFontColor(_RGB(38, 38, 38));
 
     messageData->btnFont->setFontSize(17);
-    messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
+    messageData->btnFont->setFontColor(BtnFontColor);
 
     data_ = messageData;
 
@@ -60,10 +60,10 @@ TpMessageBox::TpMessageBox(const TpString &text, MessageType type)
     TpMessageBoxData *messageData = new TpMessageBoxData();
 
     messageData->font->setFontSize(20);
-    messageData->font->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
+    messageData->font->setFontColor(_RGB(38, 38, 38));
 
     messageData->btnFont->setFontSize(17);
-    messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
+    messageData->btnFont->setFontColor(BtnFontColor);
 
     data_ = messageData;
 
@@ -220,11 +220,11 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
         // 绘制按钮文本
         if ((i == (messageData->btnList.size() - 1)) && messageData->type == TpMessageBox::Question)
         {
-            messageData->btnFont->setFontColor(_RGB(255, 77, 79), _RGB(255, 77, 79));
+            messageData->btnFont->setFontColor(_RGB(255, 77, 79));
         }
         else
         {
-            messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
+            messageData->btnFont->setFontColor(BtnFontColor);
         }
         painter->drawText(*messageData->btnFont, btnTextX, btnTextY);
 
