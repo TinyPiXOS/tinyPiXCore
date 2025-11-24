@@ -367,6 +367,7 @@ extern "C"
             display->format = format;
         }
 #endif
+		display->format = format;
         // 音频硬件初始化设置
         if (alsa_hard_init(display->audio_card, display, &codec_a, user) < 0)
         {

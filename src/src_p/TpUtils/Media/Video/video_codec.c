@@ -562,7 +562,7 @@ extern "C"
                 debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n", rect_src.x, rect_src.y, rect_src.w, rect_src.h,
                              rect_dst.x, rect_dst.y, rect_dst.w, rect_dst.h);
 
-                debug_printf("thread debug:pix_fmt_sour != pix_fmt\n");
+                debug_printf("thread debug:pix_fmt_sour(%d) != pix_fmt(%d)\n",pix_fmt_sour,pix_fmt_dest);
                 swsContext = sws_getContext(video->codec_ctx->width, video->codec_ctx->height, // 创建一个swsContext用于处理图像缩放格式转换
                                             pix_fmt_sour,
                                             // video->codec_ctx->width, video->codec_ctx->height,
