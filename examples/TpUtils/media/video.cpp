@@ -31,16 +31,16 @@ int main()
     TpString device("hw:0,1 USB Audio");
     TpVideoInterface video(device);
     video.setVolume(100);
-    // video.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
+    video.addFile("/System/data/Videos/demo.mp4");
     // video.addFile("/home/pix/Media/hahaha.mp4");
     // video.addFile("/home/pix/Media/gravity.mpg");
     // video.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
     // video.addFile("https://gstreamer.freedesktop.org/data/media/large/gravity.mpg");
-    video.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
+    // video.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
 
     char *data = "Test User Data";
     std::function<int(uint8_t **, int *, uint32_t, void *)> func = callback_display;
-    //	video.setDisplayFunction(&func,data);
+    video.setDisplayFunction(func, data);
     video.openDevice();
     /*	video.setWindowSize(1080,720);
         video.setWindowCoordinates(200,200);
