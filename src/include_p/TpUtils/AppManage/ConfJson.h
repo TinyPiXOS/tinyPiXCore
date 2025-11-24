@@ -27,17 +27,17 @@ public:
     static int findKeyFromFile(const TpString &file_path, const TpString &key, TpString &value);
     // 配置信息写入json
     //static int configAddToJson(PackageExportType type, json_object *exportObj, const TpString &value, const TpString &key);
-	static int configAddToJson(PackageExportType type, TpJsonObject &exportObj, const TpString &value, const TpString &key);
+	static int configAddToJson(PackageExportType type, TpJsonObject &exportObj, const TpString &key, const TpString &value);
     // 安全删除应用从install文件
     // static int del_appuuid_install_safe(TpAppID uuid, const TpString &installPath);
     // 安全新增应用到install文件
     // static int add_appuuid_install_safe(TpAppID uuid, const TpString &installPath);
     // 不加密写入json对象到文件
     //static int writeJsonObjectFile(json_object *root, const TpString &filePath);
-	static int writeJsonObjectFile(TpJsonObject root, const TpString &filePath);
+	static int writeJsonObjectFile(TpJsonObject &root, const TpString &filePath);
     // 加密写入json文件
     //static int writeJsonObjectFileEncryption(json_object *root, const TpString &filePath);
-	static int writeJsonObjectFileEncryption(TpJsonObject root, const TpString &filePath);
+	static int writeJsonObjectFileEncryption(TpJsonObject &root, const TpString &filePath);
     // 从加密的json文件读取字符串json
     static char *readJsonStrFileEncryption(const TpString &filePath);
 };

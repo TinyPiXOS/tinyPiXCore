@@ -7,23 +7,22 @@ G++ = $(CROSS_COMPILE)g++
 LIB_PATH ?= -L/usr/lib -L/usr/lib/TinyPiX
 
 INC_PATH ?= -I. \
-      -I/usr/include \
-      -I/usr/include/SDL2 \
-      
-      -I/usr/include/cairo \
-      -I/usr/include/pango-1.0 \
-      -I/usr/include/harfbuzz \
-      -I/usr/include/glib-2.0 \
-      -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
-      -I/usr/include/TinyPiX \
-      -I/usr/include/TinyPiX/TpCore \
-      -I/usr/include/TinyPiX/TpUtils \
-      -I/usr/include/TinyPiX/TpGUI \
-      -I/usr/include/TinyPiX/TpGUI/Core \
-      -I/usr/include/TinyPiX/TpGUI/Screen \
-      -I/usr/include/TinyPiX/TpGUI/Widgets \
-      -I/usr/include/TinyPiX/TpGUI/app \
-      -I/usr/include/TinyPiX/TpWM
+		-I/usr/include \
+		-I/usr/include/SDL2 \
+		-I/usr/include/cairo \
+		-I/usr/include/pango-1.0 \
+		-I/usr/include/harfbuzz \
+		-I/usr/include/glib-2.0 \
+		-I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
+		-I/usr/include/TinyPiX \
+		-I/usr/include/TinyPiX/TpCore \
+		-I/usr/include/TinyPiX/TpUtils \
+		-I/usr/include/TinyPiX/TpGUI \
+		-I/usr/include/TinyPiX/TpGUI/Core \
+		-I/usr/include/TinyPiX/TpGUI/Screen \
+		-I/usr/include/TinyPiX/TpGUI/Widgets \
+		-I/usr/include/TinyPiX/TpGUI/app \
+		-I/usr/include/TinyPiX/TpWM
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive

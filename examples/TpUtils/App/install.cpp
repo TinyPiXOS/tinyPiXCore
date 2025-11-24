@@ -59,7 +59,15 @@ int main(int argc,char **argv)
 }
 
 
-/*int main()
+
+/*void json_test(TpJsonObject &object)
+{
+	TpString key("test6");
+	TpString value("test6_value");
+	object.insert(key,value);
+}
+
+int main()
 {
 	TpJsonObject object;
 	char test2[20]="test_value\n";
@@ -75,7 +83,8 @@ int main(int argc,char **argv)
 	object.insert("test2",test2);
 	object.insert("test3",test3);
 	object.insert("test4",test4);
-	object.insert("test5",test5);
+	object.insert("test5",test5);	
+	json_test(object);
 
 	TpJsonDocument doc(object);
 	std::cout << "json_doc:"<< doc.toJson() << std::endl;

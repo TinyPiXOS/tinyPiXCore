@@ -127,7 +127,7 @@ TpString TpSystemInfo::getSystemValue(const char *item)
 		if (strncmp(line.c_str(), item, strlen(item)) == 0)
 		{
 			size_t pos = line.find('=');
-			if (pos != std::string::npos)
+			if (pos != TpString::npos)
 				value = line.substr(pos + 2, line.length() - pos - 3);
 			break;
 		}

@@ -1,4 +1,5 @@
 #include <TpJsonDocument.h>
+#include <sstream>
 
 TpJsonDocument::TpJsonDocument()
     : doc_()
@@ -57,6 +58,13 @@ TpString TpJsonDocument::toJson()
 
     return ret;
 }
+
+/*TpString TpJsonDocument::toFormattedJson(char indentChar, int indentCount)
+{
+    std::stringstream ss;
+//    formatValue(this->doc_, ss, 0, indentChar, indentCount);
+    return ss.str();
+}*/
 
 TpJsonObject TpJsonDocument::object() const
 {
