@@ -35,115 +35,31 @@ typedef int (*CallbackInstallConfRW)(TpAppID, const TpString &);
 
 // 提取json文件中某个对象的值
 
-// 对写入一个json数组的对象解析并写入
-// values:键值，例如：value1@value2@value3
-// seg:分隔符
-// key1,...,多个键值
-// void configJsonArrayAnalysis(TpString values, TpJsonArray& libArray, const TpString& seq, int num, ...)
-// {
-//     va_list args;
-//     TpString keyValue;
-
-//     printf("values=%s\n", values.c_str());
-
-//     // 使用TpString的split方法替代strtok_r
-//     TpList<TpString> tokens = values.split(seq[0]); // 假设seq是单个字符分隔符
-
-//     for (const TpString& token : tokens) {
-//         keyValue = token.trimmed(); // 去除前后空格
-//         printf("keyValue=%s\n", keyValue.c_str());
-
-//         if (num == 0) {
-//             libArray.append(TpJsonValue(keyValue));
-//             continue;
-//         }
-
-//         int i = 0;
-//         TpJsonObject obj;
-//         TpList<TpString> valueTokens = keyValue.split('@');
-
-//         va_start(args, num);
-//         while (i < num && i < valueTokens.count()) {
-//             TpString valueN = valueTokens.at(i).trimmed();
-//             if (valueN.isEmpty()) {
-//                 break;
-//             }
-
-//             printf("valueN=%s\n", valueN.c_str());
-//             char* str = va_arg(args, char*);
-//             printf("key=%s\n", str);
-
-//             obj.insert(TpString(str), TpJsonValue(valueN));
-//             i++;
-//         }
-//         va_end(args);
-
-//         libArray.append(TpJsonValue(obj));
-//     }
-// }
-
-/// @brief 把value的值解析为json_array
-//void config_json_array_analysis(char *values, struct json_object *lib_array, const char *seq, int num, ...)
-/*void config_json_array_analysis(char *values, TpJsonArray *lib_array, const char *seq, int num, ...)
-{
-    va_list args; //
-                  //   va_start(args, num);   		//
-    char *key_value;
-
-    printf("values=%s\n", values);
-    while (key_value = strtok_r(values, seq, &values))
-    {
-        printf("key_value=%s\n", key_value);
-        if (num == 0)
-        {
-            //json_object_array_add(lib_array, json_object_new_string((const char *)key_value));
-			lib_array->append(TpJsonValue(TpString(key_value)));	
-            continue;
-        }
-        int i = 0;
-        //struct json_object *obj = json_object_new_object();
-		TpJsonObject obj;
-        va_start(args, num); //
-        while (i < num)
-        {
-            i++;
-            char *value_n = strtok_r(key_value, "@", &key_value);
-            if (value_n == NULL)
-                break;
-            printf("value_n=%s\n", value_n);
-            char *str = va_arg(args, char *); // 获取下一个参数，参数类型是 char*
-            printf("key=%s\n", str);          // 打印参数值
-            //json_object_object_add(obj, str, json_object_new_string((const char *)value_n));
-			obj.insert(TpString(str), TpJsonValue(TpString(value_n)));
-        }
-        //json_object_array_add(lib_array, obj);
-		lib_array->append(obj);
-    }
-    va_end(args); // 清理 va_list 变量
-}*/
-
 //
-void config_json_array_analysis(const TpString &values, TpJsonArray *lib_array, const TpString &seq, int num, ...)
+void config_json_array_analysis(TpString &values, TpJsonArray *lib_array, const TpString &seq, int num, ...)
 {
     va_list args;
-    printf("values:%s,\n",values.c_str());
+    va_start(args, num); //
+    printf("values:%s,\n",values.c_str());  //./lib 
     size_t pos = values.find(seq); // 查找第一个分隔符的位置
-
-    while( pos != TpString::npos )
+    while( pos != TpString::npos)
     {
-        if (num == 0)
+        if (num == 0 )
         {
 			TpString array_value=values.substr(0,pos);
-
-            lib_array->append((TpString)values.substr(0,pos));      
-            std::cout<< "append:" << (TpString)values.substr(0,pos) <<std::endl;   
-            pos = values.substr(pos).find(seq); 
-            break;
+            if(array_value.empty())
+                break;
+            lib_array->append(array_value);      
+            std::cout<< "append:" << array_value << "," <<std::endl;   
+            values=values.substr(pos);
+            if(values.empty())
+                break;
+            pos = values.find(seq); 
+            continue;
         }
 
         //value 里面有子分割符号
         TpJsonObject obj;
-        va_start(args, num); 
         int i = 0;
         while (i < num)
         {
@@ -165,6 +81,7 @@ void config_json_array_analysis(const TpString &values, TpJsonArray *lib_array, 
         lib_array->append(obj);
         pos = values.substr(pos).find(seq); 
     }
+    va_end(args); // 清理 va_list 变量
 }
 
 
@@ -624,6 +541,11 @@ int ConfigJsonParser::config_export_analysis_json(const TpString &line_, TpJsonO
     if (key == TpString("lib"))
     {
         type = EXPORT_LIBS;
+        TpJsonArray array;
+
+        array.append("./lib");
+        array.append("./lib1");
+        export_obj.insert("libs",array);
     }
     else if (key == TpString("depend"))
     {
@@ -636,6 +558,10 @@ int ConfigJsonParser::config_export_analysis_json(const TpString &line_, TpJsonO
     else
     {}
     configAddToJson(type, export_obj, key, value);
+    printf("=====================configAddToJson ok\n");
+
+    if(type == EXPORT_LIBS)
+        std::cout << "Json:" << TpJsonDocument(export_obj).toFormattedJson() << std::endl;
     return 0;
 }
 
@@ -649,6 +575,7 @@ int ConfigJsonParser::config_keyvalue_analysis_json(const TpString &line_, TpJso
 	}
     TpString key=line_.substr(0,pos);
     TpString value=line_.substr(pos+1);
+
 	if(key == TpString("author"))
 	{
 		TpJsonObject obj;
@@ -659,24 +586,16 @@ int ConfigJsonParser::config_keyvalue_analysis_json(const TpString &line_, TpJso
 		}
 
         config_json_object_analysis(value, &obj, TpString(" <"), 2, "name", "email");
-        //json_object_object_add(export_obj, key, obj);
-        printf("name:%s,email:%s\n",obj.value(TpString("name")).toString().c_str(),obj.value(TpString("email")).toString().c_str());
 		export_obj.insert(key, obj);
-        std::cout << "Json:" << TpJsonDocument(obj).toJson() << std::endl;
-	
 	}
     else if (key == TpString("fileExtension"))
     {
-        //struct json_object *array = json_object_new_array();
 		TpJsonArray array;
-        config_json_array_analysis(TpString(value), &array, " ", 0);
-        //json_object_object_add(export_obj, key, array);
+        config_json_array_analysis(value, &array, " ", 0);
 		export_obj.insert(key, array);
     }
     else
     {
-        //json_object_object_add(export_obj, key, json_object_new_string((const char *)value));
-        printf("insert: %s=%s\n",key.c_str(),value.c_str());
 		export_obj.insert(key, value);
     }
     return 0;
@@ -709,10 +628,8 @@ int ConfigJsonParser::findKeyFromFile(const TpString &filePath, const TpString &
 }
 
 //向json文件添加配置
-//int ConfigJsonParser::configAddToJson(PackageExportType type, json_object *exportObj, const TpString &value, const TpString &key)
-int ConfigJsonParser::configAddToJson(PackageExportType type, TpJsonObject &exportObj, const TpString &key, const TpString &value)
+int ConfigJsonParser::configAddToJson(PackageExportType type, TpJsonObject &exportObj, const TpString &key, TpString &value)
 {
-    printf("=====debug:configAddToJson %d\n",type);
     switch (type)
     {
     case EXPORT_LIBS:
@@ -720,9 +637,10 @@ int ConfigJsonParser::configAddToJson(PackageExportType type, TpJsonObject &expo
         //struct json_object *array = json_object_new_array();
         //config_json_array_analysis((char *)value.c_str(), array, " ", 0);
         //json_object_object_add(exportObj, key.c_str(), array);
-		TpJsonArray array;
+		/*TpJsonArray array;
 		config_json_array_analysis(value, &array, TpString(" "), 0);
-		exportObj.insert(TpString(key), array);
+		exportObj.insert(key, array);
+        std::cout << "Json:" << TpJsonDocument(array).toJson() << std::endl;*/
         break;
     }
     case EXPORT_DEPEND:
@@ -732,7 +650,7 @@ int ConfigJsonParser::configAddToJson(PackageExportType type, TpJsonObject &expo
         //json_object_object_add(exportObj, key.c_str(), array);
 		TpJsonArray array;
 		config_json_array_analysis(value, &array, TpString(" "), 2, "name", "version");
-		exportObj.insert(TpString(key), array);
+		exportObj.insert(key, array);
         break;
     }
     case EXPORT_MUST:
@@ -760,8 +678,7 @@ int ConfigJsonParser::writeJsonObjectFile(TpJsonObject &root, const TpString &fi
     }
 
     //const char *str_json = json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_NOSLASHESCAPE); // 转字符串
-	const char *str_json = TpJsonDocument(root).toJson().c_str();
-    printf("%s\n", TpJsonDocument(root).toJson().c_str());
+	
     std::cout << "Json:" << TpJsonDocument(root).toJson() << std::endl;
     if (fprintf(file_j, "%s\n", TpJsonDocument(root).toJson().c_str()) < 0)
     {
@@ -769,7 +686,6 @@ int ConfigJsonParser::writeJsonObjectFile(TpJsonObject &root, const TpString &fi
         fclose(file_j);
         return -1;
     }
-
     fclose(file_j);
     return 0;
 }

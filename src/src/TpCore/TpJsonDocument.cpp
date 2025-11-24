@@ -59,12 +59,18 @@ TpString TpJsonDocument::toJson()
     return ret;
 }
 
-/*TpString TpJsonDocument::toFormattedJson(char indentChar, int indentCount)
-{
-    std::stringstream ss;
-//    formatValue(this->doc_, ss, 0, indentChar, indentCount);
-    return ss.str();
-}*/
+TpString TpJsonDocument::toFormattedJson()
+{  
+    rapidjson::StringBuffer buffer;  
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);  
+      
+    rapidjson::Value &json_value = this->doc_;  
+      
+    json_value.Accept(writer);  
+    std::string ret = std::string(buffer.GetString(), buffer.GetSize());  
+      
+    return ret;  
+}
 
 TpJsonObject TpJsonDocument::object() const
 {

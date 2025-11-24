@@ -36,11 +36,9 @@ public:
     /// @return JSON格式字符串
     TpString toJson();
 
-    /// @brief 
-    /// @param indentChar 
-    /// @param indentCount 
-    /// @return 
-//    TpString toFormattedJson(char indentChar = ' ', int indentCount = 4);
+    /// @brief 将文档序列化为方便阅读的JSON字符串
+    /// @return JSON格式字符串
+    TpString toFormattedJson();
 
     /// @brief 将文档作为JSON对象访问
     /// @return JSON对象

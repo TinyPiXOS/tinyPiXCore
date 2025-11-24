@@ -296,23 +296,19 @@ int install_file(const char *path_s, const char *path_d)
 int install_config_file(const struct TpAppInfo *app)
 {
     int err = 0;
-	//struct json_object *root = json_object_new_object();
-    TpJsonObject root;
+//    TpJsonObject root;
 
     // 拼接UUID目录f03c8f8c-dd9b-453f-b2d4-d049c073e252
     //app->uuid
     TpString destPath = TpString(APP_INSTALL_PATH) + "/" + app->uuid.c_str() + "/" + TpString(APP_CONFIG);
     TpString sourcePath =app->config_file;
 
-    printf("dest:%s.\n source:%s.\nconfig:%s\n",destPath.c_str(),sourcePath.c_str(),app->config_file.c_str());
     // 打开目标文件
     TpFile destFile;
     destFile.setFileName(destPath);
     if (!destFile.open(TpFile::WriteOnly))
     {
         fprintf(stderr, "Failed to open file %s for writing\n", destPath.c_str());
-        //json_object_put(root);
-		//root.~TpJsonObject();
         return -1;
     }
 
@@ -322,15 +318,12 @@ int install_config_file(const struct TpAppInfo *app)
     if (!sourceFile.open(TpFile::ReadOnly))
     {
         fprintf(stderr, "Failed to open file %s for reading\n", sourcePath.c_str());
-        //json_object_put(root);
-		//root.~TpJsonObject();
         destFile.close();
         return -1;
     }
 
     printf("===安装配置和json文件\n");
 
-//    struct json_object *static_obj = json_object_new_object();
     TpJsonObject static_obj;
 
     // 逐行读取安装包配置文件信息
@@ -345,11 +338,11 @@ int install_config_file(const struct TpAppInfo *app)
 
         // 移除换行符（readLine可能已经去除了换行符，但为了安全还是处理一下）
         //line = line.trimmed();
-
+        printf("lne=%s,\n",line.c_str());
         // export和update开头的不拷贝
         if (line.startsWith("export "))
         {
-            destFile.write(line + "\n");
+            //destFile.write(line + "\n");
             ConfigJsonParser::config_export_analysis_json(line, static_obj);
             continue;
         }
@@ -362,19 +355,15 @@ int install_config_file(const struct TpAppInfo *app)
         destFile.write(line + "\n");
         ConfigJsonParser::config_keyvalue_analysis_json(line, static_obj);
     }
-
-    //json_object_object_add(root, "static", static_obj);
-	root.insert("static", static_obj);
+//	root.insert("static", static_obj);
 
     // 写入JSON文件
     TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid.c_str() + ".json";
     printf("======jsonPath:%s\n",jsonPath.c_str());
-    std::cout << "Json:" << TpJsonDocument(root).toJson() << std::endl;
-    ConfigJsonParser::writeJsonObjectFile(root, jsonPath); // 不加密写入json
-    // writeJsonObjectFileEncryption(root, jsonPath.c_str()); // 加密写入json
+    std::cout << "Json:" << TpJsonDocument(static_obj).toJson() << std::endl;
+    ConfigJsonParser::writeJsonObjectFile(static_obj, jsonPath); // 不加密写入json
+    // writeJsonObjectFileEncryption(static_obj, jsonPath.c_str()); // 加密写入json
 
-    //json_object_put(root);
-	//root.~TpJsonObject();
     sourceFile.close();
     destFile.close();
     return err;
