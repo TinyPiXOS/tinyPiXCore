@@ -299,10 +299,12 @@ int install_config_file(const struct TpAppInfo *app)
 	//struct json_object *root = json_object_new_object();
     TpJsonObject root;
 
-    // 拼接UUID目录
-    TpString destPath = TpString(APP_INSTALL_PATH) + "/" + app->uuid + "/" + TpString(APP_CONFIG);
-    TpString sourcePath = TpString(APP_INSTALL_PATH) + "/" + APP_TEMP + "/" + app->pikname + "/config";
+    // 拼接UUID目录f03c8f8c-dd9b-453f-b2d4-d049c073e252
+    //app->uuid
+    TpString destPath = TpString(APP_INSTALL_PATH) + "/" + app->uuid.c_str() + "/" + TpString(APP_CONFIG);
+    TpString sourcePath =app->config_file;
 
+    printf("dest:%s.\n source:%s.\nconfig:%s\n",destPath.c_str(),sourcePath.c_str(),app->config_file.c_str());
     // 打开目标文件
     TpFile destFile;
     destFile.setFileName(destPath);
@@ -342,13 +344,13 @@ int install_config_file(const struct TpAppInfo *app)
         }
 
         // 移除换行符（readLine可能已经去除了换行符，但为了安全还是处理一下）
-        line = line.trimmed();
+        //line = line.trimmed();
 
         // export和update开头的不拷贝
         if (line.startsWith("export "))
         {
             destFile.write(line + "\n");
-            ConfigJsonParser::config_export_analysis_json((char *)line.c_str(), static_obj);
+            ConfigJsonParser::config_export_analysis_json(line, static_obj);
             continue;
         }
 
@@ -358,14 +360,16 @@ int install_config_file(const struct TpAppInfo *app)
         }
 
         destFile.write(line + "\n");
-        ConfigJsonParser::config_keyvalue_analysis_json((char *)line.c_str(), static_obj);
+        ConfigJsonParser::config_keyvalue_analysis_json(line, static_obj);
     }
 
     //json_object_object_add(root, "static", static_obj);
 	root.insert("static", static_obj);
 
     // 写入JSON文件
-    TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid + ".json";
+    TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid.c_str() + ".json";
+    printf("======jsonPath:%s\n",jsonPath.c_str());
+    std::cout << "Json:" << TpJsonDocument(root).toJson() << std::endl;
     ConfigJsonParser::writeJsonObjectFile(root, jsonPath); // 不加密写入json
     // writeJsonObjectFileEncryption(root, jsonPath.c_str()); // 加密写入json
 
@@ -439,7 +443,7 @@ int install_file_extract(struct AppInstallInfo *app_install, const char *path, c
     else
         installPath = TpString(APP_INSTALL_PATH);
 
-    TpString path_d = installPath + "/" + app->uuid + "/" + TpString(path) + "/" + TpString(file_d);
+    TpString path_d = installPath + "/" + app->uuid.c_str() + "/" + TpString(path) + "/" + TpString(file_d);
 
     if (app_install->a != NULL)
         ret = extract_from_archive(app_install->a, file_s, path_d.c_str()); // 已经创建好归档最直接解包
@@ -468,7 +472,7 @@ int install_file_copy(struct AppInstallInfo *app_install, const char *path, cons
         installPath = TpString(APP_INSTALL_PATH);
 
     TpString pathStr = installPath + "/" + TpString(APP_TEMP) + "/" + app->pikname + "/" + TpString(file_s);
-    TpString pathDStr = installPath + "/" + app->uuid + "/" + TpString(path) + "/" + TpString(file_d);
+    TpString pathDStr = installPath + "/" + app->uuid.c_str() + "/" + TpString(path) + "/" + TpString(file_d);
 
     ret = system_copy_file(pathStr.c_str(), pathDStr.c_str());
     return ret;

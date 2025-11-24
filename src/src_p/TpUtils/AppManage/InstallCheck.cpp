@@ -214,7 +214,7 @@ int install_check_diskspace(uint32_t need_space)
 // 返回1，安装包版本更高；返回0，安装包版本更低或相同
 int install_check_app_version(const char *uuid, struct TpVersion ver)
 {
-    struct TpVersion ver_local;
+    struct TpVersion ver_local{.x=0, .y=0, .z=0};
     //	get_app_version_config(uuid,&ver_local);
     get_app_version_json(uuid, &ver_local);
     if (ver.x > ver_local.x)

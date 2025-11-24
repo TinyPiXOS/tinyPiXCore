@@ -1,7 +1,10 @@
 #include <iostream>
 #include <stdio.h>
+#include <string.h>
 #include "TpUtils/AppManage/TpAppInstall.h"
-
+#include "TpCore/TpJsonObject.h"
+#include "TpCore/TpJsonValue.h"
+#include "TpCore/TpJsonDocument.h"
 
 int install_app(const char *pack_path)
 {
@@ -54,3 +57,28 @@ int main(int argc,char **argv)
 	
 	return 0;
 }
+
+
+/*int main()
+{
+	TpJsonObject object;
+	char test2[20]="test_value\n";
+	char test3[11]="test_value";
+	char *test4=(char *)malloc(20);
+	memcpy(test4,test3,11);
+	char test5[12]="test_value\0";
+//	object.insert(TpString("name"), TpJsonValue(TpString("name_hello")));
+//	object.insert(TpString("test"), TpJsonValue(TpString("test_value")));
+	object.insert("name", "name_hello");
+	object.insert("test", "test_value");
+	object.insert(TpString("test1").c_str(), (TpString("test_value").c_str()));
+	object.insert("test2",test2);
+	object.insert("test3",test3);
+	object.insert("test4",test4);
+	object.insert("test5",test5);
+
+	TpJsonDocument doc(object);
+	std::cout << "json_doc:"<< doc.toJson() << std::endl;
+	std::cout << "name: "   <<object.value(TpString("name")).toString() <<std::endl;
+	std::cout << "test: "   <<object.value(TpString("test")).toString() <<std::endl;
+}*/

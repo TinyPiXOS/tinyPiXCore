@@ -75,18 +75,15 @@ TpAppInstall::~TpAppInstall()
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData)
         return;
-    printf("[Debug]: ~TpAppInstall 1\n");
     if (appData->is_runing == true && appData->thread_t.joinable())
     {
         appData->thread_t.join();
     }
     appData->is_runing = false;
-    printf("[Debug]: ~TpAppInstall 2\n");
     appm_free_package_info(&appData->conf);
     if (appData->pack_path_c)
         free(appData->pack_path_c);
     delete_install_schedule(appData->user.schedule);
-    printf("[Debug]: ~TpAppInstall\n");
     delete (appData);
 }
 
@@ -307,7 +304,6 @@ int TpAppInstall::threadInstall()
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (appm_install_package(appData->pack_path_c, &appData->conf, &appData->user) < 0)
         return -1;
-    printf("install ok\n");
     return 0;
 }
 

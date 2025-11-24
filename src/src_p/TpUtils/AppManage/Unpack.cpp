@@ -454,7 +454,6 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
 
     //  关闭归档
     close_unpack_entry(&unpack);
-    //	close_directories_temp(config_file);
     //	add_md5_to_file(filename,md5_r);
     return 0;
 }

@@ -101,7 +101,7 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
     // 格式化版本号
     TpString versionStr = TpString("version:") + TpString::number(conf.version.x) +
                           "." + TpString::number(conf.version.y) +
-                          "." + TpString::number(conf.version.z);
+                          "." + TpString::number(conf.version.z) + "\n";
     file.write(versionStr);
 
     if (!conf.appexecName.empty())
