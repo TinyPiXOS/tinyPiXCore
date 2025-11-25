@@ -71,7 +71,6 @@ void TpJsonObject::insert(const TpString &key, const TpJsonValue &value)
         newValue.CopyFrom(tmpJsonValue.value_, allocator); // 深拷贝
 
         doc_.AddMember(jsonKey, newValue, allocator);
-        // doc_.AddMember(jsonKey, tmpJsonValue.value_, allocator);
     }
 }
 
@@ -101,7 +100,9 @@ void TpJsonObject::insert(const TpString &key, const TpJsonObject &value)
     }
     else
     {
-        doc_.AddMember(jsonKey, rapidjson::Value(tmpJsonValue.doc_, tmpJsonValue.doc_.GetAllocator()).Move(), allocator);
+        rapidjson::Value newValue;
+        newValue.CopyFrom(tmpJsonValue.doc_, allocator); // 深拷贝
+        doc_.AddMember(jsonKey, newValue, allocator);
     }
 }
 
