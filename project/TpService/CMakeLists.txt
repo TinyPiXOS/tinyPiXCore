@@ -12,7 +12,9 @@ include(../../cmake/TargetArchConfig.cmake)
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/main.cpp
     ${SOURCE_PATH}/src/TpService/TpGatewayServerPUBSUB.cpp
-    # ${SOURCE_PATH}/src/TpService/TpGatewayServerREP.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_server.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_server.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)
@@ -21,7 +23,8 @@ include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
 include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpUtils)
-
+include_directories(${SOURCE_PATH}/include_p/TpUtils/erpc)
+include_directories(${SOURCE_PATH}/src_p/TpUtils/Service)
 
 # 指定依赖动态库目录
 if(CMAKE_CROSSCOMPILING)
@@ -33,16 +36,9 @@ endif()
 # 添加动态库目标
 add_executable(TpService ${SOURCE_FILES})
 
-
-
 # 指定静态库的路径
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
-
-# 或者为特定目标设置
-target_link_options(TpService PRIVATE
-    "LINKER:-rpath,${INSTALL_LIB_DIR}"
-    "LINKER:-rpath-link,${ARM_SDK_PATH}/lib"
-)
+set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
 
 find_library(GLOG_LIBRARY glog PATHS ${ARM_SDK_PATH}/lib)
 find_library(YAML_CPP_LIBRARY yaml-cpp PATHS ${ARM_SDK_PATH}/lib)
@@ -65,7 +61,7 @@ find_library(OPENCC_LIBRARY opencc PATHS ${ARM_SDK_PATH}/lib)
 target_link_libraries(TpService
     dl
     pthread
-    ${NANOMSG_STATIC_LIB}
+    ${NANOMSG_STATIC_LIB} ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${GLOG_LIBRARY}
     ${YAML_CPP_LIBRARY}
@@ -74,6 +70,6 @@ target_link_libraries(TpService
     ${OPENCC_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
-    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
+    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so
 )

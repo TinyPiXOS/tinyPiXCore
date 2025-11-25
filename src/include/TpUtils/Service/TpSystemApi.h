@@ -50,11 +50,11 @@ public:
     /// @param appUuid 指定打开文件的应用UUID；为空则使用系统默认
     static OpenFileError openFile(const TpString &filePath, const TpString &appUuid = "");
 
-    /// @brief 指定UUID通知小组件绘制画布尺寸变化；小组件更新画布并重绘；暂不可用
+    /// @brief 指定UUID通知小组件绘制画布尺寸变化；小组件更新画布并重绘；暂未实现
     /// @param widgetUuid 小组件UUID
     void notifyWidgetsResize(const TpString &widgetUuid, const TpSize &widgetSize);
 
-    /// @brief 指定UUID通知小组件进行重绘；暂不可用
+    /// @brief 指定UUID通知小组件进行重绘；暂未实现
     /// @param widgetUuid 小组件UUID
     void notifyWidgetsPaint(const TpString &widgetUuid);
 
@@ -84,7 +84,7 @@ public:
 
     /// @brief 获取当前运行应用信息列表
     /// @return 应用信息列表
-    TpVector<RunAppInfo> runAppList();
+    TpVector<RunAppInfo> runAppInfoList();
 
     /// @brief 指定应用UUID获取应用运行信息
     /// @param uuid 应用UUID

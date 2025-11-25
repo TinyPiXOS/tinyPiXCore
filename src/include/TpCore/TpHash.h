@@ -56,7 +56,7 @@ inline const Key & TpHash<Key, Value>::key(const Value &value, const Key &defaul
 template <typename Key, typename Value>
 inline TpList<Key> TpHash<Key, Value>::keys() const
 {
-    TpList<Key> keyList; // 修复：返回Key列表而不是Value列表
+    TpList<Key> keyList;
     for (auto it = this->begin(); it != this->end(); ++it)
     {
         keyList.append(it->first);

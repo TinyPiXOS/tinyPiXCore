@@ -1,0 +1,14 @@
+/*! 项目名称,也是所有生成的源码文件名前缀 */
+program TpSystemApi
+
+/*! 定义服务接口函数 */
+interface SystemApiService  {
+    /*! 当前运行应用进程信息 */
+    TPR_RunAppProcessInfo() -> binary
+    /*! 指定UUID启动应用 */
+    TPR_StartApp(string uuid, list<string> args) -> bool
+    /*! 指定应用UUID终止进程 */
+    TPR_KillApp(string uuid) -> bool
+    /*! 终止所有应用进程 */
+    TPR_KillAllApp() -> bool
+}
