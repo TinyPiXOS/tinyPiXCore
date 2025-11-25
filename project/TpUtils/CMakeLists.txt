@@ -18,7 +18,7 @@ set(SOURCE_FILES
 
     ${SOURCE_PATH}/src/TpUtils/Service/TpSystemApi.cpp
     ${SOURCE_PATH}/src/TpUtils/Service/TpAppConfigIO.cpp
-    ${SOURCE_PATH}/src/TpUtils/Service/TpWidgetsGateway.cpp
+    # ${SOURCE_PATH}/src/TpUtils/Service/TpWidgetsGateway.cpp
 
     ${SOURCE_PATH}/src/TpUtils/Network/TpNetworkDatagram.cpp
     ${SOURCE_PATH}/src/TpUtils/Network/TpSocket.cpp
@@ -161,7 +161,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Update.cpp
     ${SOURCE_PATH}/src/TpUtils/AppManage/TpLibDopack.cpp
 
-
     ${SOURCE_PATH}/src_p/TpUtils/usb/src/usb_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_monitor.c
@@ -173,6 +172,10 @@ set(SOURCE_FILES
 
     # ${SOURCE_PATH}/src_p/TpUtils/bluetooth/src/obexnames.c
     # ${SOURCE_PATH}/src/TpUtils/TpDisplayManage.cpp
+
+    ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_client.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_client.cpp
+    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
 )
 
 if(CMAKE_CROSSCOMPILING)
@@ -235,6 +238,9 @@ include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth/obex)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/usb/include)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/devmanager/include)
 
+include_directories(${SOURCE_PATH}/include_p/TpUtils/erpc)
+include_directories(${SOURCE_PATH}/src_p/TpUtils/Service)
+
 # 添加动态库目标
 add_library(TpUtils SHARED ${SOURCE_FILES})
 
@@ -278,9 +284,10 @@ set(PCAP_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libpcap.a)
 set(TPARCHIVE_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libtparchive.a)
 set(OPENSSL3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libssl.a)
 set(CRYPTO3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libcrypto.a)
+set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
 
 target_link_libraries(TpUtils PUBLIC
-    dl pthread
+    dl pthread ${ERPC_STATIC_LIB}
     ${OPENSSL3_LIB_STATIC_LIB} ${CRYPTO3_LIB_STATIC_LIB} 
     ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} 
     ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB}

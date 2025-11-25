@@ -84,7 +84,7 @@ public:
 
     /// @brief 获取当前运行应用信息列表
     /// @return 应用信息列表
-    TpVector<RunAppInfo> runAppList();
+    TpVector<RunAppInfo> runAppInfoList();
 
     /// @brief 指定应用UUID获取应用运行信息
     /// @param uuid 应用UUID

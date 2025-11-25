@@ -59,7 +59,7 @@ void TpWidgetsGateway::recvData(const char *topic, const void *data, const uint3
 
     RecvTopicDataImpl recvTopicData;
     recvTopicData.StructDeserialize(data, size);
-    if (recvTopicData.dataHead_.type_.compare(TpInitWidgetsTopic) == 0)
+    if (recvTopicData.dataHead_.type_.compare(TpInitWidgetsKey) == 0)
     {
         // 初始化指令
         TpInitWidgets initWidget;
@@ -86,7 +86,7 @@ void TpWidgetsGateway::recvData(const char *topic, const void *data, const uint3
 
         widgetsData->shmid = TpShareTrans::createShareTrans(widgetsData->wfSurface);
     }
-    else if (recvTopicData.dataHead_.type_.compare(TpPaintWidgetsTopic) == 0)
+    else if (recvTopicData.dataHead_.type_.compare(TpPaintWidgetsKey) == 0)
     {
         // TpPaintWidgets paintEvent;
         // 通知重绘

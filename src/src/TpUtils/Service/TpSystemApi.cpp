@@ -16,6 +16,9 @@
 #include "TpApp.h"
 #include "TpApp_p.h"
 #include <mutex>
+#include <erpc_client_setup.h>
+#include "c_TpSystemApi_client.h"
+#include "TpSystemApi_client.hpp"
 
 const TpString globalAppFilePathStr = "/System/app/";
 
@@ -23,11 +26,35 @@ struct TpSystemApiData
 {
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
+    // RPC 传输层指针
+    erpc_transport_t transportPtr = nullptr;
+
     // TODO 将缓存数据放入Service中，远程IPC调用
-    std::mutex readAppMutex;
+    // std::mutex readAppMutex;
     // 已启动应用的UUID和pid映射表
-    TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
+    // TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
 };
+
+TpHash<TpString, int32_t> queryRunAppInfo()
+{
+    TpHash<TpString, int32_t> queryResMap;
+
+    /* RPC 调用 */
+    binary_t *appRunInfoPtr = TPR_RunAppProcessInfo();
+
+    TpRPCRunAppProcessInfo recvData;
+    recvData.StructDeserialize(appRunInfoPtr->data, appRunInfoPtr->dataLength);
+
+    for (int i = 0; i < recvData.uuidList.size(); ++i)
+    {
+        queryResMap[recvData.uuidList.at(i)] = recvData.pidList.at(i);
+    }
+
+    delete[] appRunInfoPtr->data;
+    delete appRunInfoPtr;
+
+    return queryResMap;
+}
 
 TpSystemApi *TpSystemApi::Instance()
 {
@@ -80,14 +107,14 @@ TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const
     TpVector<std::string> argList;
     argList.emplace_back(filePath);
 
-    RunApp startAppData;
+    TpRunApp startAppData;
     startAppData.appUuid = parseAppUuid;
     startAppData.argList = argList;
 
     PStructPackager structPackage;
     startAppData.StructSerialize(structPackage);
 
-    publishGatewayData(RunAppTopic, structPackage.data(), structPackage.size());
+    publishGatewayData(TpRunAppKey, structPackage.data(), structPackage.size());
 
     return TpSystemApi::Succsssful;
 }
@@ -128,10 +155,11 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
     if (!apiData)
         return TpImage();
 
-    if (!apiData->appUuidPidMap.contains(uuid))
+    auto runAppMap = queryRunAppInfo();
+    if (!runAppMap.contains(uuid))
         return TpImage();
 
-    int32_t appPid = apiData->appUuidPidMap.value(uuid);
+    int32_t appPid = runAppMap.value(uuid);
     IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(apiData->globalAgent, appPid);
     // std::cout << "appPid " << appPid << " , " << surfacePtr << std::endl;
     if (!surfacePtr)
@@ -206,70 +234,35 @@ bool TpSystemApi::startApp(const TpString &uuid, const TpVector<TpString> &argLi
     TpDir appFileDir(appFileDirPath);
     if (!appFileDir.exists())
     {
-        std::cout << "UUid: " << uuid << " 应用文件夹不存在" << std::endl;
+        std::cout << "UUid: " << uuid << " 未安装!" << std::endl;
         return false;
     }
 
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
-    if (!apiData)
-        return false;
-
-    // 启动对应应用
-    if (apiData->appUuidPidMap.contains(uuid))
+    /* RPC 调用 */
+    list_string_1_t *rpcArgs = new list_string_1_t();
+    rpcArgs->elementsCount = argList.size();
+    rpcArgs->elements = nullptr;
+    if (argList.size() > 0)
     {
-        int32_t pid = apiData->appUuidPidMap.value(uuid);
+        rpcArgs->elements = new char *[rpcArgs->elementsCount];
 
-        // 根据pid查询winid
-        PiShmBytes *appIdList = nullptr;
-        int appSize = 0;
-        tinyPiX_sys_find_win_ids(apiData->globalAgent, &appIdList, &appSize, Q_FIXS);
-
-        int32_t winId = 0;
-        for (int i = 0; i < appSize; ++i)
+        for (int i = 0; i < argList.size(); ++i)
         {
-            PiShmBytes appIdInfo = appIdList[i];
-            if (appIdInfo.p_id == pid)
-            {
-                winId = appIdInfo.s_id;
-                break;
-            }
+            rpcArgs->elements[i] = strdup(argList.at(i).c_str());
         }
-
-        std::cout << "恢复应用 pid: " << pid << std::endl;
-        tinyPiX_sys_set_visible(apiData->globalAgent, winId, true);
-        tinyPiX_sys_set_active(apiData->globalAgent, winId, true);
-    }
-    else
-    {
-        // 解析应用图标、名称信息
-        TpAppConfigIO configIO(uuid);
-
-        TpString runnerPath = configIO.runnerPath();
-        TpFileInfo runnerFileInfo(runnerPath);
-        if (!runnerFileInfo.exists())
-        {
-            std::cout << "应用 " << configIO.appName() << " 可执行程序不存在!" << std::endl;
-            return false;
-        }
-
-        TpProcess exeProcess;
-        exeProcess.start(runnerPath, argList);
-        // exeProcess.start(exePathStr);
-        int32_t processPID = exeProcess.launchProcessID();
-
-        // RunAppInfo runAppInfo;
-        // runAppInfo.appName = configIO.appName();
-        // runAppInfo.appUuid = uuid;
-        // runAppInfo.appIconPath = configIO.iconPath();
-        // runAppInfo.pid = processPID;
-
-        std::cout << "processPID " << processPID << std::endl;
-        std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
-        // globalRunAppMap_[processPID] = runAppInfo;
-        apiData->appUuidPidMap[uuid] = processPID;
     }
 
-    return true;
+    bool startRes = TPR_StartApp(uuid.c_str(), rpcArgs);
+
+    // 释放输入参数
+    for (int i = 0; i < rpcArgs->elementsCount; i++)
+    {
+        free(rpcArgs->elements[i]);
+    }
+    delete[] rpcArgs->elements;
+    delete rpcArgs;
+
+    return startRes;
 }
 
 bool TpSystemApi::killApp(const TpString &uuid)
@@ -278,19 +271,8 @@ bool TpSystemApi::killApp(const TpString &uuid)
     if (!apiData)
         return false;
 
-    if (apiData->appUuidPidMap.contains(uuid))
-    {
-        int32_t pid = apiData->appUuidPidMap.value(uuid);
-
-        std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
-        apiData->appUuidPidMap.erase(uuid);
-        // globalRunAppMap_.erase(pid);
-
-        std::cout << "结束应用 pid: " << pid << std::endl;
-        tinyPiX_sys_kill_process(apiData->globalAgent, pid);
-    }
-
-    return true;
+    /* RPC 调用 */
+    return TPR_KillApp(uuid.c_str());
 }
 
 bool TpSystemApi::killAllApp()
@@ -299,30 +281,11 @@ bool TpSystemApi::killAllApp()
     if (!apiData)
         return false;
 
-    // 获取所有应用列表
-    PiShmBytes *appIdList = nullptr;
-    int appSize = 0;
-    tinyPiX_sys_find_win_ids(apiData->globalAgent, &appIdList, &appSize, 1);
-
-    // 杀掉所有应用
-    for (int i = 0; i < appSize; ++i)
-    {
-        PiShmBytes appIdInfo = appIdList[i];
-
-        tinyPiX_sys_kill_process(apiData->globalAgent, appIdInfo.p_id);
-    }
-
-    // 清理缓存的应用运行信息
-    {
-        std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
-        // globalRunAppMap_.clear();
-        apiData->appUuidPidMap.clear();
-    }
-
-    return false;
+    /* RPC 调用 */
+    return TPR_KillAllApp();
 }
 
-TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppList()
+TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppInfoList()
 {
     TpVector<RunAppInfo> runAppList;
 
@@ -330,13 +293,14 @@ TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppList()
     if (!apiData)
         return runAppList;
 
+    // 运行的应用PID列表
+    auto runAppMap = queryRunAppInfo();
+    TpList<int32_t> runAppPidList = runAppMap.values();
+
     // 获取所有应用列表
     PiShmBytes *appIdList = nullptr;
     int appSize = 0;
     tinyPiX_sys_find_win_ids(apiData->globalAgent, &appIdList, &appSize, Q_FIXS);
-
-    // 运行的应用PID列表
-    TpList<int32_t> runAppPidList = apiData->appUuidPidMap.values();
 
     for (int i = 0; i < appSize; ++i)
     {
@@ -344,7 +308,7 @@ TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppList()
 
         if (runAppPidList.contains(appIdInfo.p_id))
         {
-            TpString curAppUuid = apiData->appUuidPidMap.key(appIdInfo.p_id);
+            TpString curAppUuid = runAppMap.key(appIdInfo.p_id);
 
             RunAppInfo appInfo;
             appInfo.appInfo.setAppUuid(curAppUuid);
@@ -365,10 +329,12 @@ TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
     if (!apiData)
         return runAppInfo;
 
-    if (!apiData->appUuidPidMap.contains(uuid))
+    auto runAppMap = queryRunAppInfo();
+
+    if (!runAppMap.contains(uuid))
         return runAppInfo;
 
-    int32_t appPid = apiData->appUuidPidMap.value(uuid);
+    int32_t appPid = runAppMap.value(uuid);
 
     // 获取所有应用列表
     PiShmBytes *appIdList = nullptr;
@@ -392,8 +358,25 @@ TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
 
 TpSystemApi::TpSystemApi()
 {
-    data_ = new TpSystemApiData();
+    TpSystemApiData *apiData = new TpSystemApiData();
+    data_ = apiData;
     initializeGateway();
+
+    /* 创建client端传输层对象(TCP) */
+    apiData->transportPtr = erpc_transport_tcp_init("127.0.0.1", 12581, false);
+    auto message_buffer_factory = erpc_mbf_dynamic_init();
+
+    if (!apiData->transportPtr)
+    {
+        std::cout << "RPC 服务初始化失败!" << std::endl;
+        return;
+    }
+
+    /* 初始化客户端 */
+    auto client = erpc_client_init(apiData->transportPtr, message_buffer_factory);
+
+    // 初始化RPC客户端
+    initSystemApiService_client(client);
 }
 
 TpSystemApi::~TpSystemApi()
@@ -401,6 +384,7 @@ TpSystemApi::~TpSystemApi()
     TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
     if (apiData)
     {
+        erpc_transport_tcp_deinit(apiData->transportPtr);
         delete apiData;
         apiData = nullptr;
     }

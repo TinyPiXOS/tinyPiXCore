@@ -3,7 +3,6 @@
 #include "TpJsonObject.h"
 #include "TpFile.h"
 #include "TpDir.h"
-#include "Service/TpAppConfigIO.h"
 
 static const TpString globalConfRootPath = "/System/conf/app/";
 static const TpString globalAppRootPath = "/System/app/";

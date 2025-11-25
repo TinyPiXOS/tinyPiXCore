@@ -72,24 +72,38 @@ struct RecvTopicDataImpl : NetDataBase
 STRUCT_PACKAGE(RecvTopicDataImpl, dataHead_);
 
 /// @brief 应用通知桌面启动指定应用
-static const char *RunAppTopic = "RunAppStructTopic";
-struct RunApp : NetDataBase
+static const char *TpRunAppKey = "TinyPiX.TpRunAppKey";
+struct TpRunApp : NetDataBase
 {
     /// @brief 应用UUID
     std::string appUuid;
     /// @brief 启动参数列表
     std::vector<std::string> argList;
 
-    RunApp() : NetDataBase(RunAppTopic)
+    TpRunApp() : NetDataBase(TpRunAppKey)
     {
     }
 
     StructSerializeFunc;
 };
-STRUCT_PACKAGE(RunApp, dataHead_, appUuid, argList);
+STRUCT_PACKAGE(TpRunApp, dataHead_, appUuid, argList);
+
+static const char *TpRPCRunAppProcessInfoKey = "TinyPiX.TpRPCRunAppProcessInfoKey";
+struct TpRPCRunAppProcessInfo : NetDataBase
+{
+    std::vector<std::string> uuidList;
+    std::vector<int32_t> pidList;
+
+    TpRPCRunAppProcessInfo() : NetDataBase(TpRPCRunAppProcessInfoKey)
+    {
+    }
+
+    StructSerializeFunc;
+};
+STRUCT_PACKAGE(TpRPCRunAppProcessInfo, dataHead_, uuidList, pidList);
 
 /// @brief 小组件初始化消息；用于上层应用通知小组件渲染区域
-static const char *TpInitWidgetsTopic = "TinyPiX.TpInitWidgetsTopic";
+static const char *TpInitWidgetsKey = "TinyPiX.TpInitWidgetsKey";
 struct TpInitWidgets : NetDataBase
 {
     int32_t width = 0;
@@ -101,7 +115,7 @@ struct TpInitWidgets : NetDataBase
     int32_t Bmask = 0;
     int32_t Amask = 0;
 
-    TpInitWidgets() : NetDataBase(TpInitWidgetsTopic)
+    TpInitWidgets() : NetDataBase(TpInitWidgetsKey)
     {
     }
 
@@ -110,10 +124,10 @@ struct TpInitWidgets : NetDataBase
 STRUCT_PACKAGE(TpInitWidgets, dataHead_, width, height);
 
 /// @brief 上层应用通知小组件需要重新绘制并发送渲染指令
-static const char *TpPaintWidgetsTopic = "TinyPiX.TpPaintWidgetsTopic";
+static const char *TpPaintWidgetsKey = "TinyPiX.TpPaintWidgetsKey";
 struct TpPaintWidgets : NetDataBase
 {
-    TpPaintWidgets() : NetDataBase(TpPaintWidgetsTopic)
+    TpPaintWidgets() : NetDataBase(TpPaintWidgetsKey)
     {
     }
 
@@ -122,12 +136,12 @@ struct TpPaintWidgets : NetDataBase
 STRUCT_PACKAGE(TpPaintWidgets, dataHead_);
 
 /// @brief 小组件通知上层应用组件已绘制完毕；开始渲染
-static const char *TpUpdateWidgetsTopic = "TinyPiX.TpUpdateWidgetsTopic";
+static const char *TpUpdateWidgetsKey = "TinyPiX.TpUpdateWidgetsKey";
 struct TpUpdateWidgets : NetDataBase
 {
     uint64_t sharedId = 0;
 
-    TpUpdateWidgets() : NetDataBase(TpUpdateWidgetsTopic)
+    TpUpdateWidgets() : NetDataBase(TpUpdateWidgetsKey)
     {
     }
 
