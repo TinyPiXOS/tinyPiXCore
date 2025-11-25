@@ -12,7 +12,7 @@ include(../../cmake/TargetArchConfig.cmake)
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/main.cpp
     ${SOURCE_PATH}/src/TpService/TpGatewayServerPUBSUB.cpp
-    # ${SOURCE_PATH}/src/TpService/TpGatewayServerREP.cpp
+    ${SOURCE_PATH}/src/TpService/TpGatewayServerREP.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)

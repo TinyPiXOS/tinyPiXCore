@@ -5,6 +5,7 @@
 #include <TpString.h>
 #include <TpHash.h>
 
+#if 0
 int32_t main(int32_t argc, char *argv[])
 {
     // Json 字符串 -> Json对象
@@ -103,4 +104,59 @@ int32_t main(int32_t argc, char *argv[])
     std::cout << "resJsonStr2: " << resJsonStr2 << std::endl;
 
     return 0;
+}
+#endif
+
+void array_test(TpJsonArray &array)
+{
+    TpString value1("array_value1");
+    TpString value2("array_value2");
+    array.append(value1);
+    array.append(value2);
+}
+
+void json_test(TpJsonObject &object)
+{
+    TpJsonObject obj;
+    TpString test("");
+    obj.insert("name", "Chingan");
+    obj.insert("email", "123456789");
+    object.insert("author", obj);
+    //	object.insert("test10",test);
+    object.insert("description", "this is tinyPiXOS test APP");
+    object.insert("icon", "./icon.jpeg");
+    TpJsonArray array;
+    array_test(array);
+    object.insert("lib", array);
+    object.insert("start", "./start.sh");
+    //	std::cout << "json_doc:"<< TpJsonDocument(object).toFormattedJson() << std::endl;
+}
+
+int main()
+{
+    TpJsonObject object;
+    char test2[20] = "test_value\n";
+    char test3[11] = "test_value";
+    char *test4 = (char *)malloc(20);
+    memcpy(test4, test3, 11);
+    char test5[12] = "test_value\0";
+    //	object.insert(TpString("name"), TpJsonValue(TpString("name_hello")));
+    //	object.insert(TpString("test"), TpJsonValue(TpString("test_value")));
+    object.insert("appID", "f03c8f8c-dd9b-453f-b2d4-d049c073e252");
+    object.insert("appName", "MyApp");
+    object.insert(TpString("test1").c_str(), (TpString("test_value").c_str()));
+    object.insert("test2", test2);
+    object.insert("test3", test3);
+    object.insert("test4", test4);
+    object.insert("test5", test5);
+    object.insert("test6", "hahahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+    object.insert("architecture", "amd64");
+    json_test(object);
+    object.insert("test9", "hahahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+
+    TpJsonDocument doc(object);
+    std::cout << "json_doc:" << doc.toJson() << std::endl;
+    std::cout << "json_doc:" << doc.toFormattedJson() << std::endl;
+    std::cout << "name: " << object.value(TpString("appID")).toString() << std::endl;
+    std::cout << "test: " << object.value(TpString("test")).toString() << std::endl;
 }

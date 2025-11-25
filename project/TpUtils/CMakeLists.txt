@@ -14,6 +14,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/TpSVG.cpp
     ${SOURCE_PATH}/src/TpUtils/TpChineseCalendar.cpp
     ${SOURCE_PATH}/src/TpUtils/TpGateway.cpp
+    ${SOURCE_PATH}/src/TpUtils/TpGatewayClientREQ.cpp
 
     ${SOURCE_PATH}/src/TpUtils/Service/TpSystemApi.cpp
     ${SOURCE_PATH}/src/TpUtils/Service/TpAppConfigIO.cpp
@@ -60,11 +61,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/TpSystemDataManage.cpp
     ${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifier.cpp
     ${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifierManager.cpp
-
-    ${SOURCE_PATH}/src_p/TpUtils/tweeny/tweeny.tcc
-    ${SOURCE_PATH}/src_p/TpUtils/tweeny/tween.tcc
-    ${SOURCE_PATH}/src_p/TpUtils/tweeny/tweenone.tcc
-    ${SOURCE_PATH}/src_p/TpUtils/tweeny/tweenpoint.tcc
 
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpHostAddress.cpp
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConflib.c
@@ -228,7 +224,6 @@ include_directories(${SOURCE_PATH}/include_p/TpGUI/GUI)
 
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Media)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/SystemLib)
-include_directories(${SOURCE_PATH}/include_p/TpUtils/tweeny)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/utils)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Network)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/TpDbus)

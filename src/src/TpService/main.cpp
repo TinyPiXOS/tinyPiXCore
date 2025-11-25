@@ -4,16 +4,14 @@
 #include <chrono>
 #include <thread>
 #include "TpGatewayServerPUBSUB.h"
-// #include "TpGatewayServerREP.h"
 
 std::atomic<bool> grunning{true};
-
 void signalHandler(int signal)
 {
     grunning = false;
 }
 
-#if 0
+#if 1
 // 请求问答服务端线程函数
 void dealFuncREP()
 {
@@ -76,7 +74,7 @@ int main()
     std::cout << "发布订阅网关服务启动成功!" << std::endl;
     std::cout << "发布订阅监听 端口：订阅端口： " << port << " and 发布端口" << (port + 1) << std::endl;
 
-    // std::thread REPWorker(&dealFuncREP);
+    std::thread REPWorker(&dealFuncREP);
 
     // 主循环
     while (grunning)
