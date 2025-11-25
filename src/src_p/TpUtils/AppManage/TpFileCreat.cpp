@@ -94,12 +94,12 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         break;
     }
 
-    file.write("appID:" + conf.appID + "\n");
-    file.write("appName:" + conf.appName + "\n");
-    file.write("organization:" + conf.organization + "\n");
+    file.write("AppID:" + conf.appID + "\n");
+    file.write("AppName:" + conf.appName + "\n");
+    file.write("Organization:" + conf.organization + "\n");
 
     // 格式化版本号
-    TpString versionStr = TpString("version:") + TpString::number(conf.version.x) +
+    TpString versionStr = TpString("Version:") + TpString::number(conf.version.x) +
                           "." + TpString::number(conf.version.y) +
                           "." + TpString::number(conf.version.z) + "\n";
     file.write(versionStr);
@@ -110,20 +110,20 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         if (lastSlashPos != -1)
         {
             TpString execName = conf.appexecName.substr(lastSlashPos + 1);
-            file.write("appexecName:" + execName + "\n");
+            file.write("AppexecName:" + execName + "\n");
         }
     }
 
-    file.write("diskSpace:" + TpString::number(conf.diskspace) + "\n");
-    file.write("architecture:" + conf.architecture + "\n");
+    file.write("DiskSpace:" + TpString::number(conf.diskspace) + "\n");
+    file.write("Architecture:" + conf.architecture + "\n");
 
-    file.write("author:" + conf.author + " <" + conf.contact + ">\n");
-    file.write("provides:" + conf.provides + "\n");
+    file.write("Author:" + conf.author + " <" + conf.contact + ">\n");
+    file.write("Provides:" + conf.provides + "\n");
 
     // 支持的文件类型
     if (conf.fileExtension.size() > 0)
     {
-        file.write("fileExtension:");
+        file.write("FileExtension:");
         for (int i = 0; i < conf.fileExtension.size(); i++)
         {
             file.write(conf.fileExtension[i] + " ");
@@ -133,7 +133,7 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
 
     if (!conf.description.empty())
     {
-        file.write("description:" + conf.description + "\n");
+        file.write("Description:" + conf.description + "\n");
     }
 
     // 图标
@@ -143,7 +143,7 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         if (lastSlashPos != -1)
         {
             TpString iconName = conf.icon.substr(lastSlashPos + 1);
-            file.write("export icon=./" + iconName + "\n");
+            file.write("export Icon=./" + iconName + "\n");
         }
     }
 
@@ -154,14 +154,14 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         if (lastSlashPos != -1)
         {
             TpString execPath = conf.appexecName.substr(lastSlashPos);
-            file.write("export appexec=." + execPath + "\n");
+            file.write("export Appexec=." + execPath + "\n");
         }
     }
 
     // 依赖开源库
     if (conf.depend.size() > 0)
     {
-        file.write("export depend=");
+        file.write("export Depend=");
         for (int i = 0; i < conf.depend.size(); i++)
         {
             file.write(conf.depend[i] + " ");
@@ -169,14 +169,14 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         file.write("\n");
     }
 
-    file.write("export bin=./bin \n");
-    file.write("export lib=./lib \n");
-    file.write("export start=./start.sh\n");
+    file.write("export Bin=./bin \n");
+    file.write("export Lib=./lib \n");
+    file.write("export Start=./start.sh\n");
 
     // 其他文件
     if (conf.otherFiles.size() > 0)
     {
-        file.write("export userfile=");
+        file.write("export UserFile=");
         for (int i = 0; i < conf.otherFiles.size(); i++)
         {
             int lastSlashPos = conf.otherFiles[i].lastIndexOf('/');
@@ -363,12 +363,12 @@ int TpFileCreat::file_config_creat_lib(archive *a, const char *path, LibPackageC
     }
 
     file.write("#TinyPix SystemLib\n");
-    file.write("architecture:" + conf->architecture + "\n");
-    file.write("diskSpace:" + TpString(conf->diskspace) + "\n");
+    file.write("Architecture:" + conf->architecture + "\n");
+    file.write("DiskSpace:" + TpString(conf->diskspace) + "\n");
 
     if (conf->systemLib.size() > 0)
     {
-        file.write("export lib=");
+        file.write("export Lib=");
         for (int i = 0; i < conf->systemLib.size(); i++)
         {
             TpFileInfo libPathInfo(conf->systemLib[i]);
@@ -395,7 +395,7 @@ int TpFileCreat::file_config_creat_lib(archive *a, const char *path, LibPackageC
     // 其他文件
     if (conf->file.size() > 0)
     {
-        file.write("export file=");
+        file.write("export File=");
         for (int i = 0; i < conf->file.size(); i++)
         {
             TpFileInfo confPathInfo(conf->file[i]);

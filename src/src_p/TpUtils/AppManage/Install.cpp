@@ -338,7 +338,7 @@ int install_config_file(const struct TpAppInfo *app)
 
         // 移除换行符（readLine可能已经去除了换行符，但为了安全还是处理一下）
         //line = line.trimmed();
-        printf("lne=%s,\n",line.c_str());
+        printf("line=%s,\n",line.c_str());
         // export和update开头的不拷贝
         if (line.startsWith("export "))
         {

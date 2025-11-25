@@ -19,7 +19,7 @@
 #include <regex.h>
 #include <openssl/md5.h>
 #include "AppManage/AppmanageConf.h"
-#include "utils/utilslib.h"
+#include "tools/utilslib.h"
 
 void delete_end_space(char *str);
 void trim_newline(char *str);

@@ -13,7 +13,7 @@
 #include <openssl/aes.h>
 #include "SecretKey.h"
 #include "AppManage/AppmUtils.h"
-#include "utils/utilslib.h"
+#include "tools/utilslib.h"
 
 #define KEY_FILE_PATH "/etc/tpssl/tpappkey.bin"
 #define PASSPHRASE "tpAppManagerBinPassphrase"

@@ -137,17 +137,17 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_service.c
     ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/blt_service_reg.c
 
-    ${SOURCE_PATH}/src_p/TpUtils/TpDbus/manager.c
-    ${SOURCE_PATH}/src_p/TpUtils/TpDbus/properties.c
-    ${SOURCE_PATH}/src_p/TpUtils/TpDbus/connect.c
-    ${SOURCE_PATH}/src_p/TpUtils/TpDbus/network_manager.c
-    ${SOURCE_PATH}/src_p/TpUtils/TpDbus/freedesktop_upower.c
-    ${SOURCE_PATH}/src_p/TpUtils/TpDbus/logind.c
+    ${SOURCE_PATH}/src_p/TpUtils/Dbus/manager.c
+    ${SOURCE_PATH}/src_p/TpUtils/Dbus/properties.c
+    ${SOURCE_PATH}/src_p/TpUtils/Dbus/connect.c
+    ${SOURCE_PATH}/src_p/TpUtils/Dbus/network_manager.c
+    ${SOURCE_PATH}/src_p/TpUtils/Dbus/freedesktop_upower.c
+    ${SOURCE_PATH}/src_p/TpUtils/Dbus/logind.c
 
-    ${SOURCE_PATH}/src_p/TpUtils/utils/utilslib.c
-    ${SOURCE_PATH}/src_p/TpUtils/utils/utlist.c
-    ${SOURCE_PATH}/src_p/TpUtils/utils/variable_array.c
-    ${SOURCE_PATH}/src_p/TpUtils/utils/utthread.c
+    ${SOURCE_PATH}/src_p/TpUtils/tools/utilslib.c
+    ${SOURCE_PATH}/src_p/TpUtils/tools/utlist.c
+    ${SOURCE_PATH}/src_p/TpUtils/tools/variable_array.c
+    ${SOURCE_PATH}/src_p/TpUtils/tools/utthread.c
 
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/JsonConf.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/AppmCreat.cpp
@@ -229,9 +229,9 @@ include_directories(${SOURCE_PATH}/include_p/TpGUI/GUI)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Media)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/SystemLib)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/tweeny)
-include_directories(${SOURCE_PATH}/include_p/TpUtils/utils)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/tools)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Network)
-include_directories(${SOURCE_PATH}/include_p/TpUtils/TpDbus)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/Dbus)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/AppManage)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth/bluez)

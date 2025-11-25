@@ -260,15 +260,15 @@ PackageExportType get_config_export_key_type(const char *key)
 {
     PackageExportType type = EXPORT_NONE;
 
-    if (strncmp(key, "lib", 3) == 0)
+    if (strncmp(key, "Lib", 3) == 0)
     {
         type = EXPORT_LIBS;
     }
-    else if (strncmp(key, "depend", 6) == 0)
+    else if (strncmp(key, "Depend", 6) == 0)
     {
         type = EXPORT_DEPEND;
     }
-    else if (strncmp(key, "icon", 4) == 0 || strncmp(key, "start", 5) == 0 || strncmp(key, "remove", 6) == 0)
+    else if (strncmp(key, "Icon", 4) == 0 || strncmp(key, "Start", 5) == 0 || strncmp(key, "Remove", 6) == 0)
     { // icon start remove
         type = EXPORT_MUST;
     }
@@ -314,35 +314,35 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             // 移除换行符
             trim_newline(line);
 
-            if (strncmp(line, "appName:", 8) == 0)
+            if (strncmp(line, "AppName:", 8) == 0)
             {
 				config->appName = TpString(line + 8);
                 // strncpy(config->appName, line + 8, 128);
             }
-            else if (strncmp(line, "appID:", 6) == 0)
+            else if (strncmp(line, "AppID:", 6) == 0)
             {
                 config->appID.assign(line + 6, 37);
                 // strncpy(config->app_id, line + 6, sizeof(config->app_id));
             }
-            else if (strncmp(line, "version:", 8) == 0)
+            else if (strncmp(line, "Version:", 8) == 0)
             {
                 // struct TpVersion ver;
                 string_to_version((const char *)line + 8, &(config->version));
             }
-            else if (strncmp(line, "appexecName:", 12) == 0)
+            else if (strncmp(line, "AppexecName:", 12) == 0)
             {
                 //int len = strlen(line + 12) + 1;
 				config->appexecName = TpString(line + 12);
                 // config->appexec_name = malloc(len);
                 // strncpy(config->appexec_name, line + 12, len);
             }
-            else if (strncmp(line, "architecture:", 13) == 0)
+            else if (strncmp(line, "Architecture:", 13) == 0)
             {
                 //config->architecture.assign(line + 13, 64);
 				config->architecture = TpString(line + 13);
                 // strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
-            else if (strncmp(line, "diskSpace:", 10) == 0)
+            else if (strncmp(line, "DiskSpace:", 10) == 0)
             {
                 long int size;
                 if (string_to_number(line + 10, &size) == 0)
@@ -350,7 +350,7 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 else
                     config->diskspace = 0;
             }
-            else if (strncmp(line, "export icon=", 12) == 0)
+            else if (strncmp(line, "export Icon=", 12) == 0)
             {
 				config->icon = TpString(line + 12);
 				config->icon.erase(config->icon.find_last_not_of(" \t\n\r\f\v") + 1);
@@ -376,12 +376,12 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 continue;
             // 移除换行符
             trim_newline(line);
-            if (strncmp(line, "architecture:", 13) == 0)
+            if (strncmp(line, "Architecture:", 13) == 0)
             {
                 config->architecture.assign(line + 13, 16);
                 // strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
-            else if (strncmp(line, "diskSpace:", 10) == 0)
+            else if (strncmp(line, "DiskSpace:", 10) == 0)
             {
                 long int size;
                 if (string_to_number(line + 10, &size) == 0)
@@ -389,7 +389,7 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 else
                     config->diskspace = 0;
             }
-            else if (strncmp(line, "export lib=", 11) == 0 || last_line == 1)
+            else if (strncmp(line, "export Lib=", 11) == 0 || last_line == 1)
             {
                 last_line = 0;
                 char *libs = line + 11;

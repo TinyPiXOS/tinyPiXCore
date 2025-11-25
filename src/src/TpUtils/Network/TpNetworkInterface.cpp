@@ -28,7 +28,7 @@
 #include <linux/wireless.h>
 #include <iomanip>
 #include "NetworkConf.h"
-#include "TpDbus/network_manager.h"
+#include "Dbus/network_manager.h"
 #include "TpNetworkInterface.h"
 
 #define MAX_DNS_NUMBER 64

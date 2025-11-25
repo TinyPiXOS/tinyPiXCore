@@ -133,6 +133,8 @@
         "confjson.h": "c",
         "blt_dbussignal.h": "c",
         "appinfo.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "usb_manager.h": "c",
+        "utlist.h": "c"
     }
 }

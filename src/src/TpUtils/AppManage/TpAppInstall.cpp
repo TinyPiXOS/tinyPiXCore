@@ -19,7 +19,7 @@
 #include "InstallCheck.h"
 #include "TpAppInstall.h"
 #include "AppManage/AppmUtils.h"
-#include "utils/utilslib.h"
+#include "tools/utilslib.h"
 
 struct TpAppInstallData
 {

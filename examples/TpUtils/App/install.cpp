@@ -46,7 +46,7 @@ int install_lib()
 
 
 
-/*int main(int argc,char **argv)
+int main(int argc,char **argv)
 {
 	if(argc!=2)
 	{
@@ -56,11 +56,11 @@ int install_lib()
 	install_app(argv[1]);
 	
 	return 0;
-}*/
+}
 
 
 
-void array_test(TpJsonArray &array)
+/*void array_test(TpJsonArray &array)
 {
 	TpString value1("array_value1");
 	TpString value2("array_value2");
@@ -70,10 +70,19 @@ void array_test(TpJsonArray &array)
 
 void json_test(TpJsonObject &object)
 {
+	TpJsonObject obj;
+	TpString test("");
+	obj.insert("name","Chingan");
+	obj.insert("email","123456789");
+	object.insert("author",obj);
+	object.insert("test10",test);
+	object.insert("description","this is tinyPiXOS test APP");
+	object.insert("icon","./icon.jpeg");
 	TpJsonArray array;
 	array_test(array);
-	object.insert("test8",array);
-	std::cout << "json_doc:"<< TpJsonDocument(object).toJson() << std::endl;
+	object.insert("lib",array);
+	object.insert("start","./start.sh");
+//	std::cout << "json_doc:"<< TpJsonDocument(object).toFormattedJson() << std::endl;
 }
 
 int main()
@@ -86,21 +95,21 @@ int main()
 	char test5[12]="test_value\0";
 //	object.insert(TpString("name"), TpJsonValue(TpString("name_hello")));
 //	object.insert(TpString("test"), TpJsonValue(TpString("test_value")));
-	object.insert("name", "name_hello");
-	object.insert("test", "test_value");
+	object.insert("appID", "f03c8f8c-dd9b-453f-b2d4-d049c073e252");
+	object.insert("appName", "MyApp");
 	object.insert(TpString("test1").c_str(), (TpString("test_value").c_str()));
 	object.insert("test2",test2);
 	object.insert("test3",test3);
 	object.insert("test4",test4);
 	object.insert("test5",test5);	
 	object.insert("test6","hahahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-	object.insert("test7","123");	
-	TpJsonArray array;
+	object.insert("architecture","amd64");	
 	json_test(object);
 	object.insert("test9","hahahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");	
 
 	TpJsonDocument doc(object);
-	std::cout << "json_doc:"<< doc.toJson() << std::endl;
-	std::cout << "name: "   <<object.value(TpString("name")).toString() <<std::endl;
+	std::cout << "json_doc:"<< doc.toFormattedJson() << std::endl;
+	std::cout << "name: "   <<object.value(TpString("appID")).toString() <<std::endl;
 	std::cout << "test: "   <<object.value(TpString("test")).toString() <<std::endl;
-}
+}*/
+

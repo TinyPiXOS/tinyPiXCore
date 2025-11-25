@@ -9,9 +9,9 @@
 #include <iostream>
 #include "TpSystemBatteryInfo.h"
 #include "TpDbusConnectManage.h"
-#include "TpDbus/properties.h"
-#include "TpDbus/connect.h"
-#include "TpDbus/freedesktop_upower.h"
+#include "Dbus/properties.h"
+#include "Dbus/connect.h"
+#include "Dbus/freedesktop_upower.h"
 
 #define UPOWER_SERVICE        "org.freedesktop.UPower"
 #define UPOWER_DISPLAY_DEVICE "/org/freedesktop/UPower/devices/line_power_ACAD"//"/org/freedesktop/UPower/devices/DisplayDevice"
