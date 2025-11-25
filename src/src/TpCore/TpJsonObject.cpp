@@ -69,7 +69,7 @@ void TpJsonObject::insert(const TpString &key, const TpJsonValue &value)
     {
         rapidjson::Value newValue;
         newValue.CopyFrom(tmpJsonValue.value_, allocator); // 深拷贝
-        
+
         doc_.AddMember(jsonKey, newValue, allocator);
         // doc_.AddMember(jsonKey, tmpJsonValue.value_, allocator);
     }
@@ -115,23 +115,17 @@ void TpJsonObject::insert(const TpString &key, const TpJsonArray &value)
     rapidjson::Value jsonKey;
     jsonKey.SetString(key.c_str(), key.length(), allocator);
 
-    TpJsonArray &tmpJsonValue = const_cast<TpJsonArray &>(value);
+    // 深拷贝
+    rapidjson::Value newValue;
+    newValue.CopyFrom(value.doc_, allocator);
 
-    // 已有key值则覆盖
     if (doc_.HasMember(key.c_str()))
     {
-        // 获取 "name" 键的迭代器
-        rapidjson::Document::MemberIterator iter = doc_.FindMember(key.c_str());
-        if (iter != doc_.MemberEnd())
-        {
-            // 覆盖已有的键值
-            rapidjson::Value &jsonValue = tmpJsonValue.doc_;
-            iter->value = jsonValue;
-        }
+        doc_[key.c_str()] = newValue;
     }
     else
     {
-        doc_.AddMember(jsonKey, rapidjson::Value(tmpJsonValue.doc_, tmpJsonValue.doc_.GetAllocator()).Move(), allocator);
+        doc_.AddMember(jsonKey, newValue, allocator);
     }
 }
 

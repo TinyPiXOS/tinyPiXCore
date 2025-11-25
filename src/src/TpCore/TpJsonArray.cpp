@@ -57,13 +57,9 @@ void TpJsonArray::append(const TpJsonValue &value)
     if (value.isNull())
         return;
 
-    TpJsonValue tmpJsonValue = value;
-
     rapidjson::Value newValue;
     newValue.CopyFrom(value.value_, doc_.GetAllocator());
     doc_.PushBack(newValue, doc_.GetAllocator());
-
-    // doc_.PushBack(tmpJsonValue.value_, doc_.GetAllocator());
 }
 
 void TpJsonArray::append(const TpJsonObject &object)
