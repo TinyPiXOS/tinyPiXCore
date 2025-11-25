@@ -8,6 +8,7 @@
 #include <JsonStructPackage/rapidjson/document.h>
 #include <JsonStructPackage/rapidjson/stringbuffer.h>
 #include <JsonStructPackage/rapidjson/writer.h>
+#include <JsonStructPackage/rapidjson/prettywriter.h> 
 
 class TpJsonObject;
 class TpJsonArray;

@@ -36,6 +36,10 @@ public:
     /// @return JSON格式字符串
     TpString toJson();
 
+    /// @brief 将文档序列化为方便阅读的JSON字符串
+    /// @return JSON格式字符串
+    TpString toFormattedJson();
+
     /// @brief 将文档作为JSON对象访问
     /// @return JSON对象
     /// @note 如果文档不是对象类型，返回值可能无效

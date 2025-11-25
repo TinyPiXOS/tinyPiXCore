@@ -1,4 +1,5 @@
 #include <TpJsonDocument.h>
+#include <sstream>
 
 TpJsonDocument::TpJsonDocument()
     : doc_()
@@ -56,6 +57,19 @@ TpString TpJsonDocument::toJson()
     std::string ret = std::string(buffer.GetString(), buffer.GetSize());
 
     return ret;
+}
+
+TpString TpJsonDocument::toFormattedJson()
+{  
+    rapidjson::StringBuffer buffer;  
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);  
+      
+    rapidjson::Value &json_value = this->doc_;  
+      
+    json_value.Accept(writer);  
+    std::string ret = std::string(buffer.GetString(), buffer.GetSize());  
+      
+    return ret;  
 }
 
 TpJsonObject TpJsonDocument::object() const

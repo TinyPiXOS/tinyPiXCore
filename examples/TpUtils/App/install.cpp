@@ -46,7 +46,7 @@ int install_lib()
 
 
 
-int main(int argc,char **argv)
+/*int main(int argc,char **argv)
 {
 	if(argc!=2)
 	{
@@ -56,10 +56,27 @@ int main(int argc,char **argv)
 	install_app(argv[1]);
 	
 	return 0;
+}*/
+
+
+
+void array_test(TpJsonArray &array)
+{
+	TpString value1("array_value1");
+	TpString value2("array_value2");
+	array.append(value1);
+	array.append(value2);
 }
 
+void json_test(TpJsonObject &object)
+{
+	TpJsonArray array;
+	array_test(array);
+	object.insert("test8",array);
+	std::cout << "json_doc:"<< TpJsonDocument(object).toJson() << std::endl;
+}
 
-/*int main()
+int main()
 {
 	TpJsonObject object;
 	char test2[20]="test_value\n";
@@ -75,10 +92,15 @@ int main(int argc,char **argv)
 	object.insert("test2",test2);
 	object.insert("test3",test3);
 	object.insert("test4",test4);
-	object.insert("test5",test5);
+	object.insert("test5",test5);	
+	object.insert("test6","hahahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+	object.insert("test7","123");	
+	TpJsonArray array;
+	json_test(object);
+	object.insert("test9","hahahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");	
 
 	TpJsonDocument doc(object);
 	std::cout << "json_doc:"<< doc.toJson() << std::endl;
 	std::cout << "name: "   <<object.value(TpString("name")).toString() <<std::endl;
 	std::cout << "test: "   <<object.value(TpString("test")).toString() <<std::endl;
-}*/
+}
