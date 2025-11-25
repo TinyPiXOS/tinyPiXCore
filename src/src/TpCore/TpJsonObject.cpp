@@ -84,24 +84,16 @@ void TpJsonObject::insert(const TpString &key, const TpJsonObject &value)
     rapidjson::Value jsonKey;
     jsonKey.SetString(key.c_str(), key.length(), allocator);
 
-    TpJsonObject &tmpJsonValue = const_cast<TpJsonObject &>(value);
+    // 深拷贝
+    rapidjson::Value newValue;
+    newValue.CopyFrom(value.doc_, allocator);
 
-    // 已有key值则覆盖
     if (doc_.HasMember(key.c_str()))
     {
-        // 获取 "name" 键的迭代器
-        rapidjson::Document::MemberIterator iter = doc_.FindMember(key.c_str());
-        if (iter != doc_.MemberEnd())
-        {
-            // 覆盖已有的键值
-            rapidjson::Value &jsonValue = tmpJsonValue.doc_;
-            iter->value = jsonValue;
-        }
+        doc_[key.c_str()] = newValue;
     }
     else
     {
-        rapidjson::Value newValue;
-        newValue.CopyFrom(tmpJsonValue.doc_, allocator); // 深拷贝
         doc_.AddMember(jsonKey, newValue, allocator);
     }
 }
