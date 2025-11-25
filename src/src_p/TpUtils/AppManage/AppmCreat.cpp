@@ -50,7 +50,7 @@ static void trim_newline_(char *str)
 // 归档对象，需要归档的文件目录，配置文件名字（即对单个文件打包）
 // a:归档
 // filepath：需要归档的文件目录
-int add_file_to_archive(struct archive *a, const char *file_path, const char *entry_name)
+int TpAppmCreat::AddFileToArchive(struct archive *a, const char *file_path, const char *entry_name)
 {
     struct archive_entry *entry;
     struct stat st;
@@ -180,7 +180,7 @@ int appm_ergodic_source_dopack(struct archive *a, const char *path_source, const
             else if (S_ISREG(entry_info.st_mode))
             {
                 // 如果是文件，添加到压缩包中
-                add_file_to_archive(a, (const char *)path_next_s, (const char *)path_next_t);
+                TpAppmCreat::AddFileToArchive(a, (const char *)path_next_s, (const char *)path_next_t);
             }
         }
         else
@@ -194,7 +194,7 @@ int appm_ergodic_source_dopack(struct archive *a, const char *path_source, const
 // 普通打包（使用file_creat生成原始文件夹后直接打包）
 // path_s：用于生成的安装包的源文件路径和名字
 // archive_name：生成的安装包路径和名字
-int appm_creat_package_path(const char *path_s, const char *archive_name)
+int TpAppmCreat::CreatPackageFile(const char *path_s, const char *archive_name)
 {
     struct archive *a = archive_write_new();
     archive_write_set_format_pax_restricted(a); // 设置为PAX格式
@@ -223,7 +223,7 @@ int appm_creat_package_path(const char *path_s, const char *archive_name)
 
 // lib打包(根据config结构体直接打包，不生成原始文件夹)
 // archive_name:生成的包的路径和名字
-int appm_creat_libpackage_config(const char *archive_name, struct LibPackageConfig *conf)
+int TpAppmCreat::CreatLibPackageConfig(const char *archive_name, struct LibPackageConfig *conf)
 {
     struct archive *a = archive_write_new();
     int ret = 0;
@@ -240,7 +240,7 @@ int appm_creat_libpackage_config(const char *archive_name, struct LibPackageConf
     // printf("生成%s\n", config_file);
     if ((ret = TpFileCreat::file_config_creat_lib(a, config_file, conf)) == 0) // 生成config文件并打包库文件
     {
-        add_file_to_archive(a, config_file, "./config"); // 打包config
+        TpAppmCreat::AddFileToArchive(a, config_file, "./config"); // 打包config
     }
 
     close_directories_temp(config_file);
@@ -256,7 +256,7 @@ int appm_creat_libpackage_config(const char *archive_name, struct LibPackageConf
 }
 
 // 根据config结构体直接打包成安装包(不生成中间文件)
-int appm_creat_apppackage_config(const char *archive_name, struct AppPackageConfig *conf)
+int TpAppmCreat::appm_creat_apppackage_config(const char *archive_name, struct AppPackageConfig *conf)
 {
     return 0;
 }
@@ -265,7 +265,7 @@ int appm_creat_apppackage_config(const char *archive_name, struct AppPackageConf
 // json_path:json文件路径和名字
 // conf:应用配置参数
 // script:启动脚本参数
-int appm_analysis_dopack_json(const TpString& json_path, struct AppPackageConfig *conf, struct ScriptInfo *script)
+int TpAppmCreat::AnalysisDopackJson(const TpString& json_path, struct AppPackageConfig *conf, struct ScriptInfo *script)
 {
 	std::cout<< "[Debug]： 解析用户json:" << json_path <<std::endl;
     printf("get AppPackageConfig\n");

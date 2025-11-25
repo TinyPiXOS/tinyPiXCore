@@ -99,7 +99,7 @@ int set_path_purview(const char *path, const char *purview)
 }
 
 // 初始化(系统启动调用,可能暂时不需要)
-int Appm_Install_Purview_Init()
+int TpAppmPurview::InstallPurviewInit()
 {
     if (check_group_exist(USERGROUP_USER_APP) == 0)
     {
@@ -145,7 +145,7 @@ int Appm_Install_Purview_Init()
 
 // 安装权限设置
 // 注意：需要提前设置/System/lib的权限
-int Appm_Install_Purview(TpAppID uuid, TypePackage type)
+int TpAppmPurview::InstallPurviewSet(TpAppID uuid, TypePackage type)
 {
     if (is_valid_uuid(uuid.value.c_str()) != TP_TRUE)
         return -1;
@@ -181,7 +181,7 @@ int Appm_Install_Purview(TpAppID uuid, TypePackage type)
 
 // 卸载调用
 // 删除用户
-int Appm_Remove_Purview(TpAppID uuid)
+int TpAppmPurview::RemovePurview(TpAppID uuid)
 {
     if (is_valid_uuid(uuid.value.c_str()) != TP_TRUE)
         return -1;

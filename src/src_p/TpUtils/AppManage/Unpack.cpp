@@ -21,7 +21,7 @@
 
 // 新建文件目录
 // unpack_test/control/control
-void create_directories(const char *path)
+void TpAppmUnpack::create_directories(const char *path)
 {
     char temp[1024];
     char *p = NULL;
@@ -117,7 +117,7 @@ int archive_find_entry(struct archive *a, const char *file_r, const char *file_w
 }
 
 // 常规完全解包(由于会对归档遍历操作，而遍历未知不能重置，因此建议关闭后重新打开文件来获取新的struct archive *)
-int extract_from_archive(struct archive *a, const char *sour_dir, const char *dest_dir)
+int TpAppmUnpack::extract_from_archive(struct archive *a, const char *sour_dir, const char *dest_dir)
 {
     struct archive_entry *entry;
     char full_path[1024];
@@ -154,7 +154,7 @@ int extract_from_archive(struct archive *a, const char *sour_dir, const char *de
         else
         {
             // 创建目录
-            create_directories((const char *)full_path);
+            TpAppmUnpack::create_directories((const char *)full_path);
             // 创建文件
             output_file = fopen(full_path, "wb");
             if (output_file == NULL)
@@ -190,13 +190,13 @@ int extract_from_archive(struct archive *a, const char *sour_dir, const char *de
 // 常规完全解包
 // filename:原始包
 // dest_dir:解压路径
-int extract_archive_file(const char *filename, const char *sour_dir, const char *dest_dir)
+int TpAppmUnpack::extract_archive_file(const char *filename, const char *sour_dir, const char *dest_dir)
 {
     printf("=====新建解压归档,解包%s,%s\n", sour_dir, dest_dir);
     struct UnpackEntry unpack;
     if (open_unpack_entry(&unpack, filename) < 0) // 创建归档对象
         return -1;
-    if (extract_from_archive(unpack.a, sour_dir, dest_dir) < 0)
+    if (TpAppmUnpack::extract_from_archive(unpack.a, sour_dir, dest_dir) < 0)
     {
         close_unpack_entry(&unpack);
         return -1;
@@ -242,10 +242,10 @@ int Appm_Unpack(const char *archive_name, uint8_t type)
     printf("Package %s extracted to %s\n", archive_name, dest_path);
 
     // 删除MD5
-    //	del_md5_from_file(archive_name,NULL);
+    //	TpAppmUtils::DelMd5FromFile(archive_name,NULL);
 
     // 解包归档
-    extract_archive_file(archive_name, NULL, dest_path);
+    TpAppmUnpack::extract_archive_file(archive_name, NULL, dest_path);
     printf("Package %s extracted to %s\n", archive_name, dest_path);
     return 0;
 }
@@ -253,7 +253,7 @@ int Appm_Unpack(const char *archive_name, uint8_t type)
 // 单独从包pack中解出来条目entry,并写入unpack_file，如果unpac_file为空，则会创建一个临时文件用于保存entry条目的内容
 // 返回解出来的文件的路径
 // 如果unpack_file为空会产生临时文件，必须调用int close_directories_temp(char *file)删除临时文件
-int extract_file_pack(const char *pack, const char *entry, char *unpack_file)
+int TpAppmUnpack::extract_file_pack(const char *pack, const char *entry, char *unpack_file)
 {
     struct UnpackEntry unpack;
     char *file_path = unpack_file;
@@ -344,7 +344,7 @@ int package_config_handle_export(FILE *file, struct AppInstallInfo *app, char *l
         memset(value_tmp, 0, length);
         memcpy(value_tmp, flag, length - (flag - line));
         files = value_tmp + 1;
-        type = get_config_export_key_type(key);
+        type = TpAppmInstallCheck::get_config_export_key_type(key);
     }
     else
     {
@@ -382,13 +382,13 @@ char *appm_get_package_config(struct TpAppInfo *info)
 // filename:原始包
 // dest_dir:解包路径
 //int extract_archive_package_config(struct AppInstallInfo *app_install, json_object *root)
-int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObject root)
+int TpAppmUnpack::extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObject root)
 {
     printf("根据config文件解包=====\n");
     /*	uint8_t md5_r[MD5_DIGEST_LENGTH];
-        if((del_md5_from_file(filename,md5_r,1))<0){
-            printf("del_md5_from_file error\n");
-            add_md5_to_file(filename,md5_r);
+        if((TpAppmUtils::DelMd5FromFile(filename,md5_r,1))<0){
+            printf("TpAppmUtils::DelMd5FromFile error\n");
+            TpAppmUtils::AddMd5ToFile(filename,md5_r);
             return -1;
         }*/
     // 打开归档文件
@@ -396,7 +396,7 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
     if (open_unpack_entry(&unpack, app_install->app->path_pik.c_str()) < 0)
     {
         printf("打开归档%s失败\n", app_install->app->path_pik.c_str());
-        //		add_md5_to_file(filename,md5_r);
+        //		TpAppmUtils::AddMd5ToFile(filename,md5_r);
         return -1;
     }
     //	app_install->a=unpack.a;
@@ -406,7 +406,7 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
     {
         fprintf(stderr, "Error:Can't find config\n");
         close_unpack_entry(&unpack);
-        //		add_md5_to_file(filename,md5_r);
+        //		TpAppmUtils::AddMd5ToFile(filename,md5_r);
         return -1;
     }
     FILE *file = fopen(config_file, "r");
@@ -415,7 +415,7 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
         fprintf(stderr, "Error:Can't open config temp\n");
         close_directories_temp(config_file);
         close_unpack_entry(&unpack);
-        //		add_md5_to_file(filename,md5_r);
+        //		TpAppmUtils::AddMd5ToFile(filename,md5_r);
         return -1;
     }
 
@@ -446,7 +446,6 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
             package_config_handle_info(file, app_install->a, line);
             continue;
         }
-        printf("line=%s\n", line);
         int line_len = strlen(line);
         package_config_handle_export(file, app_install, line, line_len, &last_line);
     }
@@ -454,22 +453,22 @@ int extract_archive_package_config(struct AppInstallInfo *app_install, TpJsonObj
 
     //  关闭归档
     close_unpack_entry(&unpack);
-    //	add_md5_to_file(filename,md5_r);
+    //	TpAppmUtils::AddMd5ToFile(filename,md5_r);
     return 0;
 }
 
 // 获取安装包信息
 // 会单独解析config文件获取信息，建议在构造函数中调用
-int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
+int TpAppmUnpack::appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
 {
     printf("[Debug]: appm_get_package_info:%s\n",filename);
     struct UnpackEntry unpack;
     int ret = 0;
     // 读取并删除MD5信息
     uint8_t *md5_r = conf->md5;
-    if ((ret = del_md5_from_file(filename, md5_r, 1)) < 0)
+    if ((ret = TpAppmUtils::DelMd5FromFile(filename, md5_r, 1)) < 0)
     {
-        printf("del_md5_from_file error%d\n", ret);
+        printf("TpAppmUtils::DelMd5FromFile error%d\n", ret);
         return -1;
     }
     uint8_t md5[sizeof(conf->md5)];
@@ -487,7 +486,7 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
     if (open_unpack_entry(&unpack, filename) < 0)
     {
         fprintf(stderr, "Error:open_unpack_entry\n");
-        add_md5_to_file(filename, md5_r);
+        TpAppmUtils::AddMd5ToFile(filename, md5_r);
         return -1;
     }
 
@@ -497,11 +496,11 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
     {
         fprintf(stderr, "Error:找不到./config\n");
         close_unpack_entry(&unpack);
-        add_md5_to_file(filename, md5_r);
+        TpAppmUtils::AddMd5ToFile(filename, md5_r);
         return -1;
     }
 	printf("从config获取应用信息\n");
-    extract_config_info(config_file, conf); // 从config获取应用信息
+    TpAppmInstallCheck::extract_config_info(config_file, conf); // 从config获取应用信息
 
     char *last_slash = (char *)strrchr(conf->appConf.icon.c_str(), '/');                    // Linux路径分隔符
     char *icon_file = open_directories_temp_file_name(TMP_CACHE_FILE_PATH, last_slash + 1); // 创建临时文件保存icon
@@ -511,7 +510,7 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
         // free(conf->app_conf.icon);
         // conf->app_conf.icon=NULL;
         close_unpack_entry(&unpack);
-        add_md5_to_file(filename, md5_r);
+        TpAppmUtils::AddMd5ToFile(filename, md5_r);
         return -1;
     }
     conf->appConf.icon = TpString(icon_file);
@@ -520,21 +519,21 @@ int appm_get_package_info(const char *filename, struct PackageConfigInfo *conf)
     close_unpack_entry(&unpack);
 
     // 写入MD5信息（）,不删除的时候不要写入
-    add_md5_to_file(filename, md5_r);
+    TpAppmUtils::AddMd5ToFile(filename, md5_r);
     return 0;
 
     close_unpack_entry(&unpack);
-    add_md5_to_file(filename, md5_r); // 写入MD5信息（）,不删除的时候不要写入//写入MD5信息（）,不删除的时候不要写入
+    TpAppmUtils::AddMd5ToFile(filename, md5_r); // 写入MD5信息（）,不删除的时候不要写入//写入MD5信息（）,不删除的时候不要写入
     return -1;
 }
 
-int appm_free_package_info(struct PackageConfigInfo *conf)
+int TpAppmUnpack::appm_free_package_info(struct PackageConfigInfo *conf)
 {
     switch (conf->type)
     {
     case TYPE_PACKAGE_APP:
     case TYPE_PACKAGE_SAPP:
-        free_AppPackageConfig(&conf->appConf);
+        TpAppmInstallCheck::free_AppPackageConfig(&conf->appConf);
         break;
     case TYPE_PACKAGE_LIB:
         break;

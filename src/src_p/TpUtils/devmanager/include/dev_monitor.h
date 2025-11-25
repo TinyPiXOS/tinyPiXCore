@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <pthread.h>
 #include <libudev.h>
-#include "utils/utthread.h"
+#include "tools/utthread.h"
 #include "usb_manager.h"
 /*
 #define DEV_MONITOR_FILTER_USB			"usb"

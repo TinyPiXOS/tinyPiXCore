@@ -130,6 +130,6 @@ int TpLibDopack::addFile(const TpString &file)
 int TpLibDopack::save(const TpString &path)
 {
     TpLibDopackData *libData = static_cast<TpLibDopackData *>(data_);
-    appm_creat_libpackage_config(path.c_str(), &libData->params);
+    TpAppmCreat::CreatLibPackageConfig(path.c_str(), &libData->params);
     return 0;
 }

@@ -338,7 +338,6 @@ int install_config_file(const struct TpAppInfo *app)
 
         // 移除换行符（readLine可能已经去除了换行符，但为了安全还是处理一下）
         //line = line.trimmed();
-        printf("lne=%s,\n",line.c_str());
         // export和update开头的不拷贝
         if (line.startsWith("export "))
         {
@@ -435,9 +434,9 @@ int install_file_extract(struct AppInstallInfo *app_install, const char *path, c
     TpString path_d = installPath + "/" + app->uuid.c_str() + "/" + TpString(path) + "/" + TpString(file_d);
 
     if (app_install->a != NULL)
-        ret = extract_from_archive(app_install->a, file_s, path_d.c_str()); // 已经创建好归档最直接解包
+        ret = TpAppmUnpack::extract_from_archive(app_install->a, file_s, path_d.c_str()); // 已经创建好归档最直接解包
     else
-        ret = extract_archive_file(app->path_pik.c_str(), file_s, path_d.c_str()); // 先创建归档再解包
+        ret = TpAppmUnpack::extract_archive_file(app->path_pik.c_str(), file_s, path_d.c_str()); // 先创建归档再解包
     return ret;
 }
 
@@ -673,7 +672,7 @@ int Appm_Install_Archive(struct TpAppInfo *app, struct PackageUserParam *user)
     // 安装其他文件
     // struct json_object *root=json_object_new_object();
     //extract_archive_package_config(&app_install, NULL);
-	extract_archive_package_config(&app_install, TpJsonObject());
+	TpAppmUnpack::extract_archive_package_config(&app_install, TpJsonObject());
     // printf("%s\n", json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_NOSLASHESCAPE));
     // json_object_put(root);
     write_install_schedule(schedule, 90);
@@ -728,7 +727,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
         return -1;
     }
     // 解包到/System/app/temp
-    /*if(Appm_Unpack(path_pik,TYPE_PACKAGE_APP)<0){
+    /*if(TpAppmUnpack::Appm_Unpack(path_pik,TYPE_PACKAGE_APP)<0){
         install_remove_appfile(app.uuid);
         free(app.pikname);
         return -1;
@@ -742,7 +741,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     if (conf->installFlag == 0)
     {
         printf("应用未安装，设置用户权限\n");
-        Appm_Install_Purview(uuid, type);
+        TpAppmPurview::InstallPurviewSet(uuid, type);
     }
     write_install_schedule(schedule, 100);
 
@@ -759,7 +758,7 @@ int Appm_Install_Library(const char *pathLib, struct LibPackageConfig *conf, str
     for (size_t i = 0; i < conf->systemLib.size(); i++)
     {
         TpString libPath = TpString(LIBS_INSTALL_PATH) + "/" + conf->systemLib[i];
-        extract_file_pack(pathLib, conf->systemLib[i].c_str(), (char *)libPath.c_str());
+        TpAppmUnpack::extract_file_pack(pathLib, conf->systemLib[i].c_str(), (char *)libPath.c_str());
     }
 
     return 0;

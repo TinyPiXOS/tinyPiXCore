@@ -107,8 +107,8 @@ void ParseEnvironment(const TpJsonArray &envArray, TpVector<TpString> &types, Tp
         }
 
         TpJsonObject envObj = item.toObject();
-        TpString typeStr = GetStringValue(envObj, "type");
-        TpString valueStr = GetStringValue(envObj, "value");
+        TpString typeStr = GetStringValue(envObj, "Type");
+        TpString valueStr = GetStringValue(envObj, "Value");
 
         types.append(typeStr);
         values.append(valueStr);
@@ -117,8 +117,8 @@ void ParseEnvironment(const TpJsonArray &envArray, TpVector<TpString> &types, Tp
 
 void ParseAuthor(const TpJsonObject &authorObj, TpString &author, TpString &contact)
 {
-    author = GetStringValue(authorObj, "name");
-    contact = GetStringValue(authorObj, "email");
+    author = GetStringValue(authorObj, "Name");
+    contact = GetStringValue(authorObj, "Email");
 }
 
 // ==================== 主解析函数实现 ====================
@@ -139,30 +139,30 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
 
 	std::cout<< "json:\n" << doc.toJson() << std::endl;
     // 解析基本字段
-    config.appID = GetStringValue(root, "appID", true);
-    config.appName = GetStringValue(root, "appName", true);
-    config.organization = GetStringValue(root, "organization");
-    config.appexecName = GetStringValue(root, "appexecName");
-    config.architecture = GetStringValue(root, "architecture");
-    config.section = GetStringValue(root, "section");
-    config.priority = GetStringValue(root, "priority");
-    config.essential = GetStringValue(root, "essential");
-    config.diskspace = GetIntValue(root, "diskspace");
-    config.description = GetStringValue(root, "description");
-    config.signature = GetStringValue(root, "signature");
-    config.icon = GetStringValue(root, "icon");
+    config.appID = GetStringValue(root, "AppID", true);
+    config.appName = GetStringValue(root, "AppName", true);
+    config.organization = GetStringValue(root, "Organization");
+    config.appexecName = GetStringValue(root, "AppexecName");
+    config.architecture = GetStringValue(root, "Architecture");
+    config.section = GetStringValue(root, "Section");
+    config.priority = GetStringValue(root, "Priority");
+    config.essential = GetStringValue(root, "Essential");
+    config.diskspace = GetStringValue(root, "Diskspace").toUInt();
+    config.description = GetStringValue(root, "Description");
+    config.signature = GetStringValue(root, "Signature");
+    config.icon = GetStringValue(root, "Icon");
 
     // 解析版本号
-    if (root.contains("version"))
+    if (root.contains("Version"))
     {
-        TpJsonValue versionVal = root.value("version");
+        TpJsonValue versionVal = root.value("Version");
         config.version = ParseVersion(versionVal);
     }
 
     // 解析作者信息
-    if (root.contains("author"))
+    if (root.contains("Author"))
     {
-        TpJsonValue authorVal = root.value("author");
+        TpJsonValue authorVal = root.value("Author");
         if (authorVal.isObject())
         {
             TpJsonObject authorObj = authorVal.toObject();
@@ -171,36 +171,36 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
     }
 
     // 解析数组字段
-    if (root.contains("otherFiles"))
+    if (root.contains("OtherFiles"))
     {
-        TpJsonValue arrayVal = root.value("otherFiles");
+        TpJsonValue arrayVal = root.value("OtherFiles");
         if (arrayVal.isArray())
         {
             config.otherFiles = ParseStringArray(arrayVal.toArray());
         }
     }
 
-    if (root.contains("fileExtension"))
+    if (root.contains("FileExtension"))
     {
-        TpJsonValue arrayVal = root.value("fileExtension");
+        TpJsonValue arrayVal = root.value("FileExtension");
         if (arrayVal.isArray())
         {
             config.fileExtension = ParseStringArray(arrayVal.toArray());
         }
     }
 
-    if (root.contains("binFiles"))
+    if (root.contains("BinFiles"))
     {
-        TpJsonValue arrayVal = root.value("binFiles");
+        TpJsonValue arrayVal = root.value("BinFiles");
         if (arrayVal.isArray())
         {
             config.binFiles = ParseStringArray(arrayVal.toArray());
         }
     }
 
-    if (root.contains("assertFiles"))
+    if (root.contains("AssertFiles"))
     {
-        TpJsonValue arrayVal = root.value("assertFiles");
+        TpJsonValue arrayVal = root.value("AssertFiles");
         if (arrayVal.isArray())
         {
             config.assertFiles = ParseStringArray(arrayVal.toArray());
@@ -224,9 +224,9 @@ void JsonConfigParser::GetStartupInfo(const TpString &configPath, ScriptInfo &sc
     }
 
     // 解析启动参数
-    if (root.contains("startupParameters"))
+    if (root.contains("StartupParameters"))
     {
-        TpJsonValue arrayVal = root.value("startupParameters");
+        TpJsonValue arrayVal = root.value("StartupParameters");
         if (arrayVal.isArray())
         {
             scriptInfo.args = ParseStringArray(arrayVal.toArray());
@@ -234,9 +234,9 @@ void JsonConfigParser::GetStartupInfo(const TpString &configPath, ScriptInfo &sc
     }
 
     // 解析环境变量
-    if (root.contains("environment"))
+    if (root.contains("Environment"))
     {
-        TpJsonValue arrayVal = root.value("environment");
+        TpJsonValue arrayVal = root.value("Environment");
         if (arrayVal.isArray())
         {
             ParseEnvironment(arrayVal.toArray(), scriptInfo.env_type, scriptInfo.env_vars);

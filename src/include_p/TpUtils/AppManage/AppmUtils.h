@@ -19,7 +19,7 @@
 #include <regex.h>
 #include <openssl/md5.h>
 #include "AppManage/AppmanageConf.h"
-#include "utils/utilslib.h"
+#include "tools/utilslib.h"
 
 void delete_end_space(char *str);
 void trim_newline(char *str);
@@ -35,13 +35,20 @@ int is_valid_uuid(const char *uuid);
 void uuid_remove_hyphens(const char *input,char *output);
 void uuid_add_hyphens(const char *input, char *output);
 
-int MD5_Test();
-int del_md5_from_file(const char *file_path,uint8_t md5[MD5_DIGEST_LENGTH],uint8_t flag);
-int add_md5_to_file(const char *file_path,uint8_t md5[MD5_DIGEST_LENGTH]);
 
-int string_to_version(const char *str, struct TpVersion *ver);
+
 
 char *open_directories_temp_file_name(const char *path, const char *file_name);
+
+class TpAppmUtils{
+public:
+    TpAppmUtils(){}
+    ~TpAppmUtils(){}
+public:
+    static int StringToVersion(const char *str, struct TpVersion *ver);
+    static int DelMd5FromFile(const char *file_path,uint8_t md5[MD5_DIGEST_LENGTH],uint8_t flag);
+    static int AddMd5ToFile(const char *file_path,uint8_t md5[MD5_DIGEST_LENGTH]);
+};
 
 
 

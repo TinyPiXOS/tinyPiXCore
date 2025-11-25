@@ -29,6 +29,9 @@
 #include <string.h>
 #include <ctype.h>
 
+
+
+
 struct ArchMapping arch_maps[] = {
     {"x86_64", "amd64"},
     {"x64", "amd64"},
@@ -104,7 +107,7 @@ int get_app_version_config(const char *uuid, struct TpVersion *ver)
     }
 
     extract_key_value(path_conf, "version:", ver_str);
-    string_to_version((const char *)ver_str, ver);
+    TpAppmUtils::StringToVersion((const char *)ver_str, ver);
     return 0;
 }
 
@@ -131,7 +134,7 @@ int get_app_version_json(const char *uuid, struct TpVersion *ver)
         return 1;
     }
     ConfigJsonParser::findKeyFromFile(path_conf, "version", verStr);
-    string_to_version(verStr.c_str(), ver);
+    TpAppmUtils::StringToVersion(verStr.c_str(), ver);
     return 0;
 }
 
@@ -191,7 +194,7 @@ int install_check_arch(char *envs)
 
 // 检查内存空间
 // 返回1，空间足够。返回-1空间不够，返回0，未知
-int install_check_diskspace(uint32_t need_space)
+static int install_check_diskspace(uint32_t need_space)
 {
     struct statvfs stat;
     if (need_space == 0)
@@ -249,26 +252,26 @@ int extract_lib_config_lib(char *libs, struct LibPackageConfig *config)
             config->systemLib.emplace_back(lib_name);
         }
 
-        string_to_version(ver + 1, &config->version[config->systemLib.size() - 1]);
+        TpAppmUtils::StringToVersion(ver + 1, &config->version[config->systemLib.size() - 1]);
         lib_name = strtok_r(NULL, " ", &libs_ptr);
     }
     return 0;
 }
 
 // config信息中export行的内容类型
-PackageExportType get_config_export_key_type(const char *key)
+PackageExportType TpAppmInstallCheck::get_config_export_key_type(const char *key)
 {
     PackageExportType type = EXPORT_NONE;
 
-    if (strncmp(key, "lib", 3) == 0)
+    if (strncmp(key, "Lib", 3) == 0)
     {
         type = EXPORT_LIBS;
     }
-    else if (strncmp(key, "depend", 6) == 0)
+    else if (strncmp(key, "Depend", 6) == 0)
     {
         type = EXPORT_DEPEND;
     }
-    else if (strncmp(key, "icon", 4) == 0 || strncmp(key, "start", 5) == 0 || strncmp(key, "remove", 6) == 0)
+    else if (strncmp(key, "Icon", 4) == 0 || strncmp(key, "Start", 5) == 0 || strncmp(key, "Remove", 6) == 0)
     { // icon start remove
         type = EXPORT_MUST;
     }
@@ -276,7 +279,7 @@ PackageExportType get_config_export_key_type(const char *key)
 }
 
 // 安装包中的config信息提取
-int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
+int TpAppmInstallCheck::extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
 {
     FILE *file_s = fopen(file_config, "r");
     if (!file_s)
@@ -314,35 +317,35 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
             // 移除换行符
             trim_newline(line);
 
-            if (strncmp(line, "appName:", 8) == 0)
+            if (strncmp(line, "AppName:", 8) == 0)
             {
 				config->appName = TpString(line + 8);
                 // strncpy(config->appName, line + 8, 128);
             }
-            else if (strncmp(line, "appID:", 6) == 0)
+            else if (strncmp(line, "AppID:", 6) == 0)
             {
                 config->appID.assign(line + 6, 37);
                 // strncpy(config->app_id, line + 6, sizeof(config->app_id));
             }
-            else if (strncmp(line, "version:", 8) == 0)
+            else if (strncmp(line, "Version:", 8) == 0)
             {
                 // struct TpVersion ver;
-                string_to_version((const char *)line + 8, &(config->version));
+                TpAppmUtils::StringToVersion((const char *)line + 8, &(config->version));
             }
-            else if (strncmp(line, "appexecName:", 12) == 0)
+            else if (strncmp(line, "AppexecName:", 12) == 0)
             {
                 //int len = strlen(line + 12) + 1;
 				config->appexecName = TpString(line + 12);
                 // config->appexec_name = malloc(len);
                 // strncpy(config->appexec_name, line + 12, len);
             }
-            else if (strncmp(line, "architecture:", 13) == 0)
+            else if (strncmp(line, "Architecture:", 13) == 0)
             {
                 //config->architecture.assign(line + 13, 64);
 				config->architecture = TpString(line + 13);
                 // strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
-            else if (strncmp(line, "diskSpace:", 10) == 0)
+            else if (strncmp(line, "DiskSpace:", 10) == 0)
             {
                 long int size;
                 if (string_to_number(line + 10, &size) == 0)
@@ -350,7 +353,7 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 else
                     config->diskspace = 0;
             }
-            else if (strncmp(line, "export icon=", 12) == 0)
+            else if (strncmp(line, "export Icon=", 12) == 0)
             {
 				config->icon = TpString(line + 12);
 				config->icon.erase(config->icon.find_last_not_of(" \t\n\r\f\v") + 1);
@@ -376,12 +379,12 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 continue;
             // 移除换行符
             trim_newline(line);
-            if (strncmp(line, "architecture:", 13) == 0)
+            if (strncmp(line, "Architecture:", 13) == 0)
             {
                 config->architecture.assign(line + 13, 16);
                 // strncpy(config->architecture, line + 13, sizeof(config->architecture));
             }
-            else if (strncmp(line, "diskSpace:", 10) == 0)
+            else if (strncmp(line, "DiskSpace:", 10) == 0)
             {
                 long int size;
                 if (string_to_number(line + 10, &size) == 0)
@@ -389,7 +392,7 @@ int extract_config_info(const char *file_config, struct PackageConfigInfo *conf)
                 else
                     config->diskspace = 0;
             }
-            else if (strncmp(line, "export lib=", 11) == 0 || last_line == 1)
+            else if (strncmp(line, "export Lib=", 11) == 0 || last_line == 1)
             {
                 last_line = 0;
                 char *libs = line + 11;
@@ -421,7 +424,7 @@ int install_check_md5(const char *file_path)
 {
     uint8_t md5_len = MD5_DIGEST_LENGTH;
     uint8_t md5_r[md5_len];
-    del_md5_from_file(file_path, md5_r, 1);
+    TpAppmUtils::DelMd5FromFile(file_path, md5_r, 1);
 
     uint8_t md5[md5_len];
     compute_md5(file_path, md5);
@@ -429,16 +432,16 @@ int install_check_md5(const char *file_path)
     {
         if (md5[i] != md5_r[i])
         {
-            add_md5_to_file(file_path, md5_r);
+            TpAppmUtils::AddMd5ToFile(file_path, md5_r);
             return -1;
         }
     }
-    add_md5_to_file(file_path, md5_r); // 当del_md5_from_file的最后一个参数为1的时候需要调用
+    TpAppmUtils::AddMd5ToFile(file_path, md5_r); // 当TpAppmUtils::DelMd5FromFile的最后一个参数为1的时候需要调用
     return 1;
 }
 
 // AppPackageConfig结构体释放
-int free_AppPackageConfig(struct AppPackageConfig *conf)
+int TpAppmInstallCheck::free_AppPackageConfig(struct AppPackageConfig *conf)
 {
     if (!conf->icon.empty())
     {
@@ -451,7 +454,7 @@ int free_AppPackageConfig(struct AppPackageConfig *conf)
     return 0;
 }
 
-int appm_check_arch(struct PackageConfigInfo *conf)
+int TpAppmInstallCheck::appm_check_arch(struct PackageConfigInfo *conf)
 {
     TpString arch;
     switch (conf->type)
@@ -469,7 +472,7 @@ int appm_check_arch(struct PackageConfigInfo *conf)
     return install_check_arch((char *)arch.c_str());
 }
 
-int appm_check_space(struct PackageConfigInfo *conf)
+int TpAppmInstallCheck::appm_check_space(struct PackageConfigInfo *conf)
 {
     uint32_t space;
     switch (conf->type)
@@ -488,7 +491,7 @@ int appm_check_space(struct PackageConfigInfo *conf)
 }
 
 // 检查版本，分为库的版本和应用的版本
-int appm_check_version(struct PackageConfigInfo *conf)
+int TpAppmInstallCheck::appm_check_version(struct PackageConfigInfo *conf)
 {
     switch (conf->type)
     {
@@ -506,14 +509,14 @@ int appm_check_version(struct PackageConfigInfo *conf)
 }
 
 // 获取已安装的应用的版本
-int appm_get_app_version(const char *uuid, struct TpVersion *version)
+int TpAppmInstallCheck::appm_get_app_version(const char *uuid, struct TpVersion *version)
 {
     // get_app_version_config(uuid,version);
     get_app_version_json(uuid, version);
     return 0;
 }
 
-int appm_get_app_is_install(struct PackageConfigInfo *conf)
+int TpAppmInstallCheck::appm_get_app_is_install(struct PackageConfigInfo *conf)
 {
     switch (conf->type)
     {
@@ -526,3 +529,9 @@ int appm_get_app_is_install(struct PackageConfigInfo *conf)
         return 0;
     }
 }
+
+
+
+//new interfce
+
+//解析安装包信息(json)

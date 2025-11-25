@@ -1,5 +1,5 @@
 //临时文件(重构使用，后续移走)
-#include "utils/variable_array.h"
+#include "tools/variable_array.h"
 #include "Media/media_codec.h"
 #include "Media/media_play_temp.h"
 #include "Media/media_file_list.h"

@@ -220,7 +220,7 @@ int TpPackageInfo::CreatPackage(const TpString& package)
 	char *path_c=(char*)malloc(path_s.size() +1);
 	std::strcpy(pack_c, package.c_str());
 	std::strcpy(path_c, path_s.c_str());
-	appm_creat_package_path(path_c,pack_c);
+	TpAppmCreat::CreatPackageFile(path_c,pack_c);
 	free(path_c);
 	free(pack_c);
 }
@@ -344,7 +344,7 @@ int TpLibPackageInfo::Save(const TpString &path)
 {
 	char *path_c=(char*)malloc(path.size() +1);
 	std::strcpy(path_c,path.c_str());
-	appm_creat_libpackage_config(path_c,&params);
+	TpAppmCreat::CreatLibPackageConfig(path_c,&params);
 	free(path_c);
 }
 

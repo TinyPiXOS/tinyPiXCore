@@ -75,16 +75,22 @@ int main()
     video.playStart();
     video.setSpeed(1.0);
     printf("文件时长%d\n", video.getDuration());
-    for (int i = 0; i < 10; i++)
+    /*for (int i = 0; i < 10; i++)
     {
         printf("文件时长%d\n", video.getDuration());
         printf("position%d\n", video.getPosition());
         sleep(1);
     }
-    printf("文件时长%d\n", video.getDuration());
+    printf("文件时长%d\n", video.getDuration());*/
     video.getPosition();
-    video.setPosition(1);
+    video.setPosition(50);
     printf("后退成功\n");
+	for (int i = 0; i < 50; i++)
+    {
+        printf("文件时长%d\n", video.getDuration());
+        printf("position%d\n", video.getPosition());
+        usleep(100000);
+    }
     //	printf("播放下一个\n");
     //	video.playNext();
     sleep(10);

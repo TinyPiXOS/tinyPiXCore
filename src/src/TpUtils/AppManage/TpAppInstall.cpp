@@ -19,7 +19,7 @@
 #include "InstallCheck.h"
 #include "TpAppInstall.h"
 #include "AppManage/AppmUtils.h"
-#include "utils/utilslib.h"
+#include "tools/utilslib.h"
 
 struct TpAppInstallData
 {
@@ -80,7 +80,7 @@ TpAppInstall::~TpAppInstall()
         appData->thread_t.join();
     }
     appData->is_runing = false;
-    appm_free_package_info(&appData->conf);
+    TpAppmUnpack::appm_free_package_info(&appData->conf);
     if (appData->pack_path_c)
         free(appData->pack_path_c);
     delete_install_schedule(appData->user.schedule);
@@ -94,7 +94,7 @@ int TpAppInstall::setPath(const TpString &path)
         return -1;
     appData->pack_path_c = (char *)malloc(path.size() + 1);
     std::strcpy(appData->pack_path_c, path.c_str());
-    return appm_get_package_info(appData->pack_path_c, &appData->conf); // 获取安装包信息
+    return TpAppmUnpack::appm_get_package_info(appData->pack_path_c, &appData->conf); // 获取安装包信息
 }
 
 tpBool TpAppInstall::isInstall()
@@ -102,7 +102,7 @@ tpBool TpAppInstall::isInstall()
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData)
         return TP_FALSE;
-    return (appm_get_app_is_install(&appData->conf) == 0 ? TP_FALSE : TP_TRUE);
+    return (TpAppmInstallCheck::appm_get_app_is_install(&appData->conf) == 0 ? TP_FALSE : TP_TRUE);
 }
 
 TpString TpAppInstall::getIcon()
@@ -146,7 +146,7 @@ int TpAppInstall::archCheck() // 硬件架构检查
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
         return -1;
-    return appm_check_arch(&appData->conf);
+    return TpAppmInstallCheck::appm_check_arch(&appData->conf);
 }
 
 int TpAppInstall::spaceCheck() // 空间检查
@@ -154,7 +154,7 @@ int TpAppInstall::spaceCheck() // 空间检查
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
         return -1;
-    return appm_check_space(&appData->conf);
+    return TpAppmInstallCheck::appm_check_space(&appData->conf);
 }
 
 int TpAppInstall::versionCheck() // 版本检查
@@ -164,7 +164,7 @@ int TpAppInstall::versionCheck() // 版本检查
         return -1;
     if (!isInstall())
         return 1;
-    return appm_check_version(&appData->conf);
+    return TpAppmInstallCheck::appm_check_version(&appData->conf);
 }
 
 int TpAppInstall::completeCheck() // 安装包完整性检查
@@ -250,7 +250,7 @@ TpString TpAppInstall::getNowVersion() // 获取已安装的版本,根据uuid获
     TpString version = "0.0.0";
 
     TpVersion s_ver;
-    appm_get_app_version(appData->conf.appConf.appID.c_str(), &s_ver);
+    TpAppmInstallCheck::appm_get_app_version(appData->conf.appConf.appID.c_str(), &s_ver);
 
     version = TpString::number(s_ver.x) + "." +
               TpString::number(s_ver.y) + "." +
@@ -388,5 +388,5 @@ int TpAppInstall::remove(TpString &uuid)
         fprintf(stderr, "app not installed\n");
         return -1;
     }
-    return appm_app_unload(appid);
+    return TpAppmUnload::Unload(appid);
 }

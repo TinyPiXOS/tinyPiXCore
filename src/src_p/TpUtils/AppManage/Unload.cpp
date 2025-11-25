@@ -17,7 +17,8 @@
 #include "typesDef.h"
 #include "TpDir.h"
 
-int appm_app_unload(TpAppID uuid)
+
+int TpAppmUnload::Unload(TpAppID uuid)
 {
     if (is_valid_uuid(uuid.value.c_str()) != TP_TRUE)
     {
@@ -59,7 +60,7 @@ int appm_app_unload(TpAppID uuid)
         }
     */
     // 删除用户
-    if (Appm_Remove_Purview(uuid) < 0)
+    if (TpAppmPurview::RemovePurview(uuid) < 0)
     {
         fprintf(stderr, "delete user error\n");
     }

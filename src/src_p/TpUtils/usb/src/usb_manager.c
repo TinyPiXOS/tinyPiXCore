@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libudev.h>
-#include "utils/utlist.h"
+#include "tools/utlist.h"
 #include "usb_manager.h"
 
 //libusb_init在一个进程中只能调用一次，故使用全局，单后续需要优化避免用户滥用usb_manager_delete类释放导致usb_ctx_init_num提前清0的问题

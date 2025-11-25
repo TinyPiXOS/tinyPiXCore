@@ -520,7 +520,6 @@ static char *read_json_string_file_key(const TpString &filePath, const unsigned 
     free(iv);
     free(ciphertext);
 
-    printf("json\n%s", json_str);
     return json_str;
 }
 
@@ -537,31 +536,23 @@ int ConfigJsonParser::config_export_analysis_json(const TpString &line_, TpJsonO
     TpString key=keyvalue.substr(0,pos);
     TpString value=keyvalue.substr(pos+1);
 
-    PackageExportType type;
-    if (key == TpString("lib"))
+    PackageExportType type=EXPORT_NONE;
+    if (key == TpString("Lib"))
     {
         type = EXPORT_LIBS;
-        TpJsonArray array;
-
-        array.append("./lib");
-        array.append("./lib1");
-        export_obj.insert("libs",array);
     }
-    else if (key == TpString("depend"))
+    else if (key == TpString("Depend"))
     {
         type = EXPORT_DEPEND;
     }
-    else if ( key == TpString("icon") || key == TpString("start") || key == TpString("remove"))
+    else if ( key == TpString("Icon") || key == TpString("Start") || key == TpString("Remove"))
     { // icon start remove
         type = EXPORT_MUST;
     }
     else
     {}
     configAddToJson(type, export_obj, key, value);
-    printf("=====================configAddToJson ok\n");
 
-    if(type == EXPORT_LIBS)
-        std::cout << "Json:" << TpJsonDocument(export_obj).toFormattedJson() << std::endl;
     return 0;
 }
 
@@ -576,7 +567,7 @@ int ConfigJsonParser::config_keyvalue_analysis_json(const TpString &line_, TpJso
     TpString key=line_.substr(0,pos);
     TpString value=line_.substr(pos+1);
 
-	if(key == TpString("author"))
+	if(key == TpString("Author"))
 	{
 		TpJsonObject obj;
 		size_t pos_end=value.find(">");
@@ -585,10 +576,11 @@ int ConfigJsonParser::config_keyvalue_analysis_json(const TpString &line_, TpJso
 			value=value.substr(0,pos_end);
 		}
 
-        config_json_object_analysis(value, &obj, TpString(" <"), 2, "name", "email");
+        config_json_object_analysis(value, &obj, TpString(" <"), 2, "Name", "Email");
+
 		export_obj.insert(key, obj);
 	}
-    else if (key == TpString("fileExtension"))
+    else if (key == TpString("FileExtension"))
     {
 		TpJsonArray array;
         config_json_array_analysis(value, &array, " ", 0);
@@ -637,10 +629,10 @@ int ConfigJsonParser::configAddToJson(PackageExportType type, TpJsonObject &expo
         //struct json_object *array = json_object_new_array();
         //config_json_array_analysis((char *)value.c_str(), array, " ", 0);
         //json_object_object_add(exportObj, key.c_str(), array);
-		/*TpJsonArray array;
+		TpJsonArray array;
 		config_json_array_analysis(value, &array, TpString(" "), 0);
 		exportObj.insert(key, array);
-        std::cout << "Json:" << TpJsonDocument(array).toJson() << std::endl;*/
+        //std::cout << "Json:" << TpJsonDocument(array).toJson() << std::endl;
         break;
     }
     case EXPORT_DEPEND:
@@ -656,7 +648,7 @@ int ConfigJsonParser::configAddToJson(PackageExportType type, TpJsonObject &expo
     case EXPORT_MUST:
     {
 		//json_object_object_add(exportObj, key.c_str(), json_object_new_string(value.c_str()));
-		exportObj.insert(TpString(key), value);
+		exportObj.insert(key, value);
         break;
     }
     default:
@@ -680,7 +672,7 @@ int ConfigJsonParser::writeJsonObjectFile(TpJsonObject &root, const TpString &fi
     //const char *str_json = json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_NOSLASHESCAPE); // 转字符串
 	
     std::cout << "Json:" << TpJsonDocument(root).toJson() << std::endl;
-    if (fprintf(file_j, "%s\n", TpJsonDocument(root).toJson().c_str()) < 0)
+    if (fprintf(file_j, "%s\n", TpJsonDocument(root).toFormattedJson().c_str()) < 0)
     {
         fprintf(stderr, "write to json file error,path:%s", filePath.c_str());
         fclose(file_j);

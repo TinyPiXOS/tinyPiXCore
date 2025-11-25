@@ -1,7 +1,7 @@
 // dbus连接管理的接口
 
 #include "TpDbusConnectManage.h"
-#include "TpDbus/connect.h"
+#include "Dbus/connect.h"
 
 struct TpDbusConnectManageData
 {

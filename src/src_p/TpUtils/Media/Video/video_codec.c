@@ -639,6 +639,7 @@ extern "C"
                 double delay_time = video_clock - video_t->clock->get_run_time(video_t->clock);
                 if (delay_time > 0)
                 {
+					//if(delay_time>10000)
                     // debug_printf("延时%lf\n",delay_time);
                     usleep(delay_time);
                 }
@@ -658,7 +659,7 @@ extern "C"
                 if (callback)
                 {
                     // printf("callback\n");
-                    callback(frame_d->data, frame_d->linesize, pix_fmt_dest, user->userdata);
+                    //callback(frame_d->data, frame_d->linesize, pix_fmt_dest, user->userdata);
                 }
                 else
                 {
@@ -892,8 +893,12 @@ extern "C"
                 AVRational reference_time_base = video->format_ctx->streams[videoStreamIndex]->time_base;
                 int64_t target_timestamp = err / av_q2d(reference_time_base);
                 debug_printf("av_seek_frame...\n");
-                av_seek_frame(video->format_ctx, -1, target_timestamp, AVSEEK_FLAG_BACKWARD); // 调整所有流的位置，stream_index设置为-1
-                // 清空队列
+                av_seek_frame(video->format_ctx, videoStreamIndex, target_timestamp, AVSEEK_FLAG_BACKWARD); // 调整所有流的位置，stream_index设置为-1,
+                avcodec_flush_buffers(video->codec_ctx);
+				/*if (audio && audio->codec_ctx) {
+					avcodec_flush_buffers(audio->codec_ctx);
+				}*/
+				// 清空队列
                 debug_printf("清空队列...\n");
                 video_t->flush_list(&video_t->list);
                 audio_t->flush_list(&audio_t->list);
@@ -946,14 +951,14 @@ extern "C"
 
             if (audioStreamIndex >= 0 && packet.stream_index == audioStreamIndex)
             {
-                // debug_printf("recv audio\n");
+                //debug_printf("recv audio\n");
                 audio_t->push_packet(&audio_t->list, &packet);
                 packet.stream_index = -1;
             }
             else if (videoStreamIndex >= 0 && packet.stream_index == videoStreamIndex)
             {
                 // Send the packet to the decoder
-                // debug_printf("recv video,%d\n",test);
+                //debug_printf("recv video,%d\n",test);
                 video_t->push_packet(&video_t->list, &packet);
                 packet.stream_index = -1;
             }

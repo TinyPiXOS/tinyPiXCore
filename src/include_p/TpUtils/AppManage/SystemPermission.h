@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {                //  告诉编译器下列代码要以C链接约定的模式进行链接
-#endif
 
 typedef struct SystemPermission SystemPermission;
 
@@ -28,8 +25,8 @@ typedef struct SystemPermission{
 SystemPermission *system_permission_manage_create();
 int system_permission_manage_delete(SystemPermission *system);
 
-#ifdef __cplusplus
-}
-#endif
+
+
+
 
 #endif

@@ -17,7 +17,7 @@ extern "C"
 #include <libswscale/swscale.h>
 #include "media_timer.h"
 #include "media.h"
-#include "utils/variable_array.h"
+#include "tools/variable_array.h"
 #include "Audio/audio_play.h"
 #include "Media/media_play_temp.h"
 #include "Media/media_config.h"

@@ -6,8 +6,8 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
 
 #include "TpDbusConnectManage.h"
-#include "TpDbus/logind.h"
-#include "TpDbus/connect.h"
+#include "Dbus/logind.h"
+#include "Dbus/connect.h"
 #include "TpLogin.h"
 
 
