@@ -146,7 +146,6 @@ unsigned char *load_decrypted_key(const char *file_path, const char *passphrase)
         return NULL;
     }
 
-    // 核心修复：正确处理解密长度
     if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, derived_key, iv) != 1)
     {
         EVP_CIPHER_CTX_free(ctx);

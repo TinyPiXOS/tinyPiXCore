@@ -3,8 +3,17 @@
 
 #include "AppManage/AppmanageConf.h"
 
-int Appm_Install_Purview_Init();
-int Appm_Install_Purview(TpAppID uuid, TypePackage type);
-int Appm_Remove_Purview(TpAppID uuid);
+
+class TpAppmPurview{
+public:
+    TpAppmPurview(){}
+    ~TpAppmPurview(){}
+    
+public:
+    static int InstallPurviewInit();
+    static int InstallPurviewSet(TpAppID uuid, TypePackage type);
+    static int RemovePurview(TpAppID uuid);
+
+};
 
 #endif

@@ -135,6 +135,7 @@
         "appinfo.h": "c",
         "string.h": "c",
         "usb_manager.h": "c",
-        "utlist.h": "c"
+        "utlist.h": "c",
+        "systempermission.h": "c"
     }
 }

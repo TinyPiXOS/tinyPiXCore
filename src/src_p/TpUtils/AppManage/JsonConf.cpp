@@ -147,7 +147,7 @@ void JsonConfigParser::GetPackageConfig(const TpString &configPath, AppPackageCo
     config.section = GetStringValue(root, "Section");
     config.priority = GetStringValue(root, "Priority");
     config.essential = GetStringValue(root, "Essential");
-    config.diskspace = GetIntValue(root, "Diskspace");
+    config.diskspace = GetStringValue(root, "Diskspace").toUInt();
     config.description = GetStringValue(root, "Description");
     config.signature = GetStringValue(root, "Signature");
     config.icon = GetStringValue(root, "Icon");

@@ -1,17 +1,16 @@
 #ifndef _UNLOAD_H_
 #define _UNLOAD_H_
 
-#ifdef __cplusplus
-extern "C" {                //  告诉编译器下列代码要以C链接约定的模式进行链接
-#endif
-
 #include <stdio.h>
 #include "AppManage/AppmanageConf.h"
 
-int appm_app_unload(TpAppID uuid);
 
-#ifdef __cplusplus
-}
-#endif
+class TpAppmUnload{
+public:
+    TpAppmUnload(){}
+    ~TpAppmUnload(){}
+public:
+    static int Unload(TpAppID uuid);
+};
 
 #endif

@@ -519,7 +519,7 @@ static char *read_json_string_file_key(const TpString &filePath, const unsigned 
     // 清理资源
     free(iv);
     free(ciphertext);
-    
+
     return json_str;
 }
 

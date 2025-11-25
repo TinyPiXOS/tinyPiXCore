@@ -302,7 +302,7 @@ void TpAppDopack::creatPackage(const TpString &path)
     TpFileCreat::appmGenerateStartupScript(config, path_start.c_str());
 
     TpString path_package = path_source + PACKAGE_FILE_SUFFIX; //	<path>/appname.pik
-    appm_creat_package_path(path_source.c_str(), path_package.c_str());
+    TpAppmCreat::CreatPackageFile(path_source.c_str(), path_package.c_str());
 }
 
 // 添加环境变量
@@ -352,5 +352,5 @@ void TpAppDopack::setExecPath(const TpString &name)
 void TpAppDopack::getAllConfig(const TpString &path_json)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
-    appm_analysis_dopack_json(path_json, &adpData->params, &adpData->config);
+    TpAppmCreat::AnalysisDopackJson(path_json, &adpData->params, &adpData->config);
 }

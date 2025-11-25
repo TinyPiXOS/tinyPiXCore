@@ -17,7 +17,7 @@
 #include "AppManage/AppmanageConf.h"
 #include "AppManage/AppmUtils.h"
 // 字符串转版本号
-int string_to_version(const char *str, struct TpVersion *ver)
+int TpAppmUtils::StringToVersion(const char *str, struct TpVersion *ver)
 {
     unsigned int x, y, z;
     int ret = sscanf(str, "%u.%u.%u", &x, &y, &z);
@@ -216,7 +216,7 @@ void uuid_add_hyphens(const char *input, char *output)
 // 从文件末尾读取并删除MD5信息
 // 此操作会改变原始文件，慎用
 // flag:是否删除末尾的MD5，经过测试不删除不会影响正常解包,=0不删除，=1删除
-int del_md5_from_file(const char *file_path, uint8_t md5[MD5_DIGEST_LENGTH], uint8_t flag)
+int TpAppmUtils::DelMd5FromFile(const char *file_path, uint8_t md5[MD5_DIGEST_LENGTH], uint8_t flag)
 {
     uint8_t md5_len = MD5_DIGEST_LENGTH;
     FILE *file = fopen(file_path, "r+");
@@ -269,7 +269,7 @@ int del_md5_from_file(const char *file_path, uint8_t md5[MD5_DIGEST_LENGTH], uin
 }
 
 // 向文件末尾增加MD5信息
-int add_md5_to_file(const char *file_path, uint8_t md5[MD5_DIGEST_LENGTH])
+int TpAppmUtils::AddMd5ToFile(const char *file_path, uint8_t md5[MD5_DIGEST_LENGTH])
 {
     uint8_t md5_len = MD5_DIGEST_LENGTH;
     FILE *file = fopen(file_path, "a");

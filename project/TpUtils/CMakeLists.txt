@@ -151,7 +151,6 @@ set(SOURCE_FILES
 
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/JsonConf.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/AppmCreat.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/AppManage/FileCreatLib.c
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/TpFileCreat.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/AppmUtils.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/SystemPermission.c
