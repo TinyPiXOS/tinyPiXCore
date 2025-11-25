@@ -1,6 +1,11 @@
 #ifndef _VIDEO_PLAY_H_
 #define _VIDEO_PLAY_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 #include <libswresample/swresample.h>
 #include "Audio/audio_codec.h"
@@ -48,5 +53,10 @@ int Video_Play_Main(struct MediaParams *user, const char *audio_card);
 int Video_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play);
 // 获取显示参数
 int Video_Get_All_Params(struct MediaParams *conf, struct VideoStreamParams *video_params);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

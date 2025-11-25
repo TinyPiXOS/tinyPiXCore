@@ -1,6 +1,9 @@
 #ifndef _AUDIO_CODEC_H_
 #define _AUDIO_CODEC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 #include <alsa/asoundlib.h>
@@ -98,7 +101,9 @@ int free_avframe(AVFrame **converted_frame);
 
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

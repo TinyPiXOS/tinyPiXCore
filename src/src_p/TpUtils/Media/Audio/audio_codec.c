@@ -5,9 +5,6 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -459,9 +456,3 @@ int Audio_Get_Sample_Parame()
 {
 	return 0;
 }
-
-
-
-#ifdef __cplusplus
-}
-#endif

@@ -7,9 +7,9 @@
 
 #include <iostream>
 #include <string.h>
-#include "usb_manager.h"
-#include "dev_manager.h"
-#include "dev_monitor.h"
+#include "usb/usb_manager.h"
+#include "devmanager/dev_manager.h"
+#include "devmanager/dev_monitor.h"
 #include "TpUsbDeviceInfo.h"
 #include "TpUsbManager.h"
 
