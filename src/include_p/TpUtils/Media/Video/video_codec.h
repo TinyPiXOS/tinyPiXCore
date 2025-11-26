@@ -1,5 +1,9 @@
 #ifndef _VIDEO_CODEC_H_
 #define _VIDEO_CODEC_H_
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #include <pthread.h>
 #include <libavformat/avformat.h>
@@ -88,5 +92,10 @@ struct MediaThread
 int Video_File_Codec(struct VideoHardParam *display, struct MediaCodecParam *codec_v, struct MediaCodecParam *codec_a, struct MediaParams *user);
 int Video_Get_File_Info(const char *filename, struct MediaCodecParam *codec_v, struct MediaCodecParam *codec_a);
 int Video_Free_File(struct MediaCodecParam *codec_v, struct MediaCodecParam *codec_a);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

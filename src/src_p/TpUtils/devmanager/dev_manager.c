@@ -11,8 +11,8 @@
 #include <string.h>
 #include <libudev.h>
 #include "tools/utlist.h"
-#include "dev_monitor.h"
-#include "dev_manager.h"
+#include "devmanager/dev_monitor.h"
+#include "devmanager/dev_manager.h"
 
 
 

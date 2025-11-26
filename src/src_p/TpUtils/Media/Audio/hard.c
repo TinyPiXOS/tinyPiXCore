@@ -4,9 +4,7 @@
 日 期 : 2024.11.26
 
 /*///------------------------------------------------------------------------------------------------------------------------//
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -248,12 +246,3 @@ int Audio_Get_Device_List(AudioGetCardCallback callback,void *userdata)
 	return get_audio_card_list( callback, userdata);
 }
 
-
-
-
-
-
-
-#ifdef __cplusplus
-}
-#endif

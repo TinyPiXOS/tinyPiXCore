@@ -6,7 +6,7 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
 
 #include <string.h>
-#include "usb_manager.h"
+#include "usb/usb_manager.h"
 #include "TpUsbDeviceInfo.h"
 
 

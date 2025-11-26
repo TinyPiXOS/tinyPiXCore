@@ -76,6 +76,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/AppManage/TpAppDataDisk.cpp
     ${SOURCE_PATH}/src/TpUtils/AppManage/TpAppInstall.cpp
     ${SOURCE_PATH}/src/TpUtils/AppManage/TpAppDopack.cpp
+    ${SOURCE_PATH}/src/TpUtils/AppManage/TpLibDopack.cpp
 
     ${SOURCE_PATH}/src/TpUtils/Hardware/TpUsbDevice.cpp
     ${SOURCE_PATH}/src/TpUtils/Hardware/TpUsbDeviceInfo.cpp
@@ -85,6 +86,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Hardware/TpHardwarePwm.cpp
     ${SOURCE_PATH}/src/TpUtils/Hardware/TpSerialPort.cpp
     ${SOURCE_PATH}/src/TpUtils/Hardware/TpHardwareDevice.cpp
+    ${SOURCE_PATH}/src/TpUtils/TpLogin.cpp
 
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_timer.c
@@ -99,7 +101,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/filter.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_display.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_codec.c
-    ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_manage.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_play.c
 
     ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/AgentHelper.c
@@ -158,16 +159,13 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Unload.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Unpack.cpp
     ${SOURCE_PATH}/src_p/TpUtils/AppManage/Update.cpp
-    ${SOURCE_PATH}/src/TpUtils/AppManage/TpLibDopack.cpp
 
-    ${SOURCE_PATH}/src_p/TpUtils/usb/src/usb_manager.c
-    ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_manager.c
-    ${SOURCE_PATH}/src_p/TpUtils/devmanager/src/dev_monitor.c
+    ${SOURCE_PATH}/src_p/TpUtils/usb/usb_manager.c
+    ${SOURCE_PATH}/src_p/TpUtils/devmanager/dev_manager.c
+    ${SOURCE_PATH}/src_p/TpUtils/devmanager/dev_monitor.c
 
     ${SOURCE_PATH}/src/TpUtils/TpCompress.cpp
     ${SOURCE_PATH}/src/TpUtils/TpSystemBatteryInfo.cpp
-
-    ${SOURCE_PATH}/src/TpUtils/TpLogin.cpp
 
     # ${SOURCE_PATH}/src_p/TpUtils/bluetooth/src/obexnames.c
     # ${SOURCE_PATH}/src/TpUtils/TpDisplayManage.cpp
@@ -234,8 +232,6 @@ include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth/bluez)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/Bluetooth/obex)
 
-include_directories(${SOURCE_PATH}/src_p/TpUtils/usb/include)
-include_directories(${SOURCE_PATH}/src_p/TpUtils/devmanager/include)
 
 include_directories(${SOURCE_PATH}/include_p/TpUtils/erpc)
 include_directories(${SOURCE_PATH}/src_p/TpUtils/Service)

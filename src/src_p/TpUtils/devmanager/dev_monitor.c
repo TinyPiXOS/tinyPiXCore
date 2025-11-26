@@ -10,8 +10,8 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include "dev_monitor.h"
-#include "dev_manager.h"
+#include "devmanager/dev_monitor.h"
+#include "devmanager/dev_manager.h"
 
 //线程参数传递使用，私有
 struct ThreadDeviceMonitorData{

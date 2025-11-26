@@ -136,6 +136,19 @@
         "string.h": "c",
         "usb_manager.h": "c",
         "utlist.h": "c",
-        "systempermission.h": "c"
+        "systempermission.h": "c",
+        "stdio.h": "c",
+        "avformat.h": "c",
+        "video_codec.h": "c",
+        "stdlib.h": "c",
+        "swscale.h": "c",
+        "avcodec.h": "c",
+        "swresample.h": "c",
+        "audio_record.h": "c",
+        "tpaudiodevice.h": "c",
+        "hard.h": "c",
+        "dev_monitor.h": "c",
+        "dev_manager.h": "c",
+        "libudev.h": "c"
     }
 }

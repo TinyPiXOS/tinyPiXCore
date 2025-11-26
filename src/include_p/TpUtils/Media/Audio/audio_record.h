@@ -1,6 +1,11 @@
 #ifndef _AUDIO_RECORD_H_
 #define _AUDIO_RECORD_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "audio_play.h"
 
 
@@ -12,5 +17,9 @@ int Audio_Record_Test(PIAudioConf *pcm,const char *file);
 
 int Record_Set_Start(struct MediaParams *conf,const char *file);
 int Record_Set_Stop(struct MediaParams *conf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

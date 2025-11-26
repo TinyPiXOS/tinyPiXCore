@@ -1,6 +1,11 @@
 #ifndef _AUDIO_PLAY_H_
 #define _AUDIO_PLAY_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -267,4 +272,8 @@ int Audio_Write_Stream(PIAudioConf *pcm,struct MediaParams *conf,struct AudioStr
 							uint8_t *buffer,uint32_t frames,int offset,int delay);
 CallbackVideoDisplay Audio_Get_Video_Callback(struct MediaParams *conf);
 void Audio_Set_Video_Callback(struct MediaParams *conf,CallbackVideoDisplay cb, void *userdata);
+
+#ifdef __cplusplus
+}
+#endif
 #endif
