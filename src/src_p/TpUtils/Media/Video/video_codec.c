@@ -488,6 +488,7 @@ static double count_media_clock_delay_time(struct MediaParams *user, struct Time
 // 视频播放的视频解码线程
 static void *thread_video_codec(void *param)
 {
+    int ret=0;
     struct ThreadData *data = (struct ThreadData *)param;
     struct MediaThread *video_t = data->thread;
     struct VideoHardParam *display = data->display;
@@ -612,10 +613,13 @@ static void *thread_video_codec(void *param)
         // debug_printf("开始解码：ptr of frame_s%p, pptr of packet :%p（当前状态%d)\n",frame_s,&packet,video_t->get_state(video_t));
         video_t->set_state(video_t, AUDIO_STATE_PLAYING);
 
-        if (avcodec_send_packet(video->codec_ctx, packet) < 0)
+        if ((ret=avcodec_send_packet(video->codec_ctx, packet) )< 0)
         { // 向解码器发送一个压缩的媒体包
             // fprintf(stderr, "Error sending packet to video codec\n");
             video_t->set_state(video_t, MEDIA_THREAD_WAITING);
+            //usleep(1000);
+            Audio_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
+            printf("avcodec_send_packet error :%s,data=%p,%d\n",av_err2str(ret),packet->data,packet->size);
             continue;
         }
 
@@ -634,7 +638,9 @@ static void *thread_video_codec(void *param)
             float speed = Audio_Get_Speed(user);
             double video_clock = (double)pts * av_q2d(videoStream->time_base) * 1000.0 * 1000.0 / speed; // time_base为s
             double delay_time = video_clock - video_t->clock->get_run_time(video_t->clock);
-            if (delay_time > 0)
+			debug_printf("PTS: %lld, video_clock: %.3f ms, master_clock: %.3f ms, delay_time: %.3f ms\n", 
+              pts, video_clock / 1000.0, video_t->clock->get_run_time(video_t->clock) / 1000.0, delay_time / 1000.0);
+            if (delay_time > VIDEO_FRAME_LAG_LOSS_TIME)
             {
                 //if(delay_time>10000)
                 // debug_printf("延时%lf\n",delay_time);
@@ -642,7 +648,7 @@ static void *thread_video_codec(void *param)
             }
             else if (delay_time < (-VIDEO_FRAME_LAG_LOSS_TIME))
             {
-                // printf("===========舍弃====\n");
+                //printf("===========舍弃====\n");
                 break;
             }
 
@@ -866,13 +872,13 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
     Audio_Set_State(user, AUDIO_STATE_PLAYING);
     while (1)
     {
-        if (video_t->packet_number(&video_t->list) > VIDEO_MAX_QUEUE_SIZE ||
+        while (video_t->packet_number(&video_t->list) > VIDEO_MAX_QUEUE_SIZE ||
             audio_t->packet_number(&audio_t->list) > AUDIO_MAX_QUEUE_SIZE)
         {
-            // debug_printf("队列已满，等待...\n");
-            usleep(5000);
+            debug_printf("队列已满(%d,%d)，等待...\n",video_t->packet_number(&video_t->list),audio_t->packet_number(&audio_t->list));
+            usleep(20000);
         }
-        else if (av_read_frame(video->format_ctx, &packet) < 0) // video和audio的format_ctx是同一个
+        if (av_read_frame(video->format_ctx, &packet) < 0) // video和audio的format_ctx是同一个
             break;
 
 #ifdef DEBUG_VIDEO
@@ -955,7 +961,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
         else if (videoStreamIndex >= 0 && packet.stream_index == videoStreamIndex)
         {
             // Send the packet to the decoder
-            //debug_printf("recv video,%d\n",test);
+            debug_printf("recv video,%d\n",test);
             video_t->push_packet(&video_t->list, &packet);
             packet.stream_index = -1;
         }
@@ -966,15 +972,15 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
 
         av_packet_unref(&packet);
     }
-    test = 0;
-    while (0)
+    while (1)
     {
         if (video_t->packet_number(&video_t->list) == 0 && audio_t->packet_number(&audio_t->list) == 0)
-            break;
+        {
+            if(Audio_Get_DPosition(user,display->pcm_play) > user->length)
+                break;
+        }
+        printf("dengdai\n");
         usleep(10000);
-        test++;
-        if (test > 1000)
-            break;
     }
     video_t->set_state(video_t, AUDIO_STATE_EXIT);
     audio_t->set_state(audio_t, AUDIO_STATE_EXIT);

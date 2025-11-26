@@ -323,7 +323,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 					float speed=Audio_Get_Speed(conf);
 					audio_clock=(double)pts * av_q2d(audioStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 					double delay_time=audio_clock-clock->get_run_time(clock);
-					if(delay_time>0)
+					if(delay_time>VIDEO_FRAME_LAG_LOSS_TIME)
 					{
 						//debug_printf("延时%lfus\n",delay_time);
 						usleep(delay_time);

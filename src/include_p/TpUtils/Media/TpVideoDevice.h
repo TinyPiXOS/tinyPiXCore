@@ -8,7 +8,7 @@ extern "C" {
 #define VIDEO_RENDERING_SDL		//使用SDL渲染视频画面
 #define VIDEO_RENDERING_PIX		//使用PIX渲染视频画面
 
-#define VIDEO_FRAME_LAG_LOSS_TIME	1000		//视频播放最大允许滞后时间，当解码速度偏慢的情况下需要丢帧来达到同步
+#define VIDEO_FRAME_LAG_LOSS_TIME	10000		//视频播放最大允许滞后时间，当解码速度偏慢的情况下需要丢帧来达到同步
 
 typedef enum VideoScalingType_{
 		MEDIA_VIDEO_SCALING_STRETCH		= 0X01,	//拉伸显示，图像可能变形
