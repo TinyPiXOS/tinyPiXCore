@@ -91,7 +91,7 @@ public:
     /// @return 该应用的进程信息；若应用未运行则返回空
     RunAppInfo runAppInfo(const TpString &uuid);
 
-    /// @brief 设置桌面状态栏样式
+    /// @brief 设置桌面状态栏样式;会自动将状态栏设置为显示状态
     /// @param rgba 状态栏背景色
     /// @return 设置结果
     bool setStatusBarStyle(int32_t rgba);

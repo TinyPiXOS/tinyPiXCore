@@ -26,7 +26,7 @@ struct TpInitWidgets : NetDataBase
 
     StructSerializeFunc;
 };
-STRUCT_PACKAGE(TpInitWidgets, dataHead_, width, height);
+TP_STRUCT_PACKAGE(TpInitWidgets, dataHead_, width, height);
 
 /// @brief 上层应用通知小组件需要重新绘制并发送渲染指令
 static const char *TpPaintWidgetsKey = "TinyPiX.TpPaintWidgetsKey";
@@ -38,7 +38,7 @@ struct TpPaintWidgets : NetDataBase
 
     StructSerializeFunc;
 };
-STRUCT_PACKAGE(TpPaintWidgets, dataHead_);
+TP_STRUCT_PACKAGE(TpPaintWidgets, dataHead_);
 
 /// @brief 小组件通知上层应用组件已绘制完毕；开始渲染
 static const char *TpUpdateWidgetsKey = "TinyPiX.TpUpdateWidgetsKey";
@@ -52,6 +52,6 @@ struct TpUpdateWidgets : NetDataBase
 
     StructSerializeFunc;
 };
-STRUCT_PACKAGE(TpUpdateWidgets, dataHead_, sharedId);
+TP_STRUCT_PACKAGE(TpUpdateWidgets, dataHead_, sharedId);
 
 #endif

@@ -32,7 +32,7 @@ binary_t *TPR_RunAppProcessInfo(void)
             processInfo.pidList.emplace_back(it->second);
         }
 
-        PStructPackager package;
+        TpStructPackager package;
         processInfo.StructSerialize(package);
 
         // 创建返回缓冲区

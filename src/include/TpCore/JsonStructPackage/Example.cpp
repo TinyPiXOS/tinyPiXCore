@@ -17,7 +17,7 @@ struct TestStructQQQ
 
 	std::string tsttr;
 };
-JSONTRANSLATE(TestStructQQQ, intTest
+TP_JSON_PACKAGE(TestStructQQQ, intTest
 	, shortTest
 	, longTest
 	, longLongTest
@@ -47,7 +47,7 @@ struct TestStructA
 		memset(testChar, 0, sizeof(testChar));
 	}
 };
-JSONTRANSLATE(TestStructA, ab
+TP_JSON_PACKAGE(TestStructA, ab
 	, str
 	, doubleValue
 	, floatValue
@@ -95,13 +95,13 @@ int32_t main(int32_t argc, char* argv[])
 	testStruct.testChar[2] = 'S';
 	testStruct.testChar[3] = 'T';
 
-	JsonStructPackager jsonPackage;
+	TpJsonStructPackager jsonPackage;
 	jsonPackage << testStruct;
 
 	std::string resJson = jsonPackage.data();
 	std::cout << "resJson : " << resJson << std::endl;
 	
-	JsonStructUnpackager jsonUnpackage(resJson);
+	TpJsonStructUnpackager jsonUnpackage(resJson);
 	TestStructA unpackageStruct;
 	jsonUnpackage >> unpackageStruct;
 

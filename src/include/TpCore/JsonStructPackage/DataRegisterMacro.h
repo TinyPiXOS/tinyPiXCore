@@ -92,7 +92,7 @@
 																								 _9,_8,_7,_6,_5,_4,_3,_2,_1))(c, __VA_ARGS__))
 
 template<typename _Ty> struct JsonTypeTool{};
-#define JSONTRANSLATE(_type, ...)	\
+#define TP_JSON_PACKAGE(_type, ...)	\
 	template<> struct JsonTypeTool<_type>	\
 	{	\
 		template<typename _Ty>	\

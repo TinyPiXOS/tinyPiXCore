@@ -16,19 +16,19 @@ struct _PStructPackerCase
 {
 };
 
-class PStructPackager
+class TpStructPackager
 {
-    PStructPackager(const PStructPackager &);
-    PStructPackager(PStructPackager &&);
-    void operator=(const PStructPackager &);
-    bool operator==(const PStructPackager &);
+    TpStructPackager(const TpStructPackager &);
+    TpStructPackager(TpStructPackager &&);
+    void operator=(const TpStructPackager &);
+    bool operator==(const TpStructPackager &);
 
 public:
     StructXBuffer buffer;
 
-    PStructPackager() {}
+    TpStructPackager() {}
     template <typename _Ty>
-    PStructPackager &operator<<(_Ty &_value)
+    TpStructPackager &operator<<(_Ty &_value)
     {
         _PStructPackerCase<std::is_pod<_Ty>::value,
                            std::is_enum<_Ty>::value,
@@ -43,7 +43,7 @@ public:
     std::uint32_t size() { return (uint32_t)buffer.size(); }
 
     template <typename _Ty>
-    PStructPackager &convert(const char *_name, _Ty &_value)
+    TpStructPackager &convert(const char *_name, _Ty &_value)
     {
         _PStructPackerCase<std::is_pod<_Ty>::value,
                            std::is_enum<_Ty>::value,
@@ -55,13 +55,13 @@ public:
     }
 
     template <typename _Ty>
-    PStructPackager &convert(const char *_name, std::vector<_Ty> &_value)
+    TpStructPackager &convert(const char *_name, std::vector<_Ty> &_value)
     {
         _PStructPackerCase<false, false, true, false, false, true, std::vector<_Ty>>::run(*this, _value);
         return *this;
     }
 
-    PStructPackager &operator<<(std::string &_value)
+    TpStructPackager &operator<<(std::string &_value)
     {
         uint32_t size = (uint32_t)_value.size();
         buffer.append(&size, sizeof(size));
@@ -70,7 +70,7 @@ public:
     }
 
     template <typename _Ty>
-    PStructPackager &operator<<(std::vector<_Ty> &_value)
+    TpStructPackager &operator<<(std::vector<_Ty> &_value)
     {
         uint32_t size = (uint32_t)_value.size();
         buffer.append(&size, sizeof(size));
@@ -86,7 +86,7 @@ public:
 template <typename _Ty>
 struct _PStructPackerCase<true, false, false, false, false, false, _Ty>
 {
-    static void run(PStructPackager &_tool, _Ty &_value)
+    static void run(TpStructPackager &_tool, _Ty &_value)
     {
         _tool.buffer.append(&_value, sizeof(_value));
     }
@@ -95,7 +95,7 @@ struct _PStructPackerCase<true, false, false, false, false, false, _Ty>
 template <typename _Ty>
 struct _PStructPackerCase<true, true, false, false, false, false, _Ty>
 {
-    static void run(PStructPackager &_tool, _Ty &_value)
+    static void run(TpStructPackager &_tool, _Ty &_value)
     {
         _tool.buffer.append(&_value, sizeof(_value));
     }
@@ -104,7 +104,7 @@ struct _PStructPackerCase<true, true, false, false, false, false, _Ty>
 template <typename _Ty>
 struct _PStructPackerCase<true, false, true, false, false, false, _Ty>
 {
-    static void run(PStructPackager &_tool, _Ty &_value)
+    static void run(TpStructPackager &_tool, _Ty &_value)
     {
         _tool.buffer.append(&_value, sizeof(_value));
     }
@@ -113,7 +113,7 @@ struct _PStructPackerCase<true, false, true, false, false, false, _Ty>
 template <typename _Ty>
 struct _PStructPackerCase<false, false, true, false, false, false, _Ty>
 {
-    static void run(PStructPackager &_tool, _Ty &_value)
+    static void run(TpStructPackager &_tool, _Ty &_value)
     {
         PStructTool<_Ty>::serlize(_tool, _value);
     }
@@ -123,7 +123,7 @@ struct _PStructPackerCase<false, false, true, false, false, false, _Ty>
 template <typename _Ty, uint32_t _Nx>
 struct _PStructPackerCase<true, false, false, true, false, false, _Ty[_Nx]>
 {
-    static void run(PStructPackager &_tool, _Ty _value[])
+    static void run(TpStructPackager &_tool, _Ty _value[])
     {
         _tool.buffer.append(_value, sizeof(_Ty) * _Nx);
     }
@@ -132,7 +132,7 @@ struct _PStructPackerCase<true, false, false, true, false, false, _Ty[_Nx]>
 template <typename _Ty, uint32_t _Nx>
 struct _PStructPackerCase<false, false, false, true, false, false, _Ty[_Nx]>
 {
-    static void run(PStructPackager &_tool, _Ty _value[])
+    static void run(TpStructPackager &_tool, _Ty _value[])
     {
         for (uint32_t i = 0; i < _Nx; i++)
         {
@@ -144,7 +144,7 @@ struct _PStructPackerCase<false, false, false, true, false, false, _Ty[_Nx]>
 template <typename _Ty>
 struct _PStructPackerCase<false, false, true, false, true, false, _Ty>
 {
-    static void run(PStructPackager &_tool, std::string &_value)
+    static void run(TpStructPackager &_tool, std::string &_value)
     {
         _tool << _value;
     }
@@ -154,7 +154,7 @@ struct _PStructPackerCase<false, false, true, false, true, false, _Ty>
 template <typename _Ty>
 struct _PStructPackerCase<false, false, true, false, false, true, std::vector<_Ty>>
 {
-    static void run(PStructPackager &_tool, std::vector<_Ty> &_value)
+    static void run(TpStructPackager &_tool, std::vector<_Ty> &_value)
     {
         _tool << _value;
     }
@@ -166,12 +166,12 @@ struct _PStructUnpackerCase
 {
 };
 
-class PStructUnpackager
+class TpStructUnpackager
 {
-    PStructUnpackager(const PStructUnpackager &);
-    PStructUnpackager(PStructUnpackager &&);
-    void operator=(const PStructUnpackager &);
-    bool operator==(const PStructUnpackager &);
+    TpStructUnpackager(const TpStructUnpackager &);
+    TpStructUnpackager(TpStructUnpackager &&);
+    void operator=(const TpStructUnpackager &);
+    bool operator==(const TpStructUnpackager &);
 
 public:
     const char *m_data;
@@ -179,14 +179,14 @@ public:
     std::uint32_t m_pos;
 
     // 不会对数据进行拷贝， 使用中请勿删除原数据
-    PStructUnpackager(const void *_data, std::uint32_t _size)
+    TpStructUnpackager(const void *_data, std::uint32_t _size)
     {
         m_data = (const char *)_data;
         m_size = _size;
         m_pos = 0;
     }
     template <typename _Ty>
-    PStructUnpackager &operator>>(_Ty &_value)
+    TpStructUnpackager &operator>>(_Ty &_value)
     {
         _PStructUnpackerCase<std::is_pod<_Ty>::value,
                              std::is_enum<_Ty>::value,
@@ -198,7 +198,7 @@ public:
     }
 
     template <typename _Ty>
-    PStructUnpackager &convert(const char *_name, _Ty &_value)
+    TpStructUnpackager &convert(const char *_name, _Ty &_value)
     {
         _PStructUnpackerCase<std::is_pod<_Ty>::value,
                              std::is_enum<_Ty>::value,
@@ -210,13 +210,13 @@ public:
     }
 
     template <typename _Ty>
-    PStructUnpackager &convert(const char *_name, std::vector<_Ty> &_value)
+    TpStructUnpackager &convert(const char *_name, std::vector<_Ty> &_value)
     {
         _PStructUnpackerCase<false, false, true, false, false, true, std::vector<_Ty>>::run(*this, _value);
         return *this;
     }
 
-    PStructUnpackager &operator>>(std::string &_value)
+    TpStructUnpackager &operator>>(std::string &_value)
     {
         uint32_t value_size = 0;
 
@@ -231,7 +231,7 @@ public:
     }
 
     template <typename _Ty>
-    PStructUnpackager &operator>>(std::vector<_Ty> &_value)
+    TpStructUnpackager &operator>>(std::vector<_Ty> &_value)
     {
         uint32_t value_size = 0;
         memcpy(&value_size, m_data, sizeof(uint32_t));
@@ -251,7 +251,7 @@ public:
 template <typename _Ty>
 struct _PStructUnpackerCase<true, false, false, false, false, false, _Ty>
 {
-    static void run(PStructUnpackager &_tool, _Ty &_value)
+    static void run(TpStructUnpackager &_tool, _Ty &_value)
     {
         if (_tool.m_pos >= _tool.m_size)
             return;
@@ -264,7 +264,7 @@ struct _PStructUnpackerCase<true, false, false, false, false, false, _Ty>
 template <typename _Ty>
 struct _PStructUnpackerCase<true, true, false, false, false, false, _Ty>
 {
-    static void run(PStructUnpackager &_tool, _Ty &_value)
+    static void run(TpStructUnpackager &_tool, _Ty &_value)
     {
         if (_tool.m_pos >= _tool.m_size)
             return;
@@ -277,7 +277,7 @@ struct _PStructUnpackerCase<true, true, false, false, false, false, _Ty>
 template <typename _Ty>
 struct _PStructUnpackerCase<true, false, true, false, false, false, _Ty>
 {
-    static void run(PStructUnpackager &_tool, _Ty &_value)
+    static void run(TpStructUnpackager &_tool, _Ty &_value)
     {
         if (_tool.m_pos >= _tool.m_size)
             return;
@@ -290,7 +290,7 @@ struct _PStructUnpackerCase<true, false, true, false, false, false, _Ty>
 template <typename _Ty>
 struct _PStructUnpackerCase<false, false, true, false, false, false, _Ty>
 {
-    static void run(PStructUnpackager &_tool, _Ty &_value)
+    static void run(TpStructUnpackager &_tool, _Ty &_value)
     {
         PStructTool<_Ty>::serlize(_tool, _value);
     }
@@ -300,7 +300,7 @@ struct _PStructUnpackerCase<false, false, true, false, false, false, _Ty>
 template <typename _Ty, uint32_t _Nx>
 struct _PStructUnpackerCase<true, false, false, true, false, false, _Ty[_Nx]>
 {
-    static void run(PStructUnpackager &_tool, _Ty _value[])
+    static void run(TpStructUnpackager &_tool, _Ty _value[])
     {
         if (_tool.m_pos >= _tool.m_size)
             return;
@@ -313,7 +313,7 @@ struct _PStructUnpackerCase<true, false, false, true, false, false, _Ty[_Nx]>
 template <typename _Ty, uint32_t _Nx>
 struct _PStructUnpackerCase<false, false, false, true, false, false, _Ty[_Nx]>
 {
-    static void run(PStructUnpackager &_tool, _Ty _value[])
+    static void run(TpStructUnpackager &_tool, _Ty _value[])
     {
         if (_tool.m_pos >= _tool.m_size)
             return;
@@ -327,7 +327,7 @@ struct _PStructUnpackerCase<false, false, false, true, false, false, _Ty[_Nx]>
 template <typename _Ty>
 struct _PStructUnpackerCase<false, false, true, false, true, false, _Ty>
 {
-    static void run(PStructUnpackager &_tool, std::string &_value)
+    static void run(TpStructUnpackager &_tool, std::string &_value)
     {
         if (_tool.m_pos >= _tool.m_size)
             return;
@@ -339,7 +339,7 @@ struct _PStructUnpackerCase<false, false, true, false, true, false, _Ty>
 template <typename _Ty>
 struct _PStructUnpackerCase<false, false, true, false, false, true, std::vector<_Ty>>
 {
-    static void run(PStructUnpackager &_tool, std::vector<_Ty> &_value)
+    static void run(TpStructUnpackager &_tool, std::vector<_Ty> &_value)
     {
         if (_tool.m_pos >= _tool.m_size)
             return;

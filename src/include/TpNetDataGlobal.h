@@ -10,7 +10,7 @@
 
 #ifndef StructSerializeFunc
 #define StructSerializeFunc                                                          \
-    virtual bool StructSerialize(PStructPackager &p) override                        \
+    virtual bool StructSerialize(TpStructPackager &p) override                        \
     {                                                                                \
         p << *this;                                                                  \
         if (p.data() && p.size() > 0)                                                \
@@ -23,7 +23,7 @@
     {                                                                                \
         if (_data && _len > 0)                                                       \
         {                                                                            \
-            PStructUnpackager up(_data, _len);                                       \
+            TpStructUnpackager up(_data, _len);                                       \
             up >> *this;                                                             \
             return true;                                                             \
         }                                                                            \
@@ -42,7 +42,7 @@ struct NetDataHeader
 
     virtual ~NetDataHeader() {}
 };
-STRUCT_PACKAGE(NetDataHeader, type_);
+TP_STRUCT_PACKAGE(NetDataHeader, type_);
 
 struct NetDataBase
 {
@@ -53,12 +53,12 @@ struct NetDataBase
 
     virtual ~NetDataBase() {}
 
-    virtual bool StructSerialize(PStructPackager &p) = 0;
+    virtual bool StructSerialize(TpStructPackager &p) = 0;
     virtual bool StructDeserialize(const void *_data, const uint32_t &_len) = 0;
 
     NetDataHeader dataHead_;
 };
-STRUCT_PACKAGE(NetDataBase, dataHead_);
+TP_STRUCT_PACKAGE(NetDataBase, dataHead_);
 
 /// @brief 接收数据接口；用于反序列化出结构体Topic
 struct RecvTopicDataImpl : NetDataBase
@@ -69,6 +69,6 @@ struct RecvTopicDataImpl : NetDataBase
 
     StructSerializeFunc;
 };
-STRUCT_PACKAGE(RecvTopicDataImpl, dataHead_);
+TP_STRUCT_PACKAGE(RecvTopicDataImpl, dataHead_);
 
 #endif

@@ -137,7 +137,7 @@ public:
 };
 
 template<typename _Ty> struct PStructTool{};
-#define STRUCT_PACKAGE(structType, ...) \
+#define TP_STRUCT_PACKAGE(structType, ...) \
     template<> struct PStructTool<structType>{ template<typename _Ty> static void serlize(_Ty& t, structType& data) \
         {NISERIALIZATION(t, data, __VA_ARGS__);}};   \
     typedef std::shared_ptr<structType> structType##SPtr;
