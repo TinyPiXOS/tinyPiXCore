@@ -19,6 +19,7 @@
 #include <erpc_client_setup.h>
 #include "c_TpSystemApi_client.h"
 #include "TpSystemApi_client.hpp"
+#include <TpInteractDataDef/TpWidgetsData.h>
 
 const TpString globalAppFilePathStr = "/System/app/";
 
@@ -28,11 +29,6 @@ struct TpSystemApiData
 
     // RPC 传输层指针
     erpc_transport_t transportPtr = nullptr;
-
-    // TODO 将缓存数据放入Service中，远程IPC调用
-    // std::mutex readAppMutex;
-    // 已启动应用的UUID和pid映射表
-    // TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
 };
 
 TpHash<TpString, int32_t> queryRunAppInfo()
@@ -111,7 +107,7 @@ TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const
     startAppData.appUuid = parseAppUuid;
     startAppData.argList = argList;
 
-    PStructPackager structPackage;
+    TpStructPackager structPackage;
     startAppData.StructSerialize(structPackage);
 
     publishGatewayData(TpRunAppKey, structPackage.data(), structPackage.size());
@@ -132,7 +128,7 @@ void TpSystemApi::notifyWidgetsResize(const TpString &widgetUuid, const TpSize &
     paintEvent.Bmask = 0x000000ff;
     paintEvent.Amask = 0xff000000;
 
-    PStructPackager sPack;
+    TpStructPackager sPack;
     paintEvent.StructSerialize(sPack);
 
     publishGatewayData(notifyTopic.c_str(), sPack.data(), sPack.size());
@@ -143,7 +139,7 @@ void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
     TpString notifyTopic = widgetUuid + "_WidgetGateway2W";
 
     TpPaintWidgets paintEvent;
-    PStructPackager sPack;
+    TpStructPackager sPack;
     paintEvent.StructSerialize(sPack);
 
     publishGatewayData(notifyTopic.c_str(), sPack.data(), sPack.size());
@@ -354,6 +350,28 @@ TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
     }
 
     return runAppInfo;
+}
+
+bool TpSystemApi::setStatusBarStyle(int32_t rgba)
+{
+    TpChangeDeskStatusBarStyle statusBarStyle;
+    statusBarStyle.bgRgba = rgba;
+
+    TpStructPackager package;
+    statusBarStyle.StructSerialize(package);
+
+    return publishGatewayData(statusBarStyle.dataHead_.type_.c_str(), package.data(), package.size());
+}
+
+bool TpSystemApi::setStatusBarVisible(bool visible)
+{
+    TpChangeDeskStatusBarVisible statusBarVisible;
+    statusBarVisible.visible = visible;
+
+    TpStructPackager package;
+    statusBarVisible.StructSerialize(package);
+
+    return publishGatewayData(statusBarVisible.dataHead_.type_.c_str(), package.data(), package.size());
 }
 
 TpSystemApi::TpSystemApi()

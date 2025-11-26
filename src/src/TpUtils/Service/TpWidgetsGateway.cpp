@@ -43,7 +43,7 @@ void TpWidgetsGateway::update()
 
     TpUpdateWidgets updateData;
     updateData.sharedId = widgetsData->shmid;
-    PStructPackager sPack;
+    TpStructPackager sPack;
     updateData.StructSerialize(sPack);
 
     publishGatewayData(widgetsData->pubTopic.c_str(), sPack.data(), sPack.size());

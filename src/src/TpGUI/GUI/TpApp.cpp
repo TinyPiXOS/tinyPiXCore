@@ -67,16 +67,17 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
     {
         TpAppData *set = static_cast<TpAppData *>(data_);
-        DeskStatusBarInfo *recvInfo = (DeskStatusBarInfo *)data;
+        TpDeskStatusBarInfo recvInfo;
+        recvInfo.StructDeserialize(data, dataLen);
 
-        std::cout << "桌面信息：" << recvInfo->statusBarLocation << " , " << recvInfo->statusBarWidth
-                  << " , " << recvInfo->statusBarHeight << " , " << recvInfo->statusBarVislble << std::endl;
+        std::cout << "桌面信息：" << recvInfo.statusBarLocation << " , " << recvInfo.statusBarWidth
+                  << " , " << recvInfo.statusBarHeight << " , " << recvInfo.statusBarVislble << std::endl;
 
         // 主屏幕根据Bar数据是否变化决定是否刷新主屏
-        if (*recvInfo == set->deskStatusBarInfo_)
+        if (recvInfo == set->deskStatusBarInfo_)
             return;
 
-        set->deskStatusBarInfo_ = *recvInfo;
+        set->deskStatusBarInfo_ = recvInfo;
 
         // 更新主屏
         if (!set->mainWindow)
@@ -87,7 +88,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     };
 
     // 订阅桌面数据
-    subscribeGatewayData(DeskStatusBarInfoTopic.c_str(), RecvDeskBarFunc);
+    subscribeGatewayData(TpDeskStatusBarInfoKey, RecvDeskBarFunc);
 
     // 尝试读取桌面信息；如果没有桌面则读取失败
     if (!appData->isDesk)
@@ -95,7 +96,7 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
         // 通知桌面应用启动
         bool pubRunData = true;
         // std::cout << "发布应用上线!" <<std::endl;
-        publishGatewayData(DeskApplicationRunTopic.c_str(), &pubRunData, sizeof(bool));
+        publishGatewayData(TpDeskAppStartKey, &pubRunData, sizeof(bool));
     }
 
 #endif

@@ -99,7 +99,7 @@ struct AppPackageConfig
     {
     }
 };
-JSONTRANSLATE(AppPackageConfig, appID)
+TP_JSON_PACKAGE(AppPackageConfig, appID)
 
 struct LibPackageConfig
 {
