@@ -13,6 +13,7 @@
 #include <TpHash.h>
 #include <TpString.h>
 #include <TpNetDataGlobal.h>
+#include <TpInteractDataDef/TpDesktopData.h>
 
 static TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
 static IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
@@ -57,26 +58,9 @@ bool TPR_StartApp(const char *uuid, const list_string_1_t *args)
         // 应用已启动；恢复应用
         int32_t pid = appUuidPidMap.value(uuid);
 
-        // 根据pid查询winid
-        PiShmBytes *appIdList = nullptr;
-        int appSize = 0;
-        tinyPiX_sys_find_win_ids(globalAgent, &appIdList, &appSize, Q_FIXS);
-
-        std::cout << "tinyPiX_sys_find_win_ids :  " << appSize << std::endl;
-        int32_t winId = -1;
-        for (int i = 0; i < appSize; ++i)
-        {
-            PiShmBytes appIdInfo = appIdList[i];
-            if (appIdInfo.p_id == pid)
-            {
-                winId = appIdInfo.s_id;
-                break;
-            }
-        }
-
-        std::cout << "恢复应用 pid/winid: " << pid << " , " << winId << std::endl;
-        tinyPiX_sys_set_visible(globalAgent, winId, true);
-        tinyPiX_sys_set_active(globalAgent, winId, true);
+        std::cout << "恢复应用 pid: " << pid << std::endl;
+        tinyPiX_sys_set_visible(globalAgent, pid, true);
+        tinyPiX_sys_set_active(globalAgent, pid, true);
     }
     else
     {
@@ -130,23 +114,15 @@ bool TPR_KillApp(const char *uuid)
 /*! 终止所有应用进程 */
 bool TPR_KillAllApp(void)
 {
-    // 获取所有应用列表
-    PiShmBytes *appIdList = nullptr;
-    int appSize = 0;
-    tinyPiX_sys_find_win_ids(globalAgent, &appIdList, &appSize, 1);
+    // std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
 
     // 杀掉所有应用
-    for (int i = 0; i < appSize; ++i)
+    for (const auto &appIdIter : appUuidPidMap)
     {
-        PiShmBytes appIdInfo = appIdList[i];
-        tinyPiX_sys_kill_process(globalAgent, appIdInfo.p_id);
+        tinyPiX_sys_kill_process(globalAgent, appIdIter.second);
     }
-
     // 清理缓存的应用运行信息
-    {
-        // std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
-        appUuidPidMap.clear();
-    }
+    appUuidPidMap.clear();
 
     return true;
 }

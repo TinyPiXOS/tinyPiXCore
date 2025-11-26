@@ -19,6 +19,7 @@
 #include <erpc_client_setup.h>
 #include "c_TpSystemApi_client.h"
 #include "TpSystemApi_client.hpp"
+#include <TpInteractDataDef/TpWidgetsData.h>
 
 const TpString globalAppFilePathStr = "/System/app/";
 
@@ -354,6 +355,16 @@ TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
     }
 
     return runAppInfo;
+}
+
+bool TpSystemApi::setStatusBarStyle(int32_t rgba)
+{
+    return false;
+}
+
+bool TpSystemApi::setStatusBarVisible(bool visible)
+{
+    return false;
 }
 
 TpSystemApi::TpSystemApi()
