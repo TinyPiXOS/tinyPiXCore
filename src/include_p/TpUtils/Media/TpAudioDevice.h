@@ -8,36 +8,16 @@ extern "C" {
 
 #include <stdbool.h>
 #include "Audio/hard.h"
+#include "Media/Audio/audio_play.h"
+#include "Media/Audio/audio_codec.h"
 
 #define DEBUG_VIDEO
 #define DEBUG_AUDIO
 
-#define USER_CONF_VOLUME_MAX	100	//音量最大值
-#define USER_CONF_VOLUME_MIN	0	//音量最小值
-#define USER_CONF_SPEED_MAX		8.0	
-#define USER_CONF_SPEED_MIN		0.5	//播放速度最小值
 
-typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format ,void *user_data);
-
-typedef enum AudioPlayState_{
-	AUDIO_STATE_NONE 	= 0X00,		//初始状态
-	AUDIO_STATE_STOP	= 0x01,		//停止状态
-	AUDIO_STATE_START 	= 0X02,		//已经开始，用于防止线程还没启动，用户已经发送开始命令
-	AUDIO_STATE_PLAYING = 0X03,		//播放中
-	AUDIO_STATE_RECORD 	= 0X04,		//录制中
-	AUDIO_STATE_PAUSEING= 0X05,		//暂停中
-	AUDIO_STATE_JUMP	= 0X07,		//正在切换
-	AUDIO_STATE_EXIT 	= 0x09,		//退出,此状态不允许设置，设置为AUDIO_STATE_STOP后会自动更新到此状态
-	MEDIA_THREAD_WAITING		//等待中，通常是解码完成或线程启动准备完成可以解码
-}AudioPlayState;
-
-typedef enum MediaFileType_{
-	MEDIA_FILE_TYPE_MP3		=0x01,
-	MEDIA_FILE_TYPE_M4A		=0X02,
-	MEDIA_FILE_TYPE_WAV		=0x03
-}MediaFileType;
 
 typedef struct MediaAudioHandle PIAudioConf;
+struct MediaAudioInfo;
 struct MediaParams;
 struct MediaCodecParam;
 struct AudioStreamParams;
@@ -61,10 +41,10 @@ int Audio_Device_Close(PIAudioConf *pcm_play)  __attribute__((used));
 int Audio_Play_Main(PIAudioConf *pcm_play,struct MediaParams *conf)  __attribute__((used));
 
 //设置音量
-int Audio_Set_Volume(struct MediaParams *conf,int16_t volume)  __attribute__((used));
+int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume)  __attribute__((used));
 
 //获取音量
-int Audio_Get_Volume(struct MediaParams *conf)  __attribute__((used));
+int Audio_Get_Volume(struct MediaAudioInfo *conf_a)  __attribute__((used));
 
 //获取播放速度
 float Audio_Get_Speed(struct MediaParams *conf)  __attribute__((used));
@@ -132,8 +112,8 @@ int Audio_Write_Stream(PIAudioConf *pcm,struct MediaParams *conf,struct AudioStr
 
 int Audio_Set_System_Volume(uint8_t volume,const char *name);
 int Audio_Get_System_Volume(const char *name);
-void Audio_Set_Video_Callback(struct MediaParams *conf,CallbackVideoDisplay cb,void *userdata);
-int Audio_Set_Video_Decode_Format(struct MediaParams *conf, uint32_t format);
+void Audio_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb,void *userdata);
+int Audio_Set_Video_Decode_Format(struct MediaVideoInfo *conf, uint32_t format);
 #ifdef __cplusplus
 }
 #endif

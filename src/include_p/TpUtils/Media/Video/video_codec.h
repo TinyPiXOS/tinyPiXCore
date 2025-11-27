@@ -7,11 +7,10 @@ extern "C"
 
 #include <pthread.h>
 #include <libavformat/avformat.h>
-#include "Video/video_play.h"
-#include "Audio/audio_codec.h"
-#include "Media/media_timer.h"
-#include "Media/media_config.h"
-
+#include "Media/Video/video_play.h"
+#include "Media/Audio/audio_codec.h"
+#include "Media/Media/media_timer.h"
+#include "Media/Media/media_config.h"
 #ifndef DEBUG
 #define DEBUG
 #endif

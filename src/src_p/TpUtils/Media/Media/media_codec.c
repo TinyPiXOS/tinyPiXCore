@@ -1,10 +1,10 @@
 
 #include <signal.h>		//用于signal函数，测试使用
-#include "Media/media_codec.h"
-#include "Media/media_play_temp.h"
-#include "Video/video_display.h"
-#include "Video/video_play.h"
-#include "Audio/audio_play.h"
+#include "Media/Media/media_codec.h"
+#include "Media/Media/media_play_temp.h"
+#include "Media/Video/video_display.h"
+#include "Media/Video/video_play.h"
+#include "Media/Audio/audio_play.h"
 
 #define AUDIO_MAX_QUEUE_SIZE	500		//音频缓存区最大长度
 #define VIDEO_MAX_QUEUE_SIZE	100		//视频缓存区最大长度
@@ -532,7 +532,7 @@ static void *thread_video_codec(void *param)
 	struct MediaThread *video_t=data->thread;
 	struct TimerHandle *sys_clock;
 	struct MediaParams *user=data->user;
-	CallbackVideoDisplay callback=user->get_callback_video(user);
+	CallbackVideoDisplay callback=user->video_params->get_callback_video(user->video_params);
 	AVFrame *frame_s = av_frame_alloc();	//原始的侦数据(直接从文件中解码出来的)
 	if(frame_s == NULL) {
 		data->err_code=-1;
@@ -589,7 +589,7 @@ static void *thread_video_codec(void *param)
 		//重新设置解码器参数
 		if(show_param.rect.w!=show_param_l.rect.w || show_param.rect.h!=show_param_l.rect.h)	//宽高不一样就从设大小
 		{
-			count_rect_size_from_user(user->video,stream->codec_ctx,&rect_src,&rect_dst);		//计算新的显示窗口尺寸
+			count_rect_size_from_user(user->video_params->video,stream->codec_ctx,&rect_src,&rect_dst);		//计算新的显示窗口尺寸
 
 			debug_printf("原始尺寸：%d*%d,需要显示成%d*%d\n",stream->codec_ctx->width,stream->codec_ctx->height,rect_dst.w,rect_dst.h);
 			debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n",rect_src.x,rect_src.y,rect_src.w,rect_src.h,
@@ -671,7 +671,7 @@ static void *thread_video_codec(void *param)
 			float speed=Audio_Get_Speed(user);
 			double video_clock=(double)pts * av_q2d(videoStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 			double delay_time=video_clock - sys_clock->get_run_time(sys_clock);
-			if(delay_time>0)
+			if(delay_time>VIDEO_FRAME_LAG_LOSS_TIME)
 			{
 				//debug_printf("延时%lf\n",delay_time);
 				usleep(delay_time);
@@ -692,7 +692,7 @@ static void *thread_video_codec(void *param)
 			if(callback)
 			{
 				// printf("callback\n");
-				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,user->userdata);
+				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,user->video_params->userdata);
 			}
 			else
 			{
@@ -797,7 +797,7 @@ static void *thread_audio_codec(void *param)
 			if(delay_time>0)
 			{
 				//debug_printf("延时%lf\n",delay_time);
-				usleep(delay_time);
+				//usleep(delay_time);
 			}
 			else if(delay_time< (-VIDEO_FRAME_LAG_LOSS_TIME))
 			{
@@ -1049,12 +1049,12 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 	Audio_Set_State(user,AUDIO_STATE_PLAYING);
 	while (1) 	
 	{
-		if(player->list_state(stream_array)==MEDIA_PACK_QUEUE_FULL)
+		while(player->list_state(stream_array)==MEDIA_PACK_QUEUE_FULL)
 		{
 			//debug_printf("队列已满，等待...\n");
 			usleep(5000);
 		}
-		else if(av_read_frame(format_ctx, &packet) < 0)	//video和audio的format_ctx是同一个
+		if(av_read_frame(format_ctx, &packet) < 0)	//video和audio的format_ctx是同一个
 			break;
 
 #ifdef DEBUG_VIDEO

@@ -115,7 +115,7 @@ int TpAudioInterface::setVolume(tpUInt8 volume)
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Set_Volume(audData->user, volume);
+    return Audio_Set_Volume(audData->user->audio_params, volume);
 }
 
 int TpAudioInterface::getVolume()
@@ -123,7 +123,7 @@ int TpAudioInterface::getVolume()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Get_Volume(audData->user);
+    return Audio_Get_Volume(audData->user->audio_params);
 }
 
 int TpAudioInterface::setSpeed(float speed)

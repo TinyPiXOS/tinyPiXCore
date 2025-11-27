@@ -7,6 +7,7 @@
 #include "Video/video_display.h"
 #include "Audio/audio_play.h"
 #include "Audio/audio_play.h"
+#include "TpMediaDevice.h"
 
 #ifdef DEBUG_MEDIA_PLAY
     #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
@@ -344,7 +345,7 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 	if(!handle)
 		return -1;
 	
-	if(!user->get_callback_video(user))		//用户没设置回调就启用本地显示
+	if(!user->video_params->get_callback_video(user->video_params))		//用户没设置回调就启用本地显示
 	{
 		printf("=============启用本地显示===========\n");
 		handle->is_sdl=true;
@@ -380,7 +381,7 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 		;
 #endif
 
-	stream->video.format=user->format_video;
+	stream->video.format=user->video_params->format_video;
 	stream->video.handle=handle;
 	return 0;
 
@@ -397,7 +398,7 @@ ERROR_RETURN:
 
 static int media_stream_audio_init_handle(struct MediaStreamParams *stream,struct MediaParams *user)
 {
-	if(alsa_hard_init(user->aduio_handle->device,stream,user)<0)
+	if(alsa_hard_init(user->audio_params->aduio_handle->device,stream,user)<0)
 	{
 		fprintf(stderr,"[Error]:Init audio error,The video will play silently\n");
 		return -1;

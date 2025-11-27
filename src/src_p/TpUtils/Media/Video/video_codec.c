@@ -493,7 +493,7 @@ static void *thread_video_codec(void *param)
     struct MediaThread *video_t = data->thread;
     struct VideoHardParam *display = data->display;
     struct MediaParams *user = data->user;
-    CallbackVideoDisplay callback = user->get_callback_video(user);
+    CallbackVideoDisplay callback = user->video_params->get_callback_video(user->video_params);
     AVFrame *frame_s = av_frame_alloc(); // 原始的侦数据(直接从文件中解码出来的)
     if (frame_s == NULL)
     {
@@ -554,7 +554,7 @@ static void *thread_video_codec(void *param)
         // 重新设置解码器参数
         if (show_param.rect.w != show_param_l.rect.w || show_param.rect.h != show_param_l.rect.h) // 宽高不一样就从设大小
         {
-            count_rect_size_from_user(user->video, video->codec_ctx, &rect_src, &rect_dst); // 计算新的显示窗口尺寸
+            count_rect_size_from_user(user->video_params->video, video->codec_ctx, &rect_src, &rect_dst); // 计算新的显示窗口尺寸
 
             debug_printf("原始尺寸：%d*%d,需要显示成%d*%d\n", video->codec_ctx->width, video->codec_ctx->height, rect_dst.w, rect_dst.h);
             debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n", rect_src.x, rect_src.y, rect_src.w, rect_src.h,
@@ -662,7 +662,7 @@ static void *thread_video_codec(void *param)
             if (callback)
             {
                 // printf("callback\n");
-                callback(frame_d->data, frame_d->linesize, pix_fmt_dest, user->userdata);
+                callback(frame_d->data, frame_d->linesize, pix_fmt_dest, user->video_params->userdata);
             }
             else
             {
@@ -773,7 +773,7 @@ static void *thread_audio_codec(void *param)
             if (delay_time > 0)
             {
                 // debug_printf("延时%lf\n",delay_time);
-                usleep(delay_time);
+                //usleep(delay_time);
             }
             else if (delay_time < (-VIDEO_FRAME_LAG_LOSS_TIME))
             {
@@ -976,7 +976,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
     {
         if (video_t->packet_number(&video_t->list) == 0 && audio_t->packet_number(&audio_t->list) == 0)
         {
-            if(Audio_Get_DPosition(user,display->pcm_play) > user->length)
+            if(Audio_Get_DPosition(user,display->pcm_play))
                 break;
         }
         printf("dengdai\n");

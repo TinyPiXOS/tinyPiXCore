@@ -9,16 +9,8 @@ TP_DEF_VOID_TYPE_VAR(ItpMediaInfData);
 class TpMediaInterface
 {
 public:
-	/// @brief 用户播放的回调
-	/// @param data 数据，可能有多行
-	/// @param linesize 每一行的大小，最多8行，不可超过。
-	/// @param format 返回的数据格式，需要根据此格式来决定怎么显示
-	/// @param userdata 用户数据
-	using UserCallback = std::function<int(uint8_t **, int *, uint32_t , void *)>;
-
-public:
-	TpMediaInterface(const TpString& audio_name = "default",const TpString& video_name = "default" );
-	~TpMediaInterface();
+	TpMediaInterface();
+	virtual ~TpMediaInterface();
 public:
 	/// @brief 打开视频播放设备
 	/// @param name 
@@ -54,10 +46,6 @@ public:
 	/// @brief 获取文件总时长
 	/// @return 文件时长，秒
 	tpUInt32 getDuration();
-	/// @brief 
-	/// @param callback 
-	/// @return 
-	int setDisplayFunction(UserCallback cb, void *userdata=nullptr,TpVideoDecodeType format=TP_VIDEO_DECODE_RGB24);
 	/// @brief 向播放列表添加文件
 	/// @param file 文件
 	/// @return 
@@ -73,20 +61,6 @@ public:
 	/// @return 
 	int setFile(const TpString& file);
 	int setFile(const char *file);
-	/// @brief 设置视频播放窗口的的位置，在不设置回调，使用内部SDL播放的时候会生效
-	/// @param x 播放窗口x坐标
-	/// @param y 播放窗口y坐标
-	/// @return 
-	int setWindowCoordinates(tpInt16 x,tpInt16 y);
-	/// @brief 设置视频播放窗口的的大小，会根据设置的大小返回缓存区或自建SDL窗口播放
-	/// @param width 
-	/// @param height 
-	/// @return 
-	int setWindowSize(tpUInt16 width,tpUInt16 height);
-	/// @brief 设置视频画面填充方式
-	/// @param mode 填充方式
-	/// @return 
-	int setScalingMode(TpVideoScalingType mode);
 	/// @brief 开始播放
 	/// @return 
 	int playStart();
@@ -109,19 +83,10 @@ public:
 	/// @return 
 	tpBool isPlayEnd();
 private:
-	/// @brief 设置视频解码格式【计划中，当前使用的是固定RGB888】
-	/// @param format 解码格式
-	/// @return 
-	int setDecode(TpVideoDecodeType format);
-	int threadVideo();
-private:
-	
-    struct CallbackContext {
-        UserCallback callback;  // 用户回调指针
-        void* userdata;
-    };
+	int threadMedia();
+
+protected:
 	ItpMediaInfData *data_;
-	static int staticBridge(uint8_t** data, int* linesize, uint32_t format, void* rawCtx);
 };
 
 

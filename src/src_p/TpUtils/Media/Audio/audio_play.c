@@ -86,22 +86,84 @@ int pthread_cond_free_struct(struct PthreadCond *cond)
     return 0;
 }
 
+struct MediaAudioInfo *media_audio_info_creat()
+{
+    struct MediaAudioInfo *conf = (struct MediaAudioInfo *)malloc(sizeof(struct MediaAudioInfo));
+    if(!conf)
+        return NULL;
+
+    conf->volume = USER_CONF_VOLUME;
+    conf->volume = 100;
+    pthread_rwlock_init(&conf->rw_mut, NULL);
+
+    return conf;
+}
+
+void media_audio_info_delete(struct MediaAudioInfo *conf)
+{
+    if(!conf)
+        return ;
+    pthread_rwlock_destroy(&conf->rw_mut);
+    free(conf);
+    conf=NULL;
+}
+
+
+struct MediaVideoInfo *media_video_info_creat()
+{
+    struct MediaVideoInfo *conf = (struct MediaVideoInfo *)malloc(sizeof(struct MediaVideoInfo));
+    if(!conf)
+        return NULL;
+
+    conf->format_video = AV_PIX_FMT_RGB24; // 默认格式
+    conf->callback_video = NULL;
+    conf->userdata = NULL;
+    struct VideoStreamParams *video = (struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
+    if (video == NULL)
+    {
+        free(conf);
+    }
+    video->rect.h = 0;
+    video->rect.w = 0;
+    video->rect.x = 0;
+    video->rect.y = 0;
+    video->fill = MEDIA_VIDEO_SCALING_FIT;
+
+    conf->video=video;
+    
+    conf->get_callback_video = Audio_Get_Video_Callback;
+    conf->set_callback_video = Audio_Set_Video_Callback;
+    pthread_rwlock_init(&conf->rw_mut, NULL);
+
+    return conf;
+}
+
+void media_video_info_delete(struct MediaVideoInfo *conf)
+{
+    if(!conf)
+        return ;
+
+    free(conf->video);
+    conf->video = NULL;
+    pthread_rwlock_destroy(&conf->rw_mut);
+    free(conf);
+    conf=NULL;
+}
+
+
+
 struct MediaParams *media_user_config_creat()
 {
     struct MediaParams *conf = (struct MediaParams *)malloc(sizeof(struct MediaParams));
     conf->is_playing = false;
-    conf->volume = USER_CONF_VOLUME;
     conf->position_s = -1;
-    conf->position_p = 0;
-    conf->volume = 100;
+    conf->position_p = 0; 
     conf->speed = 1.0;
     conf->filter = NULL;
     conf->position_bytes = 0;
     conf->state = AUDIO_STATE_STOP;
     conf->cmd = AUDIO_PLCMD_STOP;
-    conf->format_video = AV_PIX_FMT_RGB24; // 默认格式
-    conf->callback_video = NULL;
-    conf->userdata = NULL;
+  
     struct MediaFileList *list = creat_media_file_list();
     if (list == NULL)
     {
@@ -110,43 +172,48 @@ struct MediaParams *media_user_config_creat()
         return NULL;
     }
     conf->list = list;
+    conf->audio_params=media_audio_info_creat();
+    if(!conf->audio_params)
+    {
+        perror("audio_params creat error\n");
+        free(conf);
+        return NULL;
+    }
+    conf->video_params = media_video_info_creat();
+    if(!conf->video_params)
+    {
+        perror("video_params creat error\n");
+        free(conf);
+        media_audio_info_delete(conf->audio_params);
+        return NULL;
+    }
 
     struct MediaAudioHandle *audio_handle = (struct MediaAudioHandle *)malloc(sizeof(struct MediaAudioHandle));
     if (audio_handle == NULL)
     {
+        media_video_info_delete(conf->video_params);
+        media_audio_info_delete(conf->audio_params);
         delete_media_file_list(conf->list);
         free(conf);
     }
-
-    struct VideoStreamParams *video = (struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
-    if (video == NULL)
-    {
-        free(audio_handle);
-        delete_media_file_list(conf->list);
-        free(conf);
-    }
-    video->rect.h = 0;
-    video->rect.w = 0;
-    video->rect.x = 0;
-    video->rect.y = 0;
-    video->fill = MEDIA_VIDEO_SCALING_FIT;
-    conf->video = video;
 
     struct PthreadCond *pthread_cond = pthread_cond_creat_struct();
     if (pthread_cond == NULL)
     {
-        free(video);
+
         free(audio_handle);
+        media_video_info_delete(conf->video_params);
+        media_audio_info_delete(conf->audio_params);
         delete_media_file_list(conf->list);
         free(conf);
         return NULL;
     }
+
     conf->cond = pthread_cond;
     pthread_rwlock_init(&conf->rw_mut, NULL);
 
     conf->command_get = Audio_Get_Command;
-    conf->get_callback_video = Audio_Get_Video_Callback;
-    conf->set_callback_video = Audio_Set_Video_Callback;
+
     return conf;
 }
 
@@ -157,14 +224,14 @@ void media_user_config_free(struct MediaParams *conf)
     pthread_rwlock_destroy(&conf->rw_mut);
     pthread_cond_free_struct(conf->cond);
     conf->cond = NULL;
+    media_video_info_delete(conf->video_params);
+    media_audio_info_delete(conf->audio_params);
     delete_media_file_list(conf->list);
-    conf->list = NULL;
     if (conf->filter)
         audio_filter_delete(conf->filter);
     conf->filter = NULL;
-    free(conf->video);
     free(conf);
-    conf->video = NULL;
+    
     conf = NULL;
 }
 
@@ -643,7 +710,7 @@ int audio_stream_write(PIAudioConf *pcm_play, struct MediaParams *conf,
 
     if (volume < 0)
     {
-        volume_set = Audio_Get_Volume(conf);
+        volume_set = Audio_Get_Volume(conf->audio_params);
         volume_set *= 0.01;
     }
     else
@@ -771,25 +838,25 @@ int Audio_Hard_Deinit(struct MediaCodecParam *codec)
 }
 
 // 设置音量
-int Audio_Set_Volume(struct MediaParams *conf, int16_t volume)
+int Audio_Set_Volume(struct MediaAudioInfo *conf_a, int16_t volume)
 {
-    if (!conf)
+    if (!conf_a)
         return -1;
     volume = (int16_t)limit_min_max(volume, USER_CONF_VOLUME_MIN, USER_CONF_VOLUME_MAX);
-    pthread_rwlock_wrlock(&conf->rw_mut);
-    conf->volume = volume;
-    pthread_rwlock_unlock(&conf->rw_mut);
+    pthread_rwlock_wrlock(&conf_a->rw_mut);
+    conf_a->volume = volume;
+    pthread_rwlock_unlock(&conf_a->rw_mut);
     return 0;
 }
 // 获取音量
-int Audio_Get_Volume(struct MediaParams *conf)
+int Audio_Get_Volume(struct MediaAudioInfo *conf_a)
 {
-    if (!conf)
+    if (!conf_a)
         return -1;
     int16_t volume;
-    pthread_rwlock_rdlock(&conf->rw_mut);
-    volume = conf->volume;
-    pthread_rwlock_unlock(&conf->rw_mut);
+    pthread_rwlock_rdlock(&conf_a->rw_mut);
+    volume = conf_a->volume;
+    pthread_rwlock_unlock(&conf_a->rw_mut);
     return volume;
 }
 // 内部获取用户设置的播放位置(只允许内部调用)
@@ -930,28 +997,28 @@ int Audio_Set_Command(struct MediaParams *conf, AudioPlayCommand cmd)
     return 0;
 }
 
-CallbackVideoDisplay Audio_Get_Video_Callback(struct MediaParams *conf)
+CallbackVideoDisplay Audio_Get_Video_Callback(struct MediaVideoInfo *conf_v)
 {
     CallbackVideoDisplay cb;
-    THREAD_READ_USERCONF(conf->rw_mut, conf->callback_video, cb);
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->callback_video, cb);
     return cb;
 }
 
-void Audio_Set_Video_Callback(struct MediaParams *conf, CallbackVideoDisplay cb, void *userdata)
+void Audio_Set_Video_Callback(struct MediaVideoInfo *conf_v, CallbackVideoDisplay cb, void *userdata)
 {
-    if (!conf)
+    if (!conf_v)
         return;
-    pthread_rwlock_rdlock(&conf->rw_mut);
-    conf->callback_video = cb;
-    conf->userdata = userdata;
-    pthread_rwlock_unlock(&conf->rw_mut);
+    pthread_rwlock_rdlock(&conf_v->rw_mut);
+    conf_v->callback_video = cb;
+    conf_v->userdata = userdata;
+    pthread_rwlock_unlock(&conf_v->rw_mut);
 }
 
-int Audio_Set_Video_Decode_Format(struct MediaParams *conf, uint32_t format)
+int Audio_Set_Video_Decode_Format(struct MediaVideoInfo *conf_v, uint32_t format)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->format_video, format);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->format_video, format);
     return 0;
 }
 
