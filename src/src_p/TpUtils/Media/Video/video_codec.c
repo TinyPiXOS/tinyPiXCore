@@ -638,8 +638,8 @@ static void *thread_video_codec(void *param)
             float speed = Audio_Get_Speed(user);
             double video_clock = (double)pts * av_q2d(videoStream->time_base) * 1000.0 * 1000.0 / speed; // time_base为s
             double delay_time = video_clock - video_t->clock->get_run_time(video_t->clock);
-			debug_printf("PTS: %lld, video_clock: %.3f ms, master_clock: %.3f ms, delay_time: %.3f ms\n", 
-              pts, video_clock / 1000.0, video_t->clock->get_run_time(video_t->clock) / 1000.0, delay_time / 1000.0);
+			//debug_printf("PTS: %lld, video_clock: %.3f ms, master_clock: %.3f ms, delay_time: %.3f ms\n", 
+            //  pts, video_clock / 1000.0, video_t->clock->get_run_time(video_t->clock) / 1000.0, delay_time / 1000.0);
             if (delay_time > VIDEO_FRAME_LAG_LOSS_TIME)
             {
                 //if(delay_time>10000)
@@ -679,6 +679,7 @@ static void *thread_video_codec(void *param)
     }
     display->rect_dst = NULL;
     display->rect_src = NULL;
+    Audio_Set_Position_N(user, (int)(user->length+0.5));
     debug_printf("video线程结束\n");
     if (1)
     // if (pix_fmt_sour != pix_fmt)
@@ -893,6 +894,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
         if ((err = Audio_Get_Position_S(user)) >= 0)
         {
             debug_printf("调整播放位置\n");
+            Audio_Set_Position_N(user,err);
             AVRational reference_time_base = video->format_ctx->streams[videoStreamIndex]->time_base;
             int64_t target_timestamp = err / av_q2d(reference_time_base);
             debug_printf("av_seek_frame...\n");
@@ -976,18 +978,17 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
     {
         if (video_t->packet_number(&video_t->list) == 0 && audio_t->packet_number(&audio_t->list) == 0)
         {
-            if(Audio_Get_DPosition(user,display->pcm_play))
+            if(Audio_Get_DPosition(user,display->pcm_play) > user->length)
                 break;
         }
-        printf("dengdai\n");
         usleep(10000);
+        Audio_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
     }
     video_t->set_state(video_t, AUDIO_STATE_EXIT);
     audio_t->set_state(audio_t, AUDIO_STATE_EXIT);
     video_t->packet_exit(&video_t->list);
     audio_t->packet_exit(&audio_t->list);
     // Clean up
-
 FREE_AUDIO_THREAD:
     Media_Thread_Free(audio_t);
     Media_Thread_Free(video_t);

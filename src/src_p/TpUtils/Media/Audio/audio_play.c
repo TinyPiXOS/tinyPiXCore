@@ -94,6 +94,13 @@ struct MediaAudioInfo *media_audio_info_creat()
 
     conf->volume = USER_CONF_VOLUME;
     conf->volume = 100;
+
+    conf->aduio_handle = (struct MediaAudioHandle *)malloc(sizeof(struct MediaAudioHandle));
+    if (conf->aduio_handle == NULL)
+    {
+        free(conf);
+    }
+    
     pthread_rwlock_init(&conf->rw_mut, NULL);
 
     return conf;
@@ -103,6 +110,13 @@ void media_audio_info_delete(struct MediaAudioInfo *conf)
 {
     if(!conf)
         return ;
+    if(conf->aduio_handle->device)
+        free(conf->aduio_handle->device);
+    conf->aduio_handle->device=NULL;
+
+    if(conf->aduio_handle)
+        free(conf->aduio_handle);
+    conf->aduio_handle=NULL;
     pthread_rwlock_destroy(&conf->rw_mut);
     free(conf);
     conf=NULL;
@@ -188,20 +202,9 @@ struct MediaParams *media_user_config_creat()
         return NULL;
     }
 
-    struct MediaAudioHandle *audio_handle = (struct MediaAudioHandle *)malloc(sizeof(struct MediaAudioHandle));
-    if (audio_handle == NULL)
-    {
-        media_video_info_delete(conf->video_params);
-        media_audio_info_delete(conf->audio_params);
-        delete_media_file_list(conf->list);
-        free(conf);
-    }
-
     struct PthreadCond *pthread_cond = pthread_cond_creat_struct();
     if (pthread_cond == NULL)
     {
-
-        free(audio_handle);
         media_video_info_delete(conf->video_params);
         media_audio_info_delete(conf->audio_params);
         delete_media_file_list(conf->list);
@@ -1166,6 +1169,18 @@ double Audio_Get_Length(struct MediaParams *conf)
     return length;
 }
 
+//设置声卡
+int Audio_Set_Card(struct MediaAudioInfo *conf_a,const char *card)
+{
+    if (!conf_a)
+        return -1;
+    pthread_rwlock_rdlock(&conf_a->rw_mut);
+    if(conf_a->aduio_handle->device)
+        free(conf_a->aduio_handle->device);
+    conf_a->aduio_handle->device=strdup(card);
+    pthread_rwlock_unlock(&conf_a->rw_mut);
+}
+
 /// @brief 音频播放主程序
 /// @param pcm_play 声卡硬件参数，这里仅仅是基础的硬件配置，详细的参数会在播放每个文件的时候再设置
 /// @param conf	用户配置
@@ -1229,15 +1244,7 @@ int Audio_Play_Main(PIAudioConf *pcm_play, struct MediaParams *conf)
     return 0;
 }
 
-int Audio_Play_Test(PIAudioConf *pcm_play, const char *name)
-{
-    struct MediaParams conf;
 
-    pcm_play->file_type = AUDIO_FILE_TYPE_NONE;
-    audio_play_codec_file(pcm_play, &conf, name);
-
-    return 0;
-}
 
 /// @brief 打开Audio设备
 /// @param device 声卡名字

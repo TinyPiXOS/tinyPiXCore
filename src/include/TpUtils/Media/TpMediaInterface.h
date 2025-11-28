@@ -82,6 +82,12 @@ public:
 	/// @brief 是否播放结束
 	/// @return 
 	tpBool isPlayEnd();
+	/// @brief 获取速度允许的最大值
+	/// @return 
+	float getMaxSpeed();
+	/// @brief 获取速度允许的最小值
+	/// @return 
+	float getMinSpeed();
 private:
 	int threadMedia();
 

@@ -22,6 +22,9 @@ public:
 	~TpMediaFile();
 
 public:
+	/// @brief 判断是否是媒体流文件
+	/// @return 
+	static tpBool isMediaFile(const TpString &file);
 	/// @brief 获取文件时长
 	/// @return 秒
 	tpInt64 getDuration();

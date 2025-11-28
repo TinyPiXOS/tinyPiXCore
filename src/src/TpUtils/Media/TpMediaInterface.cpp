@@ -252,3 +252,12 @@ tpBool TpMediaInterface::isPlayEnd()
 
 
 
+float TpMediaInterface::getMaxSpeed()
+{
+    return USER_CONF_SPEED_MAX;
+}
+
+float TpMediaInterface::getMinSpeed()
+{
+    return USER_CONF_SPEED_MIN;
+}

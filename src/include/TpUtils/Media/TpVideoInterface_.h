@@ -38,7 +38,7 @@ public:
 	using UserCallback = std::function<int(uint8_t **, int *, uint32_t , void *)>;
 
 public:
-	TpVideoInterface_(const TpString& audio_name = "default",const TpString& video_name = "default" );
+	TpVideoInterface_(const TpString& video_name = "default" );
 	~TpVideoInterface_();
 public:
 	/// @brief 打开视频播放设备

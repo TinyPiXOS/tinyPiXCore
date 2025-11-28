@@ -589,7 +589,6 @@ extern "C"
 
         printf("debug:,handle_p=%p,hewparams_p=%p\n", pcm_play->handle, pcm_play->hwparams);
         // Audio_Play_Test(&pcm_play,"/home/pix/Media/MeiNanBian.mp3");//home/pix/Media/test_video.webm
-        Audio_Play_Test(pcm_play, "/home/pix/Media/test_video.webm");
         Audio_Device_Close(pcm_play);
         return 0;
     }

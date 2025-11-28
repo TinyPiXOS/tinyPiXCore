@@ -72,7 +72,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Media/TpMediaFile.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpMediaInterface.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpAudioInterface_.cpp
-#    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoInterface_.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoInterface_.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpSound.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpRecordInterface.cpp
 

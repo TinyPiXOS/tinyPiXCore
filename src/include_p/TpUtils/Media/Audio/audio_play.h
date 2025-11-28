@@ -138,7 +138,8 @@ struct VideoStreamParams{
 struct MediaAudioInfo{
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
 	uint8_t volume;			//声音(0-100)
-	struct MediaAudioHandle *aduio_handle;	//重构后新增	
+	struct MediaAudioHandle *aduio_handle;	//重构后新增
+
 };
 
 struct MediaVideoInfo{
@@ -210,7 +211,6 @@ PIAudioConf *Audio_Play_Open(const char *device);
 int Audio_Device_Init(PIAudioConf *pcm_play,const char *device,AudioStreamType type);
 int Audio_Device_Close(PIAudioConf *pcm_play);
 int Audio_Play_Main(PIAudioConf *pcm_play,struct MediaParams *conf);
-int Audio_Play_Test(PIAudioConf *pcm_play,const char *name);
 
 int64_t Audio_Get_BytePosition(struct MediaParams *conf);
 int64_t Audio_Set_BytePosition(struct MediaParams *conf,int64_t position);
