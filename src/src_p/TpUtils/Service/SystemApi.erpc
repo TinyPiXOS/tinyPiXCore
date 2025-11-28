@@ -5,8 +5,8 @@ program TpSystemApi
 interface SystemApiService  {
     /*! 当前运行应用进程信息 */
     TPR_RunAppProcessInfo() -> binary
-    /*! 指定UUID启动应用 */
-    TPR_StartApp(string uuid, list<string> args) -> bool
+    /*! 启动应用的UUID和进程pid */
+    TPR_StartApp(string uuid, int32 pid) -> bool
     /*! 指定应用UUID终止进程 */
     TPR_KillApp(string uuid) -> bool
     /*! 终止所有应用进程 */

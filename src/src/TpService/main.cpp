@@ -34,8 +34,11 @@ void dealRPCFunc()
 
     while (grunning)
     {
+        std::cout << "开启RPC等待接收 " << std::endl;
         /* or erpc_server_poll(); */
+        // erpc_server_poll(server);
         erpc_server_run(server);
+        std::cout << "收到RPC请求 " << std::endl;
     }
 }
 
@@ -59,8 +62,8 @@ int main()
     std::cout << "发布订阅网关服务启动成功!" << std::endl;
     std::cout << "发布订阅监听 端口：订阅端口： " << port << " and 发布端口" << (port + 1) << std::endl;
 
-    std::thread REPWorker(&dealRPCFunc);
-    REPWorker.detach();
+    // std::thread REPWorker(&dealRPCFunc);
+    // REPWorker.detach();
 
     // 主循环
     while (grunning)
@@ -87,11 +90,13 @@ int main()
     server->stop();
     std::cout << "Gateway server stopped gracefully." << std::endl;
 
-    std::cout << "RPC 服务端 反初始化！ " << std::endl;
+    // std::cout << "RPC 服务端 反初始化！ " << std::endl;
+    
     // erpc_server_deinit(server);
     // erpc_server_stop(server);
+
     /* 关闭socket */
-    erpc_transport_tcp_deinit(rpcTransport);
+    // erpc_transport_tcp_deinit(rpcTransport);
 
     tinyPiX_sys_free(globalAgent);
 

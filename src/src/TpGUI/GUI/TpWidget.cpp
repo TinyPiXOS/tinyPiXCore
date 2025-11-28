@@ -784,6 +784,8 @@ void TpWidget::setBackGroundColor(int32_t color, bool enable)
     hoveredCss()->setBackgroundColor(color);
     checkedCss()->setBackgroundColor(color);
     disableCss()->setBackgroundColor(color);
+
+    update();
 }
 
 void TpWidget::setBackGroundColor(const TpBrush &bgBrush, bool enable)

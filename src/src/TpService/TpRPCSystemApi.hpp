@@ -7,6 +7,8 @@
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
 
+#include <mutex>
+#include <thread>
 #include <TpProcess.h>
 #include <TpFileInfo.h>
 #include <Service/TpAppConfigIO.h>
@@ -15,44 +17,50 @@
 #include <TpNetDataGlobal.h>
 #include <TpInteractDataDef/TpDesktopData.h>
 
+static std::mutex globalAppMutex;
 static TpHash<TpString, int32_t> appUuidPidMap = TpHash<TpString, int32_t>();
 static IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
 binary_t *TPR_RunAppProcessInfo(void)
 {
-    std::cout << "TPR_RunAppProcessInfo called" << std::endl;
+    std::cout << "+++++++++++++++++++++++++++" << std::endl;
+    std::cout << "查询APP运行信息 " << appUuidPidMap.size() << std::endl;
+    std::cout << "+++++++++++++++++++++++++++" << std::endl;
 
-    try
+    TpRPCRunAppProcessInfo processInfo;
+
     {
-        TpRPCRunAppProcessInfo processInfo;
-
+        std::lock_guard<std::mutex> lockG(globalAppMutex);
         for (auto it = appUuidPidMap.begin(); it != appUuidPidMap.end(); ++it)
         {
             processInfo.uuidList.emplace_back(it->first);
             processInfo.pidList.emplace_back(it->second);
+
+            std::cout << "当前运行进程 PID " << it->second << std::endl;
         }
-
-        TpStructPackager package;
-        processInfo.StructSerialize(package);
-
-        // 创建返回缓冲区
-        binary_t *rpcRespData = new binary_t();
-        rpcRespData->data = new uint8_t[package.size()];
-        rpcRespData->dataLength = package.size();
-        memcpy(rpcRespData->data, package.data(), package.size());
-
-        return rpcRespData;
     }
-    catch (const std::exception &e)
-    {
-        std::cerr << "TPR_RunAppProcessInfo 异常: " << e.what() << std::endl;
-        return nullptr;
-    }
+
+    TpStructPackager package;
+    processInfo.StructSerialize(package);
+
+    // 创建返回缓冲区
+    binary_t *rpcRespData = new binary_t();
+    rpcRespData->data = new uint8_t[package.size()];
+    rpcRespData->dataLength = package.size();
+    memcpy(rpcRespData->data, package.data(), package.size());
+
+    std::cout << "+++++++++++++++++++++++++++" << std::endl;
+    std::cout << "查询APP运行信息结束 " << std::endl;
+    std::cout << "+++++++++++++++++++++++++++" << std::endl;
+
+    return rpcRespData;
 }
 
 /*! 指定UUID启动应用 */
-bool TPR_StartApp(const char *uuid, const list_string_1_t *args)
+bool TPR_StartApp(const char *uuid, int32_t pid)
 {
+    std::lock_guard<std::mutex> lockG(globalAppMutex);
+
     if (appUuidPidMap.contains(uuid))
     {
         // 应用已启动；恢复应用
@@ -64,31 +72,8 @@ bool TPR_StartApp(const char *uuid, const list_string_1_t *args)
     }
     else
     {
-        // 解析应用信息
-        TpAppConfigIO configIO(uuid);
-        TpString runnerPath = configIO.runnerPath();
-
-        TpFileInfo runnerFileInfo(runnerPath);
-        if (!runnerFileInfo.exists())
-        {
-            std::cout << "应用 " << configIO.appName() << " 可执行程序不存在!" << std::endl;
-            return false;
-        }
-
-        TpVector<TpString> vectorArgs;
-        for (int i = 0; i < args->elementsCount; ++i)
-        {
-            vectorArgs.emplace_back(args->elements[i]);
-        }
-
-        TpProcess exeProcess;
-        exeProcess.start(runnerPath, vectorArgs);
-        // exeProcess.start(exePathStr);
-        int32_t processPID = exeProcess.launchProcessID();
-
-        std::cout << "processPID " << processPID << std::endl;
-        // std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
-        appUuidPidMap[uuid] = processPID;
+        std::cout << "启动应用: pid: " << pid << std::endl;
+        appUuidPidMap[uuid] = pid;
     }
 
     return true;
@@ -97,6 +82,8 @@ bool TPR_StartApp(const char *uuid, const list_string_1_t *args)
 /*! 指定应用UUID终止进程 */
 bool TPR_KillApp(const char *uuid)
 {
+    std::lock_guard<std::mutex> lockG(globalAppMutex);
+
     if (!appUuidPidMap.contains(uuid))
         return false;
 
@@ -114,7 +101,7 @@ bool TPR_KillApp(const char *uuid)
 /*! 终止所有应用进程 */
 bool TPR_KillAllApp(void)
 {
-    // std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
+    std::lock_guard<std::mutex> lockG(globalAppMutex);
 
     // 杀掉所有应用
     for (const auto &appIdIter : appUuidPidMap)

@@ -20,6 +20,8 @@
 #include "c_TpSystemApi_client.h"
 #include "TpSystemApi_client.hpp"
 #include <TpInteractDataDef/TpWidgetsData.h>
+#include <erpc/erpc_port.h>
+#include <future>
 
 const TpString globalAppFilePathStr = "/System/app/";
 
@@ -27,8 +29,12 @@ struct TpSystemApiData
 {
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
-    // RPC 传输层指针
-    erpc_transport_t transportPtr = nullptr;
+    // RPC 传输层指针 TODO,修改为RPC维护应用信息
+    // erpc_client_t erpcClient = nullptr;
+    // erpc_transport_t transportPtr = nullptr;
+
+    std::mutex globalAppMutex;
+    TpHash<TpString, int32_t> appUuidPidMap;
 };
 
 TpHash<TpString, int32_t> queryRunAppInfo()
@@ -151,11 +157,10 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
     if (!apiData)
         return TpImage();
 
-    auto runAppMap = queryRunAppInfo();
-    if (!runAppMap.contains(uuid))
+    if (!apiData->appUuidPidMap.contains(uuid))
         return TpImage();
 
-    int32_t appPid = runAppMap.value(uuid);
+    int32_t appPid = apiData->appUuidPidMap.value(uuid);
     IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(apiData->globalAgent, appPid);
     // std::cout << "appPid " << appPid << " , " << surfacePtr << std::endl;
     if (!surfacePtr)
@@ -223,6 +228,10 @@ bool TpSystemApi::home()
 
 bool TpSystemApi::startApp(const TpString &uuid, const TpVector<TpString> &argList)
 {
+    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    if (!apiData)
+        return false;
+
     if (uuid.empty())
         return false;
 
@@ -230,33 +239,42 @@ bool TpSystemApi::startApp(const TpString &uuid, const TpVector<TpString> &argLi
     TpDir appFileDir(appFileDirPath);
     if (!appFileDir.exists())
     {
-        std::cout << "UUid: " << uuid << " 未安装!" << std::endl;
+        std::cout << "uuid: " << uuid << " 未安装!" << std::endl;
         return false;
     }
 
-    /* RPC 调用 */
-    list_string_1_t *rpcArgs = new list_string_1_t();
-    rpcArgs->elementsCount = argList.size();
-    rpcArgs->elements = nullptr;
-    if (argList.size() > 0)
-    {
-        rpcArgs->elements = new char *[rpcArgs->elementsCount];
+    // 解析应用信息
+    TpAppConfigIO configIO(uuid);
+    TpString runnerPath = configIO.runnerPath();
 
-        for (int i = 0; i < argList.size(); ++i)
-        {
-            rpcArgs->elements[i] = strdup(argList.at(i).c_str());
-        }
+    TpFileInfo runnerFileInfo(runnerPath);
+    if (!runnerFileInfo.exists())
+    {
+        std::cout << "应用 " << configIO.appName() << " 可执行程序不存在!" << std::endl;
+        return false;
     }
 
-    bool startRes = TPR_StartApp(uuid.c_str(), rpcArgs);
+    bool startRes = false;
 
-    // 释放输入参数
-    for (int i = 0; i < rpcArgs->elementsCount; i++)
+    if (apiData->appUuidPidMap.contains(uuid))
     {
-        free(rpcArgs->elements[i]);
+        // 应用已启动，恢复即可
+        int32_t pid = apiData->appUuidPidMap.value(uuid);
+
+        std::cout << "恢复应用 pid: " << pid << std::endl;
+        tinyPiX_sys_set_visible(apiData->globalAgent, pid, true);
+        tinyPiX_sys_set_active(apiData->globalAgent, pid, true);
     }
-    delete[] rpcArgs->elements;
-    delete rpcArgs;
+    else
+    {
+        TpProcess exeProcess;
+        exeProcess.start(runnerPath, argList);
+        int32_t processPID = exeProcess.launchProcessID();
+
+        std::cout << "processPID " << processPID << std::endl;
+
+        apiData->appUuidPidMap[uuid] = processPID;
+    }
 
     return startRes;
 }
@@ -290,28 +308,14 @@ TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppInfoList()
         return runAppList;
 
     // 运行的应用PID列表
-    auto runAppMap = queryRunAppInfo();
-    TpList<int32_t> runAppPidList = runAppMap.values();
-
-    // 获取所有应用列表
-    PiShmBytes *appIdList = nullptr;
-    int appSize = 0;
-    tinyPiX_sys_find_win_ids(apiData->globalAgent, &appIdList, &appSize, Q_FIXS);
-
-    for (int i = 0; i < appSize; ++i)
+    for (const auto &runAppInfoIter : apiData->appUuidPidMap)
     {
-        PiShmBytes appIdInfo = appIdList[i];
+        // std::cout << "查询到的进程ID： " << runAppInfoIter.second << std::endl;
+        RunAppInfo appInfo;
+        appInfo.appInfo.setAppUuid(runAppInfoIter.first);
+        appInfo.pid = runAppInfoIter.second;
 
-        if (runAppPidList.contains(appIdInfo.p_id))
-        {
-            TpString curAppUuid = runAppMap.key(appIdInfo.p_id);
-
-            RunAppInfo appInfo;
-            appInfo.appInfo.setAppUuid(curAppUuid);
-            appInfo.pid = appIdInfo.p_id;
-
-            runAppList.emplace_back(appInfo);
-        }
+        runAppList.emplace_back(appInfo);
     }
 
     return runAppList;
@@ -325,12 +329,10 @@ TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
     if (!apiData)
         return runAppInfo;
 
-    auto runAppMap = queryRunAppInfo();
-
-    if (!runAppMap.contains(uuid))
+    if (!apiData->appUuidPidMap.contains(uuid))
         return runAppInfo;
 
-    int32_t appPid = runAppMap.value(uuid);
+    int32_t appPid = apiData->appUuidPidMap.value(uuid);
 
     // 获取所有应用列表
     PiShmBytes *appIdList = nullptr;
@@ -381,20 +383,21 @@ TpSystemApi::TpSystemApi()
     initializeGateway();
 
     /* 创建client端传输层对象(TCP) */
-    apiData->transportPtr = erpc_transport_tcp_init("127.0.0.1", 12581, false);
-    auto message_buffer_factory = erpc_mbf_dynamic_init();
+    // apiData->transportPtr = erpc_transport_tcp_init("127.0.0.1", 12581, false);
+    // auto message_buffer_factory = erpc_mbf_dynamic_init();
 
-    if (!apiData->transportPtr)
-    {
-        std::cout << "RPC 服务初始化失败!" << std::endl;
-        return;
-    }
+    // if (!apiData->transportPtr)
+    // {
+    //     std::cout << "RPC 服务初始化失败!" << std::endl;
+    //     return;
+    // }
 
-    /* 初始化客户端 */
-    auto client = erpc_client_init(apiData->transportPtr, message_buffer_factory);
+    // /* 初始化客户端 */
+    // erpc_transport_t transportServer;
+    // apiData->erpcClient = erpc_client_init(apiData->transportPtr, message_buffer_factory);
 
-    // 初始化RPC客户端
-    initSystemApiService_client(client);
+    // // 初始化RPC客户端
+    // initSystemApiService_client(apiData->erpcClient);
 }
 
 TpSystemApi::~TpSystemApi()
@@ -402,7 +405,7 @@ TpSystemApi::~TpSystemApi()
     TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
     if (apiData)
     {
-        erpc_transport_tcp_deinit(apiData->transportPtr);
+        // erpc_transport_tcp_deinit(apiData->transportPtr);
         delete apiData;
         apiData = nullptr;
     }
