@@ -33,7 +33,7 @@ struct TpSystemApiData
     // erpc_client_t erpcClient = nullptr;
     // erpc_transport_t transportPtr = nullptr;
 
-    std::mutex globalAppMutex;
+    std::mutex readAppMutex;
     TpHash<TpString, int32_t> appUuidPidMap;
 };
 
@@ -285,8 +285,20 @@ bool TpSystemApi::killApp(const TpString &uuid)
     if (!apiData)
         return false;
 
-    /* RPC 调用 */
-    return TPR_KillApp(uuid.c_str());
+    if (!apiData->appUuidPidMap.contains(uuid))
+        return false;
+
+    int32_t pid = 0;
+    {
+        std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
+        pid = apiData->appUuidPidMap.value(uuid);
+        apiData->appUuidPidMap.erase(uuid);
+    }
+
+    std::cout << "结束应用 pid: " << pid << std::endl;
+    tinyPiX_sys_kill_process(apiData->globalAgent, pid);
+
+    return true;
 }
 
 bool TpSystemApi::killAllApp()
@@ -295,8 +307,17 @@ bool TpSystemApi::killAllApp()
     if (!apiData)
         return false;
 
+    std::lock_guard<std::mutex> lockG(apiData->readAppMutex);
+
+    for (const auto &appIdIter : apiData->appUuidPidMap)
+    {
+        tinyPiX_sys_kill_process(apiData->globalAgent, appIdIter.second);
+    }
+    // 清理缓存的应用运行信息
+    apiData->appUuidPidMap.clear();
+
     /* RPC 调用 */
-    return TPR_KillAllApp();
+    return true;
 }
 
 TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppInfoList()
