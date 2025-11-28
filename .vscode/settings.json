@@ -149,6 +149,8 @@
         "hard.h": "c",
         "dev_monitor.h": "c",
         "dev_manager.h": "c",
-        "libudev.h": "c"
+        "libudev.h": "c",
+        "stdbool.h": "c",
+        "sdl.h": "c"
     }
 }

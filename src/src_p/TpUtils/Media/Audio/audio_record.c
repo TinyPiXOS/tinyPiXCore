@@ -27,7 +27,12 @@ void exit_sighandler(int sig)
 struct MediaParams *record_config_creat()
 {
     struct MediaParams *conf = (struct MediaParams *)malloc(sizeof(struct MediaParams));
-    conf->volume = USER_CONF_VOLUME;
+    conf->audio_params=media_audio_info_creat();
+    if(!conf->audio_params)
+    {
+        free(conf);
+        return NULL;
+    }
     conf->position_s = 0;
     conf->position_p = 0;
     conf->list = NULL;
@@ -35,6 +40,7 @@ struct MediaParams *record_config_creat()
     struct PthreadCond *pthread_cond = pthread_cond_creat_struct();
     if (pthread_cond == NULL)
     {
+        media_audio_info_delete(conf->audio_params);
         free(conf);
         return NULL;
     }
@@ -47,6 +53,7 @@ void record_config_free(struct MediaParams *conf)
 {
     if (!conf)
         return;
+    media_audio_info_delete(conf->audio_params);
     pthread_rwlock_destroy(&conf->rw_mut);
     pthread_cond_free_struct(conf->cond);
 }

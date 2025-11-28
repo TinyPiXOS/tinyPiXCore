@@ -14,6 +14,10 @@ extern "C"
 #define SCALE_HANDLE_USE_SDL // 使用SDL处理缩放
 // #define SCALE_HANDLE_USE_FFMPEG		//使用FFMPEG处理缩放
 
+typedef struct MediaAudioHandle PIAudioConf;
+struct VideoStreamParams;
+struct MediaVideoInfo;
+
 // 音频播放回调函数的参数
 struct AudioData
 {
@@ -54,6 +58,13 @@ int Video_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play);
 // 获取显示参数
 int Video_Get_All_Params(struct MediaParams *conf, struct VideoStreamParams *video_params);
 
+typedef struct MediaAudioHandle PIAudioConf __attribute__((used));
+
+
+int Video_Set_Width_Height(struct MediaVideoInfo *conf,uint16_t width,uint16_t height);
+int Video_Get_Width_Height(struct MediaVideoInfo *conf,uint16_t *width,uint16_t *height);
+int Video_Set_Coordinates(struct MediaVideoInfo *conf,int16_t x,int16_t y);
+int Video_Set_Fill_Mode(struct MediaVideoInfo *conf,VideoScalingType mode);
 
 #ifdef __cplusplus
 }

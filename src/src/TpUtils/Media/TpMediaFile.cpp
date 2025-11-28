@@ -27,19 +27,28 @@ TpMediaFile::TpMediaFile(const TpString &name)
 
 	if(media_get_file_info(data->name.c_str(),&data->format_ctx)<0)
 	{
+		throw std::runtime_error("Error: 文件不存在或找不到媒体流");
 		return ;
 	}
-		
-
 	return;
 }
-
+//需要增加拷贝构造
 TpMediaFile::~TpMediaFile()
 {
 	TpMediaFileData *data = static_cast<TpMediaFileData *>(data_);
 	if(!data)
 		return ;
 	media_deinit(data->is_net_file);
+}
+
+tpBool isMediaFile(const TpString &file)
+{
+	try {
+        TpMediaFile mf(file);
+    } catch (const std::runtime_error& e) {
+		return TP_FALSE;
+    } 
+	return TP_TRUE;
 }
 
 

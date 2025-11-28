@@ -13,8 +13,7 @@ extern "C" {
 #include <libavutil/frame.h>
 #include <libswresample/swresample.h>
 
-#include "audio_play.h"
-
+#include "Media/Media/media_config.h"
 
 #define AUDIO_CODEC_CHANNEL_DEF	16		//音频解码默认使用的声道数(其他参数由解码器自行获取)
 
@@ -24,12 +23,6 @@ typedef int(*CodecPlayPcm) (uint8_t *buf,uint32_t frames,void *param);
 struct MediaParams;
 
 
-//音频文件类型
-typedef enum{
-	AUDIO_FILE_TYPE_NONE=0X00,
-	AUDIO_FILE_TYPE_WAV
-
-}AudioFileType;
 
 
 //WAV文件头的信息，44个字节

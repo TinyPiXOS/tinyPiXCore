@@ -74,7 +74,7 @@ TpVideoInterface::~TpVideoInterface()
 	while (!Audio_State_Is_Exit(vidData->user))
 		usleep(10);
 
-	Audio_Set_Video_Callback(vidData->user, nullptr, nullptr);
+	Audio_Set_Video_Callback(vidData->user->video_params, nullptr, nullptr);
 
 	CallbackContext *context_ = (CallbackContext *)vidData->context_;
 	delete context_;
@@ -127,7 +127,7 @@ int TpVideoInterface::setVolume(tpUInt16 volume)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Volume(vidData->user, volume);
+	return Audio_Set_Volume(vidData->user->audio_params, volume);
 }
 
 int TpVideoInterface::getVolume()
@@ -135,7 +135,7 @@ int TpVideoInterface::getVolume()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Get_Volume(vidData->user);
+	return Audio_Get_Volume(vidData->user->audio_params);
 }
 
 int TpVideoInterface::setSpeed(float speed)
@@ -293,7 +293,7 @@ int TpVideoInterface::setScalingMode(TpVideoScalingType mode)
 		type = MEDIA_VIDEO_SCALING_LETTERBOX;
 		break;
 	}
-	return Video_Set_Fill_Mode(vidData->user, type);
+	return Video_Set_Fill_Mode(vidData->user->video_params, type);
 }
 
 int TpVideoInterface::setWindowCoordinates(tpInt16 x, tpInt16 y)
@@ -301,7 +301,7 @@ int TpVideoInterface::setWindowCoordinates(tpInt16 x, tpInt16 y)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Video_Set_Coordinates(vidData->user, (int16_t)x, (int16_t)y);
+	return Video_Set_Coordinates(vidData->user->video_params, (int16_t)x, (int16_t)y);
 }
 
 int TpVideoInterface::setWindowSize(tpUInt16 width, tpUInt16 height)
@@ -309,7 +309,7 @@ int TpVideoInterface::setWindowSize(tpUInt16 width, tpUInt16 height)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Video_Set_Width_Height(vidData->user, (uint16_t)width, (uint16_t)height);
+	return Video_Set_Width_Height(vidData->user->video_params, (uint16_t)width, (uint16_t)height);
 }
 
 tpBool TpVideoInterface::isPlayEnd()
@@ -352,7 +352,7 @@ int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, 
 		setDecode(format);
 
 	Audio_Set_Video_Callback(
-		vidData->user,
+		vidData->user->video_params,
 		bridge,								 // 传递函数指针的地址（符合int(**)(...)类型）
 		(CallbackContext *)vidData->context_ // 用户数据
 	);
@@ -391,5 +391,5 @@ int TpVideoInterface::setDecode(TpVideoDecodeType format)
 		break;
 	}
 
-	return Audio_Set_Video_Decode_Format(vidData->user, format_video);
+	return Audio_Set_Video_Decode_Format(vidData->user->video_params, format_video);
 }

@@ -70,6 +70,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Media/TpAudioInterface.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpVideoInterface.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpMediaFile.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpMediaInterface.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpAudioInterface_.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoInterface_.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpSound.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpRecordInterface.cpp
 
@@ -94,7 +97,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_codec.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_play_temp.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_codec.c
-    ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_manage.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_play.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_record.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/hard.c

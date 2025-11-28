@@ -20,7 +20,7 @@ int example_play_all()
 		printf("device:%s\n",it.c_str());
 	}
 
-	TpString device("hw:3,0 USB Audio");
+	TpString device("hw:0,1 USB Audio");
 	TpAudioInterface audio(device);
 	audio.setVolume(100);
 //	audio.addFile("https://gstreamer.freedesktop.org/data/media/medium/shoutout.mp3");		//添加网络的文件地址
@@ -67,7 +67,7 @@ sleep(1);
 
 int example_general()
 {
-	TpAudioInterface audio;
+	TpAudioInterface audio(TpString("0:0"));
 	audio.setVolume(100);
 //	audio.addFile("https://gstreamer.freedesktop.org/data/media/medium/shoutout.mp3");		//添加网络的文件地址
 	audio.addFile("/home/pix/Media/lvse_48000_L.wav");	

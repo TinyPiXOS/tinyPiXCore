@@ -488,11 +488,12 @@ static double count_media_clock_delay_time(struct MediaParams *user, struct Time
 // 视频播放的视频解码线程
 static void *thread_video_codec(void *param)
 {
+    int ret=0;
     struct ThreadData *data = (struct ThreadData *)param;
     struct MediaThread *video_t = data->thread;
     struct VideoHardParam *display = data->display;
     struct MediaParams *user = data->user;
-    CallbackVideoDisplay callback = user->get_callback_video(user);
+    CallbackVideoDisplay callback = user->video_params->get_callback_video(user->video_params);
     AVFrame *frame_s = av_frame_alloc(); // 原始的侦数据(直接从文件中解码出来的)
     if (frame_s == NULL)
     {
@@ -553,7 +554,7 @@ static void *thread_video_codec(void *param)
         // 重新设置解码器参数
         if (show_param.rect.w != show_param_l.rect.w || show_param.rect.h != show_param_l.rect.h) // 宽高不一样就从设大小
         {
-            count_rect_size_from_user(user->video, video->codec_ctx, &rect_src, &rect_dst); // 计算新的显示窗口尺寸
+            count_rect_size_from_user(user->video_params->video, video->codec_ctx, &rect_src, &rect_dst); // 计算新的显示窗口尺寸
 
             debug_printf("原始尺寸：%d*%d,需要显示成%d*%d\n", video->codec_ctx->width, video->codec_ctx->height, rect_dst.w, rect_dst.h);
             debug_printf("视频提取：%d,%d %d*%d,需要显示到%d,%d %d*%d\n\n", rect_src.x, rect_src.y, rect_src.w, rect_src.h,
@@ -612,10 +613,13 @@ static void *thread_video_codec(void *param)
         // debug_printf("开始解码：ptr of frame_s%p, pptr of packet :%p（当前状态%d)\n",frame_s,&packet,video_t->get_state(video_t));
         video_t->set_state(video_t, AUDIO_STATE_PLAYING);
 
-        if (avcodec_send_packet(video->codec_ctx, packet) < 0)
+        if ((ret=avcodec_send_packet(video->codec_ctx, packet) )< 0)
         { // 向解码器发送一个压缩的媒体包
             // fprintf(stderr, "Error sending packet to video codec\n");
             video_t->set_state(video_t, MEDIA_THREAD_WAITING);
+            //usleep(1000);
+            Audio_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
+            printf("avcodec_send_packet error :%s,data=%p,%d\n",av_err2str(ret),packet->data,packet->size);
             continue;
         }
 
@@ -634,7 +638,9 @@ static void *thread_video_codec(void *param)
             float speed = Audio_Get_Speed(user);
             double video_clock = (double)pts * av_q2d(videoStream->time_base) * 1000.0 * 1000.0 / speed; // time_base为s
             double delay_time = video_clock - video_t->clock->get_run_time(video_t->clock);
-            if (delay_time > 0)
+			//debug_printf("PTS: %lld, video_clock: %.3f ms, master_clock: %.3f ms, delay_time: %.3f ms\n", 
+            //  pts, video_clock / 1000.0, video_t->clock->get_run_time(video_t->clock) / 1000.0, delay_time / 1000.0);
+            if (delay_time > VIDEO_FRAME_LAG_LOSS_TIME)
             {
                 //if(delay_time>10000)
                 // debug_printf("延时%lf\n",delay_time);
@@ -642,7 +648,7 @@ static void *thread_video_codec(void *param)
             }
             else if (delay_time < (-VIDEO_FRAME_LAG_LOSS_TIME))
             {
-                // printf("===========舍弃====\n");
+                //printf("===========舍弃====\n");
                 break;
             }
 
@@ -656,7 +662,7 @@ static void *thread_video_codec(void *param)
             if (callback)
             {
                 // printf("callback\n");
-                callback(frame_d->data, frame_d->linesize, pix_fmt_dest, user->userdata);
+                callback(frame_d->data, frame_d->linesize, pix_fmt_dest, user->video_params->userdata);
             }
             else
             {
@@ -673,6 +679,7 @@ static void *thread_video_codec(void *param)
     }
     display->rect_dst = NULL;
     display->rect_src = NULL;
+    Audio_Set_Position_N(user, (int)(user->length+0.5));
     debug_printf("video线程结束\n");
     if (1)
     // if (pix_fmt_sour != pix_fmt)
@@ -767,7 +774,7 @@ static void *thread_audio_codec(void *param)
             if (delay_time > 0)
             {
                 // debug_printf("延时%lf\n",delay_time);
-                usleep(delay_time);
+                //usleep(delay_time);
             }
             else if (delay_time < (-VIDEO_FRAME_LAG_LOSS_TIME))
             {
@@ -866,13 +873,13 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
     Audio_Set_State(user, AUDIO_STATE_PLAYING);
     while (1)
     {
-        if (video_t->packet_number(&video_t->list) > VIDEO_MAX_QUEUE_SIZE ||
+        while (video_t->packet_number(&video_t->list) > VIDEO_MAX_QUEUE_SIZE ||
             audio_t->packet_number(&audio_t->list) > AUDIO_MAX_QUEUE_SIZE)
         {
-            // debug_printf("队列已满，等待...\n");
-            usleep(5000);
+            debug_printf("队列已满(%d,%d)，等待...\n",video_t->packet_number(&video_t->list),audio_t->packet_number(&audio_t->list));
+            usleep(20000);
         }
-        else if (av_read_frame(video->format_ctx, &packet) < 0) // video和audio的format_ctx是同一个
+        if (av_read_frame(video->format_ctx, &packet) < 0) // video和audio的format_ctx是同一个
             break;
 
 #ifdef DEBUG_VIDEO
@@ -887,6 +894,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
         if ((err = Audio_Get_Position_S(user)) >= 0)
         {
             debug_printf("调整播放位置\n");
+            Audio_Set_Position_N(user,err);
             AVRational reference_time_base = video->format_ctx->streams[videoStreamIndex]->time_base;
             int64_t target_timestamp = err / av_q2d(reference_time_base);
             debug_printf("av_seek_frame...\n");
@@ -955,7 +963,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
         else if (videoStreamIndex >= 0 && packet.stream_index == videoStreamIndex)
         {
             // Send the packet to the decoder
-            //debug_printf("recv video,%d\n",test);
+            debug_printf("recv video,%d\n",test);
             video_t->push_packet(&video_t->list, &packet);
             packet.stream_index = -1;
         }
@@ -966,22 +974,21 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
 
         av_packet_unref(&packet);
     }
-    test = 0;
-    while (0)
+    while (1)
     {
         if (video_t->packet_number(&video_t->list) == 0 && audio_t->packet_number(&audio_t->list) == 0)
-            break;
+        {
+            if(Audio_Get_DPosition(user,display->pcm_play) > user->length)
+                break;
+        }
         usleep(10000);
-        test++;
-        if (test > 1000)
-            break;
+        Audio_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
     }
     video_t->set_state(video_t, AUDIO_STATE_EXIT);
     audio_t->set_state(audio_t, AUDIO_STATE_EXIT);
     video_t->packet_exit(&video_t->list);
     audio_t->packet_exit(&audio_t->list);
     // Clean up
-
 FREE_AUDIO_THREAD:
     Media_Thread_Free(audio_t);
     Media_Thread_Free(video_t);

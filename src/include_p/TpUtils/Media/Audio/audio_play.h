@@ -13,13 +13,12 @@ extern "C"
 #include <pthread.h>
 #include <alsa/asoundlib.h>
 #include "filter.h"
-#include "TpAudioDevice.h"
-#include "TpVideoDevice.h"
 #include "Media/media_file_list.h"
-
+struct MediaAudioInfo;
 struct MediaParams;
 #include <stdbool.h>
 #include "audio_codec.h"
+#include "Media/Media/media_config.h"
 
 #define NONE_AUDIO_CARD_PLAY	1	//允许无声卡播放
 #define DEBUG_AUUDIO		//调试打印接口
@@ -38,6 +37,7 @@ typedef struct MediaAudioHandle PIAudioConf;
 //前置声明
 struct MediaCodecParam;
 
+
 //线程安全读，读取参数param到value
 #define THREAD_READ_USERCONF(mut, param, value)		\
 	{	\
@@ -53,6 +53,11 @@ struct MediaCodecParam;
 		param = value;\
 		pthread_rwlock_unlock(&mut);\
 	}
+
+
+typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format ,void *user_data);
+
+
 
 
 typedef enum AudioPlayCommand_{
@@ -130,6 +135,24 @@ struct VideoStreamParams{
 	VideoScalingType fill;
 };
 
+struct MediaAudioInfo{
+	pthread_rwlock_t rw_mut;	//数据交互读写锁
+	uint8_t volume;			//声音(0-100)
+	struct MediaAudioHandle *aduio_handle;	//重构后新增
+
+};
+
+struct MediaVideoInfo{
+	pthread_rwlock_t rw_mut;	//数据交互读写锁
+	struct VideoStreamParams *video;		//
+	//视频显示回调函数以及解码格式
+	uint32_t format_video;		//解码格式，仅在用户自己处理时候才会生效
+	CallbackVideoDisplay callback_video;
+	void *userdata;
+	CallbackVideoDisplay (*get_callback_video)(struct MediaVideoInfo *conf);
+	void (*set_callback_video)(struct MediaVideoInfo *conf, CallbackVideoDisplay callback,void *userdata);
+};
+
 //内部使用，用户交互信息
 struct MediaParams{        //公共区用户设置
 	//通用设置
@@ -156,22 +179,11 @@ struct MediaParams{        //公共区用户设置
 	};
 
 	//音频流相关配置
-	struct{
-		uint8_t volume;			//声音(0-100)
-		struct MediaAudioHandle *aduio_handle;	//重构后新增	
-	};
+	struct MediaAudioInfo *audio_params;
 
 	//视频流相关配置
-	struct{
-		struct VideoStreamParams *video;		//
-		//视频显示回调函数以及解码格式
-		uint32_t format_video;		//解码格式，仅在用户自己处理时候才会生效
-		CallbackVideoDisplay callback_video;
-		void *userdata;
-		CallbackVideoDisplay (*get_callback_video)(struct MediaParams *conf);
-		void (*set_callback_video)(struct MediaParams *conf, CallbackVideoDisplay callback,void *userdata);
-	};
-	
+	struct MediaVideoInfo *video_params;
+
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
 	struct PthreadCond *cond;
 };
@@ -185,6 +197,10 @@ int audio_stream_write(PIAudioConf *pcm_play,struct MediaParams *conf,
 int media_pcm_drain(PIAudioConf *pcm);
 int media_pcm_drop(PIAudioConf *pcm);
 int media_pcm_close(PIAudioConf *pcm);
+struct MediaAudioInfo *media_audio_info_creat();
+void media_audio_info_delete(struct MediaAudioInfo *conf);
+struct MediaVideoInfo *media_video_info_creat();
+void media_video_info_delete(struct MediaVideoInfo *conf);
 struct MediaParams *media_user_config_creat();
 struct PthreadCond *pthread_cond_creat_struct();
 int pthread_cond_free_struct(struct PthreadCond *cond);
@@ -195,7 +211,6 @@ PIAudioConf *Audio_Play_Open(const char *device);
 int Audio_Device_Init(PIAudioConf *pcm_play,const char *device,AudioStreamType type);
 int Audio_Device_Close(PIAudioConf *pcm_play);
 int Audio_Play_Main(PIAudioConf *pcm_play,struct MediaParams *conf);
-int Audio_Play_Test(PIAudioConf *pcm_play,const char *name);
 
 int64_t Audio_Get_BytePosition(struct MediaParams *conf);
 int64_t Audio_Set_BytePosition(struct MediaParams *conf,int64_t position);
@@ -213,16 +228,20 @@ int Audio_Set_Command(struct MediaParams *conf,AudioPlayCommand cmd);
 int Audio_Set_State(struct MediaParams *conf, AudioPlayState state);
 
 //设置音量
-int Audio_Set_Volume(struct MediaParams *conf,int16_t volume);
+int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
 
 //获取音量
-int Audio_Get_Volume(struct MediaParams *conf);
+int Audio_Get_Volume(struct MediaAudioInfo *conf_a);
 
 //内部获取用户设置的播放位置
 int Audio_Get_Position_S(struct MediaParams *conf);
 
 //内部设置实时播放位置
 int Audio_Set_Position_N(struct MediaParams *conf,int32_t position);
+
+float Audio_Get_Speed(struct MediaParams *conf);
+
+int Audio_Set_Speed(struct MediaParams *conf, float speed);
 
 //设置位置
 int Audio_Set_Position(struct MediaParams *conf,int32_t position);
@@ -270,8 +289,8 @@ int Audio_Set_Hard_Params(PIAudioConf *pcm_play,struct MediaParams *conf,uint32_
 int Audio_Set_Nonblock(PIAudioConf *pcm_play,struct MediaParams *conf,uint8_t nonblock);
 int Audio_Write_Stream(PIAudioConf *pcm,struct MediaParams *conf,struct AudioStreamParams *hard_params,
 							uint8_t *buffer,uint32_t frames,int offset,int delay);
-CallbackVideoDisplay Audio_Get_Video_Callback(struct MediaParams *conf);
-void Audio_Set_Video_Callback(struct MediaParams *conf,CallbackVideoDisplay cb, void *userdata);
+CallbackVideoDisplay Audio_Get_Video_Callback(struct MediaVideoInfo *conf);
+void Audio_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb, void *userdata);
 
 #ifdef __cplusplus
 }

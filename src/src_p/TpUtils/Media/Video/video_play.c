@@ -322,7 +322,7 @@ int count_rect_size_from_user(struct VideoStreamParams *user_params, AVCodecCont
 int video_play_codec_file(struct VideoHardParam *display, struct MediaParams *user, const char *filename)
 {
     uint32_t format = AV_PIX_FMT_RGB24;  // 暂时使用固定RGB888格式（）
-    if (!user->get_callback_video(user)) // 用户没设置回调就启用本地显示
+    if (!user->video_params->get_callback_video(user->video_params)) // 用户没设置回调就启用本地显示
     {
         printf("=============启用本地显示===========\n");
         display->is_sdl = true;
@@ -403,91 +403,91 @@ int viodeo_display_rgb()
 }
 
 // 设置视频画面的填充方式
-int Video_Set_Fill_Mode(struct MediaParams *conf, VideoScalingType mode)
+int Video_Set_Fill_Mode(struct MediaVideoInfo *conf_v, VideoScalingType mode)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->video->fill, mode);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->video->fill, mode);
     return 0;
 }
 
 // 显示位置设置
-int Video_Set_Coordinates(struct MediaParams *conf, int16_t x, int16_t y)
+int Video_Set_Coordinates(struct MediaVideoInfo *conf_v, int16_t x, int16_t y)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->video->rect.x, x);
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->video->rect.y, y);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->video->rect.x, x);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->video->rect.y, y);
     return 0;
 }
 
 // 显示位置获取
-int Video_Get_Coordinates(struct MediaParams *conf, int16_t *x, int16_t *y)
+int Video_Get_Coordinates(struct MediaVideoInfo *conf_v, int16_t *x, int16_t *y)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_READ_USERCONF(conf->rw_mut, conf->video->rect.x, *x);
-    THREAD_READ_USERCONF(conf->rw_mut, conf->video->rect.y, *y);
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->video->rect.x, *x);
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->video->rect.y, *y);
     return 0;
 }
 
 // 获取位置(视频使用位置)
-int Video_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play)
+int Video_Get_Position(struct MediaParams *conf_v, PIAudioConf *pcm_play)
 {
-    return (int32_t)Audio_Get_DPosition(conf, pcm_play);
+    return (int32_t)Audio_Get_DPosition(conf_v, pcm_play);
 }
 
 // 显示宽高
-int Video_Get_Width_Height(struct MediaParams *conf, uint16_t *width, uint16_t *height)
+int Video_Get_Width_Height(struct MediaVideoInfo *conf_v, uint16_t *width, uint16_t *height)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_READ_USERCONF(conf->rw_mut, conf->video->rect.w, *width);
-    THREAD_READ_USERCONF(conf->rw_mut, conf->video->rect.h, *height);
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->video->rect.w, *width);
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->video->rect.h, *height);
     return 0;
 }
 
 // 设置宽高
-int Video_Set_Width_Height(struct MediaParams *conf, uint16_t width, uint16_t height)
+int Video_Set_Width_Height(struct MediaVideoInfo *conf_v, uint16_t width, uint16_t height)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->video->rect.w, width);
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->video->rect.h, height);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->video->rect.w, width);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->video->rect.h, height);
     return 0;
 }
 
 // 获取亮度
-int Video_Get_Light(struct MediaParams *conf)
+int Video_Get_Light(struct MediaVideoInfo *conf_v)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
     int light;
-    THREAD_READ_USERCONF(conf->rw_mut, conf->video->light, light);
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->video->light, light);
     return light;
 }
 
 // 设置亮度
-int Video_Set_Light(struct MediaParams *conf, uint16_t light)
+int Video_Set_Light(struct MediaVideoInfo *conf_v, uint16_t light)
 {
-    if (!conf)
+    if (!conf_v)
         return -1;
-    THREAD_WRITE_USERCONF(conf->rw_mut, conf->video->light, light);
+    THREAD_WRITE_USERCONF(conf_v->rw_mut, conf_v->video->light, light);
     return 0;
 }
 
 // 获取所有显示参数
-static int video_params_get_all(struct MediaParams *user, struct VideoStreamParams *video_params)
+static int video_params_get_all(struct MediaVideoInfo *conf_v, struct VideoStreamParams *video_params)
 {
     // 使用memcpy有问题，原因未知
-    pthread_rwlock_rdlock(&user->rw_mut);
-    video_params->rect.w = user->video->rect.w;
-    video_params->rect.h = user->video->rect.h;
-    video_params->rect.x = user->video->rect.x;
-    video_params->rect.y = user->video->rect.y;
-    video_params->fill = user->video->fill;
+    pthread_rwlock_rdlock(&conf_v->rw_mut);
+    video_params->rect.w = conf_v->video->rect.w;
+    video_params->rect.h = conf_v->video->rect.h;
+    video_params->rect.x = conf_v->video->rect.x;
+    video_params->rect.y = conf_v->video->rect.y;
+    video_params->fill = conf_v->video->fill;
     //	memcpy(&video_params,user->video,sizeof(struct VideoStreamParams));
-    pthread_rwlock_unlock(&user->rw_mut);
+    pthread_rwlock_unlock(&conf_v->rw_mut);
     return 0;
 }
 
@@ -499,7 +499,7 @@ int get_display_params_user_codec(struct MediaParams *user, AVCodecContext *code
 {
     if (!video_params)
         return -1;
-    video_params_get_all(user, video_params);
+    video_params_get_all(user->video_params, video_params);
     if ((video_params->rect.w == 0 || video_params->rect.h == 0) && codec_ctx != NULL) // 宽高不符合则使用视频默认参数,若没有传默认参数则直接返回
     {
         video_params->rect.w = codec_ctx->width;

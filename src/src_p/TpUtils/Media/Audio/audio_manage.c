@@ -264,11 +264,11 @@ extern "C"
         case AUDIO_CMD_DEL_FILE:
             break;
         case AUDIO_CMD_SET_VOLUMEL:
-            Audio_Set_Volume(conf, msg->data.volume);
+            Audio_Set_Volume(conf->audio_params, msg->data.volume);
             break;
         case AUDIO_CMD_GET_VOLUMEL:
         {
-            uint8_t vol = (uint8_t)Audio_Get_Volume(conf);
+            uint8_t vol = (uint8_t)Audio_Get_Volume(conf->audio_param);
             msg_send.data.reply.data.volume = vol;
             send_data_msg(msgid, &msg_send);
             break;
@@ -589,7 +589,6 @@ extern "C"
 
         printf("debug:,handle_p=%p,hewparams_p=%p\n", pcm_play->handle, pcm_play->hwparams);
         // Audio_Play_Test(&pcm_play,"/home/pix/Media/MeiNanBian.mp3");//home/pix/Media/test_video.webm
-        Audio_Play_Test(pcm_play, "/home/pix/Media/test_video.webm");
         Audio_Device_Close(pcm_play);
         return 0;
     }
