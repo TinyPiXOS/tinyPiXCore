@@ -59,10 +59,12 @@ static size_t byte_array_get_size(VariableArray *arr)
 void delete_variable_array(VariableArray *arr) {
 	if(!arr)
 		return ;
-    free(arr->data);  // :contentReference[oaicite:4]{index=4}
+    if(arr->data)
+        free(arr->data);  // :contentReference[oaicite:4]{index=4}
     arr->data = NULL;
     arr->size = arr->capacity = 0;
 	free(arr);
+    arr=NULL;
 }
 
 

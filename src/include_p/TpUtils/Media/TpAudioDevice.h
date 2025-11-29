@@ -29,7 +29,6 @@ int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,struct M
 int Audio_Hard_Deinit(struct MediaCodecParam *codec);
 //打开音频播放设备并初始化
 PIAudioConf *Audio_Play_Open(const char *name)  __attribute__((used));
-int Audio_Play_Test(PIAudioConf *pcm_play,const char *name) __attribute__((used));
 
 //音频播放是否退出
 int Audio_State_Is_Exit(struct MediaParams *conf) __attribute__((used));

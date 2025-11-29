@@ -31,8 +31,6 @@ struct MediaPacketQueue{
 	uint8_t exit_flag;
 	pthread_mutex_t lock;
 	pthread_cond_t cond;
-//	SDL_mutex *lock;
-//	SDL_cond *cond;
 };
 
 //线程同步
@@ -42,10 +40,6 @@ struct MediaThreadCond{
 	pthread_cond_t cond ;
 };
 
-//线程时钟
-struct MediaThreadClock{	
-	long long clock_start;		//理论上以当前设着位置相对的开始时间
-};
 
 
 //编解码播放线程信息
@@ -503,26 +497,29 @@ static AVFormatContext *media_get_format_context(MediaStreamArray *array)
 	return stream0->format_ctx;
 }
 
-//查找最合适的同步时钟的流编号
-//type:作为主时钟的流的类型
-static int media_find_sys_clock_index(MediaStreamArray *media_array, MediaType type)
+//根据时间设置流跳转到制定位置
+static int media_seek_frame_with_time(struct MediaPlayerHandle *player, uint32_t sec)
 {
-	int clock_index=-1;
-	int size_array=media_array->get_size(media_array);	//获取当前的成员数量
-	for(int i=0;i<size_array;i++)
+	AVFormatContext *format_ctx=player->format_ctx;
+	AVRational reference_time_base = format_ctx->streams[player->sync_clk_stream_index]->time_base;
+	int64_t target_timestamp = sec / av_q2d(reference_time_base);
+	
+	//调整所有流的位置，stream_index设置为同步时钟所在的流，设置为-1为自动选择，但是目前有问题
+	av_seek_frame(format_ctx,player->sync_clk_stream_index,target_timestamp,AVSEEK_FLAG_BACKWARD);	
+	return 0;	
+}
+
+static media_avcodec_flush_buffers(MediaStreamArray *media_array)
+{
+	int size_array=media_array->get_size(media_array);
+
+	for(int i=0; i<size_array; i++)
 	{
 		struct MediaStreamParams *stream=media_array->get(media_array,i);
-		switch(stream->type)
-		{
-			case AVMEDIA_TYPE_VIDEO:   		// 视频流
-				clock_index=i;
-        	case AVMEDIA_TYPE_AUDIO:   		// 音频流
-				if(clock_index<0)
-					clock_index=i;
-				break;
-		}
+		avcodec_flush_buffers(stream->codec_ctx);
+
 	}
-	return clock_index;
+	
 }
 
 //视频播放的视频解码线程
@@ -734,6 +731,7 @@ static void *thread_audio_codec(void *param)
 	struct MediaStreamParams *stream=data->stream;
 	struct TimerHandle *sys_clock;
 	struct MediaParams *user=data->user;
+	CallbackAudioDisplay callback=user->audio_params->get_callback_audio(user->audio_params);
 	AVFrame *frame_s = av_frame_alloc();	//原始的侦数据(直接从文件中解码出来的)
 	if(frame_s == NULL) {
 		data->err_code=-1;
@@ -812,7 +810,7 @@ static void *thread_audio_codec(void *param)
 
 			int samples_converted = swr_convert(stream->audio.swr_ctx, convert_frame->data, frame_s->nb_samples, (const uint8_t **)frame_s->data, frame_s->nb_samples);
 			if(samples_converted>0)
-				stream->callback_play_audio((uint8_t *)convert_frame,samples_converted,-1,stream->callback_param);	//display->audio_data
+				callback((uint8_t *)convert_frame,samples_converted,-1,user->audio_params->userdata);	//display->audio_data
 		}
 		audio_t->free_packet(packet);
 		audio_t->set_state(audio_t,MEDIA_THREAD_WAITING);
@@ -958,7 +956,7 @@ static int media_player_codec_stop(MediaStreamArray *stream_array)
 {
 	struct MediaThread* t;
 	FOREACH_THREAD(stream_array,t){
-		
+
 	};
 }
 
@@ -1000,8 +998,7 @@ static int media_write_packet_to_queue(MediaStreamArray *stream_array, AVPacket 
 		{
 			struct MediaThread *thread=stream->codec_thread;
 			thread->push_packet(&thread->list,packet);
-		}
-			
+		}	
 	}
 	packet->stream_index=-1;
 }
@@ -1032,8 +1029,7 @@ static MediaPacketQueueState media_player_get_queue_state(MediaStreamArray *stre
 int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 {
 	MediaStreamArray *stream_array=player->stream_array;
-	AVFormatContext *format_ctx=media_get_format_context(stream_array);
-	int sys_clock_index=media_find_sys_clock_index(stream_array,-1);
+	AVFormatContext *format_ctx=player->format_ctx;
 	int err=0;
 	int stream_num=stream_array->get_size(stream_array);
 	if(media_creat_player_thread(stream_array,player->clock,user)<0)
@@ -1068,15 +1064,15 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 #endif
 		if((err=Audio_Get_Position_S(user))>=0)
 		{
-			AVRational reference_time_base = format_ctx->streams[sys_clock_index]->time_base;
-			int64_t target_timestamp = err / av_q2d(reference_time_base);
-			av_seek_frame(format_ctx,-1,target_timestamp,AVSEEK_FLAG_BACKWARD);	//调整所有流的位置，stream_index设置为-1
+			media_seek_frame_with_time(player,err);
+			player->flush_codec_buffers(stream_array);
 			//清空队列
 			player->flush_list(stream_array);
 			//清空声卡缓存
 			//media_pcm_drop(display->pcm_play);
 
 			player->clock->adjust_time(player->clock,(long)err*1000*1000);
+			av_packet_unref(&packet);
 			continue;
 		}
 		int cmd=user->command_get(user);
@@ -1108,7 +1104,6 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 			default:
 				break;
 		}
-
 		
 		media_write_packet_to_queue(stream_array, &packet);
 			
@@ -1183,7 +1178,7 @@ static int Media_Thread_Free(struct MediaThread *thread)
 	pthread_mutex_destroy(&thread->lock);
 	packet_queue_destroy(&thread->list);
 	
-	timer_ofday_handle_free(thread->clock);
+	timer_ofday_handle_delete(thread->clock);
 
 	return 0;
 }
@@ -1195,13 +1190,25 @@ struct MediaPlayerHandle *media_player_handle_creat()
 	if(!player)
 		return NULL;
 	
-	struct TimerHandle *clock=timer_ofday_handle_creat();
-	if(!clock)
+	player->clock=timer_ofday_handle_creat();
+	if(!player->clock)
 	{	
 		free(player);
 		return NULL;
 	}
 
+	player->stream_array=creat_variable_array(sizeof(struct MediaStreamParams),2);
+	if(!player->stream_array)
+	{
+		timer_ofday_handle_delete(player->clock);
+		free(player);
+		return -1;
+	}
+
+	player->url=NULL;
+	player->format_ctx=NULL;
+	player->sync_clk_array_index=-1;
+	player->sync_clk_stream_index=-1;
 
 	player->player_start=media_player_codec_start;
 //	player->player_wait)(MediaStreamArray *stream_array);
@@ -1212,6 +1219,8 @@ struct MediaPlayerHandle *media_player_handle_creat()
 	player->packet_exit=media_player_packet_exit;					//防止队列中没有数据，线程阻塞
 	player->flush_list=media_player_flush_list;
 	player->list_state=media_player_get_queue_state;
+
+	player->flush_codec_buffers=media_avcodec_flush_buffers;
 	return player;
 }
 
@@ -1219,9 +1228,18 @@ int media_player_handle_delete(struct MediaPlayerHandle *player)
 {
 	if(!player)
 		return 0;
-
-	timer_ofday_handle_free(player->clock);
-
+	if(player->url)
+		free(player->url);
+	player->url=NULL;	
+	timer_ofday_handle_delete(player->clock);
+	int size=player->stream_array->get_size(player->stream_array);
+	for(int i=0;i<size;i++)
+	{
+		struct MediaStreamParams *stream=player->stream_array->get(player->stream_array,i);
+		if(stream)
+			free(stream);
+	}
+	delete_variable_array(player->stream_array);
 	free(player);
 	player=NULL;
 	return 0;
@@ -1231,20 +1249,9 @@ int media_player_handle_delete(struct MediaPlayerHandle *player)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 /// @brief 获取编解码信息
 /// @return 
-MediaFormatContext *Media_Get_File_Info(const char *filename,MediaStreamArray *media_array)
+MediaFormatContext *Media_Get_File_All_Info(const char *filename,MediaStreamArray *media_array)
 {
 	FILE *fp=fopen(filename,"rb");
 	if(fp)

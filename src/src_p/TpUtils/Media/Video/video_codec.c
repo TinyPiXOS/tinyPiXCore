@@ -900,9 +900,9 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
             debug_printf("av_seek_frame...\n");
             av_seek_frame(video->format_ctx, videoStreamIndex, target_timestamp, AVSEEK_FLAG_BACKWARD); // 调整所有流的位置，stream_index设置为-1（-1为默认，调整位置会有问题）,
             avcodec_flush_buffers(video->codec_ctx);
-            /*if (audio && audio->codec_ctx) {
+            if (audio && audio->codec_ctx) {
                 avcodec_flush_buffers(audio->codec_ctx);
-            }*/
+            }
             // 清空队列
             debug_printf("清空队列...\n");
             video_t->flush_list(&video_t->list);
@@ -1038,7 +1038,7 @@ static int Media_Thread_Free(struct MediaThread *thread)
     pthread_mutex_destroy(&thread->lock);
     packet_queue_destroy(&thread->list);
 
-    timer_ofday_handle_free(thread->clock);
+    timer_ofday_handle_delete(thread->clock);
 
     return 0;
 }

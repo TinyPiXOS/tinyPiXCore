@@ -78,7 +78,6 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
 int get_audio_params_wav(FILE *fp,struct AudioStreamParams *params);
 void get_wav_header_info(FILE *fp,AudioWavHeader *wav_header);
 
-AudioFileType Audio_Get_File_Type(FILE *fp);
 int Audio_Get_Codec_Info(const char *filename,struct MediaCodecParam *codec);
 int Audio_File_Codec(struct MediaCodecParam *audio,struct MediaParams *conf);
 
