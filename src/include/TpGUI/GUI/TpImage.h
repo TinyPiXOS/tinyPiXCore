@@ -63,6 +63,10 @@ public:
     /// @return 加载结果
     virtual bool isNull();
 
+    /// @brief 重置资源；将资源对象置空
+    /// @return 重置结果
+    virtual bool setNull();
+
     /// @brief 指定矩形拷贝对象
     /// @param rect 拷贝矩形，将原始图片裁剪此矩形后返回新对象
     /// @return 新的图像管理对象

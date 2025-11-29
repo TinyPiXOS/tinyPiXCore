@@ -212,7 +212,7 @@ void TpCollapsibleFileItem::setPath(const TpString &filePath)
     }
     else
     {
-        itemData->sizeLabel->setText(TpString::number(fileInfo.size()) + "Kb");
+        itemData->sizeLabel->setText(TpString::number(1.0 * fileInfo.size() / 1024.0) + "Kb");
     }
     // std::cout << "suffix  " << suffix << std::endl;
 
@@ -340,7 +340,6 @@ bool TpCollapsibleFileItem::eventFilter(TpObject *watched, TpEvent *event)
     }
     else
     {
-
     }
 
     return false;

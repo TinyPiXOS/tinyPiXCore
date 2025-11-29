@@ -7,9 +7,9 @@
 struct TpImageWidgetData
 {
     TpString filePath = "";
-    TpImage fileSurface;
+    TpImage fileImage;
 
-    TpImage cachedScaledSurface;
+    TpImage cachedScaledImage;
     uint32_t cachedWidth = 0;
     uint32_t cachedHeight = 0;
 };
@@ -41,8 +41,9 @@ void TpImageWidget::setImageFilePath(const TpString &filePath)
         return;
 
     TpImageWidgetData *imageData = static_cast<TpImageWidgetData *>(data_);
+    imageData->cachedScaledImage.setNull();
     imageData->filePath = filePath;
-    imageData->fileSurface.load(filePath);
+    imageData->fileImage.load(filePath);
     update();
 }
 
@@ -67,8 +68,8 @@ bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
     uint32_t windowHeight = height();
 
     // 获取图像尺寸
-    uint32_t imageWidth = imageData->fileSurface.width();
-    uint32_t imageHeight = imageData->fileSurface.height();
+    uint32_t imageWidth = imageData->fileImage.width();
+    uint32_t imageHeight = imageData->fileImage.height();
 
     // 计算缩放比例和最终尺寸
     double scaleRatio = 1.0;
@@ -115,21 +116,21 @@ bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
         TpImage scaledSurface;
 
         // 检查是否需要重新创建缩放表面
-        if (imageData->cachedScaledSurface.isNull() ||
+        if (imageData->cachedScaledImage.isNull() ||
             imageData->cachedWidth != finalWidth ||
             imageData->cachedHeight != finalHeight)
         {
-            scaledSurface = imageData->fileSurface.scaled(finalWidth, finalHeight);
+            scaledSurface = imageData->fileImage.scaled(finalWidth, finalHeight);
 
             // 更新缓存
-            imageData->cachedScaledSurface = scaledSurface;
+            imageData->cachedScaledImage = scaledSurface;
             imageData->cachedWidth = finalWidth;
             imageData->cachedHeight = finalHeight;
         }
         else
         {
             // 使用缓存
-            scaledSurface = imageData->cachedScaledSurface;
+            scaledSurface = imageData->cachedScaledImage;
         }
 
         painter->drawImage(x, y, scaledSurface);
@@ -137,7 +138,7 @@ bool TpImageWidget::onPaintEvent(TpPaintEvent *event)
     else
     {
         // 无需缩放，直接绘制
-        painter->drawImage(x, y, imageData->fileSurface);
+        painter->drawImage(x, y, imageData->fileImage);
     }
 
     return true;

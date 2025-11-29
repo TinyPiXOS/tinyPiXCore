@@ -29,7 +29,6 @@ TpImage::TpImage(const TpImage &other) : data_(nullptr)
     tvg::Initializer::init(cores / 2);
 
     TpImageData *imageData = new TpImageData();
-    // imageData->tvgPicture = tvg::Picture::gen();
 
     data_ = imageData;
 
@@ -85,6 +84,13 @@ bool TpImage::load(const TpString &filename)
         return false;
 
     imageData->fileName = filename;
+
+    // 如果已经加载了图片，需要先释放旧指针
+    if (imageData->tvgPicture)
+    {
+        delete imageData->tvgPicture;
+        imageData->tvgPicture = tvg::Picture::gen();
+    }
 
     imageData->tvgPicture->load(filename.c_str());
 
@@ -252,6 +258,17 @@ bool TpImage::isNull()
         // std::cout << "Picture 已加载，尺寸: " << width << " x " << height << std::endl;
         return false;
     }
+}
+
+bool TpImage::setNull()
+{
+    TpImageData *imageData = static_cast<TpImageData *>(data_);
+
+    delete imageData->tvgPicture;
+    imageData->tvgPicture = nullptr;
+    imageData->tvgPicture = tvg::Picture::gen();
+
+    return true;
 }
 
 TpImage TpImage::copy(const TpRect &rect)
