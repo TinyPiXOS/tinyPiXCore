@@ -432,17 +432,17 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
             if (i == 0)
             {
                 // 移动到起始点
-                clipper->moveTo(polygonPoint.x(), polygonPoint.y());
+                clipper->moveTo(polygonPoint.x() + x, polygonPoint.y() + y);
             }
             else if (i == (hollowPolygon.posintList.size() - 1))
             {
                 // 闭合多边形
-                clipper->lineTo(polygonPoint.x(), polygonPoint.y());
+                clipper->lineTo(polygonPoint.x() + x, polygonPoint.y() + y);
                 clipper->close();
             }
             else
             {
-                clipper->lineTo(polygonPoint.x(), polygonPoint.y());
+                clipper->lineTo(polygonPoint.x() + x, polygonPoint.y() + y);
             }
         }
     }
