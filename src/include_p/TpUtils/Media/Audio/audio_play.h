@@ -56,7 +56,7 @@ struct MediaCodecParam;
 
 
 typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format ,void *user_data);
-
+typedef int(*CallbackAudioDisplay)(uint8_t *buf,uint32_t frames,int offset,void *param);
 
 
 
@@ -86,7 +86,6 @@ typedef enum AudioPlayType_{
 
 
 
-
 //声卡的硬件的部分信息
 struct PcmHardParams{
 	uint8_t can_pause;			//PCM是否支持暂停
@@ -95,13 +94,6 @@ struct PcmHardParams{
 	unsigned long buff_size;		//缓存区大小
 };
 
-//内部播放的操作
-struct AudioHostOperate{
-	int (*write_data)(PIAudioConf *pcm,uint8_t *buffer,unsigned long frames,int delay);
-	int (*adjust_volume)(uint8_t *buffer, size_t frames, int channels, float volume, uint16_t bit);
-	int (*adjust_postion)();
-
-};
 
 //内部使用，声卡配置信息
 //音频的硬件参数和句柄
@@ -140,17 +132,28 @@ struct MediaAudioInfo{
 	uint8_t volume;			//声音(0-100)
 	struct MediaAudioHandle *aduio_handle;	//重构后新增
 
+	struct{
+		CallbackAudioDisplay callback_audio;
+		void *userdata;
+		CallbackAudioDisplay (*get_callback_audio)(struct MediaAudioInfo *conf);
+		void (*set_callback_audio)(struct MediaAudioInfo *conf, CallbackAudioDisplay callback,void *userdata);
+	};
 };
 
 struct MediaVideoInfo{
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
-	struct VideoStreamParams *video;		//
 	//视频显示回调函数以及解码格式
 	uint32_t format_video;		//解码格式，仅在用户自己处理时候才会生效
-	CallbackVideoDisplay callback_video;
-	void *userdata;
-	CallbackVideoDisplay (*get_callback_video)(struct MediaVideoInfo *conf);
-	void (*set_callback_video)(struct MediaVideoInfo *conf, CallbackVideoDisplay callback,void *userdata);
+
+	struct{
+		CallbackVideoDisplay callback_video;
+		void *userdata;
+		CallbackVideoDisplay (*get_callback_video)(struct MediaVideoInfo *conf);
+		void (*set_callback_video)(struct MediaVideoInfo *conf, CallbackVideoDisplay callback,void *userdata);
+	};
+	
+	//以下参数暂时无用
+	struct VideoStreamParams *video;		//
 };
 
 //内部使用，用户交互信息

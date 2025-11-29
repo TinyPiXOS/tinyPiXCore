@@ -508,11 +508,6 @@ int get_display_params_user_codec(struct MediaParams *user, AVCodecContext *code
     return 0;
 }
 
-int Video_Play_Open()
-{
-    return 0;
-}
-
 int Video_Play_Main(struct MediaParams *user, const char *audio_card)
 {
     struct MediaFileList *list = user->list;

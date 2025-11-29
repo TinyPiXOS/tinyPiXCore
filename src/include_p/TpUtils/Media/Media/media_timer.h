@@ -31,7 +31,7 @@ struct TimerHandle{
 
 
 struct TimerHandle *timer_ofday_handle_creat();
-void timer_ofday_handle_free(struct TimerHandle *timer);
+void timer_ofday_handle_delete(struct TimerHandle *timer);
 
 
 

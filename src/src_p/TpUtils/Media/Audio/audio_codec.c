@@ -376,7 +376,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 		av_packet_unref(packet);
 	}
 EXIT:
-	timer_ofday_handle_free(clock);
+	timer_ofday_handle_delete(clock);
 	av_packet_free(&packet);
 	av_frame_free(&frame);
 	if(have_audio_card)
@@ -420,17 +420,6 @@ int get_audio_params_wav(FILE *fp,struct AudioStreamParams *params)
 	params->wChannels=wav_header.wChannels;
 	params->rLen=wav_header.rLen-sizeof(AudioWavHeader);
 	return 0;
-}
-
-
-AudioFileType Audio_Get_File_Type(FILE *fp)
-{
-	AudioWavHeader wav_header;
-	int nread;
-	nread=fread(&wav_header,1,sizeof(AudioWavHeader),fp);
-	if(strncmp(wav_header.rld,"RIFF",4)==0)
-		return AUDIO_FILE_TYPE_WAV;
-	return AUDIO_FILE_TYPE_NONE;
 }
 
 /// @brief 获取音频解码器以及各种信息

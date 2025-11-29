@@ -152,7 +152,7 @@ static int audio_stream_params_init(int wChannels,int nSamplesPersec,int wBitsPe
 }
 
 //声卡硬件初始化(使用解码器的参数自动设置)
-static int media_audio_hard_auto_init(PIAudioConf *pcm_play,struct MediaParams *conf,struct MediaStreamParams *audio)
+static int media_audio_hard_auto_init(PIAudioConf *pcm_play,struct MediaParams *user,struct MediaStreamParams *audio)
 {
 	debug_printf("初始化声卡硬件\n");
 	struct AudioStreamParams *stream_params=(struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
@@ -162,8 +162,8 @@ static int media_audio_hard_auto_init(PIAudioConf *pcm_play,struct MediaParams *
 								stream_params);
 	if(!pcm_play || !pcm_play->handle)
 	{
-		audio->callback_play_audio=NULL;
-		audio->callback_param=NULL;
+		user->audio_params->callback_audio=NULL;
+		user->audio_params->userdata=NULL;
 		audio->audio.handle->adparams=stream_params;
 		return -1;
 	}
@@ -174,12 +174,12 @@ static int media_audio_hard_auto_init(PIAudioConf *pcm_play,struct MediaParams *
 	struct codePlayCallbackParam *cb_param=(struct codePlayCallbackParam *)malloc(sizeof(struct codePlayCallbackParam));
 	if(cb_param==NULL)
 		return -1;
-	cb_param->conf=conf;
+	cb_param->conf=user;
 	cb_param->audio_param=stream_params;
 	cb_param->delay=100;
 	cb_param->pcm=pcm_play;
-	audio->callback_play_audio=callback_codec_play;
-	audio->callback_param=cb_param;
+	user->audio_params->callback_audio=callback_codec_play;
+	user->audio_params->userdata=cb_param;
 	audio->audio.handle->adparams=stream_params;
 	return 0;
 }
@@ -189,14 +189,6 @@ static int media_audio_hard_deinit(struct MediaStreamParams *audio)
 	if(!audio)
 		return 0;
 
-	struct codePlayCallbackParam *cb_param=(struct codePlayCallbackParam *)audio->callback_param;
-	if(cb_param!=NULL)
-    {
-		if(cb_param->audio_param!=NULL)
-		    free(cb_param->audio_param);
-		free(cb_param);
-		cb_param=NULL;
-	}
     return 0;
 }
 
@@ -354,7 +346,7 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 	struct VideoStreamParams user_params;	//用户设置的显示位置和宽高以及亮度填充
 	get_display_params_user_codec(user,stream->codec_ctx,&user_params);
 
-	struct VideoStreamParams *params_d=(struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
+/*	struct VideoStreamParams *params_d=(struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
 	if(!params_d)
 	{
 		goto ERROR_RETURN;
@@ -364,7 +356,7 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 	{
 		goto ERROR_RETURN;
 	}
-
+*/
 #ifdef MEDIA_SDL_ENABLE
 	if(handle->is_sdl)
 	{
@@ -386,10 +378,10 @@ static int media_stream_video_init_handle(struct MediaStreamParams *stream,struc
 	return 0;
 
 ERROR_RETURN:
-	if(params_s)
+/*	if(params_s)
 		free(params_s);
 	if(params_d)
-		free(params_d);
+		free(params_d);*/
 	if(handle)
 		free(handle);
 
@@ -407,18 +399,33 @@ static int media_stream_audio_init_handle(struct MediaStreamParams *stream,struc
 }
 
 //根据每个流的参数信息来初始化对应的硬件
-static int media_stream_all_init_handle(MediaStreamArray *array, struct MediaParams *user)
+static int media_stream_all_init_handle(struct MediaPlayerHandle *player, struct MediaParams *user)
 {
+	MediaStreamArray *array=player->stream_array;
 	int size_array=array->get_size(array);
+	MediaType sync_clk_type = AVMEDIA_TYPE_UNKNOWN;
 	for(int i=0 ;i<size_array;i++)
 	{
-		struct MediaStreamParams *stream =array->get(array,i);
+		struct MediaStreamParams *stream = array->get(array,i);
+
 		switch(stream->type)
 		{
-			case AVMEDIA_TYPE_VIDEO:   		// 视频流
+			case AVMEDIA_TYPE_VIDEO:   		// 视频流	
+				if(player->sync_clk_stream_index<0 || sync_clk_type != AVMEDIA_TYPE_VIDEO)
+				{
+					sync_clk_type=stream->type;
+					player->sync_clk_stream_index=stream->stream_index;
+					player->sync_clk_array_index=i;
+				}
 				media_stream_video_init_handle(stream,user);
 				break;
         	case AVMEDIA_TYPE_AUDIO:   		// 音频流
+				if(player->sync_clk_stream_index<0)
+				{
+					sync_clk_type=stream->type;
+					player->sync_clk_stream_index=stream->stream_index;
+					player->sync_clk_array_index=i;
+				}
 				media_stream_audio_init_handle(stream,user);
 				break;
 			case AVMEDIA_TYPE_SUBTITLE: 	// 字幕
@@ -427,6 +434,7 @@ static int media_stream_all_init_handle(MediaStreamArray *array, struct MediaPar
 				break;
 		}
 	}
+
 }
 
 
@@ -484,23 +492,27 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 		return -1;
 
 	//获取文件信息和每个流解码器
-	MediaStreamArray *array=creat_variable_array(sizeof(struct MediaStreamParams),2);
-	if(!array)
-		return -1;
-	MediaFormatContext *mediaFormat=Media_Get_File_Info(filename,array);
 
+	MediaFormatContext *mediaFormat=Media_Get_File_All_Info(filename,player->stream_array);
+	if(!mediaFormat)
+	{
+		fprintf(stderr, "Open file(URL) error\n");
+        return -1;
+	}
+
+	struct MediaStreamParams *stream0=player->stream_array->get(player->stream_array,0);
+	player->format_ctx = stream0->format_ctx;
+	
 	//设置时长
 	Audio_Set_Length(user,media_get_url_duration_sec(mediaFormat));
 		
-	
-	player->stream_array=array;
-	media_stream_all_init_handle(array,user);		//初始化对应硬件
+	media_stream_all_init_handle(player,user);		//初始化对应硬件
 
 	Mediao_File_Codec(player,user);
 
-	media_stream_all_deinit_handle(array);
+	media_stream_all_deinit_handle(player->stream_array);
 
-	Media_Free_File(array);
+	Media_Free_File(player->stream_array);
 	media_player_handle_delete(player);
 	return 0;
 }
