@@ -36,6 +36,16 @@ TpRecordInterface::TpRecordInterface(const TpString &device)
     if (user == NULL)
     {
         std::cerr << "Failed to creat TpAudioInterface" << std::endl;
+        delete(recData);
+        return ;
+    }
+    user->audio_params=media_audio_info_creat();
+    if(!user->audio_params)
+    {
+        perror("audio_params creat error\n");
+        media_user_config_delete(user);
+        delete(recData);
+        return ;
     }
     recData->user = user;
     size_t pos = device.find(' '); // 查找第一个空格位置
@@ -54,7 +64,7 @@ TpRecordInterface::~TpRecordInterface()
     }
     if (!Audio_State_Is_Exit(recData->user))
         Audio_Device_Close(recData->record);
-    media_user_config_free(recData->user);
+    media_user_config_delete(recData->user);
 }
 
 int TpRecordInterface::threadRecord()

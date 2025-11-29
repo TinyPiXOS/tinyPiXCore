@@ -469,7 +469,8 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
 				stream->codec_ctx=codec_ctx;
 				stream->format_ctx=format_ctx;
 				stream->stream_index=i;
-				media_array->append_shallow(media_array,stream);
+				if(media_array->append_shallow(media_array,stream)<0)
+					printf("append_shallow error\n");
 				break;
 			}
 			case AVMEDIA_TYPE_SUBTITLE: 	// 字幕流 (FFmpeg ID:0x10000)
@@ -484,9 +485,13 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
 
 	if(media_array->get_size(media_array)==size_array)		//没有在url中找到任何流
 	{
+		fprintf(stderr,"[Warning]: 没有在url中找到任何流,%d\n",size_array);
 		avformat_close_input(&format_ctx);
 		return NULL;
 	}
+
+	struct MediaStreamParams *stream=media_array->get(media_array,0);
+	printf("gangvcai视频流/音频流,%p\n",stream);
 	return format_ctx;
 }
 
@@ -509,7 +514,7 @@ static int media_seek_frame_with_time(struct MediaPlayerHandle *player, uint32_t
 	return 0;	
 }
 
-static media_avcodec_flush_buffers(MediaStreamArray *media_array)
+static int media_avcodec_flush_buffers(MediaStreamArray *media_array)
 {
 	int size_array=media_array->get_size(media_array);
 
@@ -519,7 +524,7 @@ static media_avcodec_flush_buffers(MediaStreamArray *media_array)
 		avcodec_flush_buffers(stream->codec_ctx);
 
 	}
-	
+	return 0;
 }
 
 //视频播放的视频解码线程
@@ -1197,12 +1202,12 @@ struct MediaPlayerHandle *media_player_handle_creat()
 		return NULL;
 	}
 
-	player->stream_array=creat_variable_array(sizeof(struct MediaStreamParams),2);
+	player->stream_array=creat_variable_array(-1,2);	//浅拷贝，初始2个元素
 	if(!player->stream_array)
 	{
 		timer_ofday_handle_delete(player->clock);
 		free(player);
-		return -1;
+		return NULL;
 	}
 
 	player->url=NULL;

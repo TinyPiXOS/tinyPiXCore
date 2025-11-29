@@ -41,16 +41,6 @@ public:
 	TpVideoInterface_(const TpString& video_name = "default" );
 	~TpVideoInterface_();
 public:
-	/// @brief 打开视频播放设备
-	/// @param name 
-	/// @return 
-	int openDevice();
-	/// @brief 关闭是视频播放设备
-	/// @return 
-	int closeDevice();
-	/// @brief 设备是否打开
-	/// @return 
-	tpBool isOpen();
 
 	/// @brief 
 	/// @param callback 
@@ -76,10 +66,9 @@ private:
 	/// @param format 解码格式
 	/// @return 
 	int setDecode(TpVideoDecodeType format);
-	int threadVideo();
+
 private:
-	
-    struct CallbackContext {
+	    struct CallbackContext {
         UserCallback callback;  // 用户回调指针
         void* userdata;
     };

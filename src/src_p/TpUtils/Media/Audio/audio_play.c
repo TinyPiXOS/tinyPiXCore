@@ -165,10 +165,11 @@ void media_video_info_delete(struct MediaVideoInfo *conf)
 }
 
 
-
 struct MediaParams *media_user_config_creat()
 {
     struct MediaParams *conf = (struct MediaParams *)malloc(sizeof(struct MediaParams));
+    if(!conf)
+        return NULL;
     conf->is_playing = false;
     conf->position_s = -1;
     conf->position_p = 0; 
@@ -186,27 +187,10 @@ struct MediaParams *media_user_config_creat()
         return NULL;
     }
     conf->list = list;
-    conf->audio_params=media_audio_info_creat();
-    if(!conf->audio_params)
-    {
-        perror("audio_params creat error\n");
-        free(conf);
-        return NULL;
-    }
-    conf->video_params = media_video_info_creat();
-    if(!conf->video_params)
-    {
-        perror("video_params creat error\n");
-        free(conf);
-        media_audio_info_delete(conf->audio_params);
-        return NULL;
-    }
 
     struct PthreadCond *pthread_cond = pthread_cond_creat_struct();
     if (pthread_cond == NULL)
     {
-        media_video_info_delete(conf->video_params);
-        media_audio_info_delete(conf->audio_params);
         delete_media_file_list(conf->list);
         free(conf);
         return NULL;
@@ -220,7 +204,7 @@ struct MediaParams *media_user_config_creat()
     return conf;
 }
 
-void media_user_config_free(struct MediaParams *conf)
+void media_user_config_delete(struct MediaParams *conf)
 {
     if (!conf)
         return;
@@ -846,9 +830,8 @@ int Audio_Set_Volume(struct MediaAudioInfo *conf_a, int16_t volume)
     if (!conf_a)
         return -1;
     volume = (int16_t)limit_min_max(volume, USER_CONF_VOLUME_MIN, USER_CONF_VOLUME_MAX);
-    pthread_rwlock_wrlock(&conf_a->rw_mut);
-    conf_a->volume = volume;
-    pthread_rwlock_unlock(&conf_a->rw_mut);
+   
+    THREAD_WRITE_USERCONF(conf_a->rw_mut, conf_a->volume, volume);
     return 0;
 }
 // 获取音量
@@ -857,11 +840,10 @@ int Audio_Get_Volume(struct MediaAudioInfo *conf_a)
     if (!conf_a)
         return -1;
     int16_t volume;
-    pthread_rwlock_rdlock(&conf_a->rw_mut);
-    volume = conf_a->volume;
-    pthread_rwlock_unlock(&conf_a->rw_mut);
+    THREAD_READ_USERCONF(conf_a->rw_mut, conf_a->volume, volume);
     return volume;
 }
+
 // 内部获取用户设置的播放位置(只允许内部调用)
 int Audio_Get_Position_S(struct MediaParams *conf)
 {
@@ -891,9 +873,6 @@ int Audio_Set_Position(struct MediaParams *conf, int32_t position)
     if (!conf)
         return -1;
     THREAD_WRITE_USERCONF(conf->rw_mut, conf->position_s, position);
-    //	pthread_rwlock_wrlock(&conf->rw_mut);
-    //	conf->position_s=position;
-    //	pthread_rwlock_unlock(&conf->rw_mut);
     return 0;
 }
 // 获取位置（音频使用字节数计算）
@@ -901,7 +880,7 @@ int Audio_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play)
 {
     if (!pcm_play || !pcm_play->handle)
     {
-        return ((int)(Audio_Get_DPosition(conf, pcm_play)));
+        return ((int)(Audio_Get_DPosition(conf)));
     }
     int64_t bytes = Audio_Get_BytePosition(conf);
     pthread_rwlock_wrlock(&conf->rw_mut);
@@ -917,7 +896,7 @@ int Audio_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play)
 }
 
 // 获取双精度位置
-double Audio_Get_DPosition(struct MediaParams *conf, PIAudioConf *pcm_play)
+double Audio_Get_DPosition(struct MediaParams *conf)
 {
     if (!conf)
         return -1;

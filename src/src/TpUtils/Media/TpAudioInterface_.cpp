@@ -10,9 +10,11 @@
 #include <thread>
 #include <stdint.h>
 #include <sys/types.h>
-#include "TpAudioInterface_.h"
 #include "TpAudioDevice.h"
+#include "TpMediaDevice.h"
+#include "TpAudioInterface_.h"
 #include "TpSound.h"
+
 
 struct TpAudioInfData
 {
@@ -30,8 +32,8 @@ struct TpAudioInfData
 
 TpAudioInterface_::TpAudioInterface_(const TpString &name):TpMediaInterface()
 {   	
-    data_ = new TpAudioInfData();
-    TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+    aData_ = new TpAudioInfData();
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if(!audData)
         return ;
     TpString usedAudioDev;
@@ -50,14 +52,17 @@ TpAudioInterface_::TpAudioInterface_(const TpString &name):TpMediaInterface()
     {
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
-
+    printf("[Debug]: setAudioInterface\n");
+    setAudioInterface(audio);
+    printf("[Debug]: setAudioInterface ok\n");
     audData->audio_params=audio;
+    printf("[Debug]: TpAudioInterface_ ok\n");
 }
 
 
 TpAudioInterface_::~TpAudioInterface_()
 {
-	TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+	TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
 	if (!audData)
 		return;
 
@@ -86,7 +91,7 @@ TpList<TpString> TpAudioInterface_::getDevices()
 
 int TpAudioInterface_::setVolume(tpUInt8 volume)
 {
-    TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if (!audData->audio_params)
         return -1;
     return Audio_Set_Volume(audData->audio_params, volume);
@@ -94,7 +99,7 @@ int TpAudioInterface_::setVolume(tpUInt8 volume)
 
 int TpAudioInterface_::getVolume()
 {
-    TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if (!audData->audio_params)
         return -1;
     return Audio_Get_Volume(audData->audio_params);
@@ -104,7 +109,7 @@ int TpAudioInterface_::getVolume()
 /*
 int TpAudioInterface_::setSampleParame(SampleRate rate, SampleChannel channel, SampleBits bits)
 {
-    TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if (!audData->audio_params)
         return -1;
     if (Audio_Set_Hard_Params(audData->audio, audData->user, (uint32_t)rate, (uint16_t)channel, (uint16_t)bits) < 0)
@@ -116,7 +121,7 @@ int TpAudioInterface_::setSampleParame(SampleRate rate, SampleChannel channel, S
 
 int TpAudioInterface_::playStream(tpUInt8 *data, tpUInt32 frames, tpInt64 offset, tpInt32 delay)
 {
-    TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if (!audData->audio_params || !audData->audio)
         return -1;
     if (!audData->hard_params)
@@ -129,7 +134,7 @@ int TpAudioInterface_::playStream(tpUInt8 *data, tpUInt32 frames, tpInt64 offset
 
 int TpAudioInterface_::setNonblock(tpBool nonblock)
 {
-    TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if (!audData->audio_params)
         return -1;
     uint8_t nonblock_u8 = (nonblock == true ? 1 : 0);
