@@ -54,7 +54,7 @@ int get_display_params_user_codec(struct MediaParams *user, AVCodecContext *code
 int count_rect_size_from_user(struct VideoStreamParams *user_params, AVCodecContext *codec_ctx, struct MediaRect *rect_s, struct MediaRect *rect_d);
 
 int Video_Play_Main(struct MediaParams *user, const char *audio_card);
-int Video_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play);
+int Video_Get_Position(struct MediaParams *conf);
 // 获取显示参数
 int Video_Get_All_Params(struct MediaParams *conf, struct VideoStreamParams *video_params);
 

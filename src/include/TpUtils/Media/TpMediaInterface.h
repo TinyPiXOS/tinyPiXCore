@@ -92,6 +92,8 @@ private:
 	int threadMedia();
 
 protected:
+	int setAudioInterface(void *aud);
+	int setVideoInterface(void *vid);
 	ItpMediaInfData *data_;
 };
 

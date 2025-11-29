@@ -21,6 +21,11 @@ public:
 	TpMediaFile(const TpString &file);
 	~TpMediaFile();
 
+	TpMediaFile(const TpMediaFile&) = delete;
+	TpMediaFile(TpMediaFile&& other) noexcept;
+
+    TpMediaFile& operator=(const TpMediaFile&) = delete;
+	TpMediaFile& operator=(TpMediaFile&& other) noexcept;
 public:
 	/// @brief 判断是否是媒体流文件
 	/// @return 

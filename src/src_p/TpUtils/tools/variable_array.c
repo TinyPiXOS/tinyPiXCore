@@ -25,6 +25,7 @@ static int va_ensure_capacity(VariableArray *va) {
 
 // 追加元素（拷贝入缓冲区）
 static int byte_array_append_deep(VariableArray *va, const void *elem) {
+    if (!va->is_deep) return -1;
     if (va_ensure_capacity(va) != 0) return -1;
     void *dest = (char*)va->data + va->size * va->elem_size;
     memcpy(dest, elem, va->elem_size);
@@ -34,7 +35,7 @@ static int byte_array_append_deep(VariableArray *va, const void *elem) {
 
 /* 浅拷贝：直接存储指针，elem_size must == sizeof(void*) */
 static int byte_array_append_shallow(VariableArray *va, void *elem_ptr) {
-
+    if (va->is_deep) return -1;
 	if (va->elem_size != sizeof(void*)) return -1;  // 要求 elem_size == 指针大小
     if (va_ensure_capacity(va) != 0) return -1;
     void **dest = (void**)((char*)va->data + va->size * va->elem_size);
@@ -47,7 +48,15 @@ static int byte_array_append_shallow(VariableArray *va, void *elem_ptr) {
 // 访问元素
 static void* byte_array_get(VariableArray *va, size_t index) {
     if (index >= va->size) return NULL;
-   	return (char*)va->data + index * va->elem_size;
+
+   	void *location = (char*)va->data + index * va->elem_size;
+    if (va->is_deep ) {
+        // 深拷贝模式：返回数据位置的指针
+        return location;
+    } else {
+        // 浅拷贝模式：直接返回存储的指针值
+        return *(void**)location;
+    }
 }
 
 static size_t byte_array_get_size(VariableArray *arr)
@@ -69,8 +78,14 @@ void delete_variable_array(VariableArray *arr) {
 
 
 // 初始化
-VariableArray *creat_variable_array(size_t elem_size, size_t initial_capacity) {
+VariableArray *creat_variable_array(long elem_size, size_t initial_capacity) {
 	VariableArray *array=(VariableArray *)malloc(sizeof(VariableArray));
+    array->is_deep=1;
+    if(elem_size<0)
+    {
+        array->is_deep=0;
+        elem_size=sizeof(void *);
+    }
     array->elem_size = elem_size;
     array->data      = malloc(elem_size * initial_capacity);
     array->size      = 0;

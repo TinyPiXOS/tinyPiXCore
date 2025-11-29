@@ -366,7 +366,7 @@ extern "C"
         }
 
         free(ipc.data);
-        media_user_config_free(conf);
+        media_user_config_delete(conf);
         Audio_Device_Close(pcm_play);
         return 0;
     }

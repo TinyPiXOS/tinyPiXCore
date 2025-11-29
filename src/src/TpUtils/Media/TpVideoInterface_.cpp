@@ -40,6 +40,7 @@ TpVideoInterface_::TpVideoInterface_(const TpString &name):TpMediaInterface()
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
 	vidData->v_name=name;
+	setVideoInterface(video);
     vidData->video_params=video;
 }
 

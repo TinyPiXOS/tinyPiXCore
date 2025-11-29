@@ -58,7 +58,7 @@ BluetDevice *bluet_device_creat(Adapter *adapter,const char *name)
 		return NULL;
 	}
 
-	VariableArray *signal_array=creat_variable_array(sizeof(BluetDbusSignal),4);
+	VariableArray *signal_array=creat_variable_array(-1,4);
 	if(signal_array==NULL)
 	{
 		g_object_unref(self->priv->device);

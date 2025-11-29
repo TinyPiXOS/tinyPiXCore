@@ -44,15 +44,7 @@ public:
     /// @brief 获取本机声卡设备列表，可直接使用返回的名字创建音频类
 	/// @return 
 	static TpList<TpString> getDevices();
-	/// @brief 打开音频播放设备
-	/// @return 
-	int openDevice();
-	/// @brief 关闭音频播放设备
-	/// @return 
-	int closeDevice();
-	/// @brief 音频播放设备是否打开
-	/// @return 
-	tpBool isOpen();
+
 	/// @brief 设置音频播放音量
 	/// @param volume 音量(0~100)
 	/// @return 
@@ -95,6 +87,8 @@ public:
 	/// @brief 获取音量允许的最小值
 	/// @return 
 	int getMinVolume();
+private:
+	ItpAudioInfData *aData_;
 };
 
 

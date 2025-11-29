@@ -496,7 +496,7 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 	MediaFormatContext *mediaFormat=Media_Get_File_All_Info(filename,player->stream_array);
 	if(!mediaFormat)
 	{
-		fprintf(stderr, "Open file(URL) error\n");
+		fprintf(stderr, "Open file/URL(%s) error\n",filename);
         return -1;
 	}
 
@@ -522,7 +522,7 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 int Media_Play_Main(struct MediaParams *user)
 {
 	struct MediaFileList *list=user->list;
-
+	printf("[Debug]:this is Media_Play_Main\n");
 	while(1)
 	{
 		char *name;

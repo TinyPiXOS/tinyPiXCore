@@ -32,16 +32,34 @@ TpMediaFile::TpMediaFile(const TpString &name)
 	}
 	return;
 }
-//需要增加拷贝构造
+
+TpMediaFile::TpMediaFile(TpMediaFile&& other) noexcept
+    : data_(other.data_)
+{
+    other.data_ = nullptr;
+}
+
 TpMediaFile::~TpMediaFile()
 {
 	TpMediaFileData *data = static_cast<TpMediaFileData *>(data_);
 	if(!data)
 		return ;
+	media_delete_file_info(data->format_ctx);
 	media_deinit(data->is_net_file);
 }
 
-tpBool isMediaFile(const TpString &file)
+// 移动赋值运算符声明
+TpMediaFile& TpMediaFile::operator=(TpMediaFile&& other) noexcept
+{
+	TpMediaFileData *data = static_cast<TpMediaFileData *>(data_);
+    if (this != &other) {
+        delete[] data;
+        data_ = other.data_;
+        other.data_ = nullptr; // 确保原对象析构时不会释放内存
+    }
+    return *this;
+}
+tpBool TpMediaFile::isMediaFile(const TpString &file)
 {
 	try {
         TpMediaFile mf(file);

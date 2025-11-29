@@ -207,7 +207,7 @@ void media_video_info_delete(struct MediaVideoInfo *conf);
 struct MediaParams *media_user_config_creat();
 struct PthreadCond *pthread_cond_creat_struct();
 int pthread_cond_free_struct(struct PthreadCond *cond);
-void media_user_config_free(struct MediaParams *conf);
+void media_user_config_delete(struct MediaParams *conf);
 int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,struct MediaCodecParam *codec);
 int Audio_Hard_Deinit(struct MediaCodecParam *codec);
 PIAudioConf *Audio_Play_Open(const char *device);
@@ -251,7 +251,7 @@ int Audio_Set_Position(struct MediaParams *conf,int32_t position);
 
 //获取位置
 int Audio_Get_Position(struct MediaParams *conf,PIAudioConf *pcm_play);
-double Audio_Get_DPosition(struct MediaParams *conf,PIAudioConf *pcm_play);
+double Audio_Get_DPosition(struct MediaParams *conf);
 
 int64_t Audio_Get_BytePosition(struct MediaParams *conf);
 int64_t Audio_Set_BytePosition(struct MediaParams *conf,int64_t position);

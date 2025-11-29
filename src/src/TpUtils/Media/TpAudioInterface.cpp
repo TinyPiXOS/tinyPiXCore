@@ -39,7 +39,16 @@ TpAudioInterface::TpAudioInterface(const TpString &name)
     MediaParams *user = media_user_config_creat();
     if (user == NULL)
     {
+        delete(audData);
         fprintf(stderr, "[Error]:Failed to creat TpAudioInterface\n");
+    }
+    user->audio_params=media_audio_info_creat();
+    if(!user->audio_params)
+    {
+        perror("audio_params creat error\n");
+        media_user_config_delete(user);
+        delete(audData);
+        return ;
     }
     audData->user = user;
     TpString usedDev;
@@ -68,7 +77,7 @@ TpAudioInterface::~TpAudioInterface()
     audData->running = false;
     if (!Audio_State_Is_Exit(audData->user))
         Audio_Device_Close(audData->audio);
-    media_user_config_free(audData->user);
+    media_user_config_delete(audData->user);
 }
 
 int TpAudioInterface::threadAudio()

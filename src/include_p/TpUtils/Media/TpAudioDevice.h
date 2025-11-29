@@ -23,7 +23,7 @@ struct MediaCodecParam;
 struct AudioStreamParams;
 
 struct MediaParams *media_user_config_creat() __attribute__((used));
-void media_user_config_free(struct MediaParams *conf) __attribute__((used));
+void media_user_config_delete(struct MediaParams *conf) __attribute__((used));
 
 int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,struct MediaCodecParam *codec);
 int Audio_Hard_Deinit(struct MediaCodecParam *codec);

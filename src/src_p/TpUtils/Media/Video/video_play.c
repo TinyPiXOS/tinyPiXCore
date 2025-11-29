@@ -432,9 +432,9 @@ int Video_Get_Coordinates(struct MediaVideoInfo *conf_v, int16_t *x, int16_t *y)
 }
 
 // 获取位置(视频使用位置)
-int Video_Get_Position(struct MediaParams *conf_v, PIAudioConf *pcm_play)
+int Video_Get_Position(struct MediaParams *conf_v)
 {
-    return (int32_t)Audio_Get_DPosition(conf_v, pcm_play);
+    return (int32_t)Audio_Get_DPosition(conf_v);
 }
 
 // 显示宽高

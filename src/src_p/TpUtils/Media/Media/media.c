@@ -29,7 +29,10 @@ int media_get_file_info(const char *url, MediaFormatContext **format_ctx)
 
 int media_delete_file_info(MediaFormatContext *format_ctx)
 {
+    if(!format_ctx)
+        return 0;
     avformat_close_input(&format_ctx);
+    return 0;
 }
 
 uint8_t media_is_network_file(const char *path)
@@ -62,12 +65,14 @@ int media_init(uint8_t en_net)
 #endif
     if (en_net)
         avformat_network_init();
+    return 0;
 }
 
 int media_deinit(uint8_t en_net)
 {
     if (en_net)
-        avformat_network_init();
+        avformat_network_deinit();
+    return 0;
 }
 
 // 获取秒级时长

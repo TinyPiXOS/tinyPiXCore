@@ -978,7 +978,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
     {
         if (video_t->packet_number(&video_t->list) == 0 && audio_t->packet_number(&audio_t->list) == 0)
         {
-            if(Audio_Get_DPosition(user,display->pcm_play) > user->length)
+            if(Audio_Get_DPosition(user) > user->length)
                 break;
         }
         usleep(10000);

@@ -18,7 +18,6 @@
 
 struct TpMediaInfData
 {
-    PIAudioConf *audio;
     struct MediaParams *user;
     std::atomic<bool> running;
     std::thread thread_t;
@@ -28,7 +27,6 @@ struct TpMediaInfData
     {
         running = false;
         user = nullptr;
-        audio = nullptr;
         context_ = nullptr;
     };
 };
@@ -37,14 +35,21 @@ TpMediaInterface::TpMediaInterface()
 {
     data_ = new TpMediaInfData();
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+	if(!medData)
+	{
+		return ;
+	}
+
     MediaParams *user = media_user_config_creat();
     if (user == NULL)
     {
         std::cerr << "Failed to creat TpAudioInterface" << std::endl;
+		delete(medData);
         return;
     }
 
     medData->user = user;
+	printf("[Debug]: TpMediaInterface ok\n");
 }
 
 TpMediaInterface::~TpMediaInterface()
@@ -63,7 +68,7 @@ TpMediaInterface::~TpMediaInterface()
 
     Audio_Set_Video_Callback(medData->user->video_params, nullptr, nullptr);
 
-    media_user_config_free(medData->user);
+    media_user_config_delete(medData->user);
     delete (medData);
 }
 
@@ -83,7 +88,7 @@ int TpMediaInterface::openDevice()
         return -1;
     if (medData->running)
         return -1;
-    ///	printf("device open ok\n");
+	printf("device open ok\n");
     medData->running = true;
     medData->thread_t = std::thread(&TpMediaInterface::threadMedia, this);
     //	printf("device open ok\n");
@@ -135,7 +140,7 @@ int TpMediaInterface::getPosition()
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
         return -1;
-    //	return Video_Get_Position(medData->user->video_params, medData->audio);
+    //	return Video_Get_Position(medData->user->video_params);
     return 0;
 }
 
@@ -255,4 +260,26 @@ float TpMediaInterface::getMaxSpeed()
 float TpMediaInterface::getMinSpeed()
 {
     return USER_CONF_SPEED_MIN;
+}
+
+int TpMediaInterface::setAudioInterface(void *aud)
+{
+	TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+    if (!medData->user)
+        return -1;
+	struct MediaAudioInfo *audio_params=(struct MediaAudioInfo *)aud;
+
+	medData->user->audio_params=audio_params;
+	return 0;
+}
+
+int TpMediaInterface::setVideoInterface(void *vid)
+{
+	TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+    if (!medData->user)
+        return -1;
+	struct MediaVideoInfo *video_params=(struct MediaVideoInfo *)vid;
+
+	medData->user->video_params=video_params;
+	return 0;
 }

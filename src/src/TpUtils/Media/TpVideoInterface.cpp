@@ -43,8 +43,28 @@ TpVideoInterface::TpVideoInterface(const TpString& audio_name,const TpString& vi
 	MediaParams *user=media_user_config_creat();
 	if(user==NULL)
 	{
+		delete(vidData);
 		std::cerr << "Failed to creat TpAudioInterface" << std::endl;
 	}
+
+	user->audio_params=media_audio_info_creat();
+    if(!user->audio_params)
+    {
+        perror("audio_params creat error\n");
+        media_user_config_delete(user);
+		delete(vidData);
+        return ;
+    }
+
+	user->video_params = media_video_info_creat();
+    if(!user->video_params)
+    {
+        perror("video_params creat error\n");
+		media_audio_info_delete(user->audio_params);
+        media_user_config_delete(user);
+		delete(vidData);
+        return;
+    }
 
 	TpString usedAudioDev;
 	if(audio_name == TpString("default"))
@@ -79,7 +99,7 @@ TpVideoInterface::~TpVideoInterface()
 	CallbackContext *context_ = (CallbackContext *)vidData->context_;
 	delete context_;
 
-	media_user_config_free(vidData->user);
+	media_user_config_delete(vidData->user);
 	delete (vidData);
 }
 
@@ -167,7 +187,7 @@ int TpVideoInterface::getPosition()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Video_Get_Position(vidData->user, vidData->audio);
+	return Video_Get_Position(vidData->user);
 }
 
 tpUInt32 TpVideoInterface::getDuration()
