@@ -422,7 +422,7 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
     for (const auto &hollowPolygon : polygonHollowList)
     {
         // 少于两个点的多边形不处理
-        if (polygonHollowList.size() <= 2)
+        if (hollowPolygon.posintList.size() <= 2)
             continue;
 
         for (int i = 0; i < hollowPolygon.posintList.size(); ++i)
