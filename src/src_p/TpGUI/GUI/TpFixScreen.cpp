@@ -112,9 +112,15 @@ bool TpFixScreen::onActiveEvent(TpActiveEvent *event)
     TpAppData *appData = (TpAppData *)TpApp::Inst()->appObjectSet();
     if (appData->mainWindow)
     {
-        TpWidgetData *mainWindowObjData = (TpWidgetData *)appData->mainWindow->objectSets();
+        // pid_t pid = getpid();
+        // std::cout << "当前进程 PID: " << pid << "  窗体显隐状态： " << visible() << std::endl;
+
+        TpScreen* mainWindowScrenn = dynamic_cast<TpScreen*>(appData->mainWindow);
+
+        TpWidgetData *mainWindowObjData = (TpWidgetData *)mainWindowScrenn->objectSets();
         tinyPiX_wf_set_visible(mainWindowObjData->agent, visible());
-        mainWindowObjData->visible = visible();
+        mainWindowScrenn->setVisible(visible());
+        // mainWindowObjData->visible = visible();
     }
 
     return this->setVScreenAttribute(screenData->alpha, screenData->color, screenData->attr);

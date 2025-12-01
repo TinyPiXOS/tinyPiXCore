@@ -152,7 +152,7 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
     tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
 
-    childPainter->addScene(childCanvas, childScene);
+    childPainter->setScene(childCanvas, childScene);
 
     bool ret = obj->onPaintEvent(&event);
 

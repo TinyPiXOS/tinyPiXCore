@@ -319,7 +319,7 @@ public:
 
 public:
     /// @brief 用户无需调用
-    void addScene(void *canvas, void *scene);
+    void setScene(void *canvas, void *scene);
 
     /// @brief 绘图同步；用户无需调用
     void sync(void* object);

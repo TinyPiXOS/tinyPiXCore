@@ -707,15 +707,9 @@ void TpPainter::erase()
     }
 }
 
-void TpPainter::addScene(void *canvas, void *scene)
+void TpPainter::setScene(void *canvas, void *scene)
 {
     TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-
-    if (painterData->swCanvas)
-    {
-        delete painterData->swCanvas;
-        painterData->swCanvas = nullptr;
-    }
 
     tvg::SwCanvas *addCanvas = (tvg::SwCanvas *)canvas;
     painterData->swCanvas = addCanvas;
