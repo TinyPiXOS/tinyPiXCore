@@ -22,7 +22,8 @@ struct TpImageData
         //     delete[] loadBuffer;
         //     loadBuffer = nullptr;
         // }
-        delete tvgPicture;
+        tvg::Paint::rel(tvgPicture);
+        // delete tvgPicture;
         tvgPicture = nullptr;
     }
 };
