@@ -377,7 +377,7 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
 
                 // 构建填充三角形
                 TpVector<TpPoint> angleShape;
-                angleShape.emplace_back(TpPoint(topPiePoint.x(), topPiePoint.y()));
+                angleShape.emplace_back(TpPoint(topPiePoint.x() - 1, topPiePoint.y()));
                 angleShape.emplace_back(TpPoint(topCacuRes.intersection.x(), topCacuRes.intersection.y()));
                 angleShape.emplace_back(TpPoint(topCacuRes.intersection.x(), topPiePoint.y()));
 
@@ -398,7 +398,7 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
                 painter->drawPie(downPiePoint, radius, downCacuRes.angle * 180.0 / M_PI - 1, 90);
 
                 TpVector<TpPoint> downAngleShape;
-                downAngleShape.emplace_back(TpPoint(downPiePoint.x(), downPiePoint.y()));
+                downAngleShape.emplace_back(TpPoint(downPiePoint.x() - 1, downPiePoint.y()));
                 downAngleShape.emplace_back(TpPoint(downCacuRes.intersection.x(), downPiePoint.y()));
                 downAngleShape.emplace_back(TpPoint(downCacuRes.intersection.x(), downCacuRes.intersection.y()));
                 painter->drawPolygon(downAngleShape);
