@@ -17,7 +17,11 @@ class TpRect;
 class TpFont;
 class TpWidget;
 
-/// @brief 绘制镂空遮罩
+/// @brief 绘制镂空遮罩;镂空坐标是相对于绘制形状的;
+/// @brief 绘制矩形0坐标：矩形左上角
+/// @brief 绘制扇形0坐标：（圆心X-R，圆形Y-R）
+/// @brief 绘制圆形0坐标：（圆心X-R，圆形Y-R）
+/// @brief 绘制多边形0坐标：（所有顶点最小X，所有顶点最小Y）
 class TpHollowMask
 {
 public:

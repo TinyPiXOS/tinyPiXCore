@@ -701,7 +701,7 @@ void TpWidget::setRoundCorners(const uint32_t &round)
     disableCss()->setRoundCorners(round);
 }
 
-uint32_t TpWidget::roundCorners()
+uint32_t TpWidget::roundCorners() const
 {
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     if (!widgetData)

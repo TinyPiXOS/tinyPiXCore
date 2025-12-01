@@ -143,3 +143,4 @@ examples/TpUtils/TpHardwarePwm/Pwm
 
 examples/TpGUI/TpCollapsibleFileWidget/fileWidget
 examples/TpGUI/TpLayout/layout
+examples/TpGUI/TpSlideProgressBar/sliderProgress

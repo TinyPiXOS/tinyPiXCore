@@ -263,7 +263,7 @@ public:
 
     /// @brief 获取边框圆角值，单位px
     /// @return 边框圆角值
-    uint32_t roundCorners();
+    uint32_t roundCorners() const;
 
 public:
     virtual TpImage backGroundCacheImage();

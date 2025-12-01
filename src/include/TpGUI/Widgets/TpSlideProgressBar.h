@@ -22,11 +22,11 @@ public:
     /// @brief 设置进度条最大最小值
     /// @param minValue 最小值
     /// @param maxValue 最大值
-    void setRange(const int32_t &minValue, const int32_t &maxValue);
+    void setRange(int32_t minValue, int32_t maxValue);
 
     /// @brief 设置进度条当前进度
     /// @param value 进度值
-    void setValue(const int32_t &value);
+    void setValue(int32_t value);
 
     /// @brief 获取当前值
     /// @return 进度值
@@ -37,14 +37,10 @@ signals:
     declare_signal(onValueChanged, int32_t);
 
 public:
-    virtual void setParent(TpObject *parent) override;
-
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
-    virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
-    virtual bool onResizeEvent(TpResizeEvent *event) override;
     virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual void onThemeChangeEvent(TpThemeChangeEvent *event) override;
 
