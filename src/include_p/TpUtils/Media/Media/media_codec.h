@@ -18,8 +18,9 @@ extern "C"
 #include "media_timer.h"
 #include "media.h"
 #include "tools/variable_array.h"
-#include "Media/media_play_temp.h"
+#include "Media/media_play.h"
 #include "Media/media_config.h"
+#include "Audio/audio_play.h"
 
 
 struct MediaParams;
@@ -55,7 +56,7 @@ struct MediaVideoHandle
     bool is_sdl; // 是否启用本地显示(如果不启用需要上层绘制图像)
 };
 
-// 原PIAudioConf
+// 原struct MediaAudioHandle
 // 音频的硬件参数和句柄
 /*struct MediaAudioHandle{
     char *device;					//声卡设备名
@@ -123,8 +124,8 @@ struct MediaPlayerHandle
 
     int (*player_start)(MediaStreamArray *stream_array);
     int (*player_wait)(MediaStreamArray *stream_array);
-    int (*player_pause)(MediaStreamArray *stream_array);
-    int (*player_resume)(MediaStreamArray *stream_array);
+    int (*player_pause)(struct MediaPlayerHandle *handle);
+    int (*player_resume)(struct MediaPlayerHandle *handle);
     int (*set_state)(MediaStreamArray *stream_array, AudioPlayState state);
 
     int (*flush_list)(MediaStreamArray *stream_array);  // 删除全部流队列中所有元素
@@ -136,10 +137,13 @@ struct MediaPlayerHandle
 
 MediaFormatContext *Media_Get_File_All_Info(const char *filename, MediaStreamArray *media_array);
 int Media_Free_File(MediaStreamArray *media_array);
-int Mediao_File_Codec(struct MediaPlayerHandle *player, struct MediaParams *user);
+int Mediao_File_Codec_Play(struct MediaPlayerHandle *player, struct MediaParams *user);
 
 struct MediaPlayerHandle *media_player_handle_creat();
-int media_player_handle_delete(struct MediaPlayerHandle *player);
+void media_player_handle_delete(struct MediaPlayerHandle *player);
+
+struct MediaStreamParams *media_stream_params_creat();
+void media_stream_params_delete(struct MediaStreamParams *);
 
 #ifdef __cplusplus
 }

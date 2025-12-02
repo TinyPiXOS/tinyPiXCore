@@ -17,7 +17,7 @@
 struct TpAudioInfData
 {
     TpString name;
-    PIAudioConf *audio;
+    struct MediaAudioHandle *audio;
     struct MediaParams *user;
     struct AudioStreamParams *hard_params;
     std::atomic<bool> running;
@@ -32,6 +32,21 @@ struct TpAudioInfData
     };
 };
 
+static TpString getFormatName(const TpString& audio_name)
+{
+	TpString usedAudioDev;
+	if(audio_name == TpString("default"))
+		usedAudioDev=TpSound::getUsedDevice();
+	else
+		usedAudioDev=audio_name;
+    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
+	if (pos == std::string::npos) // 无空格时返回整个字符串
+        return usedAudioDev;
+	else
+   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
+}
+
+
 TpAudioInterface::TpAudioInterface(const TpString &name)
 {
     data_ = new TpAudioInfData();
@@ -42,7 +57,10 @@ TpAudioInterface::TpAudioInterface(const TpString &name)
         delete(audData);
         fprintf(stderr, "[Error]:Failed to creat TpAudioInterface\n");
     }
-    user->audio_params=media_audio_info_creat();
+
+    audData->name = getFormatName(name);
+
+    user->audio_params=media_audio_info_creat(audData->name.c_str());
     if(!user->audio_params)
     {
         perror("audio_params creat error\n");
@@ -51,16 +69,7 @@ TpAudioInterface::TpAudioInterface(const TpString &name)
         return ;
     }
     audData->user = user;
-    TpString usedDev;
-    if (name == TpString("default"))
-        usedDev = TpSound::getUsedDevice();
-    else
-        usedDev = name;
-    size_t pos = usedDev.find(' '); // 查找第一个空格位置
-    if (pos == std::string::npos)   // 无空格时返回整个字符串
-        audData->name = usedDev;
-    else
-        audData->name = usedDev.substr(0, pos); // 截取开头到空格前的部分
+
     printf("device:%s\n", audData->name.c_str());
 }
 
@@ -95,7 +104,7 @@ int TpAudioInterface::openDevice()
         return -1;
     if (audData->running)
         return -1;
-    PIAudioConf *audio = Audio_Play_Open(audData->name.c_str());
+    struct MediaAudioHandle *audio = Audio_Play_Open(audData->name.c_str());
     if (audio == nullptr)
         return -1;
     audData->audio = audio;
@@ -166,7 +175,7 @@ int TpAudioInterface::getPosition()
         return -1;
     if (!audData->audio)
         return -1;
-    return Audio_Get_Position(audData->user, audData->audio);
+    return Audio_Get_Position(audData->user);
 }
 
 tpUInt32 TpAudioInterface::getDuration()

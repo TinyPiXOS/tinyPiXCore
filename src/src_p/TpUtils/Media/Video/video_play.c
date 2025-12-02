@@ -97,7 +97,7 @@ SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer, uint32_t *format, in
 static int alsa_hard_init(const char *name, struct VideoHardParam *display, struct MediaCodecParam *audio, struct MediaParams *conf)
 {
     AVCodecContext *codec_ctx = audio->codec_ctx;
-    PIAudioConf *pcm_play = Audio_Play_Open(name);
+    struct MediaAudioHandle *pcm_play = Audio_Play_Open(name);
     if (pcm_play == NULL)
     {
         fprintf(stderr, "Audio pcm open error\n");
@@ -432,9 +432,9 @@ int Video_Get_Coordinates(struct MediaVideoInfo *conf_v, int16_t *x, int16_t *y)
 }
 
 // 获取位置(视频使用位置)
-int Video_Get_Position(struct MediaParams *conf_v)
+int Video_Get_Position(struct MediaParams *conf)
 {
-    return (int32_t)Audio_Get_DPosition(conf_v);
+    return (int32_t)Audio_Get_DPosition(conf);
 }
 
 // 显示宽高
@@ -522,17 +522,17 @@ int Video_Play_Main(struct MediaParams *user, const char *audio_card)
         case AUDIO_PLCMD_NEXT:
             // media_pcm_drop(pcm_play);
             name = list->read_saft(list);
-            Audio_Set_Command(user, AUDIO_PLCMD_NONE);
+            Media_Set_Command(user, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_LAST:
             // media_pcm_drop(pcm_play);
             name = list->read_last_saft(list);
-            Audio_Set_Command(user, AUDIO_PLCMD_NONE);
+            Media_Set_Command(user, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_STOP:
             if (Audio_Get_State(user) != AUDIO_STATE_START)
                 user->cond->wait(user->cond); // 等待开始信号
-            Audio_Set_Command(user, AUDIO_PLCMD_NONE);
+            Media_Set_Command(user, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_EXIT:
             Audio_Set_State(user, AUDIO_STATE_EXIT);

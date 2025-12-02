@@ -16,7 +16,7 @@ extern "C" {
 
 
 
-typedef struct MediaAudioHandle PIAudioConf;
+struct MediaAudioHandle;
 struct MediaAudioInfo;
 struct MediaParams;
 struct MediaCodecParam;
@@ -25,19 +25,19 @@ struct AudioStreamParams;
 struct MediaParams *media_user_config_creat() __attribute__((used));
 void media_user_config_delete(struct MediaParams *conf) __attribute__((used));
 
-int Audio_Hard_Auto_Init(PIAudioConf *pcm_play,struct MediaParams *conf,struct MediaCodecParam *codec);
+int Audio_Hard_Auto_Init(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,struct MediaCodecParam *codec);
 int Audio_Hard_Deinit(struct MediaCodecParam *codec);
 //打开音频播放设备并初始化
-PIAudioConf *Audio_Play_Open(const char *name)  __attribute__((used));
+struct MediaAudioHandle *Audio_Play_Open(const char *name)  __attribute__((used));
 
 //音频播放是否退出
 int Audio_State_Is_Exit(struct MediaParams *conf) __attribute__((used));
 
 //音频播放设备关闭
-int Audio_Device_Close(PIAudioConf *pcm_play)  __attribute__((used));
+int Audio_Device_Close(struct MediaAudioHandle *pcm_play)  __attribute__((used));
 
 //循环播放列表
-int Audio_Play_Main(PIAudioConf *pcm_play,struct MediaParams *conf)  __attribute__((used));
+int Audio_Play_Main(struct MediaAudioHandle *pcm_play,struct MediaParams *conf)  __attribute__((used));
 
 //设置音量
 int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume)  __attribute__((used));
@@ -61,7 +61,7 @@ int Audio_Set_Position_N(struct MediaParams *conf,int32_t position)  __attribute
 int Audio_Set_Position(struct MediaParams *conf,int32_t position)  __attribute__((used));
 
 //获取位置，还没有写
-int Audio_Get_Position(struct MediaParams *conf,PIAudioConf *pcm_play)  __attribute__((used));
+int Audio_Get_Position(struct MediaParams *conf)  __attribute__((used));
 
 //暂停播放
 int Audio_Set_Suspend(struct MediaParams *conf) __attribute__((used));
@@ -103,15 +103,15 @@ int Audio_Add_File(struct MediaParams *conf, const char *file) __attribute__((us
 //删除播放文件
 int Audio_Del_File(struct MediaParams *conf, const char *file) __attribute__((used));
 
-int Audio_Set_Hard_Params(PIAudioConf *pcm_play,struct MediaParams *conf,uint32_t rate,uint16_t channel,uint16_t bits) __attribute__((used));
+int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,uint32_t rate,uint16_t channel,uint16_t bits) __attribute__((used));
 //设置非阻塞(只允许在初始状态/停止状态/暂停状态可以设置)
-int Audio_Set_Nonblock(PIAudioConf *pcm_play,struct MediaParams *conf,uint8_t nonblock);
-int Audio_Write_Stream(PIAudioConf *pcm,struct MediaParams *conf,struct AudioStreamParams *hard_params,
+int Audio_Set_Nonblock(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,uint8_t nonblock);
+int Audio_Write_Stream(struct MediaAudioHandle *pcm,struct MediaParams *conf,struct AudioStreamParams *hard_params,
 							uint8_t *buffer,uint32_t frames,int offset,int delay);
 
 int Audio_Set_System_Volume(uint8_t volume,const char *name);
 int Audio_Get_System_Volume(const char *name);
-void Audio_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb,void *userdata);
+void Media_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb,void *userdata);
 int Audio_Set_Video_Decode_Format(struct MediaVideoInfo *conf, uint32_t format);
 #ifdef __cplusplus
 }

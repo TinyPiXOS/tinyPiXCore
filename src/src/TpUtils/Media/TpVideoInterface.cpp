@@ -20,7 +20,7 @@ struct TpVideoInfData
 {
 	TpString v_name;
 	TpString a_name;
-	PIAudioConf *audio;
+	struct MediaAudioHandle *audio;
 	struct MediaParams *user;
 	std::atomic<bool> running;
 	std::thread thread_t;
@@ -35,6 +35,19 @@ struct TpVideoInfData
 	};
 };
 
+static TpString getFormatName(const TpString& audio_name)
+{
+	TpString usedAudioDev;
+	if(audio_name == TpString("default"))
+		usedAudioDev=TpSound::getUsedDevice();
+	else
+		usedAudioDev=audio_name;
+    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
+	if (pos == std::string::npos) // 无空格时返回整个字符串
+        return usedAudioDev;
+	else
+   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
+}
 
 TpVideoInterface::TpVideoInterface(const TpString& audio_name,const TpString& video_name )
 {
@@ -47,7 +60,9 @@ TpVideoInterface::TpVideoInterface(const TpString& audio_name,const TpString& vi
 		std::cerr << "Failed to creat TpAudioInterface" << std::endl;
 	}
 
-	user->audio_params=media_audio_info_creat();
+	vidData->a_name=getFormatName(audio_name);
+
+	user->audio_params=media_audio_info_creat(vidData->a_name.c_str());
     if(!user->audio_params)
     {
         perror("audio_params creat error\n");
@@ -65,17 +80,6 @@ TpVideoInterface::TpVideoInterface(const TpString& audio_name,const TpString& vi
 		delete(vidData);
         return;
     }
-
-	TpString usedAudioDev;
-	if(audio_name == TpString("default"))
-		usedAudioDev=TpSound::getUsedDevice();
-	else
-		usedAudioDev=audio_name;
-    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
-	if (pos == std::string::npos) // 无空格时返回整个字符串
-         vidData->a_name = audio_name;
-	else
-   		vidData->a_name = audio_name.substr(0, pos);      // 截取开头到空格前的部分
 	vidData->v_name=video_name;
 	vidData->user=user;
 }
@@ -94,7 +98,7 @@ TpVideoInterface::~TpVideoInterface()
 	while (!Audio_State_Is_Exit(vidData->user))
 		usleep(10);
 
-	Audio_Set_Video_Callback(vidData->user->video_params, nullptr, nullptr);
+	Media_Set_Video_Callback(vidData->user->video_params, nullptr, nullptr);
 
 	CallbackContext *context_ = (CallbackContext *)vidData->context_;
 	delete context_;
@@ -371,7 +375,7 @@ int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, 
 	if (format != TP_VIDEO_DECODE_RGB24)
 		setDecode(format);
 
-	Audio_Set_Video_Callback(
+	Media_Set_Video_Callback(
 		vidData->user->video_params,
 		bridge,								 // 传递函数指针的地址（符合int(**)(...)类型）
 		(CallbackContext *)vidData->context_ // 用户数据

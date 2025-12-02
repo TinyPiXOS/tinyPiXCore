@@ -136,6 +136,7 @@ void timer_ofday_handle_delete(struct TimerHandle *timer)
 		return ;
 	pthread_rwlock_destroy(&timer->rw_mut);
 	free(timer);
+	timer=NULL;
 }
 
 

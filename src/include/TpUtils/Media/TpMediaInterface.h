@@ -42,7 +42,7 @@ public:
 	int setPosition(tpUInt32 position);
 	/// @brief 获取当前文件播放位置
 	/// @return 
-	int getPosition();
+	virtual int getPosition();
 	/// @brief 获取文件总时长
 	/// @return 文件时长，秒
 	tpUInt32 getDuration();

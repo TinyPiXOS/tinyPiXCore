@@ -41,6 +41,13 @@ public:
 	TpVideoInterface_(const TpString& video_name = "default" );
 	~TpVideoInterface_();
 public:
+	/// @brief 设置音频播放音量
+	/// @param volume 音量(0~100)
+	/// @return 
+	int setVolume(tpUInt8 volume);
+	/// @brief 获取音频播放音量
+	/// @return 
+	int getVolume();
 
 	/// @brief 
 	/// @param callback 
@@ -72,7 +79,7 @@ private:
         UserCallback callback;  // 用户回调指针
         void* userdata;
     };
-	ItpVideoInfData *data_;
+	ItpVideoInfData *vData_;
 	static int staticBridge(uint8_t** data, int* linesize, uint32_t format, void* rawCtx);
 };
 

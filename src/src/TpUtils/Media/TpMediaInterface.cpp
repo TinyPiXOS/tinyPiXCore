@@ -15,6 +15,7 @@
 #include "TpMediaDevice.h"
 #include "TpSound.h"
 #include "TpMediaInterface.h"
+#include "Media/Video/video_play.h"
 
 struct TpMediaInfData
 {
@@ -49,7 +50,6 @@ TpMediaInterface::TpMediaInterface()
     }
 
     medData->user = user;
-	printf("[Debug]: TpMediaInterface ok\n");
 }
 
 TpMediaInterface::~TpMediaInterface()
@@ -66,8 +66,7 @@ TpMediaInterface::~TpMediaInterface()
     while (!Audio_State_Is_Exit(medData->user))
         usleep(10);
 
-    Audio_Set_Video_Callback(medData->user->video_params, nullptr, nullptr);
-
+    Media_Set_Video_Callback(medData->user->video_params, nullptr, nullptr);    
     media_user_config_delete(medData->user);
     delete (medData);
 }
@@ -140,8 +139,10 @@ int TpMediaInterface::getPosition()
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
         return -1;
-    //	return Video_Get_Position(medData->user->video_params);
-    return 0;
+	if(medData->user->video_params)
+    	return Video_Get_Position(medData->user);
+	else	
+		return Audio_Get_Position(medData->user);
 }
 
 tpUInt32 TpMediaInterface::getDuration()

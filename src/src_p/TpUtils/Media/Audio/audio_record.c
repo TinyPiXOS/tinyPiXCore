@@ -27,7 +27,7 @@ void exit_sighandler(int sig)
 struct MediaParams *record_config_creat()
 {
     struct MediaParams *conf = (struct MediaParams *)malloc(sizeof(struct MediaParams));
-    conf->audio_params=media_audio_info_creat();
+    conf->audio_params=media_audio_info_creat(NULL);
     if(!conf->audio_params)
     {
         free(conf);
@@ -78,7 +78,7 @@ int creat_wav_header(AudioWavHeader *wav_record, struct AudioStreamParams *param
 }
 
 // 调整文件头跟实际值一致
-/*int auto_adjust_wav_header(AudioWavHeader *wav_record,PIAudioConf *pcm)
+/*int auto_adjust_wav_header(AudioWavHeader *wav_record,struct MediaAudioHandle *pcm)
 {
     wav_record->nSamplesPersec=pcm->adparams->nSamplesPersec;
     wav_record->wChannels=pcm->adparams->wChannels;
@@ -184,7 +184,7 @@ static struct SwrContext *swr_set_with_user_param(AVCodecContext *codec_ctx, str
 
 // pcm硬件音频数据读取
 // frames:buffer的长度，单位为帧数
-int pcm_read_data(PIAudioConf *pcm, uint8_t *buffer, unsigned long frames, int delay)
+int pcm_read_data(struct MediaAudioHandle *pcm, uint8_t *buffer, unsigned long frames, int delay)
 {
     int time = 0;
     snd_pcm_sframes_t avail;
@@ -315,7 +315,7 @@ int audio_stream_write_file_head(const char *filename, struct MediaCodecParam *a
 }
 
 // 录制文件
-int audio_record_file(PIAudioConf *pcm, struct MediaParams *conf, const char *file)
+int audio_record_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, const char *file)
 {
     uint32_t total_size = 0;
     int cmd;
@@ -401,7 +401,7 @@ STOP:
 }
 
 // 录制wav文件
-int audio_record_wav_file(PIAudioConf *pcm, struct MediaParams *conf, const char *file)
+int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, const char *file)
 {
     uint32_t total_size = 0;
     int cmd;
@@ -504,9 +504,9 @@ int audio_record_stream()
 /// @brief 打开Audio设备
 /// @param pcm_play 声卡硬件参数，这里仅仅是基础的硬件配置
 /// @return
-PIAudioConf *Audio_Record_Open(const char *device)
+struct MediaAudioHandle *Audio_Record_Open(const char *device)
 {
-    PIAudioConf *pcm_play = (PIAudioConf *)malloc(sizeof(PIAudioConf));
+    struct MediaAudioHandle *pcm_play = (struct MediaAudioHandle *)malloc(sizeof(struct MediaAudioHandle));
     if (pcm_play == NULL)
         return NULL;
 
@@ -535,7 +535,7 @@ int Record_Set_Stop(struct MediaParams *conf)
 }
 
 // 线程或进程的主程序
-int Audio_Record_Main(PIAudioConf *pcm, struct MediaParams *conf)
+int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaParams *conf)
 {
     int cmd;
     while (1)
@@ -546,7 +546,7 @@ int Audio_Record_Main(PIAudioConf *pcm, struct MediaParams *conf)
         case AUDIO_PLCMD_STOP:
             printf("等待开始信号\n");
             conf->cond->wait(conf->cond); // 等待开始信号
-            Audio_Set_Command(conf, AUDIO_PLCMD_NONE);
+            Media_Set_Command(conf, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_EXIT:
             Audio_Set_State(conf, AUDIO_STATE_EXIT);
@@ -573,7 +573,7 @@ int Audio_Record_Main(PIAudioConf *pcm, struct MediaParams *conf)
     return 0;
 }
 
-int Audio_Record_Test(PIAudioConf *pcm, const char *file)
+int Audio_Record_Test(struct MediaAudioHandle *pcm, const char *file)
 {
 
     signal(SIGINT, exit_sighandler);

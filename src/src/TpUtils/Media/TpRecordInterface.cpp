@@ -12,10 +12,10 @@
 #include "TpRecordInterface.h"
 #include "TpAudioDevice.h"
 #include "TpRecordDevice.h"
-
+#include "TpSound.h"
 struct TpRecordInfData
 {
-    PIAudioConf *record;
+    struct MediaAudioHandle *record;
     struct MediaParams *user;
     TpString name;
     std::atomic<bool> running;
@@ -28,6 +28,21 @@ struct TpRecordInfData
     };
 };
 
+static TpString getFormatName(const TpString& audio_name)
+{
+	TpString usedAudioDev;
+	if(audio_name == TpString("default"))
+		usedAudioDev=TpSound::getUsedDevice();
+	else
+		usedAudioDev=audio_name;
+    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
+	if (pos == std::string::npos) // 无空格时返回整个字符串
+        return usedAudioDev;
+	else
+   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
+}
+
+
 TpRecordInterface::TpRecordInterface(const TpString &device)
 {
     data_ = new TpRecordInfData();
@@ -39,7 +54,11 @@ TpRecordInterface::TpRecordInterface(const TpString &device)
         delete(recData);
         return ;
     }
-    user->audio_params=media_audio_info_creat();
+
+
+        recData->name = getFormatName(device);
+    
+    user->audio_params=media_audio_info_creat(recData->name.c_str());
     if(!user->audio_params)
     {
         perror("audio_params creat error\n");
@@ -48,11 +67,6 @@ TpRecordInterface::TpRecordInterface(const TpString &device)
         return ;
     }
     recData->user = user;
-    size_t pos = device.find(' '); // 查找第一个空格位置
-    if (pos == std::string::npos)  // 无空格时返回整个字符串
-        recData->name = device;
-    else
-        recData->name = device.substr(0, pos); // 截取开头到空格前的部分
 }
 
 TpRecordInterface::~TpRecordInterface()
@@ -81,7 +95,7 @@ int TpRecordInterface::openDevice()
         return -1;
     if (recData->running)
         return -1;
-    PIAudioConf *hard = Audio_Record_Open(recData->name.c_str()); // recData->name.c_str()
+    struct MediaAudioHandle *hard = Audio_Record_Open(recData->name.c_str()); // recData->name.c_str()
     if (hard == NULL)
         return -1;
     recData->record = hard;

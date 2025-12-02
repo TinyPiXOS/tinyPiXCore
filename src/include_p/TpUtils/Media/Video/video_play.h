@@ -14,7 +14,7 @@ extern "C"
 #define SCALE_HANDLE_USE_SDL // 使用SDL处理缩放
 // #define SCALE_HANDLE_USE_FFMPEG		//使用FFMPEG处理缩放
 
-typedef struct MediaAudioHandle PIAudioConf;
+struct MediaAudioHandle;
 struct VideoStreamParams;
 struct MediaVideoInfo;
 
@@ -40,7 +40,7 @@ struct VideoHardParam
     uint32_t format; // 格式，RGB，YUV等，当启用本地显示的时候就是带鸟sdl窗口的格式，如果没有启用就代表用户设置的格式(当前用户默认使用RGB888)
     char *audio_card;
     void *audio_data; // 音频数据
-    PIAudioConf *pcm_play;
+    struct MediaAudioHandle *pcm_play;
     struct SwrContext *swr_ctr; // 音频重采样和转换句柄
     bool is_sdl;                // 是否启用本地显示(如果不启用需要上层绘制图像)
 };
@@ -58,7 +58,6 @@ int Video_Get_Position(struct MediaParams *conf);
 // 获取显示参数
 int Video_Get_All_Params(struct MediaParams *conf, struct VideoStreamParams *video_params);
 
-typedef struct MediaAudioHandle PIAudioConf __attribute__((used));
 
 
 int Video_Set_Width_Height(struct MediaVideoInfo *conf,uint16_t width,uint16_t height);

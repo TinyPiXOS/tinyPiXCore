@@ -19,7 +19,7 @@
 struct TpAudioInfData
 {
     TpString name;
-    PIAudioConf *audio;
+    struct MediaAudioHandle *audio;
     struct AudioStreamParams *hard_params;
     struct MediaAudioInfo *audio_params;
     TpAudioInfData()
@@ -29,6 +29,19 @@ struct TpAudioInfData
     };
 };
 
+static TpString getFormatName(const TpString& audio_name)
+{
+	TpString usedAudioDev;
+	if(audio_name == TpString("default"))
+		usedAudioDev=TpSound::getUsedDevice();
+	else
+		usedAudioDev=audio_name;
+    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
+	if (pos == std::string::npos) // 无空格时返回整个字符串
+        return usedAudioDev;
+	else
+   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
+}
 
 TpAudioInterface_::TpAudioInterface_(const TpString &name):TpMediaInterface()
 {   	
@@ -36,25 +49,16 @@ TpAudioInterface_::TpAudioInterface_(const TpString &name):TpMediaInterface()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if(!audData)
         return ;
-    TpString usedAudioDev;
-	if(name == TpString("default"))
-		usedAudioDev=TpSound::getUsedDevice();
-	else
-		usedAudioDev=name;
-    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
-	if (pos == std::string::npos) // 无空格时返回整个字符串
-        audData->name = name;
-	else
-   		audData->name = name.substr(0, pos);      // 截取开头到空格前的部分
+
+   	audData->name = getFormatName(name);
     
-    MediaAudioInfo *audio=media_audio_info_creat();
+    MediaAudioInfo *audio=media_audio_info_creat(audData->name.c_str());
     if(!audio)
     {
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
-    printf("[Debug]: setAudioInterface\n");
+
     setAudioInterface(audio);
-    printf("[Debug]: setAudioInterface ok\n");
     audData->audio_params=audio;
     printf("[Debug]: TpAudioInterface_ ok\n");
 }
@@ -67,6 +71,7 @@ TpAudioInterface_::~TpAudioInterface_()
 		return;
 
 	media_audio_info_delete(audData->audio_params);
+    audData->audio_params=NULL;
 	delete (audData);
 }
 
@@ -104,6 +109,7 @@ int TpAudioInterface_::getVolume()
         return -1;
     return Audio_Get_Volume(audData->audio_params);
 }
+
 
 
 /*

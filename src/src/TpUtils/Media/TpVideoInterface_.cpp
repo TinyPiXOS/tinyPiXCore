@@ -19,50 +19,94 @@
 struct TpVideoInfData
 {
 	TpString v_name;
+	TpString a_name;
     struct MediaVideoInfo *video_params;
+	struct MediaAudioInfo *audio_params;
 
 	void *context_; //
 	TpVideoInfData()
 	{
         video_params=nullptr;
+		audio_params=nullptr;
 		context_ = nullptr;
 	};
 };
 
+static TpString getFormatName(const TpString& audio_name)
+{
+	TpString usedAudioDev;
+	if(audio_name == TpString("default"))
+		usedAudioDev=TpSound::getUsedDevice();
+	else
+		usedAudioDev=audio_name;
+    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
+	if (pos == std::string::npos) // 无空格时返回整个字符串
+        return usedAudioDev;
+	else
+   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
+}
 
 TpVideoInterface_::TpVideoInterface_(const TpString &name):TpMediaInterface()
 {
-	data_ = new TpVideoInfData();
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	vData_ = new TpVideoInfData();
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	MediaVideoInfo *video=media_video_info_creat();
     if(!video)
     {
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
-	vidData->v_name=name;
+	vidData->a_name = getFormatName(name);
+	MediaAudioInfo *audio=media_audio_info_creat(vidData->a_name.c_str());
+    if(!audio)
+    {
+		media_video_info_delete(video);
+        std::cerr << "Failed to creat TpVideoInterface" << std::endl;
+    }
+	
+	setAudioInterface(audio);
 	setVideoInterface(video);
     vidData->video_params=video;
+	vidData->audio_params=audio;
 }
 
 TpVideoInterface_::~TpVideoInterface_()
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData)
 		return;
 	
-	Audio_Set_Video_Callback(vidData->video_params, nullptr, nullptr);
+	Media_Set_Video_Callback(vidData->video_params, nullptr, nullptr);
 
 	CallbackContext *context_ = (CallbackContext *)vidData->context_;
 	delete context_;
-
+	
 	media_video_info_delete(vidData->video_params);
+	vidData->video_params=NULL;
+	media_audio_info_delete(vidData->audio_params);
+	vidData->audio_params=NULL;
 	delete (vidData);
 }
 
 
+int TpVideoInterface_::setVolume(tpUInt8 volume)
+{
+    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+    if (!vidData->audio_params)
+        return -1;
+    return Audio_Set_Volume(vidData->audio_params, volume);
+}
+
+int TpVideoInterface_::getVolume()
+{
+    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+    if (!vidData->audio_params)
+        return -1;
+    return Audio_Get_Volume(vidData->audio_params);
+}
+
 int TpVideoInterface_::setScalingMode(TpVideoScalingType mode)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
 		return -1;
 	VideoScalingType type;
@@ -92,7 +136,7 @@ int TpVideoInterface_::setScalingMode(TpVideoScalingType mode)
 
 int TpVideoInterface_::setWindowCoordinates(tpInt16 x, tpInt16 y)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
 		return -1;
 	return Video_Set_Coordinates(vidData->video_params, (int16_t)x, (int16_t)y);
@@ -100,7 +144,7 @@ int TpVideoInterface_::setWindowCoordinates(tpInt16 x, tpInt16 y)
 
 int TpVideoInterface_::setWindowSize(tpUInt16 width, tpUInt16 height)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
 		return -1;
 	return Video_Set_Width_Height(vidData->video_params, (uint16_t)width, (uint16_t)height);
@@ -117,7 +161,7 @@ int TpVideoInterface_::staticBridge(uint8_t **data, int *linesize, uint32_t form
 
 int TpVideoInterface_::setDisplayFunction(UserCallback callback, void *userdata, TpVideoDecodeType format)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
 		return -1;
 
@@ -134,7 +178,7 @@ int TpVideoInterface_::setDisplayFunction(UserCallback callback, void *userdata,
 	if (format != TP_VIDEO_DECODE_RGB24)
 		setDecode(format);
 
-	Audio_Set_Video_Callback(
+	Media_Set_Video_Callback(
 		vidData->video_params,
 		bridge,								 // 传递函数指针的地址（符合int(**)(...)类型）
 		(CallbackContext *)vidData->context_ // 用户数据
@@ -144,7 +188,7 @@ int TpVideoInterface_::setDisplayFunction(UserCallback callback, void *userdata,
 
 int TpVideoInterface_::setDecode(TpVideoDecodeType format)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
 		return -1;
 

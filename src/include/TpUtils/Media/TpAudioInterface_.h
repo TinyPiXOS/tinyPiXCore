@@ -52,7 +52,7 @@ public:
 	/// @brief 获取音频播放音量
 	/// @return 
 	int getVolume();
-    	/// @brief 根据文件的信息自动解码并设置硬件采样参数(暂时无使用需求)
+    /// @brief 根据文件的信息自动解码并设置硬件采样参数(暂时无使用需求)
 	/// @param file 
 	/// @return 
 	//virtual int setSampleParame(TpString &file) = 0;
