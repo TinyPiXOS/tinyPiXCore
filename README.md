@@ -1,6 +1,6 @@
 # TinyPiXOS 🚀
 
-<div align="center">
+<div align="center"> 
 
 ![License](https://file.tinypixos.com/tinypixos/License-Apache2.0.svg)  ![Language](https://file.tinypixos.com/tinypixos/language-c++-red.svg)  ![Platform](https://file.tinypixos.com/tinypixos/platform-linux-lightgrey.svg)
 

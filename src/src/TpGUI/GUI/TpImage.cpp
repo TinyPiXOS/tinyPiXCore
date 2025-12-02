@@ -2,6 +2,7 @@
 #include "thorVG/thorvg.h"
 #include "TpFileInfo.h"
 #include "TpImage_p.h"
+#include "TpSurface.h"
 
 #include <png.h>
 #include <thread>
@@ -162,6 +163,15 @@ bool TpImage::load(void *martix, const TpSize &size, const TpRect &clipRect)
     }
 
     return true;
+}
+
+bool TpImage::load(IPiWFSurface *surface, const TpRect &clipRect)
+{
+    if (!surface)
+        return false;
+
+    tpShared<TpSurface> displayImage = tpMakeShared<TpSurface>(surface);
+    return load(displayImage->matrix(), TpSize(displayImage->width(), displayImage->height()), clipRect);
 }
 
 TpImage TpImage::scaled(const TpSize &size, bool keepAspectRatio)

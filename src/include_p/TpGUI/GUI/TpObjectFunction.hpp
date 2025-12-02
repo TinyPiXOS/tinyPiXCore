@@ -156,6 +156,9 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
 
     bool ret = obj->onPaintEvent(&event);
 
+    // 叠加透明度
+    childScene->opacity(255 * obj->windowOpacity());
+
     // 清除所有现有效果
     childScene->push(tvg::SceneEffect::ClearAll);
     if (obj->enableGraphicsEffect())

@@ -30,9 +30,9 @@ public:
     ThorVgPaintWidget(TpWidget *parent)
         : TpWidget(parent)
     {
-        setBackGroundColor(_RGBA(100, 100, 100, 200));
+        setBackGroundColor(_RGBA(100, 100, 100, 255));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
-        // setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
+        setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
     }
     ~ThorVgPaintWidget()
     {
@@ -118,8 +118,7 @@ int32_t main(int32_t argc, char *argv[])
     // connect(testBtn, onClicked, [=](bool)
     //         { bgLabel->setBackGroundImage(getImage()); });
 
-    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    // thorVGPaint->setRect(0, 0, 500, 500);
+    
 
     TpLabel *textTestLabel = new TpLabel("自动获取", vScreen);
     textTestLabel->setBackGroundColor(_RGB(255, 0, 0));
@@ -133,7 +132,7 @@ int32_t main(int32_t argc, char *argv[])
     textTestLabel2->setAlign(Tp::AlignCenter);
     textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
 
-    TpLabel * nameLabel = new TpLabel("测试", vScreen);
+    TpLabel *nameLabel = new TpLabel("测试", vScreen);
     nameLabel->setBackGroundColor(_RGB(255, 0, 0));
     nameLabel->setAlign(Tp::AlignCenter);
     nameLabel->font()->setFontSize(9);
@@ -141,7 +140,7 @@ int32_t main(int32_t argc, char *argv[])
     nameLabel->setWordWrap(false);
     nameLabel->installEventFilter(vScreen);
 
-    TpLabel * sizeLabel = new TpLabel(vScreen);
+    TpLabel *sizeLabel = new TpLabel(vScreen);
     sizeLabel->setAlign(Tp::AlignCenter);
     sizeLabel->font()->setFontSize(9);
     sizeLabel->font()->setFontColor(_RGB(255, 255, 255));
@@ -165,6 +164,15 @@ int32_t main(int32_t argc, char *argv[])
     TpWidget *testLayoutWidget = new TpWidget(vScreen);
     testLayoutWidget->setLayout(testLayout);
     testLayoutWidget->setRect(20, 20, 200, 200);
+
+    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    thorVGPaint->setWindowOpacity(0.3);
+    thorVGPaint->setRect(0, 0, 500, 500);
+
+    TpGraphicsBlurEffect btnBlurEffect;
+    btnBlurEffect.setBlurRadius(30);
+    thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    thorVGPaint->setEnableGraphicsEffect(true);
 
     vScreen->update();
 

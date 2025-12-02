@@ -226,7 +226,7 @@ static inline tvg::Fill *parseGradientPtr(TpPainterData *painterData)
         colorStops[i].r = _R(colorIter.second);
         colorStops[i].g = _G(colorIter.second);
         colorStops[i].b = _B(colorIter.second);
-        colorStops[i].a = _A(colorIter.second) * painterData->paintWidget->windowOpacity();
+        colorStops[i].a = _A(colorIter.second);
     };
     resGradientPtr->colorStops(colorStops, colorList.size());
 
@@ -470,7 +470,7 @@ static inline void renderPoint(TpPainterData *painterData, int32_t x, int32_t y)
     if (gradientPtr)
         pixel->fill(gradientPtr);
     else
-        pixel->fill(_R(colorRGBA), _G(colorRGBA), _B(colorRGBA), _A(colorRGBA) * painterData->paintWidget->windowOpacity());
+        pixel->fill(_R(colorRGBA), _G(colorRGBA), _B(colorRGBA), _A(colorRGBA));
 
     painterData->tvgScene->push(std::move(pixel));
 }
@@ -500,7 +500,7 @@ static inline void renderLine(TpPainterData *painterData, const TpPoint &point1,
     else
     {
         int32_t colorRGBA = painterData->drawPen.color().rgba();
-        line->strokeFill(_R(colorRGBA), _G(colorRGBA), _B(colorRGBA), _A(colorRGBA) * painterData->paintWidget->windowOpacity());
+        line->strokeFill(_R(colorRGBA), _G(colorRGBA), _B(colorRGBA), _A(colorRGBA));
     }
 
     // 线头
@@ -537,7 +537,7 @@ static inline void renderRect(TpPainterData *painterData, const TpRect &rect, in
         if (gradientPtr)
             rectShape->strokeFill(gradientPtr);
         else
-            rectShape->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor) * painterData->paintWidget->windowOpacity());
+            rectShape->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor));
 
         rectShape->strokeWidth(painterData->drawPen.width());
     }
@@ -546,7 +546,7 @@ static inline void renderRect(TpPainterData *painterData, const TpRect &rect, in
         if (gradientPtr)
             rectShape->fill(gradientPtr);
         else
-            rectShape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+            rectShape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
         applyHollowMask(rectShape, rect.x(), rect.y(), hollowMaskData);
     }
@@ -555,7 +555,7 @@ static inline void renderRect(TpPainterData *painterData, const TpRect &rect, in
         if (gradientPtr)
             rectShape->fill(gradientPtr);
         else
-            rectShape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+            rectShape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
         applyHollowMask(rectShape, rect.x(), rect.y(), hollowMaskData);
     }
@@ -587,16 +587,15 @@ static inline void renderEllipse(TpPainterData *painterData, const TpPoint &cent
         if (gradientPtr)
             circle->strokeFill(gradientPtr);
         else
-            circle->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor) * painterData->paintWidget->windowOpacity());
 
-        circle->strokeWidth(painterData->drawPen.width());
+            circle->strokeWidth(painterData->drawPen.width());
     }
     else if (painterData->drawBrush.style() == Tp::SolidPattern)
     {
         if (gradientPtr)
             circle->fill(gradientPtr);
         else
-            circle->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+            circle->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
         applyHollowMask(circle, center.x() - rx, center.y() - ry, hollowMaskData);
     }
@@ -605,7 +604,7 @@ static inline void renderEllipse(TpPainterData *painterData, const TpPoint &cent
         if (gradientPtr)
             circle->fill(gradientPtr);
         else
-            circle->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+            circle->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
         applyHollowMask(circle, center.x() - rx, center.y() - ry, hollowMaskData);
     }
@@ -678,7 +677,7 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
             if (gradientPtr)
                 arc->strokeFill(gradientPtr);
             else
-                arc->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor) * painterData->paintWidget->windowOpacity());
+                arc->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor));
 
             arc->strokeWidth(painterData->drawPen.width());
         }
@@ -687,7 +686,7 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
             if (gradientPtr)
                 arc->fill(gradientPtr);
             else
-                arc->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+                arc->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
             applyHollowMask(arc, center.x() - rad, center.y() - rad, hollowMaskData);
         }
@@ -696,7 +695,7 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
             if (gradientPtr)
                 arc->fill(gradientPtr);
             else
-                arc->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+                arc->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
             applyHollowMask(arc, center.x() - rad, center.y() - rad, hollowMaskData);
         }
@@ -706,7 +705,7 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
         if (gradientPtr)
             arc->strokeFill(gradientPtr);
         else
-            arc->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor) * painterData->paintWidget->windowOpacity());
+            arc->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor));
 
         arc->strokeWidth(painterData->drawPen.width());
 
@@ -770,7 +769,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             if (gradientPtr)
                 polygon->strokeFill(gradientPtr);
             else
-                polygon->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor) * painterData->paintWidget->windowOpacity());
+                polygon->strokeFill(_R(penColor), _G(penColor), _B(penColor), _A(penColor));
 
             polygon->strokeWidth(painterData->drawPen.width());
         }
@@ -779,7 +778,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             if (gradientPtr)
                 polygon->fill(gradientPtr);
             else
-                polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+                polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
             applyHollowMask(polygon, pointList.front().x() + painterData->offsetX, pointList.front().y() + painterData->offsetY, hollowMaskData);
         }
@@ -788,7 +787,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             if (gradientPtr)
                 polygon->fill(gradientPtr);
             else
-                polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor) * painterData->paintWidget->windowOpacity());
+                polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
             applyHollowMask(polygon, pointList.front().x() + painterData->offsetX, pointList.front().y() + painterData->offsetY, hollowMaskData);
         }
