@@ -25,7 +25,10 @@
 #endif
 
 int Audio_Set_Length(struct MediaParams *conf, double length);
-int Audio_Set_Command(struct MediaParams *conf, AudioPlayCommand cmd);
+int Media_Set_Command(struct MediaParams *conf, AudioPlayCommand cmd);
+CallbackAudioPlay Media_Get_Audio_Callback(struct MediaAudioInfo *conf_v);
+void Media_Set_Audio_Callback(struct MediaAudioInfo *conf_v, CallbackAudioPlay cb, void *userdata);
+
 
 static double limit_min_max(double value, double min, double max)
 {
@@ -86,20 +89,17 @@ int pthread_cond_free_struct(struct PthreadCond *cond)
     return 0;
 }
 
-struct MediaAudioInfo *media_audio_info_creat()
+struct MediaAudioInfo *media_audio_info_creat(const char *device)
 {
     struct MediaAudioInfo *conf = (struct MediaAudioInfo *)malloc(sizeof(struct MediaAudioInfo));
     if(!conf)
         return NULL;
-
+    conf->device = strdup(device);
     conf->volume = USER_CONF_VOLUME;
     conf->volume = 100;
-
-    conf->aduio_handle = (struct MediaAudioHandle *)malloc(sizeof(struct MediaAudioHandle));
-    if (conf->aduio_handle == NULL)
-    {
-        free(conf);
-    }
+    
+    conf->get_callback_audio = Media_Get_Audio_Callback;
+    conf->set_callback_audio = Media_Set_Audio_Callback;
     
     pthread_rwlock_init(&conf->rw_mut, NULL);
 
@@ -108,18 +108,22 @@ struct MediaAudioInfo *media_audio_info_creat()
 
 void media_audio_info_delete(struct MediaAudioInfo *conf)
 {
+    printf("[Debug]: media_audio_info_delete %p\n",conf);
     if(!conf)
         return ;
-    if(conf->aduio_handle->device)
-        free(conf->aduio_handle->device);
-    conf->aduio_handle->device=NULL;
-
-    if(conf->aduio_handle)
-        free(conf->aduio_handle);
-    conf->aduio_handle=NULL;
+    printf("[Debug]: media_audio_info_delete 1\n");
+    if(conf->device)
+        free(conf->device);
+    conf->device=NULL;
+printf("[Debug]: media_audio_info_delete 2\n");
+    conf->get_callback_audio = NULL;
+    conf->set_callback_audio = NULL;
+    printf("[Debug]: media_audio_info_delete 3\n");
     pthread_rwlock_destroy(&conf->rw_mut);
+    printf("[Debug]: media_audio_info_delete 4\n");
     free(conf);
     conf=NULL;
+    printf("[Debug]: media_audio_info_delete ok\n");
 }
 
 
@@ -145,8 +149,8 @@ struct MediaVideoInfo *media_video_info_creat()
 
     conf->video=video;
     
-    conf->get_callback_video = Audio_Get_Video_Callback;
-    conf->set_callback_video = Audio_Set_Video_Callback;
+    conf->get_callback_video = Media_Get_Video_Callback;
+    conf->set_callback_video = Media_Set_Video_Callback;
     pthread_rwlock_init(&conf->rw_mut, NULL);
 
     return conf;
@@ -156,8 +160,8 @@ void media_video_info_delete(struct MediaVideoInfo *conf)
 {
     if(!conf)
         return ;
-
-    free(conf->video);
+    if(conf->video)
+        free(conf->video);
     conf->video = NULL;
     pthread_rwlock_destroy(&conf->rw_mut);
     free(conf);
@@ -178,6 +182,8 @@ struct MediaParams *media_user_config_creat()
     conf->position_bytes = 0;
     conf->state = AUDIO_STATE_STOP;
     conf->cmd = AUDIO_PLCMD_STOP;
+    conf->audio_params = NULL;
+    conf->video_params = NULL;
   
     struct MediaFileList *list = creat_media_file_list();
     if (list == NULL)
@@ -199,7 +205,7 @@ struct MediaParams *media_user_config_creat()
     conf->cond = pthread_cond;
     pthread_rwlock_init(&conf->rw_mut, NULL);
 
-    conf->command_get = Audio_Get_Command;
+    conf->command_get = Media_Get_Command;
 
     return conf;
 }
@@ -211,8 +217,6 @@ void media_user_config_delete(struct MediaParams *conf)
     pthread_rwlock_destroy(&conf->rw_mut);
     pthread_cond_free_struct(conf->cond);
     conf->cond = NULL;
-    media_video_info_delete(conf->video_params);
-    media_audio_info_delete(conf->audio_params);
     delete_media_file_list(conf->list);
     if (conf->filter)
         audio_filter_delete(conf->filter);
@@ -223,20 +227,20 @@ void media_user_config_delete(struct MediaParams *conf)
 }
 
 // 阻塞直到缓存区数据播放完成
-int media_pcm_drain(PIAudioConf *pcm)
+int media_pcm_drain(struct MediaAudioHandle *pcm)
 {
     return snd_pcm_drain(pcm->handle);
 }
 
 // 丢弃音频缓存区中的数据
-int media_pcm_drop(PIAudioConf *pcm)
+int media_pcm_drop(struct MediaAudioHandle *pcm)
 {
     if (!pcm || !pcm->handle)
         return -1;
     return snd_pcm_drop(pcm->handle);
 }
 // 关闭音频硬件
-int media_pcm_close(PIAudioConf *pcm)
+int media_pcm_close(struct MediaAudioHandle *pcm)
 {
     if (!pcm || !pcm->handle)
         return -1;
@@ -246,7 +250,7 @@ int media_pcm_close(PIAudioConf *pcm)
 /// @brief 配置PCM的参数
 /// @param pcm
 /// @return
-static int media_pcm_hwparams_init(PIAudioConf *pcm)
+static int media_pcm_hwparams_init(struct MediaAudioHandle *pcm)
 {
     int rc = 0;
     debug_printf("start to open pcm\n");
@@ -316,7 +320,7 @@ static int pcm_get_function(snd_pcm_hw_params_t *hwparams, struct PcmHardParams 
 /// @param pcm
 /// @param header
 /// @return
-int pcm_hwparams_set(PIAudioConf *pcm, struct AudioStreamParams *audio)
+int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioStreamParams *audio)
 {
     if (!pcm || !pcm->handle)
         return -1;
@@ -419,7 +423,7 @@ int pcm_hwparams_set(PIAudioConf *pcm, struct AudioStreamParams *audio)
     return 0;
 }
 
-static int pcm_start_play(PIAudioConf *pcm)
+static int pcm_start_play(struct MediaAudioHandle *pcm)
 {
     if (!pcm || !pcm->handle)
         return -1;
@@ -440,7 +444,7 @@ static int pcm_start_play(PIAudioConf *pcm)
 /// @brief 暂停播放
 /// @param pcm
 /// @return
-static int pcm_play_stop(PIAudioConf *pcm)
+static int pcm_play_stop(struct MediaAudioHandle *pcm)
 {
     if (!pcm || !pcm->handle)
         return -1;
@@ -468,7 +472,7 @@ static int pcm_play_stop(PIAudioConf *pcm)
 /// @brief 继续播放
 /// @param pcm
 /// @return
-static int pcm_play_continue(PIAudioConf *pcm)
+static int pcm_play_continue(struct MediaAudioHandle *pcm)
 {
     if (!pcm || !pcm->handle)
         return -1;
@@ -574,7 +578,7 @@ static void pcm_data_adjust_volume(uint8_t *buffer, size_t frames, int channels,
 /// @param frames :帧数(即采样点的数量)
 /// @param delay :写入错误时的阻塞时长,单位ms
 /// @return
-int pcm_write_data(PIAudioConf *pcm, uint8_t *buffer, unsigned long frames, int delay)
+int pcm_write_data(struct MediaAudioHandle *pcm, uint8_t *buffer, unsigned long frames, int delay)
 {
     int time = 0;
     snd_pcm_sframes_t avail;
@@ -640,7 +644,7 @@ int pcm_write_data(PIAudioConf *pcm, uint8_t *buffer, unsigned long frames, int 
 /// @param offset 位置偏移，设置为-1的时候需要上层自己写入位置，设置为正值的时候自动写入(当前只作为标志位使用)
 /// @param delay 阻塞时长，
 /// @return
-int audio_stream_write(PIAudioConf *pcm_play, struct MediaParams *conf,
+int audio_stream_write(struct MediaAudioHandle *pcm_play, struct MediaParams *conf,
                         uint8_t *buffer, uint32_t frames,
                         float volume,
                         int offset, int delay)
@@ -712,11 +716,12 @@ FREE_FLT:
         av_frame_free(&frame_flt);
     }
 WRITE_POS:
-    //	printf("offset:%d,audio_param->nAvgBitsPerSample:%d,进度：%d\n",offset,audio_param->nAvgBitsPerSample,position);
+    //printf("offset:%d,audio_param->nAvgBitsPerSample:%d,进度：%d\n",offset,audio_param->nAvgBitsPerSample,position);
     if (offset >= 0 && audio_param->nAvgBitsPerSample != 0) // 如果要自行设置offset直接传入-1即可
     {
         position += (frames * audio_param->byteFrams);
         Audio_Set_BytePosition(conf, (int64_t)position);
+        //printf("[Debug]: Audio_Set_BytePosition %d \n",position);
     }
 
     return ret;
@@ -724,7 +729,7 @@ WRITE_POS:
 
 struct codePlayCallbackParam
 {
-    PIAudioConf *pcm;
+    struct MediaAudioHandle *pcm;
     struct MediaParams *conf;
     struct AudioStreamParams *audio_param;
     int delay;
@@ -742,13 +747,14 @@ static int callback_codec_play(uint8_t *buff, uint32_t frames, int offset, void 
 }
 
 // 播放解码文件
-int audio_play_codec_file(PIAudioConf *pcm_play, struct MediaParams *conf, const char *filename)
+int audio_play_codec_file(struct MediaAudioHandle *pcm_play, struct MediaParams *conf, const char *filename)
 {
     struct MediaCodecParam codec;
     debug_printf("播放解码文件:%s\n", filename);
     if (Audio_Get_Codec_Info(filename, &codec) < 0)
         return -1;
     double duration = codec.format_ctx->duration / (double)AV_TIME_BASE;
+    
     Audio_Set_Length(conf, duration);
 
     if (Audio_Hard_Auto_Init(pcm_play, conf, &codec) < 0)
@@ -757,16 +763,18 @@ int audio_play_codec_file(PIAudioConf *pcm_play, struct MediaParams *conf, const
         return -1;
 #endif
     }
-
+    
     debug_printf("开始播放解码文件:%s\n", filename);
+    Audio_Set_BitsPerSample(conf,pcm_play->adparams->nAvgBitsPerSample);    //设置计算播放位置的每秒字节数
     Audio_Set_BytePosition(conf, 0);
+    
     Audio_File_Codec(&codec, conf);
     Audio_Hard_Deinit(&codec);
     return 0;
 }
 
 // 声卡硬件初始化(使用解码器的参数自动设置)
-int Audio_Hard_Auto_Init(PIAudioConf *pcm_play, struct MediaParams *conf, struct MediaCodecParam *codec)
+int Audio_Hard_Auto_Init(struct MediaAudioHandle *pcm_play, struct MediaParams *conf, struct MediaCodecParam *codec)
 {
     debug_printf("初始化声卡硬件\n");
     struct AudioStreamParams *stream_params = (struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
@@ -799,7 +807,7 @@ int Audio_Hard_Auto_Init(PIAudioConf *pcm_play, struct MediaParams *conf, struct
 }
 
 // 手动设置
-int Audio_Hard_Hand_Init(PIAudioConf *pcm_play, struct MediaParams *conf, struct AudioStreamParams *stream_params)
+int Audio_Hard_Hand_Init(struct MediaAudioHandle *pcm_play, struct MediaParams *conf, struct AudioStreamParams *stream_params)
 {
     if (!pcm_play || !pcm_play->handle)
     {
@@ -844,6 +852,23 @@ int Audio_Get_Volume(struct MediaAudioInfo *conf_a)
     return volume;
 }
 
+int Audio_Set_BitsPerSample(struct MediaParams *conf, uint32_t byte)
+{
+    if (!conf)
+        return -1;
+    THREAD_WRITE_USERCONF(conf->rw_mut, conf->nAvgBitsPerSample, byte);
+    return 0;
+}
+
+int Audio_Get_BitsPerSample(struct MediaParams *conf)
+{
+    if (!conf)
+        return -1;
+    uint32_t byte=0;
+    THREAD_READ_USERCONF(conf->rw_mut, conf->nAvgBitsPerSample, byte);
+    return byte;
+}
+
 // 内部获取用户设置的播放位置(只允许内部调用)
 int Audio_Get_Position_S(struct MediaParams *conf)
 {
@@ -876,22 +901,16 @@ int Audio_Set_Position(struct MediaParams *conf, int32_t position)
     return 0;
 }
 // 获取位置（音频使用字节数计算）
-int Audio_Get_Position(struct MediaParams *conf, PIAudioConf *pcm_play)
+int Audio_Get_Position(struct MediaParams *conf)
 {
-    if (!pcm_play || !pcm_play->handle)
+    int nbyte=0;
+    if ((nbyte=Audio_Get_BitsPerSample(conf))==0)
     {
+        printf("[Debug]: nbyte=0??????\n");
         return ((int)(Audio_Get_DPosition(conf)));
     }
     int64_t bytes = Audio_Get_BytePosition(conf);
-    pthread_rwlock_wrlock(&conf->rw_mut);
-    if (pcm_play->adparams->nAvgBitsPerSample == 0)
-    {
-        fprintf(stderr, "获取音频参数异常，无法返回进度\n");
-        pthread_rwlock_unlock(&conf->rw_mut);
-        return 0;
-    }
-    int position = bytes / pcm_play->adparams->nAvgBitsPerSample;
-    pthread_rwlock_unlock(&conf->rw_mut);
+    int position = bytes / nbyte;
     return position;
 }
 
@@ -922,13 +941,16 @@ int64_t Audio_Set_BytePosition(struct MediaParams *conf, int64_t position)
     return 0;
 }
 
+
+
+
 // 设置状态为开始，录音的时候必须传file，播放的时候可以不传，如果传的话会自动加入到播放列表末尾
 int Audio_Set_Start(struct MediaParams *conf, const char *file)
 {
     int state = Audio_Get_State(conf);
     if (state != AUDIO_STATE_STOP) // EXIT后不允许开始
         return -1;
-    Audio_Set_Command(conf, AUDIO_PLCMD_NEXT);
+    Media_Set_Command(conf, AUDIO_PLCMD_NEXT);
     if (file != NULL)
     {
         Audio_Add_File(conf, file);
@@ -941,14 +963,14 @@ int Audio_Set_Start(struct MediaParams *conf, const char *file)
 // 设置播放状态-暂停播放
 int Audio_Set_Suspend(struct MediaParams *conf)
 {
-    return Audio_Set_Command(conf, AUDIO_PLCMD_SUSPEND);
+    return Media_Set_Command(conf, AUDIO_PLCMD_SUSPEND);
 }
 // 设置播放状态-继续播放
 int Audio_Set_Continue(struct MediaParams *conf)
 {
     if (Audio_Get_State(conf) != AUDIO_STATE_PAUSEING)
         return -1;
-    Audio_Set_Command(conf, AUDIO_PLCMD_CONTINUE);
+    Media_Set_Command(conf, AUDIO_PLCMD_CONTINUE);
     conf->cond->send(conf->cond);
     return 0;
 }
@@ -963,7 +985,7 @@ int Audio_Get_State(struct MediaParams *conf)
 }
 
 // 获取命令
-int Audio_Get_Command(struct MediaParams *conf)
+int Media_Get_Command(struct MediaParams *conf)
 {
     int cmd = 0;
     THREAD_READ_USERCONF(conf->rw_mut, conf->cmd, cmd);
@@ -971,7 +993,7 @@ int Audio_Get_Command(struct MediaParams *conf)
 }
 
 // 设置播放状态(只允许内部使用)
-int Audio_Set_Command(struct MediaParams *conf, AudioPlayCommand cmd)
+int Media_Set_Command(struct MediaParams *conf, AudioPlayCommand cmd)
 {
     if (!conf)
         return -1;
@@ -979,19 +1001,36 @@ int Audio_Set_Command(struct MediaParams *conf, AudioPlayCommand cmd)
     return 0;
 }
 
-CallbackVideoDisplay Audio_Get_Video_Callback(struct MediaVideoInfo *conf_v)
+CallbackVideoDisplay Media_Get_Video_Callback(struct MediaVideoInfo *conf_v)
 {
     CallbackVideoDisplay cb;
     THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->callback_video, cb);
     return cb;
 }
 
-void Audio_Set_Video_Callback(struct MediaVideoInfo *conf_v, CallbackVideoDisplay cb, void *userdata)
+void Media_Set_Video_Callback(struct MediaVideoInfo *conf_v, CallbackVideoDisplay cb, void *userdata)
 {
     if (!conf_v)
         return;
     pthread_rwlock_rdlock(&conf_v->rw_mut);
     conf_v->callback_video = cb;
+    conf_v->userdata = userdata;
+    pthread_rwlock_unlock(&conf_v->rw_mut);
+}
+
+CallbackAudioPlay Media_Get_Audio_Callback(struct MediaAudioInfo *conf_v)
+{
+    CallbackAudioPlay cb;
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->callback_audio, cb);
+    return cb;
+}
+
+void Media_Set_Audio_Callback(struct MediaAudioInfo *conf_v, CallbackAudioPlay cb, void *userdata)
+{
+    if (!conf_v)
+        return;
+    pthread_rwlock_rdlock(&conf_v->rw_mut);
+    conf_v->callback_audio = cb;
     conf_v->userdata = userdata;
     pthread_rwlock_unlock(&conf_v->rw_mut);
 }
@@ -1018,7 +1057,7 @@ int Audio_Set_Stop(struct MediaParams *conf)
 {
     if (Audio_Get_State(conf) == AUDIO_STATE_PAUSEING)
         conf->cond->send(conf->cond);
-    return Audio_Set_Command(conf, AUDIO_PLCMD_STOP);
+    return Media_Set_Command(conf, AUDIO_PLCMD_STOP);
 }
 // 关闭声卡
 int Audio_Set_Close(struct MediaParams *conf)
@@ -1028,7 +1067,7 @@ int Audio_Set_Close(struct MediaParams *conf)
         return -1;
     if (state != AUDIO_STATE_STOP)
         Audio_Set_Stop(conf);
-    Audio_Set_Command(conf, AUDIO_PLCMD_EXIT);
+    Media_Set_Command(conf, AUDIO_PLCMD_EXIT);
     conf->cond->send(conf->cond); // 防止处于等待状态
     return 0;
 }
@@ -1105,13 +1144,13 @@ int Audio_Set_Stream(struct MediaParams *conf, void *data)
 // 下一个(仅针对列表)
 int Audio_Play_Next(struct MediaParams *conf)
 {
-    return Audio_Set_Command(conf, AUDIO_PLCMD_NEXT);
+    return Media_Set_Command(conf, AUDIO_PLCMD_NEXT);
 }
 
 // 上一个(仅针对列表)
 int Audio_Play_Last(struct MediaParams *conf)
 {
-    return Audio_Set_Command(conf, AUDIO_PLCMD_LAST);
+    return Media_Set_Command(conf, AUDIO_PLCMD_LAST);
 }
 
 int Audio_Set_Is_Playing(struct MediaParams *conf, bool is_playing)
@@ -1154,16 +1193,16 @@ int Audio_Set_Card(struct MediaAudioInfo *conf_a,const char *card)
     if (!conf_a)
         return -1;
     pthread_rwlock_rdlock(&conf_a->rw_mut);
-    if(conf_a->aduio_handle->device)
-        free(conf_a->aduio_handle->device);
-    conf_a->aduio_handle->device=strdup(card);
+    if(conf_a->device)
+        free(conf_a->device);
+    conf_a->device=strdup(card);
     pthread_rwlock_unlock(&conf_a->rw_mut);
 }
 
 /// @brief 音频播放主程序
 /// @param pcm_play 声卡硬件参数，这里仅仅是基础的硬件配置，详细的参数会在播放每个文件的时候再设置
 /// @param conf	用户配置
-int Audio_Play_Main(PIAudioConf *pcm_play, struct MediaParams *conf)
+int Audio_Play_Main(struct MediaAudioHandle *pcm_play, struct MediaParams *conf)
 {
     struct MediaFileList *list = conf->list;
     debug_printf("read_audia_list\n");
@@ -1178,18 +1217,18 @@ int Audio_Play_Main(PIAudioConf *pcm_play, struct MediaParams *conf)
         case AUDIO_PLCMD_NEXT:
             media_pcm_drop(pcm_play);
             name = list->read_saft(list);
-            Audio_Set_Command(conf, AUDIO_PLCMD_NONE);
+            Media_Set_Command(conf, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_LAST:
             media_pcm_drop(pcm_play);
             name = list->read_last_saft(list);
-            Audio_Set_Command(conf, AUDIO_PLCMD_NONE);
+            Media_Set_Command(conf, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_STOP:
             debug_printf("等待开始信号\n");
             if (Audio_Get_State(conf) != AUDIO_STATE_START)
                 conf->cond->wait(conf->cond); // 等待开始信号
-            Audio_Set_Command(conf, AUDIO_PLCMD_NONE);
+            Media_Set_Command(conf, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_EXIT:
             Audio_Set_State(conf, AUDIO_STATE_EXIT);
@@ -1228,9 +1267,9 @@ int Audio_Play_Main(PIAudioConf *pcm_play, struct MediaParams *conf)
 /// @brief 打开Audio设备
 /// @param device 声卡名字
 /// @return
-PIAudioConf *Audio_Play_Open(const char *device)
+struct MediaAudioHandle *Audio_Play_Open(const char *device)
 {
-    PIAudioConf *pcm_play = (PIAudioConf *)malloc(sizeof(PIAudioConf));
+    struct MediaAudioHandle *pcm_play = (struct MediaAudioHandle *)malloc(sizeof(struct MediaAudioHandle));
     if (pcm_play == NULL)
         return NULL;
     if (Audio_Device_Init(pcm_play, device, AUDIO_STREAM_PLAYBACK) < 0)
@@ -1244,7 +1283,7 @@ PIAudioConf *Audio_Play_Open(const char *device)
     return pcm_play;
 }
 
-int Audio_Device_Init(PIAudioConf *pcm_play, const char *device, AudioStreamType type)
+int Audio_Device_Init(struct MediaAudioHandle *pcm_play, const char *device, AudioStreamType type)
 {
     int err = 0;
     pcm_play->ahparams = NULL;
@@ -1256,7 +1295,7 @@ int Audio_Device_Init(PIAudioConf *pcm_play, const char *device, AudioStreamType
     //	strncpy(pcm_play->device,device,len-1);
     if (snd_pcm_open(&pcm_play->handle, device, (snd_pcm_stream_t)type, 0) < 0) // SND_PCM_STREAM_CAPTURE
     {
-        fprintf(stderr, "unable to open pcm device\n");
+        fprintf(stderr, "[Warning]: unable to open pcm device\n");
         pcm_play->handle = NULL;
         return -1;
     }
@@ -1282,7 +1321,7 @@ int Audio_Device_Init(PIAudioConf *pcm_play, const char *device, AudioStreamType
 }
 
 // 关闭声卡硬件
-int Audio_Device_Close(PIAudioConf *pcm_play)
+int Audio_Device_Close(struct MediaAudioHandle *pcm_play)
 {
     if (!pcm_play || !pcm_play->handle)
         return -1;
@@ -1303,7 +1342,7 @@ int Audio_Device_Close(PIAudioConf *pcm_play)
 }
 
 // 向初始化并配置好的设备写入音频流
-int Audio_Write_Stream(PIAudioConf *pcm, struct MediaParams *conf, struct AudioStreamParams *hard_params,
+int Audio_Write_Stream(struct MediaAudioHandle *pcm, struct MediaParams *conf, struct AudioStreamParams *hard_params,
                         uint8_t *buffer, uint32_t frames, int offset, int delay)
 {
     if (!pcm || !pcm->handle)
@@ -1318,7 +1357,7 @@ int Audio_Write_Stream(PIAudioConf *pcm, struct MediaParams *conf, struct AudioS
 }
 
 // 设置非阻塞(只允许在初始状态/停止状态/暂停状态可以设置)
-int Audio_Set_Nonblock(PIAudioConf *pcm_play, struct MediaParams *conf, uint8_t nonblock)
+int Audio_Set_Nonblock(struct MediaAudioHandle *pcm_play, struct MediaParams *conf, uint8_t nonblock)
 {
     if (!pcm_play || !pcm_play->handle)
         return -1;
@@ -1334,7 +1373,7 @@ int Audio_Set_Nonblock(PIAudioConf *pcm_play, struct MediaParams *conf, uint8_t 
 }
 
 // 硬件设置
-int Audio_Set_Hard_Params(PIAudioConf *pcm_play, struct MediaParams *conf, uint32_t rate, uint16_t channel, uint16_t bits)
+int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play, struct MediaParams *conf, uint32_t rate, uint16_t channel, uint16_t bits)
 {
     if (!conf)
         return -1;

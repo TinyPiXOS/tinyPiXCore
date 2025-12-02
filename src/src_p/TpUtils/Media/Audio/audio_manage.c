@@ -268,7 +268,7 @@ extern "C"
             break;
         case AUDIO_CMD_GET_VOLUMEL:
         {
-            uint8_t vol = (uint8_t)Audio_Get_Volume(conf->audio_param);
+            uint8_t vol = (uint8_t)Audio_Get_Volume(conf->audio_params);
             msg_send.data.reply.data.volume = vol;
             send_data_msg(msgid, &msg_send);
             break;
@@ -330,7 +330,7 @@ extern "C"
         msg.data.reply.cmd = AUDIO_CMD_OPEN_PLAYER;
         msg.mtype = msg.audid;
         printf("child: msgid=%d\n", msgid);
-        PIAudioConf *pcm_play = Audio_Play_Open(NULL); // 当前服务的硬件参数
+        struct MediaAudioHandle *pcm_play = Audio_Play_Open(NULL); // 当前服务的硬件参数
         if (pcm_play == NULL)
         {
             msg.data.reply.error = MSG_CODE_ERROR;
@@ -580,7 +580,7 @@ extern "C"
     int Media_Test()
     {
         // test_play();
-        PIAudioConf *pcm_play = Audio_Play_Open(NULL); // 当前服务的硬件参数
+        struct MediaAudioHandle *pcm_play = Audio_Play_Open(NULL); // 当前服务的硬件参数
         if (pcm_play == NULL)
         {
             printf("audio pcm open error\n");
@@ -595,7 +595,7 @@ extern "C"
 
     int Record_Test()
     {
-        PIAudioConf *pcm_play = Audio_Record_Open(NULL); // 当前服务的硬件参数
+        struct MediaAudioHandle *pcm_play = Audio_Record_Open(NULL); // 当前服务的硬件参数
         if (pcm_play == NULL)
         {
             printf("audio pcm open error\n");

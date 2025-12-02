@@ -7,16 +7,16 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "obex_agent.h"
-#include "ObexAgentManager.h"
-#include "blt_device.h"
+#include "Bluetooth/obex/obex_agent.h"
+#include "Bluetooth/obex/ObexAgentManager.h"
+#include "Bluetooth/blt_device.h"
 #include "AgentHelper.h"
 #include "bluetooth_inc.h"
 #include "device.h"
 #include "Adapter.h"
 #include "GUtils.h"
 #include "blt_device.h"
-#include "blt_dbussignal.h"
+#include "Bluetooth/blt_dbussignal.h"
 #include "bluetooth_inc.h"
 
 struct BluetDeviceState{

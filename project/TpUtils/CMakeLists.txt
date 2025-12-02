@@ -95,7 +95,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_timer.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_file_list.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_codec.c
-    ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_play_temp.c
+    ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_play.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_codec.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_play.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/audio_record.c
