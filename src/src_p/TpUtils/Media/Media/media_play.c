@@ -102,11 +102,11 @@ static int pcm_start_play(struct MediaAudioHandle *pcm)
 	//准备播放
 	if ((rc = snd_pcm_prepare(pcm->handle)) < 0) {		//在第一次设置时可以不需要准备播放，播放后重新设置需要准备播放
 		perror("无法准备播放:");
-		media_pcm_close(pcm);
+		audio_pcm_close(pcm);
 		return -1;
 	}
 	snd_pcm_start(pcm->handle);
-//	media_pcm_drop(pcm);
+//	audio_pcm_drop(pcm);
 	debug_printf("PCM handle name = '%s'\n", snd_pcm_name(pcm->handle));
 	return 0;
 }
@@ -127,7 +127,7 @@ static int pcm_play_stop(struct MediaAudioHandle *pcm)
 		}
 	} 
 	else {
-		if ((err = media_pcm_drop(pcm)) < 0){
+		if ((err = audio_pcm_drop(pcm)) < 0){
 //			mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_ALSA_PcmDropError, snd_strerror(err));
 			return -1;
 		}
@@ -176,21 +176,17 @@ static int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct M
 	struct codePlayCallbackParam *cb_param=(struct codePlayCallbackParam *)malloc(sizeof(struct codePlayCallbackParam));
 	if(cb_param==NULL)
 		return -1;
-	printf("[Debug]: set codePlayCallbackParam,%d,%d,%d\n",
-		pcm_play->adparams->wBitsPerSample,
-		pcm_play->adparams->wChannels,
-		pcm_play->adparams->byteFrams);
+
 	cb_param->conf=user;
 	cb_param->audio_param=stream_params;
 	cb_param->delay=100;
 	cb_param->pcm=pcm_play;
 
-	printf("[Debug]: set codePlayCallbackParam callback_audio\n");
 	user->audio_params->callback_audio=callback_codec_play;
 	user->audio_params->userdata=cb_param;
 	audio->audio.handle=pcm_play;
 	audio->audio.handle->adparams=stream_params;
-	printf("[Debug]: set codePlayCallbackParam callback_audio\n");
+
 	return 0;
 }
 
@@ -239,7 +235,7 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 {
 	if(!audio)
 		return 0;
-	printf("[Debug]: alsa_hard_deinit\n");
+
 	if(!audio->codec_ctx)
 		avcodec_free_context(&audio->codec_ctx);
 	if(!audio->format_ctx)
@@ -247,7 +243,7 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 	if(!audio->audio.swr_ctx)
 		swr_free(&audio->audio.swr_ctx);
 	media_audio_hard_deinit(audio);		//取消硬件的设置
-	printf("[Debug]: Audio_Device_Close\n");
+
 	Audio_Device_Close(audio->audio.handle);			//关闭设备
 	return 0;
 }
@@ -527,10 +523,11 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 	player->format_ctx = stream0->format_ctx;
 	
 	//设置时长
-	Audio_Set_Length(user,media_get_url_duration_sec(mediaFormat));
-		
+	debug_printf("[Debug]: Media_Set_Length\n");
+	Media_Set_Length(user,media_get_url_duration_sec(mediaFormat));
+	debug_printf("[Debug]: 初始化对应硬件\n");
 	media_stream_all_init_handle(player,user);		//初始化对应硬件
-
+	debug_printf("[Debug]: 解码并播放\n");
 	Mediao_File_Codec_Play(player,user);
 	media_stream_all_deinit_handle(player->stream_array);
 	Media_Free_File(player->stream_array);
@@ -550,17 +547,17 @@ int Media_Play_Main(struct MediaParams *user)
 		switch(cmd)
 		{
 			case AUDIO_PLCMD_NEXT:
-				//media_pcm_drop(pcm_play);
+				//audio_pcm_drop(pcm_play);
 				name=list->read_saft(list);
 				Media_Set_Command(user,AUDIO_PLCMD_NONE);
 				break;
 			case AUDIO_PLCMD_LAST:
-				//media_pcm_drop(pcm_play);
+				//audio_pcm_drop(pcm_play);
 				name=list->read_last_saft(list);
 				Media_Set_Command(user,AUDIO_PLCMD_NONE);
 				break;
 			case AUDIO_PLCMD_STOP:
-				if(Audio_Get_State(user)!=AUDIO_STATE_START)
+				if(Media_Get_State(user)!=AUDIO_STATE_START)
 					user->cond->wait(user->cond);		//等待开始信号
 				Media_Set_Command(user,AUDIO_PLCMD_NONE);
 				break;

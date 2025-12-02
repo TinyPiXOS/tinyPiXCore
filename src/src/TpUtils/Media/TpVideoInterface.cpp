@@ -13,7 +13,7 @@
 #include <libavutil/imgutils.h>
 #include "TpVideoInterface.h"
 #include "TpAudioDevice.h"
-#include "TpVideoDevice.h"
+#include "Media/Video/video_play.h"
 #include "TpSound.h"
 
 struct TpVideoInfData
@@ -167,7 +167,7 @@ int TpVideoInterface::setSpeed(float speed)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Speed(vidData->user, speed);
+	return Media_Set_Speed(vidData->user, speed);
 }
 
 float TpVideoInterface::getSpeed()
@@ -175,7 +175,7 @@ float TpVideoInterface::getSpeed()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Get_Speed(vidData->user);
+	return Media_Get_Speed(vidData->user);
 }
 
 int TpVideoInterface::setPosition(tpUInt32 position)
@@ -183,7 +183,7 @@ int TpVideoInterface::setPosition(tpUInt32 position)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Position(vidData->user, position);
+	return Media_Set_Position(vidData->user, position);
 }
 
 int TpVideoInterface::getPosition()
@@ -199,7 +199,7 @@ tpUInt32 TpVideoInterface::getDuration()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return 0;
-	double val = Audio_Get_Length(vidData->user);
+	double val = Media_Get_Length(vidData->user);
 	if (val < 0)
 		return 0;
 	tpUInt32 duration = (tpUInt32)(val + 0.5);
@@ -215,7 +215,7 @@ int TpVideoInterface::addFile(const char *file)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Add_File(vidData->user, file);
+	return Media_Add_File(vidData->user, file);
 }
 
 int TpVideoInterface::deleteFile(const TpString &file)
@@ -227,7 +227,7 @@ int TpVideoInterface::deleteFile(const char *file)
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Del_File(vidData->user, file);
+	return Media_Del_File(vidData->user, file);
 }
 
 int TpVideoInterface::setFile(const TpString &file)
@@ -247,7 +247,7 @@ int TpVideoInterface::playStart()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Start(vidData->user, NULL);
+	return Media_Set_Start(vidData->user, NULL);
 }
 
 int TpVideoInterface::playContinue()
@@ -255,7 +255,7 @@ int TpVideoInterface::playContinue()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Continue(vidData->user);
+	return Media_Set_Continue(vidData->user);
 }
 
 int TpVideoInterface::playPause()
@@ -263,7 +263,7 @@ int TpVideoInterface::playPause()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Suspend(vidData->user);
+	return Media_Set_Suspend(vidData->user);
 }
 
 int TpVideoInterface::playStop()
@@ -271,7 +271,7 @@ int TpVideoInterface::playStop()
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
 	if (!vidData->user)
 		return -1;
-	return Audio_Set_Stop(vidData->user);
+	return Media_Set_Stop(vidData->user);
 }
 
 int TpVideoInterface::playNext()

@@ -335,7 +335,7 @@ int video_play_codec_file(struct VideoHardParam *display, struct MediaParams *us
         return -1;
     }
     double duration = codec_v.format_ctx->duration / (double)AV_TIME_BASE;
-    Audio_Set_Length(user, duration);
+    Media_Set_Length(user, duration);
 
     struct VideoStreamParams video_params;
     video_params.rect.x = 0;
@@ -520,17 +520,17 @@ int Video_Play_Main(struct MediaParams *user, const char *audio_card)
         switch (cmd)
         {
         case AUDIO_PLCMD_NEXT:
-            // media_pcm_drop(pcm_play);
+            // audio_pcm_drop(pcm_play);
             name = list->read_saft(list);
             Media_Set_Command(user, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_LAST:
-            // media_pcm_drop(pcm_play);
+            // audio_pcm_drop(pcm_play);
             name = list->read_last_saft(list);
             Media_Set_Command(user, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_STOP:
-            if (Audio_Get_State(user) != AUDIO_STATE_START)
+            if (Media_Get_State(user) != AUDIO_STATE_START)
                 user->cond->wait(user->cond); // 等待开始信号
             Media_Set_Command(user, AUDIO_PLCMD_NONE);
             break;

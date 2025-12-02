@@ -250,16 +250,16 @@ extern "C"
 
             break;
         case AUDIO_CMD_STOP:
-            Audio_Set_Stop(conf);
+            Media_Set_Stop(conf);
             break;
         case AUDIO_CMD_SUSPEND: //
-            Audio_Set_Suspend(conf);
+            Media_Set_Suspend(conf);
             break;
         case AUDIO_CMD_CONTINUE:
-            Audio_Set_Continue(conf);
+            Media_Set_Continue(conf);
             break;
         case AUDIO_CMD_ADD_FILE:
-            Audio_Add_File(conf, (const char *)msg->data.file);
+            Media_Add_File(conf, (const char *)msg->data.file);
             break;
         case AUDIO_CMD_DEL_FILE:
             break;
@@ -274,7 +274,7 @@ extern "C"
             break;
         }
         case AUDIO_CMD_SET_POSTION:
-            Audio_Set_Position(conf, msg->data.postion);
+            Media_Set_Position(conf, msg->data.postion);
             break;
         case AUDIO_CMD_GET_POSTION:
 
@@ -355,9 +355,9 @@ extern "C"
             return -1;
         }
 
-        Audio_Add_File(conf, "/home/pix/Media/phone.wav");
-        // Audio_Add_File(&conf,"/home/pix/Media/test.mp3");
-        // Audio_Add_File(&conf,"/home/pix/Media/MeiNanBian.flac");
+        Media_Add_File(conf, "/home/pix/Media/phone.wav");
+        // Media_Add_File(&conf,"/home/pix/Media/test.mp3");
+        // Media_Add_File(&conf,"/home/pix/Media/MeiNanBian.flac");
         printf("准备循环播放\n");
         while (1)
         {

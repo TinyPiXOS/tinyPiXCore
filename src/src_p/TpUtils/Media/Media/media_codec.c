@@ -388,7 +388,7 @@ static int re_alloc_codec_context(int srcW, int srcH, enum AVPixelFormat srcForm
 //计算当前时钟需要的延时时间
 static double count_media_clock_delay_time(struct MediaParams *user,struct TimerHandle *clock,int64_t pts, AVRational time_base)
 {
-	float speed=Audio_Get_Speed(user);
+	float speed=Media_Get_Speed(user);
 	//延时一段时间
 	double video_clock = (double)pts * av_q2d(time_base)*1000.0*1000.0/speed;		//time_base为s
 	double delay_time=video_clock-clock->get_run_time(clock);
@@ -470,7 +470,7 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
 				stream->format_ctx=format_ctx;
 				stream->stream_index=i;
 				if(media_array->append_shallow(media_array,stream)<0)
-					printf("append_shallow error\n");
+					fprintf(stderr,"append_shallow error\n");
 				break;
 			}
 			case AVMEDIA_TYPE_SUBTITLE: 	// 字幕流 (FFmpeg ID:0x10000)
@@ -491,7 +491,6 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
 	}
 
 	struct MediaStreamParams *stream=media_array->get(media_array,0);
-	printf("gangvcai视频流/音频流,%p\n",stream);
 	return format_ctx;
 }
 
@@ -555,7 +554,6 @@ static void *thread_video_codec(void *param)
 
 	struct MediaRect rect_src,rect_dst;		//用于解码前后的矩形区域
 
-	debug_printf("thread debug:\n");
 	int64_t pts=0;	//帧的位置(需要解码才能知道)，可以辅助判断是否丢帧
 	int numBytes;
 	uint8_t *buffer = NULL;
@@ -673,7 +671,7 @@ static void *thread_video_codec(void *param)
 			}
 			
 			//延时一段时间
-			float speed=Audio_Get_Speed(user);
+			float speed=Media_Get_Speed(user);
 			double video_clock=(double)pts * av_q2d(videoStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 			double delay_time=video_clock - sys_clock->get_run_time(sys_clock);
 			if(delay_time>VIDEO_FRAME_LAG_LOSS_TIME)
@@ -709,8 +707,8 @@ static void *thread_video_codec(void *param)
 			}
 				
 			//写入进度
-			//printf("[Debug]: Audio_Set_Position_N\n");
-			Audio_Set_Position_N(user,(int32_t)(video_clock/1000.0/1000.0));
+			//printf("[Debug]: Media_Set_Position_N\n");
+			Media_Set_Position_N(user,(int32_t)(video_clock/1000.0/1000.0));
 		}
 		video_t->free_packet(packet);
 		video_t->set_state(video_t,MEDIA_THREAD_WAITING);
@@ -734,7 +732,6 @@ static void *thread_video_codec(void *param)
 
 static void *thread_audio_codec(void *param)
 {
-	printf("[Debug]: thread_audio_codec start\n");
 	struct ThreadData *data=(struct ThreadData *) param;
 	struct TimerHandle *sys_clock=data->clock;
 	struct MediaThread *audio_t=data->thread;
@@ -759,7 +756,6 @@ static void *thread_audio_codec(void *param)
 	data->err_code=1;
 	audio_t->set_state(audio_t,AUDIO_STATE_PLAYING);
 	AVPacket *packet;
-	printf("=======audio_t->set_state(audio_t,AUDIO_STATE_PLAYING);\n");
 	while(audio_t->is_running(audio_t))
 	{
 		int cmd=user->command_get(user);
@@ -799,7 +795,7 @@ static void *thread_audio_codec(void *param)
 			if (pts == AV_NOPTS_VALUE) {
 				pts = frame_s->best_effort_timestamp;		//该值无效则使用默认的值
 			}
-			float speed=Audio_Get_Speed(user);
+			float speed=Media_Get_Speed(user);
 			double audio_clock=(double)pts * av_q2d(audioStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 			double delay_time=audio_clock - sys_clock->get_run_time(sys_clock);
 			if(delay_time>0)
@@ -829,7 +825,7 @@ static void *thread_audio_codec(void *param)
 	if(frame_s)
 		av_frame_free(&frame_s);
 	printf("audio thread debug:exit ok\n");
-	media_pcm_drop(stream->audio.handle);
+	audio_pcm_drop(stream->audio.handle);
 	return NULL;
 }
 
@@ -852,7 +848,6 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 {
 	int err=0;
 	int stream_num=stream_array->get_size(stream_array);
-	printf("[Debug]: stream number:%d\n",stream_num);
 	for(int i=0; i<stream_num; i++)
 	{
 		struct MediaThread *thread_codec=Media_Thread_Creat();
@@ -866,7 +861,6 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 		{
 			case AVMEDIA_TYPE_VIDEO:   		// 视频流
 			{
-				printf("[Debug]: Creat video stream thread\n");
 				thread_codec->list_max=VIDEO_MAX_QUEUE_SIZE;
 				if(thread_codec->start_thread(thread_codec,clock,thread_video_codec,stream,user)<0)
 				{
@@ -878,7 +872,6 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 			}
         	case AVMEDIA_TYPE_AUDIO:   		// 音频流
 			{
-				printf("[Debug]: Creat audio stream thread\n");
 				thread_codec->list_max=AUDIO_MAX_QUEUE_SIZE;
 				if(thread_codec->start_thread(thread_codec,clock,thread_audio_codec,stream,user)<0)
 				{
@@ -1068,14 +1061,14 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 			break;
 		}
 #endif
-		if((err=Audio_Get_Position_S(user))>=0)
+		if((err=Media_Get_Position_S(user))>=0)
 		{
 			media_seek_frame_with_time(player,err);
 			player->flush_codec_buffers(stream_array);
 			//清空队列
 			player->flush_list(stream_array);
 			//清空声卡缓存
-			//media_pcm_drop(display->pcm_play);
+			//audio_pcm_drop(display->pcm_play);
 
 			clock->adjust_time(clock,(long)err*1000*1000);
 			av_packet_unref(&packet);
@@ -1104,7 +1097,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 				//清空队列
 				player->flush_list(stream_array);
 				//清空声卡缓存
-				//media_pcm_drop(display->pcm_play);	//改到对应线程中
+				//audio_pcm_drop(display->pcm_play);	//改到对应线程中
 				debug_printf("退出\n");
 				goto FREE_THREAD;
 			default:
@@ -1125,7 +1118,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
                 break;
 		}
        	usleep(10000);
-        Audio_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
+        Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
     }
 	player->set_state(stream_array,AUDIO_STATE_EXIT);
 	player->packet_exit(stream_array);
