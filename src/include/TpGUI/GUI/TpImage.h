@@ -7,6 +7,7 @@
 #include "TpGlobal.h"
 #include "TpSize.h"
 #include "TpRect.h"
+#include "tinyPiXUtils.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpImageData);
 /// @brief 图像处理类；用于加载图片资源，提供缩放、模糊等功能
@@ -38,7 +39,12 @@ public:
     /// @param size 资源图片尺寸
     /// @param rect 裁剪矩形；为空则默认全部加载
     /// @return 加载结果
-    virtual bool load(void *martix, const TpSize& size, const TpRect& clipRect = TpRect());
+    virtual bool load(void *martix, const TpSize &size, const TpRect &clipRect = TpRect());
+
+    /// @brief 加载TpWM的图片资源
+    /// @param surface TpWM提供的资源格式buffer
+    /// @return 加载结果
+    virtual bool load(IPiWFSurface *surface, const TpRect &clipRect = TpRect());
 
     /// @brief 指定size对图片进行缩放
     /// @param size 缩放后的尺寸
