@@ -443,10 +443,11 @@ static int media_stream_all_init_handle(struct MediaPlayerHandle *player, struct
 				break;
 		}
 	}
-	if(sync_clk_type==AVMEDIA_TYPE_VIDEO)	//
+	//if(sync_clk_type==AVMEDIA_TYPE_VIDEO)	//
 	{
 		user->nAvgBitsPerSample=0;
 	}
+	return 0;
 }
 
 

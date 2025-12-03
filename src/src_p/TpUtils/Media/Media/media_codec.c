@@ -52,7 +52,7 @@ struct MediaThread{
 	
 //	struct TimerHandle *clock;		//	准备从此结构体中移除，所有流的线程共用同一个时钟
 
-	int (*start_thread)(struct MediaThread *thread,struct TimerHandle *clock,void *(*thread_main)(void *),struct MediaStreamParams *stream,struct MediaParams *user);
+	int (*start_thread)(struct MediaThread *thread,struct TimerHandle *clock,void *(*thread_main)(void *),struct MediaStreamParams *stream,struct MediaParams *user,bool is_sync);
 	int (*is_running)(struct MediaThread *thread);	//线程是否在运行中
 
 	AudioPlayState (*get_state)(struct MediaThread *thread);				//获取线程状态
@@ -313,6 +313,7 @@ struct ThreadData{
 	int8_t err_code;		//错误码
 	struct TimerHandle *clock;
 	struct MediaParams *user;		//用户交互
+	bool is_sync;		//是否是同步时钟参考流
 };
 
 
@@ -320,7 +321,7 @@ static int thread_start_running(struct MediaThread *thread,
 								struct TimerHandle *clock,
 								void *(*thread_main)(void *),
 								struct MediaStreamParams *stream,
-								struct MediaParams *user)
+								struct MediaParams *user,bool is_sync)
 {
 	struct ThreadData *data=(struct ThreadData *)malloc(sizeof(struct ThreadData));
 	//thread->thread_param=data;
@@ -329,6 +330,7 @@ static int thread_start_running(struct MediaThread *thread,
 	data->err_code=0;
 	data->user=user;
 	data->clock=clock;
+	data->is_sync=is_sync;
 	if(pthread_create(&thread->thread,NULL, thread_main,(void *)data)<0)
 	{
 		perror("pthread create failed");
@@ -502,14 +504,20 @@ static AVFormatContext *media_get_format_context(MediaStreamArray *array)
 }
 
 //根据时间设置流跳转到制定位置
-static int media_seek_frame_with_time(struct MediaPlayerHandle *player, uint32_t sec)
+static int media_seek_frame_with_time(struct MediaParams *user, struct MediaPlayerHandle *player, uint32_t sec)
 {
 	AVFormatContext *format_ctx=player->format_ctx;
 	AVRational reference_time_base = format_ctx->streams[player->sync_clk_stream_index]->time_base;
 	int64_t target_timestamp = sec / av_q2d(reference_time_base);
 	
-	//调整所有流的位置，stream_index设置为同步时钟所在的流，设置为-1为自动选择，但是目前有问题
+	//调整所有流的位置，stream_index设置为同步时钟所在的流，设置为-1为自动选择，但是目前自动选择有问题
 	av_seek_frame(format_ctx,player->sync_clk_stream_index,target_timestamp,AVSEEK_FLAG_BACKWARD);	
+	uint32_t position_bytes=Audio_Get_BitsPerSample(user);
+	if(position_bytes!=0)
+		Media_Set_Position_N(user,sec*position_bytes);
+	else	
+		Media_Set_Position_N(user,sec);
+
 	return 0;	
 }
 
@@ -532,8 +540,9 @@ static void *thread_video_codec(void *param)
 	struct ThreadData *data=(struct ThreadData *) param;
 	struct TimerHandle *sys_clock=data->clock;
 	struct MediaThread *video_t=data->thread;
-	
+	bool is_sync=data->is_sync;
 	struct MediaParams *user=data->user;
+
 	CallbackVideoDisplay callback=user->video_params->get_callback_video(user->video_params);
 	AVFrame *frame_s = av_frame_alloc();	//原始的侦数据(直接从文件中解码出来的)
 	if(frame_s == NULL) {
@@ -735,8 +744,10 @@ static void *thread_audio_codec(void *param)
 	struct ThreadData *data=(struct ThreadData *) param;
 	struct TimerHandle *sys_clock=data->clock;
 	struct MediaThread *audio_t=data->thread;
+	bool is_sync=data->is_sync;
 	struct MediaStreamParams *stream=data->stream;
 	struct MediaParams *user=data->user;
+	
 	CallbackAudioPlay callback=user->audio_params->get_callback_audio(user->audio_params);
 	AVFrame *frame_s = av_frame_alloc();	//原始的侦数据(直接从文件中解码出来的)
 	if(frame_s == NULL) {
@@ -814,8 +825,16 @@ static void *thread_audio_codec(void *param)
 				continue;
 			}
 			int samples_converted = swr_convert(stream->audio.swr_ctx, convert_frame->data, frame_s->nb_samples, (const uint8_t **)frame_s->data, frame_s->nb_samples);
-			if(samples_converted>0)
-				callback((uint8_t *)convert_frame,samples_converted,1,user->audio_params->userdata);	//display->audio_data
+			if(samples_converted<=0)
+				continue;
+			
+			if(!is_sync)
+				callback((uint8_t *)convert_frame,samples_converted,1,user->audio_params->userdata);
+			else
+			{
+				callback((uint8_t *)convert_frame,samples_converted,-1,user->audio_params->userdata);
+				Media_Set_Position_N(user,(int32_t)(audio_clock/1000.0/1000.0));
+			}
 		}
 		audio_t->free_packet(packet);
 		audio_t->set_state(audio_t,MEDIA_THREAD_WAITING);
@@ -844,10 +863,11 @@ static int media_delete_player_thread(MediaStreamArray *stream_array)
 }
 
 //为每个流创建播放线程
-static int media_creat_player_thread(MediaStreamArray *stream_array,struct TimerHandle *clock,struct MediaParams *user)
+static int media_creat_player_thread(MediaStreamArray *stream_array,struct TimerHandle *clock,struct MediaParams *user,int sync_index)
 {
 	int err=0;
 	int stream_num=stream_array->get_size(stream_array);
+	bool is_sync=false;		//是否是同步时钟参考流
 	for(int i=0; i<stream_num; i++)
 	{
 		struct MediaThread *thread_codec=Media_Thread_Creat();
@@ -857,12 +877,16 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 			break;
 		}
 		struct MediaStreamParams *stream=stream_array->get(stream_array,i);
+		if(sync_index==stream->stream_index)
+			is_sync=true;
+		else
+			is_sync=false;
 		switch(stream->type)
 		{
 			case AVMEDIA_TYPE_VIDEO:   		// 视频流
 			{
 				thread_codec->list_max=VIDEO_MAX_QUEUE_SIZE;
-				if(thread_codec->start_thread(thread_codec,clock,thread_video_codec,stream,user)<0)
+				if(thread_codec->start_thread(thread_codec,clock,thread_video_codec,stream,user,is_sync)<0)
 				{
 					Media_Thread_Free(thread_codec);
 					err=-1;
@@ -873,7 +897,7 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
         	case AVMEDIA_TYPE_AUDIO:   		// 音频流
 			{
 				thread_codec->list_max=AUDIO_MAX_QUEUE_SIZE;
-				if(thread_codec->start_thread(thread_codec,clock,thread_audio_codec,stream,user)<0)
+				if(thread_codec->start_thread(thread_codec,clock,thread_audio_codec,stream,user,is_sync)<0)
 				{
 					Media_Thread_Free(thread_codec);
 					err=-1;
@@ -1033,7 +1057,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 	struct TimerHandle *clock=player->clock;
 	int err=0;
 	int stream_num=stream_array->get_size(stream_array);
-	if(media_creat_player_thread(stream_array, clock, user)<0)
+	if(media_creat_player_thread(stream_array, clock, user,player->sync_clk_stream_index)<0)
 	{
 		return -1;
 	}
@@ -1045,13 +1069,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 	Audio_Set_State(user,AUDIO_STATE_PLAYING);
 	while (1) 	
 	{
-		while(player->list_state(stream_array)==MEDIA_PACK_QUEUE_FULL)
-		{
-			//debug_printf("队列已满，等待...\n");
-			usleep(5000);
-		}
-		if(av_read_frame(format_ctx, &packet) < 0)	//video和audio的format_ctx是同一个
-			break;
+
 #ifdef DEBUG_VIDEO
 		if(media_flag==1)
 		{
@@ -1063,7 +1081,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 #endif
 		if((err=Media_Get_Position_S(user))>=0)
 		{
-			media_seek_frame_with_time(player,err);
+			media_seek_frame_with_time(user,player,err);
 			player->flush_codec_buffers(stream_array);
 			//清空队列
 			player->flush_list(stream_array);
@@ -1082,8 +1100,9 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 				debug_printf("debug:暂停\n");
 				clock->pause(clock);
 				user->cond->wait(user->cond);
-				clock->resume(clock);
 				debug_printf("debug:继续\n");
+				clock->resume(clock);
+				
 				player->player_start(stream_array);
 				Audio_Set_State(user,AUDIO_STATE_PLAYING);
 				break;
@@ -1104,11 +1123,19 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 				break;
 		}
 		
+		if(player->list_state(stream_array)==MEDIA_PACK_QUEUE_FULL)
+		{
+			//debug_printf("队列已满，等待...\n");
+			usleep(5000);
+			continue;
+		}
+		if(av_read_frame(format_ctx, &packet) < 0)	//video和audio的format_ctx是同一个
+			break;
+		
 		media_write_packet_to_queue(stream_array, &packet);
 			
 		av_packet_unref(&packet);
 	}
-	
 
 	while (1)
     {
@@ -1263,9 +1290,6 @@ void media_player_handle_delete(struct MediaPlayerHandle *player)
 	free(player);
 	player=NULL;
 }
-
-
-
 
 
 /// @brief 获取编解码信息
