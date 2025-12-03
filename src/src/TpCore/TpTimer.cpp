@@ -20,11 +20,11 @@ struct TpTimerData
     std::thread timerThread;
     std::chrono::steady_clock::time_point nextTriggerTime;
 
-    virtual ~TpTimerData() 
+    virtual ~TpTimerData()
     {
-        if (timerThread.joinable()) 
+        if (timerThread.joinable())
         {
-            timerThread.join();  // 等待线程结束
+            timerThread.join(); // 等待线程结束
             // 或 t.detach();  // 分离线程（后台运行）
         }
     }
@@ -125,6 +125,12 @@ void TpTimer::start()
 
     if (!timerData->active.load())
     {
+        // 先等待原有线程结束
+        if (timerData->timerThread.joinable())
+        {
+            timerData->timerThread.join();
+        }
+
         timerData->active.store(true);
         timerData->nextTriggerTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(timerData->intervalMs.load());
         timerData->timerThread = std::thread(&TpTimer::timerFunction, this);
@@ -164,7 +170,6 @@ void TpTimer::stop()
             {
                 timerData->timerThread.join();
             }
-
         }
     }
 }
