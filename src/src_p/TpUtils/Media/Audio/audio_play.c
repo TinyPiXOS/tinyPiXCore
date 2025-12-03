@@ -715,7 +715,7 @@ WRITE_POS:
     {
         position += (frames * audio_param->byteFrams);
         Audio_Set_BytePosition(conf, (int64_t)position);
-        //printf("[Debug]: Audio_Set_BytePosition %d \n",position);
+        printf("[Debug]: Audio_Set_BytePosition %d \n",position);
     }
 
     return ret;
@@ -897,10 +897,11 @@ int Media_Set_Position(struct MediaParams *conf, int32_t position)
 // 获取位置（音频使用字节数计算）
 int Media_Get_Position(struct MediaParams *conf)
 {
+    printf("Media_Get_Position\n");
     int nbyte=0;
     if ((nbyte=Audio_Get_BitsPerSample(conf))==0)
     {
-        printf("[Debug]: nbyte=0??????\n");
+         printf("Audio_Get_DPosition\n");
         return ((int)(Audio_Get_DPosition(conf)));
     }
     int64_t bytes = Audio_Get_BytePosition(conf);
@@ -957,11 +958,13 @@ int Media_Set_Start(struct MediaParams *conf, const char *file)
 // 设置播放状态-暂停播放
 int Media_Set_Suspend(struct MediaParams *conf)
 {
+    printf("Media_Set_Suspend\n");
     return Media_Set_Command(conf, AUDIO_PLCMD_SUSPEND);
 }
 // 设置播放状态-继续播放
 int Media_Set_Continue(struct MediaParams *conf)
 {
+    printf("Media_Set_Continue\n");
     if (Media_Get_State(conf) != AUDIO_STATE_PAUSEING)
         return -1;
     Media_Set_Command(conf, AUDIO_PLCMD_CONTINUE);

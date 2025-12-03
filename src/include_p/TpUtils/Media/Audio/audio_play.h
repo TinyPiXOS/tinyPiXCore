@@ -171,11 +171,9 @@ struct MediaParams{        //公共区用户设置
 		int32_t position_s;
 		union{
 			double position_p;			//播放位置
-			struct{
-				int64_t position_bytes;		//已播放的字节数
-				uint32_t nAvgBitsPerSample;
-			};
+			int64_t position_bytes;		//已播放的字节数
 		};
+		uint32_t nAvgBitsPerSample;		//每秒播放字节数，仅播放音频时使用
 	};
 	struct{
 		AudioPlayCommand cmd;	//控制命令
@@ -234,6 +232,9 @@ int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
 
 //获取音量
 int Audio_Get_Volume(struct MediaAudioInfo *conf_a);
+
+
+int Audio_Get_BitsPerSample(struct MediaParams *conf);
 
 //内部获取用户设置的播放位置
 int Media_Get_Position_S(struct MediaParams *conf);

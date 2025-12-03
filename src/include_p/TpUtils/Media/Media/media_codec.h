@@ -69,14 +69,6 @@ struct MediaVideoHandle
     struct SwrContext *swr_ctr;	//音频重采样和转换句柄
 };*/
 
-struct MediaStreamCodecParams
-{
-    AVFormatContext *format_ctx; // 输入输出相关信息，贯穿ffmpeg
-    AVCodecContext *codec_ctx;   // 编码器上下文，源文件中的音频参数,位宽，声道等，视频的帧率分辨率等
-    int stream_index;            // 流索引号
-    MediaType type;              // 流类型
-    bool enable;                 // 是否启用此流的处理
-};
 
 // 媒体流通用参数
 struct MediaStreamParams
@@ -110,8 +102,7 @@ struct MediaStreamParams
     void *codec_thread; // struct MediaThread *
 };
 
-struct MediaPlayerHandle
-{
+struct MediaPlayerHandle{
     char *url;
     AVFormatContext *format_ctx;    // 输入输出相关信息，贯穿ffmpeg
     
