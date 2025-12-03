@@ -19,13 +19,14 @@
 struct TpAudioInfData
 {
     TpString name;
-    struct MediaAudioHandle *audio;
-    struct AudioStreamParams *hard_params;
+    //struct MediaAudioHandle *audio;
+    //struct AudioStreamParams *hard_params;
     struct MediaAudioInfo *audio_params;
     TpAudioInfData()
     {
-        audio = nullptr;
-        hard_params = nullptr;
+        //audio = nullptr;
+        //hard_params = nullptr;
+        audio_params=nullptr;
     };
 };
 

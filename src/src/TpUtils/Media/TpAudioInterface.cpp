@@ -149,7 +149,7 @@ int TpAudioInterface::setSpeed(float speed)
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Set_Speed(audData->user, speed);
+    return Media_Set_Speed(audData->user, speed);
 }
 
 int TpAudioInterface::getSpeed()
@@ -157,7 +157,7 @@ int TpAudioInterface::getSpeed()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Get_Speed(audData->user);
+    return Media_Get_Speed(audData->user);
 }
 
 int TpAudioInterface::setPosition(tpUInt32 position)
@@ -165,7 +165,7 @@ int TpAudioInterface::setPosition(tpUInt32 position)
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Set_Position(audData->user, position);
+    return Media_Set_Position(audData->user, position);
 }
 
 int TpAudioInterface::getPosition()
@@ -175,7 +175,7 @@ int TpAudioInterface::getPosition()
         return -1;
     if (!audData->audio)
         return -1;
-    return Audio_Get_Position(audData->user);
+    return Media_Get_Position(audData->user);
 }
 
 tpUInt32 TpAudioInterface::getDuration()
@@ -183,7 +183,7 @@ tpUInt32 TpAudioInterface::getDuration()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return 0;
-    double val = Audio_Get_Length(audData->user);
+    double val = Media_Get_Length(audData->user);
     if (val < 0)
         return 0;
     tpUInt32 duration = (tpUInt32)(val + 0.5);
@@ -199,7 +199,7 @@ int TpAudioInterface::addFile(const char *file)
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Add_File(audData->user, file);
+    return Media_Add_File(audData->user, file);
 }
 
 int TpAudioInterface::deleteFile(const TpString &file)
@@ -211,7 +211,7 @@ int TpAudioInterface::deleteFile(const char *file)
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user)
         return -1;
-    return Audio_Del_File(audData->user, file);
+    return Media_Del_File(audData->user, file);
 }
 
 int TpAudioInterface::setFile(const TpString &file)
@@ -231,7 +231,7 @@ int TpAudioInterface::playStart()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user || !audData->audio)
         return -1;
-    return Audio_Set_Start(audData->user, NULL);
+    return Media_Set_Start(audData->user, NULL);
 }
 
 int TpAudioInterface::playContinue()
@@ -239,7 +239,7 @@ int TpAudioInterface::playContinue()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user || !audData->audio)
         return -1;
-    return Audio_Set_Continue(audData->user);
+    return Media_Set_Continue(audData->user);
 }
 
 int TpAudioInterface::playPause()
@@ -247,7 +247,7 @@ int TpAudioInterface::playPause()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user || !audData->audio)
         return -1;
-    return Audio_Set_Suspend(audData->user);
+    return Media_Set_Suspend(audData->user);
 }
 
 int TpAudioInterface::playStop()
@@ -255,7 +255,7 @@ int TpAudioInterface::playStop()
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(data_);
     if (!audData->user || !audData->audio)
         return -1;
-    return Audio_Set_Stop(audData->user);
+    return Media_Set_Stop(audData->user);
 }
 
 int TpAudioInterface::playNext()

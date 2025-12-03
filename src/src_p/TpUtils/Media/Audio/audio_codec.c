@@ -279,7 +279,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 				break;
 		}
 		//调整播放位置
-		if((ret=Audio_Get_Position_S(conf))>=0)
+		if((ret=Media_Get_Position_S(conf))>=0)
 		{
 			seek_to_position(audio,ret);
 			if(have_audio_card)
@@ -287,7 +287,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 			else
 			{
 				clock->adjust_time(clock,ret*1000*1000);
-				Audio_Set_Position_N(conf,ret);
+				Media_Set_Position_N(conf,ret);
 			}
 			printf("Audio_Set_BytePosition:%d\n",ret*hard_param->byteFrams);
 			avcodec_flush_buffers(codec_ctx); // 清空解码器缓冲区
@@ -320,7 +320,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 					if (pts == AV_NOPTS_VALUE) {
 						pts = frame->best_effort_timestamp;		//该值无效则使用默认的值
 					}
-					float speed=Audio_Get_Speed(conf);
+					float speed=Media_Get_Speed(conf);
 					audio_clock=(double)pts * av_q2d(audioStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 					double delay_time=audio_clock-clock->get_run_time(clock);
 					if(delay_time>VIDEO_FRAME_LAG_LOSS_TIME)
@@ -368,7 +368,7 @@ int codec_play(struct MediaCodecParam *audio,struct MediaParams *conf)
 					audio->callback_play((uint8_t *)convert_frame, samples_converted,1,audio->callback_param );		//callback_codec_play
 				}
 				else{		//手动设置进度
-					Audio_Set_Position_N(conf,(int32_t)(audio_clock/1000.0/1000.0));
+					Media_Set_Position_N(conf,(int32_t)(audio_clock/1000.0/1000.0));
 				}
 				free_avframe(&convert_frame);
 			}

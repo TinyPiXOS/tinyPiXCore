@@ -143,7 +143,7 @@ int TpRecordInterface::recordContinue()
     TpRecordInfData *recData = static_cast<TpRecordInfData *>(data_);
     if (!recData->user)
         return -1;
-    return Audio_Set_Continue(recData->user);
+    return Media_Set_Continue(recData->user);
 }
 
 int TpRecordInterface::recordPause()
@@ -151,7 +151,7 @@ int TpRecordInterface::recordPause()
     TpRecordInfData *recData = static_cast<TpRecordInfData *>(data_);
     if (!recData->user)
         return -1;
-    return Audio_Set_Suspend(recData->user);
+    return Media_Set_Suspend(recData->user);
 }
 
 int TpRecordInterface::recordStop()
@@ -159,5 +159,5 @@ int TpRecordInterface::recordStop()
     TpRecordInfData *recData = static_cast<TpRecordInfData *>(data_);
     if (!recData->user)
         return -1;
-    return Audio_Set_Stop(recData->user);
+    return Media_Set_Stop(recData->user);
 }

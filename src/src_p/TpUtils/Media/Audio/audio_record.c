@@ -526,12 +526,12 @@ int Record_Set_Start(struct MediaParams *conf, const char *file)
         return -1;
     }
 
-    return Audio_Set_Start(conf, file);
+    return Media_Set_Start(conf, file);
 }
 
 int Record_Set_Stop(struct MediaParams *conf)
 {
-    return Audio_Set_Stop(conf);
+    return Media_Set_Stop(conf);
 }
 
 // 线程或进程的主程序

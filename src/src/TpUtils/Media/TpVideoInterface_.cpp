@@ -13,7 +13,7 @@
 #include <libavutil/imgutils.h>
 #include "TpVideoInterface_.h"
 #include "TpAudioDevice.h"
-#include "TpVideoDevice.h"
+#include "Media/Video/video_play.h"
 #include "TpSound.h"
 
 struct TpVideoInfData
@@ -67,6 +67,8 @@ TpVideoInterface_::TpVideoInterface_(const TpString &name):TpMediaInterface()
 	setVideoInterface(video);
     vidData->video_params=video;
 	vidData->audio_params=audio;
+	printf("TpVideoInterface_ ok\n");
+
 }
 
 TpVideoInterface_::~TpVideoInterface_()

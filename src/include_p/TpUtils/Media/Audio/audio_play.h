@@ -190,6 +190,7 @@ struct MediaParams{        //公共区用户设置
 
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
 	struct PthreadCond *cond;
+
 };
 
 int pcm_hwparams_set(struct MediaAudioHandle *pcm,struct AudioStreamParams *audio);		//设置硬件参数
@@ -198,9 +199,9 @@ int audio_stream_write(struct MediaAudioHandle *pcm_play,struct MediaParams *con
 							float volume,
 							int offset,int delay);
 
-int media_pcm_drain(struct MediaAudioHandle *pcm);
-int media_pcm_drop(struct MediaAudioHandle *pcm);
-int media_pcm_close(struct MediaAudioHandle *pcm);
+int audio_pcm_drain(struct MediaAudioHandle *pcm);
+int audio_pcm_drop(struct MediaAudioHandle *pcm);
+int audio_pcm_close(struct MediaAudioHandle *pcm);
 struct MediaAudioInfo *media_audio_info_creat(const char *name);
 void media_audio_info_delete(struct MediaAudioInfo *conf);
 struct MediaVideoInfo *media_video_info_creat();
@@ -217,7 +218,7 @@ int Audio_Device_Close(struct MediaAudioHandle *pcm_play);
 int Audio_Play_Main(struct MediaAudioHandle *pcm_play,struct MediaParams *conf);
 
 //开始
-int Audio_Set_Start(struct MediaParams *conf, const char *file);
+int Media_Set_Start(struct MediaParams *conf, const char *file);
 
 //获取命令(内部使用)
 int Media_Get_Command(struct MediaParams *conf);
@@ -235,35 +236,35 @@ int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
 int Audio_Get_Volume(struct MediaAudioInfo *conf_a);
 
 //内部获取用户设置的播放位置
-int Audio_Get_Position_S(struct MediaParams *conf);
+int Media_Get_Position_S(struct MediaParams *conf);
 
 //内部设置实时播放位置
-int Audio_Set_Position_N(struct MediaParams *conf,int32_t position);
+int Media_Set_Position_N(struct MediaParams *conf,int32_t position);
 
-float Audio_Get_Speed(struct MediaParams *conf);
+float Media_Get_Speed(struct MediaParams *conf);
 
-int Audio_Set_Speed(struct MediaParams *conf, float speed);
+int Media_Set_Speed(struct MediaParams *conf, float speed);
 
 //设置位置
-int Audio_Set_Position(struct MediaParams *conf,int32_t position);
+int Media_Set_Position(struct MediaParams *conf,int32_t position);
 
 //获取位置
-int Audio_Get_Position(struct MediaParams *conf);
+int Media_Get_Position(struct MediaParams *conf);
 double Audio_Get_DPosition(struct MediaParams *conf);
 
 int64_t Audio_Get_BytePosition(struct MediaParams *conf);
 int64_t Audio_Set_BytePosition(struct MediaParams *conf,int64_t position);
 
 //暂停播放
-int Audio_Set_Suspend(struct MediaParams *conf);
+int Media_Set_Suspend(struct MediaParams *conf);
 
 //继续播放
-int Audio_Set_Continue(struct MediaParams *conf);
+int Media_Set_Continue(struct MediaParams *conf);
 
-int Audio_Get_State(struct MediaParams *conf);
+int Media_Get_State(struct MediaParams *conf);
 
 //停止播放,只是停止不会关闭声卡，不同于暂停，停止会清空大多数播放信息
-int Audio_Set_Stop(struct MediaParams *conf);
+int Media_Set_Stop(struct MediaParams *conf);
 
 //关闭声卡
 int Audio_Set_Close(struct MediaParams *conf);
@@ -274,15 +275,15 @@ int Audio_Set_Play(struct MediaParams *conf,const char *file);
 int Audio_Play_Next(struct MediaParams *conf);
 int Audio_Play_Last(struct MediaParams *conf);
 //内部设置媒体文件时长
-int Audio_Set_Length(struct MediaParams *conf,double length);
+int Media_Set_Length(struct MediaParams *conf,double length);
 //获取音频时长
-double Audio_Get_Length(struct MediaParams *conf);
+double Media_Get_Length(struct MediaParams *conf);
 int Audio_Set_Is_Playing(struct MediaParams *conf,bool is_playing);
 //添加播放的文件
-int Audio_Add_File(struct MediaParams *conf, const char *file);
+int Media_Add_File(struct MediaParams *conf, const char *file);
 
 //删除播放文件
-int Audio_Del_File(struct MediaParams *conf, const char *file);
+int Media_Del_File(struct MediaParams *conf, const char *file);
 
 //设置硬件
 int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,uint32_t rate,uint16_t channel,uint16_t bits);

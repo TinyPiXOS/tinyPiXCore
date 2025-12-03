@@ -478,7 +478,7 @@ static int re_alloc_codec_context(int srcW, int srcH, enum AVPixelFormat srcForm
 // 计算当前时钟需要的延时时间
 static double count_media_clock_delay_time(struct MediaParams *user, struct TimerHandle *clock, int64_t pts, AVRational time_base)
 {
-    float speed = Audio_Get_Speed(user);
+    float speed = Media_Get_Speed(user);
     // 延时一段时间
     double video_clock = (double)pts * av_q2d(time_base) * 1000.0 * 1000.0 / speed; // time_base为s
     double delay_time = video_clock - clock->get_run_time(clock);
@@ -618,7 +618,7 @@ static void *thread_video_codec(void *param)
             // fprintf(stderr, "Error sending packet to video codec\n");
             video_t->set_state(video_t, MEDIA_THREAD_WAITING);
             //usleep(1000);
-            Audio_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
+            Media_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
             printf("avcodec_send_packet error :%s,data=%p,%d\n",av_err2str(ret),packet->data,packet->size);
             continue;
         }
@@ -635,7 +635,7 @@ static void *thread_video_codec(void *param)
             }
 
             // 延时一段时间
-            float speed = Audio_Get_Speed(user);
+            float speed = Media_Get_Speed(user);
             double video_clock = (double)pts * av_q2d(videoStream->time_base) * 1000.0 * 1000.0 / speed; // time_base为s
             double delay_time = video_clock - video_t->clock->get_run_time(video_t->clock);
 			//debug_printf("PTS: %lld, video_clock: %.3f ms, master_clock: %.3f ms, delay_time: %.3f ms\n", 
@@ -672,14 +672,14 @@ static void *thread_video_codec(void *param)
             }
 
             // 写入进度
-            Audio_Set_Position_N(user, (int32_t)(video_clock / 1000.0 / 1000.0));
+            Media_Set_Position_N(user, (int32_t)(video_clock / 1000.0 / 1000.0));
         }
         video_t->free_packet(packet);
         video_t->set_state(video_t, MEDIA_THREAD_WAITING);
     }
     display->rect_dst = NULL;
     display->rect_src = NULL;
-    Audio_Set_Position_N(user, (int)(user->length+0.5));
+    Media_Set_Position_N(user, (int)(user->length+0.5));
     debug_printf("video线程结束\n");
     if (1)
     // if (pix_fmt_sour != pix_fmt)
@@ -768,7 +768,7 @@ static void *thread_audio_codec(void *param)
                 pts = frame_s->best_effort_timestamp; // 该值无效则使用默认的值
             }
 
-            float speed = Audio_Get_Speed(user);
+            float speed = Media_Get_Speed(user);
             double audio_clock = (double)pts * av_q2d(audioStream->time_base) * 1000.0 * 1000.0 / speed; // time_base为s
             double delay_time = audio_clock - audio_t->clock->get_run_time(audio_t->clock);
             if (delay_time > 0)
@@ -891,10 +891,10 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
             break;
         }
 #endif
-        if ((err = Audio_Get_Position_S(user)) >= 0)
+        if ((err = Media_Get_Position_S(user)) >= 0)
         {
             debug_printf("调整播放位置\n");
-            Audio_Set_Position_N(user,err);
+            Media_Set_Position_N(user,err);
             AVRational reference_time_base = video->format_ctx->streams[videoStreamIndex]->time_base;
             int64_t target_timestamp = err / av_q2d(reference_time_base);
             debug_printf("av_seek_frame...\n");
@@ -908,7 +908,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
             video_t->flush_list(&video_t->list);
             audio_t->flush_list(&audio_t->list);
             // 清空声卡缓存
-            // media_pcm_drop(display->pcm_play);
+            // audio_pcm_drop(display->pcm_play);
 
             debug_printf("时钟校准...\n");
             video_t->clock->adjust_time(video_t->clock, (long)err * 1000 * 1000);
@@ -947,7 +947,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
             video_t->flush_list(&video_t->list);
             audio_t->flush_list(&audio_t->list);
             // 清空声卡缓存
-            media_pcm_drop(display->pcm_play);
+            audio_pcm_drop(display->pcm_play);
             debug_printf("退出\n");
             goto FREE_AUDIO_THREAD;
         default:
@@ -982,7 +982,7 @@ int video_codec_play(struct VideoHardParam *display, struct MediaCodecParam *vid
                 break;
         }
         usleep(10000);
-        Audio_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
+        Media_Set_Position_N(user, (int32_t)( video_t->clock->get_run_time(video_t->clock) / 1000.0 / 1000.0));
     }
     video_t->set_state(video_t, AUDIO_STATE_EXIT);
     audio_t->set_state(audio_t, AUDIO_STATE_EXIT);
