@@ -1,6 +1,9 @@
 #include <iostream>
 #include "Media/TpVideoInterface.h"
 #include "Media/TpVideoInterface_.h"
+#include "../../../src/include_p/TpUtils/Media/Media/media_timer.h"
+
+
 
 auto callback_display = [](uint8_t **data, int *linesize, uint32_t format, void *userdata) -> int
 {
@@ -190,8 +193,46 @@ int example_video_play_new()
 }
 
 
+int example_timer()
+{
+    struct TimerHandle *time= timer_ofday_handle_creat();
+    uint64_t tim_us=0;
+    time->start(time);
+    tim_us=time->get_run_time(time);
+    printf("time:%d us\n",tim_us);
+    time->pause(time);
+    sleep(2);    
+    tim_us=time->get_run_time(time);
+    printf("time:%d us\n",tim_us);
+    time->resume(time);
+    tim_us=time->get_run_time(time);
+    printf("time:%d us\n",tim_us);
+    while(1)
+    {
+
+        tim_us=time->get_run_time(time);
+        printf("time:%d us\n",tim_us);
+        sleep(1);
+        if(tim_us>10000000)
+            break;
+    }
+    time->set_speed(time,3);
+    while(1)
+    {
+
+        tim_us=time->get_run_time(time);
+        printf("time_3.0:%d us\n",tim_us);
+        sleep(1);
+        if(tim_us>20000000)
+            break;
+    }
+
+
+}
+
 int main()
 {
+    //example_timer();
     example_video_play_new();
     return 0;
 }
