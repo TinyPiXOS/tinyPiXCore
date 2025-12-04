@@ -189,15 +189,6 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
     if (!isFixedWidth())
     {
         setMinumumWidth(labelData->font->pixelWidth());
-
-        // if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
-        // {
-        //     setMinumumWidth(TpDisplay::dp2Px(131));
-        // }
-        // else
-        // {
-        //     setMinumumWidth(labelData->font->pixelWidth());
-        // }
     }
     // 下边计算完行数，设置最小高度
     if (!isFixedHeight())
@@ -207,7 +198,7 @@ bool TpLabel::onPaintEvent(TpPaintEvent *event)
 
     TpPainter *canvas = event->painter();
 
-    TpSize size = labelData->font->pixelSize();
+    // TpSize size = labelData->font->pixelSize();
     canvas->drawText(*labelData->font, 0, 0);
 
     return true;

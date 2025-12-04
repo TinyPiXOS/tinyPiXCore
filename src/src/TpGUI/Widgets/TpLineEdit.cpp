@@ -16,19 +16,17 @@ static uint32_t CaculateTextWidth(TpFont *font, const TpString &text)
         return 0;
 
     font->setText(text);
+    return font->pixelWidth();
 
-    // std::cout << "Caculate Text : " << text << "  Width : " << font->layoutWidth() << std::endl;
-    uint32_t textWidth = 0;
-    for (int32_t i = 0; i < text.logicalLength(); ++i)
-    {
-        TpString curCharStr = text.mid(i, 1);
-        font->setText(curCharStr);
-        textWidth += font->layoutWidth();
+    // uint32_t textWidth = 0;
+    // for (int32_t i = 0; i < text.logicalLength(); ++i)
+    // {
+    //     TpString curCharStr = text.mid(i, 1);
+    //     font->setText(curCharStr);
+    //     textWidth += font->pixelWidth();
+    // }
 
-        // std::cout << "CurChar : " << curCharStr << "  Width : " << font->layoutWidth() << std::endl;
-    }
-
-    return textWidth;
+    // return textWidth;
 }
 
 struct TpLineEditData
@@ -70,6 +68,7 @@ struct TpLineEditData
     TpLineEditData() : text(""), cursorPos(0), hasFocus(false), textOffset(0), selectionStart(-1), selectionEnd(-1), isSelected(false), mouseIsPress(false)
     {
         textFont = new TpFont();
+        textFont->setAlign(Tp::AlignLeft | Tp::AlignVCenter);
         textFont->setFontForeColor(_RGB(0, 0, 0));
         textFont->setFontSize(15);
 
@@ -202,11 +201,13 @@ TpString TpLineEdit::placeholderText()
     return editData->placeholerText;
 }
 
-void TpLineEdit::setAlign(const Tp::Alignment align)
+void TpLineEdit::setAlign(Tp::Alignment align)
 {
     TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
     if (!editData)
         return;
+
+    editData->textFont->setAlign(align);
     editData->align = align;
     update();
 }
@@ -251,8 +252,8 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     if (!editData)
         return true;
 
-    TpPainter *canvas = event->painter();
-    if (!canvas)
+    TpPainter *painter = event->painter();
+    if (!painter)
         return true;
 
     // 父类绘制背景
@@ -288,7 +289,8 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     }
     else
     {
-        editData->textOffset = leftMargin;
+        editData->textOffset = 0;
+        // editData->textOffset = leftMargin;
     }
 
     // 默认左对齐偏移
@@ -302,67 +304,42 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
         TpString selectedText = editData->text.mid(start, end - start);
         uint32_t selectionWidth = CaculateTextWidth(editData->textFont, selectedText);
         uint32_t selectionX = leftMargin + CaculateTextWidth(editData->textFont, editData->text.mid(0, start)) - editData->textOffset;
-        uint32_t selectionY = (rect().height() - editData->textFont->pixelHeight()) / 2;
 
-        canvas->setBrush(TpBrush(_RGB(0, 120, 215)));
-        canvas->drawRect(selectionX, selectionY, selectionWidth, editData->textFont->pixelHeight()); // 蓝色背景表示选中
+        editData->textFont->setText(editData->text);
+        uint32_t selectionY = (rect().height() - editData->textFont->pixelHeight() - 4) / 2;
+
+        painter->setBrush(TpBrush(_RGB(0, 120, 215)));
+        painter->drawRect(selectionX, selectionY, selectionWidth, editData->textFont->pixelHeight() + 4); // 蓝色背景表示选中
     }
 
     // 绘制文本
     if (!editData->text.empty())
     {
         editData->textFont->setText(editData->text);
-        uint32_t textY = (rect().height() - editData->textFont->pixelHeight()) / 2;
 
-        uint32_t textX = alignOffset - editData->textOffset;
-
-        // if (cursorLeftWidth > visibleTextWidth)
-        // {
-        //     textX = alignOffset - editData->textOffset;
-        // }
-        // else
-        // {
-        //     textX = editData->iconOffset;
-        // }
-
+        int32_t textX = alignOffset - editData->textOffset;
         textX = leftMargin - editData->textOffset;
 
-        // std::cout << "text  X" << textX << std::endl;
-
-        // std::cout << "editData->text  " << editData->text << std::endl;
-        canvas->drawText(*editData->textFont, textX, textY, editData->text);
+        painter->drawText(*editData->textFont, textX, 0);
     }
     else
     {
         // 文本为空时绘制提示文本
         TpFont placeholderTextFont;
+        placeholderTextFont.setAlign(Tp::AlignLeft | Tp::AlignVCenter);
+        placeholderTextFont.setLayout(width(), height());
         placeholderTextFont.setFontColor(_RGB(191, 191, 191));
         placeholderTextFont.setFontSize(curCssData->fontSize());
-
         placeholderTextFont.setText(editData->placeholerText);
 
-        uint32_t textY = (rect().height() - placeholderTextFont.pixelHeight()) / 2;
-
-        uint32_t placeTextX = leftMargin;
-        uint32_t placeholderTextWidth = CaculateTextWidth(&placeholderTextFont, editData->placeholerText);
-        if (editData->align == Tp::AlignLeft)
+        if (editData->iconLabel->visible())
         {
-            placeTextX = leftMargin;
-        }
-        else if (editData->align == Tp::AlignRight)
-        {
-            placeTextX = rect().width() - rightMargin - placeholderTextWidth;
-        }
-        else if (editData->align == Tp::AlignHCenter || editData->align == Tp::AlignCenter)
-        {
-            placeTextX = (rect().width() - leftMargin - rightMargin - placeholderTextWidth) / 2.0;
+            painter->drawText(placeholderTextFont, editData->iconOffset, 0);
         }
         else
         {
-            placeTextX = leftMargin;
+            painter->drawText(placeholderTextFont, roundCorners(), 0);
         }
-
-        canvas->drawText(placeholderTextFont, placeTextX, textY, editData->placeholerText);
     }
 
     // 如果有图标，绘制一个遮罩层
@@ -377,8 +354,8 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
 
         uint32_t blockRound = curCssData->roundCorners();
 
-        canvas->setBrush(TpBrush(curCssData->backgroundColor()));
-        canvas->drawRect(0, 0, blockWidth, blockHeight, blockRound);
+        painter->setBrush(TpBrush(curCssData->backgroundColor()));
+        painter->drawRect(0, 0, blockWidth, blockHeight, blockRound);
         // canvas->roundedBox(0, 0, blockWidth, blockHeight - 1, blockRound, _RGB(255, 0, 0));
     }
 
@@ -386,35 +363,18 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     if (editData->hasFocus)
     {
         // 绘制一个垂直线作为光标
-        // uint32_t cursorrX = alignOffset;
-        // if (editData->cursorPos != 0)
-        // {
-        //     TpString cursorLeftStr = editData->text.mid(0, editData->cursorPos);
-
-        //     // std::cout << " cursorLeftStr " << cursorLeftStr << std::endl;
-
-        //     cursorrX += CaculateTextWidth(editData->textFont, cursorLeftStr);
-        // }
-
-        // if (cursorLeftWidth > visibleTextWidth)
-        // {
-        //     cursorrX -= editData->textOffset;
-        // }
-
         uint32_t cursorrX = leftMargin;
         if (editData->cursorPos != 0)
         {
             TpString cursorLeftStr = editData->text.mid(0, editData->cursorPos);
-
             // std::cout << " cursorLeftStr " << cursorLeftStr << std::endl;
-
             cursorrX += CaculateTextWidth(editData->textFont, cursorLeftStr);
         }
 
         cursorrX -= editData->textOffset;
 
-        canvas->setPen(_RGB(0, 0, 0));
-        canvas->drawVLine(cursorrX, upMargin, rect().height() - downMargin); // 黑色光标
+        painter->setPen(_RGB(0, 0, 0));
+        painter->drawVLine(cursorrX, upMargin, rect().height() - downMargin); // 黑色光标
     }
 
     return true;
@@ -601,7 +561,7 @@ bool TpLineEdit::onMouseMoveEvent(TpMouseEvent *event)
         }
 
         // 计算可见区域和文本总宽度
-        uint32_t visibleWidth = rect().width() - leftMargin - rightMargin;
+        uint32_t visibleWidth = width() - leftMargin - rightMargin;
         uint32_t textWidth = CaculateTextWidth(editData->textFont, editData->text);
         uint32_t maxTextOffset = (textWidth > visibleWidth) ? (textWidth - visibleWidth) : 0;
 
@@ -609,16 +569,20 @@ bool TpLineEdit::onMouseMoveEvent(TpMouseEvent *event)
         int32_t mouseX = event->pos().x();
         int32_t edgeThreshold = 15; // 边缘检测阈值（像素）
 
+        editData->cursorPos = mousePosToCursorPos(mouseX);
+
         // 左边缘滚动（文本向右滚动）
-        if (mouseX < leftMargin + edgeThreshold && editData->textOffset > 0)
-        {
-            editData->cursorPos--;
-        }
-        // 右边缘滚动（文本向左滚动）
-        else if (mouseX > leftMargin + visibleWidth - edgeThreshold && editData->textOffset < maxTextOffset)
-        {
-            editData->cursorPos++;
-        }
+        // if (mouseX < leftMargin + edgeThreshold && editData->textOffset > 0)
+        // {
+        //     // editData->cursorPos--;
+        //     editData->cursorPos = mousePosToCursorPos(mouseX);
+        // }
+        // // 右边缘滚动（文本向左滚动）
+        // else if (mouseX > leftMargin + visibleWidth - edgeThreshold && editData->textOffset < maxTextOffset)
+        // {
+        //     editData->cursorPos = mousePosToCursorPos(mouseX);
+        //     // editData->cursorPos++;
+        // }
 
         // 更新选择结束位置
         int32_t endPos = mousePosToCursorPos(event->pos().x());
@@ -635,6 +599,9 @@ bool TpLineEdit::onMouseMoveEvent(TpMouseEvent *event)
 
 bool TpLineEdit::onResizeEvent(TpResizeEvent *event)
 {
+    TpLineEditData *editData = static_cast<TpLineEditData *>(data_);
+    editData->textFont->setLayout(width(), height());
+
     caculateIconPos();
 
     return true;
@@ -669,30 +636,66 @@ int32_t TpLineEdit::mousePosToCursorPos(int32_t mouseX)
     // 调整鼠标X坐标以考虑文本偏移
     // mouseX = mouseX + editData->textOffset;
 
-    uint32_t visibleTextWidth = rect().width() - leftMargin - rightMargin;
+    uint32_t visibleTextWidth = width() - leftMargin - rightMargin;
     uint32_t alignOffset = cacualteAlignOffset(visibleTextWidth);
 
-    // 调整鼠标X坐标：减去左边距并加上文本滚动偏移
-    mouseX -= alignOffset;
-    mouseX += editData->textOffset;
+    // 3. 将鼠标坐标转换为文本空间坐标
+    int32_t textSpaceX = mouseX - alignOffset + editData->textOffset;
 
-    // 计算光标位置
-    int32_t cursorPos = 0;
-    int32_t currentWidth = 0;
-    while (cursorPos < editData->text.logicalLength())
+    // 4. 边界检查
+    if (textSpaceX < 0)
     {
-        TpString curCharStr = editData->text.mid(cursorPos, 1);
-        uint32_t charWidth = CaculateTextWidth(editData->textFont, curCharStr);
-
-        // 判断鼠标位置是否在当前字符的中间位置之前
-        if (currentWidth + charWidth / 2 > mouseX)
-            break;
-
-        currentWidth += charWidth;
-        cursorPos += 1;
+        return 0; // 鼠标在文本左侧
     }
 
-    return cursorPos;
+    // 使用二分查找提高效率
+    int32_t low = 0;
+    int32_t high = editData->text.logicalLength();
+    int32_t cursorPos = 0;
+
+    while (low <= high)
+    {
+        cursorPos = (low + high) / 2;
+
+        // 计算从开始到cursorPos位置的文本宽度
+        TpString subText = editData->text.mid(0, cursorPos);
+        int32_t subTextWidth = CaculateTextWidth(editData->textFont, subText);
+
+        if (textSpaceX < subTextWidth)
+        {
+            high = cursorPos - 1;
+        }
+        else
+        {
+            low = cursorPos + 1;
+        }
+    }
+
+    if (cursorPos <= 0)
+        return 0;
+    if (cursorPos >= editData->text.logicalLength())
+        return editData->text.logicalLength();
+
+    // 计算approximatePos前后的文本宽度
+    TpString textBefore = editData->text.mid(0, cursorPos);
+    TpString textAfter = editData->text.mid(0, cursorPos + 1);
+
+    int32_t widthBefore = CaculateTextWidth(editData->textFont, textBefore);
+    int32_t widthAfter = CaculateTextWidth(editData->textFont, textAfter);
+
+    // 计算当前字符的宽度
+    int32_t charWidth = widthAfter - widthBefore;
+
+    // 如果鼠标位置在当前字符的前半部分，光标放在字符前
+    // 如果在后半部分，光标放在字符后
+    if (textSpaceX < widthBefore + charWidth / 2)
+    {
+        return cursorPos;
+    }
+    else
+    {
+        return cursorPos + 1;
+    }
 }
 
 // 复制选中的文本
@@ -845,17 +848,17 @@ uint32_t TpLineEdit::cacualteAlignOffset(const uint32_t &visibleTextWidth)
     uint32_t textWidth = CaculateTextWidth(editData->textFont, editData->text);
     if (textWidth < visibleTextWidth)
     {
-        if (editData->align == Tp::AlignLeft)
+        if (editData->align & Tp::AlignLeft)
         {
             alignOffset = leftMargin;
         }
-        else if (editData->align == Tp::AlignRight)
+        else if (editData->align & Tp::AlignRight)
         {
-            alignOffset = rect().width() - rightMargin - textWidth;
+            alignOffset = width() - rightMargin - textWidth;
         }
-        else if (editData->align == Tp::AlignHCenter || editData->align == Tp::AlignCenter)
+        else if (editData->align & Tp::AlignHCenter)
         {
-            alignOffset = (rect().width() - leftMargin - rightMargin - textWidth) / 2.0;
+            alignOffset = (width() - leftMargin - rightMargin - textWidth) / 2.0;
         }
         else
         {
