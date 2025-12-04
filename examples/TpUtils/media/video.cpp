@@ -1,7 +1,6 @@
 #include <iostream>
 #include "Media/TpVideoInterface.h"
-#include "Media/TpVideoInterface.h"
-#include "../../../src/include_p/TpUtils/Media/Media/media_timer.h"
+
 
 
 
@@ -113,126 +112,12 @@ int example_video_play()
 }
 
 
-int example_video_play_new()
-{
-    TpString device("hw:0,1 USB Audio");
-    TpVideoInterface video(device);
-    video.setVolume(100);
-    //video.addFile("/System/data/Videos/demo.mp4");
-    // video.addFile("/home/pix/Media/hahaha.mp4");
-    // video.addFile("/home/pix/Media/gravity.mpg");
-    video.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
-    video.addFile("https://gstreamer.freedesktop.org/data/media/large/gravity.mpg");
-    video.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
-
-    char *data = "Test User Data";
-    std::function<int(uint8_t **, int *, uint32_t, void *)> func = callback_display;
-    video.setDisplayFunction(func, data);
-    video.openDevice();
-    /*	video.setWindowSize(1080,720);
-        video.setWindowCoordinates(200,200);
-        video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
-    //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_STRETCH);
-        video.playStart();
-        video.setSpeed(1.0);
-        sleep(2);
-        video.setWindowSize(400,600);
-        sleep(2);
-    //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_CROP);
-        video.setWindowCoordinates(600,600);
-        video.setWindowSize(500,500);
-        sleep(2);
-        video.setWindowCoordinates(200,200);
-        video.setWindowSize(800,800);*/
-    //	sleep(2);
-    /*video.setPosition(0);
-    sleep(10);
-    video.setVolume(50);
-    sleep(10);
-    printf("暂停播放\n");
-    video.playPause();
-    sleep(5);
-    printf("继续播放\n");
-    video.playContinue();
-    sleep(5);*/
-    //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);
-    video.setWindowCoordinates(0, 0);
-    video.setWindowSize(1024, 768);
-    video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT); // 推荐格式
-    video.playStart();
-    video.setSpeed(1.0);
-    printf("文件时长%d\n", video.getDuration());
-    /*for (int i = 0; i < 10; i++)
-    {
-        printf("文件时长%d\n", video.getDuration());
-        printf("position%d\n", video.getPosition());
-        sleep(1);
-    }
-    printf("文件时长%d\n", video.getDuration());*/
-    video.getPosition();
-    video.setPosition(20);
-    printf("后退成功\n");
-	for (int i = 0; i < 50; i++)
-    {
-        printf("文件时长%d\n", video.getDuration());
-        printf("position%d\n", video.getPosition());
-        usleep(100000);
-    }
-    //	printf("播放下一个\n");
-    //	video.playNext();
-    sleep(10);
-    /*video.playLast();
-    sleep(10);
-    video.playNext();
-    printf("播放上一个\n");
-    sleep(10);
-    video.playLast();
-    sleep(10);*/
-    video.closeDevice();
-    return 0;
-}
 
 
-int example_timer()
-{
-    struct TimerHandle *time= timer_ofday_handle_creat();
-    uint64_t tim_us=0;
-    time->start(time);
-    tim_us=time->get_run_time(time);
-    printf("time:%d us\n",tim_us);
-    time->pause(time);
-    sleep(2);    
-    tim_us=time->get_run_time(time);
-    printf("time:%d us\n",tim_us);
-    time->resume(time);
-    tim_us=time->get_run_time(time);
-    printf("time:%d us\n",tim_us);
-    while(1)
-    {
-
-        tim_us=time->get_run_time(time);
-        printf("time:%d us\n",tim_us);
-        sleep(1);
-        if(tim_us>10000000)
-            break;
-    }
-    time->set_speed(time,3);
-    while(1)
-    {
-
-        tim_us=time->get_run_time(time);
-        printf("time_3.0:%d us\n",tim_us);
-        sleep(1);
-        if(tim_us>20000000)
-            break;
-    }
-
-
-}
 
 int main()
 {
     //example_timer();
-    example_video_play_new();
+    example_video_play();
     return 0;
 }
