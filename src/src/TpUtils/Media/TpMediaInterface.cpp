@@ -11,15 +11,13 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <libavutil/imgutils.h>
-#include "TpAudioDevice.h"
 #include "TpMediaDevice.h"
 #include "TpSound.h"
 #include "TpMediaInterface.h"
-#include "Media/Video/video_play.h"
 
 struct TpMediaInfData
 {
-    struct MediaParams *user;
+    struct MediaUserParams *user;
     std::atomic<bool> running;
     std::thread thread_t;
 
@@ -41,7 +39,7 @@ TpMediaInterface::TpMediaInterface()
 		return ;
 	}
 
-    MediaParams *user = media_user_config_creat();
+    struct MediaUserParams *user = media_user_config_creat();
     if (user == NULL)
     {
         std::cerr << "Failed to creat TpAudioInterface" << std::endl;
@@ -63,7 +61,7 @@ TpMediaInterface::~TpMediaInterface()
         medData->thread_t.join();
     }
     medData->running = false;
-    while (!Audio_State_Is_Exit(medData->user))
+    while (!Media_State_Is_Exit(medData->user))
         usleep(10);
 
     Media_Set_Video_Callback(medData->user->video_params, nullptr, nullptr);    
@@ -105,7 +103,7 @@ int TpMediaInterface::closeDevice()
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     Audio_Set_Close(medData->user);
 
-    while (!Audio_State_Is_Exit(medData->user))
+    while (!Media_State_Is_Exit(medData->user))
         usleep(10);
     return 0;
 }
@@ -190,7 +188,7 @@ int TpMediaInterface::setFile(const char *file)
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
         return -1;
-    return Audio_Set_Play(medData->user, file);
+    return Media_Set_Play(medData->user, file);
 }
 
 int TpMediaInterface::playStart()
@@ -230,7 +228,7 @@ int TpMediaInterface::playNext()
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
         return -1;
-    return Audio_Play_Next(medData->user);
+    return Media_Play_Next(medData->user);
 }
 
 int TpMediaInterface::playLast()
@@ -238,7 +236,7 @@ int TpMediaInterface::playLast()
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
         return -1;
-    return Audio_Play_Last(medData->user);
+    return Media_Play_Last(medData->user);
 }
 
 tpBool TpMediaInterface::isPlayEnd()
@@ -248,7 +246,7 @@ tpBool TpMediaInterface::isPlayEnd()
     {
         return TP_TRUE;
     }
-    if (Audio_Get_Is_Playing(medData->user) == false)
+    if (Media_Get_Is_Playing(medData->user) == false)
         return TP_TRUE;
     return TP_FALSE;
 }

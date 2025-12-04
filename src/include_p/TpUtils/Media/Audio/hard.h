@@ -22,6 +22,8 @@ typedef void (*AudioGetCardCallback)(AudioCardDevice *device, void* user_data);
 
 int Audio_Get_Device_List(AudioGetCardCallback callback,void *userdata);
 
+int Audio_Set_System_Volume(uint8_t volume,const char *name);
+int Audio_Get_System_Volume(const char *name);
 
 #ifdef __cplusplus
 }

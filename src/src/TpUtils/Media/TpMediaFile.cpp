@@ -1,5 +1,5 @@
 
-#include "Media/media.h"
+#include "TpMediaDevice.h"
 #include "TpMediaFile.h"
 
 struct TpMediaFileData{

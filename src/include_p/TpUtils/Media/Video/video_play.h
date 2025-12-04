@@ -18,6 +18,8 @@ struct MediaAudioHandle;
 struct VideoStreamParams;
 struct MediaVideoInfo;
 
+
+
 // 音频播放回调函数的参数
 struct AudioData
 {
@@ -49,21 +51,21 @@ struct VideoHardParam
 SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer, uint32_t *format, int w, int h); // 创建纹理(
 #endif
 
-int video_hard_param_init(struct VideoHardParam *video, const char *audio_card);
-int get_display_params_user_codec(struct MediaParams *user, AVCodecContext *codec_ctx, struct VideoStreamParams *video_params);
+int get_display_params_user_codec(struct MediaUserParams *user, AVCodecContext *codec_ctx, struct VideoStreamParams *video_params);
 int count_rect_size_from_user(struct VideoStreamParams *user_params, AVCodecContext *codec_ctx, struct MediaRect *rect_s, struct MediaRect *rect_d);
 
-int Video_Play_Main(struct MediaParams *user, const char *audio_card);
-int Video_Get_Position(struct MediaParams *conf);
+int Video_Get_Position(struct MediaUserParams *conf);
 // 获取显示参数
-int Video_Get_All_Params(struct MediaParams *conf, struct VideoStreamParams *video_params);
+int Video_Get_All_Params(struct MediaUserParams *conf, struct VideoStreamParams *video_params);
 
 
-
+int Video_Set_Decode_Format(struct MediaVideoInfo *conf_v, uint32_t format);
 int Video_Set_Width_Height(struct MediaVideoInfo *conf,uint16_t width,uint16_t height);
 int Video_Get_Width_Height(struct MediaVideoInfo *conf,uint16_t *width,uint16_t *height);
 int Video_Set_Coordinates(struct MediaVideoInfo *conf,int16_t x,int16_t y);
 int Video_Set_Fill_Mode(struct MediaVideoInfo *conf,VideoScalingType mode);
+
+
 
 #ifdef __cplusplus
 }

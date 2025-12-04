@@ -102,7 +102,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/hard.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Audio/filter.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_display.c
-    ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_codec.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Video/video_play.c
 
     ${SOURCE_PATH}/src_p/TpUtils/Bluetooth/lib/AgentHelper.c

@@ -11,8 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <alsa/asoundlib.h>
-#include "TpAudioDevice.h"
-#include "Audio/hard.h"
+#include "Media/Audio/hard.h"
 
 struct MediaVolumeHard{
 	snd_mixer_t *mixer_handle;     // 混音器句柄

@@ -91,7 +91,8 @@ static int deleteAtHead(struct MediaFileList *list)
 	}
 	if(list->pos==p)
 	    list->pos=p->next;
-	free(p->file);
+	if(p->file)
+		free(p->file);
 	free(p);
 	return 0;
 }

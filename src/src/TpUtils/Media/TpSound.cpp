@@ -3,7 +3,7 @@
 #include "TpJsonObject.h"
 #include "TpFile.h"
 #include "TpSound.h"
-#include "TpAudioDevice.h"
+#include "TpMediaDevice.h"
 
 #define DEVICE_CONFIG_FILE_PATH	"/System/conf/deviceConfig.conf"
 #define AUDIO_DEFAULT_CARD	"defaultCard"

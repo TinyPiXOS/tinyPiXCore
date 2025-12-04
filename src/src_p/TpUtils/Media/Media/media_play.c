@@ -19,7 +19,7 @@
 //音频播放回调函数用户参数
 struct codePlayCallbackParam{
 	struct MediaAudioHandle *pcm;
-	struct MediaParams *conf;
+	struct MediaUserParams *conf;
 	struct AudioStreamParams *audio_param;
 	int delay;
 };
@@ -152,7 +152,7 @@ static int audio_stream_params_init(int wChannels,int nSamplesPersec,int wBitsPe
 }
 
 //声卡硬件初始化(使用解码器的参数自动设置)
-static int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaParams *user,struct MediaStreamParams *audio)
+static int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaUserParams *user,struct MediaStreamParams *audio)
 {
 	debug_printf("初始化声卡硬件\n");
 	struct AudioStreamParams *stream_params=(struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
@@ -199,7 +199,7 @@ static int media_audio_hard_deinit(struct MediaStreamParams *audio)
 }
 
 //声卡初始化
-static int alsa_hard_init(const char *name,struct MediaStreamParams *audio,struct MediaParams *user)
+static int alsa_hard_init(const char *name,struct MediaStreamParams *audio,struct MediaUserParams *user)
 {
 	AVCodecContext *codec_ctx=audio->codec_ctx;
 	struct MediaAudioHandle *pcm_play=Audio_Play_Open(name);
@@ -319,7 +319,7 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 	}
 }*/
 
-/*static int get_display_params_user_codec(struct MediaParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params)
+/*static int get_display_params_user_codec(struct MediaUserParams *user,AVCodecContext *codec_ctx,struct VideoStreamParams *video_params)
 {
 	if(!video_params)
 		return -1;
@@ -332,16 +332,9 @@ static int alsa_hard_deinit(struct MediaStreamParams *audio)
 	return 0;
 }*/
 
-//使用流信息获取文件时长
-static double media_get_stream_duration()
-{
-	
-}
-
-
 
 //视频流的硬件初始化获取视频类流的
-static int media_stream_video_init_handle(struct MediaStreamParams *stream,struct MediaParams *user)
+static int media_stream_video_init_handle(struct MediaStreamParams *stream,struct MediaUserParams *user)
 {
 	struct MediaVideoHandle *handle=(struct MediaVideoHandle *)malloc(sizeof(struct MediaVideoHandle));
 	if(!handle)
@@ -396,7 +389,7 @@ ERROR_RETURN:
 	return -1;
 }
 
-static int media_stream_audio_init_handle(struct MediaStreamParams *stream,struct MediaParams *user)
+static int media_stream_audio_init_handle(struct MediaStreamParams *stream,struct MediaUserParams *user)
 {
 	if(alsa_hard_init(user->audio_params->device,stream,user)<0)
 	{
@@ -407,7 +400,7 @@ static int media_stream_audio_init_handle(struct MediaStreamParams *stream,struc
 }
 
 //根据每个流的参数信息来初始化对应的硬件
-static int media_stream_all_init_handle(struct MediaPlayerHandle *player, struct MediaParams *user)
+static int media_stream_all_init_handle(struct MediaPlayerHandle *player, struct MediaUserParams *user)
 {
 	MediaStreamArray *array=player->stream_array;
 	int size_array=array->get_size(array);
@@ -505,7 +498,7 @@ static int media_stream_all_deinit_handle(MediaStreamArray *array)
 //display:硬件参数
 //uaer:
 //filename:
-int media_player_codec_file(struct MediaParams *user,const char *filename)
+int media_player_codec_file(struct MediaUserParams *user,const char *filename)
 {
 	struct MediaPlayerHandle *player=media_player_handle_creat();
 	if(!player)
@@ -538,7 +531,7 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 
 
 
-int Media_Play_Main(struct MediaParams *user)
+int Media_Play_Main(struct MediaUserParams *user)
 {
 	av_log_set_level(AV_LOG_TRACE); // 或者使用数字 AV_LOG_DEBUG = 48
 	struct MediaFileList *list=user->list;
@@ -564,25 +557,25 @@ int Media_Play_Main(struct MediaParams *user)
 				Media_Set_Command(user,AUDIO_PLCMD_NONE);
 				break;
 			case AUDIO_PLCMD_EXIT:
-				Audio_Set_State(user,AUDIO_STATE_EXIT);
+				Media_Set_State(user,AUDIO_STATE_EXIT);
 				return 0;
 				break;
 			default: 
 				name=list->read_saft(list);
 				break;
 		}
-		Audio_Set_State(user,AUDIO_STATE_PLAYING);
+		Media_Set_State(user,AUDIO_STATE_PLAYING);
 		if(name==NULL)
 		{
 			usleep(5000);
 			continue;
 		}
-		Audio_Set_Is_Playing(user,true);
+		Media_Set_Is_Playing(user,true);
 		debug_printf("play file %s\n",name);
 		media_player_codec_file(user,name);
 		if(media_exit_flag)
 			return 0;
-		Audio_Set_Is_Playing(user,false);
+		Media_Set_Is_Playing(user,false);
 	}
 
 	printf("播放结束\n");

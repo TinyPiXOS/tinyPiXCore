@@ -41,6 +41,13 @@ int media_deinit(uint8_t en_net);
 /// @return 
 double media_get_url_duration_sec(MediaFormatContext *format_ctx);
 
+
+
+
+//用户配置相关结构体创建/释放
+
+
+
 #ifdef __cplusplus
 }
 #endif

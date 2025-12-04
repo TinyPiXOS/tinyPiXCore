@@ -34,8 +34,7 @@
 更新计划：
 	新增userset.c和.h文件，把用户配置和公用的一些结构体和枚举放进去
 	增加支持的文件类型，如：WAV，MP3，WMA，FLAC，AAC，MIDI，APE，CDA
-其他：
-	video_play_codec_file函数中固定使用了RGB888接口
+
 
 	
 	

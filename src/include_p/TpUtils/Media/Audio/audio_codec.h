@@ -20,7 +20,7 @@ extern "C" {
 typedef int(*CodecPlayPcm) (uint8_t *buf,uint32_t frames,void *param);
 
 
-struct MediaParams;
+struct MediaUserParams;
 
 
 
@@ -78,16 +78,9 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
 int get_audio_params_wav(FILE *fp,struct AudioStreamParams *params);
 void get_wav_header_info(FILE *fp,AudioWavHeader *wav_header);
 
-int Audio_Get_Codec_Info(const char *filename,struct MediaCodecParam *codec);
-int Audio_File_Codec(struct MediaCodecParam *audio,struct MediaParams *conf);
 
 AVFrame *alloc_avframe_frames_hard(int frames,struct AudioStreamParams *hard_param);
 int free_avframe(AVFrame **converted_frame);
-
-
-
-
-
 
 
 

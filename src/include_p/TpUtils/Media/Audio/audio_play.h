@@ -15,7 +15,7 @@ extern "C"
 #include "filter.h"
 #include "Media/media_file_list.h"
 struct MediaAudioInfo;
-struct MediaParams;
+struct MediaUserParams;
 #include <stdbool.h>
 #include "audio_codec.h"
 #include "Media/Media/media_config.h"
@@ -155,7 +155,7 @@ struct MediaVideoInfo{
 };
 
 //内部使用，用户交互信息
-struct MediaParams{        //公共区用户设置
+struct MediaUserParams{        //公共区用户设置
 	//通用设置
 	bool is_playing;
 	struct MediaFileList *list;//文件列表
@@ -177,7 +177,7 @@ struct MediaParams{        //公共区用户设置
 	};
 	struct{
 		AudioPlayCommand cmd;	//控制命令
-		int (*command_get)(struct MediaParams *conf);		//安全获取当前的命令
+		int (*command_get)(struct MediaUserParams *conf);		//安全获取当前的命令
 	};
 
 	//音频流相关配置
@@ -188,11 +188,10 @@ struct MediaParams{        //公共区用户设置
 
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
 	struct PthreadCond *cond;
-
 };
 
 int pcm_hwparams_set(struct MediaAudioHandle *pcm,struct AudioStreamParams *audio);		//设置硬件参数
-int audio_stream_write(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,
+int audio_stream_write(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,
 							uint8_t *buffer,uint32_t frames,
 							float volume,
 							int offset,int delay);
@@ -200,32 +199,31 @@ int audio_stream_write(struct MediaAudioHandle *pcm_play,struct MediaParams *con
 int audio_pcm_drain(struct MediaAudioHandle *pcm);
 int audio_pcm_drop(struct MediaAudioHandle *pcm);
 int audio_pcm_close(struct MediaAudioHandle *pcm);
+
 struct MediaAudioInfo *media_audio_info_creat(const char *name);
 void media_audio_info_delete(struct MediaAudioInfo *conf);
 struct MediaVideoInfo *media_video_info_creat();
 void media_video_info_delete(struct MediaVideoInfo *conf);
-struct MediaParams *media_user_config_creat();
+struct MediaUserParams *media_user_config_creat();
 struct PthreadCond *pthread_cond_creat_struct();
 int pthread_cond_free_struct(struct PthreadCond *cond);
-void media_user_config_delete(struct MediaParams *conf);
-int Audio_Hard_Auto_Init(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,struct MediaCodecParam *codec);
-int Audio_Hard_Deinit(struct MediaCodecParam *codec);
+void media_user_config_delete(struct MediaUserParams *conf);
+
 struct MediaAudioHandle *Audio_Play_Open(const char *device);
 int Audio_Device_Init(struct MediaAudioHandle *pcm_play,const char *device,AudioStreamType type);
 int Audio_Device_Close(struct MediaAudioHandle *pcm_play);
-int Audio_Play_Main(struct MediaAudioHandle *pcm_play,struct MediaParams *conf);
 
 //开始
-int Media_Set_Start(struct MediaParams *conf, const char *file);
+int Media_Set_Start(struct MediaUserParams *conf, const char *file);
 
 //获取命令(内部使用)
-int Media_Get_Command(struct MediaParams *conf);
+int Media_Get_Command(struct MediaUserParams *conf);
 
 //设置命令(内部使用)
-int Media_Set_Command(struct MediaParams *conf,AudioPlayCommand cmd);
+int Media_Set_Command(struct MediaUserParams *conf,AudioPlayCommand cmd);
 
 //设置状态
-int Audio_Set_State(struct MediaParams *conf, AudioPlayState state);
+int Media_Set_State(struct MediaUserParams *conf, AudioPlayState state);
 
 //设置音量
 int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
@@ -234,63 +232,66 @@ int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
 int Audio_Get_Volume(struct MediaAudioInfo *conf_a);
 
 
-int Audio_Get_BitsPerSample(struct MediaParams *conf);
+int Audio_Get_BitsPerSample(struct MediaUserParams *conf);
 
 //内部获取用户设置的播放位置
-int Media_Get_Position_S(struct MediaParams *conf);
+int Media_Get_Position_S(struct MediaUserParams *conf);
 
 //内部设置实时播放位置
-int Media_Set_Position_N(struct MediaParams *conf,int32_t position);
+int Media_Set_Position_N(struct MediaUserParams *conf,int32_t position);
 
-float Media_Get_Speed(struct MediaParams *conf);
+float Media_Get_Speed(struct MediaUserParams *conf);
 
-int Media_Set_Speed(struct MediaParams *conf, float speed);
+int Media_State_Is_Exit(struct MediaUserParams *conf);
+
+int Media_Set_Speed(struct MediaUserParams *conf, float speed);
 
 //设置位置
-int Media_Set_Position(struct MediaParams *conf,int32_t position);
+int Media_Set_Position(struct MediaUserParams *conf,int32_t position);
 
 //获取位置
-int Media_Get_Position(struct MediaParams *conf);
-double Audio_Get_DPosition(struct MediaParams *conf);
+int Media_Get_Position(struct MediaUserParams *conf);
+double Media_Get_DPosition(struct MediaUserParams *conf);
 
-int64_t Audio_Get_BytePosition(struct MediaParams *conf);
-int64_t Audio_Set_BytePosition(struct MediaParams *conf,int64_t position);
+int64_t Media_Get_BytePosition(struct MediaUserParams *conf);
+int64_t Media_Set_BytePosition(struct MediaUserParams *conf,int64_t position);
 
 //暂停播放
-int Media_Set_Suspend(struct MediaParams *conf);
+int Media_Set_Suspend(struct MediaUserParams *conf);
 
 //继续播放
-int Media_Set_Continue(struct MediaParams *conf);
+int Media_Set_Continue(struct MediaUserParams *conf);
 
-int Media_Get_State(struct MediaParams *conf);
+int Media_Get_State(struct MediaUserParams *conf);
 
 //停止播放,只是停止不会关闭声卡，不同于暂停，停止会清空大多数播放信息
-int Media_Set_Stop(struct MediaParams *conf);
+int Media_Set_Stop(struct MediaUserParams *conf);
 
 //关闭声卡
-int Audio_Set_Close(struct MediaParams *conf);
+int Audio_Set_Close(struct MediaUserParams *conf);
 
 //播放新文件
-int Audio_Set_Play(struct MediaParams *conf,const char *file);
+int Media_Set_Play(struct MediaUserParams *conf,const char *file);
 
-int Audio_Play_Next(struct MediaParams *conf);
-int Audio_Play_Last(struct MediaParams *conf);
+int Media_Play_Next(struct MediaUserParams *conf);
+int Media_Play_Last(struct MediaUserParams *conf);
 //内部设置媒体文件时长
-int Media_Set_Length(struct MediaParams *conf,double length);
+int Media_Set_Length(struct MediaUserParams *conf,double length);
 //获取音频时长
-double Media_Get_Length(struct MediaParams *conf);
-int Audio_Set_Is_Playing(struct MediaParams *conf,bool is_playing);
+double Media_Get_Length(struct MediaUserParams *conf);
+int Media_Set_Is_Playing(struct MediaUserParams *conf,bool is_playing);
+bool Media_Get_Is_Playing(struct MediaUserParams *conf);
 //添加播放的文件
-int Media_Add_File(struct MediaParams *conf, const char *file);
+int Media_Add_File(struct MediaUserParams *conf, const char *file);
 
 //删除播放文件
-int Media_Del_File(struct MediaParams *conf, const char *file);
+int Media_Del_File(struct MediaUserParams *conf, const char *file);
 
 //设置硬件
-int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,uint32_t rate,uint16_t channel,uint16_t bits);
+int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,uint32_t rate,uint16_t channel,uint16_t bits);
 //取消硬件设置
-int Audio_Set_Nonblock(struct MediaAudioHandle *pcm_play,struct MediaParams *conf,uint8_t nonblock);
-int Audio_Write_Stream(struct MediaAudioHandle *pcm,struct MediaParams *conf,struct AudioStreamParams *hard_params,
+int Audio_Set_Nonblock(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,uint8_t nonblock);
+int Audio_Write_Stream(struct MediaAudioHandle *pcm,struct MediaUserParams *conf,struct AudioStreamParams *hard_params,
 							uint8_t *buffer,uint32_t frames,int offset,int delay);
 CallbackVideoDisplay Media_Get_Video_Callback(struct MediaVideoInfo *conf);
 void Media_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb, void *userdata);

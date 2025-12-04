@@ -6,7 +6,15 @@
 extern "C" {
 #endif
 
-int Media_Play_Main(struct MediaParams *user) __attribute__((used));
+#include "Media/Audio/audio_play.h"
+#include "Media/Audio/hard.h"
+#include "Media/Media/media.h"
+#include "Media/Media/media_play.h"
+#include "Media/Media/media_codec.h"
+#include "Media/Video/video_play.h"
+
+
+int Media_Play_Main(struct MediaUserParams *user) __attribute__((used));
 
 
 

@@ -23,7 +23,7 @@ extern "C"
 #include "Audio/audio_play.h"
 
 
-struct MediaParams;
+struct MediaUserParams;
 
 typedef enum AVMediaType MediaType;
 typedef VariableArray MediaStreamArray;
@@ -128,7 +128,7 @@ struct MediaPlayerHandle{
 
 MediaFormatContext *Media_Get_File_All_Info(const char *filename, MediaStreamArray *media_array);
 int Media_Free_File(MediaStreamArray *media_array);
-int Mediao_File_Codec_Play(struct MediaPlayerHandle *player, struct MediaParams *user);
+int Mediao_File_Codec_Play(struct MediaPlayerHandle *player, struct MediaUserParams *user);
 
 struct MediaPlayerHandle *media_player_handle_creat();
 void media_player_handle_delete(struct MediaPlayerHandle *player);

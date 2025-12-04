@@ -10,13 +10,13 @@
 #include <thread>
 #include <stdint.h>
 #include "TpRecordInterface.h"
-#include "TpAudioDevice.h"
+#include "TpMediaDevice.h"
 #include "TpRecordDevice.h"
 #include "TpSound.h"
 struct TpRecordInfData
 {
     struct MediaAudioHandle *record;
-    struct MediaParams *user;
+    struct MediaUserParams *user;
     TpString name;
     std::atomic<bool> running;
     std::thread thread_t;
@@ -47,7 +47,7 @@ TpRecordInterface::TpRecordInterface(const TpString &device)
 {
     data_ = new TpRecordInfData();
     TpRecordInfData *recData = static_cast<TpRecordInfData *>(data_);
-    MediaParams *user = media_user_config_creat();
+    struct MediaUserParams *user = media_user_config_creat();
     if (user == NULL)
     {
         std::cerr << "Failed to creat TpAudioInterface" << std::endl;
@@ -76,7 +76,7 @@ TpRecordInterface::~TpRecordInterface()
     {
         recData->thread_t.join();
     }
-    if (!Audio_State_Is_Exit(recData->user))
+    if (!Media_State_Is_Exit(recData->user))
         Audio_Device_Close(recData->record);
     media_user_config_delete(recData->user);
 }
@@ -115,7 +115,7 @@ int TpRecordInterface::closeDevice()
 {
     TpRecordInfData *recData = static_cast<TpRecordInfData *>(data_);
     Audio_Set_Close(recData->user);
-    while (!Audio_State_Is_Exit(recData->user)) //
+    while (!Media_State_Is_Exit(recData->user)) //
         usleep(10);
     return Audio_Device_Close(recData->record);
 }

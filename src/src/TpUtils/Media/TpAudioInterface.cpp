@@ -10,11 +10,9 @@
 #include <thread>
 #include <stdint.h>
 #include <sys/types.h>
-#include "TpAudioDevice.h"
 #include "TpMediaDevice.h"
 #include "TpAudioInterface.h"
 #include "TpSound.h"
-
 
 struct TpAudioInfData
 {

@@ -24,9 +24,9 @@ void exit_sighandler(int sig)
     run_flag = 1;
 }
 
-struct MediaParams *record_config_creat()
+struct MediaUserParams *record_config_creat()
 {
-    struct MediaParams *conf = (struct MediaParams *)malloc(sizeof(struct MediaParams));
+    struct MediaUserParams *conf = (struct MediaUserParams *)malloc(sizeof(struct MediaUserParams));
     conf->audio_params=media_audio_info_creat(NULL);
     if(!conf->audio_params)
     {
@@ -49,7 +49,7 @@ struct MediaParams *record_config_creat()
     return conf;
 }
 
-void record_config_free(struct MediaParams *conf)
+void record_config_free(struct MediaUserParams *conf)
 {
     if (!conf)
         return;
@@ -315,7 +315,7 @@ int audio_stream_write_file_head(const char *filename, struct MediaCodecParam *a
 }
 
 // 录制文件
-int audio_record_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, const char *file)
+int audio_record_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf, const char *file)
 {
     uint32_t total_size = 0;
     int cmd;
@@ -353,7 +353,7 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, co
         return -1;
     }
 
-    Audio_Set_State(conf, AUDIO_STATE_RECORD);
+    Media_Set_State(conf, AUDIO_STATE_RECORD);
     printf("开始读取pcm并写入文件\n");
     while (1)
     {
@@ -370,9 +370,9 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, co
         switch (cmd)
         {
         case AUDIO_PLCMD_SUSPEND:
-            Audio_Set_State(conf, AUDIO_STATE_PAUSEING);
+            Media_Set_State(conf, AUDIO_STATE_PAUSEING);
             conf->cond->wait(conf->cond);
-            Audio_Set_State(conf, AUDIO_STATE_RECORD);
+            Media_Set_State(conf, AUDIO_STATE_RECORD);
             break;
         case AUDIO_PLCMD_STOP:
         case AUDIO_PLCMD_EXIT:
@@ -396,12 +396,12 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, co
 STOP:
 
     avframe_delete(frame);
-    Audio_Set_State(conf, AUDIO_STATE_STOP);
+    Media_Set_State(conf, AUDIO_STATE_STOP);
     return 0;
 }
 
 // 录制wav文件
-int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaParams *conf, const char *file)
+int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf, const char *file)
 {
     uint32_t total_size = 0;
     int cmd;
@@ -441,7 +441,7 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaParams *conf
     creat_wav_header(&wav_record, &audio_param);
     fwrite(&wav_record, 1, sizeof(wav_record), fp); // 写入占位
 
-    Audio_Set_State(conf, AUDIO_STATE_RECORD);
+    Media_Set_State(conf, AUDIO_STATE_RECORD);
     while (1)
     {
         // 从声卡设备读取一帧音频数据:字节
@@ -461,9 +461,9 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaParams *conf
         switch (cmd)
         {
         case AUDIO_PLCMD_SUSPEND:
-            Audio_Set_State(conf, AUDIO_STATE_PAUSEING);
+            Media_Set_State(conf, AUDIO_STATE_PAUSEING);
             conf->cond->wait(conf->cond);
-            Audio_Set_State(conf, AUDIO_STATE_RECORD);
+            Media_Set_State(conf, AUDIO_STATE_RECORD);
             break;
         case AUDIO_PLCMD_STOP:
         case AUDIO_PLCMD_EXIT:
@@ -491,7 +491,7 @@ STOP:
     get_wav_header_info(fp, &wav_record);
     fclose(fp);
     free(buffer);
-    Audio_Set_State(conf, AUDIO_STATE_STOP);
+    Media_Set_State(conf, AUDIO_STATE_STOP);
     return 0;
 }
 
@@ -518,7 +518,7 @@ struct MediaAudioHandle *Audio_Record_Open(const char *device)
     return pcm_play;
 }
 
-int Record_Set_Start(struct MediaParams *conf, const char *file)
+int Record_Set_Start(struct MediaUserParams *conf, const char *file)
 {
     if (!file)
     {
@@ -529,13 +529,13 @@ int Record_Set_Start(struct MediaParams *conf, const char *file)
     return Media_Set_Start(conf, file);
 }
 
-int Record_Set_Stop(struct MediaParams *conf)
+int Record_Set_Stop(struct MediaUserParams *conf)
 {
     return Media_Set_Stop(conf);
 }
 
 // 线程或进程的主程序
-int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaParams *conf)
+int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaUserParams *conf)
 {
     int cmd;
     while (1)
@@ -549,7 +549,7 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaParams *conf)
             Media_Set_Command(conf, AUDIO_PLCMD_NONE);
             break;
         case AUDIO_PLCMD_EXIT:
-            Audio_Set_State(conf, AUDIO_STATE_EXIT);
+            Media_Set_State(conf, AUDIO_STATE_EXIT);
             return 0;
             break;
         case AUDIO_PLCMD_NONE:
@@ -563,7 +563,7 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaParams *conf)
         if (file == NULL)
             break;
         printf("start record ,save to %s\n", file);
-        Audio_Set_State(conf, AUDIO_STATE_RECORD);
+        Media_Set_State(conf, AUDIO_STATE_RECORD);
         // audio_record_file(pcm,conf,file);
         audio_record_wav_file(pcm, conf, file);
         printf("save \n");

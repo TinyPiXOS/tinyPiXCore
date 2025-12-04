@@ -155,6 +155,7 @@
         "obex_agent.h": "c",
         "timerfd.h": "c",
         "unistd.h": "c",
-        "executor": "c"
+        "executor": "c",
+        "msg.h": "c"
     }
 }

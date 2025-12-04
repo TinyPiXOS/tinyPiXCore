@@ -73,7 +73,7 @@ struct MediaThread
     int (*wait_codec)(struct MediaThread *thread);  // 等待解码
     int (*start_codec)(struct MediaThread *thread); // 开始解码
 
-    int (*start_thread)(struct MediaThread *thread, void *(*thread_main)(void *), struct VideoHardParam *display, struct MediaCodecParam *codec, void *packet, struct MediaParams *user);
+    int (*start_thread)(struct MediaThread *thread, void *(*thread_main)(void *), struct VideoHardParam *display, struct MediaCodecParam *codec, void *packet, struct MediaUserParams *user);
     int (*is_running)(struct MediaThread *thread); // 线程是否在运行中
 
     AudioPlayState (*get_state)(struct MediaThread *thread);            // 获取线程状态
@@ -88,9 +88,7 @@ struct MediaThread
     int (*packet_exit)(struct MediaPacketQueue *list);
 };
 
-int Video_File_Codec(struct VideoHardParam *display, struct MediaCodecParam *codec_v, struct MediaCodecParam *codec_a, struct MediaParams *user);
-int Video_Get_File_Info(const char *filename, struct MediaCodecParam *codec_v, struct MediaCodecParam *codec_a);
-int Video_Free_File(struct MediaCodecParam *codec_v, struct MediaCodecParam *codec_a);
+
 
 
 #ifdef __cplusplus

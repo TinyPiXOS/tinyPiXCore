@@ -22,7 +22,7 @@ extern "C"
     // 线程传参使用，外部禁止使用
     struct AudsThreadTR
     {
-        struct MediaParams *config;
+        struct MediaUserParams *config;
         struct AudServer *server;
         int connect;
     };
@@ -235,7 +235,7 @@ extern "C"
     }
 
     // 单个服务的消息解析
-    int audio_server_data_analysis(int msgid, struct MediaParams *conf, struct MsgData *msg)
+    int audio_server_data_analysis(int msgid, struct MediaUserParams *conf, struct MsgData *msg)
     {
         struct MsgData msg_send;
         msg_send.cmd = AUDIO_CMD_REPLY;
@@ -289,7 +289,7 @@ extern "C"
     {
         struct AudsThreadTR *thread_arg = (struct AudsThreadTR *)arg;
         struct AudServer *auds = thread_arg->server;
-        struct MediaParams *conf = thread_arg->config;
+        struct MediaUserParams *conf = thread_arg->config;
 
         struct MsgData msg;
 
@@ -306,7 +306,7 @@ extern "C"
     int audio_server(int connect)
     {
         int msgid = connect;
-        struct MediaParams *conf = media_user_config_creat(); // 当前服务的相关用户配置(设置)
+        struct MediaUserParams *conf = media_user_config_creat(); // 当前服务的相关用户配置(设置)
         struct IpcHandle ipc;                                 // 进程通信句柄
         ipc.send = send_data_msg;                             //
         ipc.recv = recv_data_msg;                             //

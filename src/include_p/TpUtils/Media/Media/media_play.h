@@ -9,18 +9,6 @@ extern "C" {
 
 #define DEBUG_MEDIA_PLAY
 
-struct MediaAudioUserParams{
-
-};
-
-
-
-
-struct MediaUserParams{
-
-};
-
-
 
 
 

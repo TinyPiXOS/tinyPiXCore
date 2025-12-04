@@ -12,8 +12,7 @@
 #include <sys/types.h>
 #include <libavutil/imgutils.h>
 #include "TpVideoInterface.h"
-#include "TpAudioDevice.h"
-#include "Media/Video/video_play.h"
+#include "TpMediaDevice.h"
 #include "TpSound.h"
 
 struct TpVideoInfData
@@ -220,5 +219,5 @@ int TpVideoInterface::setDecode(TpVideoDecodeType format)
 		break;
 	}
 
-	return Audio_Set_Video_Decode_Format(vidData->video_params, format_video);
+	return Video_Set_Decode_Format(vidData->video_params, format_video);
 }
