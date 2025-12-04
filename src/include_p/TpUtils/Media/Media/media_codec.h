@@ -28,6 +28,7 @@ struct MediaParams;
 typedef enum AVMediaType MediaType;
 typedef VariableArray MediaStreamArray;
 
+extern uint8_t media_exit_flag;
 
 // 待解码队列状态
 typedef enum

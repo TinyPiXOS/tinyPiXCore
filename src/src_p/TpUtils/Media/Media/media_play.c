@@ -580,6 +580,8 @@ int Media_Play_Main(struct MediaParams *user)
 		Audio_Set_Is_Playing(user,true);
 		debug_printf("play file %s\n",name);
 		media_player_codec_file(user,name);
+		if(media_exit_flag)
+			return 0;
 		Audio_Set_Is_Playing(user,false);
 	}
 

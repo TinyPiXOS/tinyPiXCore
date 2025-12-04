@@ -6,8 +6,8 @@
 #include "Media/Video/video_play.h"
 #include "Media/Audio/audio_play.h"
 
-#define AUDIO_MAX_QUEUE_SIZE	50		//音频缓存区最大长度
-#define VIDEO_MAX_QUEUE_SIZE	10		//视频缓存区最大长度
+#define AUDIO_MAX_QUEUE_SIZE	500		//音频缓存区最大长度
+#define VIDEO_MAX_QUEUE_SIZE	100		//视频缓存区最大长度
 
 #ifdef DEBUG_MEDIA_CODEC
     #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
@@ -412,13 +412,13 @@ static double count_media_clock_delay_time(struct MediaParams *user,struct Timer
 
 
 
-uint8_t media_flag=0;
+uint8_t media_exit_flag=0;
 struct MediaThread *Media_Thread_Creat();
 static int Media_Thread_Free(struct MediaThread *thread);
 
 static void exit_signal(int sig)
 {
-	media_flag=1;
+	media_exit_flag=1;
 }
 
 
@@ -686,13 +686,12 @@ static void *thread_video_codec(void *param)
 			continue;
 		}
 
-		printf("[Debug]: media_send_packet_to_codecc\n");
 		if (media_send_packet_to_codecc(stream,video_t, packet) < 0) {		//向解码器发送一个压缩的媒体包
 			fprintf(stderr, "Error sending packet to video codec\n");
 			video_t->set_state(video_t,MEDIA_THREAD_WAITING);
 			continue;
 		}
-		printf("[Debug]: media_send_packet_to_codecc ok\n");
+
 		// Receive the decoded frame
 		while (media_recv_packet_from_codecc(stream, video_t,frame_s) == 0) 	//从解码器接收解压的媒体包
 		{	
@@ -1112,15 +1111,16 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 	while (1) 	
 	{
 
-#ifdef DEBUG_VIDEO
-		if(media_flag==1)
+//#ifdef DEBUG_VIDEO
+		if(media_exit_flag==1)
 		{
 			debug_printf("强制退出===========================================================================================\n");
 			player->player_start(stream_array);
 			player->set_state(stream_array,AUDIO_STATE_EXIT);
+			exit(0);
 			break;
 		}
-#endif
+//#endif
 		if((err=Media_Get_Position_S(user))>=0)
 		{
 			printf("[Debug]: media_seek_frame_with_time\n");
@@ -1177,25 +1177,24 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 			usleep(5000);
 			continue;
 		}
-		if(av_read_frame(format_ctx, &packet) < 0)	//video和audio的format_ctx是同一个
-			break;
-		//debug_printf("[Debug]: media_write_packet_to_queue\n");
-		media_write_packet_to_queue(stream_array, &packet);
-			
-		av_packet_unref(&packet);
-	}
 
-	while (1)
-    {
-        if (player->list_state(stream_array)==MEDIA_PACK_QUEUE_EMPTY)
+		if(av_read_frame(format_ctx, &packet) >= 0)	//video和audio的format_ctx是同一个
+		{
+			//debug_printf("[Debug]: media_write_packet_to_queue\n");
+			media_write_packet_to_queue(stream_array, &packet);	
+			av_packet_unref(&packet);
+			continue;
+		}
+		//数据已经读完
+		if (player->list_state(stream_array)==MEDIA_PACK_QUEUE_EMPTY)
 		{
 			if(Audio_Get_DPosition(user) > user->length)
                 break;
 		}
-       	usleep(10000);
-	
-        Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
-    }
+		usleep(10000);
+		Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
+	}
+
 	player->set_state(stream_array,AUDIO_STATE_EXIT);
 	player->packet_exit(stream_array);
 	// Clean up
