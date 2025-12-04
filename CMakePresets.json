@@ -34,7 +34,7 @@
             "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
             "inherits": "base-debug",
             "cacheVariables": {
-                "TARGET_ARCH": "x86_64",
+                "TARGET_ARCH": "x86/ARM",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1",
@@ -47,7 +47,7 @@
             "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
             "inherits": "base-release",
             "cacheVariables": {
-                "TARGET_ARCH": "x86_64",
+                "TARGET_ARCH": "x86/ARM",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }

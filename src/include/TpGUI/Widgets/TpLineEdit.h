@@ -41,15 +41,15 @@ public:
     TpString placeholderText();
 
     /// @brief 设置文本居中模式；
-	/// @param align 模式枚举值
-	void setAlign(const Tp::Alignment align = Tp::AlignLeft);
+    /// @param align 模式枚举值
+    void setAlign(Tp::Alignment align = Tp::AlignLeft | Tp::AlignVCenter);
 
     /// @brief 设置是否只读
     /// @param readOnly true为只读模式；false为编辑模式
-    void setReadOnly(const bool& readOnly);
+    void setReadOnly(const bool &readOnly);
 
 protected:
-	virtual void virtualKeyboardInput(const Tp::VirtualKeyboardInputType& type, const TpString& text) override;
+    virtual void virtualKeyboardInput(const Tp::VirtualKeyboardInputType &type, const TpString &text) override;
 
     virtual bool onPaintEvent(TpPaintEvent *event) override;
 
@@ -60,7 +60,7 @@ protected:
     virtual bool onKeyPressEvent(TpKeyboardEvent *event) override;
 
     virtual bool onMousePressEvent(TpMouseEvent *event) override;
-	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
+    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
 
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
 
@@ -70,7 +70,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpLineEdit); }
 
 private:
-    void insertCharacter(const TpString& insertStr);
+    void insertCharacter(const TpString &insertStr);
 
     int32_t mousePosToCursorPos(int32_t mouseX);
 
@@ -85,7 +85,7 @@ private:
     void updateTextOffset();
 
     // 计算对齐偏移量
-    uint32_t cacualteAlignOffset(const uint32_t& visibleTextWidth);
+    uint32_t cacualteAlignOffset(const uint32_t &visibleTextWidth);
 
     // 处理backspace按键事件
     void dealBackSpace();
