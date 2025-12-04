@@ -6,8 +6,8 @@
 #include "Media/Video/video_play.h"
 #include "Media/Audio/audio_play.h"
 
-#define AUDIO_MAX_QUEUE_SIZE	500		//音频缓存区最大长度
-#define VIDEO_MAX_QUEUE_SIZE	100		//视频缓存区最大长度
+#define AUDIO_MAX_QUEUE_SIZE	50		//音频缓存区最大长度
+#define VIDEO_MAX_QUEUE_SIZE	10		//视频缓存区最大长度
 
 #ifdef DEBUG_MEDIA_CODEC
     #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
@@ -49,8 +49,6 @@ struct MediaThread{
 	uint8_t running;
 	uint8_t codec;
 	pthread_mutex_t lock;			//数据锁
-	
-//	struct TimerHandle *clock;		//	准备从此结构体中移除，所有流的线程共用同一个时钟
 
 	int (*start_thread)(struct MediaThread *thread,struct TimerHandle *clock,void *(*thread_main)(void *),struct MediaStreamParams *stream,struct MediaParams *user,bool is_sync);
 	int (*is_running)(struct MediaThread *thread);	//线程是否在运行中
@@ -75,6 +73,7 @@ struct MediaThread{
 		int (*push_packet)(struct MediaPacketQueue *list,AVPacket *packet);				//向缓存队列中写入
 		AVPacket *(*get_packet)(struct MediaPacketQueue *list,int block);	//从缓存队列中读取
 		int (*free_packet)(AVPacket *packet);		//使用get_packet_list获取packet后调用此函数释放
+		int (*unref_packet)(AVPacket *packet);		//引用计数减一
 		int (*flush_list)(struct MediaPacketQueue *list);			//删除队列中所有元素
 		uint32_t (*packet_number)(struct MediaPacketQueue *list);	//获取队列中元素数量
 		int (*packet_exit)(struct MediaPacketQueue *list);
@@ -109,6 +108,7 @@ static int packet_queue_put(struct MediaPacketQueue *q, AVPacket *pkt)
 	if (!packet) {
 		fprintf(stderr, "Could not allocate AVPacket\n");
 		av_free(pkt_node);
+		return -1;
 	}
 	pkt_node->pkt=packet;
 
@@ -172,7 +172,7 @@ static AVPacket *packet_queue_get(struct MediaPacketQueue *q, int block)
 			q->nb_packets--;
 			q->size -= pkt_node->pkt->size;
 			// 将队列中的数据包的内容拷贝到传入的 pkt 中
-			pkt = av_packet_alloc();  // 使用 av_packet_alloc() 分配内存
+			/*pkt = av_packet_alloc();  // 使用 av_packet_alloc() 分配内存
 			if (!pkt) {
 				fprintf(stderr, "Could not allocate AVPacket\n");
 				break;
@@ -181,10 +181,13 @@ static AVPacket *packet_queue_get(struct MediaPacketQueue *q, int block)
 				ret = -1;
 				fprintf(stderr, "Could not copy AVPacket\n");
 				break;
-			}
+			}*/
+
+			pkt = pkt_node->pkt; // 现在pkt_ret指向了节点内的数据包
+            pkt_node->pkt = NULL; // 将节点的pkt置为NULL，防止节点被释放时误删AVPacket
 			
 			// 释放队列节点
-			av_packet_free(&pkt_node->pkt );
+			//av_packet_free(&pkt_node->pkt );
 			av_free(pkt_node);
 			ret = 1;
 			break;
@@ -215,24 +218,32 @@ static int free_packet(AVPacket *packet)
 	return 0;
 }
 
+static int unref_packet(AVPacket *packet)
+{
+	if(packet)
+		av_packet_unref(packet);
+}
+
 //清空队列
 static int packet_queue_flush(struct MediaPacketQueue *q) 
 {
 	MediaPacketList *pkt_list, *pkt_tmp;
+//	printf("[Debug]: packet_queue_flush\n");
 	pthread_mutex_lock(&q->lock);
-
+//	printf("[Debug]: packet_queue_flush lock\n");
 	// 遍历并释放队列中的所有数据包
 	pkt_list = q->first_pkt;
 	while (pkt_list) {
 		pkt_tmp = pkt_list->next;
 
 		// 释放每个 AVPacket 的资源
-		av_packet_free(&pkt_list->pkt );
+		if (pkt_list->pkt)
+			av_packet_free(&pkt_list->pkt );
 		av_free(pkt_list);  // 释放节点本身
 
 		pkt_list = pkt_tmp;
 	}
-
+//	printf("[Debug]: packet_queue_flush 重置队列\n");
 	// 重置队列
 	q->first_pkt = NULL;
 	q->last_pkt = NULL;
@@ -240,6 +251,7 @@ static int packet_queue_flush(struct MediaPacketQueue *q)
 	q->size = 0;
 
 	pthread_mutex_unlock(&q->lock);
+//	printf("[Debug]: packet_queue_flush ok\n");
 	return 0;
 }
 //释放包队列
@@ -521,17 +533,24 @@ static int media_seek_frame_with_time(struct MediaParams *user, struct MediaPlay
 	return 0;	
 }
 
-static int media_avcodec_flush_buffers(MediaStreamArray *media_array)
+//向解码器发送数据包的封装
+static int media_send_packet_to_codecc(struct MediaStreamParams *stream,struct MediaThread *thread,AVPacket *packet)
 {
-	int size_array=media_array->get_size(media_array);
+	int ret=0;
+	pthread_mutex_lock(&thread->lock);
+	ret=avcodec_send_packet(stream->codec_ctx, packet);		//向解码器发送一个压缩的媒体包
+	pthread_mutex_unlock(&thread->lock);
+	return ret;
+}
 
-	for(int i=0; i<size_array; i++)
-	{
-		struct MediaStreamParams *stream=media_array->get(media_array,i);
-		avcodec_flush_buffers(stream->codec_ctx);
-
-	}
-	return 0;
+//从解码器接收数据包的封装
+static int media_recv_packet_from_codecc(struct MediaStreamParams *stream,struct MediaThread *thread,AVFrame *frame)
+{
+	int ret=0;
+	pthread_mutex_lock(&thread->lock);
+	ret=avcodec_receive_frame(stream->codec_ctx, frame);
+	pthread_mutex_unlock(&thread->lock);
+	return ret;
 }
 
 //视频播放的视频解码线程
@@ -542,6 +561,7 @@ static void *thread_video_codec(void *param)
 	struct MediaThread *video_t=data->thread;
 	bool is_sync=data->is_sync;
 	struct MediaParams *user=data->user;
+	struct MediaStreamParams *stream=data->stream;
 
 	CallbackVideoDisplay callback=user->video_params->get_callback_video(user->video_params);
 	AVFrame *frame_s = av_frame_alloc();	//原始的侦数据(直接从文件中解码出来的)
@@ -551,7 +571,6 @@ static void *thread_video_codec(void *param)
 	}
 	AVFrame *frame_d ;		//需要写入SDL的格式的数据(/可能和frame_s一致，也可能不一致，不一致的时候需要使用sws_scale转码)
 	struct SwsContext *swsContext=NULL;
-	struct MediaStreamParams *stream=data->stream;
 	int videoStreamIndex = stream->stream_index;		//流索引
 	AVStream* videoStream = stream->format_ctx->streams[videoStreamIndex];	//流参数
 
@@ -662,15 +681,20 @@ static void *thread_video_codec(void *param)
 			break;
 		//debug_printf("开始解码：ptr of frame_s%p, pptr of packet :%p（当前状态%d)\n",frame_s,&packet,video_t->get_state(video_t));
 		video_t->set_state(video_t,AUDIO_STATE_PLAYING);
-		
-		if (avcodec_send_packet(stream->codec_ctx, packet) < 0) {		//向解码器发送一个压缩的媒体包
+		if(!packet)
+		{
+			continue;
+		}
+
+		printf("[Debug]: media_send_packet_to_codecc\n");
+		if (media_send_packet_to_codecc(stream,video_t, packet) < 0) {		//向解码器发送一个压缩的媒体包
 			fprintf(stderr, "Error sending packet to video codec\n");
 			video_t->set_state(video_t,MEDIA_THREAD_WAITING);
 			continue;
 		}
-		
+		printf("[Debug]: media_send_packet_to_codecc ok\n");
 		// Receive the decoded frame
-		while (avcodec_receive_frame(stream->codec_ctx, frame_s) == 0) 	//从解码器接收解压的媒体包
+		while (media_recv_packet_from_codecc(stream, video_t,frame_s) == 0) 	//从解码器接收解压的媒体包
 		{	
 			//debug_printf("recv video,ptr of fram:%p\n",frame_s);
 			//video_t->start_codec(video_t);
@@ -786,13 +810,14 @@ static void *thread_audio_codec(void *param)
 		if(audio_t->get_state(audio_t)==AUDIO_STATE_EXIT)
 			break;
 		audio_t->set_state(audio_t,AUDIO_STATE_PLAYING);
-		if (avcodec_send_packet(stream->codec_ctx, packet) < 0) {		//向解码器发送一个压缩的媒体包
+
+		if (media_send_packet_to_codecc(stream,audio_t, packet) < 0) {		//向解码器发送一个压缩的媒体包
 			fprintf(stderr, "Error sending packet to audio codec\n");
 			audio_t->set_state(audio_t,MEDIA_THREAD_WAITING);
 			continue;
 		}
 		
-		while (avcodec_receive_frame(stream->codec_ctx, frame_s) == 0) 
+		while (media_recv_packet_from_codecc(stream, audio_t,frame_s) == 0) 
 		{
 			//struct AudioData *audioData=(struct AudioData *)display->audio_data;
 			//debug_printf("recv audio侦数：%d\n",frame_s->nb_samples);
@@ -1011,6 +1036,20 @@ static int media_player_flush_list(MediaStreamArray *stream_array)
 	};
 }
 
+static int media_avcodec_flush_buffers(MediaStreamArray *stream_array)
+{
+	int size_array=stream_array->get_size(stream_array);
+
+	for(int i=0; i<size_array; i++)
+	{
+		struct MediaStreamParams *stream=stream_array->get(stream_array,i);
+		struct MediaThread* t=(struct MediaThread* )stream->codec_thread;
+		pthread_mutex_lock(&t->lock);
+		avcodec_flush_buffers(stream->codec_ctx);
+		pthread_mutex_unlock(&t->lock);
+	}
+	return 0;
+}
 
 //写入数据包到对应的队列
 static int media_write_packet_to_queue(MediaStreamArray *stream_array, AVPacket *packet)
@@ -1054,7 +1093,7 @@ static MediaPacketQueueState media_player_get_queue_state(MediaStreamArray *stre
 
 int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 {
-	int speed=10,speed_l=10;
+	double speed=1.0,speed_l=1.0;
 	MediaStreamArray *stream_array=player->stream_array;
 	AVFormatContext *format_ctx=player->format_ctx;
 	struct TimerHandle *clock=player->clock;
@@ -1087,25 +1126,19 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 			printf("[Debug]: media_seek_frame_with_time\n");
 			media_seek_frame_with_time(user,player,err);
 			printf("[Debug]: media_seek_frame_with_time ok\n");
-			player->flush_codec_buffers(stream_array);
+			player->flush_codec_buffers(stream_array);	//需要考虑竞争，codec_ctx被ffmpeg使用
 			//清空队列
 			printf("[Debug]: flush_codec_buffers ok\n");
 			player->flush_list(stream_array);
 			//清空声卡缓存
 			//audio_pcm_drop(display->pcm_play);
-			printf("[Debug]: flush_list ok\n");
 			clock->adjust_time(clock,(long)err*1000*1000);
-			printf("[Debug]: adjust_time ok\n");
-			av_packet_unref(&packet);
-			printf("[Debug]: av_packet_unref ok\n");
 		}
-		speed=(int)(Media_Get_Speed(user)*10);
+		speed=Media_Get_Speed(user);
 		if(speed != speed_l)
 		{
-			debug_printf("[Debug]: set clock speed\n");
-			clock->set_speed(clock,speed/10);
+			clock->set_speed(clock,speed);
 			speed_l=speed;
-			debug_printf("[Debug]: set clock speed ok\n");
 		}
 		int cmd=user->command_get(user);
 		switch(cmd)
@@ -1160,7 +1193,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
                 break;
 		}
        	usleep(10000);
-		debug_printf("[Debug]: exit Media_Set_Position_N\n");
+	
         Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
     }
 	player->set_state(stream_array,AUDIO_STATE_EXIT);
@@ -1223,6 +1256,7 @@ struct MediaThread *Media_Thread_Creat()
 	thread->push_packet=packet_queue_put;
 	thread->get_packet=packet_queue_get;
 	thread->free_packet=free_packet;
+	thread->unref_packet=unref_packet;
 	thread->packet_number=get_packet_number;
 	thread->packet_exit=packet_queue_exit;
 	thread->flush_list=packet_queue_flush;

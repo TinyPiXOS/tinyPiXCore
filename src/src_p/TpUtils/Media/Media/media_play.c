@@ -540,6 +540,7 @@ int media_player_codec_file(struct MediaParams *user,const char *filename)
 
 int Media_Play_Main(struct MediaParams *user)
 {
+	av_log_set_level(AV_LOG_TRACE); // 或者使用数字 AV_LOG_DEBUG = 48
 	struct MediaFileList *list=user->list;
 	while(1)
 	{

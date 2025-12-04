@@ -154,6 +154,7 @@
         "sdl.h": "c",
         "obex_agent.h": "c",
         "timerfd.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "executor": "c"
     }
 }
