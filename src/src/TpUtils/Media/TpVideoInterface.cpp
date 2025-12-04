@@ -20,17 +20,14 @@ struct TpVideoInfData
 {
 	TpString v_name;
 	TpString a_name;
-	struct MediaAudioHandle *audio;
-	struct MediaParams *user;
-	std::atomic<bool> running;
-	std::thread thread_t;
+    struct MediaVideoInfo *video_params;
+	struct MediaAudioInfo *audio_params;
 
 	void *context_; //
 	TpVideoInfData()
 	{
-		running = false;
-		user = nullptr;
-		audio = nullptr;
+        video_params=nullptr;
+		audio_params=nullptr;
 		context_ = nullptr;
 	};
 };
@@ -49,251 +46,70 @@ static TpString getFormatName(const TpString& audio_name)
    		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
 }
 
-TpVideoInterface::TpVideoInterface(const TpString& audio_name,const TpString& video_name )
+TpVideoInterface::TpVideoInterface(const TpString &name):TpMediaInterface()
 {
-	data_ = new TpVideoInfData();
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	MediaParams *user=media_user_config_creat();
-	if(user==NULL)
-	{
-		delete(vidData);
-		std::cerr << "Failed to creat TpAudioInterface" << std::endl;
-	}
-
-	vidData->a_name=getFormatName(audio_name);
-
-	user->audio_params=media_audio_info_creat(vidData->a_name.c_str());
-    if(!user->audio_params)
+	vData_ = new TpVideoInfData();
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+	MediaVideoInfo *video=media_video_info_creat();
+    if(!video)
     {
-        perror("audio_params creat error\n");
-        media_user_config_delete(user);
-		delete(vidData);
-        return ;
+        std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
-
-	user->video_params = media_video_info_creat();
-    if(!user->video_params)
+	vidData->a_name = getFormatName(name);
+	MediaAudioInfo *audio=media_audio_info_creat(vidData->a_name.c_str());
+    if(!audio)
     {
-        perror("video_params creat error\n");
-		media_audio_info_delete(user->audio_params);
-        media_user_config_delete(user);
-		delete(vidData);
-        return;
+		media_video_info_delete(video);
+        std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
-	vidData->v_name=video_name;
-	vidData->user=user;
+	
+	setAudioInterface(audio);
+	setVideoInterface(video);
+    vidData->video_params=video;
+	vidData->audio_params=audio;
+	printf("TpVideoInterface ok\n");
+
 }
 
 TpVideoInterface::~TpVideoInterface()
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData)
 		return;
-	Audio_Set_Close(vidData->user);
-	if (vidData->thread_t.joinable())
-	{
-		vidData->thread_t.join();
-	}
-	vidData->running=false;
-	while (!Audio_State_Is_Exit(vidData->user))
-		usleep(10);
-
-	Media_Set_Video_Callback(vidData->user->video_params, nullptr, nullptr);
+	
+	Media_Set_Video_Callback(vidData->video_params, nullptr, nullptr);
 
 	CallbackContext *context_ = (CallbackContext *)vidData->context_;
 	delete context_;
-
-	media_user_config_delete(vidData->user);
+	
+	media_video_info_delete(vidData->video_params);
+	vidData->video_params=NULL;
+	media_audio_info_delete(vidData->audio_params);
+	vidData->audio_params=NULL;
 	delete (vidData);
 }
 
-int TpVideoInterface::threadVideo()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	
-	Video_Play_Main(vidData->user,vidData->a_name.c_str());
-	//	printf("play main exit\n");
-	return 0;
-}
 
-int TpVideoInterface::openDevice()
+int TpVideoInterface::setVolume(tpUInt8 volume)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	if (vidData->running)
-		return -1;
-	///	printf("device open ok\n");
-	vidData->running = true;
-	vidData->thread_t = std::thread(&TpVideoInterface::threadVideo, this);
-	//	printf("device open ok\n");
-	return 0;
-}
-
-tpBool TpVideoInterface::isOpen()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	return (vidData->running == true ? TP_TRUE : TP_FALSE);
-}
-
-int TpVideoInterface::closeDevice()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	Audio_Set_Close(vidData->user);
-
-	while (!Audio_State_Is_Exit(vidData->user))
-		usleep(10);
-	return 0;
-}
-
-int TpVideoInterface::setVolume(tpUInt16 volume)
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Audio_Set_Volume(vidData->user->audio_params, volume);
+    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+    if (!vidData->audio_params)
+        return -1;
+    return Audio_Set_Volume(vidData->audio_params, volume);
 }
 
 int TpVideoInterface::getVolume()
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Audio_Get_Volume(vidData->user->audio_params);
-}
-
-int TpVideoInterface::setSpeed(float speed)
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Set_Speed(vidData->user, speed);
-}
-
-float TpVideoInterface::getSpeed()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Get_Speed(vidData->user);
-}
-
-int TpVideoInterface::setPosition(tpUInt32 position)
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Set_Position(vidData->user, position);
-}
-
-int TpVideoInterface::getPosition()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Video_Get_Position(vidData->user);
-}
-
-tpUInt32 TpVideoInterface::getDuration()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return 0;
-	double val = Media_Get_Length(vidData->user);
-	if (val < 0)
-		return 0;
-	tpUInt32 duration = (tpUInt32)(val + 0.5);
-	return duration;
-}
-
-int TpVideoInterface::addFile(const TpString &file)
-{
-	return addFile(file.c_str());
-}
-int TpVideoInterface::addFile(const char *file)
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Add_File(vidData->user, file);
-}
-
-int TpVideoInterface::deleteFile(const TpString &file)
-{
-	return deleteFile(file.c_str());
-}
-int TpVideoInterface::deleteFile(const char *file)
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Del_File(vidData->user, file);
-}
-
-int TpVideoInterface::setFile(const TpString &file)
-{
-	return setFile(file.c_str());
-}
-int TpVideoInterface::setFile(const char *file)
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Audio_Set_Play(vidData->user, file);
-}
-
-int TpVideoInterface::playStart()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Set_Start(vidData->user, NULL);
-}
-
-int TpVideoInterface::playContinue()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Set_Continue(vidData->user);
-}
-
-int TpVideoInterface::playPause()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Set_Suspend(vidData->user);
-}
-
-int TpVideoInterface::playStop()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Media_Set_Stop(vidData->user);
-}
-
-int TpVideoInterface::playNext()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Audio_Play_Next(vidData->user);
-}
-
-int TpVideoInterface::playLast()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
-		return -1;
-	return Audio_Play_Last(vidData->user);
+    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+    if (!vidData->audio_params)
+        return -1;
+    return Audio_Get_Volume(vidData->audio_params);
 }
 
 int TpVideoInterface::setScalingMode(TpVideoScalingType mode)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+	if (!vidData->video_params)
 		return -1;
 	VideoScalingType type;
 	switch (mode)
@@ -317,36 +133,25 @@ int TpVideoInterface::setScalingMode(TpVideoScalingType mode)
 		type = MEDIA_VIDEO_SCALING_LETTERBOX;
 		break;
 	}
-	return Video_Set_Fill_Mode(vidData->user->video_params, type);
+	return Video_Set_Fill_Mode(vidData->video_params, type);
 }
 
 int TpVideoInterface::setWindowCoordinates(tpInt16 x, tpInt16 y)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+	if (!vidData->video_params)
 		return -1;
-	return Video_Set_Coordinates(vidData->user->video_params, (int16_t)x, (int16_t)y);
+	return Video_Set_Coordinates(vidData->video_params, (int16_t)x, (int16_t)y);
 }
 
 int TpVideoInterface::setWindowSize(tpUInt16 width, tpUInt16 height)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+	if (!vidData->video_params)
 		return -1;
-	return Video_Set_Width_Height(vidData->user->video_params, (uint16_t)width, (uint16_t)height);
+	return Video_Set_Width_Height(vidData->video_params, (uint16_t)width, (uint16_t)height);
 }
 
-tpBool TpVideoInterface::isPlayEnd()
-{
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData)
-	{
-		return TP_TRUE;
-	}
-	if (Audio_Get_Is_Playing(vidData->user) == false)
-		return TP_TRUE;
-	return TP_FALSE;
-}
 
 int TpVideoInterface::staticBridge(uint8_t **data, int *linesize, uint32_t format, void *rawCtx)
 {
@@ -358,8 +163,8 @@ int TpVideoInterface::staticBridge(uint8_t **data, int *linesize, uint32_t forma
 
 int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, TpVideoDecodeType format)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+	if (!vidData->video_params)
 		return -1;
 
 	CallbackContext *context_ = (CallbackContext *)vidData->context_;
@@ -376,7 +181,7 @@ int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, 
 		setDecode(format);
 
 	Media_Set_Video_Callback(
-		vidData->user->video_params,
+		vidData->video_params,
 		bridge,								 // 传递函数指针的地址（符合int(**)(...)类型）
 		(CallbackContext *)vidData->context_ // 用户数据
 	);
@@ -385,8 +190,8 @@ int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, 
 
 int TpVideoInterface::setDecode(TpVideoDecodeType format)
 {
-	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(data_);
-	if (!vidData->user)
+	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+	if (!vidData->video_params)
 		return -1;
 
 	uint32_t format_video;
@@ -415,5 +220,5 @@ int TpVideoInterface::setDecode(TpVideoDecodeType format)
 		break;
 	}
 
-	return Audio_Set_Video_Decode_Format(vidData->user->video_params, format_video);
+	return Audio_Set_Video_Decode_Format(vidData->video_params, format_video);
 }

@@ -3,10 +3,11 @@
 
 #include <functional>
 #include <TpCore.h>
+#include "TpMediaInterface.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpVideoInfData);
 
-class TpVideoInterface
+class TpVideoInterface : public TpMediaInterface
 {
 public:
 	/// @brief 视频画面填充方式
@@ -37,62 +38,22 @@ public:
 	using UserCallback = std::function<int(uint8_t **, int *, uint32_t , void *)>;
 
 public:
-	TpVideoInterface(const TpString& audio_name = "default",const TpString& video_name = "default" );
+	TpVideoInterface(const TpString& video_name = "default" );
 	~TpVideoInterface();
 public:
-	/// @brief 打开视频播放设备
-	/// @param name 
+	/// @brief 设置音频播放音量
+	/// @param volume 音量(0~100)
 	/// @return 
-	int openDevice();
-	/// @brief 关闭是视频播放设备
+	int setVolume(tpUInt8 volume);
+	/// @brief 获取音频播放音量
 	/// @return 
-	int closeDevice();
-	/// @brief 设备是否打开
-	/// @return 
-	tpBool isOpen();
-	/// @brief 设置播放音量
-	/// @param volume 播放音量，0～100
-	/// @return 
-	int setVolume(tpUInt16 volume);
-	/// @brief 获取当前播放音量
-	/// @return 播放音量，0～100
 	int getVolume();
-	/// @brief 设置播放速度
-	/// @param speed 播放速度
-	/// @return 
-	int setSpeed(float speed);
-	/// @brief 获取播放速度
-	/// @return 
-	float getSpeed();
-	/// @brief 设置当前文件播放位置
-	/// @param position 播放位置
-	/// @return 
-	int setPosition(tpUInt32 position);
-	/// @brief 获取当前文件播放位置
-	/// @return 
-	int getPosition();
-	/// @brief 获取文件总时长
-	/// @return 
-	tpUInt32 getDuration();
+
 	/// @brief 
 	/// @param callback 
 	/// @return 
 	int setDisplayFunction(UserCallback cb, void *userdata=nullptr,TpVideoDecodeType format=TP_VIDEO_DECODE_RGB24);
-	/// @brief 向播放列表添加文件
-	/// @param file 文件
-	/// @return 
-	int addFile(const TpString& file);
-	int addFile(const char *file);
-	/// @brief 从播放列表中删除文件
-	/// @param file 文件
-	/// @return 
-	int deleteFile(const TpString& file);
-	int deleteFile(const char *file);
-	/// @brief 设置播放的文件
-	/// @param file 文件
-	/// @return 
-	int setFile(const TpString& file);
-	int setFile(const char *file);
+
 	/// @brief 设置视频播放窗口的的位置，在不设置回调，使用内部SDL播放的时候会生效
 	/// @param x 播放窗口x坐标
 	/// @param y 播放窗口y坐标
@@ -107,40 +68,18 @@ public:
 	/// @param mode 填充方式
 	/// @return 
 	int setScalingMode(TpVideoScalingType mode);
-	/// @brief 开始播放
-	/// @return 
-	int playStart();
-	/// @brief 播放继续
-	/// @return 
-	int playContinue();
-	/// @brief 播放暂停
-	/// @return 
-	int playPause();
-	/// @brief 播放停止
-	/// @return 
-	int playStop();
-	/// @brief 播放下一个
-	/// @return 
-	int playNext();
-	/// @brief 播放上一个
-	/// @return 
-	int playLast();
-	/// @brief 是否播放结束
-	/// @return 
-	tpBool isPlayEnd();
 private:
 	/// @brief 设置视频解码格式【计划中，当前使用的是固定RGB888】
 	/// @param format 解码格式
 	/// @return 
 	int setDecode(TpVideoDecodeType format);
-	int threadVideo();
+
 private:
-	
-    struct CallbackContext {
+	    struct CallbackContext {
         UserCallback callback;  // 用户回调指针
         void* userdata;
     };
-	ItpVideoInfData *data_;
+	ItpVideoInfData *vData_;
 	static int staticBridge(uint8_t** data, int* linesize, uint32_t format, void* rawCtx);
 };
 

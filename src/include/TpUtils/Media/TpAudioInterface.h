@@ -2,10 +2,11 @@
 #define __TP_AUDIO_INTERFACE_H
 
 #include <TpCore.h>
+#include "TpMediaInterface.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpAudioInfData);
 
-class TpAudioInterface
+class TpAudioInterface : public TpMediaInterface
 {
 	enum SampleRate{
 		TP_AUDIO_RATE_11025 = 11025,
@@ -40,18 +41,10 @@ public:
 	TpAudioInterface(const TpString& name="default");
 	~TpAudioInterface();
 public:
-	/// @brief 获取本机声卡设备列表，可直接使用返回的名字创建音频类
+    /// @brief 获取本机声卡设备列表，可直接使用返回的名字创建音频类
 	/// @return 
 	static TpList<TpString> getDevices();
-	/// @brief 打开音频播放设备
-	/// @return 
-	int openDevice();
-	/// @brief 关闭音频播放设备
-	/// @return 
-	int closeDevice();
-	/// @brief 音频播放设备是否打开
-	/// @return 
-	tpBool isOpen();
+
 	/// @brief 设置音频播放音量
 	/// @param volume 音量(0~100)
 	/// @return 
@@ -59,60 +52,7 @@ public:
 	/// @brief 获取音频播放音量
 	/// @return 
 	int getVolume();
-	/// @brief 设置播放速度
-	/// @param speed 播放速度，0.5～8.0
-	/// @return 
-	int setSpeed(float speed);
-	/// @brief 获取播放速度
-	/// @return 
-	int getSpeed();
-	/// @brief 设置当前文件的播放位置
-	/// @param position 播放位置，单位为秒
-	/// @return 
-	int setPosition(tpUInt32 position);
-	/// @brief 获取当前播放位置
-	/// @return 播放位置，单位为秒
-	int getPosition();
-	/// @brief 获取文件总时长
-	/// @return 文件时长，单位为秒
-	tpUInt32 getDuration();
-	/// @brief 添加要播放的文件
-	/// @param file 文件
-	/// @return 
-	int addFile(const TpString& file);
-	int addFile(const char *file);
-	/// @brief 删除列表中的文件
-	/// @param file 文件
-	/// @return 
-	int deleteFile(const TpString& file);
-	int deleteFile(const char *file);
-	/// @brief 设置播放文件
-	/// @param file 文件
-	/// @return 
-	int setFile(const TpString& file);
-	int setFile(const char *file);
-	/// @brief 开始播放
-	/// @return 
-	int playStart();
-	/// @brief 播放继续
-	/// @return 
-	int playContinue();
-	/// @brief 播放暂停
-	/// @return 
-	int playPause();
-	/// @brief 播放停止
-	/// @return 
-	int playStop();
-	/// @brief 播放下一个
-	/// @return 
-	int playNext();
-	/// @brief 播放上一个
-	/// @return 
-	int playLast();
-	/// @brief 是否播放结束
-	/// @return 
-	tpBool isPlayEnd();
-	/// @brief 根据文件的信息自动解码并设置硬件采样参数(暂时无使用需求)
+    /// @brief 根据文件的信息自动解码并设置硬件采样参数(暂时无使用需求)
 	/// @param file 
 	/// @return 
 	//virtual int setSampleParame(TpString &file) = 0;
@@ -147,17 +87,8 @@ public:
 	/// @brief 获取音量允许的最小值
 	/// @return 
 	int getMinVolume();
-	/// @brief 获取速度允许的最大值
-	/// @return 
-	float getMaxSpeed();
-	/// @brief 获取速度允许的最小值
-	/// @return 
-	float getMinSpeed();
-
 private:
-	int threadAudio();
-private:
-	ItpAudioInfData *data_;
+	ItpAudioInfData *aData_;
 };
 
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Media/TpAudioInterface.h"
-#include "Media/TpAudioInterface_.h"
+#include "Media/TpAudioInterface.h"
 
 int my_sleep(uint16_t s,TpAudioInterface& audio)
 {
@@ -66,7 +66,7 @@ sleep(1);
 
 int example_play_all_new()
 {
-	TpList<TpString> cards=TpAudioInterface_::getDevices();
+	TpList<TpString> cards=TpAudioInterface::getDevices();
 	for(auto &it : cards)
 	{
 		printf("device:%s\n",it.c_str());
@@ -74,7 +74,7 @@ int example_play_all_new()
 
 	TpString device("hw:0,1 USB Audio");
 
-	TpAudioInterface_ audio(device);
+	TpAudioInterface audio(device);
 	printf("Set Volume to 100\n");
 	audio.setVolume(100);
 	printf("Set file\n");

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Media/TpVideoInterface.h"
-#include "Media/TpVideoInterface_.h"
+#include "Media/TpVideoInterface.h"
 #include "../../../src/include_p/TpUtils/Media/Media/media_timer.h"
 
 
@@ -116,7 +116,7 @@ int example_video_play()
 int example_video_play_new()
 {
     TpString device("hw:0,1 USB Audio");
-    TpVideoInterface_ video(device);
+    TpVideoInterface video(device);
     video.setVolume(100);
     //video.addFile("/System/data/Videos/demo.mp4");
     // video.addFile("/home/pix/Media/hahaha.mp4");
@@ -158,7 +158,7 @@ int example_video_play_new()
     //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);
     video.setWindowCoordinates(0, 0);
     video.setWindowSize(1024, 768);
-    video.setScalingMode(TpVideoInterface_::TP_VIDEO_SCALING_FIT); // 推荐格式
+    video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT); // 推荐格式
     video.playStart();
     video.setSpeed(1.0);
     printf("文件时长%d\n", video.getDuration());
