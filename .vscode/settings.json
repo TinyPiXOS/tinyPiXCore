@@ -152,6 +152,8 @@
         "libudev.h": "c",
         "stdbool.h": "c",
         "sdl.h": "c",
-        "obex_agent.h": "c"
+        "obex_agent.h": "c",
+        "timerfd.h": "c",
+        "unistd.h": "c"
     }
 }

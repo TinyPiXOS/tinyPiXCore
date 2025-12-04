@@ -897,11 +897,9 @@ int Media_Set_Position(struct MediaParams *conf, int32_t position)
 // 获取位置（音频使用字节数计算）
 int Media_Get_Position(struct MediaParams *conf)
 {
-    printf("Media_Get_Position\n");
     int nbyte=0;
     if ((nbyte=Audio_Get_BitsPerSample(conf))==0)
     {
-         printf("Audio_Get_DPosition\n");
         return ((int)(Audio_Get_DPosition(conf)));
     }
     int64_t bytes = Audio_Get_BytePosition(conf);
@@ -1087,6 +1085,7 @@ float Media_Get_Speed(struct MediaParams *conf)
 
 int Media_Set_Speed(struct MediaParams *conf, float speed)
 {
+    printf("set speed\n");
     if (!conf)
         return -1;
     if (speed <= 0)

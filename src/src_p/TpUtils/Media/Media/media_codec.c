@@ -680,7 +680,9 @@ static void *thread_video_codec(void *param)
 			}
 			
 			//延时一段时间
-			float speed=Media_Get_Speed(user);
+			//float speed=Media_Get_Speed(user);
+			float speed=1.0;
+
 			double video_clock=(double)pts * av_q2d(videoStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 			double delay_time=video_clock - sys_clock->get_run_time(sys_clock);
 			if(delay_time>VIDEO_FRAME_LAG_LOSS_TIME)
@@ -703,7 +705,7 @@ static void *thread_video_codec(void *param)
 			// 显示
 			if(callback)
 			{
-				// printf("callback\n");
+				//printf("callback\n");
 				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,user->video_params->userdata);
 			}
 			else
@@ -716,8 +718,7 @@ static void *thread_video_codec(void *param)
 			}
 				
 			//写入进度
-			//printf("[Debug]: Media_Set_Position_N\n");
-			Media_Set_Position_N(user,(int32_t)(video_clock/1000.0/1000.0));
+			Media_Set_Position_N(user,(int32_t)((double)pts * av_q2d(videoStream->time_base)));
 		}
 		video_t->free_packet(packet);
 		video_t->set_state(video_t,MEDIA_THREAD_WAITING);
@@ -806,7 +807,8 @@ static void *thread_audio_codec(void *param)
 			if (pts == AV_NOPTS_VALUE) {
 				pts = frame_s->best_effort_timestamp;		//该值无效则使用默认的值
 			}
-			float speed=Media_Get_Speed(user);
+			//float speed=Media_Get_Speed(user);
+			float speed=1.0;
 			double audio_clock=(double)pts * av_q2d(audioStream->time_base)*1000.0*1000.0/speed;	//time_base为s
 			double delay_time=audio_clock - sys_clock->get_run_time(sys_clock);
 			if(delay_time>0)
@@ -817,7 +819,7 @@ static void *thread_audio_codec(void *param)
 			else if(delay_time< (-VIDEO_FRAME_LAG_LOSS_TIME))
 			{
 				//debug_printf("===========舍弃====\n");
-				break;
+				//break;
 			}
 			AVFrame *convert_frame = alloc_avframe_frames_hard(frame_s->nb_samples,stream->audio.handle->adparams);
 			if(!convert_frame)
@@ -833,7 +835,7 @@ static void *thread_audio_codec(void *param)
 			else
 			{
 				callback((uint8_t *)convert_frame,samples_converted,-1,user->audio_params->userdata);
-				Media_Set_Position_N(user,(int32_t)(audio_clock/1000.0/1000.0));
+				Media_Set_Position_N(user,(int32_t)((double)pts * av_q2d(audioStream->time_base)));
 			}
 		}
 		audio_t->free_packet(packet);
@@ -1052,6 +1054,7 @@ static MediaPacketQueueState media_player_get_queue_state(MediaStreamArray *stre
 
 int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 {
+	int speed=10,speed_l=10;
 	MediaStreamArray *stream_array=player->stream_array;
 	AVFormatContext *format_ctx=player->format_ctx;
 	struct TimerHandle *clock=player->clock;
@@ -1081,16 +1084,28 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 #endif
 		if((err=Media_Get_Position_S(user))>=0)
 		{
+			printf("[Debug]: media_seek_frame_with_time\n");
 			media_seek_frame_with_time(user,player,err);
+			printf("[Debug]: media_seek_frame_with_time ok\n");
 			player->flush_codec_buffers(stream_array);
 			//清空队列
+			printf("[Debug]: flush_codec_buffers ok\n");
 			player->flush_list(stream_array);
 			//清空声卡缓存
 			//audio_pcm_drop(display->pcm_play);
-
+			printf("[Debug]: flush_list ok\n");
 			clock->adjust_time(clock,(long)err*1000*1000);
+			printf("[Debug]: adjust_time ok\n");
 			av_packet_unref(&packet);
-			continue;
+			printf("[Debug]: av_packet_unref ok\n");
+		}
+		speed=(int)(Media_Get_Speed(user)*10);
+		if(speed != speed_l)
+		{
+			debug_printf("[Debug]: set clock speed\n");
+			clock->set_speed(clock,speed/10);
+			speed_l=speed;
+			debug_printf("[Debug]: set clock speed ok\n");
 		}
 		int cmd=user->command_get(user);
 		switch(cmd)
@@ -1131,7 +1146,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
 		}
 		if(av_read_frame(format_ctx, &packet) < 0)	//video和audio的format_ctx是同一个
 			break;
-		
+		//debug_printf("[Debug]: media_write_packet_to_queue\n");
 		media_write_packet_to_queue(stream_array, &packet);
 			
 		av_packet_unref(&packet);
@@ -1145,6 +1160,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaParams *user)
                 break;
 		}
        	usleep(10000);
+		debug_printf("[Debug]: exit Media_Set_Position_N\n");
         Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
     }
 	player->set_state(stream_array,AUDIO_STATE_EXIT);
