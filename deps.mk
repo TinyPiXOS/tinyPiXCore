@@ -99,7 +99,7 @@ erpc:
 	-DCMAKE_CXX_FLAGS="-fPIC" \
 	&& make && make install PREFIX=$(prefix)/erpc; \
 	cp $(prefix)/erpc/include/erpc/* $(core_root)/src/include_p/TpUtils/erpc/; \
-	cp $(prefix)/erpc/bin/* $(core_root)/src/include_p/TpUtils/erpc/; \
-	cp $(prefix)/erpc/lib/liberpc.a $(core_root)/src/bin/;
+	cp $(prefix)/erpc/bin/* $(core_root)/src/bin/; \
+	cp $(prefix)/erpc/lib/liberpc.a $(core_root)/src/depend_lib/static/$(libDir)/;
 
 
