@@ -4,8 +4,11 @@
 #include <functional>
 #include <TpCore.h>
 
+
 TP_DEF_VOID_TYPE_VAR(ItpMediaInfData);
 
+class TpAudioInterface;
+class TpVideoInterface;
 class TpMediaInterface
 {
 public:
@@ -22,13 +25,14 @@ public:
 	/// @brief 设备是否打开
 	/// @return 打开返回TP_TRUE
 	tpBool isOpen();
-	/// @brief 设置播放音量
-	/// @param volume 播放音量，0～100
+	/// @brief 设置音频输出
+	/// @param audio 音频接口
 	/// @return 
-	int setVolume(tpUInt16 volume);
-	/// @brief 获取当前播放音量
-	/// @return 播放音量，0～100
-	int getVolume();
+	int setAudioOutput(TpAudioInterface *audio);
+	/// @brief 设置视频输出
+	/// @param video 视频接口
+	/// @return 
+	int setVideoOutput(TpVideoInterface *video);
 	/// @brief 设置播放速度
 	/// @param speed 播放速度，0.5～8.0
 	/// @return 
@@ -88,12 +92,11 @@ public:
 	/// @brief 获取速度允许的最小值
 	/// @return 
 	float getMinSpeed();
+	
 private:
 	int threadMedia();
 
 protected:
-	int setAudioInterface(void *aud);
-	int setVideoInterface(void *vid);
 	ItpMediaInfData *data_;
 };
 

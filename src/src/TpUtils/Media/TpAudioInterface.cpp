@@ -42,7 +42,7 @@ static TpString getFormatName(const TpString& audio_name)
    		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
 }
 
-TpAudioInterface::TpAudioInterface(const TpString &name):TpMediaInterface()
+TpAudioInterface::TpAudioInterface(const TpString &name)
 {   	
     aData_ = new TpAudioInfData();
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
@@ -57,7 +57,6 @@ TpAudioInterface::TpAudioInterface(const TpString &name):TpMediaInterface()
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
 
-    setAudioInterface(audio);
     audData->audio_params=audio;
     printf("[Debug]: TpAudioInterface ok\n");
 }
@@ -154,4 +153,12 @@ int TpAudioInterface::getMaxVolume()
 int TpAudioInterface::getMinVolume()
 {
     return USER_CONF_VOLUME_MIN;
+}
+
+void *TpAudioInterface::getAudioInfo()
+{
+    TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
+    if(!audData)   
+        return NULL;
+    return audData->audio_params;
 }

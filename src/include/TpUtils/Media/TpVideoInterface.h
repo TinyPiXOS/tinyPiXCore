@@ -3,11 +3,10 @@
 
 #include <functional>
 #include <TpCore.h>
-#include "TpMediaInterface.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpVideoInfData);
 
-class TpVideoInterface : public TpMediaInterface
+class TpVideoInterface
 {
 public:
 	/// @brief 视频画面填充方式
@@ -41,14 +40,6 @@ public:
 	TpVideoInterface(const TpString& video_name = "default" );
 	~TpVideoInterface();
 public:
-	/// @brief 设置音频播放音量
-	/// @param volume 音量(0~100)
-	/// @return 
-	int setVolume(tpUInt8 volume);
-	/// @brief 获取音频播放音量
-	/// @return 
-	int getVolume();
-
 	/// @brief 
 	/// @param callback 
 	/// @return 
@@ -73,6 +64,8 @@ private:
 	/// @param format 解码格式
 	/// @return 
 	int setDecode(TpVideoDecodeType format);
+	friend class TpMediaInterface;
+	void *getVideoInfo();
 
 private:
 	    struct CallbackContext {

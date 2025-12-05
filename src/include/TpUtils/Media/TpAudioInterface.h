@@ -6,7 +6,7 @@
 
 TP_DEF_VOID_TYPE_VAR(ItpAudioInfData);
 
-class TpAudioInterface : public TpMediaInterface
+class TpAudioInterface 
 {
 	enum SampleRate{
 		TP_AUDIO_RATE_11025 = 11025,
@@ -87,6 +87,9 @@ public:
 	/// @brief 获取音量允许的最小值
 	/// @return 
 	int getMinVolume();
+private:
+	friend class TpMediaInterface;
+	void *getAudioInfo();
 private:
 	ItpAudioInfData *aData_;
 };

@@ -18,34 +18,19 @@
 struct TpVideoInfData
 {
 	TpString v_name;
-	TpString a_name;
     struct MediaVideoInfo *video_params;
-	struct MediaAudioInfo *audio_params;
 
 	void *context_; //
 	TpVideoInfData()
 	{
         video_params=nullptr;
-		audio_params=nullptr;
 		context_ = nullptr;
 	};
 };
 
-static TpString getFormatName(const TpString& audio_name)
-{
-	TpString usedAudioDev;
-	if(audio_name == TpString("default"))
-		usedAudioDev=TpSound::getUsedDevice();
-	else
-		usedAudioDev=audio_name;
-    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
-	if (pos == std::string::npos) // 无空格时返回整个字符串
-        return usedAudioDev;
-	else
-   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
-}
 
-TpVideoInterface::TpVideoInterface(const TpString &name):TpMediaInterface()
+
+TpVideoInterface::TpVideoInterface(const TpString &name)
 {
 	vData_ = new TpVideoInfData();
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
@@ -54,20 +39,9 @@ TpVideoInterface::TpVideoInterface(const TpString &name):TpMediaInterface()
     {
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
-	vidData->a_name = getFormatName(name);
-	MediaAudioInfo *audio=media_audio_info_creat(vidData->a_name.c_str());
-    if(!audio)
-    {
-		media_video_info_delete(video);
-        std::cerr << "Failed to creat TpVideoInterface" << std::endl;
-    }
-	
-	setAudioInterface(audio);
-	setVideoInterface(video);
+	vidData->v_name = name;
     vidData->video_params=video;
-	vidData->audio_params=audio;
 	printf("TpVideoInterface ok\n");
-
 }
 
 TpVideoInterface::~TpVideoInterface()
@@ -83,27 +57,9 @@ TpVideoInterface::~TpVideoInterface()
 	
 	media_video_info_delete(vidData->video_params);
 	vidData->video_params=NULL;
-	media_audio_info_delete(vidData->audio_params);
-	vidData->audio_params=NULL;
 	delete (vidData);
 }
 
-
-int TpVideoInterface::setVolume(tpUInt8 volume)
-{
-    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
-    if (!vidData->audio_params)
-        return -1;
-    return Audio_Set_Volume(vidData->audio_params, volume);
-}
-
-int TpVideoInterface::getVolume()
-{
-    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
-    if (!vidData->audio_params)
-        return -1;
-    return Audio_Get_Volume(vidData->audio_params);
-}
 
 int TpVideoInterface::setScalingMode(TpVideoScalingType mode)
 {
@@ -220,4 +176,12 @@ int TpVideoInterface::setDecode(TpVideoDecodeType format)
 	}
 
 	return Video_Set_Decode_Format(vidData->video_params, format_video);
+}
+
+void *TpVideoInterface::getVideoInfo()
+{
+    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+    if(!vidData)   
+        return NULL;
+    return vidData->video_params;
 }

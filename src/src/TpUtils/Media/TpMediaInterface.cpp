@@ -14,6 +14,8 @@
 #include "TpMediaDevice.h"
 #include "TpSound.h"
 #include "TpMediaInterface.h"
+#include "TpAudioInterface.h"
+#include "TpVideoInterface.h"
 
 struct TpMediaInfData
 {
@@ -105,6 +107,22 @@ int TpMediaInterface::closeDevice()
 
     while (!Media_State_Is_Exit(medData->user))
         usleep(10);
+    return 0;
+}
+
+int TpMediaInterface::setAudioOutput(TpAudioInterface *audio)
+{
+    TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+
+    medData->user->audio_params=(struct MediaAudioInfo*)(audio->getAudioInfo());
+    return 0;
+}
+
+int TpMediaInterface::setVideoOutput(TpVideoInterface *video)
+{
+    TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+
+    medData->user->video_params=(struct MediaVideoInfo*)(video->getVideoInfo());
     return 0;
 }
 
@@ -261,24 +279,3 @@ float TpMediaInterface::getMinSpeed()
     return USER_CONF_SPEED_MIN;
 }
 
-int TpMediaInterface::setAudioInterface(void *aud)
-{
-	TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
-    if (!medData->user)
-        return -1;
-	struct MediaAudioInfo *audio_params=(struct MediaAudioInfo *)aud;
-
-	medData->user->audio_params=audio_params;
-	return 0;
-}
-
-int TpMediaInterface::setVideoInterface(void *vid)
-{
-	TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
-    if (!medData->user)
-        return -1;
-	struct MediaVideoInfo *video_params=(struct MediaVideoInfo *)vid;
-
-	medData->user->video_params=video_params;
-	return 0;
-}

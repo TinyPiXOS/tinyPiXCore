@@ -1,5 +1,7 @@
 #include <iostream>
 #include "Media/TpVideoInterface.h"
+#include "Media/TpAudioInterface.h"
+#include "Media/TpMediaInterface.h"
 
 
 
@@ -35,19 +37,23 @@ TpVideoInterface::UserCallback processFrame = [](uint8_t** data, int* linesize, 
 int example_video_play()
 {
     TpString device("hw:0,1 USB Audio");
-    TpVideoInterface video(device);
-    video.setVolume(100);
+    TpVideoInterface video;
+    TpAudioInterface audio(device);
+    TpMediaInterface media;
+    media.setAudioOutput(&audio);
+    media.setVideoOutput(&video);
+    audio.setVolume(100);
     //video.addFile("/System/data/Videos/demo.mp4");
     // video.addFile("/home/pix/Media/hahaha.mp4");
     // video.addFile("/home/pix/Media/gravity.mpg");
-    video.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
-    video.addFile("https://gstreamer.freedesktop.org/data/media/large/gravity.mpg");
-    video.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
+    media.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
+    media.addFile("https://gstreamer.freedesktop.org/data/media/large/gravity.mpg");
+    media.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
 
     char *data = "Test User Data";
     std::function<int(uint8_t **, int *, uint32_t, void *)> func = callback_display;
     video.setDisplayFunction(func, data);
-    video.openDevice();
+    media.openDevice();
     /*	video.setWindowSize(1080,720);
         video.setWindowCoordinates(200,200);
         video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
@@ -78,9 +84,9 @@ int example_video_play()
     video.setWindowCoordinates(0, 0);
     video.setWindowSize(1024, 768);
     video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT); // 推荐格式
-    video.playStart();
-    video.setSpeed(1.0);
-    printf("文件时长%d\n", video.getDuration());
+    media.playStart();
+    media.setSpeed(1.0);
+    printf("文件时长%d\n", media.getDuration());
     /*for (int i = 0; i < 10; i++)
     {
         printf("文件时长%d\n", video.getDuration());
@@ -88,13 +94,13 @@ int example_video_play()
         sleep(1);
     }
     printf("文件时长%d\n", video.getDuration());*/
-    video.getPosition();
-    video.setPosition(20);
+    media.getPosition();
+    media.setPosition(20);
     printf("后退成功\n");
 	for (int i = 0; i < 50; i++)
     {
-        printf("文件时长%d\n", video.getDuration());
-        printf("position%d\n", video.getPosition());
+        printf("文件时长%d\n", media.getDuration());
+        printf("position%d\n", media.getPosition());
         usleep(100000);
     }
     //	printf("播放下一个\n");
@@ -107,7 +113,7 @@ int example_video_play()
     sleep(10);
     video.playLast();
     sleep(10);*/
-    video.closeDevice();
+    media.closeDevice();
     return 0;
 }
 
