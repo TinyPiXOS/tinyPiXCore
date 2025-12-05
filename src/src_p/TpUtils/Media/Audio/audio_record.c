@@ -14,8 +14,8 @@
 #include <alsa/asoundlib.h>
 #include <signal.h> //用于signal函数，测试使用
 #include "Audio/audio_record.h"
-#include "Audio/audio_codec.h"
 #include "Audio/audio_play.h"
+#include "Media/media.h"
 
 uint8_t run_flag = 0;
 
@@ -353,7 +353,7 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
         return -1;
     }
 
-    Media_Set_State(conf, AUDIO_STATE_RECORD);
+    Media_Set_State(conf, MEDIA_STATE_RECORD);
     printf("开始读取pcm并写入文件\n");
     while (1)
     {
@@ -369,13 +369,13 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
         cmd = conf->command_get(conf);
         switch (cmd)
         {
-        case AUDIO_PLCMD_SUSPEND:
-            Media_Set_State(conf, AUDIO_STATE_PAUSEING);
+        case MEDIA_PLCMD_SUSPEND:
+            Media_Set_State(conf, MEDIA_STATE_PAUSEING);
             conf->cond->wait(conf->cond);
-            Media_Set_State(conf, AUDIO_STATE_RECORD);
+            Media_Set_State(conf, MEDIA_STATE_RECORD);
             break;
-        case AUDIO_PLCMD_STOP:
-        case AUDIO_PLCMD_EXIT:
+        case MEDIA_PLCMD_STOP:
+        case MEDIA_PLCMD_EXIT:
             goto STOP;
             break;
         default:
@@ -396,7 +396,7 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
 STOP:
 
     avframe_delete(frame);
-    Media_Set_State(conf, AUDIO_STATE_STOP);
+    Media_Set_State(conf, MEDIA_STATE_STOP);
     return 0;
 }
 
@@ -441,7 +441,7 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *
     creat_wav_header(&wav_record, &audio_param);
     fwrite(&wav_record, 1, sizeof(wav_record), fp); // 写入占位
 
-    Media_Set_State(conf, AUDIO_STATE_RECORD);
+    Media_Set_State(conf, MEDIA_STATE_RECORD);
     while (1)
     {
         // 从声卡设备读取一帧音频数据:字节
@@ -460,13 +460,13 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *
         cmd = conf->command_get(conf);
         switch (cmd)
         {
-        case AUDIO_PLCMD_SUSPEND:
-            Media_Set_State(conf, AUDIO_STATE_PAUSEING);
+        case MEDIA_PLCMD_SUSPEND:
+            Media_Set_State(conf, MEDIA_STATE_PAUSEING);
             conf->cond->wait(conf->cond);
-            Media_Set_State(conf, AUDIO_STATE_RECORD);
+            Media_Set_State(conf, MEDIA_STATE_RECORD);
             break;
-        case AUDIO_PLCMD_STOP:
-        case AUDIO_PLCMD_EXIT:
+        case MEDIA_PLCMD_STOP:
+        case MEDIA_PLCMD_EXIT:
             goto STOP;
             break;
         default:
@@ -491,7 +491,7 @@ STOP:
     get_wav_header_info(fp, &wav_record);
     fclose(fp);
     free(buffer);
-    Media_Set_State(conf, AUDIO_STATE_STOP);
+    Media_Set_State(conf, MEDIA_STATE_STOP);
     return 0;
 }
 
@@ -543,16 +543,16 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
         cmd = conf->command_get(conf);
         switch (cmd)
         {
-        case AUDIO_PLCMD_STOP:
+        case MEDIA_PLCMD_STOP:
             printf("等待开始信号\n");
             conf->cond->wait(conf->cond); // 等待开始信号
-            Media_Set_Command(conf, AUDIO_PLCMD_NONE);
+            Media_Set_Command(conf, MEDIA_PLCMD_NONE);
             break;
-        case AUDIO_PLCMD_EXIT:
-            Media_Set_State(conf, AUDIO_STATE_EXIT);
+        case MEDIA_PLCMD_EXIT:
+            Media_Set_State(conf, MEDIA_STATE_EXIT);
             return 0;
             break;
-        case AUDIO_PLCMD_NONE:
+        case MEDIA_PLCMD_NONE:
             conf->cond->wait(conf->cond); // 等待开始信号
             break;
         default:
@@ -563,7 +563,7 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
         if (file == NULL)
             break;
         printf("start record ,save to %s\n", file);
-        Media_Set_State(conf, AUDIO_STATE_RECORD);
+        Media_Set_State(conf, MEDIA_STATE_RECORD);
         // audio_record_file(pcm,conf,file);
         audio_record_wav_file(pcm, conf, file);
         printf("save \n");
@@ -577,7 +577,6 @@ int Audio_Record_Test(struct MediaAudioHandle *pcm, const char *file)
 {
 
     signal(SIGINT, exit_sighandler);
-    pcm->file_type = AUDIO_FILE_TYPE_WAV;
     audio_record_wav_file(pcm, NULL, file);
 
     return 0;

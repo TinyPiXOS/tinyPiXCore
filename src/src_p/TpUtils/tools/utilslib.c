@@ -320,3 +320,14 @@ void md5_to_string(uint8_t hash[MD5_DIGEST_LENGTH], char output[33])
     }
     output[32] = 0; // Null terminate the string
 }
+
+
+
+double limit_min_max(double value, double min, double max)
+{
+    if (value > max)
+        value = max;
+    else if (value < min)
+        value = min;
+    return value;
+}

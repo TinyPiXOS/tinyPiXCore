@@ -7,18 +7,26 @@ extern "C"
 #endif
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <pthread.h>
 #include <alsa/asoundlib.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
+#include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
+#include <libswresample/swresample.h>
+#include <libswscale/swscale.h>
 #include "filter.h"
 #include "Media/media_file_list.h"
+#include "Media/Media/media_config.h"
+
 struct MediaAudioInfo;
 struct MediaUserParams;
-#include <stdbool.h>
-#include "audio_codec.h"
-#include "Media/Media/media_config.h"
+
 
 #define NONE_AUDIO_CARD_PLAY	1	//允许无声卡播放
 #define DEBUG_AUUDIO		//调试打印接口
@@ -34,54 +42,71 @@ struct MediaUserParams;
 #define USER_CONF_VOLUME 		100	//默认音量
 
 //前置声明
+struct MediaUserParams;
 struct MediaCodecParam;
+struct MediaStreamParams;
 
 
-//线程安全读，读取参数param到value
-#define THREAD_READ_USERCONF(mut, param, value)		\
-	{	\
-		pthread_rwlock_rdlock(&mut);\
-		value = param;\
-		pthread_rwlock_unlock(&mut);\
-	}
-
-//线程安全写，把value写入到param
-#define THREAD_WRITE_USERCONF(mut, param, value)		\
-	{	\
-		pthread_rwlock_wrlock(&mut);\
-		param = value;\
-		pthread_rwlock_unlock(&mut);\
-	}
-
-
-typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format ,void *user_data);
 typedef int(*CallbackAudioPlay)(uint8_t *buf,uint32_t frames,int offset,void *param);
 
 
-
-typedef enum AudioPlayCommand_{
-	AUDIO_PLCMD_NONE 	= 0X00,		//初始
-	AUDIO_PLCMD_STOP	= 0x01,		//停止
-	AUDIO_PLCMD_START 	= 0X02,		//播放
-	AUDIO_PLCMD_SUSPEND	= 0X04,		//挂起(等待)
-	AUDIO_PLCMD_CONTINUE= 0X05,		//继续
-	AUDIO_PLCMD_NEXT	= 0X07,		//切换到下一个
-	AUDIO_PLCMD_LAST	= 0X08,		//切换到上一个
-	AUDIO_PLCMD_EXIT 	= 0x09,		//退出
-}AudioPlayCommand;
 
 typedef enum {
     AUDIO_STREAM_PLAYBACK = SND_PCM_STREAM_PLAYBACK,
     AUDIO_STREAM_CAPTURE = SND_PCM_STREAM_CAPTURE
 }AudioStreamType;
 
-typedef enum AudioPlayType_{
-	AUDIO_PLAY_NONE		= 0X00,
-	AUDIO_PLAY_LIST		= 0X01,
-	AUDIO_PLAY_FILE		= 0X02,
-	AUDIO_PLAY_STREAM	= 0X03
-}AudioPlayType;
 
+
+struct MediaUserParams;
+
+
+typedef int(*CodecPlayPcm) (uint8_t *buf,uint32_t frames,void *param);
+
+
+//WAV文件头的信息，44个字节
+typedef struct AudioWavHeader{
+	char rld[4];    //riff 标志符号
+	uint32_t rLen;   
+	char wld[4];    //格式类型（wave）
+	char fld[4];    //"fmt"
+
+	uint32_t fLen;   //sizeof(wave format matex)
+
+	uint16_t wFormatTag;   //编码格式
+	uint16_t wChannels;    //声道数
+	uint32_t nSamplesPersec ;  //采样频率
+	uint32_t nAvgBitsPerSample;//每秒播放字节数
+	uint16_t wBlockAlign; //每个采样点byte数
+	uint16_t wBitsPerSample;   //数据位数
+
+	char dld[4];        //”data“
+	uint32_t wSampleLength;  //音频数据的大小
+}AudioWavHeader;
+
+//声卡和音频相关的采样参数
+struct AudioStreamParams{
+	uint16_t wChannels;    		//声道数
+	uint32_t nSamplesPersec;	//采样频率
+	uint16_t wBitsPerSample; 	//数据位数
+	uint16_t byteFrams;			//每个帧的字节数
+	uint32_t nAvgBitsPerSample;//每秒播放字节数	（=nSamplesPersec*wChannels*wBitsPerSample/8）
+	uint32_t rLen; 		//音频数据长度(不同于head中的rLen，这个是去掉头的)
+	uint32_t bitRate;
+};
+
+//媒体编/解码器参数
+struct MediaCodecParam{
+	AVFormatContext *format_ctx;	//输入输出相关信息，贯穿ffmpeg
+	AVCodecContext *codec_ctx;		//编码器上下文，源文件中的音频参数,位宽，声道等，视频的帧率分辨率等
+	int stream_index;				//需要使用的编解码器index	
+	AVStream *audio_stream;
+
+	struct AudioStreamParams *hard_param;	//音频硬件的采样参数
+
+	int (*callback_play) (uint8_t *buf,uint32_t frames,int offset,void *param);		//播放的回调函数
+	void *callback_param;        //回调函数的参数（不需要则置NULL）
+};
 
 
 
@@ -99,18 +124,11 @@ struct PcmHardParams{
 struct MediaAudioHandle{
 	snd_pcm_t *handle;             	//设备句柄（当设备句柄为空的时候说明无法使用硬件播放）
 	snd_pcm_hw_params_t *hwparams;  //设备配置信息的结构体(结构体内部隐藏)，配置信息保存在该结构体
-	uint8_t file_type;          	//音频文件类型(AudioFileType类型)
+//	uint8_t file_type;          	//音频文件类型(AudioFileType类型)
 	struct AudioStreamParams *adparams;	//解码后可以用于播放的音频流的参数
 	struct PcmHardParams *ahparams;		//设置后的一些关键硬件参数(其实是从snd_pcm_hw_params_t里面拿出来的几个常用的参数)
 };
 
-
-struct PthreadCond{
-	pthread_mutex_t lock;
-	pthread_cond_t cond;
-	int (*send)(struct PthreadCond *cond);
-	int (*wait)(struct PthreadCond *cond);
-};
 
 
 struct MediaRect{
@@ -138,57 +156,18 @@ struct MediaAudioInfo{
 	};
 };
 
-struct MediaVideoInfo{
-	pthread_rwlock_t rw_mut;	//数据交互读写锁
-	//视频显示回调函数以及解码格式
-	uint32_t format_video;		//解码格式，仅在用户自己处理时候才会生效
 
-	struct{
-		CallbackVideoDisplay callback_video;
-		void *userdata;
-		CallbackVideoDisplay (*get_callback_video)(struct MediaVideoInfo *conf);
-		void (*set_callback_video)(struct MediaVideoInfo *conf, CallbackVideoDisplay callback,void *userdata);
-	};
-	
-	//以下参数暂时无用
-	struct VideoStreamParams *video;		//
-};
+enum AVSampleFormat code_get_format(uint16_t wBitsPerSample);
+int64_t code_get_channel_layout(int channels);
+enum AVCodecID get_codeid_from_file_type(MediaFileType type);
 
-//内部使用，用户交互信息
-struct MediaUserParams{        //公共区用户设置
-	//通用设置
-	bool is_playing;
-	struct MediaFileList *list;//文件列表
-	char *file;				//正在播放的文件
-	AudioPlayType type;		//文件/列表/流	，暂时未使用
-	double length;			//正在播放的文件的时长(单位：s)
-	AudioPlayState state;	//播放状态 ,
-	struct{
-		float speed;		//播放速度，0.5～100
-		struct MediaFilterParam *filter;	//过滤器，用于速度控制，此处只是一个地址用于防止退出的时候内存泄漏
-	};
-	struct{   //当前进度和用户设置进度(0-*s)                           初始化-1
-		int32_t position_s;
-		union{
-			double position_p;			//播放位置
-			int64_t position_bytes;		//已播放的字节数
-		};
-		uint32_t nAvgBitsPerSample;		//每秒播放字节数，仅播放音频时使用
-	};
-	struct{
-		AudioPlayCommand cmd;	//控制命令
-		int (*command_get)(struct MediaUserParams *conf);		//安全获取当前的命令
-	};
+struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioStreamParams *hard_param);
+int get_audio_params_wav(FILE *fp,struct AudioStreamParams *params);
+void get_wav_header_info(FILE *fp,AudioWavHeader *wav_header);
 
-	//音频流相关配置
-	struct MediaAudioInfo *audio_params;
 
-	//视频流相关配置
-	struct MediaVideoInfo *video_params;
-
-	pthread_rwlock_t rw_mut;	//数据交互读写锁
-	struct PthreadCond *cond;
-};
+AVFrame *alloc_avframe_frames_hard(int frames,struct AudioStreamParams *hard_param);
+int free_avframe(AVFrame **converted_frame);
 
 int pcm_hwparams_set(struct MediaAudioHandle *pcm,struct AudioStreamParams *audio);		//设置硬件参数
 int audio_stream_write(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,
@@ -200,30 +179,10 @@ int audio_pcm_drain(struct MediaAudioHandle *pcm);
 int audio_pcm_drop(struct MediaAudioHandle *pcm);
 int audio_pcm_close(struct MediaAudioHandle *pcm);
 
-struct MediaAudioInfo *media_audio_info_creat(const char *name);
-void media_audio_info_delete(struct MediaAudioInfo *conf);
-struct MediaVideoInfo *media_video_info_creat();
-void media_video_info_delete(struct MediaVideoInfo *conf);
-struct MediaUserParams *media_user_config_creat();
-struct PthreadCond *pthread_cond_creat_struct();
-int pthread_cond_free_struct(struct PthreadCond *cond);
-void media_user_config_delete(struct MediaUserParams *conf);
-
 struct MediaAudioHandle *Audio_Play_Open(const char *device);
 int Audio_Device_Init(struct MediaAudioHandle *pcm_play,const char *device,AudioStreamType type);
 int Audio_Device_Close(struct MediaAudioHandle *pcm_play);
 
-//开始
-int Media_Set_Start(struct MediaUserParams *conf, const char *file);
-
-//获取命令(内部使用)
-int Media_Get_Command(struct MediaUserParams *conf);
-
-//设置命令(内部使用)
-int Media_Set_Command(struct MediaUserParams *conf,AudioPlayCommand cmd);
-
-//设置状态
-int Media_Set_State(struct MediaUserParams *conf, AudioPlayState state);
 
 //设置音量
 int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
@@ -232,60 +191,7 @@ int Audio_Set_Volume(struct MediaAudioInfo *conf_a,int16_t volume);
 int Audio_Get_Volume(struct MediaAudioInfo *conf_a);
 
 
-int Audio_Get_BitsPerSample(struct MediaUserParams *conf);
 
-//内部获取用户设置的播放位置
-int Media_Get_Position_S(struct MediaUserParams *conf);
-
-//内部设置实时播放位置
-int Media_Set_Position_N(struct MediaUserParams *conf,int32_t position);
-
-float Media_Get_Speed(struct MediaUserParams *conf);
-
-int Media_State_Is_Exit(struct MediaUserParams *conf);
-
-int Media_Set_Speed(struct MediaUserParams *conf, float speed);
-
-//设置位置
-int Media_Set_Position(struct MediaUserParams *conf,int32_t position);
-
-//获取位置
-int Media_Get_Position(struct MediaUserParams *conf);
-double Media_Get_DPosition(struct MediaUserParams *conf);
-
-int64_t Media_Get_BytePosition(struct MediaUserParams *conf);
-int64_t Media_Set_BytePosition(struct MediaUserParams *conf,int64_t position);
-
-//暂停播放
-int Media_Set_Suspend(struct MediaUserParams *conf);
-
-//继续播放
-int Media_Set_Continue(struct MediaUserParams *conf);
-
-int Media_Get_State(struct MediaUserParams *conf);
-
-//停止播放,只是停止不会关闭声卡，不同于暂停，停止会清空大多数播放信息
-int Media_Set_Stop(struct MediaUserParams *conf);
-
-//关闭声卡
-int Audio_Set_Close(struct MediaUserParams *conf);
-
-//播放新文件
-int Media_Set_Play(struct MediaUserParams *conf,const char *file);
-
-int Media_Play_Next(struct MediaUserParams *conf);
-int Media_Play_Last(struct MediaUserParams *conf);
-//内部设置媒体文件时长
-int Media_Set_Length(struct MediaUserParams *conf,double length);
-//获取音频时长
-double Media_Get_Length(struct MediaUserParams *conf);
-int Media_Set_Is_Playing(struct MediaUserParams *conf,bool is_playing);
-bool Media_Get_Is_Playing(struct MediaUserParams *conf);
-//添加播放的文件
-int Media_Add_File(struct MediaUserParams *conf, const char *file);
-
-//删除播放文件
-int Media_Del_File(struct MediaUserParams *conf, const char *file);
 
 //设置硬件
 int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,uint32_t rate,uint16_t channel,uint16_t bits);
@@ -293,8 +199,10 @@ int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaUserPara
 int Audio_Set_Nonblock(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,uint8_t nonblock);
 int Audio_Write_Stream(struct MediaAudioHandle *pcm,struct MediaUserParams *conf,struct AudioStreamParams *hard_params,
 							uint8_t *buffer,uint32_t frames,int offset,int delay);
-CallbackVideoDisplay Media_Get_Video_Callback(struct MediaVideoInfo *conf);
-void Media_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb, void *userdata);
+
+
+int media_stream_audio_init_handle(struct MediaStreamParams *audio,struct MediaUserParams *user);
+int media_stream_audio_deinit_handle(struct MediaStreamParams *audio);
 
 #ifdef __cplusplus
 }

@@ -156,6 +156,7 @@
         "timerfd.h": "c",
         "unistd.h": "c",
         "executor": "c",
-        "msg.h": "c"
+        "msg.h": "c",
+        "time.h": "c"
     }
 }

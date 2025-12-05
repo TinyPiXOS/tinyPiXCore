@@ -57,18 +57,6 @@ struct MediaVideoHandle
     bool is_sdl; // 是否启用本地显示(如果不启用需要上层绘制图像)
 };
 
-// 原struct MediaAudioHandle
-// 音频的硬件参数和句柄
-/*struct MediaAudioHandle{
-    char *device;					//声卡设备名
-    snd_pcm_t *handle;             	//设备打开后的句柄
-    snd_pcm_hw_params_t *hwparams;  //设备配置信息的结构体(结构体内部隐藏)，配置信息保存在该结构体
-    uint8_t file_type;          	//音频文件类型(AudioFileType类型)
-    uint8_t thread_num;				//线程编号，暂时未使用
-    struct AudioStreamParams *adparams;	//解码后可以用于播放的音频流的参数
-    struct PcmHardParams *ahparams;	//设置后的一些关键硬件参数(其实是从snd_pcm_hw_params_t里面拿出来的几个常用的参数)
-    struct SwrContext *swr_ctr;	//音频重采样和转换句柄
-};*/
 
 
 // 媒体流通用参数
@@ -117,7 +105,7 @@ struct MediaPlayerHandle{
     int (*player_wait)(MediaStreamArray *stream_array);
     int (*player_pause)(struct MediaPlayerHandle *handle);
     int (*player_resume)(struct MediaPlayerHandle *handle);
-    int (*set_state)(MediaStreamArray *stream_array, AudioPlayState state);
+    int (*set_state)(MediaStreamArray *stream_array, MediaPlayState state);
 
     int (*flush_list)(MediaStreamArray *stream_array);  // 删除全部流队列中所有元素
     int (*packet_exit)(MediaStreamArray *stream_array); //退出阻塞，并退出队列

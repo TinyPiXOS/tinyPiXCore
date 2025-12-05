@@ -10,6 +10,10 @@ extern "C" {
 #define DEBUG_MEDIA_PLAY
 
 
+int Media_Play_Main(struct MediaUserParams *user);
+
+
+
 
 
 #ifdef __cplusplus

@@ -8,7 +8,7 @@ extern "C"
 
 #include "audio_play.h"
 
-
+struct MediaUserParams;
 
 
 struct MediaAudioHandle *Audio_Record_Open(const char *device);

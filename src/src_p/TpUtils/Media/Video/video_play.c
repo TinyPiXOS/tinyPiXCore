@@ -16,10 +16,10 @@
 #include <libavutil/opt.h> //audio部分
 #include "Video/video_play.h"
 #include "Video/video_display.h"
-#include "Audio/audio_codec.h"
 #include "Audio/audio_play.h"
 #include "Media/media_file_list.h"
-
+#include "Media/Media/media.h"
+#include "Media/Media/media_codec.h"
 
 int get_display_params_user_codec(struct MediaUserParams *user, AVCodecContext *codec_ctx, struct VideoStreamParams *video_params);
 
@@ -30,6 +30,46 @@ int get_display_params_user_codec(struct MediaUserParams *user, AVCodecContext *
 #endif
 
 
+struct MediaVideoInfo *media_video_info_creat()
+{
+    struct MediaVideoInfo *conf = (struct MediaVideoInfo *)malloc(sizeof(struct MediaVideoInfo));
+    if(!conf)
+        return NULL;
+
+    conf->format_video = AV_PIX_FMT_RGB24; // 默认格式
+    conf->callback_video = NULL;
+    conf->userdata = NULL;
+    struct VideoStreamParams *video = (struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
+    if (video == NULL)
+    {
+        free(conf);
+    }
+    video->rect.h = 0;
+    video->rect.w = 0;
+    video->rect.x = 0;
+    video->rect.y = 0;
+    video->fill = MEDIA_VIDEO_SCALING_FIT;
+
+    conf->video=video;
+    
+    conf->get_callback_video = Media_Get_Video_Callback;
+    conf->set_callback_video = Media_Set_Video_Callback;
+    pthread_rwlock_init(&conf->rw_mut, NULL);
+
+    return conf;
+}
+
+void media_video_info_delete(struct MediaVideoInfo *conf)
+{
+    if(!conf)
+        return ;
+    if(conf->video)
+        free(conf->video);
+    conf->video = NULL;
+    pthread_rwlock_destroy(&conf->rw_mut);
+    free(conf);
+    conf=NULL;
+}
 
 // 创建纹理（设置format，如果不支持会设置为其他格式）
 // 每次调整播放窗口大小都要重新创建纹理
@@ -57,66 +97,65 @@ SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer, uint32_t *format, in
 }
 #endif
 
-
-
-// SDL初始化(显示)
-#ifdef MEDIA_SDL_ENABLE
-static int sdl_display_init(struct VideoHardParam *display, struct MediaCodecParam *codec_v, uint32_t format, int x, int y, int w, int h)
+//SDL初始化(显示)
+//当设置的format无法成功生效时会自动修改可以成功设置的format
+static int sdl_display_init(struct MediaVideoHandle *display,uint32_t *format,int x, int y, int w, int h)
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
-    {
-        fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return -1;
-    }
+#ifdef MEDIA_SDL_ENABLE	
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
+		fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+		return -1;
+	}
 
-    // 创建SDL窗口
-    display->window = SDL_CreateWindow("TinyPiX Video", x, y, w, h, SDL_WINDOW_HIDDEN); // 隐藏：SDL_WINDOW_HIDDEN,显示：SDL_WINDOW_SHOWN
-    if (!display->window)
-    {
-        fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        SDL_Quit();
-        return -1;
-    }
-    // 创建渲染器
-    display->renderer = SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
-    if (display->renderer == NULL)
-    {
-        fprintf(stderr, "Creat Renderer!,SDL_Error: %s\n", SDL_GetError());
+	//创建SDL窗口
+	display->window = SDL_CreateWindow("TinyPiX Video", x, y, w, h, SDL_WINDOW_HIDDEN);//隐藏：SDL_WINDOW_HIDDEN,显示：SDL_WINDOW_SHOWN
+	if (!display->window) {
+		fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
+		SDL_Quit();
+		return -1;
+	}
+	//创建渲染器
+	display->renderer = SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
+	if(display->renderer==NULL)
+	{
+		fprintf(stderr, "Creat Renderer!,SDL_Error: %s\n", SDL_GetError());
+		SDL_DestroyWindow(display->window);
+		SDL_Quit();
+		return -1;
+	}
+	//创建纹理
+	display->texture=NULL;
+	/*display->texture = sdl_creat_texture_near(display->renderer, format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
+	if(display->texture==NULL)
+	{
+		fprintf(stderr, "Creat Texture! SDL_Error: %s\n", SDL_GetError());
+		SDL_DestroyRenderer(display->renderer);
         SDL_DestroyWindow(display->window);
         SDL_Quit();
-        return -1;
-    }
-    // 创建纹理
-    display->texture = NULL;
-    /*display->texture = sdl_creat_texture_near(display->renderer, &format,w,h);		//codec_v->codec_ctx->width,codec_v->codec_ctx->height SDL_PIXELFORMAT_RGB24
-    if(display->texture==NULL)
-    {
-        fprintf(stderr, "Creat Texture! SDL_Error: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(display->renderer);
-        SDL_DestroyWindow(display->window);
-        SDL_Quit();
-    }*/
+	}*/
 
-    debug_printf("debug:sdl init ok, display on(%d,%d %d*%d)\n", x, y, w, h);
-    display->format = format;
-    return 0;
-}
+	debug_printf("debug:sdl init ok, display on(%d,%d %d*%d)\n",x,y,w,h);
 #endif
+	return 0;
+}
 
-#ifdef MEDIA_SDL_ENABLE
-static int sdl_display_deinit(struct VideoHardParam *display)
+
+
+
+static int sdl_display_deinit(struct MediaVideoHandle *display)
 {
-    if (display->texture)
-        ;
-    SDL_DestroyTexture(display->texture);
-    if (display->renderer)
-        SDL_DestroyRenderer(display->renderer);
-    if (display->window)
-        SDL_DestroyWindow(display->window);
-    SDL_Quit();
-    return 0;
-}
+#ifdef MEDIA_SDL_ENABLE
+	if(display->texture);
+		SDL_DestroyTexture(display->texture);
+	if(display->renderer)
+		SDL_DestroyRenderer(display->renderer);
+	if(display->window)
+		SDL_DestroyWindow(display->window);
+	SDL_Quit();
 #endif
+	return 0;
+}
+
 
 
 // 计算缩放比
@@ -318,6 +357,25 @@ int Video_Set_Decode_Format(struct MediaVideoInfo *conf_v, uint32_t format)
     return 0;
 }
 
+CallbackVideoDisplay Media_Get_Video_Callback(struct MediaVideoInfo *conf_v)
+{
+    CallbackVideoDisplay cb;
+    THREAD_READ_USERCONF(conf_v->rw_mut, conf_v->callback_video, cb);
+    return cb;
+}
+
+
+void Media_Set_Video_Callback(struct MediaVideoInfo *conf_v, CallbackVideoDisplay cb, void *userdata)
+{
+    if (!conf_v)
+        return;
+    pthread_rwlock_rdlock(&conf_v->rw_mut);
+    conf_v->callback_video = cb;
+    conf_v->userdata = userdata;
+    pthread_rwlock_unlock(&conf_v->rw_mut);
+}
+
+
 // 获取所有显示参数
 static int video_params_get_all(struct MediaVideoInfo *conf_v, struct VideoStreamParams *video_params)
 {
@@ -348,6 +406,75 @@ int get_display_params_user_codec(struct MediaUserParams *user, AVCodecContext *
         video_params->rect.h = codec_ctx->height;
     }
     return 0;
+}
+
+
+//视频流的硬件初始化获取视频类流的
+int media_stream_video_init_handle(struct MediaStreamParams *stream,struct MediaUserParams *user)
+{
+	struct MediaVideoHandle *handle=(struct MediaVideoHandle *)malloc(sizeof(struct MediaVideoHandle));
+	if(!handle)
+		return -1;
+
+	if(!user->video_params->get_callback_video(user->video_params))		//用户没设置回调就启用本地显示
+	{
+		printf("=============启用本地显示===========\n");
+		handle->is_sdl=true;
+	}
+
+	struct VideoStreamParams user_params;	//用户设置的显示位置和宽高以及亮度填充
+	get_display_params_user_codec(user,stream->codec_ctx,&user_params);
+
+/*	struct VideoStreamParams *params_d=(struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
+	if(!params_d)
+	{
+		goto ERROR_RETURN;
+	}
+	struct VideoStreamParams *params_s=(struct VideoStreamParams *)malloc(sizeof(struct VideoStreamParams));
+	if(!params_d)
+	{
+		goto ERROR_RETURN;
+	}
+*/
+#ifdef MEDIA_SDL_ENABLE
+	if(handle->is_sdl)
+	{
+		uint32_t sdl_format=(uint32_t)get_sdl_pixel_format(user->format_video);	//此处的sdl_format已无实际意义，真正格式会在codec中使用，此处为了兼容旧版程序
+		//视频播放的SDL初始化
+		if(sdl_display_init(handle,&sdl_format,0,0,0,0 )<0)		//只初始化，窗口不显示
+		{
+			fprintf(stderr,"init sdl error\n");
+			goto ERROR_RETURN;
+		}
+		stream->video.format=get_format_pixel_sdl(sdl_format);	//根据新的sdlformat获取av_format
+	}
+	else	
+		;
+#endif
+	stream->video.handle=handle;
+	stream->video.format=user->video_params->format_video;
+
+	return 0;
+
+ERROR_RETURN:
+/*	if(params_s)
+		free(params_s);
+	if(params_d)
+		free(params_d);*/
+	free(handle);
+	return -1;
+}
+
+int media_stream_video_deinit_handle(struct MediaStreamParams *stream)
+{
+	if(!stream->video.handle)
+		return -1;
+	if(stream->video.handle->is_sdl)
+		sdl_display_deinit(stream->video.handle);
+	if(stream->video.handle)
+		free(stream->video.handle);
+	stream->video.handle=NULL;
+	return 0;
 }
 
 

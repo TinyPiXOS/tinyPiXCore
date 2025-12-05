@@ -73,6 +73,8 @@ int system_copy_file(const char *path_s, const char *path_d);
 //计算文件的MD5哈希值
 int compute_md5(const char *file_path, uint8_t output[MD5_DIGEST_LENGTH]);
 
+//把value值限制到min和max之间
+double limit_min_max(double value, double min, double max);
 
 #ifdef __cplusplus
 }

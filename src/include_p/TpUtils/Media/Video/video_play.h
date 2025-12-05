@@ -7,17 +7,28 @@ extern "C"
 #endif
 
 #include <stdbool.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
+#include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
 #include <libswresample/swresample.h>
-#include "Audio/audio_codec.h"
+#include <libswscale/swscale.h>
 #include "Media/media_config.h"
 
 #define SCALE_HANDLE_USE_SDL // 使用SDL处理缩放
 // #define SCALE_HANDLE_USE_FFMPEG		//使用FFMPEG处理缩放
 
+typedef int (*CodecSdlPlayAudio)(uint8_t *buf, uint32_t frames, void *param);
+typedef int (*CodecSdlPlayVideo)(uint8_t *buf, uint32_t frames, void *param);
+
+typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format ,void *user_data);
+
 struct MediaAudioHandle;
 struct VideoStreamParams;
 struct MediaVideoInfo;
-
+struct MediaUserParams;
+struct MediaStreamParams;
 
 
 // 音频播放回调函数的参数
@@ -47,6 +58,23 @@ struct VideoHardParam
     bool is_sdl;                // 是否启用本地显示(如果不启用需要上层绘制图像)
 };
 
+struct MediaVideoInfo{
+	pthread_rwlock_t rw_mut;	//数据交互读写锁
+	//视频显示回调函数以及解码格式
+	uint32_t format_video;		//解码格式，仅在用户自己处理时候才会生效
+
+	struct{
+		CallbackVideoDisplay callback_video;
+		void *userdata;
+		CallbackVideoDisplay (*get_callback_video)(struct MediaVideoInfo *conf);
+		void (*set_callback_video)(struct MediaVideoInfo *conf, CallbackVideoDisplay callback,void *userdata);
+	};
+	
+	//以下参数暂时无用
+	struct VideoStreamParams *video;		//
+};
+
+
 #ifdef MEDIA_SDL_ENABLE
 SDL_Texture *sdl_creat_texture_near(SDL_Renderer *renderer, uint32_t *format, int w, int h); // 创建纹理(
 #endif
@@ -65,7 +93,11 @@ int Video_Get_Width_Height(struct MediaVideoInfo *conf,uint16_t *width,uint16_t 
 int Video_Set_Coordinates(struct MediaVideoInfo *conf,int16_t x,int16_t y);
 int Video_Set_Fill_Mode(struct MediaVideoInfo *conf,VideoScalingType mode);
 
+CallbackVideoDisplay Media_Get_Video_Callback(struct MediaVideoInfo *conf);
+void Media_Set_Video_Callback(struct MediaVideoInfo *conf,CallbackVideoDisplay cb, void *userdata);
 
+int media_stream_video_init_handle(struct MediaStreamParams *stream,struct MediaUserParams *user);
+int media_stream_video_deinit_handle(struct MediaStreamParams *stream);
 
 #ifdef __cplusplus
 }

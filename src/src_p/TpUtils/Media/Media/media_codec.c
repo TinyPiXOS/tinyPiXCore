@@ -45,7 +45,7 @@ struct MediaThreadCond{
 //编解码播放线程信息
 struct MediaThread{
 	pthread_t thread;			//线程标号
-	AudioPlayState state;		//线程状态
+	MediaPlayState state;		//线程状态
 	uint8_t running;
 	uint8_t codec;
 	pthread_mutex_t lock;			//数据锁
@@ -53,8 +53,8 @@ struct MediaThread{
 	int (*start_thread)(struct MediaThread *thread,struct TimerHandle *clock,void *(*thread_main)(void *),struct MediaStreamParams *stream,struct MediaUserParams *user,bool is_sync);
 	int (*is_running)(struct MediaThread *thread);	//线程是否在运行中
 
-	AudioPlayState (*get_state)(struct MediaThread *thread);				//获取线程状态
-	int (*set_state)(struct MediaThread *thread, AudioPlayState state);		//设置线程状态
+	MediaPlayState (*get_state)(struct MediaThread *thread);				//获取线程状态
+	int (*set_state)(struct MediaThread *thread, MediaPlayState state);		//设置线程状态
 
 	struct{
 		struct MediaThreadCond cond;	//线程队列使用
@@ -294,9 +294,9 @@ static int thread_wait_codec(struct MediaThread *thread)
 	return 0;
 }
 //获取状态
-static AudioPlayState thread_get_state(struct MediaThread *thread)
+static MediaPlayState thread_get_state(struct MediaThread *thread)
 {
-    AudioPlayState state;
+    MediaPlayState state;
     pthread_mutex_lock(&thread->lock);  // 锁定
     state = thread->state;
     pthread_mutex_unlock(&thread->lock);  // 解锁
@@ -304,15 +304,15 @@ static AudioPlayState thread_get_state(struct MediaThread *thread)
 }
 
 //设置状态
-static int thread_set_state(struct MediaThread *thread, AudioPlayState state)
+static int thread_set_state(struct MediaThread *thread, MediaPlayState state)
 {
-	if(state == AUDIO_STATE_EXIT)
+	if(state == MEDIA_STATE_EXIT)
 	{
 		debug_printf("Thread exit(%p)\n",thread);
 	}
 
     pthread_mutex_lock(&thread->lock);  // 锁定
-	if(thread->state!=AUDIO_STATE_EXIT)		//非退出状态才允许设置状态
+	if(thread->state!=MEDIA_STATE_EXIT)		//非退出状态才允许设置状态
     	thread->state=state;
     pthread_mutex_unlock(&thread->lock);  // 解锁
 	return 0;
@@ -354,8 +354,8 @@ static int thread_start_running(struct MediaThread *thread,
 
 static int thread_is_running(struct MediaThread *thread)
 {
-	AudioPlayState state=thread_get_state(thread);
-	if(state==AUDIO_STATE_PLAYING || state==MEDIA_THREAD_WAITING )
+	MediaPlayState state=thread_get_state(thread);
+	if(state==MEDIA_STATE_PLAYING || state==MEDIA_THREAD_WAITING )
 		return 1;
 	return 0;
 }
@@ -587,7 +587,7 @@ static void *thread_video_codec(void *param)
 	uint8_t *buffer = NULL;
 
 	data->err_code=1;
-	video_t->set_state(video_t,AUDIO_STATE_PLAYING);
+	video_t->set_state(video_t,MEDIA_STATE_PLAYING);
 	AVPacket *packet;
 	int num=0;
 	//video_t->clock->start(video_t->clock);
@@ -603,8 +603,8 @@ static void *thread_video_codec(void *param)
 		int cmd=user->command_get(user);
 		switch(cmd)
 		{
-			case AUDIO_PLCMD_SUSPEND:
-				video_t->set_state(video_t,AUDIO_STATE_PAUSEING);
+			case MEDIA_PLCMD_SUSPEND:
+				video_t->set_state(video_t,MEDIA_STATE_PAUSEING);
 				debug_printf("debug:video thread 暂停\n");
 				video_t->wait_codec(video_t);
 				debug_printf("debug:video thread 继续\n");
@@ -677,10 +677,10 @@ static void *thread_video_codec(void *param)
 		}
 
 		packet=video_t->get_packet(&video_t->list,1);
-		if(video_t->get_state(video_t)==AUDIO_STATE_EXIT)
+		if(video_t->get_state(video_t)==MEDIA_STATE_EXIT)
 			break;
 		//debug_printf("开始解码：ptr of frame_s%p, pptr of packet :%p（当前状态%d)\n",frame_s,&packet,video_t->get_state(video_t));
-		video_t->set_state(video_t,AUDIO_STATE_PLAYING);
+		video_t->set_state(video_t,MEDIA_STATE_PLAYING);
 		if(!packet)
 		{
 			continue;
@@ -789,15 +789,15 @@ static void *thread_audio_codec(void *param)
 //	debug_printf("channel:%d\n",audio->codec_ctx->channels);
 
 	data->err_code=1;
-	audio_t->set_state(audio_t,AUDIO_STATE_PLAYING);
+	audio_t->set_state(audio_t,MEDIA_STATE_PLAYING);
 	AVPacket *packet;
 	while(audio_t->is_running(audio_t))
 	{
 		int cmd=user->command_get(user);
 		switch(cmd)
 		{
-			case AUDIO_PLCMD_SUSPEND:
-				audio_t->set_state(audio_t,AUDIO_STATE_PAUSEING);
+			case MEDIA_PLCMD_SUSPEND:
+				audio_t->set_state(audio_t,MEDIA_STATE_PAUSEING);
 				debug_printf("debug:audio thread 暂停\n");
 				audio_t->wait_codec(audio_t);
 				debug_printf("debug:audio thread 继续\n");
@@ -806,9 +806,9 @@ static void *thread_audio_codec(void *param)
 				break;
 		}
 		packet=audio_t->get_packet(&audio_t->list,1);		//
-		if(audio_t->get_state(audio_t)==AUDIO_STATE_EXIT)
+		if(audio_t->get_state(audio_t)==MEDIA_STATE_EXIT)
 			break;
-		audio_t->set_state(audio_t,AUDIO_STATE_PLAYING);
+		audio_t->set_state(audio_t,MEDIA_STATE_PLAYING);
 
 		if (media_send_packet_to_codecc(stream,audio_t, packet) < 0) {		//向解码器发送一个压缩的媒体包
 			fprintf(stderr, "Error sending packet to audio codec\n");
@@ -1010,11 +1010,11 @@ static int media_player_codec_stop(MediaStreamArray *stream_array)
 }
 
 //同时设置所有流的状态
-static int media_player_set_state(MediaStreamArray *stream_array,AudioPlayState state)
+static int media_player_set_state(MediaStreamArray *stream_array,MediaPlayState state)
 {
 	struct MediaThread* t;
 	FOREACH_THREAD(stream_array,t){
-		t->set_state(t,AUDIO_STATE_EXIT);
+		t->set_state(t,MEDIA_STATE_EXIT);
 	};
 }
 
@@ -1107,7 +1107,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 	int test=0;
 	//启动所有线程的共用同步时钟
 	clock->start(player->clock);
-	Media_Set_State(user,AUDIO_STATE_PLAYING);
+	Media_Set_State(user,MEDIA_STATE_PLAYING);
 	while (1) 	
 	{
 
@@ -1116,7 +1116,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 		{
 			debug_printf("强制退出===========================================================================================\n");
 			player->player_start(stream_array);
-			player->set_state(stream_array,AUDIO_STATE_EXIT);
+			player->set_state(stream_array,MEDIA_STATE_EXIT);
 			exit(0);
 			break;
 		}
@@ -1143,8 +1143,8 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 		int cmd=user->command_get(user);
 		switch(cmd)
 		{
-			case AUDIO_PLCMD_SUSPEND:
-				Media_Set_State(user,AUDIO_STATE_PAUSEING);
+			case MEDIA_PLCMD_SUSPEND:
+				Media_Set_State(user,MEDIA_STATE_PAUSEING);
 				debug_printf("debug:暂停\n");
 				clock->pause(clock);
 				user->cond->wait(user->cond);
@@ -1152,14 +1152,14 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 				clock->resume(clock);
 				
 				player->player_start(stream_array);
-				Media_Set_State(user,AUDIO_STATE_PLAYING);
+				Media_Set_State(user,MEDIA_STATE_PLAYING);
 				break;
-			case AUDIO_PLCMD_NEXT:
-			case AUDIO_PLCMD_LAST:
-				Media_Set_State(user,AUDIO_STATE_JUMP);
-			case AUDIO_PLCMD_STOP:
-			case AUDIO_PLCMD_EXIT:
-				player->set_state(stream_array,AUDIO_STATE_EXIT);
+			case MEDIA_PLCMD_NEXT:
+			case MEDIA_PLCMD_LAST:
+				Media_Set_State(user,MEDIA_STATE_JUMP);
+			case MEDIA_PLCMD_STOP:
+			case MEDIA_PLCMD_EXIT:
+				player->set_state(stream_array,MEDIA_STATE_EXIT);
 				player->packet_exit(stream_array);					//防止队列中没有数据，线程阻塞
 				//清空队列
 				player->flush_list(stream_array);
@@ -1195,7 +1195,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 		Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
 	}
 
-	player->set_state(stream_array,AUDIO_STATE_EXIT);
+	player->set_state(stream_array,MEDIA_STATE_EXIT);
 	player->packet_exit(stream_array);
 	// Clean up
 
@@ -1268,7 +1268,7 @@ static int Media_Thread_Free(struct MediaThread *thread)
 {
 	if(!thread)
 		NULL;
-	thread->set_state(thread,AUDIO_STATE_NONE);
+	thread->set_state(thread,MEDIA_STATE_NONE);
 	pthread_join(thread->thread,NULL);
 	pthread_cond_destroy(&thread->cond.cond);
     pthread_mutex_destroy(&thread->cond.lock);

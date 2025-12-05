@@ -14,9 +14,6 @@ extern "C" {
 #include "Media/Video/video_play.h"
 
 
-int Media_Play_Main(struct MediaUserParams *user) __attribute__((used));
-
-
 
 #ifdef __cplusplus
 }
