@@ -1,24 +1,16 @@
 #include "TpWidget.h"
 #include "TpApp_p.h"
 #include "TpWidget_p.h"
+#include "TpScreen_p.h"
 
 TpWidget::TpWidget(TpWidget *parent)
     : TpObject(parent)
 {
     TpWidgetData *widgetData = new TpWidgetData();
 
-    widgetData->visible = false;
-
-    widgetData->offsetX = 0;
-    widgetData->offsetY = 0;
-
-    widgetData->backColor = _RGB(248, 248, 248);
-    widgetData->enableColor = true;
-    widgetData->enableImage = true;
-
-    widgetData->windowOpacity = 1.0;
-
-    widgetData->layout = nullptr;
+    // 根据CPU核心数；分配绘图引擎线程数
+    uint32_t cores = std::thread::hardware_concurrency();
+    tvg::Initializer::init(cores / 2);
 
     // 移除父类的数据；创建widget的指针
     TpObjectData *objData = static_cast<TpObjectData *>(TpObject::data_);
@@ -28,22 +20,21 @@ TpWidget::TpWidget(TpWidget *parent)
         objData = nullptr;
         TpObject::data_ = nullptr;
     }
-
-    widgetData->top = this->topObject();
     TpObject::data_ = widgetData;
+
+    initTpData();
 
     TpApp::Inst()->sendRegister(this);
 
     setParent(parent);
     setVisible(true);
-
-    // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
 }
 
 TpWidget::~TpWidget()
 {
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    widgetData->tvgScene->unref();
+
     tvg::Initializer::term();
 }
 
@@ -122,6 +113,26 @@ void TpWidget::setVisible(bool visible)
 
     if (visible == widgetData->visible)
         return;
+
+    if (widgetData->tvgScene)
+    {
+        widgetData->tvgScene->visible(visible);
+
+        for (const auto &childObj : widgetData->objectList)
+        {
+            TpWidget *childWidget = dynamic_cast<TpWidget *>(childObj);
+            if (!childWidget)
+                return;
+
+            childWidget->setVisible(visible);
+
+            TpWidgetData *childWidgetData = static_cast<TpWidgetData *>(childWidget->data_);
+            if (childWidgetData->tvgScene)
+            {
+                childWidgetData->tvgScene->visible(visible);
+            }
+        }
+    }
 
     widgetData->visible = visible;
     ItpObjectVisibleSet input;
@@ -957,11 +968,26 @@ void TpWidget::setParent(TpObject *parent)
     if (parent && !parentWidget)
         return;
 
-    TpObject::setParent(parent);
-
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-    if (!widgetData)
-        return;
+
+    // 如果已经有父窗口，需要将原先的scene链表中断
+    if (widgetData->parent && (widgetData->parent != parent))
+    {
+        widgetData->tvgScene->remove();
+
+        TpScreen *topScreen = static_cast<TpScreen *>(topObject());
+        if (topScreen)
+        {
+            TpScreenData *topScreenData = static_cast<TpScreenData *>(topScreen->data_);
+            topScreenData->swCanvas->remove(widgetData->tvgScene);
+        }
+
+        // TpWidget *lastParentWidget = dynamic_cast<TpWidget *>(widgetData->parent);
+        // TpWidgetData *lastParentWidgetData = static_cast<TpWidgetData *>(lastParentWidget->data_);
+        // lastParentWidgetData->tvgScene->remove(widgetData->tvgScene);
+    }
+
+    TpObject::setParent(parent);
 
     if (parent)
     {
@@ -973,6 +999,20 @@ void TpWidget::setParent(TpObject *parent)
     {
         SetTopFunc(widgetData->top, widgetData);
     }
+
+    // 将自己的scene加入父组件的scene
+    // if (parentWidget)
+    // {
+    //     TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->data_);
+    //     parentWidgetData->tvgScene->push(widgetData->tvgScene);
+    //     // 父节点改变后，重新计算裁剪区域
+    //     // refreshSceneClipRect(this, widgetData);
+
+    //     widgetData->tvgScene->visible(true);
+    //     std::cout << "parentWidget->pluginType() " << parentWidget->pluginType() << std::endl;
+    //     std::list<tvg::Paint *> canvasSceneList = parentWidgetData->tvgScene->paints();
+    //     std::cout << "11111111111topSceneChildList : " << canvasSceneList.size() << std::endl;
+    // }
 }
 
 bool TpWidget::onMousePressEvent(TpMouseEvent *event)
@@ -1015,11 +1055,17 @@ bool TpWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
+bool TpWidget::onMoveEvent(TpMoveEvent *event)
+{
+    refreshSceneClipRect(this, static_cast<TpWidgetData *>(TpObject::data_));
+    return true;
+}
+
 bool TpWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-    if (!widgetData)
-        return false;
+
+    refreshSceneClipRect(this, widgetData);
 
     if (widgetData->layoutMutex.try_lock())
     {
@@ -1245,16 +1291,10 @@ void TpWidget::broadSetTop()
     }
 }
 
-std::pair<void *, void *> TpWidget::canvasPtr()
+void *TpWidget::scenePtr()
 {
-    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
-    if (childData->swCanvas == nullptr)
-    {
-        childData->swCanvas = tvg::SwCanvas::gen();
-        childData->tvgScene = tvg::Scene::gen();
-        childData->swCanvas->push(std::move(childData->tvgScene));
-    }
-    return std::pair<void *, void *>(childData->swCanvas, childData->tvgScene);
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    return widgetData->tvgScene;
 }
 
 tpShared<TpCssData> TpWidget::currentStatusCss()
@@ -1357,16 +1397,40 @@ tpShared<TpCssData> TpWidget::checkedCss()
 void TpWidget::refreshBaseCss()
 {
     // 每次刷新CSS要从配置文件重新读取，避免产生继承关系时，子类未刷新正确自己的CSS数据
-    TpWidgetData *childData = static_cast<TpWidgetData *>(data_);
-    childData->enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
-    childData->disabledCssData = readCss(pluginType(), TpCssParser::Disabled);
-    childData->hoverCssData = readCss(pluginType(), TpCssParser::Hover);
-    childData->pressCssData = readCss(pluginType(), TpCssParser::Pressed);
-    childData->checkedCssData = readCss(pluginType(), TpCssParser::Checked);
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+    widgetData->enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
+    widgetData->disabledCssData = readCss(pluginType(), TpCssParser::Disabled);
+    widgetData->hoverCssData = readCss(pluginType(), TpCssParser::Hover);
+    widgetData->pressCssData = readCss(pluginType(), TpCssParser::Pressed);
+    widgetData->checkedCssData = readCss(pluginType(), TpCssParser::Checked);
 
     tpShared<TpCssData> normalCss = currentStatusCss();
     setMinimumSize(normalCss->minimumWidth(), normalCss->minimumHeight());
     setMaximumSize(normalCss->maximumWidth(), normalCss->maximumHeight());
     setSize(normalCss->width(), normalCss->height());
     setRoundCorners(normalCss->roundCorners());
+}
+
+void TpWidget::initTpData()
+{
+    TpObject::initTpData();
+
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(data_);
+
+    widgetData->visible = false;
+
+    widgetData->offsetX = 0;
+    widgetData->offsetY = 0;
+
+    widgetData->backColor = _RGB(248, 248, 248);
+    widgetData->enableColor = true;
+    widgetData->enableImage = true;
+
+    widgetData->windowOpacity = 1.0;
+
+    widgetData->layout = nullptr;
+
+    widgetData->top = this->topObject();
+    widgetData->tvgScene = tvg::Scene::gen();
+    widgetData->tvgScene->ref();
 }

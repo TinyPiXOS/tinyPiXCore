@@ -19,6 +19,20 @@
 #include <thread>
 #include "TpCDef.h"
 #include "TpApp.h"
+#include "thorVG/thorvg.h"
+#include "TpWidget_p.h"
+
+struct TpScreenData : TpWidgetData
+{
+    tvg::SwCanvas *swCanvas = nullptr;
+
+    // 底层渲染画布
+    tpShared<TpSurface> wmSurface = nullptr;
+
+    virtual ~TpScreenData()
+    {
+    }
+};
 
 // 鼠标左键长按回调
 static std::function<void(TpWidget *, ItpMouseSet)> longPressCallback = [](TpWidget *obj, ItpMouseSet mouseSet)

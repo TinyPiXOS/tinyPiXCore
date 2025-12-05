@@ -32,6 +32,7 @@
 #include <TpApp.h>
 #include <TpDir.h>
 #include <TpInteractDataDef/TpDesktopData.h>
+#include "TpDef.h"
 
 #include <tinyPiXApi.h>
 #include <unistd.h>
@@ -320,10 +321,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             pixwmMergeUpdateRect[topScreenSet->agent] = TpRect(task.x, task.y, task.w, task.h);
         }
 
-        // 隐藏窗口不处理paint，但要通知TpWM
-        if (!task.updateObj->visible())
-            continue;
-
         // 存在该窗口则更新合并区域
         if (mergeUpdateWidget.contains(task.updateObj))
         {
@@ -340,6 +337,9 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             IPiWFSurface *surface_t = tinyPiX_wf_get_surface(topScreenSet->agent);
             if (surface_t == nullptr)
                 continue;
+
+            // std::cout << "UpdateRect : " << task.updateObj->rect().x() << " , " << task.updateObj->rect().y()
+            //           << " , " << task.updateObj->rect().width() << " , " << task.updateObj->rect().height() << std::endl;
 
             tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t, task.updateObj->rect());
 
@@ -372,6 +372,11 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         drawWidget(paintInput, updateWidgetIter.first);
 
+        TpScreen *topScreen = dynamic_cast<TpScreen *>(updateWidgetIter.first->topObject());
+        tvg::SwCanvas *topCanvas = (tvg::SwCanvas *)topScreen->canvasPtr();
+        topCanvas->draw();
+        topCanvas->sync();
+
         tinyPiX_wf_unlock_mutex(topScreenSet->agent);
     }
 
@@ -383,7 +388,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 
         // static int testRefreshIndex = 0;
         // std::cout << "TpWM刷新： " << testRefreshIndex++ << "  ;" << updateRect.x() << " : " << updateRect.y() << " , " << updateRect.width() << " , "
-                //   << updateRect.height() << std::endl;
+        //   << updateRect.height() << std::endl;
 
         tinyPiX_wf_update(updateInfo.first, updateRect.x(), updateRect.y(), updateRect.width(), updateRect.height(), true, false);
     }
@@ -470,6 +475,20 @@ static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpWi
 
     mainWindowObjData->absoluteRect.setX(mainWindowX);
     mainWindowObjData->absoluteRect.setY(mainWindowY);
+
+    ItpObjectResizeSet input;
+    input.object = mainWindow;
+    input.nw = rW - offsetW;
+    input.nh = rH - offsetH;
+    input.question = TpResizeEvent::TP_NORMAL_CHANGE;
+    TpResizeEvent event;
+    bool ret = event.construct(&input);
+
+    if (ret)
+    {
+        refreshCacheImage(mainWindowObjData);
+        IssueObjEvent(mainWindow, event, onResizeEvent, true);
+    }
 }
 
 static void sendThemeChangedEvent(TpAppData *setData, const Tp::SystemTheme &sysTheme)

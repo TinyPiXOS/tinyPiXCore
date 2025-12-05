@@ -148,11 +148,40 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     // 刷新前清除scene
     TpPainter *childPainter = event.painter();
 
-    auto canvasPair = obj->canvasPtr();
-    tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
-    tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
+    TpScreen *topScreen = dynamic_cast<TpScreen *>(obj->topObject());
+    tvg::SwCanvas *topCanvas = (tvg::SwCanvas *)topScreen->canvasPtr();
 
-    childPainter->setScene(childCanvas, childScene);
+    // auto canvasPair = obj->canvasPtr();
+    // tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
+    tvg::Scene *childScene = (tvg::Scene *)obj->scenePtr();
+
+    // std::cout << "obj->pluginType() " << obj->pluginType() << std::endl;
+    // std::list<tvg::Paint *> childSceneList = childScene->paints();
+    // std::cout << "obj Scene Ptr : " << childScene << std::endl;
+    // std::cout << "obj Scene ChildSize : " << childSceneList.size() << std::endl;
+
+    childPainter->setScene(topCanvas, childScene);
+
+    // std::list<tvg::Paint *> canvasChildList = topCanvas->paints();
+    // std::cout << "topCanvas Child : " << canvasChildList.size() << std::endl;
+
+    // tvg::Scene *topScene = (tvg::Scene *)canvasChildList.front();
+    // std::cout << "topScene Scene Ptr : " << topScene << std::endl;
+    // std::list<tvg::Paint *> canvasSceneList = topScene->paints();
+    // std::cout << "top Scene ChildList : " << canvasSceneList.size() << std::endl;
+
+    // 隐藏窗口将scene清空并从canvas移除
+    if (!obj->visible())
+    {
+        childScene->remove();
+        topCanvas->remove(childScene);
+        return;
+    }
+    else
+    {
+        // 直接push，内部会判断不会重复添加
+        topCanvas->push(childScene);
+    }
 
     bool ret = obj->onPaintEvent(&event);
 

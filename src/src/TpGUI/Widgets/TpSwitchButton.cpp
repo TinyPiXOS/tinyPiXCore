@@ -1,5 +1,5 @@
 
-#include "TpOnOffButton.h"
+#include "TpSwitchButton.h"
 #include "TpPainter.h"
 #include "TpEvent.h"
 #include "TpFont.h"
@@ -9,10 +9,10 @@
 // 滑块距离边界距离
 const uint32_t RectMargin = 3;
 
-struct TpOnOffButtonData
+struct TpSwitchButtonData
 {
     // TpFont *font = nullptr;
-    TpOnOffButton::Direction direction = TpOnOffButton::TP_HORIZONTAL;
+    TpSwitchButton::Direction direction = TpSwitchButton::TP_HORIZONTAL;
     bool onOff = false;
 
     int32_t onColor = _RGB(255, 255, 255);
@@ -23,21 +23,18 @@ struct TpOnOffButtonData
 
     // 滑块Label；使用label来实现动画效果
     TpLabel *onOffRectLabel = nullptr;
-    // TpString onText = "";
-    // TpString offText = "";
 
-    ~TpOnOffButtonData()
+    TpAnimation *switchAnimation = nullptr;
+
+    ~TpSwitchButtonData()
     {
-        onOffRectLabel->deleteLater();
-        // delete font;
-        // font = nullptr;
     }
 };
 
-TpOnOffButton::TpOnOffButton(TpWidget *parent, const Direction &horizontal)
+TpSwitchButton::TpSwitchButton(TpWidget *parent, const Direction &horizontal)
     : TpWidget(parent)
 {
-    TpOnOffButtonData *btnData = new TpOnOffButtonData();
+    TpSwitchButtonData *btnData = new TpSwitchButtonData();
     data_ = btnData;
 
     btnData->onOffRectLabel = new TpLabel(this);
@@ -47,17 +44,17 @@ TpOnOffButton::TpOnOffButton(TpWidget *parent, const Direction &horizontal)
 
     btnData->direction = horizontal;
 
-    // btnData->font = new TpFont();
-    // btnData->font->setFontColor(_RGB(0, 0, 0));
+    btnData->switchAnimation = new TpAnimation(btnData->onOffRectLabel, TpAnimation::Pos);
+    btnData->switchAnimation->setDuration(150);
 
     setEnableBackGroundColor(false);
     setEnabledBorderColor(false);
     setOnOff(false);
 }
 
-TpOnOffButton::~TpOnOffButton()
+TpSwitchButton::~TpSwitchButton()
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     if (btnData)
     {
         delete btnData;
@@ -66,9 +63,9 @@ TpOnOffButton::~TpOnOffButton()
     }
 }
 
-void TpOnOffButton::setOnOff(bool onOff)
+void TpSwitchButton::setOnOff(bool onOff)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
 
     if (!btnData)
         return;
@@ -77,78 +74,75 @@ void TpOnOffButton::setOnOff(bool onOff)
     {
         btnData->onOff = onOff;
 
-        TpAnimation *swtichAnimation = new TpAnimation(btnData->onOffRectLabel, TpAnimation::Pos);
-        swtichAnimation->setStartValue(btnData->onOffRectLabel->pos());
-        swtichAnimation->setDuration(150);
+        btnData->switchAnimation->stop();
+        btnData->switchAnimation->setStartValue(btnData->onOffRectLabel->pos());
 
         // 更新滑块位置
-        if (btnData->direction == TpOnOffButton::TP_HORIZONTAL)
+        if (btnData->direction == TpSwitchButton::TP_HORIZONTAL)
         {
             if (btnData->onOff)
             {
-                swtichAnimation->setEndValue(TpPoint(width() - btnData->onOffRectLabel->width() - RectMargin, RectMargin));
+                btnData->switchAnimation->setEndValue(TpPoint(width() - btnData->onOffRectLabel->width() - RectMargin, RectMargin));
             }
             else
             {
-                swtichAnimation->setEndValue(TpPoint(RectMargin, RectMargin));
+                btnData->switchAnimation->setEndValue(TpPoint(RectMargin, RectMargin));
             }
         }
         else
         {
             if (btnData->onOff)
             {
-                swtichAnimation->setEndValue(TpPoint(RectMargin, height() - btnData->onOffRectLabel->height() - RectMargin));
+                btnData->switchAnimation->setEndValue(TpPoint(RectMargin, height() - btnData->onOffRectLabel->height() - RectMargin));
             }
             else
             {
-                swtichAnimation->setEndValue(TpPoint(RectMargin, RectMargin));
+                btnData->switchAnimation->setEndValue(TpPoint(RectMargin, RectMargin));
             }
         }
 
-        swtichAnimation->start();
-
-        update();
+        btnData->switchAnimation->start(TpAnimation::KeepWhenStopped);
     }
 }
 
-bool TpOnOffButton::onOff()
+bool TpSwitchButton::onOff()
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     return btnData->onOff;
 }
 
-void TpOnOffButton::setOnColor(const uint32_t &color)
+void TpSwitchButton::setOnColor(const uint32_t &color)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     btnData->onColor = color;
 }
 
-void TpOnOffButton::setOffColor(const uint32_t &color)
+void TpSwitchButton::setOffColor(const uint32_t &color)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     btnData->offColor = color;
 }
 
-void TpOnOffButton::setOnBackColor(const uint32_t &color)
+void TpSwitchButton::setOnBackColor(const uint32_t &color)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     btnData->onBackColor = color;
 }
 
-void TpOnOffButton::setOffBackColor(const uint32_t &color)
+void TpSwitchButton::setOffBackColor(const uint32_t &color)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     btnData->offBackColor = color;
 }
 
-bool TpOnOffButton::onMousePressEvent(TpMouseEvent *event)
+bool TpSwitchButton::onMousePressEvent(TpMouseEvent *event)
 {
     TpWidget::onMousePressEvent(event);
 
     if (event->button() != BUTTON_LEFT)
         return true;
 
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     if (!btnData)
         return true;
 
@@ -158,9 +152,9 @@ bool TpOnOffButton::onMousePressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpOnOffButton::onPaintEvent(TpPaintEvent *event)
+bool TpSwitchButton::onPaintEvent(TpPaintEvent *event)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     if (!btnData)
         return true;
 
@@ -176,16 +170,16 @@ bool TpOnOffButton::onPaintEvent(TpPaintEvent *event)
     return true;
 }
 
-bool TpOnOffButton::onResizeEvent(TpResizeEvent *event)
+bool TpSwitchButton::onResizeEvent(TpResizeEvent *event)
 {
-    TpOnOffButtonData *btnData = static_cast<TpOnOffButtonData *>(data_);
+    TpSwitchButtonData *btnData = static_cast<TpSwitchButtonData *>(data_);
     if (!btnData)
         return true;
 
     TpWidget::onResizeEvent(event);
 
     // 尺寸变化同步更改圆角值
-    if (btnData->direction == TpOnOffButton::TP_HORIZONTAL)
+    if (btnData->direction == TpSwitchButton::TP_HORIZONTAL)
     {
         setRoundCorners(height() * 0.5);
 
@@ -209,7 +203,7 @@ bool TpOnOffButton::onResizeEvent(TpResizeEvent *event)
     return true;
 }
 
-bool TpOnOffButton::eventFilter(TpObject *watched, TpEvent *event)
+bool TpSwitchButton::eventFilter(TpObject *watched, TpEvent *event)
 {
     if (event->eventType() == TpEvent::EVENT_MOUSE_PRESS_TYPE)
     {

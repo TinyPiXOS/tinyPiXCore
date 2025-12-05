@@ -725,7 +725,7 @@ void TpPainter::sync(void *object)
 
     // 绘制并同步
     // painterData->swCanvas->update();
-    painterData->swCanvas->draw();
+    painterData->swCanvas->draw(true);
     painterData->swCanvas->sync();
 
     if (object)

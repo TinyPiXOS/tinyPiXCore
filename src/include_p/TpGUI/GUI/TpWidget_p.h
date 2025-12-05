@@ -115,7 +115,6 @@ struct TpWidgetData : TpObjectData
 
     // 绘制画布和场景
     tvg::Scene *tvgScene = nullptr;
-    tvg::SwCanvas *swCanvas = nullptr;
 
     TpWidgetData()
     {
@@ -124,6 +123,10 @@ struct TpWidgetData : TpObjectData
         hoverCssData = nullptr;
         checkedCssData = nullptr;
         disabledCssData = nullptr;
+    }
+
+    virtual ~TpWidgetData()
+    {
     }
 };
 
@@ -250,7 +253,6 @@ static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint3
         if (ret)
         {
             refreshCacheImage(widgetData);
-
             IssueObjEvent(thisPtr, event, onResizeEvent, true);
         }
     }
@@ -303,7 +305,6 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
         if (ret)
         {
             refreshCacheImage(widgetData);
-
             IssueObjEvent(thisPtr, event, onResizeEvent, true);
         }
     }
@@ -313,5 +314,145 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
         thisPtr->broadSetTop();
     }
 }
+
+// 刷新组件限制区域
+static void refreshSceneClipRect(TpWidget *widget, TpWidgetData *widgetData)
+{
+    // 重设限制区域
+    if (!widget || !widgetData->tvgScene)
+        return;
+
+    Tp::TpObjectType type = widget->objectType();
+    const TpRect objectAbsRect = widget->toScreen();
+    const int32_t objWidth = widget->width();
+    const int32_t objHeight = widget->height();
+    const int32_t offsetXVal = widget->offsetX();
+    const int32_t offsetYVal = widget->offsetY();
+
+    TpRect clipRect = objectAbsRect;
+    // TpRect clipRect;
+    if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FIXSCREEN_OBJECT)
+    {
+        clipRect.setX(0);
+        clipRect.setY(0);
+    }
+    else
+    {
+        clipRect.setX(objectAbsRect.x() - offsetXVal);
+        clipRect.setY(objectAbsRect.y() - offsetYVal);
+    }
+
+    // 限制绘制区域;如果父窗口比自己大，则使用自己的尺寸，如果父窗口比自己小，则使用父窗口的
+
+    TpWidget *inputParentWidget = dynamic_cast<TpWidget *>(widget->parent());
+    if (inputParentWidget)
+    {
+        while (inputParentWidget)
+        {
+            TpRect inputParentRect = inputParentWidget->toScreen();
+
+            clipRect.setX(TP_MAX(clipRect.x(), inputParentRect.x()));
+            clipRect.setY(TP_MAX(clipRect.y(), inputParentRect.y()));
+
+            int32_t tempWidth = TP_MIN(clipRect.x() + clipRect.width(), inputParentRect.x() + inputParentRect.width());
+            int32_t tempHeight = TP_MIN(clipRect.y() + clipRect.height(), inputParentRect.y() + inputParentRect.height());
+
+            clipRect.setWidth(tempWidth - clipRect.x());
+            clipRect.setHeight(tempHeight - clipRect.y());
+
+            inputParentWidget = dynamic_cast<TpWidget *>(inputParentWidget->parent());
+        }
+    }
+    else
+    {
+        // clipRect.setX(eventData->offsetX);
+        // clipRect.setY(eventData->offsetY);
+        clipRect.setWidth(objWidth);
+        clipRect.setHeight(objHeight);
+    }
+
+    TpObject *top = widget->topObject();
+    if (top && (top != widget) && (top->objectType() == Tp::TP_FLOAT_OBJECT || top->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
+    {
+        clipRect.setX(clipRect.x() - offsetXVal);
+        clipRect.setY(clipRect.y() - offsetYVal);
+    }
+
+    // 为每个Scene创建一个矩形裁剪区域
+    auto clipper = tvg::Shape::gen();
+    // Scene的边界
+    clipper->appendRect(clipRect.x(), clipRect.y(),
+                        clipRect.width(), clipRect.height());
+    // clipper->appendRect(offsetX(), offsetY(),
+    // width(), height());
+
+    // 将裁剪器应用到Scene
+    // 获取并释放旧的裁剪器
+    if (auto oldClipper = widgetData->tvgScene->clip())
+    {
+        tvg::Paint::rel(oldClipper);
+    }
+    auto result = widgetData->tvgScene->clip(clipper);
+    if (result != tvg::Result::Success)
+    {
+        tvg::Paint::rel(clipper);
+    }
+
+    // std::cout << widget->pluginType() << " : clipRect : " << clipRect.x() << " , " <<clipRect.y()
+    //   << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
+
+    // std::cout << pluginType() << " : onMoveEvent 2 : " << offsetX() << " , " << offsetY()
+    //           << " , " << width() << " , " << height() << std::endl;
+};
+
+// static void setChildVisible(TpWidgetData *widgetData, bool visible);
+// static void setLayoutVisible(TpObject *layout, bool visible)
+// {
+//     TpLayout *childLayout = dynamic_cast<TpLayout *>(layout);
+//     if (!childLayout)
+//         return;
+
+//     TpList<TpObject *> layoutChildList = childLayout->objectList();
+//     for (const auto &layoutChild : layoutChildList)
+//     {
+//         TpWidget *childWidget = dynamic_cast<TpWidget *>(layoutChild);
+//         if (!childWidget)
+//         {
+//             setLayoutVisible(layoutChild, visible);
+//             continue;
+//         }
+
+//         childWidget->setVisible(visible);
+
+//         TpWidgetData *childWidgetData = static_cast<TpWidgetData *>(childWidget->objectSets());
+//         if (childWidgetData->tvgScene)
+//         {
+//             childWidgetData->tvgScene->visible(visible);
+//         }
+//         setChildVisible(childWidgetData, visible);
+//     }
+// };
+
+// static void setChildVisible(TpWidgetData *widgetData, bool visible)
+// {
+//     for (const auto &childObj : widgetData->objectList)
+//     {
+//         TpWidget *childWidget = dynamic_cast<TpWidget *>(childObj);
+//         if (!childWidget)
+//         {
+//             setLayoutVisible(childObj, visible);
+//             continue;
+//         }
+
+//         childWidget->setVisible(visible);
+
+//         TpWidgetData *childWidgetData = static_cast<TpWidgetData *>(childWidget->objectSets());
+//         if (childWidgetData->tvgScene)
+//         {
+//             childWidgetData->tvgScene->visible(visible);
+//         }
+//         setChildVisible(childWidgetData, visible);
+//     }
+// }
 
 #endif

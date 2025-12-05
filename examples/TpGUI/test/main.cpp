@@ -118,61 +118,70 @@ int32_t main(int32_t argc, char *argv[])
     // connect(testBtn, onClicked, [=](bool)
     //         { bgLabel->setBackGroundImage(getImage()); });
 
-    
+    // TpLabel *textTestLabel = new TpLabel("自动获取", vScreen);
+    // textTestLabel->setBackGroundColor(_RGB(255, 0, 0));
+    // textTestLabel->setAlign(Tp::AlignCenter);
+    // textTestLabel->font()->setFontSize(19);
+    // textTestLabel->setRect(520, 20, textTestLabel->font()->pixelWidth(), textTestLabel->font()->pixelHeight());
 
-    TpLabel *textTestLabel = new TpLabel("自动获取", vScreen);
-    textTestLabel->setBackGroundColor(_RGB(255, 0, 0));
-    textTestLabel->setAlign(Tp::AlignCenter);
-    textTestLabel->font()->setFontSize(19);
-    textTestLabel->setRect(520, 20, textTestLabel->font()->pixelWidth(), textTestLabel->font()->pixelHeight());
+    // TpLabel *textTestLabel2 = new TpLabel("以太网", vScreen);
+    // textTestLabel2->setBackGroundColor(_RGB(255, 0, 0));
+    // textTestLabel2->font()->setFontSize(19);
+    // textTestLabel2->setAlign(Tp::AlignCenter);
+    // textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
 
-    TpLabel *textTestLabel2 = new TpLabel("以太网", vScreen);
-    textTestLabel2->setBackGroundColor(_RGB(255, 0, 0));
-    textTestLabel2->font()->setFontSize(19);
-    textTestLabel2->setAlign(Tp::AlignCenter);
-    textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
+    // TpLabel *nameLabel = new TpLabel("测试", vScreen);
+    // nameLabel->setBackGroundColor(_RGB(255, 0, 0));
+    // nameLabel->setAlign(Tp::AlignCenter);
+    // nameLabel->font()->setFontSize(9);
+    // nameLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // nameLabel->setWordWrap(false);
+    // nameLabel->installEventFilter(vScreen);
 
-    TpLabel *nameLabel = new TpLabel("测试", vScreen);
-    nameLabel->setBackGroundColor(_RGB(255, 0, 0));
-    nameLabel->setAlign(Tp::AlignCenter);
-    nameLabel->font()->setFontSize(9);
-    nameLabel->font()->setFontColor(_RGB(255, 255, 255));
-    nameLabel->setWordWrap(false);
-    nameLabel->installEventFilter(vScreen);
+    // TpLabel *sizeLabel = new TpLabel(vScreen);
+    // sizeLabel->setAlign(Tp::AlignCenter);
+    // sizeLabel->font()->setFontSize(9);
+    // sizeLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // sizeLabel->setText("0Kb");
+    // sizeLabel->installEventFilter(vScreen);
 
-    TpLabel *sizeLabel = new TpLabel(vScreen);
-    sizeLabel->setAlign(Tp::AlignCenter);
-    sizeLabel->font()->setFontSize(9);
-    sizeLabel->font()->setFontColor(_RGB(255, 255, 255));
-    sizeLabel->setText("0Kb");
-    sizeLabel->installEventFilter(vScreen);
+    // TpLabel *typeLabel = new TpLabel(vScreen);
+    // typeLabel->setAlign(Tp::AlignCenter);
+    // typeLabel->font()->setFontSize(9);
+    // typeLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // typeLabel->setText("未知");
+    // typeLabel->installEventFilter(vScreen);
 
-    TpLabel *typeLabel = new TpLabel(vScreen);
-    typeLabel->setAlign(Tp::AlignCenter);
-    typeLabel->font()->setFontSize(9);
-    typeLabel->font()->setFontColor(_RGB(255, 255, 255));
-    typeLabel->setText("未知");
-    typeLabel->installEventFilter(vScreen);
+    // TpVBoxLayout *testLayout = new TpVBoxLayout();
+    // testLayout->setContentsMargins(0, 0, 0, 0);
+    // testLayout->setSpacing(2);
+    // testLayout->addWidget(nameLabel);
+    // testLayout->addWidget(sizeLabel);
+    // testLayout->addWidget(typeLabel);
 
-    TpVBoxLayout *testLayout = new TpVBoxLayout();
-    testLayout->setContentsMargins(0, 0, 0, 0);
-    testLayout->setSpacing(2);
-    testLayout->addWidget(nameLabel);
-    testLayout->addWidget(sizeLabel);
-    testLayout->addWidget(typeLabel);
+    // TpWidget *testLayoutWidget = new TpWidget(vScreen);
+    // testLayoutWidget->setLayout(testLayout);
+    // testLayoutWidget->setRect(20, 20, 200, 200);
 
-    TpWidget *testLayoutWidget = new TpWidget(vScreen);
-    testLayoutWidget->setLayout(testLayout);
-    testLayoutWidget->setRect(20, 20, 200, 200);
+    static bool testOn = false;
+    TpButton *testBtn = new TpButton(vScreen);
+    testBtn->setText("Label显隐");
+    testBtn->setRect(50, 400, 150, 50);
+    connect(testBtn, onClicked, [=](bool)
+            { 
+                // testLayoutWidget->setParent(testOn ? vScreen : nullptr); 
+                // testLayoutWidget->setVisible(testOn ? true : false); 
+                testOn = !testOn; 
+            });
 
-    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    thorVGPaint->setWindowOpacity(0.3);
-    thorVGPaint->setRect(0, 0, 500, 500);
+    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    // thorVGPaint->setWindowOpacity(0.3);
+    // thorVGPaint->setRect(0, 0, 500, 500);
 
-    TpGraphicsBlurEffect btnBlurEffect;
-    btnBlurEffect.setBlurRadius(30);
-    thorVGPaint->setGraphicsEffect(btnBlurEffect);
-    thorVGPaint->setEnableGraphicsEffect(true);
+    // TpGraphicsBlurEffect btnBlurEffect;
+    // btnBlurEffect.setBlurRadius(30);
+    // thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    // thorVGPaint->setEnableGraphicsEffect(true);
 
     vScreen->update();
 

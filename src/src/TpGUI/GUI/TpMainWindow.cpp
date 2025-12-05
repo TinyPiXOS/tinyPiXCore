@@ -109,3 +109,8 @@ void TpMainWindow::setEnabledBorderColor(bool enable)
 {
     TpScreen::setEnabledBorderColor(false);
 }
+
+bool TpMainWindow::onResizeEvent(TpResizeEvent *event)
+{
+    return TpScreen::onResizeEvent(event);
+}
