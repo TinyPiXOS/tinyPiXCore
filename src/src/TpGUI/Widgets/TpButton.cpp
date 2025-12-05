@@ -187,9 +187,16 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
     // 判断组件当前状态，决定取出哪个CSS样式
     tpShared<TpCssData> curCssData = currentStatusCss();
 
+    std::cout << "curCssData->color() " << _R(curCssData->color()) << " , " << _G(curCssData->color())
+              << " , " << _B(curCssData->color()) << std::endl;
     TpFont *textLabelFont = buttonData->textLabel->font();
-    textLabelFont->setFontForeColor(curCssData->color());
+    textLabelFont->setFontColor(curCssData->color());
     textLabelFont->setFontSize(curCssData->fontSize());
+
+    TpPainter *painter = event->painter();
+    painter->setPen(_RGB(255, 255, 255));
+    painter->setBrush(TpBrush(_RGB(255, 255, 255)));
+    painter->drawRect(0, 0, width(), height());
 
     return true;
 }

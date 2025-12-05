@@ -200,7 +200,7 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     paintEnabledBox(obj, event.painter());
 
     // 绘制完成刷新绘制
-    childPainter->sync(obj);
+    // childPainter->sync(obj);
 
     if (ret)
     {

@@ -3,6 +3,7 @@
 #include "TpLinearGradient.h"
 #include "TpRadialGradient.h"
 #include "TpLabel.h"
+#include "TpBrush.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
