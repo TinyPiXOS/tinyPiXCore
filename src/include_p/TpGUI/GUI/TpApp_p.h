@@ -285,6 +285,8 @@ private:
     TpAppData *appData_;
 };
 
+#include "TpClipRectOptimizer.h"
+
 // 刷新指令下发
 static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 {
@@ -353,6 +355,8 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             mergeUpdateWidget[task.updateObj] = paintInput;
         }
     }
+
+    // ClipRectOptimizer::batchRefreshSceneClipRects();
 
     for (const auto &updateWidgetIter : mergeUpdateWidget)
     {

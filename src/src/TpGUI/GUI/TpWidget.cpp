@@ -2,6 +2,7 @@
 #include "TpApp_p.h"
 #include "TpWidget_p.h"
 #include "TpScreen_p.h"
+#include "TpClipRectOptimizer.h"
 
 TpWidget::TpWidget(TpWidget *parent)
     : TpObject(parent)
@@ -114,25 +115,7 @@ void TpWidget::setVisible(bool visible)
     if (visible == widgetData->visible)
         return;
 
-    if (widgetData->tvgScene)
-    {
-        widgetData->tvgScene->visible(visible);
-
-        for (const auto &childObj : widgetData->objectList)
-        {
-            TpWidget *childWidget = dynamic_cast<TpWidget *>(childObj);
-            if (!childWidget)
-                return;
-
-            childWidget->setVisible(visible);
-
-            TpWidgetData *childWidgetData = static_cast<TpWidgetData *>(childWidget->data_);
-            if (childWidgetData->tvgScene)
-            {
-                childWidgetData->tvgScene->visible(visible);
-            }
-        }
-    }
+    setChildVisible(widgetData, visible);
 
     widgetData->visible = visible;
     ItpObjectVisibleSet input;
@@ -1001,18 +984,19 @@ void TpWidget::setParent(TpObject *parent)
     }
 
     // 将自己的scene加入父组件的scene
-    // if (parentWidget)
-    // {
-    //     TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->data_);
-    //     parentWidgetData->tvgScene->push(widgetData->tvgScene);
-    //     // 父节点改变后，重新计算裁剪区域
-    //     // refreshSceneClipRect(this, widgetData);
+    if (parentWidget)
+    {
+        // TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->data_);
+        // parentWidgetData->tvgScene->push(widgetData->tvgScene);
+        // 父节点改变后，重新计算裁剪区域
+        // refreshSceneClipRect(this, widgetData);
+        ClipRectOptimizer::markWidgetForRefresh(this);
 
-    //     widgetData->tvgScene->visible(true);
-    //     std::cout << "parentWidget->pluginType() " << parentWidget->pluginType() << std::endl;
-    //     std::list<tvg::Paint *> canvasSceneList = parentWidgetData->tvgScene->paints();
-    //     std::cout << "11111111111topSceneChildList : " << canvasSceneList.size() << std::endl;
-    // }
+        // widgetData->tvgScene->visible(true);
+        // std::cout << "parentWidget->pluginType() " << parentWidget->pluginType() << std::endl;
+        // std::list<tvg::Paint *> canvasSceneList = parentWidgetData->tvgScene->paints();
+        // std::cout << "11111111111topSceneChildList : " << canvasSceneList.size() << std::endl;
+    }
 }
 
 bool TpWidget::onMousePressEvent(TpMouseEvent *event)
@@ -1057,7 +1041,8 @@ bool TpWidget::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpWidget::onMoveEvent(TpMoveEvent *event)
 {
-    refreshSceneClipRect(this, static_cast<TpWidgetData *>(TpObject::data_));
+    // refreshSceneClipRect(this, static_cast<TpWidgetData *>(TpObject::data_));
+    ClipRectOptimizer::markWidgetForRefresh(this);
     return true;
 }
 
@@ -1065,7 +1050,8 @@ bool TpWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
 
-    refreshSceneClipRect(this, widgetData);
+    // refreshSceneClipRect(this, widgetData);
+    ClipRectOptimizer::markWidgetForRefresh(this);
 
     if (widgetData->layoutMutex.try_lock())
     {

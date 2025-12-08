@@ -174,9 +174,6 @@ bool TpButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpButton::onPaintEvent(TpPaintEvent *event)
 {
-    // std::cout << "按钮 " << text() << " 渲染" << std::endl;
-    // std::cout << "按钮 " << text() << " 尺寸" << pos().x() << " " << pos().y() << "  " << width() << "  " << height() << std::endl;
-
     TpWidget::onPaintEvent(event);
 
     TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
@@ -187,22 +184,16 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
     // 判断组件当前状态，决定取出哪个CSS样式
     tpShared<TpCssData> curCssData = currentStatusCss();
 
-    std::cout << "curCssData->color() " << _R(curCssData->color()) << " , " << _G(curCssData->color())
-              << " , " << _B(curCssData->color()) << std::endl;
     TpFont *textLabelFont = buttonData->textLabel->font();
     textLabelFont->setFontColor(curCssData->color());
     textLabelFont->setFontSize(curCssData->fontSize());
-
-    TpPainter *painter = event->painter();
-    painter->setPen(_RGB(255, 255, 255));
-    painter->setBrush(TpBrush(_RGB(255, 255, 255)));
-    painter->drawRect(0, 0, width(), height());
 
     return true;
 }
 
 bool TpButton::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
     refreshLayout();
 
     return true;

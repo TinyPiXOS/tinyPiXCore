@@ -138,6 +138,8 @@ static void paintEnabledBox(TpWidget *child, TpPainter *paintCanvas)
     }
 }
 
+// #include "TpClipRectOptimizer.h"
+
 // 先声明，因为 childPaint 和 drawWidget 互相调用了
 static inline void childPaint(TpObjectData *set, TpPaintEvent *events);
 static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
@@ -179,6 +181,11 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     }
     else
     {
+        // scene已存在，先移除
+        // topCanvas->remove(childScene);
+        // 再添加到末尾（最上层）
+        // topCanvas->push(childScene);
+
         // 直接push，内部会判断不会重复添加
         topCanvas->push(childScene);
     }
@@ -200,7 +207,7 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     paintEnabledBox(obj, event.painter());
 
     // 绘制完成刷新绘制
-    // childPainter->sync(obj);
+    childPainter->sync(obj);
 
     if (ret)
     {

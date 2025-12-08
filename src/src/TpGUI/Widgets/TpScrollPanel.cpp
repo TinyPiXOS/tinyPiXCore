@@ -519,7 +519,7 @@ bool TpScrollPanel::recal(bool enableOffset)
         int32_t scrollAreaY = realHeight - rectHeight;
 
         scrollData->panel->setRect(0, 0, realWidth, realHeight);
-        // std::cout << "acutalPanelWidth " << acutalPanelWidth << "  realHeight  " << realHeight << std::endl;
+        std::cout << "realWidth " << realWidth << "  realHeight  " << realHeight << std::endl;
 
         if (enableOffset)
         {
@@ -612,6 +612,8 @@ bool TpScrollPanel::eventFilter(TpObject *watched, TpEvent *event)
 
 bool TpScrollPanel::onMousePressEvent(TpMouseEvent *event)
 {
+    TpWidget::onMousePressEvent(event);
+
     if (event->button() != BUTTON_LEFT)
         return true;
 
@@ -629,6 +631,8 @@ bool TpScrollPanel::onMousePressEvent(TpMouseEvent *event)
 
 bool TpScrollPanel::onMouseRleaseEvent(TpMouseEvent *event)
 {
+    TpWidget::onMouseRleaseEvent(event);
+
     if (event->button() != BUTTON_LEFT)
         return true;
 
@@ -659,6 +663,8 @@ bool TpScrollPanel::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
 {
+    TpWidget::onMouseMoveEvent(event);
+
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
         return false;
@@ -699,6 +705,8 @@ bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
 
 bool TpScrollPanel::onWheelEvent(TpWheelEvent *event)
 {
+    TpWidget::onWheelEvent(event);
+
     int32_t delta = event->angleDelta();
 
     if (delta > 0)
@@ -733,6 +741,8 @@ bool TpScrollPanel::onWheelEvent(TpWheelEvent *event)
 
 bool TpScrollPanel::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
+
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
         return true;
@@ -748,6 +758,8 @@ bool TpScrollPanel::onResizeEvent(TpResizeEvent *event)
 
 bool TpScrollPanel::onLeaveEvent(TpLeaveEvent *event)
 {
+    TpWidget::onLeaveEvent(event);
+
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
         return true;

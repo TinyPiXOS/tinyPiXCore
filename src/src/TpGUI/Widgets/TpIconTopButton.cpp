@@ -147,6 +147,8 @@ bool TpIconTopButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpIconTopButton::onMouseLongPressEvent(TpMouseEvent *event)
 {
+    TpWidget::onMouseLongPressEvent(event);
+
     onLongPress.emit();
     return true;
 }
@@ -175,6 +177,8 @@ bool TpIconTopButton::onPaintEvent(TpPaintEvent *event)
 
 bool TpIconTopButton::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
+
     // TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
     // buttonData->iconButton->setRect(0, 0, rect().w, rect().h * 0.8);
 
