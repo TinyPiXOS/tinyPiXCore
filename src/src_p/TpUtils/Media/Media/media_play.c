@@ -9,10 +9,13 @@
 #include "Audio/audio_play.h"
 #include "TpMediaDevice.h"
 
+
 #ifdef DEBUG_MEDIA_PLAY
-    #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#include "Log/elog.h"
+#define debug_printf(...) 		elog_d("MediaPlayer", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #else
-    #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
 #endif
 
 
@@ -127,7 +130,7 @@ int media_player_codec_file(struct MediaUserParams *user,const char *filename)
 
 int Media_Play_Main(struct MediaUserParams *user)
 {
-	av_log_set_level(AV_LOG_TRACE); // 或者使用数字 AV_LOG_DEBUG = 48
+	//av_log_set_level(AV_LOG_TRACE); // 或者使用数字 AV_LOG_DEBUG = 48，设置ffmpeg的调试打印
 	struct MediaFileList *list=user->list;
 	while(1)
 	{

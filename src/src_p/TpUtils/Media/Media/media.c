@@ -8,6 +8,15 @@
 #include "Media/media_file_list.h"
 #include "Audio/filter.h"
 
+
+#ifdef DEBUG_MEDIA_PLAY
+#define LOG_TAG "MediaPlayUser"
+#include "Log/elog.h"
+#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
+#else
+#define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#endif
+
 // 获取文件信息
 int media_get_file_info(const char *url, MediaFormatContext **format_ctx)
 {

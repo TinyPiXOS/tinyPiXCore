@@ -164,6 +164,12 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/dev_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/devmanager/dev_monitor.c
 
+    ${SOURCE_PATH}/src_p/TpUtils/Log/src/elog.c
+    ${SOURCE_PATH}/src_p/TpUtils/Log/src/elog_async.c
+    ${SOURCE_PATH}/src_p/TpUtils/Log/src/elog_buf.c
+    ${SOURCE_PATH}/src_p/TpUtils/Log/src/elog_utils.c
+    ${SOURCE_PATH}/src_p/TpUtils/Log/port/elog_port.c
+
     ${SOURCE_PATH}/src/TpUtils/TpCompress.cpp
     ${SOURCE_PATH}/src/TpUtils/TpSystemBatteryInfo.cpp
 

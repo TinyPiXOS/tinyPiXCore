@@ -11,7 +11,8 @@ extern "C" {
 
 //#define MEDIA_SDL_ENABLE	1			//是否使用SDL
 #define DEBUG_MEDIA_CODEC				//媒体编解码调试
-
+#define DEBUG_AUDIO_PLAY
+#define DEBUG_VIDEO_PLAY
 
 #define VIDEO_RENDERING_SDL		//使用SDL渲染视频画面
 #define VIDEO_RENDERING_PIX		//使用PIX渲染视频画面
@@ -23,6 +24,9 @@ extern "C" {
 #define USER_CONF_VOLUME_MIN	0	//音量最小值
 #define USER_CONF_SPEED_MAX		8.0	
 #define USER_CONF_SPEED_MIN		0.5	//播放速度最小值
+
+#define AUDIO_MAX_QUEUE_SIZE	500		//音频缓存区最大长度
+#define VIDEO_MAX_QUEUE_SIZE	100		//视频缓存区最大长度
 
 typedef enum VideoScalingType_{
 		MEDIA_VIDEO_SCALING_STRETCH		= 0X01,	//拉伸显示，图像可能变形

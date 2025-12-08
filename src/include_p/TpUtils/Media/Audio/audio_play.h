@@ -29,7 +29,6 @@ struct MediaUserParams;
 
 
 #define NONE_AUDIO_CARD_PLAY	1	//允许无声卡播放
-#define DEBUG_AUUDIO		//调试打印接口
 //全局配置
 #define PCM_BUFFER_FRAMES	1024		//pcm的缓存区帧数，每次可以写入这么多侦的数量
 #define PCM_BUFFER_SIZE 	4			//pcm缓存区大小由这个值计算：=	PCM_BUFFER_FRAMES * PCM_BUFFER_SIZE	*侦字节数

@@ -17,6 +17,15 @@
 #include "Audio/audio_play.h"
 #include "Media/media.h"
 
+
+#ifdef DEBUG_AUDIO_RECORD
+#include "Log/elog.h"
+#define debug_printf(...) elog_d("MediaPlayRecord", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
+#else
+#define debug_printf(fmt, ...) // 如果不定义DEBUG，什么也不做
+#endif
+
 uint8_t run_flag = 0;
 
 void exit_sighandler(int sig)

@@ -14,9 +14,11 @@
 
 
 #ifdef DEBUG_MEDIA_TIMER
-    #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#include "Log/elog.h"
+#define debug_printf(...) elog_d("MediaPlayTimer", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else
-    #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
 #endif
 
 

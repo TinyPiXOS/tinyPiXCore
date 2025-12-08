@@ -18,11 +18,11 @@
 #include "Media/Media/media.h"
 #include "Media/Media/media_codec.h"
 
-// 获取采样位数为AV_SAMPLE_FMT_S16的字节数
-// av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
-#ifdef DEBUG_AUUDIO
-#define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#ifdef DEBUG_AUDIO_PLAY
+#include "Log/elog.h"
+#define debug_printf(...) elog_d("MediaPlayAudio", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else
 #define debug_printf(fmt, ...) // 如果不定义DEBUG，什么也不做
 #endif
@@ -325,7 +325,7 @@ static int pcm_start_play(struct MediaAudioHandle *pcm)
     }
     snd_pcm_start(pcm->handle);
     //	audio_pcm_drop(pcm);
-    //	debug_printf("PCM handle name = '%s'\n", snd_pcm_name(pcm->handle));
+    debug_printf("PCM handle name = '%s'\n", snd_pcm_name(pcm->handle));
     return 0;
 }
 
@@ -604,7 +604,7 @@ FREE_FLT:
         av_frame_free(&frame_flt);
     }
 WRITE_POS:
-    //printf("offset:%d,audio_param->nAvgBitsPerSample:%d,进度：%d\n",offset,audio_param->nAvgBitsPerSample,position);
+    //debug_printf("offset:%d,audio_param->nAvgBitsPerSample:%d,进度：%d\n",offset,audio_param->nAvgBitsPerSample,position);
     if (offset >= 0 && conf->nAvgBitsPerSample != 0) // 如果要自行设置offset直接传入-1即可
     {
         position += (frames * audio_param->byteFrams);

@@ -20,11 +20,13 @@
 #include "Media/media_file_list.h"
 #include "Media/Media/media.h"
 #include "Media/Media/media_codec.h"
+#include "Media/Media/media_config.h"
 
-int get_display_params_user_codec(struct MediaUserParams *user, AVCodecContext *codec_ctx, struct VideoStreamParams *video_params);
 
-#ifdef DEBUG_VIDEO_INIT
-#define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#ifdef DEBUG_VIDEO_PLAY
+#define LOG_TAG "MediaPlayVideo"
+#include "Log/elog.h"
+#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else
 #define debug_printf(fmt, ...) // 如果不定义DEBUG，什么也不做
 #endif

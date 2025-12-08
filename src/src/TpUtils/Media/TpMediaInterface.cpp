@@ -16,6 +16,7 @@
 #include "TpMediaInterface.h"
 #include "TpAudioInterface.h"
 #include "TpVideoInterface.h"
+#include "Log/elog.h"
 
 struct TpMediaInfData
 {
@@ -48,7 +49,19 @@ TpMediaInterface::TpMediaInterface()
 		delete(medData);
         return;
     }
+    
+    media_init(1);
+    elog_init();
+    elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL);
+    elog_set_fmt(ELOG_LVL_ERROR, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_WARN, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_INFO, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_DEBUG,  ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_VERBOSE, ELOG_FMT_ALL & ~ELOG_FMT_FUNC);
 
+    elog_set_text_color_enabled(true);
+    elog_start();
+    elog_set_filter_lvl(ELOG_LVL_VERBOSE);
     medData->user = user;
 }
 
@@ -68,6 +81,9 @@ TpMediaInterface::~TpMediaInterface()
 
     Media_Set_Video_Callback(medData->user->video_params, nullptr, nullptr);    
     media_user_config_delete(medData->user);
+    
+    media_deinit(1);
+    elog_deinit();
     delete (medData);
 }
 

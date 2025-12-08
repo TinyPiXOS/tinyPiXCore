@@ -190,7 +190,6 @@ static int get_audio_card_list(AudioGetCardCallback callback,void *userdata)
     return 0;
 }
 
-
 //从传进来的pcm获取其对应的卡
 static char *get_hw_card(const char *name)
 {

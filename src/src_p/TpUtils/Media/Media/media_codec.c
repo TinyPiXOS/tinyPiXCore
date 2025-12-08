@@ -6,13 +6,13 @@
 #include "Media/Video/video_play.h"
 #include "Media/Audio/audio_play.h"
 
-#define AUDIO_MAX_QUEUE_SIZE	500		//音频缓存区最大长度
-#define VIDEO_MAX_QUEUE_SIZE	100		//视频缓存区最大长度
 
 #ifdef DEBUG_MEDIA_CODEC
-    #define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#include "Log/elog.h"
+#define debug_printf(...) 	elog_d("MediaPlayCodec", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else
-    #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
 #endif
 
 
@@ -1371,6 +1371,7 @@ int Media_Free_File(MediaStreamArray *media_array)
 int Mediao_File_Codec_Play(struct MediaPlayerHandle *player,struct MediaUserParams *user)
 {
 	signal(SIGINT, exit_signal);
+
 	return media_codec_play(player,user);
 }
 
