@@ -715,7 +715,6 @@ void TpPainter::setScene(void *canvas, void *scene)
     painterData->swCanvas = addCanvas;
 
     tvg::Scene *addScene = (tvg::Scene *)scene;
-    addScene->remove();
     painterData->tvgScene = addScene;
 }
 
@@ -725,9 +724,10 @@ void TpPainter::sync(void *object)
 
     // 绘制并同步
     // painterData->swCanvas->update();
-    painterData->swCanvas->draw(true);
+    painterData->swCanvas->draw();
     painterData->swCanvas->sync();
 
+#if 0
     if (object)
     {
         TpWidget *paintWidget = static_cast<TpWidget *>(object);
@@ -743,6 +743,7 @@ void TpPainter::sync(void *object)
         // grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
         // grapImage.save(savePngPath, TpImage::PNG_FMT);
     }
+#endif
 }
 
 TpHollowMask::TpHollowMask()

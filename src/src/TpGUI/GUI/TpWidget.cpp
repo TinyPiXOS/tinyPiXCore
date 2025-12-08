@@ -958,16 +958,16 @@ void TpWidget::setParent(TpObject *parent)
     {
         widgetData->tvgScene->remove();
 
-        TpScreen *topScreen = static_cast<TpScreen *>(topObject());
-        if (topScreen)
-        {
-            TpScreenData *topScreenData = static_cast<TpScreenData *>(topScreen->data_);
-            topScreenData->swCanvas->remove(widgetData->tvgScene);
-        }
+        // TpScreen *topScreen = static_cast<TpScreen *>(topObject());
+        // if (topScreen)
+        // {
+        //     TpScreenData *topScreenData = static_cast<TpScreenData *>(topScreen->data_);
+        //     topScreenData->swCanvas->remove(widgetData->tvgScene);
+        // }
 
-        // TpWidget *lastParentWidget = dynamic_cast<TpWidget *>(widgetData->parent);
-        // TpWidgetData *lastParentWidgetData = static_cast<TpWidgetData *>(lastParentWidget->data_);
-        // lastParentWidgetData->tvgScene->remove(widgetData->tvgScene);
+        TpWidget *lastParentWidget = dynamic_cast<TpWidget *>(widgetData->parent);
+        TpWidgetData *lastParentWidgetData = static_cast<TpWidgetData *>(lastParentWidget->data_);
+        lastParentWidgetData->tvgScene->remove(widgetData->tvgScene);
     }
 
     TpObject::setParent(parent);
@@ -986,11 +986,12 @@ void TpWidget::setParent(TpObject *parent)
     // 将自己的scene加入父组件的scene
     if (parentWidget)
     {
-        // TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->data_);
-        // parentWidgetData->tvgScene->push(widgetData->tvgScene);
+        TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->data_);
+        parentWidgetData->tvgScene->push(widgetData->tvgScene);
+        
         // 父节点改变后，重新计算裁剪区域
         // refreshSceneClipRect(this, widgetData);
-        ClipRectOptimizer::markWidgetForRefresh(this);
+        // ClipRectOptimizer::markWidgetForRefresh(this);
 
         // widgetData->tvgScene->visible(true);
         // std::cout << "parentWidget->pluginType() " << parentWidget->pluginType() << std::endl;
@@ -1042,7 +1043,7 @@ bool TpWidget::onMouseRleaseEvent(TpMouseEvent *event)
 bool TpWidget::onMoveEvent(TpMoveEvent *event)
 {
     // refreshSceneClipRect(this, static_cast<TpWidgetData *>(TpObject::data_));
-    ClipRectOptimizer::markWidgetForRefresh(this);
+    // ClipRectOptimizer::markWidgetForRefresh(this);
     return true;
 }
 
@@ -1051,7 +1052,7 @@ bool TpWidget::onResizeEvent(TpResizeEvent *event)
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
 
     // refreshSceneClipRect(this, widgetData);
-    ClipRectOptimizer::markWidgetForRefresh(this);
+    // ClipRectOptimizer::markWidgetForRefresh(this);
 
     if (widgetData->layoutMutex.try_lock())
     {

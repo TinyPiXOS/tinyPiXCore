@@ -1,93 +1,6 @@
 #include "TpScreen.h"
 #include "TpScreen_p.h"
 
-// 坐标、尺寸变化重设限制区域
-static void resetViewport(TpScreen *thisPtr, TpScreenData *screenData)
-{
-    if (!screenData->swCanvas || !screenData->wmSurface)
-        return;
-
-    // 限制绘制区域;如果父窗口比自己大，则使用自己的尺寸，如果父窗口比自己小，则使用父窗口的
-    const TpRect objectAbsRect = thisPtr->toScreen();
-    TpRect clipRect = objectAbsRect;
-    const int32_t offsetXVal = thisPtr->offsetX();
-    const int32_t offsetYVal = thisPtr->offsetY();
-
-    int32_t offsetX = 0;
-    int32_t offsetY = 0;
-
-    if (thisPtr->objectType() == Tp::TP_FLOAT_OBJECT || thisPtr->objectType() == Tp::TP_MAIN_WINDOW_OBJECT || thisPtr->objectType() == Tp::TP_FIXSCREEN_OBJECT)
-    {
-        offsetX = 0;
-        offsetY = 0;
-    }
-    else
-    {
-        offsetX = objectAbsRect.x() - offsetXVal;
-        offsetY = objectAbsRect.y() - offsetYVal;
-    }
-
-    TpWidget *parentWidget = dynamic_cast<TpWidget *>(thisPtr->parent());
-    if (parentWidget)
-    {
-        while (parentWidget)
-        {
-            TpRect inputParentRect = parentWidget->toScreen();
-
-            clipRect.setX(TP_MAX(clipRect.x(), inputParentRect.x()));
-            clipRect.setY(TP_MAX(clipRect.y(), inputParentRect.y()));
-
-            int32_t tempWidth = TP_MIN(clipRect.x() + clipRect.width(), inputParentRect.x() + inputParentRect.width());
-            int32_t tempHeight = TP_MIN(clipRect.y() + clipRect.height(), inputParentRect.y() + inputParentRect.height());
-
-            clipRect.setWidth(tempWidth - clipRect.x());
-            clipRect.setHeight(tempHeight - clipRect.y());
-
-            parentWidget = dynamic_cast<TpWidget *>(parentWidget->parent());
-        }
-    }
-    else
-    {
-        clipRect.setX(offsetX);
-        clipRect.setY(offsetY);
-        clipRect.setWidth(thisPtr->width());
-        clipRect.setHeight(thisPtr->height());
-    }
-
-    TpWidget *topScreenWidget = dynamic_cast<TpWidget *>(thisPtr->topObject());
-    if (topScreenWidget && (topScreenWidget != thisPtr) &&
-        (topScreenWidget->objectType() == Tp::TP_FLOAT_OBJECT || topScreenWidget->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
-    {
-        clipRect.setX(clipRect.x() - offsetXVal);
-        clipRect.setY(clipRect.y() - offsetYVal);
-    }
-
-    // int32_t surfaceWidth = screenData->wmSurface->width();
-    // int32_t surfaceHeight = screenData->wmSurface->height();
-
-    // // 绑定渲染画布和canvas
-    // screenData->swCanvas->target((uint32_t *)screenData->wmSurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
-
-    // int32_t componentX = clipRect.x();           // 组件在buffer中的x位置
-    // int32_t componentY = clipRect.y();           // 组件在buffer中的y位置
-    // int32_t componentWidth = clipRect.width();   // 组件宽度
-    // int32_t componentHeight = clipRect.height(); // 组件高度
-
-    // // 计算组件区域在buffer中的起始位置
-    // uint32_t *componentBuffer = (uint32_t *)screenData->wmSurface->matrix() + componentY * surfaceWidth + componentX;
-
-    // // 设置裁剪后的buffer
-    // screenData->swCanvas->target(
-    //     componentBuffer,
-    //     surfaceWidth, // stride仍然是整个buffer的宽度
-    //     componentWidth,
-    //     componentHeight,
-    //     tvg::ColorSpace::ARGB8888);
-
-    // 限制绘制区域
-    // screenData->swCanvas->viewport(clipRect.x(), clipRect.y(), clipRect.width(), clipRect.height());
-}
-
 TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t h)
     : TpWidget(nullptr)
 {
@@ -149,42 +62,6 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
 
         screenData->swCanvas = tvg::SwCanvas::gen();
         screenData->swCanvas->push(screenData->tvgScene);
-        
-        // // 初始化canvas与surface的绑定；一个screen一个surface
-        // // 遍历this的所有子节点，所有子节点查询一下top
-        // if (!screenData->wmSurface)
-        // {
-        //     TpWidget *topScreenWidget = dynamic_cast<TpWidget *>(screenData->top);
-        //     if (screenData->top && topScreenWidget)
-        //     {
-        //         TpObjectData *topData = static_cast<TpObjectData *>(topScreenWidget->objectSets());
-
-        //         // 根据新的top指针，解析surface信息
-        //         IPiWFSurface *surface_t = tinyPiX_wf_get_surface(topData->agent);
-
-        //         TpRect topScreenRect = topScreenWidget->toScreen();
-
-        //         // 目前为全局刷新，所以在此处初始化一次surface即可
-        //         // 修改为局部刷新时，需要在resize时，重新设置surface的rect TODO
-        //         screenData->wmSurface = tpMakeShared<TpSurface>(surface_t, topScreenRect);
-
-        //         int32_t surfaceWidth = screenData->wmSurface->width();
-        //         int32_t surfaceHeight = screenData->wmSurface->height();
-
-        //         std::cout << "topScreenRect : " << topScreenRect.x() << " , " << topScreenRect.y()
-        //                   << " , " << surfaceWidth << " , " << surfaceHeight << std::endl;
-
-        //         // 绑定渲染画布和canvas
-        //         screenData->swCanvas = tvg::SwCanvas::gen();
-        //         screenData->swCanvas->target((uint32_t *)screenData->wmSurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
-
-        //         // resetViewport(this, screenData);
-        //     }
-        //     else
-        //     {
-        //         screenData->wmSurface = nullptr;
-        //     }
-        // }
     }
 }
 

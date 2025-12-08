@@ -374,10 +374,12 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         // int32_t surfaceHeight = paintInput.surface->height();
         // std::cout << "Surface尺寸： " << surfaceWidth << "  " << surfaceHeight << std::endl;
 
-        drawWidget(paintInput, updateWidgetIter.first);
+        if (updateWidgetIter.first->visible())
+            drawWidget(paintInput, updateWidgetIter.first);
 
         TpScreen *topScreen = dynamic_cast<TpScreen *>(updateWidgetIter.first->topObject());
         tvg::SwCanvas *topCanvas = (tvg::SwCanvas *)topScreen->canvasPtr();
+        topCanvas->update();
         topCanvas->draw();
         topCanvas->sync();
 
