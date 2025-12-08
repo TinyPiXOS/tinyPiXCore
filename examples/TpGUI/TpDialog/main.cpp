@@ -2,6 +2,7 @@
 #include "TpMainWindow.h"
 #include "TpDialog.h"
 #include "TpLabel.h"
+#include "TpFont.h"
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -13,7 +14,7 @@ int32_t main(int32_t argc, char *argv[])
 	TpDialog *dia = new TpDialog();
 	dia->setBackGroundColor(_RGB(243, 243, 243));
 	dia->setRect(0, 0, 300, 300);
-	dia->setWindowOpacity(0.1);
+	dia->setWindowOpacity(0.6);
     dia->setRoundCorners(50);
 	dia->setBeMoved(true);
 	dia->show();
@@ -26,9 +27,6 @@ int32_t main(int32_t argc, char *argv[])
 	childW->setBackGroundColor(_RGBA(100, 255, 100, 100));
 	childW->setRect(100, 100, 300, 300);
     childW->setRoundCorners(50);
-
-	dia->update();
-	vScreen->update();
 
 	return app.run();
 }

@@ -115,7 +115,11 @@ void TpWidget::setVisible(bool visible)
     if (visible == widgetData->visible)
         return;
 
-    setChildVisible(widgetData, visible);
+    // setChildVisible(widgetData, visible);
+    if (widgetData->tvgScene)
+    {
+        widgetData->tvgScene->visible(visible);
+    }
 
     widgetData->visible = visible;
     ItpObjectVisibleSet input;
@@ -988,7 +992,7 @@ void TpWidget::setParent(TpObject *parent)
     {
         TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->data_);
         parentWidgetData->tvgScene->push(widgetData->tvgScene);
-        
+
         // 父节点改变后，重新计算裁剪区域
         // refreshSceneClipRect(this, widgetData);
         // ClipRectOptimizer::markWidgetForRefresh(this);

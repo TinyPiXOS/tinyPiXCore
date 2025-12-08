@@ -213,6 +213,35 @@ static void changeXY(TpWidget *thisPtr, TpWidgetData *widgetData, int32_t x, int
     {
         thisPtr->broadSetTop();
     }
+
+    // 调整整个scene的坐标
+    if (widgetData->tvgScene)
+    {
+        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
+        {
+            widgetData->tvgScene->translate(x, y);
+
+            if (auto oldClipper = widgetData->tvgScene->clip())
+            {
+                tvg::Paint::rel(oldClipper);
+            }
+
+            auto clipper = tvg::Shape::gen();
+            clipper->appendRect(x, y, widgetData->logicalRect.width(), widgetData->logicalRect.height());
+            widgetData->tvgScene->clip(std::move(clipper));
+        }
+        else
+        {
+            // if (auto oldClipper = widgetData->tvgScene->clip())
+            // {
+            //     tvg::Paint::rel(oldClipper);
+            // }
+
+            // auto clipper = tvg::Shape::gen();
+            // clipper->appendRect(0, 0, widgetData->logicalRect.width(), widgetData->logicalRect.height());
+            // widgetData->tvgScene->clip(std::move(clipper));
+        }
+    }
 }
 
 static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint32_t &w)
@@ -262,6 +291,45 @@ static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint3
     if (widgetData->parent)
     {
         thisPtr->broadSetTop();
+    }
+
+    // 限制scene区域
+    if (widgetData->tvgScene)
+    {
+        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
+        {
+            if (auto oldClipper = widgetData->tvgScene->clip())
+            {
+                tvg::Paint::rel(oldClipper);
+            }
+
+            // 获取Scene的变换矩阵
+            tvg::Matrix matrix = widgetData->tvgScene->transform();
+
+            float translateX = matrix.e13; // x轴平移
+            float translateY = matrix.e23; // y轴平移
+
+            auto clipper = tvg::Shape::gen();
+            clipper->appendRect(translateX, translateY, widgetData->logicalRect.width(), widgetData->logicalRect.height());
+            widgetData->tvgScene->clip(std::move(clipper));
+        }
+        else
+        {
+            // if (auto oldClipper = widgetData->tvgScene->clip())
+            // {
+            //     tvg::Paint::rel(oldClipper);
+            // }
+
+            // // 获取Scene的变换矩阵
+            // tvg::Matrix matrix = widgetData->tvgScene->transform();
+
+            // float translateX = matrix.e13; // x轴平移
+            // float translateY = matrix.e23; // y轴平移
+
+            // auto clipper = tvg::Shape::gen();
+            // clipper->appendRect(0, 0, widgetData->logicalRect.width(), widgetData->logicalRect.height());
+            // widgetData->tvgScene->clip(std::move(clipper));
+        }
     }
 }
 
@@ -314,6 +382,45 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
     if (widgetData->parent)
     {
         thisPtr->broadSetTop();
+    }
+
+    // 限制scene区域
+    if (widgetData->tvgScene)
+    {
+        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
+        {
+            if (auto oldClipper = widgetData->tvgScene->clip())
+            {
+                tvg::Paint::rel(oldClipper);
+            }
+
+            // 获取Scene的变换矩阵
+            tvg::Matrix matrix = widgetData->tvgScene->transform();
+
+            float translateX = matrix.e13; // x轴平移
+            float translateY = matrix.e23; // y轴平移
+
+            auto clipper = tvg::Shape::gen();
+            clipper->appendRect(translateX, translateY, widgetData->logicalRect.width(), widgetData->logicalRect.height());
+            widgetData->tvgScene->clip(std::move(clipper));
+        }
+        else
+        {
+            // if (auto oldClipper = widgetData->tvgScene->clip())
+            // {
+            //     tvg::Paint::rel(oldClipper);
+            // }
+
+            // // 获取Scene的变换矩阵
+            // tvg::Matrix matrix = widgetData->tvgScene->transform();
+
+            // float translateX = matrix.e13; // x轴平移
+            // float translateY = matrix.e23; // y轴平移
+
+            // auto clipper = tvg::Shape::gen();
+            // clipper->appendRect(0, 0, widgetData->logicalRect.width(), widgetData->logicalRect.height());
+            // widgetData->tvgScene->clip(std::move(clipper));
+        }
     }
 }
 

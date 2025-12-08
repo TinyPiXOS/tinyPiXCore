@@ -26,8 +26,10 @@ TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offse
         return;
 
     painterData->beUsed = false;
-    painterData->offsetX = offsetX;
-    painterData->offsetY = offsetY;
+    // painterData->offsetX = offsetX;
+    // painterData->offsetY = offsetY;
+    painterData->offsetX = 0;
+    painterData->offsetY = 0;
 
     painterData->paintWidget = object;
 
