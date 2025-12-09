@@ -1226,11 +1226,6 @@ void media_stream_params_delete(struct MediaStreamParams *params)
 {
 	if(!params)
 		return ;
-	if(params->video.handle)	//正常情况应该在取消硬件初始化的时候释放，此处是为了忘记释放
-	{
-		free(params->video.handle);
-		params->video.handle=NULL;
-	}
 	params->format_ctx=NULL;
 	params->codec_ctx=NULL;
 	free(params);

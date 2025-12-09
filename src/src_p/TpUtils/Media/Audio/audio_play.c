@@ -137,7 +137,7 @@ int audio_pcm_close(struct MediaAudioHandle *pcm)
     return snd_pcm_close(pcm->handle);
 }
 
-/// @brief 配置PCM的参数
+/// @brief 配置PCM的参数(每次重新设置参数之前最好都调用此函数)
 /// @param pcm
 /// @return
 static int media_pcm_hwparams_init(struct MediaAudioHandle *pcm)
@@ -214,6 +214,13 @@ int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioSamplesParams *au
 {
     if (!pcm || !pcm->handle)
         return -1;
+    debug_printf("根据音配的参数配置声卡");    
+    snd_pcm_state_t current_state = snd_pcm_state(pcm->handle);
+    if (current_state != SND_PCM_STATE_OPEN && current_state != SND_PCM_STATE_SETUP) {
+        debug_printf("重置PCM设备状态: %s -> OPEN\n", snd_pcm_state_name(current_state));
+        snd_pcm_drop(pcm->handle);  // 停止并丢弃待处理数据
+        snd_pcm_prepare(pcm->handle);  // 将设备重置为准备状态
+    }
 
     int rc;
     int dir = 0;
@@ -286,6 +293,7 @@ int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioSamplesParams *au
     }
 
     // 应用pcm参数
+    debug_printf("应用pcm参数");
     rc = snd_pcm_hw_params(pcm->handle, pcm->hwparams);
     if (rc < 0)
     {
@@ -296,6 +304,7 @@ int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioSamplesParams *au
     }
 
     // 获取设备的一些功能，一般在设置完参数后调用
+    debug_printf("获取设备的功能");
     pcm_get_function(pcm->hwparams, pcm->ahparams);
 
     // 设置完后修改最终成功设置的参数
@@ -740,13 +749,13 @@ int Audio_Device_Init(struct MediaAudioHandle *pcm_play, const char *device, Aud
         audio_pcm_close(pcm_play);
         return -1;
     }
-    if (media_pcm_hwparams_init(pcm_play) < 0) // 初始化hwparams
+    /*if (media_pcm_hwparams_init(pcm_play) < 0) // 初始化hwparams
     {
         debug_printf("media_pcm_hwparams_init error\n");
         snd_pcm_hw_params_free(pcm_play->hwparams);
         audio_pcm_close(pcm_play);
         return -1;
-    }
+    }*/
     pcm_play->adparams = (struct AudioSamplesParams *)malloc(sizeof(struct AudioSamplesParams));
     pcm_play->ahparams = (struct PcmHardParams *)malloc(sizeof(struct PcmHardParams));
     return 0;
@@ -770,6 +779,7 @@ int Audio_Device_Close(struct MediaAudioHandle *pcm_play)
         free(pcm_play->ahparams);
     //	if(pcm_play->device)
     //		free(pcm_play->device);
+    debug_printf("关闭设备\n");
     return 0;
 }
 
@@ -958,8 +968,9 @@ int media_audio_play_callback_init(struct MediaUserParams *user)
 int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaUserParams *user,struct MediaStreamParams *audio)
 {
 	debug_printf("初始化声卡硬件\n");
-	struct AudioSamplesParams *stream_params=(struct AudioSamplesParams *)malloc(sizeof(struct AudioSamplesParams));
-	audio_stream_params_init(audio->codec_ctx->channels,			//使用流的参数来初始化声卡
+	//struct AudioSamplesParams *stream_params=(struct AudioSamplesParams *)malloc(sizeof(struct AudioSamplesParams));
+	struct AudioSamplesParams *stream_params= pcm_play->adparams;
+    audio_stream_params_init(audio->codec_ctx->channels,			//使用流的参数来初始化声卡
 								audio->codec_ctx->sample_rate,
 								AUDIO_CODEC_CHANNEL_DEF,		//使用16位宽，(本值是解码时候自己指定的，不需要动态设置)
 								stream_params);
@@ -972,7 +983,12 @@ int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaUse
 		audio->audio.handle->adparams=stream_params;
 		return -1;
 	}
-
+    if (media_pcm_hwparams_init(pcm_play) < 0) // 初始化hwparams
+    {
+        debug_printf("media_pcm_hwparams_init error\n");
+        audio_pcm_close(pcm_play);
+        return -1;
+    }
 	if(pcm_hwparams_set(pcm_play,stream_params)<0)  //根据stream_params配置声卡，可能会修改stream_params中的参数
 	{
         free(stream_params);
@@ -1007,7 +1023,6 @@ static int media_audio_hard_deinit(struct MediaStreamParams *audio)
 {
 	if(!audio)
 		return 0;
-
     return 0;
 }
 
@@ -1059,7 +1074,6 @@ int media_stream_audio_deinit_handle(struct MediaStreamParams *audio)
 		swr_free(&audio->audio.swr_ctx);
 	media_audio_hard_deinit(audio);		//取消硬件的设置
 
-	Audio_Device_Close(audio->audio.handle);			//关闭设备
 	return 0;
 
 }
