@@ -3,7 +3,6 @@
 
 #include "TpCore.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpSizeData);
 /// @brief 尺寸处理工具类
 class TpSize
 {
@@ -12,7 +11,7 @@ public:
     TpSize() noexcept;
     /// @brief 拷贝构造
     /// @param other 拷贝对象
-    TpSize(const TpSize& other) noexcept;
+    TpSize(const TpSize &other) noexcept;
     /// @brief 带参数的构造函数
     /// @param w 宽度
     /// @param h 高度
@@ -104,7 +103,7 @@ public:
     friend const TpSize operator/(const TpSize &, float);
 
 private:
-    ITpSizeData *data_;
+    tpInt32 w_, h_;
 };
 
 #endif

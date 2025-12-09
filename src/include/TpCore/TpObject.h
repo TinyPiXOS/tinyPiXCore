@@ -81,6 +81,8 @@ protected:
         m_properties[name].second = writeFunc;
     }
 
+    virtual void initTpData();
+    
 private:
     void addConnection(void *signal, std::function<void()> disconnector);
 

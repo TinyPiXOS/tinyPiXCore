@@ -50,7 +50,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpRadioButton.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpProgressBar.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpSlider.cpp
-    ${SOURCE_PATH}/src/TpGUI/Widgets/TpOnOffButton.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpSwitchButton.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpScrollPanel.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLineEdit.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpComBox.cpp

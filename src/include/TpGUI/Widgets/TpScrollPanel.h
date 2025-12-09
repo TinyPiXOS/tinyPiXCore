@@ -77,6 +77,8 @@ public:
 public:
 	virtual bool recal(bool enableOffset = false); // when child rect be changed, call this function
 
+    virtual TpString pluginType() { return TO_STRING(TpScrollPanel); }
+
 public:
 	virtual bool onPaintEvent(TpPaintEvent *event) override;
 	virtual bool eventFilter(TpObject *watched, TpEvent *event) override;

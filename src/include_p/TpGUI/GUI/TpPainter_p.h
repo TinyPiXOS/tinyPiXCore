@@ -36,7 +36,7 @@ struct TpPainterData
     // CPU绘制引擎
     tvg::SwCanvas *swCanvas = nullptr;
     // 使用OpenGL加速的绘制引擎；需有GPU和OpenGL才能使用；暂时无用
-    tvg::GlCanvas *glCanvas = nullptr;
+    // tvg::GlCanvas *glCanvas = nullptr;
 
     tvg::Scene *tvgScene = nullptr;
 
@@ -49,13 +49,13 @@ struct TpPainterData
 // 重设canvas的target
 static inline void refreshCanvasTarget(TpPainterData *painterData)
 {
-    int32_t surfaceWidth = painterData->TpSurfacePtr->width();
-    int32_t surfaceHeight = painterData->TpSurfacePtr->height();
+    // int32_t surfaceWidth = painterData->TpSurfacePtr->width();
+    // int32_t surfaceHeight = painterData->TpSurfacePtr->height();
 
-    painterData->swCanvas->target((uint32_t *)painterData->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+    // painterData->swCanvas->target((uint32_t *)painterData->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
 
-    // 限制绘制区域
-    painterData->swCanvas->viewport(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height());
+    // // 限制绘制区域
+    // painterData->swCanvas->viewport(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height());
 
     // std::cout << "裁剪区域： " << painterData->clipRect.x() << " , " << painterData->clipRect.y()
     //           << " , " << painterData->clipRect.width() << " , " << painterData->clipRect.height() << std::endl;

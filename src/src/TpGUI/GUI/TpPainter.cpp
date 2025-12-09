@@ -26,8 +26,10 @@ TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offse
         return;
 
     painterData->beUsed = false;
-    painterData->offsetX = offsetX;
-    painterData->offsetY = offsetY;
+    // painterData->offsetX = offsetX;
+    // painterData->offsetY = offsetY;
+    painterData->offsetX = 0;
+    painterData->offsetY = 0;
 
     painterData->paintWidget = object;
 
@@ -715,7 +717,6 @@ void TpPainter::setScene(void *canvas, void *scene)
     painterData->swCanvas = addCanvas;
 
     tvg::Scene *addScene = (tvg::Scene *)scene;
-    addScene->remove();
     painterData->tvgScene = addScene;
 }
 
@@ -728,6 +729,7 @@ void TpPainter::sync(void *object)
     painterData->swCanvas->draw();
     painterData->swCanvas->sync();
 
+#if 0
     if (object)
     {
         TpWidget *paintWidget = static_cast<TpWidget *>(object);
@@ -743,6 +745,7 @@ void TpPainter::sync(void *object)
         // grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
         // grapImage.save(savePngPath, TpImage::PNG_FMT);
     }
+#endif
 }
 
 TpHollowMask::TpHollowMask()

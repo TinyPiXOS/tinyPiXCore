@@ -177,9 +177,9 @@ set(SOURCE_FILES
     # ${SOURCE_PATH}/src_p/TpUtils/bluetooth/src/obexnames.c
     # ${SOURCE_PATH}/src/TpUtils/TpDisplayManage.cpp
 
-    ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_client.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_client.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_client.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_client.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
 )
 
 if(CMAKE_CROSSCOMPILING)
@@ -289,7 +289,8 @@ set(CRYPTO3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libcrypto.a)
 set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
 
 target_link_libraries(TpUtils PUBLIC
-    dl pthread ${ERPC_STATIC_LIB}
+    dl pthread 
+    # ${ERPC_STATIC_LIB}
     ${OPENSSL3_LIB_STATIC_LIB} ${CRYPTO3_LIB_STATIC_LIB} 
     ${PCAP_LIB_STATIC_LIB} ${TPARCHIVE_LIB_STATIC_LIB} 
     ${NANOMSG_STATIC_LIB} ${THORVG_STATIC_LIB}

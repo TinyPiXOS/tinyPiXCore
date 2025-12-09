@@ -24,11 +24,9 @@ public:
     /// @param width
     /// @param height
     virtual void setSize(const int32_t &width, const int32_t &height) override;
-
     /// @brief 设置窗口宽度
     /// @param width 宽度值，单位px
     virtual void setWidth(const int32_t &width) override;
-
     /// @brief 设置窗口高度
     /// @param height 高度值，单位px
     virtual void setHeight(const int32_t &height) override;
@@ -50,7 +48,8 @@ public:
 public:
     virtual void update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit = false) override;
     virtual void update(bool onlyBlit = false) override;
-
+    virtual bool onResizeEvent(TpResizeEvent *event) override;
+    
 public:
     virtual Tp::TpObjectType objectType();
     virtual Tp::TpObjectSysLayer objectLayer();
@@ -74,6 +73,9 @@ public:
     /// @param event
     /// @return
     int32_t dispatchEvent(void *event);
+
+    /// @brief 外部无需调用
+    void *canvasPtr();
 };
 
 #endif

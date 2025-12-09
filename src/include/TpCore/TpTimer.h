@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(IPiTimerData);
+TP_DEF_VOID_TYPE_VAR(ITpTimerData);
 /// @brief 定时器功能类
 class TpTimer
 {
@@ -43,7 +43,7 @@ signals:
 	declare_signal(timeout);
 
 private:
-	IPiTimerData *timerSet_;
+	ITpTimerData *timerSet_;
 
 	void timerFunction();
 };

@@ -1,16 +1,27 @@
 #include "TpScreen.h"
-#include "TpWidget_p.h"
 #include "TpScreen_p.h"
 
 TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t h)
     : TpWidget(nullptr)
 {
-    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-    widgetData->objectType = type;
+    TpScreenData *screenData = new TpScreenData();
 
-    widgetData->agent = tinyPiX_wf_create(type, x, y, w, h);
+    // 移除父类的数据；创建widget的指针
+    TpWidgetData *objData = static_cast<TpWidgetData *>(TpObject::data_);
+    if (objData)
+    {
+        delete objData;
+        objData = nullptr;
+        TpObject::data_ = nullptr;
+    }
+    TpObject::data_ = screenData;
 
-    if (widgetData->agent == nullptr)
+    TpWidget::initTpData();
+
+    screenData->objectType = type;
+    screenData->agent = tinyPiX_wf_create(type, x, y, w, h);
+
+    if (screenData->agent == nullptr)
     {
         this->close();
     }
@@ -18,36 +29,39 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
     {
         // 获取物理尺寸
         uint32_t rW, rH;
-        tinyPiX_wf_get_display_size(widgetData->agent, &rW, &rH);
-        widgetData->displaySize.setWidth(rW);
-        widgetData->displaySize.setHeight(rH);
+        tinyPiX_wf_get_display_size(screenData->agent, &rW, &rH);
+        screenData->displaySize.setWidth(rW);
+        screenData->displaySize.setHeight(rH);
 
-        tinyPiX_wf_args_assign(widgetData->agent, this);
+        tinyPiX_wf_args_assign(screenData->agent, this);
 
-        tinyPiX_wf_event_assign(widgetData->agent, transferEvent);
-        tinyPiX_wf_focus_assign(widgetData->agent, transferFocus);
-        tinyPiX_wf_leave_assign(widgetData->agent, transferLeave);
-        tinyPiX_wf_resize_assign(widgetData->agent, transferResize);
-        tinyPiX_wf_visible_assign(widgetData->agent, transferVisible);
-        tinyPiX_wf_moved_assign(widgetData->agent, transferMoved);
-        tinyPiX_wf_actived_assign(widgetData->agent, transferActive);
-        tinyPiX_wf_quit_assign(widgetData->agent, transferQuit);
-        tinyPiX_wf_return_assign(widgetData->agent, transferReturn);
-        tinyPiX_wf_app_assign(widgetData->agent, transferAppState);
+        tinyPiX_wf_event_assign(screenData->agent, transferEvent);
+        tinyPiX_wf_focus_assign(screenData->agent, transferFocus);
+        tinyPiX_wf_leave_assign(screenData->agent, transferLeave);
+        tinyPiX_wf_resize_assign(screenData->agent, transferResize);
+        tinyPiX_wf_visible_assign(screenData->agent, transferVisible);
+        tinyPiX_wf_moved_assign(screenData->agent, transferMoved);
+        tinyPiX_wf_actived_assign(screenData->agent, transferActive);
+        tinyPiX_wf_quit_assign(screenData->agent, transferQuit);
+        tinyPiX_wf_return_assign(screenData->agent, transferReturn);
+        tinyPiX_wf_app_assign(screenData->agent, transferAppState);
 
-        widgetData->top = this;
-        tinyPiX_wf_get_rect(widgetData->agent, &x, &y, &w, &h);
+        screenData->top = this;
+        tinyPiX_wf_get_rect(screenData->agent, &x, &y, &w, &h);
 
-        widgetData->offsetX = x;
-        widgetData->offsetY = y;
+        screenData->offsetX = x;
+        screenData->offsetY = y;
 
-        widgetData->absoluteRect.setRect(x, y, w, h);
-        widgetData->logicalRect.setRect(0, 0, w, h);
+        screenData->absoluteRect.setRect(x, y, w, h);
+        screenData->logicalRect.setRect(0, 0, w, h);
 
-        if (widgetData->top)
+        if (screenData->top)
         {
             this->broadSetTop();
         }
+
+        screenData->swCanvas = tvg::SwCanvas::gen();
+        screenData->swCanvas->push(screenData->tvgScene);
     }
 }
 
@@ -278,6 +292,53 @@ void TpScreen::update(int32_t x, int32_t y, int32_t w, int32_t h, bool onlyBlit)
 void TpScreen::update(bool onlyBlit)
 {
     update(this->toScreen().x(), this->toScreen().y(), this->width(), this->height(), onlyBlit);
+}
+
+bool TpScreen::onResizeEvent(TpResizeEvent *event)
+{
+    TpScreenData *screenData = static_cast<TpScreenData *>(TpObject::data_);
+    if (!screenData)
+        return true;
+
+    // 初始化canvas与surface的绑定；一个screen一个surface
+    // 遍历this的所有子节点，所有子节点查询一下top
+    // if (!screenData->wmSurface)
+    {
+        TpWidget *topScreenWidget = dynamic_cast<TpWidget *>(screenData->top);
+        if (screenData->top && topScreenWidget)
+        {
+            TpObjectData *topData = static_cast<TpObjectData *>(topScreenWidget->objectSets());
+
+            // 根据新的top指针，解析surface信息
+            IPiWFSurface *surface_t = tinyPiX_wf_get_surface(topData->agent);
+
+            TpRect topScreenRect = topScreenWidget->toScreen();
+
+            // 目前为全局刷新，所以在此处初始化一次surface即可
+            // 修改为局部刷新时，需要在resize时，重新设置surface的rect TODO
+            screenData->wmSurface = tpMakeShared<TpSurface>(surface_t, topScreenRect);
+
+            int32_t surfaceWidth = screenData->wmSurface->width();
+            int32_t surfaceHeight = screenData->wmSurface->height();
+
+            // std::cout << "topScreenRect : " << topScreenRect.x() << " , " << topScreenRect.y()
+            //           << " , " << surfaceWidth << " , " << surfaceHeight << std::endl;
+
+            // 绑定渲染画布和canvas
+            // screenData->swCanvas = tvg::SwCanvas::gen();
+            screenData->swCanvas->target((uint32_t *)screenData->wmSurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+
+            // resetViewport(this, screenData);
+        }
+        // else
+        // {
+        //     screenData->wmSurface = nullptr;
+        // }
+    }
+
+    TpWidget::onResizeEvent(event);
+
+    return true;
 }
 
 Tp::TpObjectType TpScreen::objectType()
@@ -710,4 +771,14 @@ int32_t TpScreen::dispatchEvent(void *events)
     }
 
     return true;
+}
+
+void *TpScreen::canvasPtr()
+{
+    TpScreenData *screenData = static_cast<TpScreenData *>(data_);
+    if (!screenData->swCanvas)
+    {
+        screenData->swCanvas = tvg::SwCanvas::gen();
+    }
+    return screenData->swCanvas;
 }

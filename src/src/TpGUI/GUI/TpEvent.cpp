@@ -1190,17 +1190,9 @@ bool TpPaintEvent::construct(ITpEventData *inputData)
     eventData->canDraw = true;
     if (inputParentWidget)
     {
-        // std::cout << "objectAbsRect " << objectAbsRect.x() << " , " << objectAbsRect.y()
-        //   << " , " << objectAbsRect.width() << " , " << objectAbsRect.height() << std::endl;
-
         while (inputParentWidget)
         {
             TpRect inputParentRect = inputParentWidget->toScreen();
-
-            // std::cout << "合并前inputParentRect " << inputParentRect.x() << " , " << inputParentRect.y()
-            //           << " , " << inputParentRect.width() << " , " << inputParentRect.height() << std::endl;
-            // std::cout << "合并前clipRect " << clipRect.x() << " , " << clipRect.y()
-            //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
 
             clipRect.setX(TP_MAX(clipRect.x(), inputParentRect.x()));
             clipRect.setY(TP_MAX(clipRect.y(), inputParentRect.y()));
@@ -1211,14 +1203,8 @@ bool TpPaintEvent::construct(ITpEventData *inputData)
             clipRect.setWidth(tempWidth - clipRect.x());
             clipRect.setHeight(tempHeight - clipRect.y());
 
-            // std::cout << "合并区域结果：clipRect " << clipRect.x() << " , " << clipRect.y()
-            //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
-
             inputParentWidget = dynamic_cast<TpWidget *>(inputParentWidget->parent());
         }
-
-        // std::cout << "裁剪区域： " << clipRect.x() << " , " << clipRect.y()
-        //           << " , " << clipRect.width() << " , " << clipRect.height() << std::endl;
 
         eventData->canDraw = (clipRect.width() > 0) && (clipRect.height() > 0);
         if (!eventData->canDraw)
@@ -1236,7 +1222,7 @@ bool TpPaintEvent::construct(ITpEventData *inputData)
     if (top && (top != input->object) && (top->objectType() == Tp::TP_FLOAT_OBJECT || top->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
     {
         clipRect.setX(clipRect.x() - offsetXVal);
-        clipRect.setY(clipRect.y() - offsetYVal);
+        clipRect.setY(clipRect.y() - offsetYVal);       
     }
 
     eventData->updateRect = input->updateRect;

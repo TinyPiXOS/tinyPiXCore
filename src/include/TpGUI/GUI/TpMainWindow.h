@@ -29,15 +29,21 @@ public:
     virtual void setBorderColor(const TpBrush &borderBrush, bool enable = true) override;
     virtual void setEnabledBorderColor(bool enable) override;
 
-protected:
+public:
     /// @brief TpMainWindow无resize事件
-    virtual bool onResizeEvent(TpResizeEvent *event) final override { return true; };
+    virtual bool onResizeEvent(TpResizeEvent *event) final override;
 
 private:
     virtual void setVisible(bool visible = true) final override {};
 
     virtual void setRect(const TpRect &rect) final override {};
     virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) final override {};
+
+    virtual void setSize(const int32_t &width, const int32_t &height) final override {}
+    virtual void setWidth(const int32_t &width) final override {}
+    virtual void setHeight(const int32_t &height) final override {}
+
+    virtual void move(int32_t x, int32_t y) final override {}
 
 private:
     virtual void setBeMoved(bool moved = false) final override {};
