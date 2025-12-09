@@ -48,8 +48,9 @@ TpMessageBox::TpMessageBox(MessageType type)
 
     refreshBaseCss();
 
+    setEnabledBorderColor(false);
     setBackGroundColor(_RGBA(255, 255, 255, 230));
-    setRoundCorners(25);
+    setRoundCorners(20);
 
     setMessageType(type);
 }
@@ -135,6 +136,8 @@ void TpMessageBox::setButtonList(const TpVector<TpString> &buttonList)
 
 bool TpMessageBox::onMouseRleaseEvent(TpMouseEvent *event)
 {
+    TpDialog::onMouseRleaseEvent(event);
+
     TpMessageBoxData *messageData = static_cast<TpMessageBoxData *>(data_);
 
     int btnIndex = 0;
@@ -160,7 +163,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     if (messageData->text.empty())
         return true;
 
-    TpDialog::onPaintEvent(event);
+    // TpDialog::onPaintEvent(event);
 
     TpPainter *painter = event->painter();
 
@@ -240,14 +243,4 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     }
 
     return true;
-}
-
-bool TpMessageBox::onResizeEvent(TpResizeEvent *event)
-{
-    return true;
-}
-
-bool TpMessageBox::eventFilter(TpObject *watched, TpEvent *event)
-{
-    return false;
 }
