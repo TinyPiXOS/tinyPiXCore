@@ -181,12 +181,12 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     childScene->opacity(255 * obj->windowOpacity());
 
     // 清除所有现有效果
-    // childScene->push(tvg::SceneEffect::ClearAll);
-    // if (obj->enableGraphicsEffect())
-    // {
-    //     TpGraphicsBlurEffect blurEffectObj = obj->graphicsEffect();
-    //     childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
-    // }
+    childScene->push(tvg::SceneEffect::ClearAll);
+    if (obj->enableGraphicsEffect())
+    {
+        TpGraphicsBlurEffect blurEffectObj = obj->graphicsEffect();
+        childScene->push(tvg::SceneEffect::GaussianBlur, blurEffectObj.blurRadius(), (int32_t)blurEffectObj.direction(), (int32_t)blurEffectObj.border(), blurEffectObj.quality());
+    }
 
     // 控件不可用，绘制遮罩层
     paintEnabledBox(obj, event.painter());

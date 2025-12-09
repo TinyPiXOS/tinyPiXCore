@@ -287,12 +287,14 @@ TpVariant TpAnimation::endValue()
 
 void TpAnimation::start(const DeletionPolicy &runMode)
 {
+    this->stop();
+
     TpAnimationData *animationData = static_cast<TpAnimationData *>(data_);
     if (!animationData->stopped)
         return;
 
-    animationData->deleteMode = runMode;
     animationData->stopped.store(false);
+    animationData->deleteMode = runMode;
 
     animationData->curTimeMs = 0;
     animationData->curLoopIndex = 0;
@@ -316,8 +318,6 @@ void TpAnimation::stop()
     if (animationData->stopped)
         return;
 
-    animationData->stopped.store(true);
-
     animationData->animationTimer.stop();
 
     finished.emit(); // 触发完成信号
@@ -328,6 +328,8 @@ void TpAnimation::stop()
         animationData->isDelete.store(true);
         deleteLater();
     }
+
+    animationData->stopped.store(true);
 }
 
 void TpAnimation::setKeyValueAt(const float &percent, const TpVariant &value)

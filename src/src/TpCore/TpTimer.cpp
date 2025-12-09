@@ -20,6 +20,8 @@ struct TpTimerData
     std::thread timerThread;
     std::chrono::steady_clock::time_point nextTriggerTime;
 
+    std::mutex threadMutex;
+
     virtual ~TpTimerData()
     {
         if (timerThread.joinable())
@@ -123,16 +125,23 @@ void TpTimer::start()
     if (!timerData)
         return;
 
+    // 先完全停止并清理旧线程
+    this->stop();
+
+    std::lock_guard<std::mutex> lock(timerData->threadMutex);
+
     if (!timerData->active.load())
     {
-        // 先等待原有线程结束
-        if (timerData->timerThread.joinable())
-        {
-            timerData->timerThread.join();
-        }
+        // 确保线程已停止
+        // int32_t sleepMaxWait = 1000; 
+        // while (timerData->timerThread.joinable() && sleepMaxWait-- > 0)
+        // {
+        //     this->sleep(2);
+        // }
 
         timerData->active.store(true);
         timerData->nextTriggerTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(timerData->intervalMs.load());
+        // std::cout << "线程状态： " << timerData->timerThread.joinable() << std::endl;
         timerData->timerThread = std::thread(&TpTimer::timerFunction, this);
         if (!timerData->timerThread.joinable())
         {
@@ -148,6 +157,8 @@ void TpTimer::stop()
     TpTimerData *timerData = static_cast<TpTimerData *>(timerSet_);
     if (!timerData)
         return;
+
+    std::lock_guard<std::mutex> lock(timerData->threadMutex);
 
     if (timerData->active.load())
     {
@@ -176,7 +187,6 @@ void TpTimer::stop()
 
 void TpTimer::sleep(const uint64_t &msec)
 {
-    // 休眠 500 毫秒
     std::this_thread::sleep_for(std::chrono::milliseconds(msec));
 }
 

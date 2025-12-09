@@ -519,7 +519,6 @@ bool TpScrollPanel::recal(bool enableOffset)
         int32_t scrollAreaY = realHeight - rectHeight;
 
         scrollData->panel->setRect(0, 0, realWidth, realHeight);
-        std::cout << "realWidth " << realWidth << "  realHeight  " << realHeight << std::endl;
 
         if (enableOffset)
         {

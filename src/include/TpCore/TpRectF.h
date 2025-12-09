@@ -5,7 +5,6 @@
 #include "TpSizeF.h"
 #include "TpPointF.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpRectFData);
 /// @brief 矩形区域处理工具类
 class TpRectF
 {
@@ -239,7 +238,7 @@ public:
     bool operator!=(const TpRectF &other);
 
 private:
-    ITpRectFData *data_;
+    tpDouble x_, y_, w_, h_;
 };
 
 #endif
