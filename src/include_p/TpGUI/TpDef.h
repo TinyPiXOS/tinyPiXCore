@@ -194,23 +194,14 @@ struct ItpObjectRotateSet
 struct ItpObjectPaintInput
 {
     TpObject *object;
-    tpShared<TpSurface> surface;
     TpRect updateRect;
 };
 
 struct ItpObjectPaintSet
 {
     TpObject *object;
-
-    TpPainter *canvas;
-    tpShared<TpSurface> surface;
-    ItpSufaceData *itpSurface;
-
-    int32_t offsetX;
-    int32_t offsetY;
-
+    TpPainter *painter;
     TpRect updateRect;
-    TpRect rect;
 
     bool canDraw;
 

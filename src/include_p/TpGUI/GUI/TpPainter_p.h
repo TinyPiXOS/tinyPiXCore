@@ -1,7 +1,6 @@
 #ifndef __TP_PAINTER_PRIVATE_H
 #define __TP_PAINTER_PRIVATE_H
 
-#include "TpSurface.h"
 #include "thorVG/thorvg.h"
 #include "TpLinearGradient.h"
 #include "TpRadialGradient.h"
@@ -13,19 +12,12 @@
 #include "TpRect.h"
 #include "TpPoint.h"
 
-#define OFFSET_X(painterData, x) (painterData->offsetX + x)
-#define OFFSET_Y(painterData, y) (painterData->offsetY + y)
+// #define OFFSET_X(painterData, x) (painterData->offsetX + x)
+// #define OFFSET_Y(painterData, y) (painterData->offsetY + y)
 
 struct TpPainterData
 {
-    tpShared<TpSurface> TpSurfacePtr = nullptr;
     TpWidget *paintWidget = nullptr;
-
-    // 当前窗体屏幕坐标和宽高
-    int32_t offsetX = 0;
-    int32_t offsetY = 0;
-
-    TpRect clipRect;
 
     bool beUsed;
 
@@ -45,21 +37,6 @@ struct TpPainterData
         drawBrush.setStyle(Tp::NoBrush);
     }
 };
-
-// 重设canvas的target
-static inline void refreshCanvasTarget(TpPainterData *painterData)
-{
-    // int32_t surfaceWidth = painterData->TpSurfacePtr->width();
-    // int32_t surfaceHeight = painterData->TpSurfacePtr->height();
-
-    // painterData->swCanvas->target((uint32_t *)painterData->TpSurfacePtr->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
-
-    // // 限制绘制区域
-    // painterData->swCanvas->viewport(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height());
-
-    // std::cout << "裁剪区域： " << painterData->clipRect.x() << " , " << painterData->clipRect.y()
-    //           << " , " << painterData->clipRect.width() << " , " << painterData->clipRect.height() << std::endl;
-}
 
 // 根据线性渐变角度 计算线性渐变射线与矩形边界的交点
 std::pair<TpPoint, TpPoint> calculateRayIntersections(float angleDeg, float width, float height)
@@ -174,16 +151,16 @@ static inline tvg::Fill *parseGradientPtr(TpPainterData *painterData)
             // 根据角度计算起始点和终止点
             std::pair<TpPoint, TpPoint> pointList = calculateRayIntersections(lineearAngle, painterData->paintWidget->width(), painterData->paintWidget->height());
 
-            linearGradient->linear(painterData->offsetX + pointList.first.x(), painterData->offsetY + pointList.first.y(),
-                                   painterData->offsetX + pointList.second.x(), painterData->offsetY + pointList.second.y());
+            linearGradient->linear(pointList.first.x(), pointList.first.y(),
+                                   pointList.second.x(), pointList.second.y());
         }
         else
         {
             TpPointF startPoint = linearGrad->start();
             TpPointF stopPoint = linearGrad->finalStop();
 
-            linearGradient->linear(painterData->offsetX + startPoint.x(), painterData->offsetY + startPoint.y(),
-                                   painterData->offsetX + stopPoint.x(), painterData->offsetY + stopPoint.y());
+            linearGradient->linear(startPoint.x(), startPoint.y(),
+                                   stopPoint.x(), stopPoint.y());
         }
 
         resGradientPtr = linearGradient;
@@ -201,8 +178,8 @@ static inline tvg::Fill *parseGradientPtr(TpPainterData *painterData)
 
         tvg::RadialGradient *radialGradient = tvg::RadialGradient::gen();
         // 设置中心点和半径
-        radialGradient->radial(painterData->offsetX + centerPoint.x(), painterData->offsetY + centerPoint.y(), centerRadius,
-                               painterData->offsetX + focalPoint.x(), painterData->offsetY + focalPoint.y(), focalRadius);
+        radialGradient->radial(centerPoint.x(), centerPoint.y(), centerRadius,
+                               focalPoint.x(), focalPoint.y(), focalRadius);
 
         resGradientPtr = radialGradient;
     }
@@ -458,8 +435,6 @@ static inline void renderPoint(TpPainterData *painterData, int32_t x, int32_t y)
     if (!painterData->swCanvas)
         return;
 
-    refreshCanvasTarget(painterData);
-
     auto pixel = tvg::Shape::gen();
     pixel->appendCircle(x, y, 0.5 * painterData->drawPen.width(), 0.5 * painterData->drawPen.width()); // 半径 0.5 的圆形
 
@@ -480,8 +455,6 @@ static inline void renderLine(TpPainterData *painterData, const TpPoint &point1,
 {
     if (!painterData->swCanvas)
         return;
-
-    refreshCanvasTarget(painterData);
 
     // 创建直线
     auto line = tvg::Shape::gen();
@@ -516,8 +489,6 @@ static inline void renderRect(TpPainterData *painterData, const TpRect &rect, in
 {
     if (!painterData->swCanvas)
         return;
-
-    refreshCanvasTarget(painterData);
 
     int32_t minWH = TP_MIN(rect.width(), rect.height());
     if (rad > (0.5 * minWH))
@@ -572,8 +543,6 @@ static inline void renderEllipse(TpPainterData *painterData, const TpPoint &cent
     if (!painterData->swCanvas)
         return;
 
-    refreshCanvasTarget(painterData);
-
     auto circle = tvg::Shape::gen();
     circle->appendCircle(center.x(), center.y(), rx, ry);
 
@@ -618,8 +587,6 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
 {
     if (!painterData->swCanvas)
         return;
-
-    refreshCanvasTarget(painterData);
 
     // 绘制矩形填充
     tvg::Shape *arc = tvg::Shape::gen();
@@ -730,31 +697,27 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
     // 只有一个点，绘制一个像素点
     if (pointList.size() == 1)
     {
-        renderPoint(painterData, pointList.front().x() + painterData->offsetX, pointList.front().y() + painterData->offsetY);
+        renderPoint(painterData, pointList.front().x(), pointList.front().y());
     }
     else if (pointList.size() == 2)
     {
-        TpPoint offsetPoint(painterData->offsetX, painterData->offsetY);
-
         // 两个点，绘制线
         const auto &firstPoint = pointList[0];
         const auto &secondPoint = pointList[1];
-        renderLine(painterData, firstPoint + offsetPoint, secondPoint + offsetPoint);
+        renderLine(painterData, firstPoint, secondPoint);
     }
     else
     {
         // 绘制多边形
-        refreshCanvasTarget(painterData);
-
         auto polygon = tvg::Shape::gen();
 
         // 移动到第一个顶点
-        polygon->moveTo(pointList.front().x() + painterData->offsetX, pointList.front().y() + painterData->offsetY);
+        polygon->moveTo(pointList.front().x(), pointList.front().y());
 
         for (int i = 1; i < pointList.size(); ++i)
         {
             const auto &curPoint = pointList[i];
-            polygon->lineTo(curPoint.x() + painterData->offsetX, curPoint.y() + painterData->offsetY);
+            polygon->lineTo(curPoint.x(), curPoint.y());
         }
         // 闭合路径回到起点
         polygon->close();
@@ -780,7 +743,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             else
                 polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-            applyHollowMask(polygon, pointList.front().x() + painterData->offsetX, pointList.front().y() + painterData->offsetY, hollowMaskData);
+            applyHollowMask(polygon, pointList.front().x(), pointList.front().y(), hollowMaskData);
         }
         else
         {
@@ -789,7 +752,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             else
                 polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-            applyHollowMask(polygon, pointList.front().x() + painterData->offsetX, pointList.front().y() + painterData->offsetY, hollowMaskData);
+            applyHollowMask(polygon, pointList.front().x(), pointList.front().y(), hollowMaskData);
         }
 
         painterData->tvgScene->push(std::move(polygon));

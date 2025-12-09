@@ -244,7 +244,7 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
     uint32_t bgY = 0;
 
     // 不能用父类绘制，绘制背景色
-    TpRect rect = event->rect();
+    TpRect rect = this->rect();
     if (objectType() == Tp::TP_FLOAT_OBJECT)
     {
         if ((curCssData->backgroundColor() & 0xff) != 0xff)

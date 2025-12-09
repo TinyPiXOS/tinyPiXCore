@@ -16,7 +16,6 @@
 #include "TpButton.h"
 #include "tinyPiXSys.h"
 #include "tinyPiXUtils.h"
-#include "TpSurface.h"
 #include "png.h"
 #include "TpMainWindow.h"
 #include "Service/TpSystemApi.h"
@@ -79,79 +78,24 @@ private:
 
 IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
-TpImage getImage()
-{
-    IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
-    if (!surfacePtr)
-        return TpImage();
+// TpImage getImage()
+// {
+//     IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
+//     if (!surfacePtr)
+//         return TpImage();
 
-    tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
+//     tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
 
-    TpImage resImage;
-    resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()),
-                  TpRect(0, 36, appDisplayImage->width(), appDisplayImage->height() - 36));
+//     TpImage resImage;
+//     resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()),
+//                   TpRect(0, 36, appDisplayImage->width(), appDisplayImage->height() - 36));
 
-    TpImage copyImage = resImage;
+//     TpImage copyImage = resImage;
 
-    tinyPiX_surface_free(surfacePtr);
+//     tinyPiX_surface_free(surfacePtr);
 
-    return copyImage;
-}
-
-class TestPaintWidget : public TpWidget
-{
-public:
-    TestPaintWidget(TpWidget *parent)
-        : TpWidget(parent)
-    {
-        setBackGroundColor(_RGBA(100, 100, 100, 255));
-    }
-    ~TestPaintWidget()
-    {
-    }
-
-    virtual bool onMousePressEvent(TpMouseEvent *event) override
-    {
-        TpWidget::onMousePressEvent(event);
-        mousePress_ = true;
-        return true;
-    }
-    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override
-    {
-        TpWidget::onMouseRleaseEvent(event);
-        mousePress_ = false;
-        return true;
-    }
-
-    virtual bool onPaintEvent(TpPaintEvent *event) override
-    {
-        // TpWidget::onPaintEvent(event);
-
-        TpPainter *painter = event->painter();
-
-        if (mousePress_)
-        {
-            std::cout << "鼠标按下" << std::endl;
-            painter->setPen(_RGB(255, 150, 150));
-            painter->setBrush(TpBrush(_RGB(255, 150, 150)));
-            painter->drawRect(0, 0, 200, 200);
-
-            painter->drawEllipse(250, 0, 100, 100);
-        }
-        else
-        {
-            std::cout << "鼠标释放" << std::endl;
-            painter->setPen(_RGB(150, 255, 150));
-            painter->setBrush(TpBrush(_RGB(150, 255, 150)));
-            painter->drawRect(0, 0, 200, 200);
-        }
-
-        return true;
-    }
-
-private:
-    bool mousePress_ = false;
-};
+//     return copyImage;
+// }
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -188,48 +132,48 @@ int32_t main(int32_t argc, char *argv[])
     // textTestLabel2->setAlign(Tp::AlignCenter);
     // textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
 
-    TpLabel *nameLabel = new TpLabel("测试", vScreen);
-    nameLabel->setBackGroundColor(_RGB(255, 0, 0));
-    nameLabel->setAlign(Tp::AlignCenter);
-    nameLabel->font()->setFontSize(9);
-    nameLabel->font()->setFontColor(_RGB(255, 255, 255));
-    nameLabel->setWordWrap(false);
-    nameLabel->installEventFilter(vScreen);
+    // TpLabel *nameLabel = new TpLabel("测试", vScreen);
+    // nameLabel->setBackGroundColor(_RGB(255, 0, 0));
+    // nameLabel->setAlign(Tp::AlignCenter);
+    // nameLabel->font()->setFontSize(9);
+    // nameLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // nameLabel->setWordWrap(false);
+    // nameLabel->installEventFilter(vScreen);
 
-    TpLabel *sizeLabel = new TpLabel(vScreen);
-    sizeLabel->setAlign(Tp::AlignCenter);
-    sizeLabel->font()->setFontSize(9);
-    sizeLabel->font()->setFontColor(_RGB(255, 255, 255));
-    sizeLabel->setText("0Kb");
-    sizeLabel->installEventFilter(vScreen);
+    // TpLabel *sizeLabel = new TpLabel(vScreen);
+    // sizeLabel->setAlign(Tp::AlignCenter);
+    // sizeLabel->font()->setFontSize(9);
+    // sizeLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // sizeLabel->setText("0Kb");
+    // sizeLabel->installEventFilter(vScreen);
 
-    TpLabel *typeLabel = new TpLabel(vScreen);
-    typeLabel->setAlign(Tp::AlignCenter);
-    typeLabel->font()->setFontSize(9);
-    typeLabel->font()->setFontColor(_RGB(255, 255, 255));
-    typeLabel->setText("未知");
-    typeLabel->installEventFilter(vScreen);
+    // TpLabel *typeLabel = new TpLabel(vScreen);
+    // typeLabel->setAlign(Tp::AlignCenter);
+    // typeLabel->font()->setFontSize(9);
+    // typeLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // typeLabel->setText("未知");
+    // typeLabel->installEventFilter(vScreen);
 
-    TpVBoxLayout *testLayout = new TpVBoxLayout();
-    testLayout->setContentsMargins(0, 0, 0, 0);
-    testLayout->setSpacing(2);
-    testLayout->addWidget(nameLabel);
-    testLayout->addWidget(sizeLabel);
-    testLayout->addWidget(typeLabel);
+    // TpVBoxLayout *testLayout = new TpVBoxLayout();
+    // testLayout->setContentsMargins(0, 0, 0, 0);
+    // testLayout->setSpacing(2);
+    // testLayout->addWidget(nameLabel);
+    // testLayout->addWidget(sizeLabel);
+    // testLayout->addWidget(typeLabel);
 
-    TpWidget *testLayoutWidget = new TpWidget(vScreen);
-    testLayoutWidget->setLayout(testLayout);
-    testLayoutWidget->setRect(20, 20, 200, 200);
+    // TpWidget *testLayoutWidget = new TpWidget(vScreen);
+    // testLayoutWidget->setLayout(testLayout);
+    // testLayoutWidget->setRect(20, 20, 200, 200);
 
-    static bool testOn = false;
-    TpButton *testBtn = new TpButton(vScreen);
-    testBtn->setText("Label显隐");
-    testBtn->setRect(50, 400, 150, 50);
-    connect(testBtn, onClicked, [=](bool)
-            {
-                testLayoutWidget->setParent(testOn ? vScreen : nullptr);
-                // testLayoutWidget->setVisible(testOn ? true : false);
-                testOn = !testOn; });
+    // static bool testOn = false;
+    // TpButton *testBtn = new TpButton(vScreen);
+    // testBtn->setText("Label显隐");
+    // testBtn->setRect(50, 400, 150, 50);
+    // connect(testBtn, onClicked, [=](bool)
+    //         {
+    //             testLayoutWidget->setParent(testOn ? vScreen : nullptr);
+    //             // testLayoutWidget->setVisible(testOn ? true : false);
+    //             testOn = !testOn; });
 
     ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
     thorVGPaint->setWindowOpacity(0.3);

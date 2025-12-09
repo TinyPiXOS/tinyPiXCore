@@ -9,7 +9,6 @@
 TP_DEF_VOID_TYPE_VAR(ITpFontData);
 TP_DEF_VOID_TYPE_VAR(ITpFontFamilyData);
 
-class TpSurface;
 class TpFontFamily;
 class TpColors;
 class TpSize;

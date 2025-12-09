@@ -11,7 +11,6 @@
 TP_DEF_VOID_TYPE_VAR(ItpSufaceData);
 
 class TpPainter;
-class TpSurface;
 class TpRect;
 class TpPoint;
 
@@ -259,15 +258,7 @@ public:
 
 public:
     virtual TpPainter *painter();          // must set offsetX and offsetY
-    virtual tpShared<TpSurface> surface(); // must set clipRect
-
-    virtual int32_t offsetX();
-    virtual int32_t offsetY();
-
     virtual TpRect updateRect(); // update rect
-    virtual TpRect rect();       // object logical rect, use this to canvas
-    virtual TpRect absRect();    // object absolute rect, use this to canvas, not object absrect
-
     virtual bool isCanDraw();
 
 public:

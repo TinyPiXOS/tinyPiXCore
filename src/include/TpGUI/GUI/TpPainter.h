@@ -12,7 +12,6 @@
 #include "TpPainterPath.h"
 
 class TpPainter;
-class TpSurface;
 class TpRect;
 class TpFont;
 class TpWidget;
@@ -133,13 +132,13 @@ private:
     TpVector<PolygonHollow> polygonList_;
 };
 
-TP_DEF_VOID_TYPE_VAR(ITpCanvasData);
+TP_DEF_VOID_TYPE_VAR(ITpPainterData);
 /// @brief 绘制模块类，用于绘制各种形状。资源等
 /// @brief 所有的颜色值，均使用_RGB或_RGBA宏给入十进制值（0-255），例如_RGB(128,128,128)或_RGBA(128,128,128,120)
 class TpPainter
 {
 public:
-    TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, TpWidget* object);
+    TpPainter(TpWidget *object);
     virtual ~TpPainter();
 
     void paintTest();
@@ -303,17 +302,9 @@ public:
 
     /// @brief 绘制自定义路径
     /// @param path 自定义路径
-    virtual void drawPath(const TpPainterPath& path);
+    virtual void drawPath(const TpPainterPath &path);
 
 public:
-    /// @brief 设置裁剪矩形；只显示裁剪区域内容
-    /// @param rect 裁剪矩形
-    virtual void setClipRect(const TpRect &rect);
-
-    /// @brief 获取裁剪区域
-    /// @return 裁剪矩形
-    virtual TpRect clipRect();
-
     /// @brief 清理画布；清除所有绘制对象
     virtual void erase();
 
@@ -321,11 +312,8 @@ public:
     /// @brief 用户无需调用
     void setScene(void *canvas, void *scene);
 
-    /// @brief 绘图同步；用户无需调用
-    void sync(void* object);
-
 private:
-    ITpCanvasData *data_;
+    ITpPainterData *data_;
 };
 
 #endif

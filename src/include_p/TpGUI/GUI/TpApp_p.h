@@ -15,7 +15,6 @@
 #include "TpEvent.h"
 #include "TpDef.h"
 #include "TpWidget.h"
-#include "TpSurface.h"
 #include "TpVirtualKeyboard.h"
 #include "TpMap.h"
 #include "TpRect.h"
@@ -285,8 +284,6 @@ private:
     TpAppData *appData_;
 };
 
-#include "TpClipRectOptimizer.h"
-
 // 刷新指令下发
 static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
 {
@@ -336,17 +333,10 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             // 不存在构建新数据
             ItpObjectPaintInput paintInput;
 
-            IPiWFSurface *surface_t = tinyPiX_wf_get_surface(topScreenSet->agent);
-            if (surface_t == nullptr)
-                continue;
-
             // std::cout << "UpdateRect : " << task.updateObj->rect().x() << " , " << task.updateObj->rect().y()
             //           << " , " << task.updateObj->rect().width() << " , " << task.updateObj->rect().height() << std::endl;
 
-            tpShared<TpSurface> surface = tpMakeShared<TpSurface>(surface_t, task.updateObj->rect());
-
             paintInput.object = task.updateObj;
-            paintInput.surface = surface;
             paintInput.updateRect.setX(task.x);
             paintInput.updateRect.setY(task.y);
             paintInput.updateRect.setWidth(task.w);
@@ -355,8 +345,6 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
             mergeUpdateWidget[task.updateObj] = paintInput;
         }
     }
-
-    // ClipRectOptimizer::batchRefreshSceneClipRects();
 
     for (const auto &updateWidgetIter : mergeUpdateWidget)
     {

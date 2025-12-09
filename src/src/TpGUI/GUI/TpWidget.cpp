@@ -2,7 +2,6 @@
 #include "TpApp_p.h"
 #include "TpWidget_p.h"
 #include "TpScreen_p.h"
-#include "TpClipRectOptimizer.h"
 
 TpWidget::TpWidget(TpWidget *parent)
     : TpObject(parent)
@@ -115,7 +114,6 @@ void TpWidget::setVisible(bool visible)
     if (visible == widgetData->visible)
         return;
 
-    // setChildVisible(widgetData, visible);
     if (widgetData->tvgScene)
     {
         widgetData->tvgScene->visible(visible);
@@ -1044,19 +1042,9 @@ bool TpWidget::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpWidget::onMoveEvent(TpMoveEvent *event)
-{
-    // refreshSceneClipRect(this, static_cast<TpWidgetData *>(TpObject::data_));
-    // ClipRectOptimizer::markWidgetForRefresh(this);
-    return true;
-}
-
 bool TpWidget::onResizeEvent(TpResizeEvent *event)
 {
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-
-    // refreshSceneClipRect(this, widgetData);
-    // ClipRectOptimizer::markWidgetForRefresh(this);
 
     if (widgetData->layoutMutex.try_lock())
     {
@@ -1096,7 +1084,7 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
     if (!widgetData->visible)
         return false;
 
-    TpRect rect = event->rect();
+    TpRect rect = this->rect();
 
     TpPainter *painter = event->painter();
 

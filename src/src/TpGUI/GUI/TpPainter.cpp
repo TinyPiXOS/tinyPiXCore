@@ -12,33 +12,20 @@
 #include <thread>
 #include <cmath>
 
-TpPainter::TpPainter(tpShared<TpSurface> surface, int32_t offsetX, int32_t offsetY, TpWidget *object)
+TpPainter::TpPainter(TpWidget *object)
 {
     // 根据CPU核心数；分配绘图引擎线程数
     uint32_t cores = std::thread::hardware_concurrency();
     tvg::Initializer::init(cores / 2);
-
-    if (!surface)
-        return;
 
     TpPainterData *painterData = new TpPainterData();
     if (!painterData)
         return;
 
     painterData->beUsed = false;
-    // painterData->offsetX = offsetX;
-    // painterData->offsetY = offsetY;
-    painterData->offsetX = 0;
-    painterData->offsetY = 0;
-
     painterData->paintWidget = object;
 
-    painterData->TpSurfacePtr = surface;
-    painterData->beUsed = (surface != nullptr);
-
-    // TODO判断是GPU环境还是CPU环境
-    // painterData->swCanvas = tvg::SwCanvas::gen();
-    // refreshCanvasTarget(painterData);
+    painterData->beUsed = (object != nullptr);
 
     this->data_ = painterData;
 }
@@ -54,7 +41,6 @@ TpPainter::~TpPainter()
     if (!painterData->beUsed)
         return;
 
-    painterData->TpSurfacePtr = nullptr;
     painterData->beUsed = false;
 
     delete painterData;
@@ -70,8 +56,6 @@ void TpPainter::paintTest()
 
     if (!painterData->swCanvas)
         return;
-
-    refreshCanvasTarget(painterData);
 
 #if 1
 
@@ -284,9 +268,6 @@ void TpPainter::drawPoint(int32_t x, int32_t y)
 
     if (painterData && painterData->beUsed)
     {
-        x = OFFSET_X(painterData, x);
-        y = OFFSET_Y(painterData, y);
-
         renderPoint(painterData, x, y);
     }
 }
@@ -317,9 +298,7 @@ void TpPainter::drawLine(const TpPoint &point1, const TpPoint &point2)
 
     if (painterData && painterData->beUsed)
     {
-        TpPoint actualP1(OFFSET_X(painterData, point1.x()), OFFSET_Y(painterData, point1.y()));
-        TpPoint actualP2(OFFSET_X(painterData, point2.x()), OFFSET_Y(painterData, point2.y()));
-        renderLine(painterData, actualP1, actualP2);
+        renderLine(painterData, point1, point2);
     }
 }
 
@@ -334,8 +313,7 @@ void TpPainter::drawRect(const TpRect &rect, int32_t rad, const TpHollowMask &ho
 
     if (painterData && painterData->beUsed)
     {
-        TpRect actualRect(OFFSET_X(painterData, rect.x()), OFFSET_Y(painterData, rect.y()), rect.width(), rect.height());
-        renderRect(painterData, actualRect, rad, hollowMaskData);
+        renderRect(painterData, rect, rad, hollowMaskData);
     }
 }
 
@@ -350,8 +328,7 @@ void TpPainter::drawEllipse(const TpPoint &center, int32_t rx, int32_t ry, const
 
     if (painterData && painterData->beUsed)
     {
-        TpPoint actualPoint(OFFSET_X(painterData, center.x()), OFFSET_Y(painterData, center.y()));
-        renderEllipse(painterData, actualPoint, rx, ry, hollowMaskData);
+        renderEllipse(painterData, center, rx, ry, hollowMaskData);
     }
 }
 
@@ -366,8 +343,7 @@ void TpPainter::drawArc(const TpPoint &center, int32_t rad, int32_t start, int32
 
     if (painterData && painterData->beUsed)
     {
-        TpPoint actualPoint(OFFSET_X(painterData, center.x()), OFFSET_Y(painterData, center.y()));
-        renderArc(painterData, actualPoint, rad, start, end, false);
+        renderArc(painterData, center, rad, start, end, false);
     }
 }
 
@@ -382,8 +358,7 @@ void TpPainter::drawPie(const TpPoint &center, int32_t rad, int32_t start, int32
 
     if (painterData && painterData->beUsed)
     {
-        TpPoint actualPoint(OFFSET_X(painterData, center.x()), OFFSET_Y(painterData, center.y()));
-        renderArc(painterData, actualPoint, rad, start, end, true, hollowMaskData);
+        renderArc(painterData, center, rad, start, end, true, hollowMaskData);
     }
 }
 
@@ -413,17 +388,15 @@ void TpPainter::drawCubic(const TpPoint &startPoint, const TpPoint &cPoint, cons
     if (!painterData->swCanvas)
         return;
 
-    refreshCanvasTarget(painterData);
-
     tvg::Shape *shape = tvg::Shape::gen();
 
     // 移动到起始点
-    shape->moveTo(painterData->offsetX + startPoint.x(), painterData->offsetY + startPoint.y());
+    shape->moveTo(startPoint.x(), startPoint.y());
 
     // 绘制三次贝塞尔曲线
-    shape->cubicTo(painterData->offsetX + cPoint.x(), painterData->offsetY + cPoint.y(),      // 第一个控制点
-                   painterData->offsetX + c2Point.x(), painterData->offsetY + c2Point.y(),    // 第二个控制点
-                   painterData->offsetX + endPoint.x(), painterData->offsetY + endPoint.y()); // 终点
+    shape->cubicTo(cPoint.x(), cPoint.y(),      // 第一个控制点
+                   c2Point.x(), c2Point.y(),    // 第二个控制点
+                   endPoint.x(), endPoint.y()); // 终点
 
     // 设置描边属性
     int32_t fillColor = painterData->drawPen.color().rgba();
@@ -443,8 +416,6 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
     TpPainterData *painterData = static_cast<TpPainterData *>(data_);
     if (!painterData->swCanvas)
         return;
-
-    refreshCanvasTarget(painterData);
 
     TpImageData *imageData = static_cast<TpImageData *>(image.data_);
     // 创建深拷贝（不修改原对象）
@@ -471,12 +442,12 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
 
         // 调整绘制位置：减去偏移量，使中心点回到原位
         pictureCopy->translate(
-            painterData->offsetX + point.x() + drawX,
-            painterData->offsetY + point.y() + drawY);
+            point.x() + drawX,
+            point.y() + drawY);
     }
     else
     {
-        pictureCopy->translate(painterData->offsetX + point.x(), painterData->offsetY + point.y());
+        pictureCopy->translate(point.x(), point.y());
     }
 
     if (roundRad != 0)
@@ -487,7 +458,7 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
 
         // 添加圆角遮罩
         auto clipper = tvg::Shape::gen();
-        clipper->appendRect(painterData->offsetX + point.x(), painterData->offsetY + point.y(), image.width(), image.height(), roundRad, roundRad);
+        clipper->appendRect(point.x(), point.y(), image.width(), image.height(), roundRad, roundRad);
 
         // 应用Alpha实现遮罩圆角
         clipper->fill(255, 255, 255, 255);
@@ -495,12 +466,6 @@ void TpPainter::drawImage(const TpPoint &point, const TpImage &image, int32_t ro
     }
 
     painterData->tvgScene->push(std::move(pictureCopy));
-
-    // 第一次渲染周期 - 触发Picture加载
-    // painterData->swCanvas->push(std::move(pictureCopy));
-    // painterData->swCanvas->update();
-    // painterData->swCanvas->draw();
-    // painterData->swCanvas->sync();
 }
 
 void TpPainter::drawText(const TpFont &font, int32_t x, int32_t y, const TpString &text)
@@ -515,9 +480,6 @@ void TpPainter::drawText(const TpFont &font, int32_t x, int32_t y, const TpStrin
     if (!painterData->beUsed)
         return;
 
-    x = OFFSET_X(painterData, x);
-    y = OFFSET_Y(painterData, y);
-
     TpFontData *fontData = static_cast<TpFontData *>(font.data_);
     tvg::Text *fontTextPtr = static_cast<tvg::Text *>(fontData->tvgTextPtr->duplicate());
 
@@ -526,7 +488,6 @@ void TpPainter::drawText(const TpFont &font, int32_t x, int32_t y, const TpStrin
 
     fontTextPtr->translate(x - offsetPoint.x(), y - offsetPoint.y());
 
-    refreshCanvasTarget(painterData);
     painterData->tvgScene->push(std::move(fontTextPtr));
 }
 
@@ -545,8 +506,6 @@ void TpPainter::drawPath(const TpPainterPath &path)
     TpPainterPathData *pathData = static_cast<TpPainterPathData *>(path.data_);
     if (!pathData || pathData->elements.empty())
         return;
-
-    refreshCanvasTarget(painterData);
 
     // 创建形状对象
     auto shape = tvg::Shape::gen();
@@ -567,8 +526,8 @@ void TpPainter::drawPath(const TpPainterPath &path)
             {
                 currentPoint = element.points[0];
                 startPoint = currentPoint;
-                shape->moveTo(painterData->offsetX + currentPoint.x(),
-                              painterData->offsetY + currentPoint.y());
+                shape->moveTo(currentPoint.x(),
+                              currentPoint.y());
                 hasMoveTo = true;
             }
             break;
@@ -577,8 +536,8 @@ void TpPainter::drawPath(const TpPainterPath &path)
             if (!element.points.empty() && hasMoveTo)
             {
                 currentPoint = element.points[0];
-                shape->lineTo(painterData->offsetX + currentPoint.x(),
-                              painterData->offsetY + currentPoint.y());
+                shape->lineTo(currentPoint.x(),
+                              currentPoint.y());
             }
             break;
 
@@ -589,9 +548,9 @@ void TpPainter::drawPath(const TpPainterPath &path)
                 TpPoint cp2 = element.points[1];
                 TpPoint endPoint = element.points[2];
 
-                shape->cubicTo(painterData->offsetX + cp1.x(), painterData->offsetY + cp1.y(),
-                               painterData->offsetX + cp2.x(), painterData->offsetY + cp2.y(),
-                               painterData->offsetX + endPoint.x(), painterData->offsetY + endPoint.y());
+                shape->cubicTo(cp1.x(), cp1.y(),
+                               cp2.x(), cp2.y(),
+                               endPoint.x(), endPoint.y());
 
                 currentPoint = endPoint;
             }
@@ -600,8 +559,8 @@ void TpPainter::drawPath(const TpPainterPath &path)
         case TpPathElementType::CloseSubpath:
             if (hasMoveTo && currentPoint != startPoint)
             {
-                shape->lineTo(painterData->offsetX + startPoint.x(),
-                              painterData->offsetY + startPoint.y());
+                shape->lineTo(startPoint.x(),
+                              startPoint.y());
                 currentPoint = startPoint;
             }
             break;
@@ -678,32 +637,14 @@ void TpPainter::drawPath(const TpPainterPath &path)
     painterData->tvgScene->push(std::move(shape));
 }
 
-void TpPainter::setClipRect(const TpRect &rect)
-{
-    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-
-    if (painterData && painterData->beUsed)
-    {
-        painterData->clipRect = rect;
-        painterData->TpSurfacePtr->setClipRect(rect);
-    }
-}
-
-TpRect TpPainter::clipRect()
-{
-    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-    return painterData->clipRect;
-}
-
 void TpPainter::erase()
 {
     TpPainterData *painterData = static_cast<TpPainterData *>(data_);
 
     if (painterData && painterData->beUsed)
     {
-        refreshCanvasTarget(painterData);
-
         // 清除并绘制
+        painterData->swCanvas->update();
         painterData->swCanvas->draw(true); // true参数会清除目标缓冲区
         painterData->swCanvas->sync();
     }
@@ -720,33 +661,27 @@ void TpPainter::setScene(void *canvas, void *scene)
     painterData->tvgScene = addScene;
 }
 
+#if 0
+
 void TpPainter::sync(void *object)
 {
-    TpPainterData *painterData = static_cast<TpPainterData *>(data_);
-
-    // 绘制并同步
-    // painterData->swCanvas->update();
-    painterData->swCanvas->draw();
-    painterData->swCanvas->sync();
-
-#if 0
     if (object)
     {
         TpWidget *paintWidget = static_cast<TpWidget *>(object);
         TpWidgetData *paintWidgetData = static_cast<TpWidgetData *>(paintWidget->objectSets());
 
-        paintWidgetData->grapImage.load(painterData->TpSurfacePtr->matrix(), TpSize(painterData->clipRect.width(), painterData->clipRect.height()));
+        paintWidgetData->grapImage.load(painterData->paintSurfacePtr->matrix(), TpSize(painterData->clipRect.width(), painterData->clipRect.height()));
 
         // static int32_t saveIndexS = 0;
         // TpString savePngPath = "/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
 
         // // 加载原始像素数据
         // TpImage grapImage;
-        // grapImage.load(painterData->TpSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
+        // grapImage.load(painterData->paintSurfacePtr->matrix(), TpRect(painterData->clipRect.x(), painterData->clipRect.y(), painterData->clipRect.width(), painterData->clipRect.height()));
         // grapImage.save(savePngPath, TpImage::PNG_FMT);
     }
-#endif
 }
+#endif
 
 TpHollowMask::TpHollowMask()
 {

@@ -1024,9 +1024,9 @@ TpPaintEvent::~TpPaintEvent()
 
     if (set)
     {
-        if (set->canvas)
+        if (set->painter)
         {
-            delete set->canvas;
+            delete set->painter;
         }
 
         delete set;
@@ -1036,106 +1036,19 @@ TpPaintEvent::~TpPaintEvent()
 TpPainter *TpPaintEvent::painter()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    TpPainter *canvas = nullptr;
-
-    if (set)
-    {
-        canvas = set->canvas;
-    }
-
-    return canvas;
-}
-
-tpShared<TpSurface> TpPaintEvent::surface()
-{
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-
-    if (set)
-    {
-        return set->surface;
-    }
-
-    return nullptr;
-}
-
-int32_t TpPaintEvent::offsetX()
-{
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    int32_t offsetX = 0;
-
-    if (set)
-    {
-        offsetX = set->offsetX;
-    }
-
-    return offsetX;
-}
-
-int32_t TpPaintEvent::offsetY()
-{
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    int32_t offsetY = 0;
-
-    if (set)
-    {
-        offsetY = set->offsetY;
-    }
-
-    return offsetY;
+    return set->painter;
 }
 
 TpRect TpPaintEvent::updateRect()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    TpRect result = {0, 0, 0, 0};
-
-    if (set)
-    {
-        result = set->updateRect;
-    }
-
-    return result;
-}
-
-TpRect TpPaintEvent::rect()
-{
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    TpRect result = {0, 0, 0, 0};
-
-    if (set)
-    {
-        result = set->rect;
-    }
-
-    return result;
-}
-
-TpRect TpPaintEvent::absRect()
-{
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    TpRect result;
-
-    TpWidget *chiildObject = static_cast<TpWidget *>(set->object);
-
-    if (!chiildObject)
-        return result;
-
-    result = chiildObject->toScreen();
-
-    return result;
+    return set->updateRect;
 }
 
 bool TpPaintEvent::isCanDraw()
 {
     ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
-    bool canDraw = false;
-
-    if (set)
-    {
-        canDraw = set->canDraw;
-    }
-
-    return canDraw;
+    return set->canDraw;
 }
 
 bool TpPaintEvent::construct(ITpEventData *inputData)
@@ -1149,85 +1062,28 @@ bool TpPaintEvent::construct(ITpEventData *inputData)
     if (!input)
         return false;
 
-    TpWidget *inputObjectChild = static_cast<TpWidget *>(input->object);
-    if (!inputObjectChild)
+    TpWidget *inputObj = static_cast<TpWidget *>(input->object);
+    if (!inputObj)
         return false;
 
-    // 缓存频繁使用的计算和属性
-    Tp::TpObjectType type = inputObjectChild->objectType();
-    const TpRect objectAbsRect = inputObjectChild->toScreen();
-    const int32_t objWidth = inputObjectChild->width();
-    const int32_t objHeight = inputObjectChild->height();
-    const int32_t offsetXVal = inputObjectChild->offsetX();
-    const int32_t offsetYVal = inputObjectChild->offsetY();
+    eventData->object = inputObj;
 
-    eventData->object = inputObjectChild;
-    eventData->surface = input->surface;
-
-    if (type == Tp::TP_FLOAT_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FIXSCREEN_OBJECT)
-    {
-        eventData->offsetX = 0;
-        eventData->offsetY = 0;
-    }
-    else
-    {
-        eventData->offsetX = objectAbsRect.x() - offsetXVal;
-        eventData->offsetY = objectAbsRect.y() - offsetYVal;
-    }
-
-    // eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, objWidth, objHeight);
-    eventData->canvas = new TpPainter(eventData->surface, eventData->offsetX, eventData->offsetY, inputObjectChild);
-    if (eventData->canvas == nullptr)
-    {
-        eventData->surface = nullptr;
+    eventData->painter = new TpPainter(inputObj);
+    if (eventData->painter == nullptr)
         return false;
-    }
 
     // 限制绘制区域;如果父窗口比自己大，则使用自己的尺寸，如果父窗口比自己小，则使用父窗口的
-    TpRect clipRect = objectAbsRect;
-    TpWidget *inputParentWidget = dynamic_cast<TpWidget *>(inputObjectChild->parent());
+    TpWidget *inputParentWidget = dynamic_cast<TpWidget *>(inputObj->parent());
 
     eventData->canDraw = true;
     if (inputParentWidget)
     {
-        while (inputParentWidget)
-        {
-            TpRect inputParentRect = inputParentWidget->toScreen();
-
-            clipRect.setX(TP_MAX(clipRect.x(), inputParentRect.x()));
-            clipRect.setY(TP_MAX(clipRect.y(), inputParentRect.y()));
-
-            int32_t tempWidth = TP_MIN(clipRect.x() + clipRect.width(), inputParentRect.x() + inputParentRect.width());
-            int32_t tempHeight = TP_MIN(clipRect.y() + clipRect.height(), inputParentRect.y() + inputParentRect.height());
-
-            clipRect.setWidth(tempWidth - clipRect.x());
-            clipRect.setHeight(tempHeight - clipRect.y());
-
-            inputParentWidget = dynamic_cast<TpWidget *>(inputParentWidget->parent());
-        }
-
-        eventData->canDraw = (clipRect.width() > 0) && (clipRect.height() > 0);
+        eventData->canDraw = (inputObj->width() > 0) && (inputObj->height() > 0);
         if (!eventData->canDraw)
             return false;
     }
-    else
-    {
-        clipRect.setX(eventData->offsetX);
-        clipRect.setY(eventData->offsetY);
-        clipRect.setWidth(objWidth);
-        clipRect.setHeight(objHeight);
-    }
-
-    TpObject *top = input->object->topObject();
-    if (top && (top != input->object) && (top->objectType() == Tp::TP_FLOAT_OBJECT || top->objectType() == Tp::TP_MAIN_WINDOW_OBJECT))
-    {
-        clipRect.setX(clipRect.x() - offsetXVal);
-        clipRect.setY(clipRect.y() - offsetYVal);       
-    }
 
     eventData->updateRect = input->updateRect;
-    eventData->rect = inputObjectChild->rect();
-    eventData->canvas->setClipRect(clipRect);
 
     return true;
 }

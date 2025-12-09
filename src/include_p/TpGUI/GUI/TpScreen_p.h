@@ -21,6 +21,7 @@
 #include "TpApp.h"
 #include "thorVG/thorvg.h"
 #include "TpWidget_p.h"
+#include "TpSurface.h"
 
 struct TpScreenData : TpWidgetData
 {

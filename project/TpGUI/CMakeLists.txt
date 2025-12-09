@@ -30,7 +30,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/GUI/TpCssData.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpColors.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpCursor.cpp
-    ${SOURCE_PATH}/src/TpGUI/GUI/TpSurface.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpPainter.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpFont.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpClipboard.cpp
@@ -86,6 +85,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpHumidityWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLottieAnimation.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpObjectStack.cpp
+    ${SOURCE_PATH}/src_p/TpGUI/GUI/TpSurface.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpFixScreen.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpFontConfig.cpp
     ${SOURCE_PATH}/src_p/TpGUI/CSSParser/CSSParser/CSSParser.cpp

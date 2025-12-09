@@ -138,8 +138,6 @@ static void paintEnabledBox(TpWidget *child, TpPainter *paintCanvas)
     }
 }
 
-// #include "TpClipRectOptimizer.h"
-
 // 先声明，因为 childPaint 和 drawWidget 互相调用了
 static inline void childPaint(TpObjectData *set, TpPaintEvent *events);
 static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
@@ -166,16 +164,7 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
         parentWidgetData->tvgScene->push(widgetData->tvgScene);
     }
 
-    // std::list<tvg::Paint *> sceneChildList = childScene->paints();
-    // std::cout << "111sceneChildList size: " << obj->pluginType() << " , " << sceneChildList.size() << std::endl;
-
     bool ret = obj->onPaintEvent(&event);
-
-    // std::list<tvg::Paint *> sceneChildList2 = childScene->paints();
-    // std::cout << "222sceneChildList size: " << obj->pluginType() << " , " << sceneChildList2.size() << std::endl;
-
-    // if (sceneChildList2.size() > 0)
-        // std::cout << "sceneChildList2 : " << sceneChildList2.front() << std::endl;
 
     // 叠加透明度
     childScene->opacity(255 * obj->windowOpacity());
@@ -190,9 +179,6 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
 
     // 控件不可用，绘制遮罩层
     paintEnabledBox(obj, event.painter());
-
-    // 绘制完成刷新绘制
-    // childPainter->sync(obj);
 
     if (ret)
     {
@@ -235,7 +221,6 @@ static inline void childPaint(TpObjectData *set, TpPaintEvent *events)
         ItpObjectPaintInput input;
         input.object = child;
         input.updateRect = events->updateRect();
-        input.surface = events->surface();
 
         drawWidget(input, child);
     }

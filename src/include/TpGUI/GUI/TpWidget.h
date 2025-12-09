@@ -7,7 +7,6 @@
 
 class TpRect;
 class TpPoint;
-class TpSurface;
 class TpColors;
 class TpLayout;
 class TpBrush;
@@ -370,7 +369,7 @@ public:
     virtual bool onFingerEvent(TpFingerEvent *event) { return true; }
     virtual bool onDollAREvent(TpDollAREvent *event) { return true; }
     virtual bool onMultiGestureEvent(TpMultiGestureEvent *event) { return true; }
-    virtual bool onMoveEvent(TpMoveEvent *event);
+    virtual bool onMoveEvent(TpMoveEvent *event) { return true; }
     virtual bool onResizeEvent(TpResizeEvent *event);
     virtual bool onFocusEvent(TpFocusEvent *event) { return true; }
     virtual bool onLeaveEvent(TpLeaveEvent *event);
@@ -421,7 +420,7 @@ public:
 
 public:
     /// @brief 外部无需调用
-    void * scenePtr();
+    void *scenePtr();
 
 protected:
     /// @brief 自动根据控件状态获取当前CSS（启用、悬停、选中、禁用等）

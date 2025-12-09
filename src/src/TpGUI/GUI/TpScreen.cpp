@@ -321,19 +321,8 @@ bool TpScreen::onResizeEvent(TpResizeEvent *event)
             int32_t surfaceWidth = screenData->wmSurface->width();
             int32_t surfaceHeight = screenData->wmSurface->height();
 
-            // std::cout << "topScreenRect : " << topScreenRect.x() << " , " << topScreenRect.y()
-            //           << " , " << surfaceWidth << " , " << surfaceHeight << std::endl;
-
-            // 绑定渲染画布和canvas
-            // screenData->swCanvas = tvg::SwCanvas::gen();
             screenData->swCanvas->target((uint32_t *)screenData->wmSurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
-
-            // resetViewport(this, screenData);
         }
-        // else
-        // {
-        //     screenData->wmSurface = nullptr;
-        // }
     }
 
     TpWidget::onResizeEvent(event);
