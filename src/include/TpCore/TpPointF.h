@@ -3,7 +3,6 @@
 
 #include "TpCore.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpPointFData);
 /// @brief 点坐标处理工具类
 class TpPointF
 {
@@ -12,7 +11,7 @@ public:
     TpPointF();
     /// @brief 拷贝构造
     /// @param other 拷贝的点信息
-    TpPointF(const TpPointF& other);
+    TpPointF(const TpPointF &other);
     /// @brief 带坐标参数的构造函数
     /// @param xpos x坐标值
     /// @param ypos y坐标值
@@ -124,7 +123,7 @@ public:
     friend const TpPointF operator/(const TpPointF &, int32_t);
 
 private:
-    ITpPointFData *data_;
+    tpDouble x_, y_;
 };
 
 #endif

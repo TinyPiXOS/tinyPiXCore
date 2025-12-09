@@ -1,151 +1,111 @@
 #include "TpSize.h"
-#include <algorithm> // for std::max and std::min
+#include <algorithm>
 
-// 定义尺寸数据结构体
-struct TpSizeData
+TpSize::TpSize() noexcept : w_(0), h_(0)
 {
-    int32_t w = 0;
-    int32_t h = 0;
-};
-
-TpSize::TpSize() noexcept
-{
-    data_ = new TpSizeData();
 }
 
 TpSize::TpSize(const TpSize &other) noexcept
 {
-    TpSizeData *sizeData = new TpSizeData();
-    sizeData->w = other.width();
-    sizeData->h = other.height();
-    data_ = sizeData;
+    this->w_ = other.width();
+    this->h_ = other.height();
 }
 
 TpSize::TpSize(int32_t w, int32_t h) noexcept
 {
-    TpSizeData *sizeData = new TpSizeData();
-    sizeData->w = w;
-    sizeData->h = h;
-    data_ = sizeData;
+    this->w_ = w;
+    this->h_ = h;
 }
 
 TpSize::~TpSize()
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    if (sizeData)
-    {
-        delete sizeData;
-        sizeData = nullptr;
-        data_ = nullptr;
-    }
 }
 
 bool TpSize::isNull() const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return (sizeData->w == 0 && sizeData->h == 0);
+    return (this->w_ == 0 && this->h_ == 0);
 }
 
 bool TpSize::isEmpty() const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return (sizeData->w < 0 || sizeData->h < 0);
+    return (this->w_ < 0 || this->h_ < 0);
 }
 
 bool TpSize::isValid() const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return (sizeData->w >= 0 && sizeData->h >= 0);
+    return (this->w_ >= 0 && this->h_ >= 0);
 }
 
 int32_t TpSize::width() const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return sizeData->w;
+    return this->w_;
 }
 
 int32_t TpSize::height() const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return sizeData->h;
+    return this->h_;
 }
 
 void TpSize::setWidth(int32_t w) noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    sizeData->w = w;
+    this->w_ = w;
 }
 
 void TpSize::setHeight(int32_t h) noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    sizeData->h = h;
+    this->h_ = h;
 }
 
 TpSize TpSize::transposed() const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return TpSize(sizeData->h, sizeData->w);
+    return TpSize(this->h_, this->w_);
 }
 
 TpSize TpSize::expandedTo(const TpSize &otherSize) const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    TpSizeData *otherData = static_cast<TpSizeData *>(otherSize.data_);
-    return TpSize(std::max(sizeData->w, otherData->w), std::max(sizeData->h, otherData->h));
+    return TpSize(std::max(this->w_, otherSize.w_), std::max(this->h_, otherSize.h_));
 }
 
 TpSize TpSize::boundedTo(const TpSize &otherSize) const noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    TpSizeData *otherData = static_cast<TpSizeData *>(otherSize.data_);
-    return TpSize(std::min(sizeData->w, otherData->w), std::min(sizeData->h, otherData->h));
+    return TpSize(std::min(this->w_, otherSize.w_), std::min(this->h_, otherSize.h_));
 }
 
 int32_t &TpSize::rwidth() noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return sizeData->w;
+    return this->w_;
 }
 
 int32_t &TpSize::rheight() noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    return sizeData->h;
+    return this->h_;
 }
 
 const TpSize &TpSize::operator=(const TpSize &other) noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    TpSizeData *otherData = static_cast<TpSizeData *>(other.data_);
-    sizeData->w = otherData->w;
-    sizeData->h = otherData->h;
+    this->w_ = other.w_;
+    this->h_ = other.h_;
     return *this;
 }
 
 TpSize &TpSize::operator+=(const TpSize &other) noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    TpSizeData *otherData = static_cast<TpSizeData *>(other.data_);
-    sizeData->w += otherData->w;
-    sizeData->h += otherData->h;
+    this->w_ += other.w_;
+    this->h_ += other.h_;
     return *this;
 }
 
 TpSize &TpSize::operator-=(const TpSize &other) noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    TpSizeData *otherData = static_cast<TpSizeData *>(other.data_);
-    sizeData->w -= otherData->w;
-    sizeData->h -= otherData->h;
+    this->w_ -= other.w_;
+    this->h_ -= other.h_;
     return *this;
 }
 
 TpSize &TpSize::operator*=(float c) noexcept
 {
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    sizeData->w = static_cast<int32_t>(sizeData->w * c);
-    sizeData->h = static_cast<int32_t>(sizeData->h * c);
+    this->w_ = static_cast<tpInt32>(this->w_ * c);
+    this->h_ = static_cast<tpInt32>(this->h_ * c);
     return *this;
 }
 
@@ -153,17 +113,14 @@ TpSize &TpSize::operator/=(float c)
 {
     if (c == 0.0f)
         return *this;
-    TpSizeData *sizeData = static_cast<TpSizeData *>(data_);
-    sizeData->w = static_cast<int32_t>(sizeData->w / c);
-    sizeData->h = static_cast<int32_t>(sizeData->h / c);
+    this->w_ = static_cast<tpInt32>(this->w_ / c);
+    this->h_ = static_cast<tpInt32>(this->h_ / c);
     return *this;
 }
 
 inline bool operator==(const TpSize &s1, const TpSize &s2) noexcept
 {
-    TpSizeData *s1Data = static_cast<TpSizeData *>(s1.data_);
-    TpSizeData *s2Data = static_cast<TpSizeData *>(s2.data_);
-    return (s1Data->w == s2Data->w) && (s1Data->h == s2Data->h);
+    return (s1.w_ == s2.w_) && (s1.h_ == s2.h_);
 }
 
 inline bool operator!=(const TpSize &s1, const TpSize &s2) noexcept
@@ -173,22 +130,17 @@ inline bool operator!=(const TpSize &s1, const TpSize &s2) noexcept
 
 inline const TpSize operator+(const TpSize &s1, const TpSize &s2) noexcept
 {
-    TpSizeData *s1Data = static_cast<TpSizeData *>(s1.data_);
-    TpSizeData *s2Data = static_cast<TpSizeData *>(s2.data_);
-    return TpSize(s1Data->w + s2Data->w, s1Data->h + s2Data->h);
+    return TpSize(s1.w_ + s2.w_, s1.h_ + s2.h_);
 }
 
 inline const TpSize operator-(const TpSize &s1, const TpSize &s2) noexcept
 {
-    TpSizeData *s1Data = static_cast<TpSizeData *>(s1.data_);
-    TpSizeData *s2Data = static_cast<TpSizeData *>(s2.data_);
-    return TpSize(s1Data->w - s2Data->w, s1Data->h - s2Data->h);
+    return TpSize(s1.w_ - s2.w_, s1.h_ - s2.h_);
 }
 
 inline const TpSize operator*(const TpSize &s, float factor) noexcept
 {
-    TpSizeData *sData = static_cast<TpSizeData *>(s.data_);
-    return TpSize(static_cast<int32_t>(sData->w * factor), static_cast<int32_t>(sData->h * factor));
+    return TpSize(static_cast<int32_t>(s.w_ * factor), static_cast<int32_t>(s.h_ * factor));
 }
 
 inline const TpSize operator*(float factor, const TpSize &s) noexcept
@@ -200,6 +152,5 @@ inline const TpSize operator/(const TpSize &s, float divisor)
 {
     if (divisor == 0.0f)
         return s;
-    TpSizeData *sData = static_cast<TpSizeData *>(s.data_);
-    return TpSize(static_cast<int32_t>(sData->w / divisor), static_cast<int32_t>(sData->h / divisor));
+    return TpSize(static_cast<int32_t>(s.w_ / divisor), static_cast<int32_t>(s.h_ / divisor));
 }

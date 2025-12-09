@@ -3,7 +3,6 @@
 
 #include "TpCore.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpSizeFData);
 /// @brief 尺寸处理工具类
 class TpSizeF
 {
@@ -104,7 +103,7 @@ public:
     friend const TpSizeF operator/(const TpSizeF &, float);
 
 private:
-    ITpSizeFData *data_;
+    tpDouble w_, h_;
 };
 
 #endif
