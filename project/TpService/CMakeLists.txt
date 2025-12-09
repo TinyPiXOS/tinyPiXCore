@@ -12,9 +12,9 @@ include(../../cmake/TargetArchConfig.cmake)
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/main.cpp
     ${SOURCE_PATH}/src/TpService/TpGatewayServerPUBSUB.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_server.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_server.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_server.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_server.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)
@@ -61,7 +61,8 @@ find_library(OPENCC_LIBRARY opencc PATHS ${ARM_SDK_PATH}/lib)
 target_link_libraries(TpService
     dl
     pthread
-    ${NANOMSG_STATIC_LIB} ${ERPC_STATIC_LIB}
+    ${NANOMSG_STATIC_LIB} 
+    # ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${GLOG_LIBRARY}
     ${YAML_CPP_LIBRARY}

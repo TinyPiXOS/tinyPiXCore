@@ -1,162 +1,121 @@
 #include "TpRectF.h"
 #include <algorithm>
 
-// 定义矩形数据结构体
-struct TpRectFData
+TpRectF::TpRectF() : x_(0), y_(0), w_(0), h_(0)
 {
-    double x = 0; // 矩形左上角x坐标
-    double y = 0; // 矩形左上角y坐标
-    double w = 0; // 矩形宽度
-    double h = 0; // 矩形高度
-};
-
-TpRectF::TpRectF()
-{
-    data_ = new TpRectFData();
 }
 
 TpRectF::TpRectF(const TpRectF &other)
 {
-    TpRectFData *rectData = new TpRectFData();
-    TpRectFData *othersData = static_cast<TpRectFData *>(other.data_);
-    *rectData = *othersData;
-    data_ = rectData;
+    this->x_ = other.x_;
+    this->y_ = other.y_;
+    this->w_ = other.w_;
+    this->h_ = other.h_;
 }
 
 TpRectF::TpRectF(const TpPointF &leftTop, const TpPointF &rightBottom)
 {
-    TpRectFData *rectData = new TpRectFData();
-    rectData->x = leftTop.x();
-    rectData->y = leftTop.y();
-    rectData->w = rightBottom.x() - leftTop.x();
-    rectData->h = rightBottom.y() - leftTop.y();
-
-    data_ = rectData;
+    this->x_ = leftTop.x();
+    this->y_ = leftTop.y();
+    this->w_ = rightBottom.x() - leftTop.x();
+    this->h_ = rightBottom.y() - leftTop.y();
 }
 
 TpRectF::TpRectF(const TpPointF &leftTop, const TpSizeF &size)
 {
-    TpRectFData *rectData = new TpRectFData();
-    rectData->x = leftTop.x();
-    rectData->y = leftTop.y();
-    rectData->w = size.width();
-    rectData->h = size.height();
-
-    data_ = rectData;
+    this->x_ = leftTop.x();
+    this->y_ = leftTop.y();
+    this->w_ = size.width();
+    this->h_ = size.height();
 }
 
 TpRectF::TpRectF(double x, double y, double w, double h)
 {
-    TpRectFData *rectData = new TpRectFData();
-    rectData->x = x;
-    rectData->y = y;
-    rectData->w = w;
-    rectData->h = h;
-
-    data_ = rectData;
+    this->x_ = x;
+    this->y_ = y;
+    this->w_ = w;
+    this->h_ = h;
 }
 
 TpRectF::~TpRectF()
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    if (rectData)
-    {
-        delete rectData;
-        rectData = nullptr;
-        data_ = nullptr;
-    }
 }
 
 bool TpRectF::isNull() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return tpFuzzyIsNull(rectData->w) && tpFuzzyIsNull(rectData->h);
+    return tpFuzzyIsNull(this->w_) && tpFuzzyIsNull(this->h_);
 }
 
 bool TpRectF::isEmpty() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return (rectData->w <= 0 || rectData->h <= 0);
+    return (this->w_ <= 0 || this->h_ <= 0);
 }
 
 bool TpRectF::isValid() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return (rectData->w > 0 && rectData->h > 0);
+    return (this->w_ > 0 && this->h_ > 0);
 }
 
 double TpRectF::left() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->x;
+    return this->x_;
 }
 
 double TpRectF::top() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->y;
+    return this->y_;
 }
 
 double TpRectF::right() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->x + rectData->w;
+    return this->x_ + this->w_;
 }
 
 double TpRectF::bottom() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->y + rectData->h;
+    return this->y_ + this->h_;
 }
 
 double TpRectF::x() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->x;
+    return this->x_;
 }
 
 double TpRectF::y() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->y;
+    return this->y_;
 }
 
 void TpRectF::setLeft(double pos) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->w += rectData->x - pos;
-    rectData->x = pos;
+    this->w_ += this->x_ - pos;
+    this->x_ = pos;
 }
 
 void TpRectF::setTop(double pos) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->h += rectData->y - pos;
-    rectData->y = pos;
+    this->h_ += this->y_ - pos;
+    this->y_ = pos;
 }
 
 void TpRectF::setRight(double pos) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->w = pos - rectData->x;
+    this->w_ = pos - this->x_;
 }
 
 void TpRectF::setBottom(double pos) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->h = pos - rectData->y;
+    this->h_ = pos - this->y_;
 }
 
 void TpRectF::setX(double x) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->x = x;
+    this->x_ = x;
 }
 
 void TpRectF::setY(double y) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->y = y;
+    this->y_ = y;
 }
 
 void TpRectF::setTopLeft(const TpPointF &p) noexcept
@@ -185,120 +144,104 @@ void TpRectF::setBottomLeft(const TpPointF &p) noexcept
 
 TpPointF TpRectF::topLeft() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return TpPointF(rectData->x, rectData->y);
+    return TpPointF(this->x_, this->y_);
 }
 
 TpPointF TpRectF::bottomRight() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return TpPointF(rectData->x + rectData->w, rectData->y + rectData->h);
+    return TpPointF(this->x_ + this->w_, this->y_ + this->h_);
 }
 
 TpPointF TpRectF::topRight() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return TpPointF(rectData->x + rectData->w, rectData->y);
+    return TpPointF(this->x_ + this->w_, this->y_);
 }
 
 TpPointF TpRectF::bottomLeft() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return TpPointF(rectData->x, rectData->y + rectData->h);
+    return TpPointF(this->x_, this->y_ + this->h_);
 }
 
 TpPointF TpRectF::center() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return TpPointF(rectData->x + rectData->w / 2, rectData->y + rectData->h / 2);
+    return TpPointF(this->x_ + this->w_ / 2, this->y_ + this->h_ / 2);
 }
 
 void TpRectF::setRect(double x, double y, double w, double h) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->x = x;
-    rectData->y = y;
-    rectData->w = w;
-    rectData->h = h;
+    this->x_ = x;
+    this->y_ = y;
+    this->w_ = w;
+    this->h_ = h;
 }
 
 void TpRectF::getRect(double *x, double *y, double *w, double *h) const
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
     if (x)
-        *x = rectData->x;
+        *x = this->x_;
     if (y)
-        *y = rectData->y;
+        *y = this->y_;
     if (w)
-        *w = rectData->w;
+        *w = this->w_;
     if (h)
-        *h = rectData->h;
+        *h = this->h_;
 }
 
 void TpRectF::setCoords(double x1, double y1, double x2, double y2) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->x = x1;
-    rectData->y = y1;
-    rectData->w = x2 - x1;
-    rectData->h = y2 - y1;
+    this->x_ = x1;
+    this->y_ = y1;
+    this->w_ = x2 - x1;
+    this->h_ = y2 - y1;
 }
 
 void TpRectF::getCoords(double *x1, double *y1, double *x2, double *y2) const
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
     if (x1)
-        *x1 = rectData->x;
+        *x1 = this->x_;
     if (y1)
-        *y1 = rectData->y;
+        *y1 = this->y_;
     if (x2)
-        *x2 = rectData->x + rectData->w;
+        *x2 = this->x_ + this->w_;
     if (y2)
-        *y2 = rectData->y + rectData->h;
+        *y2 = this->y_ + this->h_;
 }
 
 TpSizeF TpRectF::size() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return TpSizeF(rectData->w, rectData->h);
+    return TpSizeF(this->w_, this->h_);
 }
 
 double TpRectF::width() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->w;
+    return this->w_;
 }
 
 double TpRectF::height() const noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return rectData->h;
+    return this->h_;
 }
 
 void TpRectF::setWidth(double w) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->w = w;
+    this->w_ = w;
 }
 
 void TpRectF::setHeight(double h) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->h = h;
+    this->h_ = h;
 }
 
 void TpRectF::setSize(const TpSizeF &s) noexcept
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    rectData->w = s.width();
-    rectData->h = s.height();
+    this->w_ = s.width();
+    this->h_ = s.height();
 }
 
 bool TpRectF::contains(double x, double y)
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    return (x >= rectData->x) && (x <= rectData->x + rectData->w) &&
-           (y >= rectData->y) && (y <= rectData->y + rectData->h);
+    return (x >= this->x_) && (x <= this->x_ + this->w_) &&
+           (y >= this->y_) && (y <= this->y_ + this->h_);
 }
 
 bool TpRectF::contains(const TpPointF &point)
@@ -313,12 +256,10 @@ bool TpRectF::intersect(const TpRectF &rect)
 
 bool TpRectF::intersect(double x, double y, double w, double h)
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-
-    double left = std::max(rectData->x, x);
-    double right = std::min(rectData->x + rectData->w, x + static_cast<double>(w));
-    double top = std::max(rectData->y, y);
-    double bottom = std::min(rectData->y + rectData->h, y + static_cast<double>(h));
+    double left = std::max(this->x_, x);
+    double right = std::min(this->x_ + this->w_, x + static_cast<double>(w));
+    double top = std::max(this->y_, y);
+    double bottom = std::min(this->y_ + this->h_, y + static_cast<double>(h));
 
     return (left < right) && (top < bottom);
 }
@@ -330,15 +271,13 @@ bool TpRectF::unions(const TpRectF &rect)
 
 bool TpRectF::unions(double x, double y, double w, double h)
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-
     if (tpFuzzyIsNull(w) || tpFuzzyIsNull(h))
         return true;
 
-    double left = std::min(rectData->x, x);
-    double top = std::min(rectData->y, y);
-    double right = std::max(rectData->x + rectData->w, x + static_cast<double>(w));
-    double bottom = std::max(rectData->y + rectData->h, y + static_cast<double>(h));
+    double left = std::min(this->x_, x);
+    double top = std::min(this->y_, y);
+    double right = std::max(this->x_ + this->w_, x + static_cast<double>(w));
+    double bottom = std::max(this->y_ + this->h_, y + static_cast<double>(h));
 
     setCoords(left, top, right, bottom);
     return true;
@@ -348,26 +287,20 @@ TpRectF TpRectF::operator=(const TpRectF &other)
 {
     if (this != &other)
     {
-        TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-        TpRectFData *otherData = static_cast<TpRectFData *>(other.data_);
-
-        rectData->x = otherData->x;
-        rectData->y = otherData->y;
-        rectData->w = otherData->w;
-        rectData->h = otherData->h;
+        this->x_ = other.x_;
+        this->y_ = other.y_;
+        this->w_ = other.w_;
+        this->h_ = other.h_;
     }
     return *this;
 }
 
 bool TpRectF::operator==(const TpRectF &other)
 {
-    TpRectFData *rectData = static_cast<TpRectFData *>(data_);
-    TpRectFData *otherData = static_cast<TpRectFData *>(other.data_);
-
-    return tpFuzzyCompare(rectData->x, otherData->x) &&
-           tpFuzzyCompare(rectData->y, otherData->y) &&
-           tpFuzzyCompare(rectData->w, otherData->w) &&
-           tpFuzzyCompare(rectData->h, otherData->h);
+    return tpFuzzyCompare(this->x_, other.x_) &&
+           tpFuzzyCompare(this->y_, other.y_) &&
+           tpFuzzyCompare(this->w_, other.w_) &&
+           tpFuzzyCompare(this->h_, other.h_);
 }
 
 bool TpRectF::operator!=(const TpRectF &other)

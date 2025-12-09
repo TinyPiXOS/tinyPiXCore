@@ -37,6 +37,7 @@ struct TpSystemApiData
     TpHash<TpString, int32_t> appUuidPidMap;
 };
 
+#if 0
 TpHash<TpString, int32_t> queryRunAppInfo()
 {
     TpHash<TpString, int32_t> queryResMap;
@@ -57,6 +58,7 @@ TpHash<TpString, int32_t> queryRunAppInfo()
 
     return queryResMap;
 }
+#endif
 
 TpSystemApi *TpSystemApi::Instance()
 {

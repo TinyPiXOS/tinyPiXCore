@@ -174,9 +174,6 @@ bool TpButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpButton::onPaintEvent(TpPaintEvent *event)
 {
-    // std::cout << "按钮 " << text() << " 渲染" << std::endl;
-    // std::cout << "按钮 " << text() << " 尺寸" << pos().x() << " " << pos().y() << "  " << width() << "  " << height() << std::endl;
-
     TpWidget::onPaintEvent(event);
 
     TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
@@ -188,7 +185,7 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
     tpShared<TpCssData> curCssData = currentStatusCss();
 
     TpFont *textLabelFont = buttonData->textLabel->font();
-    textLabelFont->setFontForeColor(curCssData->color());
+    textLabelFont->setFontColor(curCssData->color());
     textLabelFont->setFontSize(curCssData->fontSize());
 
     return true;
@@ -196,6 +193,7 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
 
 bool TpButton::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
     refreshLayout();
 
     return true;

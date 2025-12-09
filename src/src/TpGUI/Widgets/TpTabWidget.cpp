@@ -14,9 +14,6 @@ struct TpTabWidgetData
     ~TpTabWidgetData()
     {
         tabWidgetList.clear();
-        tabBar->setParent(nullptr);
-        delete tabBar;
-        tabBar = nullptr;
     }
 };
 
@@ -169,10 +166,59 @@ TpTabBar *TpTabWidget::tabBar() const
 
 void TpTabWidget::setCurrentIndex(int32_t index)
 {
+    TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
+    if (index >= widgetData->tabWidgetList.size())
+        return;
+
+    for (int i = 0; i < widgetData->tabWidgetList.size(); ++i)
+    {
+        TpWidget *curWidget = widgetData->tabWidgetList.at(i);
+        if (i == index)
+        {
+            widgetData->tabBar->setCurrentIndex(i);
+
+            if (curWidget)
+            {
+                curWidget->setVisible(true);
+                curWidget->setRect(0, 0, width(), height() - widgetData->tabBar->height());
+                curWidget->update();
+            }
+        }
+        else
+        {
+            if (curWidget)
+            {
+                curWidget->setVisible(false);
+                curWidget->update();
+            }
+        }
+    }
 }
 
 void TpTabWidget::setCurrentWidget(TpWidget *widget)
 {
+    if (!widget)
+        return;
+
+    TpTabWidgetData *widgetData = static_cast<TpTabWidgetData *>(data_);
+
+    for (int i = 0; i < widgetData->tabWidgetList.size(); ++i)
+    {
+        TpWidget *curWidget = widgetData->tabWidgetList.at(i);
+        if (curWidget == widget)
+        {
+            widgetData->tabBar->setCurrentIndex(i);
+
+            curWidget->setVisible(true);
+            curWidget->setRect(0, 0, width(), height() - widgetData->tabBar->height());
+            curWidget->update();
+        }
+        else
+        {
+            curWidget->setVisible(false);
+            curWidget->update();
+        }
+    }
 }
 
 bool TpTabWidget::onResizeEvent(TpResizeEvent *event)
@@ -185,23 +231,6 @@ bool TpTabWidget::onResizeEvent(TpResizeEvent *event)
     slotTabBarIndexChanged(widgetData->tabBar->currendIndex());
 
     return true;
-}
-
-bool TpTabWidget::onMoveEvent(TpMoveEvent *event)
-{
-    return true;
-}
-
-bool TpTabWidget::onPaintEvent(TpPaintEvent *event)
-{
-    TpWidget::onPaintEvent(event);
-
-    return true;
-}
-
-bool TpTabWidget::eventFilter(TpObject *watched, TpEvent *event)
-{
-    return false;
 }
 
 void TpTabWidget::slotTabBarIndexChanged(uint32_t index)

@@ -3,15 +3,11 @@
 // #include "Core/TpObjectFunction.hpp"
 #include <TpCoreEvent.h>
 
-TpObject::TpObject(TpObject *parent)
+TpObject::TpObject(TpObject *parent) : data_(nullptr)
 {
     TpObjectData *set = new TpObjectData();
-
-    set->objectID = TpAutoObject::Inst()->selfCounterIncrease();
-    set->top = nullptr;
-    set->agent = nullptr;
-
     data_ = set;
+    initTpData();
 }
 
 TpObject::~TpObject()
@@ -338,6 +334,14 @@ ITpObjectData *TpObject::objectSets()
     }
 
     return sets;
+}
+
+void TpObject::initTpData()
+{
+    TpObjectData *objData = static_cast<TpObjectData *>(data_);
+    objData->objectID = TpAutoObject::Inst()->selfCounterIncrease();
+    objData->top = nullptr;
+    objData->agent = nullptr;
 }
 
 void TpObject::addConnection(void *signal, std::function<void()> disconnector)

@@ -138,6 +138,8 @@ static void paintEnabledBox(TpWidget *child, TpPainter *paintCanvas)
     }
 }
 
+// #include "TpClipRectOptimizer.h"
+
 // 先声明，因为 childPaint 和 drawWidget 互相调用了
 static inline void childPaint(TpObjectData *set, TpPaintEvent *events);
 static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
@@ -148,13 +150,32 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     // 刷新前清除scene
     TpPainter *childPainter = event.painter();
 
-    auto canvasPair = obj->canvasPtr();
-    tvg::SwCanvas *childCanvas = (tvg::SwCanvas *)canvasPair.first;
-    tvg::Scene *childScene = (tvg::Scene *)canvasPair.second;
+    TpScreen *topScreen = dynamic_cast<TpScreen *>(obj->topObject());
+    tvg::SwCanvas *topCanvas = (tvg::SwCanvas *)topScreen->canvasPtr();
 
-    childPainter->setScene(childCanvas, childScene);
+    tvg::Scene *childScene = (tvg::Scene *)obj->scenePtr();
+    childPainter->setScene(topCanvas, childScene);
+
+    // 重新放入scene到父组件的scene
+    childScene->remove();
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(obj->parent());
+    if (parentWidget)
+    {
+        TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->objectSets());
+        TpWidgetData *widgetData = static_cast<TpWidgetData *>(obj->objectSets());
+        parentWidgetData->tvgScene->push(widgetData->tvgScene);
+    }
+
+    // std::list<tvg::Paint *> sceneChildList = childScene->paints();
+    // std::cout << "111sceneChildList size: " << obj->pluginType() << " , " << sceneChildList.size() << std::endl;
 
     bool ret = obj->onPaintEvent(&event);
+
+    // std::list<tvg::Paint *> sceneChildList2 = childScene->paints();
+    // std::cout << "222sceneChildList size: " << obj->pluginType() << " , " << sceneChildList2.size() << std::endl;
+
+    // if (sceneChildList2.size() > 0)
+        // std::cout << "sceneChildList2 : " << sceneChildList2.front() << std::endl;
 
     // 叠加透明度
     childScene->opacity(255 * obj->windowOpacity());
@@ -171,7 +192,7 @@ static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
     paintEnabledBox(obj, event.painter());
 
     // 绘制完成刷新绘制
-    childPainter->sync(obj);
+    // childPainter->sync(obj);
 
     if (ret)
     {

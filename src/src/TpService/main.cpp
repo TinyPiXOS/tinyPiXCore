@@ -4,7 +4,7 @@
 #include <chrono>
 #include <thread>
 #include "TpGatewayServerPUBSUB.h"
-#include "TpRPCSystemApi.hpp"
+// #include "TpRPCSystemApi.hpp"
 
 std::atomic<bool> grunning{true};
 void signalHandler(int signal)
@@ -12,6 +12,7 @@ void signalHandler(int signal)
     grunning = false;
 }
 
+#if 0
 // RPC服务端线程函数
 erpc_transport_t rpcTransport = nullptr;
 void dealRPCFunc()
@@ -41,6 +42,7 @@ void dealRPCFunc()
         std::cout << "收到RPC请求 " << std::endl;
     }
 }
+#endif
 
 int main()
 {
@@ -98,7 +100,7 @@ int main()
     /* 关闭socket */
     // erpc_transport_tcp_deinit(rpcTransport);
 
-    tinyPiX_sys_free(globalAgent);
+    // tinyPiX_sys_free(globalAgent);
 
     return 0;
 }

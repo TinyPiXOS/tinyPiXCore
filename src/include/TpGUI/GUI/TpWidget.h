@@ -370,7 +370,7 @@ public:
     virtual bool onFingerEvent(TpFingerEvent *event) { return true; }
     virtual bool onDollAREvent(TpDollAREvent *event) { return true; }
     virtual bool onMultiGestureEvent(TpMultiGestureEvent *event) { return true; }
-    virtual bool onMoveEvent(TpMoveEvent *event) { return true; }
+    virtual bool onMoveEvent(TpMoveEvent *event);
     virtual bool onResizeEvent(TpResizeEvent *event);
     virtual bool onFocusEvent(TpFocusEvent *event) { return true; }
     virtual bool onLeaveEvent(TpLeaveEvent *event);
@@ -421,7 +421,7 @@ public:
 
 public:
     /// @brief 外部无需调用
-    std::pair<void *, void *> canvasPtr();
+    void * scenePtr();
 
 protected:
     /// @brief 自动根据控件状态获取当前CSS（启用、悬停、选中、禁用等）
@@ -440,6 +440,8 @@ protected:
 
     /// @brief 子类构造函数可调用该函数完成基础CSS的初始化，例如size、round等，前提需实现 pluginType 函数
     void refreshBaseCss();
+
+    virtual void initTpData() override;
 
 public:
     /// @brief 对象

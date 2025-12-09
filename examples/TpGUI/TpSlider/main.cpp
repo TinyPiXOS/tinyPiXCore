@@ -38,7 +38,5 @@ int32_t main(int32_t argc, char *argv[])
 			{ valueText->setText(TpString::number(value));
 				slider->setValue(value); });
 
-	vScreen->update();
-
 	return app.run();
 }

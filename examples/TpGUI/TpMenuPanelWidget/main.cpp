@@ -1,6 +1,6 @@
 #include "TpApp.h"
 #include "TpMainWindow.h"
-#include "TpOnOffButton.h"
+#include "TpSwitchButton.h"
 #include "TpMenuPanelWidget.h"
 
 int32_t main(int32_t argc, char *argv[])
@@ -19,7 +19,7 @@ int32_t main(int32_t argc, char *argv[])
 	panelItem1->setIcon(applicationDirPath() + "/蓝牙.png");
 	panelItem1->setTitle("蓝牙");
 
-	TpOnOffButton *onOffBtn1 = new TpOnOffButton();
+	TpSwitchButton *onOffBtn1 = new TpSwitchButton();
 	onOffBtn1->setFixedSize(45, 24);
 	panelItem1->setCustomizeWidget(onOffBtn1);
 	menuPanelWidget->addItem(panelItem1);
@@ -28,7 +28,7 @@ int32_t main(int32_t argc, char *argv[])
 	panelItem2->setIcon(applicationDirPath() + "/热点.png");
 	panelItem2->setTitle("热点");
 
-	TpOnOffButton *onOffBtn2 = new TpOnOffButton();
+	TpSwitchButton *onOffBtn2 = new TpSwitchButton();
 	onOffBtn2->setFixedSize(45, 24);
 	panelItem2->setCustomizeWidget(onOffBtn2);
 	menuPanelWidget->addItem(panelItem2);
