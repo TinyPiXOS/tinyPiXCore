@@ -63,6 +63,7 @@ TpAudioInterface::~TpAudioInterface()
 	TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
 	if (!audData)
 		return;
+    Audio_Device_Close(audData->audio_params->handle);
 
 	media_audio_info_delete(audData->audio_params);
     audData->audio_params=NULL;
