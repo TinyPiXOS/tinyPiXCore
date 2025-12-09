@@ -2,41 +2,13 @@
 #define __TP_AUDIO_INTERFACE_H
 
 #include <TpCore.h>
+#include "TpAudioFormat.h"
 #include "TpMediaInterface.h"
 
 TP_DEF_VOID_TYPE_VAR(ItpAudioInfData);
 
 class TpAudioInterface 
 {
-	enum SampleRate{
-		TP_AUDIO_RATE_11025 = 11025,
-		TP_AUDIO_RATE_22050 = 22050,
-		TP_AUDIO_RATE_44100 = 44100,
-		TP_AUDIO_RATE_47250 = 47250,
-
-		TP_AUDIO_RATE_8000 = 8000,
-		TP_AUDIO_RATE_24000 = 24000,
-		TP_AUDIO_RATE_32000 = 32000,
-		TP_AUDIO_RATE_48000 = 48000,
-		TP_AUDIO_RATE_96000 = 96000,
-		TP_AUDIO_RATE_192000 = 192000,
-	};
-
-	enum SampleChannel{
-		TP_AUDIO_CHANNEL_1	= 8,
-		TP_AUDIO_CHANNEL_2  = 16,
-		TP_AUDIO_CHANNEL_2_1 = 24,
-		TP_AUDIO_CHANNEL_5_1 = 48,
-		TP_AUDIO_CHANNEL_7_1 = 64,
-	};
-
-	enum SampleBits{
-		TP_AUDIO_BITS_8	= 8,
-		TP_AUDIO_BITS_16 = 16,
-		TP_AUDIO_BITS_24 = 24,
-		TP_AUDIO_BITS_32 = 32,
-	};
-
 public:
 	TpAudioInterface(const TpString& name="default");
 	~TpAudioInterface();
@@ -57,12 +29,12 @@ public:
 	/// @return 
 	//virtual int setSampleParame(TpString &file) = 0;
 	//virtual int setSampleParame(const char *file) = 0;
-	/// @brief 手动设置硬件采样参数
+	/// @brief 手动设置硬件采样参数，(仅在播放PCM流会生效，播放普通文件数据会根据实际情况设置)
 	/// @param rate 
 	/// @param channel 
 	/// @param bits 
 	/// @return 
-	int setSampleParame(SampleRate rate, SampleChannel channel, SampleBits bits);
+	int setSampleParame(TpAudioFormat::SampleRate rate, TpAudioFormat::SampleChannel channel, TpAudioFormat::SampleBits bits);
 	/// @brief 设置非阻塞(用于播放实时性高的音频流数据，播放文件时候设置不会生效)
 	/// @param nonblock 设置为true为非阻塞模式 
 	/// @return 
@@ -79,7 +51,7 @@ public:
 	/// @param channel 
 	/// @param bits 
 	/// @return 
-	int getSampleParame(const char *file, SampleRate &rate, SampleChannel &channel, SampleBits &bits);
+	int getSampleParame(const char *file, TpAudioFormat::SampleRate &rate, TpAudioFormat::SampleChannel &channel, TpAudioFormat::SampleBits &bits);
 
 	/// @brief 获取音量允许的最大值
 	/// @return 

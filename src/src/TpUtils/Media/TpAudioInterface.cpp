@@ -18,7 +18,7 @@ struct TpAudioInfData
 {
     TpString name;
     //struct MediaAudioHandle *audio;
-    //struct AudioStreamParams *hard_params;
+    //struct AudioSamplesParams *hard_params;
     struct MediaAudioInfo *audio_params;
     TpAudioInfData()
     {
@@ -28,19 +28,6 @@ struct TpAudioInfData
     };
 };
 
-static TpString getFormatName(const TpString& audio_name)
-{
-	TpString usedAudioDev;
-	if(audio_name == TpString("default"))
-		usedAudioDev=TpSound::getUsedDevice();
-	else
-		usedAudioDev=audio_name;
-    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
-	if (pos == std::string::npos) // 无空格时返回整个字符串
-        return usedAudioDev;
-	else
-   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
-}
 
 TpAudioInterface::TpAudioInterface(const TpString &name)
 {   	
@@ -49,7 +36,7 @@ TpAudioInterface::TpAudioInterface(const TpString &name)
     if(!audData)
         return ;
 
-   	audData->name = getFormatName(name);
+   	audData->name = TpMediaDevice::getFormatName(name);
     
     MediaAudioInfo *audio=media_audio_info_creat(audData->name.c_str());
     if(!audio)
@@ -57,7 +44,16 @@ TpAudioInterface::TpAudioInterface(const TpString &name)
         std::cerr << "Failed to creat TpVideoInterface" << std::endl;
     }
 
+    struct MediaAudioHandle *pcm_play=Audio_Play_Open(audData->name.c_str());
+	if(pcm_play==NULL){
+		fprintf(stderr, "[Error]: Audio pcm open error\n");
+        media_audio_info_delete(audio);
+        return ;
+	}
+    
     audData->audio_params=audio;
+    audData->audio_params->handle=pcm_play;
+
     printf("[Debug]: TpAudioInterface ok\n");
 }
 
@@ -109,14 +105,12 @@ int TpAudioInterface::getVolume()
 }
 
 
-
-/*
-int TpAudioInterface::setSampleParame(SampleRate rate, SampleChannel channel, SampleBits bits)
+/*int TpAudioInterface::setSampleParame(TpAudioFormat::SampleRate rate, TpAudioFormat::SampleChannel channel, TpAudioFormat::SampleBits bits)
 {
     TpAudioInfData *audData = static_cast<TpAudioInfData *>(aData_);
     if (!audData->audio_params)
         return -1;
-    if (Audio_Set_Hard_Params(audData->audio, audData->user, (uint32_t)rate, (uint16_t)channel, (uint16_t)bits) < 0)
+    if (Audio_Set_Hard_Params(audData->audio_params->, audData->user, (uint32_t)rate, (uint16_t)channel, (uint16_t)bits) < 0)
         ;
     return -1;
 

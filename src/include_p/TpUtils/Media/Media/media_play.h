@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "media_codec.h"
+#include "Media/Media/media.h"
 
 #define DEBUG_MEDIA_PLAY
 

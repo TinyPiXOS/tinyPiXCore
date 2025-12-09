@@ -95,6 +95,8 @@ tpInt64 TpMediaFile::getBitRate()
 /// @return
 TpMediaFile::TpMediaFileType TpMediaFile::getType()
 {
+	
+
 	return TP_MEDIA_FILE_NONE;
 }
 

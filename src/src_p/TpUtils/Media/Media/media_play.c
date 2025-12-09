@@ -7,7 +7,6 @@
 #include "Video/video_display.h"
 #include "Audio/audio_play.h"
 #include "Audio/audio_play.h"
-#include "TpMediaDevice.h"
 
 
 #ifdef DEBUG_MEDIA_PLAY

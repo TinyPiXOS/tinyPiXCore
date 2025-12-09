@@ -89,7 +89,8 @@ struct MediaAudioInfo *media_audio_info_creat(const char *device)
     conf->device = strdup(device);
     conf->volume = USER_CONF_VOLUME;
     conf->volume = 100;
-    
+    conf->handle =NULL;
+
     conf->get_callback_audio = Media_Get_Audio_Callback;
     conf->set_callback_audio = Media_Set_Audio_Callback;
     
@@ -107,6 +108,7 @@ void media_audio_info_delete(struct MediaAudioInfo *conf)
     conf->device=NULL;
     conf->get_callback_audio = NULL;
     conf->set_callback_audio = NULL;
+
     pthread_rwlock_destroy(&conf->rw_mut);
     free(conf);
     conf=NULL;
@@ -171,7 +173,7 @@ static int media_pcm_hwparams_init(struct MediaAudioHandle *pcm)
 /// @param nSamplesPersec 采样频率
 /// @param wBitsPerSample 数据位数
 /// @return
-static int audio_stream_params_init(int wChannels, int nSamplesPersec, int wBitsPerSample, struct AudioStreamParams *header)
+static int audio_stream_params_init(int wChannels, int nSamplesPersec, int wBitsPerSample, struct AudioSamplesParams *header)
 {
     header->wChannels = wChannels;           // 声道数
     header->nSamplesPersec = nSamplesPersec; // 采样频率
@@ -208,7 +210,7 @@ static int pcm_get_function(snd_pcm_hw_params_t *hwparams, struct PcmHardParams 
 /// @param pcm
 /// @param header
 /// @return
-int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioStreamParams *audio)
+int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioSamplesParams *audio)
 {
     if (!pcm || !pcm->handle)
         return -1;
@@ -300,7 +302,7 @@ int pcm_hwparams_set(struct MediaAudioHandle *pcm, struct AudioStreamParams *aud
     if (audio != NULL)
     {
         audio_stream_params_init(channels, frequency, bit, audio);
-        memcpy(pcm->adparams, audio, sizeof(struct AudioStreamParams));
+        memcpy(pcm->adparams, audio, sizeof(struct AudioSamplesParams));
         /*pcm->adparams->nAvgBitsPerSample=audio->nAvgBitsPerSample;
         pcm->adparams->wBitsPerSample=audio->wBitsPerSample;
         pcm->adparams->nSamplesPersec=audio->nSamplesPersec;
@@ -540,7 +542,7 @@ int audio_stream_write(struct MediaAudioHandle *pcm_play, struct MediaUserParams
 
     int ret = 0;
     float volume_set;
-    struct AudioStreamParams *audio_param = pcm_play->adparams;
+    struct AudioSamplesParams *audio_param = pcm_play->adparams;
     static struct MediaFilterParam *filter = NULL;
     AVFrame *frame_flt = NULL;
     int64_t position = Media_Get_BytePosition(conf); // 获取当前播放位置
@@ -618,7 +620,7 @@ WRITE_POS:
 
 
 // 手动设置
-int Audio_Hard_Hand_Init(struct MediaAudioHandle *pcm_play, struct MediaUserParams *conf, struct AudioStreamParams *stream_params)
+int Audio_Hard_Hand_Init(struct MediaAudioHandle *pcm_play, struct MediaUserParams *conf, struct AudioSamplesParams *stream_params)
 {
     if (!pcm_play || !pcm_play->handle)
     {
@@ -745,7 +747,7 @@ int Audio_Device_Init(struct MediaAudioHandle *pcm_play, const char *device, Aud
         audio_pcm_close(pcm_play);
         return -1;
     }
-    pcm_play->adparams = (struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
+    pcm_play->adparams = (struct AudioSamplesParams *)malloc(sizeof(struct AudioSamplesParams));
     pcm_play->ahparams = (struct PcmHardParams *)malloc(sizeof(struct PcmHardParams));
     return 0;
 }
@@ -772,7 +774,7 @@ int Audio_Device_Close(struct MediaAudioHandle *pcm_play)
 }
 
 // 向初始化并配置好的设备写入音频流
-int Audio_Write_Stream(struct MediaAudioHandle *pcm, struct MediaUserParams *conf, struct AudioStreamParams *hard_params,
+int Audio_Write_Stream(struct MediaAudioHandle *pcm, struct MediaUserParams *conf, struct AudioSamplesParams *hard_params,
                         uint8_t *buffer, uint32_t frames, int offset, int delay)
 {
     if (!pcm || !pcm->handle)
@@ -810,7 +812,7 @@ int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play, struct MediaUserPar
     int state = Media_Get_State(conf);
     if (state != MEDIA_STATE_STOP)
         return -1;
-    struct AudioStreamParams hard_params;
+    struct AudioSamplesParams hard_params;
     hard_params.nSamplesPersec = rate;
     hard_params.wChannels = channel;
     hard_params.wBitsPerSample = bits;
@@ -822,23 +824,8 @@ int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play, struct MediaUserPar
 }
 
 
-
-//根据文件类型获取对应的解码器
-enum AVCodecID get_codeid_from_file_type(MediaFileType type)
-{
-	switch(type)
-	{
-		case MEDIA_FILE_TYPE_MP3:	return AV_CODEC_ID_MP3;
-		case MEDIA_FILE_TYPE_M4A:	return AV_CODEC_ID_AAC;
-
-	}
-	return AV_CODEC_ID_MP3;
-}
-
-
-
 //按照音频参数和帧数申请合适大小的AVFrame
-AVFrame *alloc_avframe_frames_hard(int frames,struct AudioStreamParams *hard_param)
+AVFrame *alloc_avframe_frames_hard(int frames,struct AudioSamplesParams *hard_param)
 {
 	AVFrame *converted_frame=av_frame_alloc();
 	if(!converted_frame)
@@ -889,7 +876,7 @@ int64_t code_get_channel_layout(int channels)
 }
 
 //使用硬件配置重新设置重采样参数
-struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioStreamParams *hard_param)
+struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioSamplesParams *hard_param)
 {
 	struct SwrContext *swr_ctx = swr_alloc_set_opts(NULL,
 									code_get_channel_layout(hard_param->wChannels),
@@ -904,7 +891,7 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
 }
 
 
-int get_audio_params_wav(FILE *fp,struct AudioStreamParams *params)
+int get_audio_params_wav(FILE *fp,struct AudioSamplesParams *params)
 {
 	AudioWavHeader wav_header;
 	get_wav_header_info(fp,&wav_header);
@@ -944,7 +931,6 @@ void get_wav_header_info(FILE *fp,AudioWavHeader *wav_header)
 struct codePlayCallbackParam{
 	struct MediaAudioHandle *pcm;
 	struct MediaUserParams *conf;
-	struct AudioStreamParams *audio_param;
 	int delay;
 };
 
@@ -961,12 +947,18 @@ static int callback_codec_play(uint8_t *buff,uint32_t frames,int offset,void *pa
 }
 
 
+int media_audio_play_callback_init(struct MediaUserParams *user)
+{
+
+
+}
+
 
 //声卡硬件初始化(使用解码器的参数自动设置)
 int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaUserParams *user,struct MediaStreamParams *audio)
 {
 	debug_printf("初始化声卡硬件\n");
-	struct AudioStreamParams *stream_params=(struct AudioStreamParams *)malloc(sizeof(struct AudioStreamParams));
+	struct AudioSamplesParams *stream_params=(struct AudioSamplesParams *)malloc(sizeof(struct AudioSamplesParams));
 	audio_stream_params_init(audio->codec_ctx->channels,			//使用流的参数来初始化声卡
 								audio->codec_ctx->sample_rate,
 								AUDIO_CODEC_CHANNEL_DEF,		//使用16位宽，(本值是解码时候自己指定的，不需要动态设置)
@@ -980,16 +972,26 @@ int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaUse
 		audio->audio.handle->adparams=stream_params;
 		return -1;
 	}
-	if(pcm_hwparams_set(pcm_play,stream_params)<0)
-		return -1;
-	if(pcm_start_play(pcm_play)<0)
-		return -1;
+
+	if(pcm_hwparams_set(pcm_play,stream_params)<0)  //根据stream_params配置声卡，可能会修改stream_params中的参数
+	{
+        free(stream_params);
+        return -1;
+    }
+	
+    if(pcm_start_play(pcm_play)<0)      //设置声卡准备播放
+    {
+        free(stream_params);
+        return -1;
+    }
+	
+    pcm_play->adparams=stream_params;
+    
 	struct codePlayCallbackParam *cb_param=(struct codePlayCallbackParam *)malloc(sizeof(struct codePlayCallbackParam));
 	if(cb_param==NULL)
 		return -1;
 
 	cb_param->conf=user;
-	cb_param->audio_param=stream_params;
 	cb_param->delay=100;
 	cb_param->pcm=pcm_play;
 
@@ -1009,21 +1011,17 @@ static int media_audio_hard_deinit(struct MediaStreamParams *audio)
     return 0;
 }
 
-
-
 //声卡初始化
 int media_stream_audio_init_handle(struct MediaStreamParams *audio,struct MediaUserParams *user)
 {
 	const char *name=user->audio_params->device;
 
 	AVCodecContext *codec_ctx=audio->codec_ctx;
-	struct MediaAudioHandle *pcm_play=Audio_Play_Open(name);
+	struct MediaAudioHandle *pcm_play=user->audio_params->handle;
 	if(pcm_play==NULL){
-		fprintf(stderr, "[Error]: Audio pcm open error\n");
 		return -1;
 	}
 
-	audio->audio.handle=pcm_play;
 	if(media_audio_hard_auto_init(pcm_play,user,audio)<0)		//声卡初始化
 		return -1;
 	debug_printf("[Debug]: media_audio_hard_auto_init ok\n");
@@ -1039,7 +1037,6 @@ int media_stream_audio_init_handle(struct MediaStreamParams *audio,struct MediaU
 	debug_printf("Resampling:%d\n",codec_ctx->sample_rate);
 	debug_printf("init sdl audio ok\n");
 	audio->audio.swr_ctx=swrContext;
-	audio->audio.handle=pcm_play;
 	user->nAvgBitsPerSample=pcm_play->adparams->nAvgBitsPerSample;	//此处先设置每秒播放字节数，如果存在视频流，会对其清空
 	//display->audio_data=audioData;
 	return 0;

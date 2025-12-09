@@ -38,7 +38,7 @@ public:
 	/// @return kbps
 	tpInt64 getBitRate();
 
-	/// @brief 获取文件是音频还ushi视频
+	/// @brief 获取文件是音频还是视频
 	/// @return
 	TpMediaFile::TpMediaFileType getType();
 

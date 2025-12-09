@@ -28,20 +28,6 @@ struct TpRecordInfData
     };
 };
 
-static TpString getFormatName(const TpString& audio_name)
-{
-	TpString usedAudioDev;
-	if(audio_name == TpString("default"))
-		usedAudioDev=TpSound::getUsedDevice();
-	else
-		usedAudioDev=audio_name;
-    size_t pos = usedAudioDev.find(' ');      			// 查找第一个空格位置
-	if (pos == std::string::npos) // 无空格时返回整个字符串
-        return usedAudioDev;
-	else
-   		return usedAudioDev.substr(0, pos);      // 截取开头到空格前的部分
-}
-
 
 TpRecordInterface::TpRecordInterface(const TpString &device)
 {
@@ -55,8 +41,7 @@ TpRecordInterface::TpRecordInterface(const TpString &device)
         return ;
     }
 
-
-        recData->name = getFormatName(device);
+    recData->name = TpMediaDevice::getFormatName(device);
     
     user->audio_params=media_audio_info_creat(recData->name.c_str());
     if(!user->audio_params)
@@ -78,6 +63,7 @@ TpRecordInterface::~TpRecordInterface()
     }
     if (!Media_State_Is_Exit(recData->user))
         Audio_Device_Close(recData->record);
+    media_audio_info_delete(recData->user->audio_params);
     media_user_config_delete(recData->user);
 }
 
@@ -153,6 +139,7 @@ int TpRecordInterface::recordPause()
         return -1;
     return Media_Set_Suspend(recData->user);
 }
+
 
 int TpRecordInterface::recordStop()
 {

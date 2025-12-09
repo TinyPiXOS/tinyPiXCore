@@ -1,7 +1,6 @@
 #ifndef _TP_MEDIA_DEVICE_H_
 #define _TP_MEDIA_DEVICE_H_
 
-#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,10 +12,22 @@ extern "C" {
 #include "Media/Media/media_codec.h"
 #include "Media/Video/video_play.h"
 
-
-
 #ifdef __cplusplus
 }
 #endif
+
+
+#include "TpString.h"
+
+class TpMediaDevice
+{
+public: 
+    TpMediaDevice(){};
+    ~TpMediaDevice(){};
+public:
+    static TpString getFormatName(const TpString& audio_name);
+
+};
+
 
 #endif

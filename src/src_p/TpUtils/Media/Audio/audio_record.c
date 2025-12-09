@@ -69,7 +69,7 @@ void record_config_free(struct MediaUserParams *conf)
 
 // 生成WAV文件头,默认按照16位深度采样
 // 返回长度，直接写入文件头。
-int creat_wav_header(AudioWavHeader *wav_record, struct AudioStreamParams *params)
+int creat_wav_header(AudioWavHeader *wav_record, struct AudioSamplesParams *params)
 {
     strncpy(wav_record->rld, "RIFF", 4);
     //	wav_record.rLen=0;        //文件大小
@@ -94,8 +94,22 @@ int creat_wav_header(AudioWavHeader *wav_record, struct AudioStreamParams *param
     return 0;
 }*/
 
+
+//根据文件类型获取对应的解码器
+enum AVCodecID get_codeid_from_file_type(MediaFileType type)
+{
+	switch(type)
+	{
+		case MEDIA_FILE_TYPE_MP3:	return AV_CODEC_ID_MP3;
+		case MEDIA_FILE_TYPE_M4A:	return AV_CODEC_ID_AAC;
+
+	}
+	return AV_CODEC_ID_MP3;
+}
+
+
 // ffmpeg编码器设置
-static int set_ffmpeg_codec(struct MediaCodecParam *mediacodec, const char *filename, MediaFileType type, struct AudioStreamParams *adparams)
+static int set_ffmpeg_codec(struct MediaCodecParam *mediacodec, const char *filename, MediaFileType type, struct AudioSamplesParams *adparams)
 {
     int ret = 0;
     AVFormatContext *format_ctx = NULL;
@@ -177,7 +191,7 @@ static int set_ffmpeg_codec(struct MediaCodecParam *mediacodec, const char *file
 }
 
 // 根据硬件参数和用户需要的输出参数重新设置重采样参数
-static struct SwrContext *swr_set_with_user_param(AVCodecContext *codec_ctx, struct AudioStreamParams *hard_param)
+static struct SwrContext *swr_set_with_user_param(AVCodecContext *codec_ctx, struct AudioSamplesParams *hard_param)
 {
     struct SwrContext *swr_ctx = swr_alloc_set_opts(NULL,
                                                     code_get_channel_layout(hard_param->wChannels),
@@ -331,7 +345,7 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
     struct MediaCodecParam codec;
 
     AudioWavHeader wav_record;
-    struct AudioStreamParams audio_param; // 采样的格式
+    struct AudioSamplesParams audio_param; // 采样的格式
     audio_param.wChannels = 2;
     audio_param.nSamplesPersec = 44100;
     audio_param.wBitsPerSample = 16;
@@ -363,14 +377,14 @@ int audio_record_file(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
     }
 
     Media_Set_State(conf, MEDIA_STATE_RECORD);
-    printf("开始读取pcm并写入文件\n");
+    debug_printf("开始读取pcm并写入文件\n");
     while (1)
     {
         // 从声卡设备读取一帧音频数据:字节
         int frames;
         if ((frames = pcm_read_data(pcm, buffer, cycle_frames, 100)) < 0)
         {
-            printf("从音频接口读取失败(%s)\n", snd_strerror(frames));
+            debug_printf("从音频接口读取失败(%s)\n", snd_strerror(frames));
             continue;
         }
 
@@ -417,12 +431,12 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *
     FILE *fp;
     if ((fp = fopen(file, "wb")) == NULL)
     {
-        printf("无法创建音频文件.\n");
+        fprintf(stderr,"无法创建音频文件.\n");
         return -1;
     }
 
     AudioWavHeader wav_record;
-    struct AudioStreamParams audio_param;
+    struct AudioSamplesParams audio_param;
     audio_param.wChannels = 2;
     audio_param.nSamplesPersec = 44100;
     audio_param.wBitsPerSample = 16;
@@ -433,7 +447,7 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *
     uint8_t frame_size = PCM_BUFFER_SIZE * audio_param.wChannels * audio_param.wBitsPerSample / 8; // 每个侦的字节数
     uint32_t cycle_frames = PCM_BUFFER_FRAMES;
     uint8_t *buffer = (uint8_t *)malloc(frame_size * cycle_frames);
-    printf("sizeof read buffer%d\n", frame_size * cycle_frames);
+    debug_printf("sizeof read buffer%d\n", frame_size * cycle_frames);
 
     snd_pcm_state_t pcm_state = snd_pcm_state(pcm->handle);
     if (pcm_state != SND_PCM_STATE_RUNNING)
@@ -457,13 +471,13 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *
         int frames;
         if ((frames = pcm_read_data(pcm, buffer, cycle_frames, 100)) < 0)
         {
-            printf("从音频接口读取失败(%s)\n", snd_strerror(frames));
+            fprintf(stderr,"从音频接口读取失败(%s)\n", snd_strerror(frames));
             continue;
         }
-        printf("从音频接口读取长度%d\n", frames);
+        debug_printf("从音频接口读取长度%d\n", frames);
         for (int i = 0; i < 20; i++)
         {
-            printf("%02x ", buffer[i]);
+            debug_printf("%02x ", buffer[i]);
         }
         // 如果状态是停止则只读取不写入
         cmd = conf->command_get(conf);
@@ -485,15 +499,15 @@ int audio_record_wav_file(struct MediaAudioHandle *pcm, struct MediaUserParams *
         fwrite(buffer, 1, frame_size * frames, fp);
         total_size += (frame_size * frames);
         usleep(1000);
-        if (run_flag) // 来自于键盘的进程退出信号，作为后台服务时不使用
+        if (run_flag) //来自于键盘的进程退出信号，作为后台服务时不使用
         {
-            printf("停止采集.\n");
+            debug_printf("停止采集.\n");
             break;
         }
     }
 STOP:
     fseek(fp, 0, SEEK_SET);
-    //	auto_adjust_wav_header(&wav_record,pcm);
+    //auto_adjust_wav_header(&wav_record,pcm);
     wav_record.rLen = 36 + total_size;
     wav_record.wSampleLength = total_size;
     fwrite(&wav_record, 1, sizeof(wav_record), fp);
@@ -553,7 +567,7 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
         switch (cmd)
         {
         case MEDIA_PLCMD_STOP:
-            printf("等待开始信号\n");
+            debug_printf("等待开始信号\n");
             conf->cond->wait(conf->cond); // 等待开始信号
             Media_Set_Command(conf, MEDIA_PLCMD_NONE);
             break;
@@ -571,11 +585,11 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
         char *file = conf->list->read_saft(conf->list);
         if (file == NULL)
             break;
-        printf("start record ,save to %s\n", file);
+        debug_printf("start record ,save to %s\n", file);
         Media_Set_State(conf, MEDIA_STATE_RECORD);
-        // audio_record_file(pcm,conf,file);
+        //audio_record_file(pcm,conf,file);
         audio_record_wav_file(pcm, conf, file);
-        printf("save \n");
+        debug_printf("save \n");
         conf->list->delete_all_saft(conf->list);
         conf->list = NULL;
     }
@@ -584,10 +598,8 @@ int Audio_Record_Main(struct MediaAudioHandle *pcm, struct MediaUserParams *conf
 
 int Audio_Record_Test(struct MediaAudioHandle *pcm, const char *file)
 {
-
     signal(SIGINT, exit_sighandler);
     audio_record_wav_file(pcm, NULL, file);
-
     return 0;
 }
 

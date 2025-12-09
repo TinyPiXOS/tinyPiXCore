@@ -42,7 +42,6 @@ struct MediaUserParams;
 
 //前置声明
 struct MediaUserParams;
-struct MediaCodecParam;
 struct MediaStreamParams;
 
 
@@ -54,10 +53,6 @@ typedef enum {
     AUDIO_STREAM_PLAYBACK = SND_PCM_STREAM_PLAYBACK,
     AUDIO_STREAM_CAPTURE = SND_PCM_STREAM_CAPTURE
 }AudioStreamType;
-
-
-
-struct MediaUserParams;
 
 
 typedef int(*CodecPlayPcm) (uint8_t *buf,uint32_t frames,void *param);
@@ -84,7 +79,7 @@ typedef struct AudioWavHeader{
 }AudioWavHeader;
 
 //声卡和音频相关的采样参数
-struct AudioStreamParams{
+struct AudioSamplesParams{
 	uint16_t wChannels;    		//声道数
 	uint32_t nSamplesPersec;	//采样频率
 	uint16_t wBitsPerSample; 	//数据位数
@@ -101,7 +96,7 @@ struct MediaCodecParam{
 	int stream_index;				//需要使用的编解码器index	
 	AVStream *audio_stream;
 
-	struct AudioStreamParams *hard_param;	//音频硬件的采样参数
+	struct AudioSamplesParams *hard_param;	//音频硬件的采样参数
 
 	int (*callback_play) (uint8_t *buf,uint32_t frames,int offset,void *param);		//播放的回调函数
 	void *callback_param;        //回调函数的参数（不需要则置NULL）
@@ -124,29 +119,15 @@ struct MediaAudioHandle{
 	snd_pcm_t *handle;             	//设备句柄（当设备句柄为空的时候说明无法使用硬件播放）
 	snd_pcm_hw_params_t *hwparams;  //设备配置信息的结构体(结构体内部隐藏)，配置信息保存在该结构体
 //	uint8_t file_type;          	//音频文件类型(AudioFileType类型)
-	struct AudioStreamParams *adparams;	//解码后可以用于播放的音频流的参数
+	struct AudioSamplesParams *adparams;	//解码后可以用于播放的音频流的参数
 	struct PcmHardParams *ahparams;		//设置后的一些关键硬件参数(其实是从snd_pcm_hw_params_t里面拿出来的几个常用的参数)
 };
 
-
-
-struct MediaRect{
-	int16_t x;		//显示位置x
-	int16_t y;		//显示位置y
-	uint16_t w;		//显示宽度
-	uint16_t h;		//显示高度
-};
-struct VideoStreamParams{
-	struct MediaRect rect;
-	uint16_t light;	//显示亮度
-	VideoScalingType fill;
-};
-
 struct MediaAudioInfo{
-	pthread_rwlock_t rw_mut;	//数据交互读写锁
+	pthread_rwlock_t rw_mut;//数据交互读写锁
 	uint8_t volume;			//声音(0-100)
-	char *device;			//声卡
-
+	char *device;			//声卡名
+	struct MediaAudioHandle *handle;	//设备硬件相关信息句柄
 	struct{
 		CallbackAudioPlay callback_audio;
 		void *userdata;	//struct codePlayCallbackParam
@@ -158,17 +139,16 @@ struct MediaAudioInfo{
 
 enum AVSampleFormat code_get_format(uint16_t wBitsPerSample);
 int64_t code_get_channel_layout(int channels);
-enum AVCodecID get_codeid_from_file_type(MediaFileType type);
 
-struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioStreamParams *hard_param);
-int get_audio_params_wav(FILE *fp,struct AudioStreamParams *params);
+struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioSamplesParams *hard_param);
+int get_audio_params_wav(FILE *fp,struct AudioSamplesParams *params);
 void get_wav_header_info(FILE *fp,AudioWavHeader *wav_header);
 
 
-AVFrame *alloc_avframe_frames_hard(int frames,struct AudioStreamParams *hard_param);
+AVFrame *alloc_avframe_frames_hard(int frames,struct AudioSamplesParams *hard_param);
 int free_avframe(AVFrame **converted_frame);
 
-int pcm_hwparams_set(struct MediaAudioHandle *pcm,struct AudioStreamParams *audio);		//设置硬件参数
+int pcm_hwparams_set(struct MediaAudioHandle *pcm,struct AudioSamplesParams *audio);		//设置硬件参数
 int audio_stream_write(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,
 							uint8_t *buffer,uint32_t frames,
 							float volume,
@@ -196,7 +176,7 @@ int Audio_Get_Volume(struct MediaAudioInfo *conf_a);
 int Audio_Set_Hard_Params(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,uint32_t rate,uint16_t channel,uint16_t bits);
 //取消硬件设置
 int Audio_Set_Nonblock(struct MediaAudioHandle *pcm_play,struct MediaUserParams *conf,uint8_t nonblock);
-int Audio_Write_Stream(struct MediaAudioHandle *pcm,struct MediaUserParams *conf,struct AudioStreamParams *hard_params,
+int Audio_Write_Stream(struct MediaAudioHandle *pcm,struct MediaUserParams *conf,struct AudioSamplesParams *hard_params,
 							uint8_t *buffer,uint32_t frames,int offset,int delay);
 
 

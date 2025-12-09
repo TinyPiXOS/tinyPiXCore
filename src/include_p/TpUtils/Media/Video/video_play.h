@@ -30,18 +30,8 @@ struct MediaVideoInfo;
 struct MediaUserParams;
 struct MediaStreamParams;
 
-
-// 音频播放回调函数的参数
-struct AudioData
-{
-    uint8_t *buffer;
-    int buffer_size;
-    int buffer_pos;
-    double pts; // 当前音频的时间戳
-};
-
 // 视频播放的硬件相关参数
-struct VideoHardParam
+/*struct VideoHardParam
 {
 #ifdef MEDIA_SDL_ENABLE
     SDL_Window *window;     // 窗口
@@ -56,7 +46,7 @@ struct VideoHardParam
     struct MediaAudioHandle *pcm_play;
     struct SwrContext *swr_ctr; // 音频重采样和转换句柄
     bool is_sdl;                // 是否启用本地显示(如果不启用需要上层绘制图像)
-};
+};*/
 
 struct MediaVideoInfo{
 	pthread_rwlock_t rw_mut;	//数据交互读写锁
@@ -73,6 +63,38 @@ struct MediaVideoInfo{
 	//以下参数暂时无用
 	struct VideoStreamParams *video;		//
 };
+
+// 视频播放的句柄（包含硬件信息，流解码前后详细信息）
+struct MediaVideoHandle
+{
+#ifdef MEDIA_SDL_ENABLE
+    SDL_Window *window;     // 窗口
+    SDL_Renderer *renderer; // 渲染器
+    SDL_Texture *texture;   // 纹理
+#endif
+    bool is_sdl; // 是否启用本地显示(如果不启用需要上层绘制图像)
+};
+
+// 视频播放的硬件相关参数
+/*struct VideoStreamParams{
+    struct MediaRect *rect_src;
+    struct MediaRect *rect_dst;
+    uint32_t format;			//格式，RGB，YUV等，当启用本地显示的时候就是带鸟sdl窗口的格式，如果没有启用就代表用户设置的格式(当前用户默认使用RGB888)
+    VideoScalingType fill;
+};*/
+
+struct MediaRect{
+	int16_t x;		//显示位置x
+	int16_t y;		//显示位置y
+	uint16_t w;		//显示宽度
+	uint16_t h;		//显示高度
+};
+struct VideoStreamParams{
+	struct MediaRect rect;
+	uint16_t light;	//显示亮度
+	VideoScalingType fill;
+};
+
 
 
 #ifdef MEDIA_SDL_ENABLE

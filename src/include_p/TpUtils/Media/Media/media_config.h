@@ -5,11 +5,12 @@
 extern "C" {
 #endif
 
+//#define MEDIA_SDL_ENABLE	1			//是否使用SDL
+
 #ifdef MEDIA_SDL_ENABLE
 #include <SDL2/SDL.h>
 #endif
 
-//#define MEDIA_SDL_ENABLE	1			//是否使用SDL
 #define DEBUG_MEDIA_CODEC				//媒体编解码调试
 #define DEBUG_AUDIO_PLAY
 #define DEBUG_VIDEO_PLAY

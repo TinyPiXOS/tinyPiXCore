@@ -91,6 +91,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Hardware/TpHardwareDevice.cpp
     ${SOURCE_PATH}/src/TpUtils/TpLogin.cpp
 
+    ${SOURCE_PATH}/src_p/TpUtils/Media/TpMediaDevice.cpp
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_timer.c
     ${SOURCE_PATH}/src_p/TpUtils/Media/Media/media_file_list.c

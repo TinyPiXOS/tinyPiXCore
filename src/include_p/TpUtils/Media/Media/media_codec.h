@@ -21,7 +21,7 @@ extern "C"
 #include "Media/media_play.h"
 #include "Media/media_config.h"
 #include "Audio/audio_play.h"
-
+#include "Video/video_play.h"
 
 struct MediaUserParams;
 
@@ -37,27 +37,6 @@ typedef enum
     MEDIA_PACK_QUEUE_EMPTY, // 队列为空
     MEDIA_PACK_QUEUE_OTHER, // 其他状态
 } MediaPacketQueueState;
-
-// 视频播放的硬件相关参数
-/*struct VideoStreamParams{
-    struct MediaRect *rect_src;
-    struct MediaRect *rect_dst;
-    uint32_t format;			//格式，RGB，YUV等，当启用本地显示的时候就是带鸟sdl窗口的格式，如果没有启用就代表用户设置的格式(当前用户默认使用RGB888)
-    VideoScalingType fill;
-};*/
-
-// 视频播放的句柄（包含硬件信息，流解码前后详细信息）
-struct MediaVideoHandle
-{
-#ifdef MEDIA_SDL_ENABLE
-    SDL_Window *window;     // 窗口
-    SDL_Renderer *renderer; // 渲染器
-    SDL_Texture *texture;   // 纹理
-#endif
-    bool is_sdl; // 是否启用本地显示(如果不启用需要上层绘制图像)
-};
-
-
 
 // 媒体流通用参数
 struct MediaStreamParams

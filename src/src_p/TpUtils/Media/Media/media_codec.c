@@ -16,6 +16,13 @@
 #endif
 
 
+/*struct AudioData
+{
+    uint8_t *buffer;
+    int buffer_size;
+    int buffer_pos;
+    double pts; // 当前音频的时间戳
+};*/
 typedef struct MediaPacketList {
     AVPacket *pkt;
     struct MediaPacketList *next;
