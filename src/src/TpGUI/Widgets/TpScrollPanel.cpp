@@ -361,7 +361,6 @@ bool TpScrollPanel::setWidget(TpWidget *widget)
         widget->setRect(0, 0, width(), height());
         recal();
 
-        // std::cout << "SetWidget  :: scrollData->centralWidget Height  " << scrollData->centralWidget->height() << std::endl;
         // std::cout << "SetWidget  :: Height  " << height() << std::endl;
     }
 
@@ -641,21 +640,50 @@ bool TpScrollPanel::onMouseRleaseEvent(TpMouseEvent *event)
 
     scrollData->mouseLeftPress = event->state();
 
-    // 鼠标释放，如果拖拽的偏移边界了，回归0点位或终止位
-    int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-    if (curScrollValue <= 0)
+    // std::cout << "scrollData->centralWidget->height(): " << scrollData->centralWidget->height() << std::endl;
+
+    int32_t curScrollValue = scrollMode() ? verticalPostion() : horizontalPostion();
+
+    if (curScrollValue > 0)
     {
         curScrollValue = 0;
-        scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
-    }
-    else if (curScrollValue >= 100)
-    {
-        curScrollValue = 100;
-        scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
+        scrollMode() ? setVerticalPostion(curScrollValue) : setHorizontalPostion(curScrollValue);
     }
     else
     {
+        uint32_t delta = 0;
+
+        if (scrollMode())
+        {
+            delta = scrollData->scrollRange[TP_RBSCR_INDEX_V];
+        }
+        else
+        {
+            delta = scrollData->scrollRange[TP_LTSCR_INDEX_H];
+        }
+
+        if (std::fabs(curScrollValue) > delta)
+        {
+            curScrollValue = -delta;
+            scrollMode() ? setVerticalPostion(curScrollValue) : setHorizontalPostion(curScrollValue);
+        }
     }
+
+    // 鼠标释放，如果拖拽的偏移边界了，回归0点位或终止位
+    // int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
+    // if (curScrollValue <= 0)
+    // {
+    //     curScrollValue = 0;
+    //     scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
+    // }
+    // else if (curScrollValue >= 100)
+    // {
+    //     curScrollValue = 100;
+    //     scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
+    // }
+    // else
+    // {
+    // }
 
     return true;
 }
