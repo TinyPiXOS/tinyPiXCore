@@ -490,7 +490,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
             if (widgetData->tmp.curfocus && widgetData->tmp.curfocus->enabled())
             {
-                ITpKeyboardSet input;
+                TpKeyboardEventData input;
                 input.which = eventPtr->keyboardEvent.which;
                 input.state = eventPtr->keyboardEvent.state;
                 input.scancode = eventPtr->keyboardEvent.keysym.scancode;
@@ -535,7 +535,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         widgetData->tmp.curmotion = widgetData->tmp.curObject;
         TpLeaveEvent leaveEvent;
-        ITpObjectLeaveSet lInput;
+        TpLeaveEventData lInput;
 
         if (widgetData->tmp.curmotion != widgetData->tmp.lstmotion)
         {
@@ -633,7 +633,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         std::list<TpObject *> keyList;
         widgetData->tmp.curfocus = widgetData->tmp.curObject;
         TpFocusEvent focusEvent;
-        ITpObjectFocusSet fInput;
+        TpFocusEventData fInput;
 
         if (widgetData->tmp.curfocus != widgetData->tmp.lstfocus)
         {
@@ -677,7 +677,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         // don't know how to do
         std::list<TpObject *> fingerList;
-        ITpFingerSet input;
+        TpFingerEventData input;
 
         switch (eventPtr->type)
         {
@@ -716,7 +716,7 @@ int32_t TpScreen::dispatchEvent(void *events)
             return false;
         }
         std::list<TpObject *> dollarList;
-        ITpDollarSet input;
+        TpDollAREventData input;
         switch (eventPtr->type)
         {
         case TP_DOLLARGESTURE:
@@ -749,7 +749,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         }
 
         std::list<TpObject *> multiList;
-        ITpMultiGestureSet input;
+        TpMultiGestureEventData input;
 
         generateParentList(widgetData->tmp.curObject, multiList);
         broadMultiGesture(widgetData, input, widgetData->tmp.curObject, multiList, eventPtr);

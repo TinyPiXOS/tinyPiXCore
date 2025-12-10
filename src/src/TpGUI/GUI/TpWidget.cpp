@@ -120,7 +120,7 @@ void TpWidget::setVisible(bool visible)
     }
 
     widgetData->visible = visible;
-    ITpObjectVisibleSet input;
+    TpVisibleEventData input;
 
     input.object = this;
     input.visible = visible;

@@ -195,7 +195,7 @@ static void changeXY(TpWidget *thisPtr, TpWidgetData *widgetData, int32_t x, int
         widgetData->absoluteRect.setX(point.x());
         widgetData->absoluteRect.setY(point.y());
 
-        ITpObjectMoveSet input;
+        TpMoveEventData input;
         input.object = thisPtr;
         input.nx = x;
         input.ny = y;
@@ -272,7 +272,7 @@ static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint3
         widgetData->logicalRect.setWidth(setW);
         widgetData->absoluteRect.setWidth(setW);
 
-        ITpObjectResizeSet input;
+        TpResizeEventData input;
         input.object = thisPtr;
         input.nw = setW;
         input.nh = widgetData->logicalRect.height();
@@ -361,7 +361,7 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
         widgetData->logicalRect.setHeight(setH);
         widgetData->absoluteRect.setHeight(setH);
 
-        ITpObjectResizeSet input;
+        TpResizeEventData input;
         input.object = thisPtr;
         input.nw = widgetData->logicalRect.width();
         input.nh = setH;

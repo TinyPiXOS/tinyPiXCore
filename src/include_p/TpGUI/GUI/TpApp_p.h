@@ -291,7 +291,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         return;
 
     TpMap<IPiWFApiAgent *, TpRect> pixwmMergeUpdateRect;
-    TpMap<TpWidget *, ITpObjectPaintInput> mergeUpdateWidget;
+    TpMap<TpWidget *, TpPaintEventInput> mergeUpdateWidget;
 
     while (!updateCommandQueue.empty())
     {
@@ -325,13 +325,13 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         {
             TpRect taskRect(task.x, task.y, task.w, task.h);
 
-            ITpObjectPaintInput &paintInfo = mergeUpdateWidget[task.updateObj];
+            TpPaintEventInput &paintInfo = mergeUpdateWidget[task.updateObj];
             paintInfo.updateRect.unions(taskRect);
         }
         else
         {
             // 不存在构建新数据
-            ITpObjectPaintInput paintInput;
+            TpPaintEventInput paintInput;
 
             // std::cout << "UpdateRect : " << task.updateObj->rect().x() << " , " << task.updateObj->rect().y()
             //           << " , " << task.updateObj->rect().width() << " , " << task.updateObj->rect().height() << std::endl;
@@ -351,7 +351,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         TpObjectData *updateObjSet = static_cast<TpObjectData *>(updateWidgetIter.first->objectSets());
         TpObjectData *topScreenSet = static_cast<TpObjectData *>(updateObjSet->top->objectSets());
 
-        ITpObjectPaintInput paintInput = updateWidgetIter.second;
+        TpPaintEventInput paintInput = updateWidgetIter.second;
 
         tinyPiX_wf_lock_mutex(topScreenSet->agent);
 
@@ -470,7 +470,7 @@ static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpWi
     mainWindowObjData->absoluteRect.setX(mainWindowX);
     mainWindowObjData->absoluteRect.setY(mainWindowY);
 
-    ITpObjectResizeSet input;
+    TpResizeEventData input;
     input.object = mainWindow;
     input.nw = rW - offsetW;
     input.nh = rH - offsetH;

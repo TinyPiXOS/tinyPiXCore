@@ -8,8 +8,6 @@
 
 #define KEYBOARD_STRING_LEN 32
 
-TP_DEF_VOID_TYPE_VAR(ITpSufaceData);
-
 class TpPainter;
 class TpRect;
 class TpPoint;

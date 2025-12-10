@@ -68,9 +68,7 @@ struct ITpTempDef
     }
 };
 
-
-
-struct ITpMouseSet
+struct TpMouseEventData
 {
     uint32_t which;
     MouseEventType button;
@@ -79,13 +77,13 @@ struct ITpMouseSet
     TpPoint pos;
     TpPoint globalPos;
 
-    ITpMouseSet() : which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
+    TpMouseEventData() : which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
     {
     }
 };
 
 /// @brief 键盘事件数据
-struct ITpKeyboardSet
+struct TpKeyboardEventData
 {
     /// @brief 测试注释
     uint8_t which;
@@ -97,7 +95,7 @@ struct ITpKeyboardSet
     KeyModeType keyMod;
 };
 
-struct ITpFingerSet
+struct TpFingerEventData
 {
     int32_t touchFingerType;
     uint32_t timestamp;
@@ -110,7 +108,7 @@ struct ITpFingerSet
     float pressure;
 };
 
-struct ITpDollarSet
+struct TpDollAREventData
 {
     int32_t dollarType;
     uint32_t timestamp;
@@ -120,12 +118,12 @@ struct ITpDollarSet
     int32_t x;
     int32_t y;
 
-    ITpDollarSet()
+    TpDollAREventData()
     {
     }
 };
 
-struct ITpMultiGestureSet
+struct TpMultiGestureEventData
 {
     uint32_t timestamp;
     int64_t touchID;
@@ -135,69 +133,63 @@ struct ITpMultiGestureSet
     uint16_t numfingers;
     uint16_t padding;
 
-    ITpMultiGestureSet()
+    TpMultiGestureEventData()
     {
     }
 };
 
-struct ITpObjectMoveSet
+struct TpMoveEventData
 {
     TpObject *object;
     int32_t nx;
     int32_t ny;
 
-    ITpObjectMoveSet()
+    TpMoveEventData()
     {
     }
 };
 
-struct ITpObjectResizeSet
+struct TpResizeEventData
 {
     TpObject *object;
     int32_t nw;
     int32_t nh;
     int32_t question;
 
-    ITpObjectResizeSet()
+    TpResizeEventData()
     {
     }
 };
 
-struct ITpObjectFocusSet
+struct TpFocusEventData
 {
     TpObject *object;
     bool focused;
 
-    ITpObjectFocusSet()
+    TpFocusEventData()
     {
     }
 };
 
-struct ITpObjectLeaveSet
+struct TpLeaveEventData
 {
     TpObject *object;
     bool leaved;
 };
 
-struct ITpObjectVisibleSet
+struct TpVisibleEventData
 {
     TpObject *object;
     bool visible;
 };
 
-struct ITpObjectRotateSet
-{
-    TpObject *object;
-    ITpRotateType rotate;
-};
-
-struct ITpObjectPaintInput
+struct TpPaintEventInput
 {
     TpObject *object;
     TpRect updateRect;
 };
 
-struct ITpObjectPaintSet
+struct TpPaintEventData
 {
     TpObject *object;
     TpPainter *painter;
@@ -205,13 +197,13 @@ struct ITpObjectPaintSet
 
     bool canDraw;
 
-    ITpObjectPaintSet()
+    TpPaintEventData()
     {
         int a = 0;
     }
 };
 
-struct ITpObjectActiveSet
+struct TpActiveEventData
 {
     TpObject *object;
     bool actived;

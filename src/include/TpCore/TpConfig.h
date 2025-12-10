@@ -6,11 +6,11 @@
 
 TP_DEF_VOID_TYPE_VAR(ITpConfigData);
 /// @brief INI配置文件读写类
-/// 该类提供了读取、写入和操作INI格式配置文件的功能[1,2](@ref)。
+/// 该类提供了读取、写入和操作INI格式配置文件的功能
 /// INI文件由节(Section)、键(Key)和值(Value)组成，格式如下：
 /// [SectionName]
 /// Key1=Value1
-/// Key2=Value2[1,2](@ref)
+/// Key2=Value2
 class TpConfig
 {
 public:
