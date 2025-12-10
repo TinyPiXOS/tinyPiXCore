@@ -3,7 +3,7 @@
 
 #include "TpLayout.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpFlexLayoutData);
+TP_DEF_VOID_TYPE_VAR(ITpFlexLayoutData);
 
 /// @brief 响应式布局，会根据窗口宽高，自动调整一行/列显示控件数量，不会修改控件大小,但控件必须设置大小，如果大小为0则不可见
 class TpFlexLayout
@@ -116,7 +116,7 @@ public:
     virtual TpVector<TpObject *> children() override;
 
 private:
-    ItpFlexLayoutData *data_;
+    ITpFlexLayoutData *data_;
 };
 
 #endif

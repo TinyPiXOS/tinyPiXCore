@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpMenuPanelItemData);
+TP_DEF_VOID_TYPE_VAR(ITpMenuPanelItemData);
 
 /// @brief 菜单面板Item单元
 class TpMenuPanelItem : public TpWidget
@@ -51,7 +51,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpMenuPanelItem); }
 
 private:
-    ItpMenuPanelItemData *data_;
+    ITpMenuPanelItemData *data_;
 };
 
 #endif

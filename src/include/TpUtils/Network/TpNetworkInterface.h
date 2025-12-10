@@ -6,7 +6,7 @@
 #include "TpSignalSlot.h"
 #include "TpWirelessInfo.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpNetworkInterfaceData);
+TP_DEF_VOID_TYPE_VAR(ITpNetworkInterfaceData);
 
 class TpNetworkInterface
 {
@@ -157,7 +157,7 @@ private:
 	tpInt32 getStatus(bool *status);
 	int threadScan(tpUInt16 time);
 private:
-	ItpNetworkInterfaceData *data_;
+	ITpNetworkInterfaceData *data_;
 };
 
 

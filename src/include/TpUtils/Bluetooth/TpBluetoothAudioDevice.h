@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpBluetoothDevice.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothAudioDeviceData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothAudioDeviceData);
 
 /// @brief 本机蓝牙连接蓝牙音频设备并播放音频
 class TpBluetoothAudioDevice{
@@ -35,7 +35,7 @@ public:
 private:
 	void eventThread();
 private:
-	ItpBluetoothAudioDeviceData *data_;
+	ITpBluetoothAudioDeviceData *data_;
 };
 
 

@@ -3,7 +3,7 @@
 
 #include "TpLabel.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpFilePathWidgetItemData);
+TP_DEF_VOID_TYPE_VAR(ITpFilePathWidgetItemData);
 
 /// @brief 路径显示按钮类
 class TpFilePathWidgetItem : public TpLabel
@@ -21,7 +21,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpFilePathWidgetItem); }
 
 private:
-    ItpFilePathWidgetItemData *data_;
+    ITpFilePathWidgetItemData *data_;
 };
 
 #endif

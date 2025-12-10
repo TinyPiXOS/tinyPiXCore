@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpLoginData);
+TP_DEF_VOID_TYPE_VAR(ITpLoginData);
 
 class TpLogin
 {
@@ -21,7 +21,7 @@ public:
 	/// @return 
 	int suspend();
 private:
-	ItpLoginData *data_;
+	ITpLoginData *data_;
 };
 
 

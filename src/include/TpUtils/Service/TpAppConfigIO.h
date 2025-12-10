@@ -5,7 +5,7 @@
 #include "TpString.h"
 #include "TpVector.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpAppConfigIOData);
+TP_DEF_VOID_TYPE_VAR(ITpAppConfigIOData);
 /// @brief 应用配置信息访问IO
 class TpAppConfigIO
 {
@@ -73,7 +73,7 @@ public:
     TpAppConfigIO &operator=(const TpAppConfigIO &others);
 
 private:
-    ItpAppConfigIOData *data_;
+    ITpAppConfigIOData *data_;
 };
 
 #endif

@@ -6,7 +6,7 @@
 #include <TpList.h>
 
 /// @brief tpFileInfo内部数据的不透明类型定义
-TP_DEF_VOID_TYPE_VAR(ItpFileInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpFileInfoData);
 
 class TpDir;
 /// @brief 文件信息类，提供文件和目录的元数据查询
@@ -161,7 +161,7 @@ private:
     TpString resolvePath(const TpString &path) const;
 
 private:
-    ItpFileInfoData *data_;
+    ITpFileInfoData *data_;
 };
 
 /// @brief 文件信息列表类型定义

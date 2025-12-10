@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpPoint.h"
 
-/// @brief 鼠标工具类 暂未实现
+/// @brief 鼠标工具类
 class TpCursor
 {
 public:

@@ -122,7 +122,7 @@ bool TpCoreApp::sendRegister(TpObject *object)
     if (object == nullptr)
         return registerObject;
 
-    ItpUserEvent message;
+    ITpUserEvent message;
     message.type = TP_REGISTER_ACT;
     message.user_data0 = object;
 
@@ -142,7 +142,7 @@ bool TpCoreApp::sendDelete(TpObject *object)
     if (!set)
         return false;
 
-    ItpUserEvent message;
+    ITpUserEvent message;
     message.type = TP_DELETE_ACT;
     message.user_data0 = object;
 

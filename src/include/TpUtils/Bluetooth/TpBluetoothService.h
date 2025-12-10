@@ -9,7 +9,7 @@
 #include "TpBluetoothAddress.h"
 #include "TpBluetoothUuid.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothServiceData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothServiceData);
 
 class TpBluetoothService{
 public:
@@ -261,7 +261,7 @@ public:
 	int setProfileDescriptorList(const Sequence& list);
 
 private:
-	ItpBluetoothServiceData *data_;
+	ITpBluetoothServiceData *data_;
 };
 
 

@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include <functional>
 
-TP_DEF_VOID_TYPE_VAR(ItpThreadManageData);
+TP_DEF_VOID_TYPE_VAR(ITpThreadManageData);
 class TpThreadManage
 {
 public:
@@ -15,7 +15,7 @@ public:
 	void threadUpdateStat(std::function<void(int)> callback, std::function<void(int)> callback2, uint16_t time_samp); // 主循环
 
 private:
-	ItpThreadManageData *data_;
+	ITpThreadManageData *data_;
 };
 
 #endif

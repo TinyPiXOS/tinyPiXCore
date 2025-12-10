@@ -8,7 +8,7 @@
 #include "TpBluetoothService.h"
 #include "TpBluetoothSocket.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothServerData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothServerData);
 
 class TpBluetoothServer
 {
@@ -68,7 +68,7 @@ private:
     int accept(TpString &client_addr, int &client_port);
 
 private:
-    ItpBluetoothServerData *data_;
+    ITpBluetoothServerData *data_;
 };
 
 #endif

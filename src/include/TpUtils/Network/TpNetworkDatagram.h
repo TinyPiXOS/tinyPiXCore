@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpNetworkDatagramData);
+TP_DEF_VOID_TYPE_VAR(ITpNetworkDatagramData);
 
 class TpNetworkDatagram
 {
@@ -42,7 +42,7 @@ public:
     void setInterfaceIndex(unsigned index);
 
 private:
-    ItpNetworkDatagramData *data_;
+    ITpNetworkDatagramData *data_;
 };
 
 #endif

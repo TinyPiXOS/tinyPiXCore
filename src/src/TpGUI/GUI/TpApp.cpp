@@ -263,7 +263,7 @@ bool TpApp::sendReturn(TpObject *object)
                 return false;
             }
 
-            ItpUserEvent message;
+            ITpUserEvent message;
             message.type = TP_RETURN_ACT;
             message.user_data0 = object;
 
@@ -290,7 +290,7 @@ bool TpApp::sendActive(TpObject *object, bool actived)
                 return false;
             }
 
-            ItpUserEvent message;
+            ITpUserEvent message;
             message.type = TP_ACTIVE_ACT;
 
             message.user_data0 = object;
@@ -329,7 +329,7 @@ bool TpApp::sendAbort(TpObject *object)
 
         if (abort)
         {
-            ItpUserEvent message;
+            ITpUserEvent message;
             message.type = TP_ABORT_ACT;
             message.user_data0 = object;
 

@@ -10,14 +10,14 @@
 //--------------------------TpKeyboardEvent------------------------------/
 TpKeyboardEvent::TpKeyboardEvent(TpEvent::TpEventType type) : TpEvent()
 {
-    ItpKeyboardSet *set = new ItpKeyboardSet();
+    ITpKeyboardSet *set = new ITpKeyboardSet();
     TpEvent::eventData_ = set;
     TpEvent::eventType_ = type;
 }
 
 TpKeyboardEvent::~TpKeyboardEvent()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -29,12 +29,12 @@ TpKeyboardEvent::~TpKeyboardEvent()
 
 bool TpKeyboardEvent::construct(ITpEventData *eventData)
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpKeyboardSet *pEventData = (ItpKeyboardSet *)eventData;
+    ITpKeyboardSet *pEventData = (ITpKeyboardSet *)eventData;
     if (pEventData)
     {
         *set = *pEventData;
@@ -46,7 +46,7 @@ bool TpKeyboardEvent::construct(ITpEventData *eventData)
 
 uint8_t TpKeyboardEvent::which()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     uint8_t which = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -59,7 +59,7 @@ uint8_t TpKeyboardEvent::which()
 
 bool TpKeyboardEvent::state()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     bool state = false;
 
     if (set)
@@ -72,7 +72,7 @@ bool TpKeyboardEvent::state()
 
 int32_t TpKeyboardEvent::scancode()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     int32_t scancode = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -85,7 +85,7 @@ int32_t TpKeyboardEvent::scancode()
 
 int32_t TpKeyboardEvent::virtualKey()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     int32_t virtualKey = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -98,7 +98,7 @@ int32_t TpKeyboardEvent::virtualKey()
 
 int32_t TpKeyboardEvent::symbol()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     int32_t symbol = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -111,7 +111,7 @@ int32_t TpKeyboardEvent::symbol()
 
 const char *TpKeyboardEvent::shortCut()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     const char *pShortCut = nullptr;
 
     if (set)
@@ -124,7 +124,7 @@ const char *TpKeyboardEvent::shortCut()
 
 KeyModeType TpKeyboardEvent::keyMod()
 {
-    ItpKeyboardSet *set = (ItpKeyboardSet *)TpEvent::eventData_;
+    ITpKeyboardSet *set = (ITpKeyboardSet *)TpEvent::eventData_;
     KeyModeType mod = TP_KMOD_NONE;
 
     if (set)
@@ -148,7 +148,7 @@ bool TpKeyboardEvent::isPrintable()
 //--------------------------TpMouseEvent------------------------------/
 TpMouseEvent::TpMouseEvent(TpEvent::TpEventType type) : TpEvent()
 {
-    ItpMouseSet *set = new ItpMouseSet();
+    ITpMouseSet *set = new ITpMouseSet();
 
     TpEvent::eventType_ = type;
     TpEvent::eventData_ = set;
@@ -156,7 +156,7 @@ TpMouseEvent::TpMouseEvent(TpEvent::TpEventType type) : TpEvent()
 
 TpMouseEvent::~TpMouseEvent()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -168,12 +168,12 @@ TpMouseEvent::~TpMouseEvent()
 
 bool TpMouseEvent::construct(ITpEventData *eventData)
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpMouseSet *pEventData = (ItpMouseSet *)eventData;
+    ITpMouseSet *pEventData = (ITpMouseSet *)eventData;
 
     if (!pEventData)
         return false;
@@ -185,7 +185,7 @@ bool TpMouseEvent::construct(ITpEventData *eventData)
 
 int32_t TpMouseEvent::which()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
     int32_t which = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -198,7 +198,7 @@ int32_t TpMouseEvent::which()
 
 MouseEventType TpMouseEvent::button()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
     MouseEventType button = BUTTON_INVALIDATE_VALUE;
     if (set)
     {
@@ -210,7 +210,7 @@ MouseEventType TpMouseEvent::button()
 
 bool TpMouseEvent::state()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
     bool state = false;
 
     if (set)
@@ -223,7 +223,7 @@ bool TpMouseEvent::state()
 
 TpPoint TpMouseEvent::pos()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
     if (!set)
         return TpPoint();
 
@@ -232,7 +232,7 @@ TpPoint TpMouseEvent::pos()
 
 TpPoint TpMouseEvent::globalPos()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
     if (!set)
         return TpPoint();
 
@@ -242,7 +242,7 @@ TpPoint TpMouseEvent::globalPos()
 //--------------------------TpWheelEvent------------------------------/
 TpWheelEvent::TpWheelEvent() : TpEvent()
 {
-    ItpMouseSet *set = new ItpMouseSet();
+    ITpMouseSet *set = new ITpMouseSet();
 
     if (set)
     {
@@ -253,7 +253,7 @@ TpWheelEvent::TpWheelEvent() : TpEvent()
 
 TpWheelEvent::~TpWheelEvent()
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -265,12 +265,12 @@ TpWheelEvent::~TpWheelEvent()
 
 bool TpWheelEvent::construct(ITpEventData *eventData)
 {
-    ItpMouseSet *set = (ItpMouseSet *)TpEvent::eventData_;
+    ITpMouseSet *set = (ITpMouseSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpMouseSet *pEventData = (ItpMouseSet *)eventData;
+    ITpMouseSet *pEventData = (ITpMouseSet *)eventData;
 
     if (!pEventData)
         return false;
@@ -288,7 +288,7 @@ bool TpWheelEvent::construct(ITpEventData *eventData)
 //--------------------------TpFingerEvent------------------------------/
 TpFingerEvent::TpFingerEvent() : TpEvent()
 {
-    ItpFingerSet *set = new ItpFingerSet();
+    ITpFingerSet *set = new ITpFingerSet();
 
     if (set)
     {
@@ -299,7 +299,7 @@ TpFingerEvent::TpFingerEvent() : TpEvent()
 
 TpFingerEvent::~TpFingerEvent()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -309,12 +309,12 @@ TpFingerEvent::~TpFingerEvent()
 
 bool TpFingerEvent::construct(ITpEventData *eventData)
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpFingerSet *pEventData = (ItpFingerSet *)eventData;
+    ITpFingerSet *pEventData = (ITpFingerSet *)eventData;
     if (pEventData)
     {
         *set = *pEventData;
@@ -326,7 +326,7 @@ bool TpFingerEvent::construct(ITpEventData *eventData)
 
 int32_t TpFingerEvent::touchFingerType()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     int32_t type = TOUCH_FINGER_NONE;
 
     if (set)
@@ -339,7 +339,7 @@ int32_t TpFingerEvent::touchFingerType()
 
 int32_t TpFingerEvent::timestamp()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     int32_t timestamp = 0;
 
     if (set)
@@ -352,7 +352,7 @@ int32_t TpFingerEvent::timestamp()
 
 long long TpFingerEvent::fingerID()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     long long fingerId = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -365,7 +365,7 @@ long long TpFingerEvent::fingerID()
 
 long long TpFingerEvent::touchID()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     long long touchID = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -378,7 +378,7 @@ long long TpFingerEvent::touchID()
 
 int32_t TpFingerEvent::X()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     int32_t x = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -391,7 +391,7 @@ int32_t TpFingerEvent::X()
 
 int32_t TpFingerEvent::Y()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     int32_t y = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -404,7 +404,7 @@ int32_t TpFingerEvent::Y()
 
 int32_t TpFingerEvent::dx()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     int32_t dx = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -417,7 +417,7 @@ int32_t TpFingerEvent::dx()
 
 int32_t TpFingerEvent::dy()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     int32_t dy = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -430,7 +430,7 @@ int32_t TpFingerEvent::dy()
 
 float TpFingerEvent::pressure()
 {
-    ItpFingerSet *set = (ItpFingerSet *)TpEvent::eventData_;
+    ITpFingerSet *set = (ITpFingerSet *)TpEvent::eventData_;
     float pressure = 0.0;
 
     if (set)
@@ -445,7 +445,7 @@ float TpFingerEvent::pressure()
 
 TpDollAREvent::TpDollAREvent() : TpEvent()
 {
-    ItpDollarSet *set = new ItpDollarSet();
+    ITpDollarSet *set = new ITpDollarSet();
 
     if (set)
     {
@@ -456,7 +456,7 @@ TpDollAREvent::TpDollAREvent() : TpEvent()
 
 TpDollAREvent::~TpDollAREvent()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -466,12 +466,12 @@ TpDollAREvent::~TpDollAREvent()
 
 bool TpDollAREvent::construct(ITpEventData *eventData)
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpDollarSet *pEventData = (ItpDollarSet *)eventData;
+    ITpDollarSet *pEventData = (ITpDollarSet *)eventData;
     if (pEventData)
     {
         *set = *pEventData;
@@ -483,7 +483,7 @@ bool TpDollAREvent::construct(ITpEventData *eventData)
 
 int32_t TpDollAREvent::dollarType()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     int32_t type = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -496,7 +496,7 @@ int32_t TpDollAREvent::dollarType()
 
 int32_t TpDollAREvent::timestamp()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     int32_t timestamp = 0;
 
     if (set)
@@ -509,7 +509,7 @@ int32_t TpDollAREvent::timestamp()
 
 long long TpDollAREvent::touchID()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     long long touchID = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -522,7 +522,7 @@ long long TpDollAREvent::touchID()
 
 long long TpDollAREvent::GestureID()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     long long GestureID = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -535,7 +535,7 @@ long long TpDollAREvent::GestureID()
 
 int32_t TpDollAREvent::numFingers()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     int32_t numFingers = 0;
 
     if (set)
@@ -548,7 +548,7 @@ int32_t TpDollAREvent::numFingers()
 
 int32_t TpDollAREvent::X()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     int32_t x = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -561,7 +561,7 @@ int32_t TpDollAREvent::X()
 
 int32_t TpDollAREvent::Y()
 {
-    ItpDollarSet *set = (ItpDollarSet *)TpEvent::eventData_;
+    ITpDollarSet *set = (ITpDollarSet *)TpEvent::eventData_;
     int32_t y = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -574,7 +574,7 @@ int32_t TpDollAREvent::Y()
 //--------------------------TpMultiGestureEvent------------------------------/
 TpMultiGestureEvent::TpMultiGestureEvent()
 {
-    ItpMultiGestureSet *set = new ItpMultiGestureSet();
+    ITpMultiGestureSet *set = new ITpMultiGestureSet();
 
     if (set)
     {
@@ -585,7 +585,7 @@ TpMultiGestureEvent::TpMultiGestureEvent()
 
 TpMultiGestureEvent::~TpMultiGestureEvent()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -595,12 +595,12 @@ TpMultiGestureEvent::~TpMultiGestureEvent()
 
 bool TpMultiGestureEvent::construct(ITpEventData *eventData)
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpMultiGestureSet *pEventData = (ItpMultiGestureSet *)eventData;
+    ITpMultiGestureSet *pEventData = (ITpMultiGestureSet *)eventData;
     if (pEventData)
     {
         *set = *pEventData;
@@ -612,7 +612,7 @@ bool TpMultiGestureEvent::construct(ITpEventData *eventData)
 
 int32_t TpMultiGestureEvent::timestamp()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     int32_t timestamp = 0;
 
     if (set)
@@ -625,7 +625,7 @@ int32_t TpMultiGestureEvent::timestamp()
 
 long long TpMultiGestureEvent::touchID()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     long long touchID = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -638,7 +638,7 @@ long long TpMultiGestureEvent::touchID()
 
 float TpMultiGestureEvent::dtheta()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     float dtheta = 0.0;
 
     if (set)
@@ -651,7 +651,7 @@ float TpMultiGestureEvent::dtheta()
 
 float TpMultiGestureEvent::ddist()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     float ddist = 0.0;
 
     if (set)
@@ -664,7 +664,7 @@ float TpMultiGestureEvent::ddist()
 
 int32_t TpMultiGestureEvent::X()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     int32_t x = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -677,7 +677,7 @@ int32_t TpMultiGestureEvent::X()
 
 int32_t TpMultiGestureEvent::Y()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     int32_t y = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -690,7 +690,7 @@ int32_t TpMultiGestureEvent::Y()
 
 uint16_t TpMultiGestureEvent::numfingers()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     uint16_t numfingers = 0;
 
     if (set)
@@ -703,7 +703,7 @@ uint16_t TpMultiGestureEvent::numfingers()
 
 uint16_t TpMultiGestureEvent::padding()
 {
-    ItpMultiGestureSet *set = (ItpMultiGestureSet *)TpEvent::eventData_;
+    ITpMultiGestureSet *set = (ITpMultiGestureSet *)TpEvent::eventData_;
     uint16_t padding = 0;
 
     if (set)
@@ -717,7 +717,7 @@ uint16_t TpMultiGestureEvent::padding()
 //--------------------------TpMoveEvent------------------------------/
 TpMoveEvent::TpMoveEvent() : TpEvent()
 {
-    ItpObjectMoveSet *set = new ItpObjectMoveSet();
+    ITpObjectMoveSet *set = new ITpObjectMoveSet();
 
     if (set)
     {
@@ -728,7 +728,7 @@ TpMoveEvent::TpMoveEvent() : TpEvent()
 
 TpMoveEvent::~TpMoveEvent()
 {
-    ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::eventData_;
+    ITpObjectMoveSet *set = (ITpObjectMoveSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -738,12 +738,12 @@ TpMoveEvent::~TpMoveEvent()
 
 bool TpMoveEvent::construct(ITpEventData *eventData)
 {
-    ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::eventData_;
+    ITpObjectMoveSet *set = (ITpObjectMoveSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpObjectMoveSet *pEventData = (ItpObjectMoveSet *)eventData;
+    ITpObjectMoveSet *pEventData = (ITpObjectMoveSet *)eventData;
 
     if (pEventData)
     {
@@ -756,7 +756,7 @@ bool TpMoveEvent::construct(ITpEventData *eventData)
 
 int32_t TpMoveEvent::newX()
 {
-    ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::eventData_;
+    ITpObjectMoveSet *set = (ITpObjectMoveSet *)TpEvent::eventData_;
     int32_t newX = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -769,7 +769,7 @@ int32_t TpMoveEvent::newX()
 
 int32_t TpMoveEvent::newY()
 {
-    ItpObjectMoveSet *set = (ItpObjectMoveSet *)TpEvent::eventData_;
+    ITpObjectMoveSet *set = (ITpObjectMoveSet *)TpEvent::eventData_;
     int32_t newY = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -783,14 +783,14 @@ int32_t TpMoveEvent::newY()
 //--------------------------TpResizeEvent------------------------------/
 TpResizeEvent::TpResizeEvent() : TpEvent()
 {
-    ItpObjectResizeSet *set = new ItpObjectResizeSet(); // EVENT_OBJECT_RESIZE_TYPE
+    ITpObjectResizeSet *set = new ITpObjectResizeSet(); // EVENT_OBJECT_RESIZE_TYPE
     TpEvent::eventType_ = TpEvent::EVENT_OBJECT_RESIZE_TYPE;
     TpEvent::eventData_ = set;
 }
 
 TpResizeEvent::~TpResizeEvent()
 {
-    ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
+    ITpObjectResizeSet *set = (ITpObjectResizeSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -800,12 +800,12 @@ TpResizeEvent::~TpResizeEvent()
 
 bool TpResizeEvent::construct(ITpEventData *eventData)
 {
-    ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
+    ITpObjectResizeSet *set = (ITpObjectResizeSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpObjectResizeSet *pEventData = (ItpObjectResizeSet *)eventData;
+    ITpObjectResizeSet *pEventData = (ITpObjectResizeSet *)eventData;
     if (pEventData)
     {
         *set = *pEventData;
@@ -817,7 +817,7 @@ bool TpResizeEvent::construct(ITpEventData *eventData)
 
 int32_t TpResizeEvent::question()
 {
-    ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
+    ITpObjectResizeSet *set = (ITpObjectResizeSet *)TpEvent::eventData_;
     int32_t question = TP_UNKOWN_CHANGE;
 
     if (set)
@@ -830,7 +830,7 @@ int32_t TpResizeEvent::question()
 
 int32_t TpResizeEvent::nWidth()
 {
-    ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
+    ITpObjectResizeSet *set = (ITpObjectResizeSet *)TpEvent::eventData_;
     int32_t newWidth = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -843,7 +843,7 @@ int32_t TpResizeEvent::nWidth()
 
 int32_t TpResizeEvent::nHeight()
 {
-    ItpObjectResizeSet *set = (ItpObjectResizeSet *)TpEvent::eventData_;
+    ITpObjectResizeSet *set = (ITpObjectResizeSet *)TpEvent::eventData_;
     int32_t newHeight = TP_INVALIDATE_VALUE;
 
     if (set)
@@ -857,7 +857,7 @@ int32_t TpResizeEvent::nHeight()
 //--------------------------TpFocusEvent------------------------------/
 TpFocusEvent::TpFocusEvent() : TpEvent()
 {
-    ItpObjectFocusSet *set = new ItpObjectFocusSet(); // EVENT_OBJECT_FOCUS_TYPE
+    ITpObjectFocusSet *set = new ITpObjectFocusSet(); // EVENT_OBJECT_FOCUS_TYPE
 
     if (set)
     {
@@ -868,7 +868,7 @@ TpFocusEvent::TpFocusEvent() : TpEvent()
 
 TpFocusEvent::~TpFocusEvent()
 {
-    ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::eventData_;
+    ITpObjectFocusSet *set = (ITpObjectFocusSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -878,12 +878,12 @@ TpFocusEvent::~TpFocusEvent()
 
 bool TpFocusEvent::construct(ITpEventData *eventData)
 {
-    ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::eventData_;
+    ITpObjectFocusSet *set = (ITpObjectFocusSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpObjectFocusSet *pEventData = (ItpObjectFocusSet *)eventData;
+    ITpObjectFocusSet *pEventData = (ITpObjectFocusSet *)eventData;
 
     if (pEventData)
     {
@@ -896,7 +896,7 @@ bool TpFocusEvent::construct(ITpEventData *eventData)
 
 bool TpFocusEvent::focused()
 {
-    ItpObjectFocusSet *set = (ItpObjectFocusSet *)TpEvent::eventData_;
+    ITpObjectFocusSet *set = (ITpObjectFocusSet *)TpEvent::eventData_;
     bool focused = false;
 
     if (set)
@@ -910,14 +910,14 @@ bool TpFocusEvent::focused()
 //--------------------------TpLeaveEvent------------------------------/
 TpLeaveEvent::TpLeaveEvent() : TpEvent()
 {
-    ItpObjectLeaveSet *set = new ItpObjectLeaveSet(); // EVENT_OBJECT_LEAVE_TYPE
+    ITpObjectLeaveSet *set = new ITpObjectLeaveSet(); // EVENT_OBJECT_LEAVE_TYPE
     TpEvent::eventType_ = TpEvent::EVENT_OBJECT_LEAVE_TYPE;
     TpEvent::eventData_ = set;
 }
 
 TpLeaveEvent::~TpLeaveEvent()
 {
-    ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::eventData_;
+    ITpObjectLeaveSet *set = (ITpObjectLeaveSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -927,12 +927,12 @@ TpLeaveEvent::~TpLeaveEvent()
 
 bool TpLeaveEvent::construct(ITpEventData *eventData)
 {
-    ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::eventData_;
+    ITpObjectLeaveSet *set = (ITpObjectLeaveSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpObjectLeaveSet *pEventData = (ItpObjectLeaveSet *)eventData;
+    ITpObjectLeaveSet *pEventData = (ITpObjectLeaveSet *)eventData;
 
     if (pEventData)
     {
@@ -945,7 +945,7 @@ bool TpLeaveEvent::construct(ITpEventData *eventData)
 
 bool TpLeaveEvent::leave()
 {
-    ItpObjectLeaveSet *set = (ItpObjectLeaveSet *)TpEvent::eventData_;
+    ITpObjectLeaveSet *set = (ITpObjectLeaveSet *)TpEvent::eventData_;
     bool leaved = false;
 
     if (set)
@@ -959,14 +959,14 @@ bool TpLeaveEvent::leave()
 //--------------------------TpVisibleEvent------------------------------/
 TpVisibleEvent::TpVisibleEvent() : TpEvent()
 {
-    ItpObjectVisibleSet *set = new ItpObjectVisibleSet(); // EVENT_OBJECT_VISIBLE_TYPE
+    ITpObjectVisibleSet *set = new ITpObjectVisibleSet(); // EVENT_OBJECT_VISIBLE_TYPE
     TpEvent::eventType_ = TpEvent::EVENT_OBJECT_VISIBLE_TYPE;
     TpEvent::eventData_ = set;
 }
 
 TpVisibleEvent::~TpVisibleEvent()
 {
-    ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::eventData_;
+    ITpObjectVisibleSet *set = (ITpObjectVisibleSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -976,12 +976,12 @@ TpVisibleEvent::~TpVisibleEvent()
 
 bool TpVisibleEvent::construct(ITpEventData *eventData)
 {
-    ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::eventData_;
+    ITpObjectVisibleSet *set = (ITpObjectVisibleSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpObjectVisibleSet *pEventData = (ItpObjectVisibleSet *)eventData;
+    ITpObjectVisibleSet *pEventData = (ITpObjectVisibleSet *)eventData;
 
     if (pEventData)
     {
@@ -994,7 +994,7 @@ bool TpVisibleEvent::construct(ITpEventData *eventData)
 
 bool TpVisibleEvent::visible()
 {
-    ItpObjectVisibleSet *set = (ItpObjectVisibleSet *)TpEvent::eventData_;
+    ITpObjectVisibleSet *set = (ITpObjectVisibleSet *)TpEvent::eventData_;
     bool visible = false;
 
     if (set)
@@ -1008,7 +1008,7 @@ bool TpVisibleEvent::visible()
 //--------------------------TpPaintEvent------------------------------/
 TpPaintEvent::TpPaintEvent() : TpEvent()
 {
-    ItpObjectPaintSet *set = new ItpObjectPaintSet(); // EVENT_OBJECT_ROTATE_TYPE
+    ITpObjectPaintSet *set = new ITpObjectPaintSet(); // EVENT_OBJECT_ROTATE_TYPE
 
     if (set)
     {
@@ -1020,7 +1020,7 @@ TpPaintEvent::TpPaintEvent() : TpEvent()
 
 TpPaintEvent::~TpPaintEvent()
 {
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
+    ITpObjectPaintSet *set = (ITpObjectPaintSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -1035,30 +1035,30 @@ TpPaintEvent::~TpPaintEvent()
 
 TpPainter *TpPaintEvent::painter()
 {
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
+    ITpObjectPaintSet *set = (ITpObjectPaintSet *)TpEvent::eventData_;
     return set->painter;
 }
 
 TpRect TpPaintEvent::updateRect()
 {
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
+    ITpObjectPaintSet *set = (ITpObjectPaintSet *)TpEvent::eventData_;
     return set->updateRect;
 }
 
 bool TpPaintEvent::isCanDraw()
 {
-    ItpObjectPaintSet *set = (ItpObjectPaintSet *)TpEvent::eventData_;
+    ITpObjectPaintSet *set = (ITpObjectPaintSet *)TpEvent::eventData_;
     return set->canDraw;
 }
 
 bool TpPaintEvent::construct(ITpEventData *inputData)
 {
-    ItpObjectPaintSet *eventData = static_cast<ItpObjectPaintSet *>(TpEvent::eventData_);
+    ITpObjectPaintSet *eventData = static_cast<ITpObjectPaintSet *>(TpEvent::eventData_);
     if (!eventData)
         return false;
     eventData->canDraw = false;
 
-    ItpObjectPaintInput *input = static_cast<ItpObjectPaintInput *>(inputData);
+    ITpObjectPaintInput *input = static_cast<ITpObjectPaintInput *>(inputData);
     if (!input)
         return false;
 
@@ -1091,7 +1091,7 @@ bool TpPaintEvent::construct(ITpEventData *inputData)
 //--------------------------TpObjectActivedEvent------------------------------/
 TpActiveEvent::TpActiveEvent() : TpEvent()
 {
-    ItpObjectActiveSet *set = new ItpObjectActiveSet(); // EVENT_OBJECT_ROTATE_TYPE
+    ITpObjectActiveSet *set = new ITpObjectActiveSet(); // EVENT_OBJECT_ROTATE_TYPE
 
     if (set)
     {
@@ -1102,7 +1102,7 @@ TpActiveEvent::TpActiveEvent() : TpEvent()
 
 TpActiveEvent::~TpActiveEvent()
 {
-    ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::eventData_;
+    ITpObjectActiveSet *set = (ITpObjectActiveSet *)TpEvent::eventData_;
 
     if (set)
     {
@@ -1112,12 +1112,12 @@ TpActiveEvent::~TpActiveEvent()
 
 bool TpActiveEvent::construct(ITpEventData *eventData)
 {
-    ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::eventData_;
+    ITpObjectActiveSet *set = (ITpObjectActiveSet *)TpEvent::eventData_;
 
     if (!set)
         return false;
 
-    ItpObjectActiveSet *pEventData = (ItpObjectActiveSet *)eventData;
+    ITpObjectActiveSet *pEventData = (ITpObjectActiveSet *)eventData;
 
     if (pEventData)
     {
@@ -1130,7 +1130,7 @@ bool TpActiveEvent::construct(ITpEventData *eventData)
 
 bool TpActiveEvent::isActived()
 {
-    ItpObjectActiveSet *set = (ItpObjectActiveSet *)TpEvent::eventData_;
+    ITpObjectActiveSet *set = (ITpObjectActiveSet *)TpEvent::eventData_;
     bool actived = false;
 
     if (set)

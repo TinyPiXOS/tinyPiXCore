@@ -27,7 +27,7 @@
 
 #include "engine_video.h"
 
-typedef tpBool (*DriverCallbackFunction)(ItpEvent*, void*);
+typedef tpBool (*DriverCallbackFunction)(ITpEvent*, void*);
 
 typedef struct _TP_DRIVER
 {

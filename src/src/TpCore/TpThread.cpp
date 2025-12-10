@@ -141,7 +141,7 @@ static inline void thread_kill(PiThread *thread)
 	}
 }
 
-static inline int32_t thead_function(ItpThreadData *args)
+static inline int32_t thead_function(ITpThreadData *args)
 {
 	TpThread *thread = (TpThread *)args;
 

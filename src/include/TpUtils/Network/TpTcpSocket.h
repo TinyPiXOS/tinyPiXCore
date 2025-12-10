@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpSocket.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpTcpSocketData);
+TP_DEF_VOID_TYPE_VAR(ITpTcpSocketData);
 
 class TpTcpSocket
 {
@@ -60,7 +60,7 @@ private:
 	void handleConnectError();
 	friend class TpTcpServer;
 private:
-	ItpTcpSocketData *data_;
+	ITpTcpSocketData *data_;
 };
 
 

@@ -36,11 +36,11 @@ struct TpScreenData : TpWidgetData
 };
 
 // 鼠标左键长按回调
-static std::function<void(TpWidget *, ItpMouseSet)> longPressCallback = [](TpWidget *obj, ItpMouseSet mouseSet)
+static std::function<void(TpWidget *, ITpMouseSet)> longPressCallback = [](TpWidget *obj, ITpMouseSet mouseSet)
 {
     // std::cout << " onLongPress ***********" << std::endl;
 
-    ItpMouseSet longPressData = mouseSet;
+    ITpMouseSet longPressData = mouseSet;
     TpMouseEvent keyEvent(TpEvent::EVENT_MOUSE_LONG_PRESS_TYPE);
     keyEvent.construct(&longPressData);
 
@@ -84,7 +84,7 @@ static inline void generateParentList(TpObject *object, std::list<TpObject *> &l
     }
 }
 
-static inline void startLongPressCheck(TpWidget *object, const ItpMouseSet &mouseSet)
+static inline void startLongPressCheck(TpWidget *object, const ITpMouseSet &mouseSet)
 {
     std::lock_guard<std::mutex> lock(pressThreadMutex);
     if (pressThread || longPressActive)
@@ -128,10 +128,10 @@ static inline void stopLongPressCheck()
     }
 }
 
-static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, std::list<TpObject *> &list, ItpEvent *events, TpWidget *pressObject)
+static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, std::list<TpObject *> &list, ITpEvent *events, TpWidget *pressObject)
 {
     TpMouseEvent motionEvent(TpEvent::EVENT_MOUSE_MOVE_TYPE);
-    ItpMouseSet mInput;
+    ITpMouseSet mInput;
     mInput.which = events->mouseMotionEvent.which;
 
     std::list<TpObject *>::iterator iter = list.begin();
@@ -182,9 +182,9 @@ static inline void broadMotion(TpObject *dragObject, TpObject *curMotionObject, 
     list.clear();
 }
 
-static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, ItpEvent *events, TpWidget *pressObject)
+static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, ITpEvent *events, TpWidget *pressObject)
 {
-    ItpMouseSet mInput;
+    ITpMouseSet mInput;
     mInput.which = events->mouseButtonEvent.which;
     mInput.button = events->mouseButtonEvent.button;
     mInput.state = events->mouseButtonEvent.state;
@@ -281,7 +281,7 @@ static inline void broadMouseKey(TpObject *object, std::list<TpObject *> &list, 
     list.clear();
 }
 
-static inline void broadFinger(TpObjectData *set, ItpFingerSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broadFinger(TpObjectData *set, ITpFingerSet &input, TpObject *object, std::list<TpObject *> &list, ITpEvent *events)
 {
     TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
@@ -309,7 +309,7 @@ static inline void broadFinger(TpObjectData *set, ItpFingerSet &input, TpObject 
     list.clear();
 }
 
-static inline void broaDollar(TpObjectData *set, ItpDollarSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broaDollar(TpObjectData *set, ITpDollarSet &input, TpObject *object, std::list<TpObject *> &list, ITpEvent *events)
 {
     TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
@@ -336,7 +336,7 @@ static inline void broaDollar(TpObjectData *set, ItpDollarSet &input, TpObject *
     IssueObjEvent(childObj, event, onDollAREvent, childObj->enabled());
 }
 
-static inline void broadMultiGesture(TpWidgetData *widgetData, ItpMultiGestureSet &input, TpObject *object, std::list<TpObject *> &list, ItpEvent *events)
+static inline void broadMultiGesture(TpWidgetData *widgetData, ITpMultiGestureSet &input, TpObject *object, std::list<TpObject *> &list, ITpEvent *events)
 {
     TpWidget *childObj = static_cast<TpWidget *>(object);
     if (!childObj)
@@ -369,7 +369,7 @@ static inline void broadMultiGesture(TpWidgetData *widgetData, ItpMultiGestureSe
     IssueObjEvent(childObj, event, onMultiGestureEvent, childObj->enabled());
 }
 
-static inline bool splitTouchMousePoint(ItpEvent *event, TpPoint *point)
+static inline bool splitTouchMousePoint(ITpEvent *event, TpPoint *point)
 {
     switch (event->type)
     {
@@ -428,7 +428,7 @@ static inline void doTransUpdate(void *args)
 
 static inline int32_t transferEvent(int32_t id, void *event, void *args)
 {
-    ItpEvent *events = (ItpEvent *)event;
+    ITpEvent *events = (ITpEvent *)event;
     TpScreen *object = (TpScreen *)args;
 
     return object->dispatchEvent(events);
@@ -438,7 +438,7 @@ static inline int32_t transferFocus(int32_t id, int32_t focused, void *args)
 {
     TpWidget *object = (TpWidget *)args;
     TpFocusEvent event;
-    ItpObjectFocusSet input;
+    ITpObjectFocusSet input;
     input.object = object;
     input.focused = focused;
     event.construct(&input);
@@ -450,7 +450,7 @@ static inline int32_t transferLeave(int32_t id, int32_t leaved, int mouseX, int 
 {
     TpWidget *object = (TpWidget *)args;
     TpLeaveEvent event;
-    ItpObjectLeaveSet input;
+    ITpObjectLeaveSet input;
     input.object = nullptr;
     input.leaved = leaved;
     event.construct(&input);
@@ -481,7 +481,7 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
 {
     TpWidget *object = (TpWidget *)args;
     TpResizeEvent event;
-    ItpObjectResizeSet input;
+    ITpObjectResizeSet input;
     input.object = object;
     input.nw = nw;
     input.nh = nh;
@@ -513,7 +513,7 @@ static inline int32_t transferVisible(int32_t id, int32_t visible, void *args)
 {
     TpWidget *object = (TpWidget *)args;
     TpVisibleEvent event;
-    ItpObjectVisibleSet input;
+    ITpObjectVisibleSet input;
     input.object = object;
     input.visible = visible;
     event.construct(&input);
@@ -534,7 +534,7 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
 {
     TpWidget *object = (TpWidget *)args;
     TpMoveEvent event;
-    ItpObjectMoveSet input;
+    ITpObjectMoveSet input;
     input.object = object;
     input.nx = nx;
     input.ny = ny;
@@ -560,7 +560,7 @@ static inline int32_t transferActive(int32_t id, int32_t actived, void *args)
     TpApp::Inst()->sendActive(object, actived);
 
     TpActiveEvent event;
-    ItpObjectActiveSet input;
+    ITpObjectActiveSet input;
     input.object = object;
     input.actived = actived;
     event.construct(&input);

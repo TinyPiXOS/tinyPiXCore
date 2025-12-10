@@ -5,7 +5,7 @@
 #include "TpString.h"
 #include "TpGlobal.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpLineData);
+TP_DEF_VOID_TYPE_VAR(ITpLineData);
 /// @brief 分割线组件
 class TpLine : public TpWidget
 {
@@ -57,7 +57,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpLine); }
 
 private:
-    ItpLineData *data_;
+    ITpLineData *data_;
 };
 
 #endif

@@ -7,7 +7,7 @@
 #include "TpBluetoothService.h" 
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothServiceDiscoveryData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothServiceDiscoveryData);
 
 
 class TpBluetoothServiceDiscovery{
@@ -58,7 +58,7 @@ signals:
 private:
 	void discoveryOnce();
 private:
-	ItpBluetoothServiceDiscoveryData *data_;
+	ITpBluetoothServiceDiscoveryData *data_;
 };
 
 

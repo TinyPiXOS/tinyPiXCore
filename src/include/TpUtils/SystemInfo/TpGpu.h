@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 #include "TpString.h"
-TP_DEF_VOID_TYPE_VAR(ItpGpuInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpGpuInfoData);
 
 class TpGpu
 {
@@ -14,7 +14,7 @@ public:
 public:
 	TpString getName();
 private:
-	ItpGpuInfoData *data_;
+	ITpGpuInfoData *data_;
 };
 
 #endif

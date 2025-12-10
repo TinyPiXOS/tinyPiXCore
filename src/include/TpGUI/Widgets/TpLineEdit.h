@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpFont.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpLineEditData);
+TP_DEF_VOID_TYPE_VAR(ITpLineEditData);
 
 class TpLineEdit : public TpWidget
 {
@@ -91,7 +91,7 @@ private:
     void dealBackSpace();
 
 private:
-    ItpLineEditData *data_;
+    ITpLineEditData *data_;
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include "TpBluetoothDevice.h"
 #include "TpBluetoothAddress.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothTransferAgentData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothTransferAgentData);
 
 /// @brief 蓝牙接收文件服务
 class TpBluetoothTransferAgent{
@@ -20,7 +20,7 @@ public:
 	tpInt64 currentProgress() const;
 	tpInt64 totalBytes() const;
 private:
-	ItpBluetoothTransferAgentData *data_;
+	ITpBluetoothTransferAgentData *data_;
 };
 
 

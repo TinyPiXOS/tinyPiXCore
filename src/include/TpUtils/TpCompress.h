@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpCompressData);
+TP_DEF_VOID_TYPE_VAR(ITpCompressData);
 class TpCompress
 {
 public:
@@ -119,7 +119,7 @@ public:
 	int extractfromCompress(const TpString &path_s, const TpString &path_t);
 
 private:
-	ItpCompressData *data_;
+	ITpCompressData *data_;
 };
 
 #endif

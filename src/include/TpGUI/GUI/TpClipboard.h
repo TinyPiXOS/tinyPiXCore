@@ -5,7 +5,7 @@
 #include <TpCore.h>
 #include <string>
 
-TP_DEF_VOID_TYPE_VAR(ItpClipboardData);
+TP_DEF_VOID_TYPE_VAR(ITpClipboardData);
 /// @brief 剪切板，可以设置、获取剪切板内容，大小限制为2MB
 class TpClipboard
 {
@@ -38,7 +38,7 @@ public:
 	virtual void clear();
 
 private:
-	ItpClipboardData *data_;
+	ITpClipboardData *data_;
 };
 
 #endif

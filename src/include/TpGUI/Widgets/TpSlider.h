@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpColors.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpSliderData);
+TP_DEF_VOID_TYPE_VAR(ITpSliderData);
 /// @brief 可拖动滑块
 class TpSlider : public TpWidget
 {
@@ -58,7 +58,7 @@ protected:
 	virtual TpString pluginType() override { return TO_STRING(TpSlider); }
 
 private:
-	ItpSliderData *data_;
+	ITpSliderData *data_;
 };
 
 #endif

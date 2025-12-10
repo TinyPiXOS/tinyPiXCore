@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpDateData);
+TP_DEF_VOID_TYPE_VAR(ITpDateData);
 /// @brief 日期类，提供日期相关操作
 class TpDate
 {
@@ -90,7 +90,7 @@ public:
     bool operator>=(const TpDate &other) const { return !(*this < other); }
 
 private:
-    ItpDateData *data_;
+    ITpDateData *data_;
 };
 
 #endif

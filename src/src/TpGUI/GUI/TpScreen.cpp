@@ -415,7 +415,7 @@ TpObject *TpScreen::topObject()
 
 void TpScreen::deleteLater()
 {
-    ItpUserEvent message;
+    ITpUserEvent message;
 
     switch (this->objectType())
     {
@@ -446,7 +446,7 @@ bool TpScreen::returns()
 {
     bool returns = true;
 
-    ItpUserEvent message;
+    ITpUserEvent message;
 
     switch (this->objectType())
     {
@@ -466,7 +466,7 @@ bool TpScreen::returns()
 
 int32_t TpScreen::dispatchEvent(void *events)
 {
-    ItpEvent *eventPtr = (ItpEvent *)events;
+    ITpEvent *eventPtr = (ITpEvent *)events;
 
     TpPoint point;
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
@@ -490,7 +490,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
             if (widgetData->tmp.curfocus && widgetData->tmp.curfocus->enabled())
             {
-                ItpKeyboardSet input;
+                ITpKeyboardSet input;
                 input.which = eventPtr->keyboardEvent.which;
                 input.state = eventPtr->keyboardEvent.state;
                 input.scancode = eventPtr->keyboardEvent.keysym.scancode;
@@ -535,7 +535,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         widgetData->tmp.curmotion = widgetData->tmp.curObject;
         TpLeaveEvent leaveEvent;
-        ItpObjectLeaveSet lInput;
+        ITpObjectLeaveSet lInput;
 
         if (widgetData->tmp.curmotion != widgetData->tmp.lstmotion)
         {
@@ -633,7 +633,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         std::list<TpObject *> keyList;
         widgetData->tmp.curfocus = widgetData->tmp.curObject;
         TpFocusEvent focusEvent;
-        ItpObjectFocusSet fInput;
+        ITpObjectFocusSet fInput;
 
         if (widgetData->tmp.curfocus != widgetData->tmp.lstfocus)
         {
@@ -677,7 +677,7 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         // don't know how to do
         std::list<TpObject *> fingerList;
-        ItpFingerSet input;
+        ITpFingerSet input;
 
         switch (eventPtr->type)
         {
@@ -716,7 +716,7 @@ int32_t TpScreen::dispatchEvent(void *events)
             return false;
         }
         std::list<TpObject *> dollarList;
-        ItpDollarSet input;
+        ITpDollarSet input;
         switch (eventPtr->type)
         {
         case TP_DOLLARGESTURE:
@@ -749,7 +749,7 @@ int32_t TpScreen::dispatchEvent(void *events)
         }
 
         std::list<TpObject *> multiList;
-        ItpMultiGestureSet input;
+        ITpMultiGestureSet input;
 
         generateParentList(widgetData->tmp.curObject, multiList);
         broadMultiGesture(widgetData, input, widgetData->tmp.curObject, multiList, eventPtr);

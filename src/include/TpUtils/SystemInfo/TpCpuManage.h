@@ -2,7 +2,7 @@
 #define __TP_CPU_MANAGE_H
 
 #include "TpCpu.h"
-TP_DEF_VOID_TYPE_VAR(ItpCpuManageData);
+TP_DEF_VOID_TYPE_VAR(ITpCpuManageData);
 
 class TpCpuManage
 {
@@ -22,7 +22,7 @@ private:
 	TpList<TpCpu*> readList();
 
 private:
-	ItpCpuManageData *data_;
+	ITpCpuManageData *data_;
 };
 
 

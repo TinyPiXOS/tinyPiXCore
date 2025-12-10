@@ -7,7 +7,7 @@
 
 #include <functional>
 
-TP_DEF_VOID_TYPE_VAR(ItpAnimationData);
+TP_DEF_VOID_TYPE_VAR(ITpAnimationData);
 /// @brief 动画类；使用指针对象，不要使用对象变量
 class TpAnimation : public TpObject
 {
@@ -121,7 +121,7 @@ private:
     void AnimationRun();
 
 private:
-    ItpAnimationData *data_;
+    ITpAnimationData *data_;
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include <TpString.h>
 #include <functional>
 
-TP_DEF_VOID_TYPE_VAR(ItpThreadPoolData);
+TP_DEF_VOID_TYPE_VAR(ITpThreadPoolData);
 /// @brief 线程池
 class TpThreadPool
 {
@@ -43,7 +43,7 @@ private:
     void enqueueInternal(std::function<void()> task);
     void workerTask();
 
-    ItpThreadPoolData *data_;
+    ITpThreadPoolData *data_;
 };
 
 #endif

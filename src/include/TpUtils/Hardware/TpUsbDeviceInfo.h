@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpUsbDeviceInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpUsbDeviceInfoData);
 
 class TpUsbDeviceInfo{
 public:
@@ -65,7 +65,7 @@ public:
 	/// @return 
 	tpUInt8 getBindPort();
 private:
-	ItpUsbDeviceInfoData *data_;
+	ITpUsbDeviceInfoData *data_;
 };
 
 

@@ -5,7 +5,7 @@
 #include "TpBluetoothDevice.h"
 #include "TpBluetoothAddress.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothAudioManagerData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothAudioManagerData);
 
 /// @brief 蓝牙音频服务的管理
 class TpBluetoothAudioManager{
@@ -31,7 +31,7 @@ public:
 	/// @return 
 	tpBool isRuning();
 private:
-	ItpBluetoothAudioManagerData *data_;
+	ITpBluetoothAudioManagerData *data_;
 };
 
 

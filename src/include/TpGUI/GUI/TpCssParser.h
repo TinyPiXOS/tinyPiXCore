@@ -8,7 +8,7 @@
 #include <memory>
 #include "TpCssData.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpCssParserData);
+TP_DEF_VOID_TYPE_VAR(ITpCssParserData);
 /// @brief CSS解析器
 class TpCssParser
 {
@@ -69,7 +69,7 @@ private:
     TpString StrTypeCssFunc(const TpString &_attrValue);
 
 private:
-    ItpCssParserData *data_;
+    ITpCssParserData *data_;
 };
 
 #endif

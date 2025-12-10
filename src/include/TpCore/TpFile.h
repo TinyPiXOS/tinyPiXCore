@@ -6,7 +6,7 @@
 #include "TpFileInfo.h"
 
 /// @brief tpFile内部数据的不透明类型定义
-TP_DEF_VOID_TYPE_VAR(ItpFileData);
+TP_DEF_VOID_TYPE_VAR(ITpFileData);
 /// @brief 文件操作类，提供文件处理和I/O功能
 class TpFile
 {
@@ -180,7 +180,7 @@ public:
     uint64_t write(const TpString &data);
 
 private:
-    ItpFileData *data_; 
+    ITpFileData *data_; 
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include "TpString.h"
 #include "TpList.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpDisplayManageData);
+TP_DEF_VOID_TYPE_VAR(ITpDisplayManageData);
 class TpDisplayManage
 {
 public:
@@ -47,7 +47,7 @@ public:
 	tpInt32 correctMousePosition();
 
 private:
-	ItpDisplayManageData* data_;
+	ITpDisplayManageData* data_;
 };
 
 #endif

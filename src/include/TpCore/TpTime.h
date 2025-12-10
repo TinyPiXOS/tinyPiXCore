@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpTimeData);
+TP_DEF_VOID_TYPE_VAR(ITpTimeData);
 /// @brief 时间类，提供时间相关操作
 class TpTime
 {
@@ -78,7 +78,7 @@ public:
     bool operator>=(const TpTime &other) const { return !(*this < other); }
 
 private:
-    ItpTimeData *data_;
+    ITpTimeData *data_;
 };
 
 #endif

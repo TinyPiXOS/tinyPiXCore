@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpBluetoothAddress.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothDeviceData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothDeviceData);
 
 /// @brief 蓝牙设备型管信息(即周围的蓝牙)
 class TpBluetoothDevice{
@@ -73,7 +73,7 @@ public:
 	tpUInt8 getMinorDeviceClass();
 
 private:
-	ItpBluetoothDeviceData *data_;
+	ITpBluetoothDeviceData *data_;
 };
 
 

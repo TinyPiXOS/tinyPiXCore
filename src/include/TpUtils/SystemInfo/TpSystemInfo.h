@@ -11,7 +11,7 @@
 #include "TpNetworkManage.h"
 #include "TpNetworkInfo.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpSystemInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpSystemInfoData);
 class TpSystemInfo
 {
 
@@ -129,7 +129,7 @@ private:
     uint64_t getDiskSpace(TpString diskName);
 
 private:
-    ItpSystemInfoData *data_;
+    ITpSystemInfoData *data_;
 };
 
 #endif

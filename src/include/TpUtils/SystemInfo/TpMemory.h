@@ -7,7 +7,7 @@
 /// @brief 1.构造后直接读param或：直接返回构造时候的信息
 /// @brief 2.使用getMemory...：返回调用时刻的信息
 /// @brief 3.执行upatat后直接读param:返回刷新时候的信息
-TP_DEF_VOID_TYPE_VAR(ItpMemoryInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpMemoryInfoData);
 
 class TpMemory
 {
@@ -35,7 +35,7 @@ private:
 	uint64_t getMemoryValue(const char *value);
 
 private:
-	ItpMemoryInfoData *data_;
+	ITpMemoryInfoData *data_;
 };
 
 #endif

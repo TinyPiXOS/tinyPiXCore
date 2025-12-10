@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpDbusConnectManageData);
+TP_DEF_VOID_TYPE_VAR(ITpDbusConnectManageData);
 
 class TpDbusConnectManage{
 public:
@@ -14,7 +14,7 @@ public:
 private:
 	TpDbusConnectManage();
 	~TpDbusConnectManage();
-	ItpDbusConnectManageData *data_;
+	ITpDbusConnectManageData *data_;
 };
 
 

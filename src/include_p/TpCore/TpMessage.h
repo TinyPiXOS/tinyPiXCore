@@ -45,7 +45,7 @@ public:
      * @retval false 队列已满或消息指针为空
      * @note 此函数立即返回，不会等待队列有空闲位置
      */
-    virtual bool send(ItpUserEvent *message);
+    virtual bool send(ITpUserEvent *message);
     
     /**
      * @brief 发送消息（阻塞模式，直到成功）
@@ -53,7 +53,7 @@ public:
      * @return bool 总是返回true（因为会一直重试直到成功）
      * @warning 如果队列始终满，此函数将无限期阻塞
      */
-    virtual bool sendWait(ItpUserEvent *message);
+    virtual bool sendWait(ITpUserEvent *message);
     
     /**
      * @brief 接收消息（阻塞模式）
@@ -61,7 +61,7 @@ public:
      * @return bool 接收成功返回true
      * @note 如果队列为空，此函数将阻塞等待直到有消息到达
      */
-    virtual bool recvWait(ItpUserEvent *message);
+    virtual bool recvWait(ITpUserEvent *message);
     
     /**
      * @brief 接收消息（非阻塞模式）
@@ -70,7 +70,7 @@ public:
      * @retval true 成功接收到消息
      * @retval false 队列为空或消息指针为空
      */
-    virtual bool recv(ItpUserEvent *message);
+    virtual bool recv(ITpUserEvent *message);
     
     /**
      * @brief 清空消息队列

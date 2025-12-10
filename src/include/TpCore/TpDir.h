@@ -5,7 +5,7 @@
 #include <TpString.h>
 #include <TpFileInfo.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpDirData);
+TP_DEF_VOID_TYPE_VAR(ITpDirData);
 /// @brief 目录操作类，提供文件和目录操作功能
 class TpDir
 {
@@ -155,7 +155,7 @@ public:
     /// @return 删除成功返回true，否则返回false
     bool removeRecursively();
 private:
-    ItpDirData *data_;
+    ITpDirData *data_;
 };
 
 #endif

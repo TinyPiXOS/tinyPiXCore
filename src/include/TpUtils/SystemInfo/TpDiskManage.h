@@ -4,7 +4,7 @@
 #include "TpDisk.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpDiskManageData);
+TP_DEF_VOID_TYPE_VAR(ITpDiskManageData);
 
 class TpDiskManage
 {
@@ -35,7 +35,7 @@ private:
 	void monitorList(tpBool once,uint16_t samp);
 
 private:
-    ItpDiskManageData *data_;
+    ITpDiskManageData *data_;
 };
 
 #endif

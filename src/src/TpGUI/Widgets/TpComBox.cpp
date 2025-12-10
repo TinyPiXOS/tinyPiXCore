@@ -96,21 +96,11 @@ TpComBox::~TpComBox()
     TpComboxData *cbxData = static_cast<TpComboxData *>(data_);
     if (cbxData)
     {
-        cbxData->titleLabel->setParent(nullptr);
-        cbxData->curItemLabel->setParent(nullptr);
-        cbxData->expandIconLabel->setParent(nullptr);
+        cbxData->titleLabel->deleteLater();
+        cbxData->curItemLabel->deleteLater();
+        cbxData->expandIconLabel->deleteLater();
 
-        delete cbxData->titleLabel;
-        cbxData->titleLabel = nullptr;
-
-        delete cbxData->curItemLabel;
-        cbxData->curItemLabel = nullptr;
-
-        delete cbxData->expandIconLabel;
-        cbxData->expandIconLabel = nullptr;
-
-        delete cbxData->contextMenu;
-        cbxData->contextMenu = nullptr;
+        cbxData->contextMenu->deleteLater();
 
         delete cbxData;
         cbxData = nullptr;

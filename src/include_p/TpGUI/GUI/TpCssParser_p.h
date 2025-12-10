@@ -164,7 +164,7 @@ void ParseCssSelector(future::SequenceSelector *_seqSelector, BlockCssDataSPtr _
 }
 
 // 解析CSS字符串
-void ParseCssStr(ItpCssParserData *data, const TpString &_cssStr, BlockCssDataSPtr _blockCssData)
+void ParseCssStr(ITpCssParserData *data, const TpString &_cssStr, BlockCssDataSPtr _blockCssData)
 {
     TpCssParserData *cssParserData = static_cast<TpCssParserData *>(data);
     if (!cssParserData)

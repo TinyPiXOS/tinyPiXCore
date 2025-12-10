@@ -94,7 +94,7 @@ struct TpWidgetData : TpObjectData
     TpPoint pressPoint;
 
     // 缓存状态信息
-    ItpTempDef tmp;
+    ITpTempDef tmp;
 
     // 圆角值，单位px
     uint32_t round = 0;
@@ -195,7 +195,7 @@ static void changeXY(TpWidget *thisPtr, TpWidgetData *widgetData, int32_t x, int
         widgetData->absoluteRect.setX(point.x());
         widgetData->absoluteRect.setY(point.y());
 
-        ItpObjectMoveSet input;
+        ITpObjectMoveSet input;
         input.object = thisPtr;
         input.nx = x;
         input.ny = y;
@@ -272,7 +272,7 @@ static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint3
         widgetData->logicalRect.setWidth(setW);
         widgetData->absoluteRect.setWidth(setW);
 
-        ItpObjectResizeSet input;
+        ITpObjectResizeSet input;
         input.object = thisPtr;
         input.nw = setW;
         input.nh = widgetData->logicalRect.height();
@@ -361,7 +361,7 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
         widgetData->logicalRect.setHeight(setH);
         widgetData->absoluteRect.setHeight(setH);
 
-        ItpObjectResizeSet input;
+        ITpObjectResizeSet input;
         input.object = thisPtr;
         input.nw = widgetData->logicalRect.width();
         input.nh = setH;

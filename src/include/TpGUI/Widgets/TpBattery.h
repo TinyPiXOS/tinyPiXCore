@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBatteryData);
+TP_DEF_VOID_TYPE_VAR(ITpBatteryData);
 /// @brief 电池UI组件
 class TpBattery : public TpWidget
 {
@@ -61,7 +61,7 @@ public:
     virtual TpString pluginType() override { return TO_STRING(TpBattery); }
 
 private:
-    ItpBatteryData *data_;
+    ITpBatteryData *data_;
 };
 
 #endif

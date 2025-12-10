@@ -24,7 +24,7 @@ class TpLayout;
 class TpObjectStack;
 class TpEvent;
 
-struct ItpTempDef
+struct ITpTempDef
 {
     TpWidget *curfocus = nullptr;
     TpWidget *lstfocus = nullptr;
@@ -36,7 +36,7 @@ struct ItpTempDef
     // 鼠标移动前的上一个坐标
     TpPoint lastPoint;
 
-    ItpTempDef()
+    ITpTempDef()
     {
     }
 
@@ -70,7 +70,7 @@ struct ItpTempDef
 
 
 
-struct ItpMouseSet
+struct ITpMouseSet
 {
     uint32_t which;
     MouseEventType button;
@@ -79,13 +79,13 @@ struct ItpMouseSet
     TpPoint pos;
     TpPoint globalPos;
 
-    ItpMouseSet() : which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
+    ITpMouseSet() : which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
     {
     }
 };
 
 /// @brief 键盘事件数据
-struct ItpKeyboardSet
+struct ITpKeyboardSet
 {
     /// @brief 测试注释
     uint8_t which;
@@ -97,7 +97,7 @@ struct ItpKeyboardSet
     KeyModeType keyMod;
 };
 
-struct ItpFingerSet
+struct ITpFingerSet
 {
     int32_t touchFingerType;
     uint32_t timestamp;
@@ -110,7 +110,7 @@ struct ItpFingerSet
     float pressure;
 };
 
-struct ItpDollarSet
+struct ITpDollarSet
 {
     int32_t dollarType;
     uint32_t timestamp;
@@ -120,12 +120,12 @@ struct ItpDollarSet
     int32_t x;
     int32_t y;
 
-    ItpDollarSet()
+    ITpDollarSet()
     {
     }
 };
 
-struct ItpMultiGestureSet
+struct ITpMultiGestureSet
 {
     uint32_t timestamp;
     int64_t touchID;
@@ -135,69 +135,69 @@ struct ItpMultiGestureSet
     uint16_t numfingers;
     uint16_t padding;
 
-    ItpMultiGestureSet()
+    ITpMultiGestureSet()
     {
     }
 };
 
-struct ItpObjectMoveSet
+struct ITpObjectMoveSet
 {
     TpObject *object;
     int32_t nx;
     int32_t ny;
 
-    ItpObjectMoveSet()
+    ITpObjectMoveSet()
     {
     }
 };
 
-struct ItpObjectResizeSet
+struct ITpObjectResizeSet
 {
     TpObject *object;
     int32_t nw;
     int32_t nh;
     int32_t question;
 
-    ItpObjectResizeSet()
+    ITpObjectResizeSet()
     {
     }
 };
 
-struct ItpObjectFocusSet
+struct ITpObjectFocusSet
 {
     TpObject *object;
     bool focused;
 
-    ItpObjectFocusSet()
+    ITpObjectFocusSet()
     {
     }
 };
 
-struct ItpObjectLeaveSet
+struct ITpObjectLeaveSet
 {
     TpObject *object;
     bool leaved;
 };
 
-struct ItpObjectVisibleSet
+struct ITpObjectVisibleSet
 {
     TpObject *object;
     bool visible;
 };
 
-struct ItpObjectRotateSet
+struct ITpObjectRotateSet
 {
     TpObject *object;
-    ItpRotateType rotate;
+    ITpRotateType rotate;
 };
 
-struct ItpObjectPaintInput
+struct ITpObjectPaintInput
 {
     TpObject *object;
     TpRect updateRect;
 };
 
-struct ItpObjectPaintSet
+struct ITpObjectPaintSet
 {
     TpObject *object;
     TpPainter *painter;
@@ -205,13 +205,13 @@ struct ItpObjectPaintSet
 
     bool canDraw;
 
-    ItpObjectPaintSet()
+    ITpObjectPaintSet()
     {
         int a = 0;
     }
 };
 
-struct ItpObjectActiveSet
+struct ITpObjectActiveSet
 {
     TpObject *object;
     bool actived;

@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpFont.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpCheckBoxData);
+TP_DEF_VOID_TYPE_VAR(ITpCheckBoxData);
 
 /// @brief 复选按钮
 class TpCheckBox : public TpWidget
@@ -37,7 +37,7 @@ protected:
 	virtual TpString pluginType() override { return TO_STRING(TpCheckBox); }
 
 private:
-	ItpCheckBoxData *data_;
+	ITpCheckBoxData *data_;
 };
 
 #endif

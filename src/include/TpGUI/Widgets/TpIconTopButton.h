@@ -6,7 +6,7 @@
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpIconTopButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpIconTopButtonData);
 
 class TpFont;
 /// @brief 图标按钮类，图标在上。文本在下;只需要设置iconSize即可，内部会自动根据icon大小调整整个按钮的大小
@@ -85,7 +85,7 @@ private:
     void Init();
 
 private:
-    ItpIconTopButtonData *data_;
+    ITpIconTopButtonData *data_;
 };
 
 #endif

@@ -6,7 +6,7 @@
 #include <TpCore.h>
 #include "TpList.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpDisplayInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpDisplayInfoData);
 class TpDisplay
 {
 public:
@@ -99,7 +99,7 @@ private:
 	friend class TpDisplayManage;
 
 private:
-	ItpDisplayInfoData *data_;
+	ITpDisplayInfoData *data_;
 };
 
 #endif

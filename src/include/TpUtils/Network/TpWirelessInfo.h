@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpWirelessInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpWirelessInfoData);
 
 class TpWirelessInfo
 {
@@ -39,7 +39,7 @@ public:
     tpInt32 setLevel(tpInt8 level);
 
 private:
-    ItpWirelessInfoData *data_;
+    ITpWirelessInfoData *data_;
 };
 
 #endif

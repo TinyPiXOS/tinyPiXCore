@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpThreadData);
+TP_DEF_VOID_TYPE_VAR(ITpThreadData);
 class TpThread
 {
 public:
@@ -39,7 +39,7 @@ public:
 	virtual void run() {}
 
 private:
-	ItpThreadData *threadSet;
+	ITpThreadData *threadSet;
 };
 
 #endif

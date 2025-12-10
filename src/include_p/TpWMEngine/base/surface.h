@@ -50,7 +50,7 @@ return value: return a not-NULL pointer, otherwise NULL
 **/
 
 extern DECLSPEC IPiSurface *STDCALL surface_create(void *bits, unsigned int width, unsigned int height, 
-											ItpFormat format, 
+											ITpFormat format, 
 											unsigned int  Rmask, unsigned int  Gmask, unsigned int  Bmask, unsigned int Amask);
 
 /**
@@ -79,7 +79,7 @@ function name: caculate the stride which denotes the bytes per line
 
 return value: if failed, return zero. otherwise return the fact bytes per line
 */
-extern DECLSPEC unsigned int STDCALL surface_cal_stride(int width, ItpFormat format);
+extern DECLSPEC unsigned int STDCALL surface_cal_stride(int width, ITpFormat format);
 
 /**
 function name: set_alpha, aim to set alpha for surface
@@ -191,7 +191,7 @@ function name: surface_get_format, aim to get image format for surface
 
 return value:  if surf is NULL , will return TP_RGB_UNKOWN
 */
-extern DECLSPEC ItpFormat STDCALL surface_get_format(IPiSurface *surface);
+extern DECLSPEC ITpFormat STDCALL surface_get_format(IPiSurface *surface);
 
 /**
 function name: surface_get_size, aim to get image size for surface

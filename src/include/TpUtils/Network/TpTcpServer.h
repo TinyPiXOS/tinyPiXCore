@@ -7,7 +7,7 @@
 #include "TpSocket.h"
 #include "TpTcpSocket.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpTcpServerData);
+TP_DEF_VOID_TYPE_VAR(ITpTcpServerData);
 
 class TpTcpServer
 {
@@ -54,7 +54,7 @@ private:
 	TpSocket *accept();
 
 private:
-	ItpTcpServerData *data_;
+	ITpTcpServerData *data_;
 };
 
 

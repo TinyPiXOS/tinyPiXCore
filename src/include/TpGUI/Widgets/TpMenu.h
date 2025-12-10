@@ -6,7 +6,7 @@
 #include "TpString.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpMenuData);
+TP_DEF_VOID_TYPE_VAR(ITpMenuData);
 /// @brief 弹出菜单窗体
 class TpMenu : public TpDialog
 {
@@ -81,7 +81,7 @@ protected:
 	virtual TpString pluginType() override { return TO_STRING(TpMenu); }
 
 private:
-	ItpMenuData *data_;
+	ITpMenuData *data_;
 };
 
 #endif

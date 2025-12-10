@@ -7,7 +7,7 @@
 #include "TpEvent.h"
 #include "TpVector.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpScrollPanelData);
+TP_DEF_VOID_TYPE_VAR(ITpScrollPanelData);
 
 class TpScrollPanel : public TpWidget
 {
@@ -90,7 +90,7 @@ public:
 	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
 private:
-	ItpScrollPanelData *data_;
+	ITpScrollPanelData *data_;
 };
 
 #endif

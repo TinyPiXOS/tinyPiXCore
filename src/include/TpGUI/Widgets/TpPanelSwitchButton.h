@@ -5,8 +5,9 @@
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpPanelSwitchButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpPanelSwitchButtonData);
 
+/// @brief 面板开关按钮
 class TpPanelSwitchButton : public TpWidget
 {
 public:
@@ -42,7 +43,7 @@ protected:
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 private:
-    ItpPanelSwitchButtonData *data_;
+    ITpPanelSwitchButtonData *data_;
 };
 
 #endif // __TP_COMBOX_H

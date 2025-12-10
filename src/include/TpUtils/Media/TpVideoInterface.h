@@ -4,7 +4,7 @@
 #include <functional>
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpVideoInfData);
+TP_DEF_VOID_TYPE_VAR(ITpVideoInfData);
 
 class TpVideoInterface
 {
@@ -72,7 +72,7 @@ private:
         UserCallback callback;  // 用户回调指针
         void* userdata;
     };
-	ItpVideoInfData *vData_;
+	ITpVideoInfData *vData_;
 	static int staticBridge(uint8_t** data, int* linesize, uint32_t format, void* rawCtx);
 };
 

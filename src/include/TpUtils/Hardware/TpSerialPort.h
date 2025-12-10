@@ -5,7 +5,7 @@
 #include "TpHardwareDevice.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpSerialPortData);
+TP_DEF_VOID_TYPE_VAR(ITpSerialPortData);
 
 class TpSerialPort :  public TpHardwareDevice
 {	
@@ -141,7 +141,7 @@ private:
 	void handleRead();
 	void handleHangup();
 private:
-	ItpSerialPortData *data_;
+	ITpSerialPortData *data_;
 };
 
 

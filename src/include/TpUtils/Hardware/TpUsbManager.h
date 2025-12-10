@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpUsbDeviceInfo.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpUsbManagerData);
+TP_DEF_VOID_TYPE_VAR(ITpUsbManagerData);
 
 class TpUsbManager
 {
@@ -35,7 +35,7 @@ public signals:
 	declare_signal(usbDeviceRemove, TpUsbDeviceInfo *);
 	declare_signal(usbDeviceChange, TpUsbDeviceInfo *);
 private:
-	ItpUsbManagerData *data_;
+	ITpUsbManagerData *data_;
 };
 
 

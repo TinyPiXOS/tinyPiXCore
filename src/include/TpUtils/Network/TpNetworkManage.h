@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpNetworkInfo.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpNetworkManageData);
+TP_DEF_VOID_TYPE_VAR(ITpNetworkManageData);
 
 
 class TpNetworkManage
@@ -16,7 +16,7 @@ public:
 	TpList<TpNetworkInfo *> getList();//获取设备列表
 
 private:
-	ItpNetworkManageData *data_;
+	ITpNetworkManageData *data_;
 };
 
 

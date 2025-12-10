@@ -333,7 +333,7 @@ static void appendArcToPath(tvg::Shape *shape, float startX, float startY,
 }
 
 // 公共掏空操作函数
-static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, const TpHollowMask &hollowMaskData)
+static void applyHollowMask(tvg::Shape *fillShapePtr, const TpHollowMask &hollowMaskData)
 {
     if (!fillShapePtr)
         return;
@@ -346,7 +346,7 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
     for (const auto &hollowData : rectHollow)
     {
         // 创建裁剪形状
-        clipper->appendRect(hollowData.region.x() + x, hollowData.region.y() + y,
+        clipper->appendRect(hollowData.region.x(), hollowData.region.y(),
                             hollowData.region.width(), hollowData.region.height(), hollowData.round, hollowData.round);
     }
 
@@ -355,7 +355,7 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
     for (const auto &hollowData : circleHollow)
     {
         // 创建裁剪形状
-        clipper->appendCircle(hollowData.x + x, hollowData.y + y, hollowData.radius, hollowData.radius);
+        clipper->appendCircle(hollowData.x, hollowData.y, hollowData.radius, hollowData.radius);
     }
 
     // 扇形镂空
@@ -367,14 +367,14 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
         float endRad = hollowData.end * M_PI / 180.0f;
 
         // 计算起点和终点
-        float startX = hollowData.x + x + hollowData.radius * cosf(startRad);
-        float startY = hollowData.y + y + hollowData.radius * sinf(startRad);
-        float endX = hollowData.x + x + hollowData.radius * cosf(endRad);
-        float endY = hollowData.y + y + hollowData.radius * sinf(endRad);
+        float startX = hollowData.x + hollowData.radius * cosf(startRad);
+        float startY = hollowData.y + hollowData.radius * sinf(startRad);
+        float endX = hollowData.x + hollowData.radius * cosf(endRad);
+        float endY = hollowData.y + hollowData.radius * sinf(endRad);
 
         // 绘制扇形路径
-        clipper->moveTo(hollowData.x + x, hollowData.y + y); // 移动到圆心
-        clipper->lineTo(startX, startY);                     // 画线到起点
+        clipper->moveTo(hollowData.x, hollowData.y); // 移动到圆心
+        clipper->lineTo(startX, startY);             // 画线到起点
 
         // 计算角度差
         float angleDiff = endRad - startRad;
@@ -390,8 +390,8 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
                         std::fabs(angleDiff) > M_PI, true);
 
         // 封口
-        clipper->lineTo(hollowData.x + x, hollowData.y + y); // 画线到起点
-        clipper->close();                                    // 闭合路径回到圆心
+        clipper->lineTo(hollowData.x, hollowData.y); // 画线到起点
+        clipper->close();                            // 闭合路径回到圆心
     }
 
     // 多边形镂空
@@ -409,17 +409,17 @@ static void applyHollowMask(tvg::Shape *fillShapePtr, int32_t x, int32_t y, cons
             if (i == 0)
             {
                 // 移动到起始点
-                clipper->moveTo(polygonPoint.x() + x, polygonPoint.y() + y);
+                clipper->moveTo(polygonPoint.x(), polygonPoint.y());
             }
             else if (i == (hollowPolygon.posintList.size() - 1))
             {
                 // 闭合多边形
-                clipper->lineTo(polygonPoint.x() + x, polygonPoint.y() + y);
+                clipper->lineTo(polygonPoint.x(), polygonPoint.y());
                 clipper->close();
             }
             else
             {
-                clipper->lineTo(polygonPoint.x() + x, polygonPoint.y() + y);
+                clipper->lineTo(polygonPoint.x(), polygonPoint.y());
             }
         }
     }
@@ -519,7 +519,7 @@ static inline void renderRect(TpPainterData *painterData, const TpRect &rect, in
         else
             rectShape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-        applyHollowMask(rectShape, rect.x(), rect.y(), hollowMaskData);
+        applyHollowMask(rectShape, hollowMaskData);
     }
     else
     {
@@ -528,7 +528,7 @@ static inline void renderRect(TpPainterData *painterData, const TpRect &rect, in
         else
             rectShape->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-        applyHollowMask(rectShape, rect.x(), rect.y(), hollowMaskData);
+        applyHollowMask(rectShape, hollowMaskData);
     }
 
     painterData->tvgScene->push(std::move(rectShape));
@@ -566,7 +566,7 @@ static inline void renderEllipse(TpPainterData *painterData, const TpPoint &cent
         else
             circle->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-        applyHollowMask(circle, center.x() - rx, center.y() - ry, hollowMaskData);
+        applyHollowMask(circle, hollowMaskData);
     }
     else
     {
@@ -575,7 +575,7 @@ static inline void renderEllipse(TpPainterData *painterData, const TpPoint &cent
         else
             circle->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-        applyHollowMask(circle, center.x() - rx, center.y() - ry, hollowMaskData);
+        applyHollowMask(circle, hollowMaskData);
     }
 
     painterData->tvgScene->push(std::move(circle));
@@ -655,7 +655,7 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
             else
                 arc->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-            applyHollowMask(arc, center.x() - rad, center.y() - rad, hollowMaskData);
+            applyHollowMask(arc, hollowMaskData);
         }
         else
         {
@@ -664,7 +664,7 @@ static inline void renderArc(TpPainterData *painterData, const TpPoint &center, 
             else
                 arc->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-            applyHollowMask(arc, center.x() - rad, center.y() - rad, hollowMaskData);
+            applyHollowMask(arc, hollowMaskData);
         }
     }
     else
@@ -743,7 +743,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             else
                 polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-            applyHollowMask(polygon, pointList.front().x(), pointList.front().y(), hollowMaskData);
+            applyHollowMask(polygon, hollowMaskData);
         }
         else
         {
@@ -752,7 +752,7 @@ static inline void renderPolygon(TpPainterData *painterData, const TpVector<TpPo
             else
                 polygon->fill(_R(brushColor), _G(brushColor), _B(brushColor), _A(brushColor));
 
-            applyHollowMask(polygon, pointList.front().x(), pointList.front().y(), hollowMaskData);
+            applyHollowMask(polygon, hollowMaskData);
         }
 
         painterData->tvgScene->push(std::move(polygon));

@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpAudioFmtData);
+TP_DEF_VOID_TYPE_VAR(ITpAudioFmtData);
 
 class TpAudioFormat
 {
@@ -69,7 +69,7 @@ public:
 
 
 private:
-    ItpAudioFmtData *data_;
+    ITpAudioFmtData *data_;
 };
 
 

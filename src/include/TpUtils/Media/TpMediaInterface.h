@@ -5,7 +5,7 @@
 #include <TpCore.h>
 
 
-TP_DEF_VOID_TYPE_VAR(ItpMediaInfData);
+TP_DEF_VOID_TYPE_VAR(ITpMediaInfData);
 
 class TpAudioInterface;
 class TpVideoInterface;
@@ -97,7 +97,7 @@ private:
 	int threadMedia();
 
 protected:
-	ItpMediaInfData *data_;
+	ITpMediaInfData *data_;
 };
 
 

@@ -6,7 +6,7 @@
 struct MsgData
 {
     int32_t id;
-    ItpUserEvent data;
+    ITpUserEvent data;
 };
 
 struct TpMessageData
@@ -77,7 +77,7 @@ static inline bool isEmpty(TpMessageData *set)
     return (set->front == set->rear);
 }
 
-bool TpMessage::send(ItpUserEvent *message)
+bool TpMessage::send(ITpUserEvent *message)
 {
     TpMessageData *set = (TpMessageData *)this->data_;
 
@@ -100,7 +100,7 @@ bool TpMessage::send(ItpUserEvent *message)
     return true;
 }
 
-bool TpMessage::sendWait(ItpUserEvent *message)
+bool TpMessage::sendWait(ITpUserEvent *message)
 {
     bool ret = false;
 
@@ -112,7 +112,7 @@ bool TpMessage::sendWait(ItpUserEvent *message)
     return ret;
 }
 
-bool TpMessage::recvWait(ItpUserEvent *message)
+bool TpMessage::recvWait(ITpUserEvent *message)
 {
     bool ret = false;
 
@@ -129,7 +129,7 @@ bool TpMessage::recvWait(ItpUserEvent *message)
     return ret;
 }
 
-bool TpMessage::recv(ItpUserEvent *message)
+bool TpMessage::recv(ITpUserEvent *message)
 {
     TpMessageData *set = (TpMessageData *)this->data_;
 

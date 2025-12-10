@@ -5,7 +5,7 @@
 #include "TpString.h"
 #include "TpUuid.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpAppDopackData);
+TP_DEF_VOID_TYPE_VAR(ITpAppDopackData);
 
 class TpAppDopack
 {
@@ -165,7 +165,7 @@ public:
     void setExecPath(const TpString &name);
 
 private:
-    ItpAppDopackData *data_;
+    ITpAppDopackData *data_;
 };
 
 #endif

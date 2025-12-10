@@ -4,8 +4,8 @@
 #include <TpCore.h>
 #include "TpList.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpCpuData);
-TP_DEF_VOID_TYPE_VAR(ItpCpuCoreData);
+TP_DEF_VOID_TYPE_VAR(ITpCpuData);
+TP_DEF_VOID_TYPE_VAR(ITpCpuCoreData);
 
 class TpCpu;
 
@@ -39,7 +39,7 @@ private:
 	int setStat(const void *stat);
 
 private:
-	ItpCpuCoreData *data_;
+	ITpCpuCoreData *data_;
 };
 
 
@@ -79,7 +79,7 @@ private:
 	TpCpuCore* getCpuCoreState(int processor);
 
 private:
-	ItpCpuData *data_;
+	ITpCpuData *data_;
 };
 
 #endif

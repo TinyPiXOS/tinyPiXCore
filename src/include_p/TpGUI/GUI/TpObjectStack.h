@@ -24,7 +24,7 @@ public:
 
 public:
 	virtual TpScreen *top();
-	virtual bool dispatch(ItpEvent *event);
+	virtual bool dispatch(ITpEvent *event);
 
 private:
 	IPiVObjectStack *objectStackSet;

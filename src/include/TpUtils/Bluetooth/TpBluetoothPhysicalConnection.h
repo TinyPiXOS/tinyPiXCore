@@ -6,7 +6,7 @@
 #include "TpBluetoothDevice.h"
 #include "TpBluetoothAddress.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothPhysicalConnectionData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothPhysicalConnectionData);
 
 /// @brief 蓝牙设备的连接通信
 class TpBluetoothPhysicalConnection{
@@ -33,7 +33,7 @@ signals:
 	declare_signal(disconnected, ConnectionState);
 
 private:
-	ItpBluetoothPhysicalConnectionData *data_;
+	ITpBluetoothPhysicalConnectionData *data_;
 };
 
 

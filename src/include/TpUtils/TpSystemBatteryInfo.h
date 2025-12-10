@@ -4,7 +4,7 @@
 #include <TpCore.h>
 
 
-TP_DEF_VOID_TYPE_VAR(ItpSystemBatteryInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpSystemBatteryInfoData);
 
 class TpSystemBatteryInfo
 {
@@ -40,7 +40,7 @@ public:
 	int remainingCapacity();
 	
 private:
-	ItpSystemBatteryInfoData *data_;
+	ITpSystemBatteryInfoData *data_;
 	int getPath();
 	int getType(void *prop);
 };

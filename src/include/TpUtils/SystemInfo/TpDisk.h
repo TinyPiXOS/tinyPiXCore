@@ -4,7 +4,7 @@
 #include "TpString.h"
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpDiskInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpDiskInfoData);
 
 class TpDisk
 {
@@ -91,7 +91,7 @@ private:
 	int autoMountRabDisk(TpString path,tpUInt16 timeout);	//自动挂载(检测到新设备后期台启动线程持续进行挂载)
 	int autoMountRabDiskThread(TpString path,tpUInt16 timeout);
 private:
-    ItpDiskInfoData *data_;
+    ITpDiskInfoData *data_;
 };
 
 #endif

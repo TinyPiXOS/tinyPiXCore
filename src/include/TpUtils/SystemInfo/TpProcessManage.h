@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpProcessInfo.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpProcessManageData);
+TP_DEF_VOID_TYPE_VAR(ITpProcessManageData);
 struct TpAppData;
 
 class TpProcessManage
@@ -86,7 +86,7 @@ public:
 	void *thread_pcap_cpature(void *param);
 	static void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *packet);
 private:
-	ItpProcessManageData *data_;
+	ITpProcessManageData *data_;
 };
 
 

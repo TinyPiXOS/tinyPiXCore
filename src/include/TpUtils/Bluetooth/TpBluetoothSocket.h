@@ -7,7 +7,7 @@
 #include "TpBluetoothAddress.h"
 #include "TpBluetoothService.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothSocketData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothSocketData);
 
 /// @brief 蓝牙设备的连接通信
 class TpBluetoothSocket{
@@ -56,7 +56,7 @@ private:
 	tpBool checkDisconnected();
 	void setDisconnectedInfo();
 private:
-	ItpBluetoothSocketData *data_;
+	ITpBluetoothSocketData *data_;
 };
 
 

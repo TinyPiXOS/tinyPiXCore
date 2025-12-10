@@ -3,7 +3,7 @@
 
 #include "TpScreen.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpDialogData);
+TP_DEF_VOID_TYPE_VAR(ITpDialogData);
 class TpDialog
     : public TpScreen
 {
@@ -31,7 +31,7 @@ public:
     virtual TpString pluginType() override { return TO_STRING(TpDialog); }
 
 private:
-    ItpDialogData *data_;
+    ITpDialogData *data_;
 };
 
 #endif

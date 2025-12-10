@@ -7,7 +7,7 @@
 #include "TpBluetoothUuid.h"
 
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothLocalData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothLocalData);
 
 class TpBluetoothDiscovery;
 
@@ -121,7 +121,7 @@ private:
 	void *getAdapter();
 
 private:
-	ItpBluetoothLocalData *data_;
+	ITpBluetoothLocalData *data_;
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpUuid.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpAppInstallData);
+TP_DEF_VOID_TYPE_VAR(ITpAppInstallData);
 
 class TpAppInstall
 {
@@ -119,7 +119,7 @@ public:
 private:
 	int threadInstall();
 	int threadInstallTest();
-	ItpAppInstallData *data_;
+	ITpAppInstallData *data_;
 };
 
 #endif

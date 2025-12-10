@@ -32,11 +32,11 @@ typedef struct
 {
 	std::mutex gMutex;
 	std::list<TpScreen *> objectStackList;
-} ItpObjectStackSet;
+} ITpObjectStackSet;
 
 TpObjectStack::TpObjectStack()
 {
-	ItpObjectStackSet *set = new ItpObjectStackSet();
+	ITpObjectStackSet *set = new ITpObjectStackSet();
 
 	if (set)
 	{
@@ -46,7 +46,7 @@ TpObjectStack::TpObjectStack()
 
 TpObjectStack::~TpObjectStack()
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 
 	if (set)
 	{
@@ -57,7 +57,7 @@ TpObjectStack::~TpObjectStack()
 
 bool TpObjectStack::push(TpScreen *hook)
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 	bool ret = false;
 
 	if (set)
@@ -87,7 +87,7 @@ bool TpObjectStack::push(TpScreen *hook)
 
 bool TpObjectStack::pop()
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 	bool ret = false;
 
 	if (set)
@@ -104,7 +104,7 @@ bool TpObjectStack::pop()
 
 bool TpObjectStack::remove(TpScreen *hook)
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 	bool ret = false;
 
 	if (set)
@@ -132,7 +132,7 @@ bool TpObjectStack::remove(TpScreen *hook)
 
 void TpObjectStack::clear()
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 
 	if (set)
 	{
@@ -144,7 +144,7 @@ void TpObjectStack::clear()
 
 void TpObjectStack::exit()
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 
 	if (set)
 	{
@@ -167,7 +167,7 @@ void TpObjectStack::exit()
 
 TpScreen *TpObjectStack::top()
 {
-	ItpObjectStackSet *set = (ItpObjectStackSet *)this->objectStackSet;
+	ITpObjectStackSet *set = (ITpObjectStackSet *)this->objectStackSet;
 	TpScreen *topHook = nullptr;
 
 	if (set)
@@ -189,7 +189,7 @@ TpScreen *TpObjectStack::top()
 	return topHook;
 }
 
-bool TpObjectStack::dispatch(ItpEvent *event)
+bool TpObjectStack::dispatch(ITpEvent *event)
 {
 	TpScreen *topHook = this->top();
 	bool ret = false;

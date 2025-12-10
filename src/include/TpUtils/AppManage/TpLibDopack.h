@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpLibDopackData);
+TP_DEF_VOID_TYPE_VAR(ITpLibDopackData);
 
 class TpLibDopack
 {
@@ -36,7 +36,7 @@ public:
     int save(const TpString &path);
 
 private:
-    ItpLibDopackData *data_;
+    ITpLibDopackData *data_;
 };
 
 #endif

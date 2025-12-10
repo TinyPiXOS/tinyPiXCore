@@ -24,7 +24,7 @@ typedef struct
 	enum KeyModeType keymod;
 #endif
 
-} ItpKeyCode;
+} ITpKeyCode;
 
 /** Keyboard event structure */
 typedef struct
@@ -32,8 +32,8 @@ typedef struct
 	tpInt32 type;  /**< TP_KEYDOWN or TP_KEYUP */
 	tpUInt8 which; /**< The keyboard device index */
 	tpUInt8 state; /**< TP_PRESSED or TP_RELEASED */
-	ItpKeyCode keysym;
-} ItpKeyboardEvent;
+	ITpKeyCode keysym;
+} ITpKeyboardEvent;
 
 /** Mouse motion event structure */
 typedef struct
@@ -45,7 +45,7 @@ typedef struct
 	tpInt32 y;	  /**< The X/Y coordinates of the mouse */
 	tpInt32 xrel; /**< The relative motion in the X direction */
 	tpInt32 yrel; /**< The relative motion in the Y direction */
-} ItpMouseMotionEvent;
+} ITpMouseMotionEvent;
 
 /** Mouse button event structure */
 typedef struct
@@ -56,7 +56,7 @@ typedef struct
 	tpInt32 state;	/**< TP_PRESSED or TP_RELEASED */
 	tpInt32 x;
 	tpInt32 y; /**< The X/Y coordinates of the mouse at press time */
-} ItpMouseButtonEvent;
+} ITpMouseButtonEvent;
 
 typedef struct
 {
@@ -69,7 +69,7 @@ typedef struct
 	tpFloat dx;
 	tpFloat dy;
 	tpFloat pressure;
-} ItpTouchFingerEvent;
+} ITpTouchFingerEvent;
 
 typedef struct
 {
@@ -81,7 +81,7 @@ typedef struct
 	tpFloat error;
 	tpFloat x;
 	tpFloat y;
-} ItpDollarEvent;
+} ITpDollarEvent;
 
 typedef struct
 {
@@ -94,7 +94,7 @@ typedef struct
 	tpFloat y;
 	tpUInt16 numfingers;
 	tpUInt16 padding;
-} ItpMultiGestureEvent;
+} ITpMultiGestureEvent;
 
 typedef struct
 {
@@ -110,21 +110,21 @@ typedef struct
 	void *user_data2;
 	void *user_data3;
 	void *user_data4;
-} ItpUserEvent;
+} ITpUserEvent;
 
 /**event union*/
 typedef union
 {
 	tpInt32 type;
 
-	ItpKeyboardEvent keyboardEvent;
-	ItpMouseMotionEvent mouseMotionEvent;
-	ItpMouseButtonEvent mouseButtonEvent;
-	ItpTouchFingerEvent fingerEvent;
-	ItpDollarEvent dollarEvent;
-	ItpMultiGestureEvent gestrueEvent;
-	ItpUserEvent userEvent;
-} ItpEvent;
+	ITpKeyboardEvent keyboardEvent;
+	ITpMouseMotionEvent mouseMotionEvent;
+	ITpMouseButtonEvent mouseButtonEvent;
+	ITpTouchFingerEvent fingerEvent;
+	ITpDollarEvent dollarEvent;
+	ITpMultiGestureEvent gestrueEvent;
+	ITpUserEvent userEvent;
+} ITpEvent;
 
 /**
 @brief 生成事件句柄
@@ -138,7 +138,7 @@ extern DECLSPEC IPiEventCore *STDCALL event_init();
 @param event（WrapperPacketEvent*）网络或系统事件
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC tpBool STDCALL event_push(IPiEventCore *core, ItpEvent *event);
+extern DECLSPEC tpBool STDCALL event_push(IPiEventCore *core, ITpEvent *event);
 
 /**
 <<<<<<< HEAD
@@ -160,7 +160,7 @@ extern DECLSPEC int STDCALL event_size(IPiEventCore *core);
 @param event（WrapperPacketEvent*）网络或系统事件
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC tpBool STDCALL event_always_push(IPiEventCore *core, ItpEvent *event);
+extern DECLSPEC tpBool STDCALL event_always_push(IPiEventCore *core, ITpEvent *event);
 
 /**
 >>>>>>> 3fcd642 (event optimization)
@@ -169,7 +169,7 @@ extern DECLSPEC tpBool STDCALL event_always_push(IPiEventCore *core, ItpEvent *e
 @param event（WrapperPacketEvent*）网络或系统事件
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC tpBool STDCALL event_wait(IPiEventCore *core, ItpEvent *event);
+extern DECLSPEC tpBool STDCALL event_wait(IPiEventCore *core, ITpEvent *event);
 
 /**
 @brief 非等待直接从队列中取出事件
@@ -177,7 +177,7 @@ extern DECLSPEC tpBool STDCALL event_wait(IPiEventCore *core, ItpEvent *event);
 @param event（WrapperPacketEvent*）网络或系统事件
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC tpBool STDCALL event_poll(IPiEventCore *core, ItpEvent *event);
+extern DECLSPEC tpBool STDCALL event_poll(IPiEventCore *core, ITpEvent *event);
 
 /**
 <<<<<<< HEAD
@@ -211,7 +211,7 @@ extern DECLSPEC void STDCALL event_set_clear(IPiEventCore *core);
 @param n（tpInt32）取出队列的长度
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC tpBool STDCALL event_poll_all(IPiEventCore *core, ItpEvent *event, tpInt32 *n);
+extern DECLSPEC tpBool STDCALL event_poll_all(IPiEventCore *core, ITpEvent *event, tpInt32 *n);
 
 /**
 @brief 获取事件队列是否准备完毕

@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothUuidData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothUuidData);
 
 
 class TpBluetoothUuid{
@@ -142,7 +142,7 @@ public:
 	TpString toName()const;
 
 private:
-	ItpBluetoothUuidData *data_;
+	ITpBluetoothUuidData *data_;
 };
 
 

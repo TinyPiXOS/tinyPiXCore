@@ -5,7 +5,7 @@
 #include "TpAudioFormat.h"
 #include "TpMediaInterface.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpAudioInfData);
+TP_DEF_VOID_TYPE_VAR(ITpAudioInfData);
 
 class TpAudioInterface 
 {
@@ -63,7 +63,7 @@ private:
 	friend class TpMediaInterface;
 	void *getAudioInfo();
 private:
-	ItpAudioInfData *aData_;
+	ITpAudioInfData *aData_;
 };
 
 

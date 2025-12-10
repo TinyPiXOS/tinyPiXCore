@@ -5,7 +5,7 @@
 #include "TpSpacerItem.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpLayoutData);
+TP_DEF_VOID_TYPE_VAR(ITpLayoutData);
 class TpLayout
 	: public TpObject
 {
@@ -96,7 +96,7 @@ signals:
 	declare_signal(onUpdate);
 
 private:
-	ItpLayoutData *data_;
+	ITpLayoutData *data_;
 };
 
 #endif

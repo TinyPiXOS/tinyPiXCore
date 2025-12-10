@@ -4,7 +4,7 @@
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpRadioButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpRadioButtonData);
 
 class TpColors;
 class TpFont;
@@ -51,7 +51,7 @@ protected:
     virtual bool onPaintEvent(TpPaintEvent *event);
 
 private:
-    ItpRadioButtonData *data_;
+    ITpRadioButtonData *data_;
 };
 
 #endif

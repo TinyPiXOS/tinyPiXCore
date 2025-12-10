@@ -6,7 +6,7 @@
 #include "TpBluetoothAddress.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothDiscoveryData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothDiscoveryData);
 
 /// @brief 蓝牙扫描，可以用于扫描周围的蓝牙
 class TpBluetoothDiscovery{
@@ -61,7 +61,7 @@ public:
 private:
 	void discovery();
 
-	ItpBluetoothDiscoveryData *data_;
+	ITpBluetoothDiscoveryData *data_;
 };
 
 

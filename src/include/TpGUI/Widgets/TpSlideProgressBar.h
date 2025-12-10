@@ -7,7 +7,7 @@
 #include "TpEvent.h"
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpSlideProgressBarData);
+TP_DEF_VOID_TYPE_VAR(ITpSlideProgressBarData);
 /// @brief 滑动进度条，可用手势或鼠标拖拽进度
 class TpSlideProgressBar : public TpWidget
 {
@@ -48,7 +48,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpSlideProgressBar); }
 
 private:
-    ItpSlideProgressBarData *data_;
+    ITpSlideProgressBarData *data_;
 };
 
 #endif

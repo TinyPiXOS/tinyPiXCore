@@ -145,3 +145,4 @@ examples/TpGUI/TpCollapsibleFileWidget/fileWidget
 examples/TpGUI/TpLayout/layout
 examples/TpGUI/TpSlideProgressBar/sliderProgress
 examples/TpGUI/TpScrollPanel/scrollpanel
+examples/TpGUI/TpHumidityWidget/temp

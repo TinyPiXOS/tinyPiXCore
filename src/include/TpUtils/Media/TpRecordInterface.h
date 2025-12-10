@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpRecordInfData);
+TP_DEF_VOID_TYPE_VAR(ITpRecordInfData);
 
 class TpRecordInterface
 {
@@ -60,7 +60,7 @@ public:
 private:
 	int threadRecord();
 private:
-	ItpRecordInfData *data_;
+	ITpRecordInfData *data_;
 };
 
 

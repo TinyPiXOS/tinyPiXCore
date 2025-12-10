@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpMediaFileData);
+TP_DEF_VOID_TYPE_VAR(ITpMediaFileData);
 
 class TpMediaFile
 {
@@ -65,7 +65,7 @@ public:
 	tpUInt32 getFrameRate();
 
 private:
-	ItpMediaFileData *data_;
+	ITpMediaFileData *data_;
 };
 
 #endif

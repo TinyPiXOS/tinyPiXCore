@@ -6,7 +6,7 @@
 #include "TpNetworkDatagram.h"
 
 
-TP_DEF_VOID_TYPE_VAR(ItpUdpSocketData);
+TP_DEF_VOID_TYPE_VAR(ITpUdpSocketData);
 
 class TpUdpSocket
 {
@@ -51,7 +51,7 @@ public signals:
 
 private:
 	void handleReadyRead();
-	ItpUdpSocketData *data_;
+	ITpUdpSocketData *data_;
 };
 
 

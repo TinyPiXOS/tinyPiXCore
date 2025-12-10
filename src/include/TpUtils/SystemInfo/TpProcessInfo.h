@@ -19,7 +19,7 @@
 
 #define MAX_PATH_LENGTH 1024
 
-TP_DEF_VOID_TYPE_VAR(ItpProcessInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpProcessInfoData);
 
 class TpProcessInfo
 {
@@ -100,7 +100,7 @@ private:
     void *getNetHandle();
 
 private:
-    ItpProcessInfoData *data_;
+    ITpProcessInfoData *data_;
 };
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpBluetoothAddressData);
+TP_DEF_VOID_TYPE_VAR(ITpBluetoothAddressData);
 
 /// @brief 为蓝牙分配地址
 class TpBluetoothAddress{
@@ -34,7 +34,7 @@ private:
 	void parseString(const TpString &str);
 
 private:
-	ItpBluetoothAddressData *data_;
+	ITpBluetoothAddressData *data_;
 };
 
 

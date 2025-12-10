@@ -6,7 +6,7 @@
 #include "TpDate.h"
 #include "TpTime.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpDateTimeData);
+TP_DEF_VOID_TYPE_VAR(ITpDateTimeData);
 /// @brief 日期时间复合类，提供精确到毫秒的日期时间操作
 class TpDateTime
 {
@@ -118,7 +118,7 @@ public:
     inline bool operator>=(const TpDateTime &other) const { return !(*this < other); }
 
 private:
-    ItpDateTimeData *data_;
+    ITpDateTimeData *data_;
 };
 
 #endif

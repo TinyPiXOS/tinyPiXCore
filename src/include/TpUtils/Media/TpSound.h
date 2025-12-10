@@ -4,7 +4,7 @@
 #include <TpCore.h>
 #include "TpAudioInterface.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpSoundData);
+TP_DEF_VOID_TYPE_VAR(ITpSoundData);
 
 class TpSound
 {
@@ -55,7 +55,7 @@ public:
     int getSystemVolume();
 
 private:
-    ItpSoundData *data_;
+    ITpSoundData *data_;
 };
 
 #endif

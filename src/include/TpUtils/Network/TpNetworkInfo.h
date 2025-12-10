@@ -3,7 +3,7 @@
 
 #include <TpCore.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpNetworkInfoData);
+TP_DEF_VOID_TYPE_VAR(ITpNetworkInfoData);
 
 class TpNetworkInfo
 {
@@ -27,7 +27,7 @@ private:
 	void updateInfo(double tx, double rx);
 
 private:
-	ItpNetworkInfoData* data_;
+	ITpNetworkInfoData* data_;
 
 };
 

@@ -80,8 +80,8 @@ public:
 public:
     virtual void setRotateEnable(bool enabled = false) {};
     virtual bool rotateEnable() { return false; };
-    virtual void setRotate(ItpRotateType type) {};
-    virtual ItpRotateType rotate() { return TP_ROT_0; };
+    virtual void setRotate(ITpRotateType type) {};
+    virtual ITpRotateType rotate() { return TP_ROT_0; };
 
 public:
     virtual int32_t offsetX(); // the distace X from top object left coordinate

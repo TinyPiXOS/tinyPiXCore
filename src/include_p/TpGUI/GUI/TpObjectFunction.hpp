@@ -140,7 +140,7 @@ static void paintEnabledBox(TpWidget *child, TpPainter *paintCanvas)
 
 // 先声明，因为 childPaint 和 drawWidget 互相调用了
 static inline void childPaint(TpObjectData *set, TpPaintEvent *events);
-static void drawWidget(ItpObjectPaintInput &input, TpWidget *obj)
+static void drawWidget(ITpObjectPaintInput &input, TpWidget *obj)
 {
     TpPaintEvent event;
     event.construct(&input);
@@ -218,7 +218,7 @@ static inline void childPaint(TpObjectData *set, TpPaintEvent *events)
             continue;
 
         TpObjectData *childSet = (TpObjectData *)child->objectSets();
-        ItpObjectPaintInput input;
+        ITpObjectPaintInput input;
         input.object = child;
         input.updateRect = events->updateRect();
 
