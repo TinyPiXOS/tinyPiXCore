@@ -8,10 +8,6 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     // 初始化网关
     bool gatewayInitRes = initializeGateway();
 
-    // // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
-
     TpCoreAppData *coreData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
     if (coreData)
     {

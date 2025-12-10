@@ -8,10 +8,6 @@ TpWidget::TpWidget(TpWidget *parent)
 {
     TpWidgetData *widgetData = new TpWidgetData();
 
-    // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
-
     // 移除父类的数据；创建widget的指针
     TpObjectData *objData = static_cast<TpObjectData *>(TpObject::data_);
     if (objData)

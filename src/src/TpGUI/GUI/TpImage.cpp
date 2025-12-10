@@ -11,10 +11,6 @@
 
 TpImage::TpImage(const TpString &fileName) : data_(nullptr)
 {
-    // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
-
     TpImageData *imageData = new TpImageData();
     imageData->tvgPicture = tvg::Picture::gen();
 
@@ -25,10 +21,6 @@ TpImage::TpImage(const TpString &fileName) : data_(nullptr)
 
 TpImage::TpImage(const TpImage &other) : data_(nullptr)
 {
-    // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
-
     TpImageData *imageData = new TpImageData();
 
     data_ = imageData;

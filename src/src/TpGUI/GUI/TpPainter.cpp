@@ -14,10 +14,6 @@
 
 TpPainter::TpPainter(TpWidget *object)
 {
-    // 根据CPU核心数；分配绘图引擎线程数
-    uint32_t cores = std::thread::hardware_concurrency();
-    tvg::Initializer::init(cores / 2);
-
     TpPainterData *painterData = new TpPainterData();
     if (!painterData)
         return;

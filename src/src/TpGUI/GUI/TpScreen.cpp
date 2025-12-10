@@ -60,7 +60,11 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
             this->broadSetTop();
         }
 
-        screenData->swCanvas = tvg::SwCanvas::gen();
+        // // 根据CPU核心数；分配绘图引擎线程数
+        uint32_t cores = std::thread::hardware_concurrency();
+        tvg::Initializer::init(cores / 2);
+
+        screenData->swCanvas = tvg::SwCanvas::gen(tvg::EngineOption::SmartRender);
         screenData->swCanvas->push(screenData->tvgScene);
     }
 }
@@ -765,9 +769,5 @@ int32_t TpScreen::dispatchEvent(void *events)
 void *TpScreen::canvasPtr()
 {
     TpScreenData *screenData = static_cast<TpScreenData *>(data_);
-    if (!screenData->swCanvas)
-    {
-        screenData->swCanvas = tvg::SwCanvas::gen();
-    }
     return screenData->swCanvas;
 }

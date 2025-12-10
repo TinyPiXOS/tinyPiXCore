@@ -74,15 +74,6 @@ public:
     virtual tpShared<TpSurface> copy(int32_t x, int32_t y, int32_t w, int32_t h); // will be effected by clip rect
 
 public:
-    virtual void directBlitF(tpShared<TpSurface> surface, const TpRect &src, const TpRect &dst); // from other surface
-
-    /// @brief 将自己的surface数据拷贝至目标surface
-    /// @param surface
-    /// @param src
-    /// @param dst
-    virtual void directBlitT(tpShared<TpSurface> surface, const TpRect &src, const TpRect &dst);
-
-public:
     virtual void strenchBlitF(TpSurface &surface, const TpRect &src, const TpRect &dst); // from other surface, can strench, have to zoom out will be effective
     virtual void strenchBlitT(TpSurface &surface, const TpRect &src, const TpRect &dst); // to other surface, can strench, have to zoom out will be effective
 
