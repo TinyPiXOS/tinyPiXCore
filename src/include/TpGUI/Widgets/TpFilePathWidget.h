@@ -41,11 +41,8 @@ signals:
     declare_signal(onPathChanged, const TpString &, const TpString &);
 
 protected:
-	virtual bool onMousePressEvent(TpMouseEvent *event) override;
-	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onResizeEvent(TpResizeEvent *event) override;
-
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
     /// @brief

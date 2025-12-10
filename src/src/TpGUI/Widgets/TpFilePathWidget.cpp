@@ -110,33 +110,6 @@ TpString TpFilePathWidget::path()
     return buttonData->curPath;
 }
 
-bool TpFilePathWidget::onMousePressEvent(TpMouseEvent *event)
-{
-    TpWidget::onMousePressEvent(event);
-
-    return true;
-}
-
-bool TpFilePathWidget::onMouseRleaseEvent(TpMouseEvent *event)
-{
-    TpWidget::onMouseRleaseEvent(event);
-
-    TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
-    if (buttonData->curClickedItem)
-    {
-        TpString curLastPath = buttonData->rootPath + buttonData->pathLabelList.back()->property("Path").toString();
-        TpString curClickedPath = buttonData->rootPath + buttonData->curClickedItem->property("Path").toString();
-
-        if (curClickedPath.compare(curLastPath) != 0)
-        {
-            setPath(curClickedPath);
-            onPathChanged.emit(curLastPath, curClickedPath);
-        }
-    }
-
-    return true;
-}
-
 bool TpFilePathWidget::onPaintEvent(TpPaintEvent *event)
 {
     TpWidget::onPaintEvent(event);
@@ -219,9 +192,10 @@ bool TpFilePathWidget::eventFilter(TpObject *watched, TpEvent *event)
         if (pathItem)
         {
             buttonData->curClickedItem = pathItem;
-            TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
-            onMousePressEvent(mouseEvent);
+            // TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
+            // onMousePressEvent(mouseEvent);
         }
+        return true;
     }
     else if (event->eventType() == TpEvent::EVENT_MOUSE_RELEASE_TYPE)
     {
@@ -231,13 +205,25 @@ bool TpFilePathWidget::eventFilter(TpObject *watched, TpEvent *event)
         if (pathItem)
         {
             buttonData->curClickedItem = pathItem;
-            TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
-            onMouseRleaseEvent(mouseEvent);
+
+            TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
+            if (buttonData->curClickedItem)
+            {
+                TpString curLastPath = buttonData->rootPath + buttonData->pathLabelList.back()->property("Path").toString();
+                TpString curClickedPath = buttonData->rootPath + buttonData->curClickedItem->property("Path").toString();
+
+                if (curClickedPath.compare(curLastPath) != 0)
+                {
+                    setPath(curClickedPath);
+                    onPathChanged.emit(curLastPath, curClickedPath);
+                }
+            }
         }
+
+        return true;
     }
     else
     {
-
     }
 
     return false;
