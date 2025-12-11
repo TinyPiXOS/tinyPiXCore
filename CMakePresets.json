@@ -57,7 +57,6 @@
             "hidden": true,
             "cacheVariables": {
                 "CMAKE_SYSTEM_NAME": "Linux",
-                "CMAKE_SYSTEM_PROCESSOR": "arm",
                 "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++",
                 "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
@@ -77,6 +76,7 @@
             ],
             "cacheVariables": {
                 "TARGET_ARCH": "arm64",
+                "CMAKE_SYSTEM_PROCESSOR": "arm64",
                 "CMAKE_C_COMPILER": "/usr/bin/aarch64-linux-gnu-gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/aarch64-linux-gnu-g++",
                 "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1",
@@ -93,6 +93,7 @@
             ],
             "cacheVariables": {
                 "TARGET_ARCH": "arm64",
+                "CMAKE_SYSTEM_PROCESSOR": "arm64",
                 "CMAKE_C_COMPILER": "/usr/bin/aarch64-linux-gnu-gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/aarch64-linux-gnu-g++"
             }
@@ -107,6 +108,7 @@
             ],
             "cacheVariables": {
                 "TARGET_ARCH": "arm32",
+                "CMAKE_SYSTEM_PROCESSOR": "arm32",
                 "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++",
                 "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1",
@@ -123,6 +125,7 @@
             ],
             "cacheVariables": {
                 "TARGET_ARCH": "arm32",
+                "CMAKE_SYSTEM_PROCESSOR": "arm32",
                 "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++"
             }
