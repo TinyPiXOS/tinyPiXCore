@@ -1,5 +1,5 @@
-#ifndef __TP_SYSTEM_API_H
-#define __TP_SYSTEM_API_H
+#ifndef __TP_APP_MANAGER_H
+#define __TP_APP_MANAGER_H
 
 #include <TpCore.h>
 #include "TpSize.h"
@@ -8,9 +8,9 @@
 
 class TpImage;
 
-TP_DEF_VOID_TYPE_VAR(ITpSystemApiData);
+TP_DEF_VOID_TYPE_VAR(ITpAppManagerData);
 /// @brief 系统桌面级API功能接口类
-class TpSystemApi
+class TpAppManager
 {
 public:
     /// @brief 打开文件错误码
@@ -42,7 +42,7 @@ public:
 public:
     /// @brief 获取唯一单例
     /// @return 实例指针
-    static TpSystemApi *Instance();
+    static TpAppManager *Instance();
 
 public:
     /// @brief 根据文件类型启动对应应用打开文件
@@ -103,16 +103,16 @@ public:
 
 public:
     /// @brief 禁用拷贝构造
-    TpSystemApi(const TpSystemApi &) = delete;
+    TpAppManager(const TpAppManager &) = delete;
     /// @brief 禁用赋值构造
-    TpSystemApi &operator=(const TpSystemApi &) = delete;
+    TpAppManager &operator=(const TpAppManager &) = delete;
 
 private:
-    TpSystemApi();
-    virtual ~TpSystemApi();
+    TpAppManager();
+    virtual ~TpAppManager();
 
 private:
-    ITpSystemApiData *data_;
+    ITpAppManagerData *data_;
 };
 
 #endif

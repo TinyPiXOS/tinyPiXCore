@@ -18,7 +18,7 @@
 #include "tinyPiXUtils.h"
 #include "png.h"
 #include "TpMainWindow.h"
-#include "Service/TpSystemApi.h"
+#include "Service/TpAppManager.h"
 #include "TpVBoxLayout.h"
 #include "TpHBoxLayout.h"
 

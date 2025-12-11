@@ -16,7 +16,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/TpGateway.cpp
     ${SOURCE_PATH}/src/TpUtils/TpGatewayClientREQ.cpp
 
-    ${SOURCE_PATH}/src/TpUtils/Service/TpSystemApi.cpp
+    ${SOURCE_PATH}/src/TpUtils/Service/TpAppManager.cpp
     ${SOURCE_PATH}/src/TpUtils/Service/TpAppConfigIO.cpp
     # ${SOURCE_PATH}/src/TpUtils/Service/TpWidgetsGateway.cpp
 
@@ -177,9 +177,9 @@ set(SOURCE_FILES
     # ${SOURCE_PATH}/src_p/TpUtils/bluetooth/src/obexnames.c
     # ${SOURCE_PATH}/src/TpUtils/TpDisplayManage.cpp
 
-    # ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_client.cpp
-    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_client.cpp
-    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpAppManager_client.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpAppManager_client.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpAppManager_interface.cpp
 )
 
 if(CMAKE_CROSSCOMPILING)
@@ -211,15 +211,14 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
+include_directories(${SOURCE_PATH}/include/TpUtils/Service)
 include_directories(${SOURCE_PATH}/include/TpUtils/JsonStructPackage)
-
 include_directories(${SOURCE_PATH}/include/TpUtils/Network)
 include_directories(${SOURCE_PATH}/include/TpUtils/SystemInfo)
 include_directories(${SOURCE_PATH}/include/TpUtils/Bluetooth)
 include_directories(${SOURCE_PATH}/include/TpUtils/Media)
 include_directories(${SOURCE_PATH}/include/TpUtils/AppManage)
 include_directories(${SOURCE_PATH}/include/TpUtils/Hardware)
-
 include_directories(${SOURCE_PATH}/include/TpGUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/GUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/Widgets)

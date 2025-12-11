@@ -12,9 +12,9 @@ include(../../cmake/TargetArchConfig.cmake)
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/main.cpp
     ${SOURCE_PATH}/src/TpService/TpGatewayServerPUBSUB.cpp
-    # ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpSystemApi_server.cpp
-    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_server.cpp
-    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpSystemApi_interface.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/c_TpAppManager_server.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpAppManager_server.cpp
+    # ${SOURCE_PATH}/src_p/TpUtils/Service/TpAppManager_interface.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)

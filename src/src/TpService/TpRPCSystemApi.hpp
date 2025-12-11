@@ -2,8 +2,8 @@
 #define __GATEWAY_RPC_SERVER_H
 
 #include <erpc_server_setup.h>
-#include "c_TpSystemApi_server.h"
-#include "TpSystemApi_server.hpp"
+#include "c_TpAppManager_server.h"
+#include "TpAppManager_server.hpp"
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
 

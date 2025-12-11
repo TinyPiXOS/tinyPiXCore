@@ -11,8 +11,8 @@
 #include "TpDefaultCss.h"
 #include "TpApp_p.h"
 
-TpMainWindow::TpMainWindow(const char *type)
-    : TpScreen(type)
+TpMainWindow::TpMainWindow()
+    : TpScreen("tinyPiX_USE_Float")
 {
     if (this->objectType() != Tp::TP_MAIN_WINDOW_OBJECT)
     {

@@ -13,13 +13,13 @@ int main()
 	tpShared<TpDisplay> device=devices.getDevice(0);
 	std::cout<<"deviceinfo:"<<std::endl;
 
-	TpList<TpDisplay::TpDisplayModeParam> modes=device->getDisplayMode();
+	TpList<TpDisplay::TpDisplayModeParam> modes=device->displayMode();
 	for(auto &mode: modes) {
 		std::cout << "Width: " << mode.width << ", Height: " << mode.height << ", Refresh Rate: " << mode.refresh << std::endl;
 	}
-	std::cout<<"physics :"<<device->getPhysicsWidth()<<"mm *" <<device->getPhysicsHeight()<<std::endl;
-	std::cout<<"width:"<<device->getResolutionWidth();
-	std::cout<<" height:"<<device->getResolutionHeight();
+	std::cout<<"physics :"<<device->physicsWidth()<<"mm *" <<device->physicsHeight()<<std::endl;
+	std::cout<<"width:"<<device->resolutionWidth();
+	std::cout<<" height:"<<device->resolutionHeight();
 	std::cout<<" Ref:"<<device->getRefreshRate();
 	std::cout<<std::endl;
 

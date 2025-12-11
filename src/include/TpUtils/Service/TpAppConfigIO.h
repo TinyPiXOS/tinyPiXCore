@@ -56,6 +56,10 @@ public:
     /// @return 应用名称
     TpString appName() const;
 
+    /// @brief 获取应用开屏背景图片路径
+    /// @return 未设置则返回空
+    TpString splashScreenPath() const;
+
     /// @brief 获取应用所有小组件信息列表
     /// @return 小组件信息列表
     TpVector<AppWidgetInfo> widgetsInfo() const;

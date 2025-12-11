@@ -1,4 +1,4 @@
-#include "Service/TpSystemApi.h"
+#include "Service/TpAppManager.h"
 #include "Service/TpAppConfigIO.h"
 #include "TpGateway.h"
 #include "TpFileInfo.h"
@@ -17,15 +17,15 @@
 #include "TpApp_p.h"
 #include <mutex>
 #include <erpc_client_setup.h>
-#include "c_TpSystemApi_client.h"
-#include "TpSystemApi_client.hpp"
+#include "c_TpAppManager_client.h"
+#include "TpAppManager_client.hpp"
 #include <TpInteractDataDef/TpWidgetsData.h>
 #include <erpc/erpc_port.h>
 #include <future>
 
 const TpString globalAppFilePathStr = "/System/app/";
 
-struct TpSystemApiData
+struct TpAppManagerData
 {
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
@@ -60,17 +60,17 @@ TpHash<TpString, int32_t> queryRunAppInfo()
 }
 #endif
 
-TpSystemApi *TpSystemApi::Instance()
+TpAppManager *TpAppManager::Instance()
 {
-    static TpSystemApi instance;
+    static TpAppManager instance;
     return &instance;
 }
 
-TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const TpString &appUuid)
+TpAppManager::OpenFileError TpAppManager::openFile(const TpString &filePath, const TpString &appUuid)
 {
     TpFileInfo fileInfo(filePath);
     if (!fileInfo.exists())
-        return TpSystemApi::FileNotExist;
+        return TpAppManager::FileNotExist;
 
     TpString parseAppUuid = appUuid;
 
@@ -80,7 +80,7 @@ TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const
 
         TpFile fileTypeMapperFile("/System/conf/fileTypeMapper.conf");
         if (!fileTypeMapperFile.open(TpFile::ReadOnly))
-            return TpSystemApi::SystemFileDamage;
+            return TpAppManager::SystemFileDamage;
 
         // 查询配置文件内，该后缀类型文件对应的应用信息
         TpString appJsonStr = fileTypeMapperFile.readAll();
@@ -93,16 +93,16 @@ TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const
 
         TpJsonObject fileSuffixTypeObj = appJsonObj.value("extensionType").toObject();
         if (!fileSuffixTypeObj.contains(fileSuffix))
-            return TpSystemApi::NotSupport;
+            return TpAppManager::NotSupport;
 
         // 再根据文件后缀对应的类型取出应用UUID
         TpString fileTypeStr = fileSuffixTypeObj.value(fileSuffix).toString();
         if (!appJsonObj.contains(fileTypeStr))
-            return TpSystemApi::SystemFileDamage;
+            return TpAppManager::SystemFileDamage;
 
         TpJsonObject appInfoObj = appJsonObj.value(fileTypeStr).toObject();
         if (!appInfoObj.contains("uuid"))
-            return TpSystemApi::SystemFileDamage;
+            return TpAppManager::SystemFileDamage;
 
         // 根据应用UUID发送桌面启动应用
         parseAppUuid = appInfoObj.value("uuid").toString();
@@ -120,10 +120,10 @@ TpSystemApi::OpenFileError TpSystemApi::openFile(const TpString &filePath, const
 
     publishGatewayData(TpRunAppKey, structPackage.data(), structPackage.size());
 
-    return TpSystemApi::Succsssful;
+    return TpAppManager::Succsssful;
 }
 
-void TpSystemApi::notifyWidgetsResize(const TpString &widgetUuid, const TpSize &widgetSize)
+void TpAppManager::notifyWidgetsResize(const TpString &widgetUuid, const TpSize &widgetSize)
 {
     TpString notifyTopic = widgetUuid + "_WidgetGateway2W";
 
@@ -142,7 +142,7 @@ void TpSystemApi::notifyWidgetsResize(const TpString &widgetUuid, const TpSize &
     publishGatewayData(notifyTopic.c_str(), sPack.data(), sPack.size());
 }
 
-void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
+void TpAppManager::notifyWidgetsPaint(const TpString &widgetUuid)
 {
     TpString notifyTopic = widgetUuid + "_WidgetGateway2W";
 
@@ -153,9 +153,9 @@ void TpSystemApi::notifyWidgetsPaint(const TpString &widgetUuid)
     publishGatewayData(notifyTopic.c_str(), sPack.data(), sPack.size());
 }
 
-TpImage TpSystemApi::appImage(const TpString &uuid)
+TpImage TpAppManager::appImage(const TpString &uuid)
 {
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return TpImage();
 
@@ -219,18 +219,18 @@ TpImage TpSystemApi::appImage(const TpString &uuid)
     return resImage;
 }
 
-bool TpSystemApi::home()
+bool TpAppManager::home()
 {
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return false;
     tinyPiX_sys_send_home(apiData->globalAgent);
     return true;
 }
 
-bool TpSystemApi::startApp(const TpString &uuid, const TpVector<TpString> &argList)
+bool TpAppManager::startApp(const TpString &uuid, const TpVector<TpString> &argList)
 {
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return false;
 
@@ -256,8 +256,6 @@ bool TpSystemApi::startApp(const TpString &uuid, const TpVector<TpString> &argLi
         return false;
     }
 
-    bool startRes = false;
-
     if (apiData->appUuidPidMap.contains(uuid))
     {
         // 应用已启动，恢复即可
@@ -278,12 +276,12 @@ bool TpSystemApi::startApp(const TpString &uuid, const TpVector<TpString> &argLi
         apiData->appUuidPidMap[uuid] = processPID;
     }
 
-    return startRes;
+    return true;
 }
 
-bool TpSystemApi::killApp(const TpString &uuid)
+bool TpAppManager::killApp(const TpString &uuid)
 {
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return false;
 
@@ -303,9 +301,9 @@ bool TpSystemApi::killApp(const TpString &uuid)
     return true;
 }
 
-bool TpSystemApi::killAllApp()
+bool TpAppManager::killAllApp()
 {
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return false;
 
@@ -322,11 +320,11 @@ bool TpSystemApi::killAllApp()
     return true;
 }
 
-TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppInfoList()
+TpVector<TpAppManager::RunAppInfo> TpAppManager::runAppInfoList()
 {
     TpVector<RunAppInfo> runAppList;
 
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return runAppList;
 
@@ -344,11 +342,11 @@ TpVector<TpSystemApi::RunAppInfo> TpSystemApi::runAppInfoList()
     return runAppList;
 }
 
-TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
+TpAppManager::RunAppInfo TpAppManager::runAppInfo(const TpString &uuid)
 {
     RunAppInfo runAppInfo;
 
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (!apiData)
         return runAppInfo;
 
@@ -377,7 +375,7 @@ TpSystemApi::RunAppInfo TpSystemApi::runAppInfo(const TpString &uuid)
     return runAppInfo;
 }
 
-bool TpSystemApi::setStatusBarStyle(int32_t rgba)
+bool TpAppManager::setStatusBarStyle(int32_t rgba)
 {
     TpChangeDeskStatusBarStyle statusBarStyle;
     statusBarStyle.bgRgba = rgba;
@@ -388,7 +386,7 @@ bool TpSystemApi::setStatusBarStyle(int32_t rgba)
     return publishGatewayData(statusBarStyle.dataHead_.type_.c_str(), package.data(), package.size());
 }
 
-bool TpSystemApi::setStatusBarVisible(bool visible)
+bool TpAppManager::setStatusBarVisible(bool visible)
 {
     TpChangeDeskStatusBarVisible statusBarVisible;
     statusBarVisible.visible = visible;
@@ -399,9 +397,9 @@ bool TpSystemApi::setStatusBarVisible(bool visible)
     return publishGatewayData(statusBarVisible.dataHead_.type_.c_str(), package.data(), package.size());
 }
 
-TpSystemApi::TpSystemApi()
+TpAppManager::TpAppManager()
 {
-    TpSystemApiData *apiData = new TpSystemApiData();
+    TpAppManagerData *apiData = new TpAppManagerData();
     data_ = apiData;
     initializeGateway();
 
@@ -423,9 +421,9 @@ TpSystemApi::TpSystemApi()
     // initSystemApiService_client(apiData->erpcClient);
 }
 
-TpSystemApi::~TpSystemApi()
+TpAppManager::~TpAppManager()
 {
-    TpSystemApiData *apiData = static_cast<TpSystemApiData *>(data_);
+    TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (apiData)
     {
         // erpc_transport_tcp_deinit(apiData->transportPtr);

@@ -9,7 +9,7 @@ class TpMainWindow
     : public TpScreen
 {
 public:
-    TpMainWindow(const char *type = "tinyPiX_USE_Float");
+    TpMainWindow();
     virtual ~TpMainWindow();
 
 public:

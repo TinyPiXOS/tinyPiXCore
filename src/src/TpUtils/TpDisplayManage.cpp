@@ -135,7 +135,7 @@ tpShared<TpDisplay> TpDisplayManage::getDevice(const TpString &name)
 	TpDisplayManageData *displayParm = static_cast<TpDisplayManageData *>(data_);
 	for(auto it :displayParm->device_list)
 	{
-		if(it->getName()==name)
+		if(it->name()==name)
 			return it;
 	}
 	std::cerr << "can't get device for name" << std::endl;

@@ -70,7 +70,7 @@ TpVector<TpString> TpAppConfigIO::installAppUuidList()
     return installAppUuidList;
 }
 
-bool TpAppConfigIO::setAppUuid(const TpString &appUuid) 
+bool TpAppConfigIO::setAppUuid(const TpString &appUuid)
 {
     if (appUuid.empty())
         return false;
@@ -150,6 +150,18 @@ TpString TpAppConfigIO::appName() const
         return "";
 
     return configData->appStaticJsonObj.value("appName").toString();
+}
+
+TpString TpAppConfigIO::splashScreenPath() const
+{
+    TpAppConfigIOData *configData = static_cast<TpAppConfigIOData *>(data_);
+    if (configData->appStaticJsonObj.isEmpty())
+        return "";
+
+    if (!configData->appStaticJsonObj.contains("splashScreen"))
+        return "";
+
+    return configData->appStaticJsonObj.value("splashScreen").toString();
 }
 
 TpVector<TpAppConfigIO::AppWidgetInfo> TpAppConfigIO::widgetsInfo() const
