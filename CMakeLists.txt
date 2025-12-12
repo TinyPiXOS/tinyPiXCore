@@ -43,18 +43,21 @@ add_custom_target(copyDependFiles ALL
 )
 
 # 添加子目录
-add_subdirectory(project/TpCore)
-add_subdirectory(project/TpUtils)
-add_subdirectory(project/TpGUI)
-add_subdirectory(project/TpWM)
-add_subdirectory(project/TpService)
+add_subdirectory(project/lib/TpCore)
+add_subdirectory(project/lib/TpUtils)
+add_subdirectory(project/lib/TpGUI)
+add_subdirectory(project/lib/TpService)
+add_subdirectory(project/app/TpWM)
+add_subdirectory(project/app/TpService)
+add_subdirectory(project/app/TpLaunched)
 # add_subdirectory(examplesApp)
 
 add_dependencies(TpCore copyDependFiles)
 add_dependencies(TpUtils copyDependFiles)
 add_dependencies(TpGUI copyDependFiles)
 add_dependencies(TpWM copyDependFiles)
-# add_dependencies(TpService copyDependFiles)
+add_dependencies(TpService copyDependFiles)
+add_dependencies(TpLaunched copyDependFiles)
 
 # 安装头文件
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include/ DESTINATION ${INSTALL_INCLUDE_DIR})

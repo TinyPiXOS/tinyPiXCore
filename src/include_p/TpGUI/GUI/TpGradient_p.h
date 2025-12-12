@@ -4,7 +4,6 @@
 #include <TpCore.h>
 #include "TpString.h"
 #include "TpList.h"
-#include "thorVG/thorvg.h"
 #include "TpPointF.h"
 
 struct TpGradientData

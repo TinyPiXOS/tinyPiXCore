@@ -43,6 +43,9 @@ struct TpDeskStatusBarInfo : NetDataBase
 };
 TP_STRUCT_PACKAGE(TpDeskStatusBarInfo, dataHead_, statusBarLocation, statusBarWidth, statusBarHeight, statusBarVislble);
 
+/// @brief 应用初始化完成标识;应用初始化完成后，在onVisibleEvent发送该主题，关闭开屏动画
+static const char *TpAppInitFinishKey = "TinyPiXOS.Desktop.TpAppInitFinishKey";
+
 /// @brief 应用通知桌面改变状态栏样式
 static const char *TpChangeDeskStatusBarStyleKey = "TinyPiXOS.Desktop.TpChangeDeskStatusBarStyleKey";
 struct TpChangeDeskStatusBarStyle : NetDataBase
