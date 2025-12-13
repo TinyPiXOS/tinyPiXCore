@@ -2,12 +2,11 @@
 #define __GATEWAY_RPC_SERVER_H
 
 #include <erpc_server_setup.h>
+#include <erpc_port.h>
 #include "c_TpAppManager_server.h"
 #include "TpAppManager_server.hpp"
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
-#include "TpPipe.h"
-#include "TpLaunchedDataDef.h"
 
 #include <mutex>
 #include <thread>
@@ -73,37 +72,27 @@ bool TPR_StartApp(const binary_t *startParams)
         // 应用已启动；恢复应用
         int32_t pid = appUuidPidMap.value(uuid);
 
-        std::cout << "恢复应用 pid: " << pid << std::endl;
         tinyPiX_sys_set_visible(globalAgent, pid, true);
         tinyPiX_sys_set_active(globalAgent, pid, true);
+
+        std::cout << "恢复应用 pid: " << pid << std::endl;
     }
     else
     {
-
         TpAppConfigIO configIO(uuid);
         TpString runnerPath = configIO.runnerPath();
 
-        TpLaunchedProcessData launchData;
-        launchData.processPath = runnerPath;
-        launchData.argList = startAppData.argList;
+        TpVector<TpString> argList;
+        for (const auto &arg : startAppData.argList)
+            argList.push_back(arg);
 
-        TpStructPackager package;
-        launchData.StructSerialize(package);
+        TpProcess exeProcess;
+        exeProcess.start(runnerPath, argList);
+        int32_t processPID = exeProcess.launchProcessID();
 
-        TpPipe writePipe("/tmp/TinyPiXLaunchedPipe", TpPipe::Write, true);
-        writePipe.send(launchData.dataHead_.type_.c_str(), (const char *)package.data(), package.size());
+        appUuidPidMap[uuid] = processPID;
 
-        // 读取启动进程PID
-        TpPipe readPipe("/tmp/TinyPiXLaunchedResultPipe", TpPipe::Read, true);
-        TpPipe::PipeData recvData = readPipe.recv();
-
-        TpLaunchedProcessAck launchAck;
-        launchAck.StructDeserialize(recvData.data.data(), static_cast<uint32_t>(recvData.data.size()));
-
-        int32_t pid = launchAck.pid;
-        appUuidPidMap[uuid] = pid;
-
-        std::cout << "启动应用: pid: " << pid << std::endl;
+        std::cout << "启动应用: pid: " << processPID << std::endl;
     }
 
     return true;

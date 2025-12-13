@@ -57,10 +57,13 @@ endif()
 
 # 依赖的静态库
 set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
+set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
 target_link_libraries(TpServiceLib PUBLIC
     dl pthread 
     ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
+    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so
+    ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
 )

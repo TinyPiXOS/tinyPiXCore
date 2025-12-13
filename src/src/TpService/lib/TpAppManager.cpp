@@ -14,7 +14,7 @@
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
 #include "TpApp.h"
-#include "TpApp_p.h"
+#include "TpApp_def.h"
 #include <mutex>
 #include <erpc_client_setup.h>
 #include "c_TpAppManager_client.h"
@@ -30,8 +30,8 @@ struct TpAppManagerData
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
     // RPC 传输层指针 TODO,修改为RPC维护应用信息
-    // erpc_client_t erpcClient = nullptr;
-    // erpc_transport_t transportPtr = nullptr;
+    erpc_client_t erpcClient = nullptr;
+    erpc_transport_t transportPtr = nullptr;
 
     std::mutex readAppMutex;
     TpHash<TpString, int32_t> appUuidPidMap;
@@ -237,6 +237,7 @@ bool TpAppManager::startApp(const TpString &uuid, const TpVector<TpString> &argL
     if (uuid.empty())
         return false;
 
+#if 1
     TpString appFileDirPath = globalAppFilePathStr + uuid;
     TpDir appFileDir(appFileDirPath);
     if (!appFileDir.exists())
@@ -275,6 +276,32 @@ bool TpAppManager::startApp(const TpString &uuid, const TpVector<TpString> &argL
 
         apiData->appUuidPidMap[uuid] = processPID;
     }
+
+#else
+    // std::cout << "恢复应用 pid: 762873" << std::endl;
+    // tinyPiX_sys_set_visible(apiData->globalAgent, 762873, true);
+    // tinyPiX_sys_set_active(apiData->globalAgent, 762873, true);
+
+    // return true;
+
+    /* RPC 调用 */
+    TpRunApp startAppData;
+    startAppData.appUuid = uuid;
+    startAppData.argList = std::vector<std::string>(argList.begin(), argList.end());
+
+    TpStructPackager package;
+    startAppData.StructSerialize(package);
+
+    // 创建发送数据缓冲区
+    binary_t rpcRespData;
+    rpcRespData.data = (uint8_t *)erpc_malloc(package.size());
+    rpcRespData.dataLength = package.size();
+    memcpy(rpcRespData.data, package.data(), package.size());
+
+    bool startRes = TPR_StartApp(&rpcRespData);
+
+    erpc_free(rpcRespData.data);
+#endif
 
     return true;
 }
@@ -404,21 +431,22 @@ TpAppManager::TpAppManager()
     initializeGateway();
 
     /* 创建client端传输层对象(TCP) */
-    // apiData->transportPtr = erpc_transport_tcp_init("127.0.0.1", 12581, false);
-    // auto message_buffer_factory = erpc_mbf_dynamic_init();
+    apiData->transportPtr = erpc_transport_tcp_init("127.0.0.1", 12581, false);
+    auto message_buffer_factory = erpc_mbf_dynamic_init();
 
-    // if (!apiData->transportPtr)
-    // {
-    //     std::cout << "RPC 服务初始化失败!" << std::endl;
-    //     return;
-    // }
+    if (!apiData->transportPtr)
+    {
+        std::cout << "RPC 服务初始化失败!" << std::endl;
+        return;
+    }
 
-    // /* 初始化客户端 */
-    // erpc_transport_t transportServer;
-    // apiData->erpcClient = erpc_client_init(apiData->transportPtr, message_buffer_factory);
+    /* 初始化客户端 */
+    erpc_transport_t g_arbitrator;
+    erpc_transport_t transportServer;
+    apiData->erpcClient = erpc_client_init(apiData->transportPtr, message_buffer_factory);
 
-    // // 初始化RPC客户端
-    // initSystemApiService_client(apiData->erpcClient);
+    // 初始化RPC客户端
+    initSystemApiService_client(apiData->erpcClient);
 }
 
 TpAppManager::~TpAppManager()
@@ -426,7 +454,7 @@ TpAppManager::~TpAppManager()
     TpAppManagerData *apiData = static_cast<TpAppManagerData *>(data_);
     if (apiData)
     {
-        // erpc_transport_tcp_deinit(apiData->transportPtr);
+        erpc_transport_tcp_deinit(apiData->transportPtr);
         delete apiData;
         apiData = nullptr;
     }

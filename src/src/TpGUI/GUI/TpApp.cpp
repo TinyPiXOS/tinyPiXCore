@@ -1,4 +1,5 @@
 #include "TpApp.h"
+#include "TpObjectFunction.hpp"
 #include "TpApp_p.h"
 #include "TpFontConfig.h"
 
