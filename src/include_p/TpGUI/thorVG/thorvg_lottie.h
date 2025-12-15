@@ -54,7 +54,7 @@ public:
      *
      * @retval Result::InsufficientCondition In case the animation is not loaded.
      *
-     * @since 1.0
+     * @note Experimental API
      */
     Result tween(float from, float to, float progress) noexcept;
 

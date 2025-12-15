@@ -78,7 +78,7 @@ nanomsg:
 thorvg:
 	cd $(src_dir)/thorvg; \
 	meson setup builddir \
-	-Dbuildtype=release \
+	-Dbuildtype=debug \
 	-Dloaders="all" \
 	-Dsavers="all" \
 	-Dexamples=false \
@@ -92,12 +92,16 @@ thorvg:
 
 erpc:
 	cd $(src_dir)/erpc; \
-	cmake . -B $(build) \
-	-DCMAKE_BUILD_TYPE:STRING=Release \
+	cmake -DCMAKE_BUILD_TYPE:STRING=Release \
+	-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
 	-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-	-DCMAKE_C_FLAGS="-fPIC" \
-	-DCMAKE_CXX_FLAGS="-fPIC" \
-	&& make && make install PREFIX=$(prefix)/erpc; \
+	-DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC" \
+	-B $(build) \
+	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)/erpc" \
+	-DCMAKE_INSTALL_BINDIR:PATH="$(prefix)/erpc/bin" \
+	-DCMAKE_INSTALL_LIBDIR:PATH="$(prefix)/erpc/lib" \
+	-DCMAKE_INSTALL_INCLUDEDIR:PATH="$(prefix)/erpc/include" \
+	&& cmake --build $(build) --target install; \
 	cp $(prefix)/erpc/include/erpc/* $(core_root)/src/include_p/TpUtils/erpc/; \
 	cp $(prefix)/erpc/bin/* $(core_root)/src/bin/; \
 	cp $(prefix)/erpc/lib/liberpc.a $(core_root)/src/depend_lib/static/$(libDir)/;

@@ -415,24 +415,28 @@ bool TpVirtualKeyboard::eventFilter(TpObject *watched, TpEvent *event)
 
 bool TpVirtualKeyboard::onPaintEvent(TpPaintEvent *event)
 {
-    TpWidget::onPaintEvent(event);
+    TpDialog::onPaintEvent(event);
 
     return true;
 }
 
 bool TpVirtualKeyboard::onKeyPressEvent(TpKeyboardEvent *event)
 {
+    TpDialog::onKeyPressEvent(event);
+
     return true;
 }
 
 bool TpVirtualKeyboard::onKeyReleaseEvent(TpKeyboardEvent *event)
 {
+    TpDialog::onKeyReleaseEvent(event);
+
     return true;
 }
 
 bool TpVirtualKeyboard::onResizeEvent(TpResizeEvent *event)
 {
-    TpWidget::onResizeEvent(event);
+    TpDialog::onResizeEvent(event);
 
     TpVirtualKeyboardData *vkData = static_cast<TpVirtualKeyboardData *>(data_);
     if (!vkData)

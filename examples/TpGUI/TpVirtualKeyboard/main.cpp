@@ -11,12 +11,12 @@ int32_t main(int32_t argc, char *argv[])
     TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
 
-    TpLineEdit *testEdit = new TpLineEdit(vScreen);
-    testEdit->setRect(30, 30, 300, 60);
-    testEdit->setVisible(true);
+    // TpLineEdit *testEdit = new TpLineEdit(vScreen);
+    // testEdit->setRect(30, 30, 300, 60);
+    // testEdit->setVisible(true);
 
-    // TpVirtualKeyboard *virtualKeyboard = new TpVirtualKeyboard();
-    // virtualKeyboard->show();
+    TpVirtualKeyboard *virtualKeyboard = new TpVirtualKeyboard();
+    virtualKeyboard->show();
 
     return app.run();
 }
