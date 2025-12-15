@@ -32,7 +32,7 @@ struct TpFontData
     }
     ~TpFontData()
     {
-        delete tvgTextPtr;
+        tvgTextPtr->unref();
         tvgTextPtr = nullptr;
     }
 };

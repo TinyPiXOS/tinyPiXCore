@@ -81,7 +81,7 @@ bool TpImage::load(const TpString &filename)
     // 如果已经加载了图片，需要先释放旧指针
     if (imageData->tvgPicture)
     {
-        delete imageData->tvgPicture;
+        imageData->tvgPicture->unref();
         imageData->tvgPicture = tvg::Picture::gen();
     }
 
@@ -266,7 +266,7 @@ bool TpImage::setNull()
 {
     TpImageData *imageData = static_cast<TpImageData *>(data_);
 
-    delete imageData->tvgPicture;
+    imageData->tvgPicture->unref();
     imageData->tvgPicture = nullptr;
     imageData->tvgPicture = tvg::Picture::gen();
 
@@ -440,7 +440,7 @@ TpImage &TpImage::operator=(const TpImage &others)
 
     if (imageData->tvgPicture)
     {
-        delete imageData->tvgPicture;
+        imageData->tvgPicture->unref();
         // imageData->tvgPicture = tvg::Picture::gen();
     }
 

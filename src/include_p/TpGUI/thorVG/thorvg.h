@@ -43,7 +43,6 @@
 #endif
 
 #define _TVG_DECLARE_PRIVATE(A) \
-    struct Impl; \
 protected: \
     A(const A&) = delete; \
     const A& operator=(const A&) = delete; \
@@ -52,7 +51,13 @@ protected: \
 #define _TVG_DECLARE_PRIVATE_BASE(A) \
     _TVG_DECLARE_PRIVATE(A); \
 public: \
+    struct Impl; \
     Impl* pImpl
+
+#define _TVG_DECLARE_PRIVATE_DERIVE(A) \
+    _TVG_DECLARE_PRIVATE(A); \
+protected: \
+    ~A() {}
 
 #define _TVG_DISABLE_CTOR(A) \
     A() = delete; \
@@ -64,9 +69,9 @@ public: \
 namespace tvg
 {
 
-class RenderMethod;
-class Animation;
-class Shape;
+struct RenderMethod;
+struct Animation;
+struct Shape;
 
 /**
  * @defgroup ThorVG ThorVG
@@ -82,7 +87,7 @@ class Shape;
  * Please note that some APIs may additionally specify the reasons that trigger their return values.
  *
  */
-enum class Result
+enum struct Result
 {
     Success = 0,           ///< The value returned in case of a correct request execution.
     InvalidArguments,      ///< The value returned in the event of a problem with the arguments given to the API - e.g. empty paths or null pointers.
@@ -97,7 +102,7 @@ enum class Result
 /**
  * @brief Enumeration specifying the methods of combining the 8-bit color channels into 32-bit color.
  */
-enum class ColorSpace : uint8_t
+enum struct ColorSpace : uint8_t
 {
     ABGR8888 = 0,      ///< The channels are joined in the order: alpha, blue, green, red. Colors are alpha-premultiplied.
     ARGB8888,          ///< The channels are joined in the order: alpha, red, green, blue. Colors are alpha-premultiplied.
@@ -120,9 +125,9 @@ enum class ColorSpace : uint8_t
  *       resulting in decreased performance compared to the default rendering mode. Thus, it is recommended to benchmark
  *       both modes in your specific use case to determine the optimal setting.
  *
- * @note Experimental API
+ * @since 1.0
  */
-enum class EngineOption : uint8_t
+enum struct EngineOption : uint8_t
 {
     None = 0,                   /**< No engine options are enabled. This may be used to explicitly disable all optional behaviors. */
     Default = 1 << 0,           /**< Uses the default rendering mode. */
@@ -133,7 +138,7 @@ enum class EngineOption : uint8_t
 /**
  * @brief Enumeration specifying the values of the path commands accepted by ThorVG.
  */
-enum class PathCommand : uint8_t
+enum struct PathCommand : uint8_t
 {
     Close = 0, ///< Ends the current sub-path and connects it with its initial point. This command doesn't expect any points.
     MoveTo,    ///< Sets a new initial point of the sub-path and a new current point. This command expects 1 point: the starting position.
@@ -145,7 +150,7 @@ enum class PathCommand : uint8_t
 /**
  * @brief Enumeration determining the ending type of a stroke in the open sub-paths.
  */
-enum class StrokeCap : uint8_t
+enum struct StrokeCap : uint8_t
 {
     Butt = 0, ///< The stroke ends exactly at each of the two end-points of a sub-path. For zero length sub-paths no stroke is rendered.
     Round,    ///< The stroke is extended in both end-points of a sub-path by a half circle, with a radius equal to the half of a stroke width. For zero length sub-paths a full circle is rendered.
@@ -156,7 +161,7 @@ enum class StrokeCap : uint8_t
 /**
  * @brief Enumeration determining the style used at the corners of joined stroked path segments.
  */
-enum class StrokeJoin : uint8_t
+enum struct StrokeJoin : uint8_t
 {
     Miter = 0, ///< The outer corner of the joined path segments is spiked. The spike is created by extension beyond the join point of the outer edges of the stroke until they intersect. In case the extension goes beyond the limit, the join style is converted to the Bevel style.
     Round,     ///< The outer corner of the joined path segments is rounded. The circular region is centered at the join point.
@@ -167,7 +172,7 @@ enum class StrokeJoin : uint8_t
 /**
  * @brief Enumeration specifying how to fill the area outside the gradient bounds.
  */
-enum class FillSpread : uint8_t
+enum struct FillSpread : uint8_t
 {
     Pad = 0, ///< The remaining area is filled with the closest stop color.
     Reflect, ///< The gradient pattern is reflected outside the gradient area until the expected region is filled.
@@ -178,7 +183,7 @@ enum class FillSpread : uint8_t
 /**
  * @brief Enumeration specifying the algorithm used to establish which parts of the shape are treated as the inside of the shape.
  */
-enum class FillRule : uint8_t
+enum struct FillRule : uint8_t
 {
     NonZero = 0, ///< A line from the point to a location outside the shape is drawn. The intersections of the line with the path segment of the shape are counted. Starting from zero, if the path segment of the shape crosses the line clockwise, one is added, otherwise one is subtracted. If the resulting sum is non zero, the point is inside the shape.
     EvenOdd      ///< A line from the point to a location outside the shape is drawn and its intersections with the path segments of the shape are counted. If the number of intersections is an odd number, the point is inside the shape.
@@ -192,19 +197,19 @@ enum class FillRule : uint8_t
  *
  * @see Paint::mask()
  */
-enum class MaskMethod : uint8_t
+enum struct MaskMethod : uint8_t
 {
     None = 0,       ///< No Masking is applied.
     Alpha,          ///< Alpha Masking using the masking target's pixels as an alpha value.
     InvAlpha,       ///< Alpha Masking using the complement to the masking target's pixels as an alpha value.
     Luma,           ///< Alpha Masking using the grayscale (0.2126R + 0.7152G + 0.0722*B) of the masking target's pixels. @since 0.9
     InvLuma,        ///< Alpha Masking using the grayscale (0.2126R + 0.7152G + 0.0722*B) of the complement to the masking target's pixels. @since 0.11
-    Add,            ///< Combines the target and source objects pixels using target alpha. (T * TA) + (S * (255 - TA)) (Experimental API)
-    Subtract,       ///< Subtracts the source color from the target color while considering their respective target alpha. (T * TA) - (S * (255 - TA)) (Experimental API)
-    Intersect,      ///< Computes the result by taking the minimum value between the target alpha and the source alpha and multiplies it with the target color. (T * min(TA, SA)) (Experimental API)
-    Difference,     ///< Calculates the absolute difference between the target color and the source color multiplied by the complement of the target alpha. abs(T - S * (255 - TA)) (Experimental API)
-    Lighten,        ///< Where multiple masks intersect, the highest transparency value is used. (Experimental API)
-    Darken          ///< Where multiple masks intersect, the lowest transparency value is used. (Experimental API)
+    Add,            ///< Combines the target and source objects pixels using target alpha. (T * TA) + (S * (255 - TA)) @since 1.0
+    Subtract,       ///< Subtracts the source color from the target color while considering their respective target alpha. (T * TA) - (S * (255 - TA)) @since 1.0
+    Intersect,      ///< Computes the result by taking the minimum value between the target alpha and the source alpha and multiplies it with the target color. (T * min(TA, SA)) @since 1.0
+    Difference,     ///< Calculates the absolute difference between the target color and the source color multiplied by the complement of the target alpha. abs(T - S * (255 - TA)) @since 1.0
+    Lighten,        ///< Where multiple masks intersect, the highest transparency value is used. @since 1.0
+    Darken          ///< Where multiple masks intersect, the lowest transparency value is used. @since 1.0
 };
 
 
@@ -217,7 +222,7 @@ enum class MaskMethod : uint8_t
  *
  * @since 0.15
  */
-enum class BlendMethod : uint8_t
+enum struct BlendMethod : uint8_t
 {
     Normal = 0,        ///< Perform the alpha blending(default). S if (Sa == 255), otherwise (Sa * S) + (255 - Sa) * D
     Multiply,          ///< Takes the RGB channel values from 0 to 255 of each pixel in the top layer and multiples them with the values for the corresponding pixel from the bottom layer. (S * D)
@@ -250,7 +255,7 @@ enum class BlendMethod : uint8_t
  *
  * @since 1.0
  */
-enum class SceneEffect : uint8_t
+enum struct SceneEffect : uint8_t
 {
     ClearAll = 0,      ///< Reset all previously applied scene effects, restoring the scene to its original state.
     GaussianBlur,      ///< Apply a blur effect with a Gaussian filter. Param(4) = {sigma(double)[> 0], direction(int)[both: 0 / horizontal: 1 / vertical: 2], border(int)[duplicate: 0 / wrap: 1], quality(int)[0 - 100]}
@@ -269,16 +274,15 @@ enum class SceneEffect : uint8_t
  *
  * @see Text::wrap(TextWrap mode)
  *
- * @note Experimental API
+ * @since 1.0
  */
-enum class TextWrap : uint8_t
+enum struct TextWrap : uint8_t
 {
     None = 0,      ///< Do not wrap text. Text is rendered on a single line and may overflow the bounding area.
     Character,     ///< Wrap at the character level. If a word cannot fit, it is broken into individual characters to fit the line.
     Word,          ///< Wrap at the word level. Words that do not fit are moved to the next line.
     Smart,         ///< Smart choose wrapping method: word wrap first, falling back to character wrap if a word does not fit.
-    Ellipsis,      ///< Truncate overflowing text and append an ellipsis ("...") at the end. Typically used for single-line labels.
-    Hyphenation    ///< Reserved. No Support.
+    Ellipsis       ///< Truncate overflowing text and append an ellipsis ("...") at the end. Typically used for single-line labels.
 };
 
 
@@ -292,7 +296,7 @@ enum class TextWrap : uint8_t
  *
  * @since 1.0
  */
-enum class Type : uint8_t
+enum struct Type : uint8_t
 {
     Undefined = 0,         ///< Unkown class
     Shape,                 ///< Shape class
@@ -341,12 +345,8 @@ struct Matrix
  * Paint represents such a graphical object and its behaviors such as duplication, transformation and composition.
  * TVG recommends the user to regard a paint as a set of volatile commands. They can prepare a Paint and then request a Canvas to run them.
  */
-class TVG_API Paint
+struct TVG_API Paint
 {
-protected:
-    virtual ~Paint();
-
-public:
     /**
      * @brief Retrieves the parent paint object.
      *
@@ -457,6 +457,7 @@ public:
      * @param[in] method The method used to mask the source object with the target.
      *
      * @retval Result::InsufficientCondition if the target has already belonged to another paint.
+     * @retval Result::InvalidArguments @p method equals @c MaskMethod::None and @p target is not @c nullptr.
      */
     Result mask(Paint* target, MaskMethod method) noexcept;
 
@@ -553,7 +554,7 @@ public:
      * @note For efficiency, an AABB (axis-aligned bounding box) test is performed internally before precise hit detection.
      * @note This test does not take into account the results of blending or masking.
      * @note This test does take into account the the hidden paints as well. @see Paint::visible()
-     * @note Experimental API
+     * @since 1.0
      */
     bool intersects(int32_t x, int32_t y, int32_t w = 1, int32_t h = 1) noexcept;
 
@@ -663,7 +664,7 @@ public:
      *
      * @return The class type ID of the Paint instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     virtual Type type() const noexcept = 0;
 
@@ -672,7 +673,7 @@ public:
      *
      * This is reserved to specify an paint instance in a scene.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     uint32_t id = 0;
 
@@ -687,6 +688,9 @@ public:
      * @since 1.0
      */
     static void rel(Paint* paint) noexcept;
+
+protected:
+    virtual ~Paint();
 
     _TVG_DECLARE_PRIVATE_BASE(Paint);
 };
@@ -703,9 +707,8 @@ public:
  * It specifies the gradient behavior in case the area defined by the gradient bounds
  * is smaller than the area to be filled.
  */
-class TVG_API Fill
+struct TVG_API Fill
 {
-public:
     /**
      * @brief A data structure storing the information about the color and its relative position inside the gradient bounds.
      */
@@ -785,7 +788,7 @@ public:
      *
      * @return The class type ID of the Fill instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     virtual Type type() const noexcept = 0;
 
@@ -803,9 +806,8 @@ public:
  * @note A Canvas behavior depends on the raster engine though the final content of the buffer is expected to be identical.
  * @warning The Paint objects belonging to one Canvas can't be shared among multiple Canvases.
  */
-class TVG_API Canvas
+struct TVG_API Canvas
 {
-public:
     virtual ~Canvas();
 
     /**
@@ -950,9 +952,8 @@ public:
  *
  * @warning This class is not designed for inheritance.
  */
-class TVG_API LinearGradient : public Fill
+struct TVG_API LinearGradient : Fill
 {
-public:
     /**
      * @brief Sets the linear gradient bounds.
      *
@@ -998,7 +999,7 @@ public:
      *
      * @return The class type ID of the LinearGradient instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Type type() const noexcept override;
 
@@ -1013,9 +1014,8 @@ public:
  *
  * @warning This class is not designed for inheritance.
  */
-class TVG_API RadialGradient : public Fill
+struct TVG_API RadialGradient : Fill
 {
-public:
     /**
      * @brief Sets the radial gradient attributes.
      *
@@ -1071,7 +1071,7 @@ public:
      *
      * @return The class type ID of the LinearGradient instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Type type() const noexcept override;
 
@@ -1093,9 +1093,8 @@ public:
  *
  * @warning This class is not designed for inheritance.
  */
-class TVG_API Shape : public Paint
+struct TVG_API Shape : Paint
 {
-public:
     /**
      * @brief Resets the shape path.
      *
@@ -1492,11 +1491,11 @@ public:
      *
      * @return The class type ID of the Shape instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Type type() const noexcept override;
 
-    _TVG_DECLARE_PRIVATE(Shape);
+    _TVG_DECLARE_PRIVATE_DERIVE(Shape);
 };
 
 
@@ -1511,9 +1510,8 @@ public:
  *
  * @warning This class is not designed for inheritance.
  */
-class TVG_API Picture : public Paint
+struct TVG_API Picture : Paint
 {
-public:
     /**
      * @brief Loads a picture data directly from a file.
      *
@@ -1693,12 +1691,12 @@ public:
      *
      * @return The class type ID of the Picture instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Type type() const noexcept override;
 
     _TVG_DECLARE_ACCESSOR(Animation);
-    _TVG_DECLARE_PRIVATE(Picture);
+    _TVG_DECLARE_PRIVATE_DERIVE(Picture);
 };
 
 
@@ -1715,9 +1713,8 @@ public:
  *
  * @warning This class is not designed for inheritance.
  */
-class TVG_API Scene : public Paint
+struct TVG_API Scene : Paint
 {
-public:
     /**
      * @brief Inserts a paint object to the scene.
      *
@@ -1803,11 +1800,11 @@ public:
      *
      * @return The class type ID of the Scene instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Type type() const noexcept override;
 
-    _TVG_DECLARE_PRIVATE(Scene);
+    _TVG_DECLARE_PRIVATE_DERIVE(Scene);
 };
 
 
@@ -1820,9 +1817,8 @@ public:
  *
  * @since 0.15
  */
-class TVG_API Text : public Paint
+struct TVG_API Text : Paint
 {
-public:
     /**
      * @brief Sets the font family for the text.
      *
@@ -1885,7 +1881,7 @@ public:
      * @param[in] x Horizontal alignment/anchor in [0..1]: 0=left/start, 0.5=center, 1=right/end. (Default is 0)
      * @param[in] y Vertical alignment/anchor in [0..1]: 0=top, 0.5=middle, 1=bottom. (Default is 0)
      *
-     * @note Experimental API
+     * @since 1.0
      *
      * @see layout()
      */
@@ -1902,9 +1898,10 @@ public:
      * @param[in] h Layout height in user space. Use 0 for no vertical constraint. (Default is 0)
      *
      * @note This defines constraints only; alignment/anchoring is controlled by @ref align().
-     * @note Experimental API
+     * @since 1.0
      *
      * @see align()
+     * @see spacing()
      */
     Result layout(float w, float h) noexcept;
 
@@ -1918,7 +1915,7 @@ public:
      * @param[in] mode The wrapping strategy to apply. Default is @c TextWrap::None
      *
      * @see TextWrap
-     * @note Experimental API
+     * @since 1.0
      */
     Result wrap(TextWrap mode) noexcept;
 
@@ -1989,6 +1986,28 @@ public:
      * @since 0.15
      */
     Result fill(Fill* f) noexcept;
+
+    /**
+     * @brief Set the spacing scale factors for text layout.
+     *
+     * This function adjusts the letter spacing (horizontal space between glyphs) and
+     * line spacing (vertical space between lines of text) using scale factors.
+     *
+     * Both values are relative to the font's default metrics:
+     * - The letter spacing is applied as a scale factor to the glyph's advance width.
+     * - The line spacing is applied as a scale factor to the glyph's advance height.
+     *
+     * @param[in] letter The scale factor for letter spacing.
+     *                   Values > 1.0 increase spacing, values < 1.0 decrease it.
+     *                   Must be greater than or equal to 0.0. (default: 1.0)
+     *
+     * @param[in] line The scale factor for line spacing.
+     *                 Values > 1.0 increase line spacing, values < 1.0 decrease it.
+     *                 Must be greater than or equal to 0.0. (default: 1.0)
+     *
+     * @since 1.0
+     */
+    Result spacing(float letter, float line) noexcept;
 
     /**
      * @brief Loads a scalable font data (ttf) from a file.
@@ -2072,11 +2091,11 @@ public:
      *
      * @return The class type ID of the Text instance.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Type type() const noexcept override;
 
-    _TVG_DECLARE_PRIVATE(Text);
+    _TVG_DECLARE_PRIVATE_DERIVE(Text);
 };
 
 
@@ -2085,9 +2104,8 @@ public:
  *
  * @brief A class for the rendering graphical elements with a software raster engine.
  */
-class TVG_API SwCanvas final : public Canvas
+struct TVG_API SwCanvas final : Canvas
 {
-public:
     ~SwCanvas() override;
 
     /**
@@ -2137,9 +2155,8 @@ public:
  *
  * @since 0.14
  */
-class TVG_API GlCanvas final : public Canvas
+struct TVG_API GlCanvas final : Canvas
 {
-public:
     ~GlCanvas() override;
 
     /**
@@ -2160,7 +2177,7 @@ public:
      * @see Canvas::viewport()
      * @see Canvas::sync()
      *
-     * @note Experimental API
+     * @since 1.0
     */
     Result target(void* context, int32_t id, uint32_t w, uint32_t h, ColorSpace cs) noexcept;
 
@@ -2186,9 +2203,8 @@ public:
  *
  * @since 0.15
  */
-class TVG_API WgCanvas final : public Canvas
+struct TVG_API WgCanvas final : Canvas
 {
-public:
     ~WgCanvas() override;
 
     /**
@@ -2205,7 +2221,7 @@ public:
      * @retval Result::InsufficientCondition if the canvas is performing rendering. Please ensure the canvas is synced.
      * @retval Result::NonSupport In case the wg engine is not supported.
      *
-     * @note Experimental API
+     * @since 1.0
      *
      * @see Canvas::viewport()
      * @see Canvas::sync()
@@ -2230,9 +2246,8 @@ public:
  *
  * @brief A class that enables initialization and termination of the TVG engines.
  */
-class TVG_API Initializer final
+struct TVG_API Initializer final
 {
-public:
     /**
      * @brief Initializes the ThorVG engine runtime.
      *
@@ -2292,9 +2307,8 @@ public:
  *
  * @since 0.13
  */
-class TVG_API Animation
+struct TVG_API Animation
 {
-public:
     virtual ~Animation();
 
     /**
@@ -2423,9 +2437,8 @@ public:
  *
  * @since 0.5
  */
-class TVG_API Saver final
+struct TVG_API Saver final
 {
-public:
     ~Saver();
 
     /**
@@ -2433,7 +2446,7 @@ public:
      *
      * @param[in] paint The paint to be drawn as the background image for the saving paint.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Result background(Paint* paint) noexcept;
 
@@ -2478,7 +2491,7 @@ public:
      *
      * @see Saver::sync()
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Result save(Animation* animation, const char* filename, uint32_t quality = 100, uint32_t fps = 0) noexcept;
 
@@ -2520,9 +2533,8 @@ public:
  *
  * @since 0.10
  */
-class TVG_API Accessor final
+struct TVG_API Accessor final
 {
-public:
     ~Accessor();
 
     /**
@@ -2534,7 +2546,7 @@ public:
      *
      * @note The bitmap based picture might not have the scene-tree.
      *
-     * @note Experimental API
+     * @since 1.0
      */
     Result set(Paint* paint, std::function<bool(const Paint* paint, void* data)> func, void* data) noexcept;
 
@@ -2550,7 +2562,7 @@ public:
      *
      * @see Paint::id
      *
-     * @note Experimental API
+     * @since 1.0
      */
     static uint32_t id(const char* name) noexcept;
 

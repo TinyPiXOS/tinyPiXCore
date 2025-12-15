@@ -178,7 +178,7 @@ set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
 # 库链接到可执行目标
 target_link_libraries(TpGUI PUBLIC
-    ${SQLITE3_STATIC_LIB} ${THORVG_STATIC_LIB}
+    ${THORVG_STATIC_LIB}
     dl pthread
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so

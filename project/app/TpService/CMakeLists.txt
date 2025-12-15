@@ -42,7 +42,6 @@ add_executable(TpService ${SOURCE_FILES})
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
 set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
 
-find_library(GLOG_LIBRARY glog PATHS ${ARM_SDK_PATH}/lib)
 find_library(YAML_CPP_LIBRARY yaml-cpp PATHS ${ARM_SDK_PATH}/lib)
 find_library(LEVELDB_LIBRARY leveldb PATHS ${ARM_SDK_PATH}/lib)
 find_library(MARISA_LIBRARY marisa PATHS ${ARM_SDK_PATH}/lib)
@@ -66,7 +65,6 @@ target_link_libraries(TpService
     ${NANOMSG_STATIC_LIB} 
     ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
-    ${GLOG_LIBRARY}
     ${YAML_CPP_LIBRARY}
     ${LEVELDB_LIBRARY}
     ${MARISA_LIBRARY}
