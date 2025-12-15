@@ -41,6 +41,7 @@ add_executable(TpService ${SOURCE_FILES})
 # 指定静态库的路径
 set(NANOMSG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libnanomsg.a)
 set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
+set(PCAP_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libpcap.a)
 
 find_library(YAML_CPP_LIBRARY yaml-cpp PATHS ${ARM_SDK_PATH}/lib)
 find_library(LEVELDB_LIBRARY leveldb PATHS ${ARM_SDK_PATH}/lib)
@@ -62,7 +63,7 @@ find_library(OPENCC_LIBRARY opencc PATHS ${ARM_SDK_PATH}/lib)
 target_link_libraries(TpService
     dl
     pthread
-    ${NANOMSG_STATIC_LIB} 
+    ${NANOMSG_STATIC_LIB}
     ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${YAML_CPP_LIBRARY}
@@ -73,4 +74,5 @@ target_link_libraries(TpService
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so
+    ${PCAP_STATIC_LIB}
 )
