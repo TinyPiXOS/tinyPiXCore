@@ -68,9 +68,16 @@ struct TpBrushData
 private:
     void copyGradient(TpGradient *others)
     {
+        // 先释放已存在的渐变对象
+        if (gradient)
+        {
+            delete gradient;
+            gradient = nullptr;
+        }
+
         if (!others)
             return;
-            
+
         if (others->gradientType() == TpGradient::LinearGradient)
         {
             TpLinearGradient *inputGradient = dynamic_cast<TpLinearGradient *>(others);
@@ -97,37 +104,31 @@ private:
     }
 };
 
-// 默认构造函数
 TpBrush::TpBrush()
     : data_(new TpBrushData())
 {
 }
 
-// 使用指定样式创建画刷
 TpBrush::TpBrush(Tp::BrushStyle bs)
     : data_(new TpBrushData(bs))
 {
 }
 
-// 使用指定颜色和样式创建画刷
 TpBrush::TpBrush(const TpColors &color, Tp::BrushStyle bs)
     : data_(new TpBrushData(bs, color))
 {
 }
 
-// 复制构造函数
 TpBrush::TpBrush(const TpBrush &brush)
     : data_(new TpBrushData(*static_cast<TpBrushData *>(brush.data_)))
 {
 }
 
-// 使用渐变创建画刷
 TpBrush::TpBrush(TpGradient *gradient)
     : data_(new TpBrushData(gradient))
 {
 }
 
-// 析构函数
 TpBrush::~TpBrush()
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);
@@ -139,49 +140,51 @@ TpBrush::~TpBrush()
     }
 }
 
-// 赋值运算符重载
 TpBrush &TpBrush::operator=(const TpBrush &brush)
 {
     if (this != &brush)
     {
         TpBrushData *brushData = static_cast<TpBrushData *>(data_);
+        delete brushData;
+        brushData = nullptr;
+
         TpBrushData *otherData = static_cast<TpBrushData *>(brush.data_);
 
+        // 3. 根据 brush 的 data_ 创建一个全新的 TpBrushData 副本
+        //    这里调用了 TpBrushData 的拷贝构造函数，您已经正确实现了它
+        TpBrushData *newData = new TpBrushData(*otherData);
+        data_ = newData;
+
         // 复制新数据
-        *brushData = *otherData;
+        // *brushData = *otherData;
     }
     return *this;
 }
 
-// 获取画刷样式
 Tp::BrushStyle TpBrush::style() const
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);
     return brushData->style;
 }
 
-// 设置画刷样式
 void TpBrush::setStyle(Tp::BrushStyle bs)
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);
     brushData->style = bs;
 }
 
-// 获取画刷颜色
 const TpColors &TpBrush::color() const
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);
     return brushData->color;
 }
 
-// 设置画刷颜色
 void TpBrush::setColor(const TpColors &color)
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);
     brushData->color = color;
 }
 
-// 获取渐变对象
 TpGradient *TpBrush::gradient() const
 {
     TpBrushData *brushData = static_cast<TpBrushData *>(data_);

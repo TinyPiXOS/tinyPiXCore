@@ -220,12 +220,6 @@ static void changeXY(TpWidget *thisPtr, TpWidgetData *widgetData, int32_t x, int
         {
             widgetData->tvgScene->translate(x, y);
 
-            if (auto oldClipper = widgetData->tvgScene->clip())
-            {
-                oldClipper->unref();
-                // tvg::Paint::rel(oldClipper);
-            }
-
             auto clipper = tvg::Shape::gen();
             clipper->appendRect(x, y, widgetData->logicalRect.width(), widgetData->logicalRect.height());
             widgetData->tvgScene->clip(std::move(clipper));
@@ -298,12 +292,6 @@ static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint3
     {
         if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
         {
-            if (auto oldClipper = widgetData->tvgScene->clip())
-            {
-                oldClipper->unref();
-                // tvg::Paint::rel(oldClipper);
-            }
-
             // 获取Scene的变换矩阵
             tvg::Matrix matrix = widgetData->tvgScene->transform();
 
@@ -390,12 +378,6 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
     {
         if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
         {
-            if (auto oldClipper = widgetData->tvgScene->clip())
-            {
-                oldClipper->unref();
-                // tvg::Paint::rel(oldClipper);
-            }
-
             // 获取Scene的变换矩阵
             tvg::Matrix matrix = widgetData->tvgScene->transform();
 
