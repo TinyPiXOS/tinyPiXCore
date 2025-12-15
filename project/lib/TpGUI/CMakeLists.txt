@@ -173,7 +173,6 @@ else()
 endif()
 
 # 指定静态库的路径
-set(SQLITE3_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libsqlite3.a)
 set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
 # 库链接到可执行目标
