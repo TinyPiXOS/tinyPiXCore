@@ -23,14 +23,6 @@ int32_t main(int32_t argc, char *argv[])
     testLabel->setText("测试标签");
     testLabel->setRect(50, 50, 200, 100);
 
-    TpLabel *lineLabel_ = new TpLabel(dia);
-    lineLabel_->move(30, 50);
-    lineLabel_->setFixedSize(100, 30);
-    lineLabel_->setEnabledBorderColor(false);
-    lineLabel_->setEnableBackGroundColor(true);
-    lineLabel_->setBackGroundColor(_RGB(255, 255, 255));
-    lineLabel_->setRoundCorners(15);
-
     TpWidget *childW = new TpWidget(vScreen);
     childW->setBackGroundColor(_RGBA(100, 255, 100, 100));
     childW->setRect(100, 100, 300, 300);

@@ -13,9 +13,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/app/main.cpp
     ${SOURCE_PATH}/src/TpService/app/TpGatewayServerPUBSUB.cpp
 
-    ${SOURCE_PATH}/src_p/TpService/c_TpAppManager_server.cpp
-    ${SOURCE_PATH}/src_p/TpService/TpAppManager_server.cpp
-    ${SOURCE_PATH}/src_p/TpService/TpAppManager_interface.cpp
+    ${SOURCE_PATH}/src_p/TpService/ServiceRPC/c_TpAppManager_server.cpp
+    ${SOURCE_PATH}/src_p/TpService/ServiceRPC/TpAppManager_server.cpp
+    ${SOURCE_PATH}/src_p/TpService/ServiceRPC/TpAppManager_interface.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)
@@ -26,7 +26,7 @@ include_directories(${SOURCE_PATH}/include_p)
 include_directories(${SOURCE_PATH}/include_p/TpService)
 include_directories(${SOURCE_PATH}/include_p/TpUtils)
 include_directories(${SOURCE_PATH}/include_p/TpUtils/erpc)
-include_directories(${SOURCE_PATH}/src_p/TpService)
+include_directories(${SOURCE_PATH}/src_p/TpService/ServiceRPC)
 
 # 指定依赖动态库目录
 if(CMAKE_CROSSCOMPILING)

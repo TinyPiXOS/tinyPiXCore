@@ -23,6 +23,8 @@ public:
     /// @param visible true显示，false隐藏
     virtual void setVisible(bool visible = true) override;
 
+    virtual void move(int32_t x, int32_t y) override;
+
 public:
     virtual Tp::TpObjectType objectType() final;
 

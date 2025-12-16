@@ -6,6 +6,9 @@
 #include "TpPainter.h"
 #include "thorVG/thorvg.h"
 #include "TpObject_p.h"
+#include "TpApp.h"
+#include "TpScreen_p.h"
+#include "TpApp_def.h"
 
 struct TpDialogData
 {
@@ -91,6 +94,45 @@ void TpDialog::setVisible(bool visible)
         dialogData->maskWidget->setVisible(false);
 
     TpScreen::setVisible(visible);
+}
+
+void TpDialog::move(int32_t x, int32_t y)
+{
+    TpAppData *appData = static_cast<TpAppData *>(TpApp::Inst()->appObjectSet());
+    TpScreenData *screenData = static_cast<TpScreenData *>(TpObject::data_);
+
+    if (!appData->isDesk && appData->deskStatusBarInfo_.statusBarVislble)
+    {
+        uint32_t rW = 0, rH = 0;
+        tinyPiX_wf_get_display_size(screenData->agent, &rW, &rH);
+
+        int32_t statusBarLocation = appData->deskStatusBarInfo_.statusBarLocation;
+        if (statusBarLocation == 0)
+        {
+            if (y < appData->deskStatusBarInfo_.statusBarHeight)
+                y = appData->deskStatusBarInfo_.statusBarHeight;
+        }
+        else if (statusBarLocation == 1)
+        {
+            if ((x + width()) > (rW - appData->deskStatusBarInfo_.statusBarWidth))
+                x = rW - appData->deskStatusBarInfo_.statusBarWidth - width();
+        }
+        else if (statusBarLocation == 2)
+        {
+            if ((y + height()) > (rH - appData->deskStatusBarInfo_.statusBarHeight))
+                y = rH - appData->deskStatusBarInfo_.statusBarHeight - height();
+        }
+        else if (statusBarLocation == 3)
+        {
+            if (x < appData->deskStatusBarInfo_.statusBarWidth)
+                x = appData->deskStatusBarInfo_.statusBarWidth;
+        }
+        else
+        {
+        }
+    }
+
+    TpScreen::move(x, y);
 }
 
 Tp::TpObjectType TpDialog::objectType()

@@ -194,12 +194,7 @@ void TpWidget::setRect(const TpRect &rect)
 
 void TpWidget::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-    if (!widgetData)
-        return;
-
-    changeXY(this, widgetData, x, y);
-
+    move(x, y);
     setSize(w, h);
 }
 

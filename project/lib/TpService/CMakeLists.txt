@@ -14,9 +14,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/lib/TpSplashScreen.cpp
     ${SOURCE_PATH}/src/TpService/lib/TpWidgetsGateway.cpp
 
-    ${SOURCE_PATH}/src_p/TpService/c_TpAppManager_client.cpp
-    ${SOURCE_PATH}/src_p/TpService/TpAppManager_client.cpp
-    ${SOURCE_PATH}/src_p/TpService/TpAppManager_interface.cpp
+    ${SOURCE_PATH}/src_p/TpService/ServiceRPC/c_TpAppManager_client.cpp
+    ${SOURCE_PATH}/src_p/TpService/ServiceRPC/TpAppManager_client.cpp
+    ${SOURCE_PATH}/src_p/TpService/ServiceRPC/TpAppManager_interface.cpp
 )
 
 # 添加包含目录
@@ -37,7 +37,7 @@ include_directories(${SOURCE_PATH}/include_p/TpUtils/erpc)
 include_directories(${SOURCE_PATH}/include_p/TpCore)
 include_directories(${SOURCE_PATH}/include_p/TpGUI)
 include_directories(${SOURCE_PATH}/include_p/TpGUI/GUI)
-include_directories(${SOURCE_PATH}/src_p/TpService)
+include_directories(${SOURCE_PATH}/src_p/TpService/ServiceRPC)
 
 # 添加动态库目标
 add_library(TpServiceLib SHARED ${SOURCE_FILES})

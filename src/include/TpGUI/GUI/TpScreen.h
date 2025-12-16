@@ -17,9 +17,6 @@ public:
     virtual bool actived();
 
 public:
-    virtual void setRect(const TpRect &rect) override;
-    virtual void setRect(int32_t x, int32_t y, int32_t w, int32_t h) override;
-
     /// @brief 设置窗口宽高
     /// @param width
     /// @param height

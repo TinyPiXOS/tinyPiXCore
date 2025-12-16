@@ -122,29 +122,6 @@ bool TpScreen::actived()
     return actived;
 }
 
-void TpScreen::setRect(const TpRect &rect)
-{
-    setRect(rect.x(), rect.y(), rect.width(), rect.height());
-}
-
-void TpScreen::setRect(int32_t x, int32_t y, int32_t w, int32_t h)
-{
-    // TpMainWindow不可被调整大小
-    if (pluginType().compare(TO_STRING(TpMainWindow)) == 0)
-        return;
-
-    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-    if (!widgetData)
-        return;
-
-    tinyPiX_wf_set_rect(widgetData->agent, x, y, w, h);
-
-    widgetData->offsetX = x;
-    widgetData->offsetY = y;
-
-    TpWidget::setRect(x, y, w, h);
-}
-
 void TpScreen::setSize(const int32_t &width, const int32_t &height)
 {
     // TpMainWindow不可被调整大小

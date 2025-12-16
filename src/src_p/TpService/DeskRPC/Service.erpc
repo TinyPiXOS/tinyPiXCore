@@ -1,0 +1,10 @@
+/*! 项目名称,也是所有生成的源码文件名前缀 */
+program DeskService
+
+/*! 定义服务接口函数 */
+interface DeskServiceApi  {
+    /*! 桌面服务输入RPC函数 */
+    DR_DesktSetService(binary params) -> bool
+    /*! 桌面服务输出RPC函数 */
+    DR_DesktGetService(binary params) -> binary
+}

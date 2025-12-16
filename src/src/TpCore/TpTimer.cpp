@@ -133,11 +133,11 @@ void TpTimer::start()
     if (!timerData->active.load())
     {
         // 确保线程已停止
-        // int32_t sleepMaxWait = 1000; 
-        // while (timerData->timerThread.joinable() && sleepMaxWait-- > 0)
-        // {
-        //     this->sleep(2);
-        // }
+        int32_t sleepMaxWait = 1000; 
+        while (timerData->timerThread.joinable() && sleepMaxWait-- > 0)
+        {
+            this->sleep(2);
+        }
 
         timerData->active.store(true);
         timerData->nextTriggerTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(timerData->intervalMs.load());

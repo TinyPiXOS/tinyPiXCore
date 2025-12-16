@@ -10,6 +10,10 @@ include(../../../cmake/TargetArchConfig.cmake)
 
 # 定义源码路径宏
 set(SOURCE_FILES
+    # ${SOURCE_PATH}/src_p/TpService/DeskRPC/DeskService_server.cpp
+    # ${SOURCE_PATH}/src_p/TpService/DeskRPC/DeskService_interface.cpp
+    # ${SOURCE_PATH}/src_p/TpService/DeskRPC/DeskService_server.cpp
+
     ${SOURCE_PATH}/src/TpGUI/GUI/TpApp.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/GUI/TpEvent.cpp
@@ -141,6 +145,7 @@ include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
 include_directories(${SOURCE_PATH}/include/TpWM)
 include_directories(${SOURCE_PATH}/include/TpUtils)
+include_directories(${SOURCE_PATH}/include_p/TpUtils/erpc)
 include_directories(${SOURCE_PATH}/include/TpGUI)
 include_directories(${SOURCE_PATH}/include/TpGUI/Widgets)
 include_directories(${SOURCE_PATH}/include/TpGUI/GUI)
@@ -174,11 +179,13 @@ endif()
 
 # 指定静态库的路径
 set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
+# set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
 
 # 库链接到可执行目标
 target_link_libraries(TpGUI PUBLIC
-    ${THORVG_STATIC_LIB}
     dl pthread
+    ${THORVG_STATIC_LIB}
+    # ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpUtils.so
