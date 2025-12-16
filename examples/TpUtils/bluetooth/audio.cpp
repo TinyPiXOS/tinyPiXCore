@@ -6,7 +6,7 @@
 #include "TpBluetoothAudioManager.h"
 #include "TpBluetoothSocket.h"
 #include "TpBluetoothAddress.h"
-#include "TpAudioInterface.h"
+#include "TpAudioOutput.h"
 #include "TpBluetoothDiscovery.h"
 #include "TpBluetoothAudioDevice.h"
 
@@ -42,7 +42,7 @@ int example_play_audio()
 	TpString dev_name=audio_dev.getDevice();
 	sleep(3);
 	
-	TpAudioInterface audio(dev_name);
+	TpAudioOutput audio(dev_name);
 
 	audio.setVolume(100);
 	audio.addFile("/home/pix/Media/MeiNanBian.mp3");										//添加本地文件

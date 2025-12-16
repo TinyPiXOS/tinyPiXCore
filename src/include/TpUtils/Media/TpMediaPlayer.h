@@ -7,13 +7,13 @@
 
 TP_DEF_VOID_TYPE_VAR(ITpMediaInfData);
 
-class TpAudioInterface;
-class TpVideoInterface;
-class TpMediaInterface
+class TpAudioOutput;
+class TpVideoOutput;
+class TpMediaPlayer
 {
 public:
-	TpMediaInterface();
-	virtual ~TpMediaInterface();
+	TpMediaPlayer();
+	virtual ~TpMediaPlayer();
 public:
 	/// @brief 打开视频播放设备
 	/// @param name 
@@ -28,11 +28,17 @@ public:
 	/// @brief 设置音频输出
 	/// @param audio 音频接口
 	/// @return 
-	int setAudioOutput(TpAudioInterface *audio);
+	int setAudioOutput(TpAudioOutput *audio);
+	/// @brief 获取音频输出
+	/// @return 
+	TpAudioOutput *audioOutput();
 	/// @brief 设置视频输出
 	/// @param video 视频接口
 	/// @return 
-	int setVideoOutput(TpVideoInterface *video);
+	int setVideoOutput(TpVideoOutput *video);
+	/// @brief 获取视频输出
+	/// @return 
+	TpVideoOutput *videoOutput();
 	/// @brief 设置播放速度
 	/// @param speed 播放速度，0.5～8.0
 	/// @return 

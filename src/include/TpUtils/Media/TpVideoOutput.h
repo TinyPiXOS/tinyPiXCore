@@ -6,7 +6,7 @@
 
 TP_DEF_VOID_TYPE_VAR(ITpVideoInfData);
 
-class TpVideoInterface
+class TpVideoOutput
 {
 public:
 	/// @brief 视频画面填充方式
@@ -37,8 +37,8 @@ public:
 	using UserCallback = std::function<int(uint8_t **, int *, uint32_t , void *)>;
 
 public:
-	TpVideoInterface(const TpString& video_name = "default" );
-	~TpVideoInterface();
+	TpVideoOutput(const TpString& video_name = "default" );
+	~TpVideoOutput();
 public:
 	/// @brief 
 	/// @param callback 
@@ -64,7 +64,7 @@ private:
 	/// @param format 解码格式
 	/// @return 
 	int setDecode(TpVideoDecodeType format);
-	friend class TpMediaInterface;
+	friend class TpMediaPlayer;
 	void *getVideoInfo();
 
 private:

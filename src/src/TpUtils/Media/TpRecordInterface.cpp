@@ -36,7 +36,7 @@ TpRecordInterface::TpRecordInterface(const TpString &device)
     struct MediaUserParams *user = media_user_config_creat();
     if (user == NULL)
     {
-        std::cerr << "Failed to creat TpAudioInterface" << std::endl;
+        std::cerr << "Failed to creat TpAudioOutput" << std::endl;
         delete(recData);
         return ;
     }
