@@ -10,7 +10,7 @@
 
 struct TpSoundData{
 	TpString card;
-	TpAudioInterface *audio;
+	TpAudioOutput *audio;
 	TpSoundData()
 	{
 		card="";
@@ -46,7 +46,7 @@ TpSound::TpSound(const TpString &name)
 	
 }
 
-TpSound::TpSound(TpAudioInterface *audio)
+TpSound::TpSound(TpAudioOutput *audio)
 {
 	data_=new TpSoundData;
 	TpSoundData *data = static_cast<TpSoundData *>(data_);
@@ -151,7 +151,7 @@ tpBool TpSound::setUsedDevice(const TpString& name)
 }
 
 
-int TpSound::setAudio(TpAudioInterface *audio)
+int TpSound::setAudio(TpAudioOutput *audio)
 {
 	TpSoundData *data = static_cast<TpSoundData *>(data_);
 	if(!data)
@@ -160,7 +160,7 @@ int TpSound::setAudio(TpAudioInterface *audio)
 	return 0;
 }
 
-TpAudioInterface *TpSound::getAudio()
+TpAudioOutput *TpSound::getAudio()
 {
 	TpSoundData *data = static_cast<TpSoundData *>(data_);
 	if(!data)

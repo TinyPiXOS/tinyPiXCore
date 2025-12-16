@@ -60,7 +60,7 @@ TpUtils​​ 库为 TinyPiXOS 应用程序提供全面的系统级集成功能�
 
 ---
 
-- 统一媒体处理:提供 TpAudioInterface、TpVideoInterface 作为音视频处理的统一抽象层,集成 FFmpeg 编解码能力,支持多格式媒体文件的高效播放与录制。
+- 统一媒体处理:提供 TpAudioOutput、TpVideoOutput 作为音视频处理的统一抽象层,集成 FFmpeg 编解码能力,支持多格式媒体文件的高效播放与录制。
 - 设备管理:通过 TpDiskManage、TpUsbManager 实现热插拔设备的自动检测与挂载,提供设备状态变化的信号驱动通知机制,降低外设管理复杂度。
 - 高效网络通信:内建完整的 TCP/UDP Socket 框架,提供 TpTcpSocket、TpUdpSocket、TpTcpServer 等标准化网络接口,支持异步事件驱动的连接管理与数据传输。
 - 蓝牙协议栈:基于 BlueZ 实现完整的蓝牙设备配对、音频传输与文件交换能力,通过 TpBluetoothLocal、TpBluetoothAudioManager 提供声明式设备管理接口。

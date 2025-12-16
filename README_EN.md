@@ -60,7 +60,7 @@ The TpUtils library provides comprehensive system-level integration capabilities
 
 ---
 
-- Unified media processing: `TpAudioInterface` and `TpVideoInterface` provide a unified abstraction layer for A/V, integrating FFmpeg codecs and supporting efficient playback and recording of multi-format media.
+- Unified media processing: `TpAudioOutput` and `TpVideoOutput` provide a unified abstraction layer for A/V, integrating FFmpeg codecs and supporting efficient playback and recording of multi-format media.
 - Device management: `TpDiskManage` and `TpUsbManager` auto-detect and mount hot-plug devices, with signal-driven notifications for state changes to reduce peripheral management complexity.
 - High-performance networking: Built-in TCP/UDP socket framework with standardized interfaces (`TpTcpSocket`, `TpUdpSocket`, `TpTcpServer`), supporting async event-driven connection management and data transfer.
 - Bluetooth stack: Based on BlueZ, supports full device pairing, audio transport, and file exchange; `TpBluetoothLocal` and `TpBluetoothAudioManager` provide declarative device management APIs.

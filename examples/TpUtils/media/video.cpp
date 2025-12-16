@@ -1,7 +1,7 @@
 #include <iostream>
-#include "Media/TpVideoInterface.h"
-#include "Media/TpAudioInterface.h"
-#include "Media/TpMediaInterface.h"
+#include "Media/TpVideoOutput.h"
+#include "Media/TpAudioOutput.h"
+#include "Media/TpMediaPlayer.h"
 
 
 
@@ -24,7 +24,7 @@ auto callback_display = [](uint8_t **data, int *linesize, uint32_t format, void 
 };
 /*
 FrameStats stats;
-TpVideoInterface::UserCallback processFrame = [](uint8_t** data, int* linesize, uint32_t fmt, void* ctx)
+TpVideoOutput::UserCallback processFrame = [](uint8_t** data, int* linesize, uint32_t fmt, void* ctx)
 {
         auto* stats = static_cast<FrameStats*>(ctx);
         stats->frameCount++;
@@ -37,12 +37,12 @@ TpVideoInterface::UserCallback processFrame = [](uint8_t** data, int* linesize, 
 int example_video_play()
 {
     TpString device("hw:0,1 USB Audio");
-    TpVideoInterface video;
-    TpAudioInterface audio(device);
-    TpMediaInterface media;
-    media.setAudioOutput(&audio);
+    TpVideoOutput video;
+    
+    TpMediaPlayer media;
     media.setVideoOutput(&video);
-    audio.setVolume(100);
+    TpAudioOutput *audio=media.audioOutput();
+    audio->setVolume(100);
     //video.addFile("/System/data/Videos/demo.mp4");
     // video.addFile("/home/pix/Media/hahaha.mp4");
     // video.addFile("/home/pix/Media/gravity.mpg");
@@ -56,14 +56,14 @@ int example_video_play()
     media.openDevice();
     /*	video.setWindowSize(1080,720);
         video.setWindowCoordinates(200,200);
-        video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);		//推荐格式
-    //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_STRETCH);
+        video.setScalingMode(TpVideoOutput::TP_VIDEO_SCALING_FIT);		//推荐格式
+    //	video.setScalingMode(TpVideoOutput::TP_VIDEO_SCALING_STRETCH);
         video.playStart();
         video.setSpeed(1.0);
         sleep(2);
         video.setWindowSize(400,600);
         sleep(2);
-    //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_CROP);
+    //	video.setScalingMode(TpVideoOutput::TP_VIDEO_SCALING_CROP);
         video.setWindowCoordinates(600,600);
         video.setWindowSize(500,500);
         sleep(2);
@@ -80,10 +80,10 @@ int example_video_play()
     printf("继续播放\n");
     video.playContinue();
     sleep(5);*/
-    //	video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT);
+    //	video.setScalingMode(TpVideoOutput::TP_VIDEO_SCALING_FIT);
     video.setWindowCoordinates(0, 0);
     video.setWindowSize(1024, 768);
-    video.setScalingMode(TpVideoInterface::TP_VIDEO_SCALING_FIT); // 推荐格式
+    video.setScalingMode(TpVideoOutput::TP_VIDEO_SCALING_FIT); // 推荐格式
     media.playStart();
     media.setSpeed(1.0);
     printf("文件时长%d\n", media.getDuration());

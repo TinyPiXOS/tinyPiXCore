@@ -3,15 +3,15 @@
 
 #include <TpCore.h>
 #include "TpAudioFormat.h"
-#include "TpMediaInterface.h"
+#include "TpMediaPlayer.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpAudioInfData);
 
-class TpAudioInterface 
+class TpAudioOutput 
 {
 public:
-	TpAudioInterface(const TpString& name="default");
-	~TpAudioInterface();
+	TpAudioOutput(const TpString& name="default");
+	~TpAudioOutput();
 public:
     /// @brief 获取本机声卡设备列表，可直接使用返回的名字创建音频类
 	/// @return 
@@ -60,7 +60,7 @@ public:
 	/// @return 
 	int getMinVolume();
 private:
-	friend class TpMediaInterface;
+	friend class TpMediaPlayer;
 	void *getAudioInfo();
 private:
 	ITpAudioInfData *aData_;

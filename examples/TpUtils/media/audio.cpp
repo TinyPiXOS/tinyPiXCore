@@ -1,20 +1,20 @@
 #include <iostream>
-#include "Media/TpAudioInterface.h"
-#include "Media/TpMediaInterface.h"
+#include "Media/TpAudioOutput.h"
+#include "Media/TpMediaPlayer.h"
 
 
 
 int example_play_all()
 {
-	TpList<TpString> cards=TpAudioInterface::getDevices();
+	TpList<TpString> cards=TpAudioOutput::getDevices();
 	for(auto &it : cards)
 	{
 		printf("device:%s\n",it.c_str());
 	}
 
 	TpString device("hw:0,1 USB Audio");
-	TpAudioInterface audio(device);
-	TpMediaInterface media;
+	TpAudioOutput audio(device);
+	TpMediaPlayer media;
 	media.setAudioOutput(&audio);
 	audio.setVolume(100);
 //	audio.addFile("https://gstreamer.freedesktop.org/data/media/medium/shoutout.mp3");		//添加网络的文件地址

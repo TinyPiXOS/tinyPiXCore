@@ -2,7 +2,7 @@
 #define __TP_SOUND_H
 
 #include <TpCore.h>
-#include "TpAudioInterface.h"
+#include "TpAudioOutput.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpSoundData);
 
@@ -10,7 +10,7 @@ class TpSound
 {
 public:
     TpSound(const TpString &name);
-    TpSound(TpAudioInterface *audio);
+    TpSound(TpAudioOutput *audio);
     ~TpSound();
 
 public:
@@ -30,11 +30,11 @@ public:
     /// @brief 设置绑定的应用，如果社设置应用音量需要绑定应用或者在构造的时候绑定
     /// @param audio
     /// @return
-    int setAudio(TpAudioInterface *audio);
+    int setAudio(TpAudioOutput *audio);
 
     /// @brief 获取已经绑定的应用
     /// @return
-    TpAudioInterface *getAudio();
+    TpAudioOutput *getAudio();
 
     /// @brief 设置应用音量
     /// @param volume

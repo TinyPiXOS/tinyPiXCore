@@ -13,9 +13,9 @@
 #include <libavutil/imgutils.h>
 #include "TpMediaDevice.h"
 #include "TpSound.h"
-#include "TpMediaInterface.h"
-#include "TpAudioInterface.h"
-#include "TpVideoInterface.h"
+#include "TpMediaPlayer.h"
+#include "TpAudioOutput.h"
+#include "TpVideoOutput.h"
 #include "Log/elog.h"
 
 struct TpMediaInfData
@@ -24,18 +24,24 @@ struct TpMediaInfData
     std::atomic<bool> running;
     std::thread thread_t;
 
+    TpAudioOutput *audio;
+    TpVideoOutput *video;
+
     void *context_; //
     TpMediaInfData()
     {
+        audio=nullptr;
+        video=nullptr;
         running = false;
         user = nullptr;
         context_ = nullptr;
     };
 };
 
-TpMediaInterface::TpMediaInterface()
+TpMediaPlayer::TpMediaPlayer()
 {
     data_ = new TpMediaInfData();
+
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
 	if(!medData)
 	{
@@ -45,12 +51,13 @@ TpMediaInterface::TpMediaInterface()
     struct MediaUserParams *user = media_user_config_creat();
     if (user == NULL)
     {
-        std::cerr << "Failed to creat TpAudioInterface" << std::endl;
+        std::cerr << "Failed to creat TpAudioOutput" << std::endl;
 		delete(medData);
         return;
     }
     
     media_init(1);
+    
     elog_init();
     elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL);
     elog_set_fmt(ELOG_LVL_ERROR, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
@@ -63,9 +70,13 @@ TpMediaInterface::TpMediaInterface()
     elog_start();
     elog_set_filter_lvl(ELOG_LVL_VERBOSE);
     medData->user = user;
+    medData->audio=new TpAudioOutput();
+    medData->user->audio_params=(struct MediaAudioInfo*)(medData->audio->getAudioInfo());
+    medData->video=new TpVideoOutput();
+    medData->user->video_params=(struct MediaVideoInfo*)(medData->video->getVideoInfo());
 }
 
-TpMediaInterface::~TpMediaInterface()
+TpMediaPlayer::~TpMediaPlayer()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData)
@@ -83,11 +94,16 @@ TpMediaInterface::~TpMediaInterface()
     media_user_config_delete(medData->user);
     
     media_deinit(1);
+    if(medData->audio)
+        delete(medData->audio);
+    if(medData->video)  
+        delete(medData->video);
+
     elog_deinit();
     delete (medData);
 }
 
-int TpMediaInterface::threadMedia()
+int TpMediaPlayer::threadMedia()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
 
@@ -96,7 +112,7 @@ int TpMediaInterface::threadMedia()
     return 0;
 }
 
-int TpMediaInterface::openDevice()
+int TpMediaPlayer::openDevice()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -105,18 +121,18 @@ int TpMediaInterface::openDevice()
         return -1;
 	printf("device open ok\n");
     medData->running = true;
-    medData->thread_t = std::thread(&TpMediaInterface::threadMedia, this);
-    //	printf("device open ok\n");
+    medData->thread_t = std::thread(&TpMediaPlayer::threadMedia, this);
+    
     return 0;
 }
 
-tpBool TpMediaInterface::isOpen()
+tpBool TpMediaPlayer::isOpen()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     return (medData->running == true ? TP_TRUE : TP_FALSE);
 }
 
-int TpMediaInterface::closeDevice()
+int TpMediaPlayer::closeDevice()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     Audio_Set_Close(medData->user);
@@ -126,23 +142,41 @@ int TpMediaInterface::closeDevice()
     return 0;
 }
 
-int TpMediaInterface::setAudioOutput(TpAudioInterface *audio)
+TpAudioOutput *TpMediaPlayer::audioOutput()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+    return medData->audio;
+}
 
+
+int TpMediaPlayer::setAudioOutput(TpAudioOutput *audio)
+{
+    TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+    if(medData->audio)
+        delete(medData->audio);
+    medData->audio=nullptr;
     medData->user->audio_params=(struct MediaAudioInfo*)(audio->getAudioInfo());
     return 0;
 }
 
-int TpMediaInterface::setVideoOutput(TpVideoInterface *video)
+TpVideoOutput *TpMediaPlayer::videoOutput()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+    return medData->video;
+}
 
+
+int TpMediaPlayer::setVideoOutput(TpVideoOutput *video)
+{
+    TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
+    if(medData->video)
+        delete(medData->video);
+    medData->video=nullptr;
     medData->user->video_params=(struct MediaVideoInfo*)(video->getVideoInfo());
     return 0;
 }
 
-int TpMediaInterface::setSpeed(float speed)
+int TpMediaPlayer::setSpeed(float speed)
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -150,7 +184,7 @@ int TpMediaInterface::setSpeed(float speed)
     return Media_Set_Speed(medData->user, speed);
 }
 
-float TpMediaInterface::getSpeed()
+float TpMediaPlayer::getSpeed()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -158,7 +192,7 @@ float TpMediaInterface::getSpeed()
     return Media_Get_Speed(medData->user);
 }
 
-int TpMediaInterface::setPosition(tpUInt32 position)
+int TpMediaPlayer::setPosition(tpUInt32 position)
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -166,7 +200,7 @@ int TpMediaInterface::setPosition(tpUInt32 position)
     return Media_Set_Position(medData->user, position);
 }
 
-int TpMediaInterface::getPosition()
+int TpMediaPlayer::getPosition()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -177,7 +211,7 @@ int TpMediaInterface::getPosition()
 		return Media_Get_Position(medData->user);
 }
 
-tpUInt32 TpMediaInterface::getDuration()
+tpUInt32 TpMediaPlayer::getDuration()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -189,11 +223,11 @@ tpUInt32 TpMediaInterface::getDuration()
     return duration;
 }
 
-int TpMediaInterface::addFile(const TpString &file)
+int TpMediaPlayer::addFile(const TpString &file)
 {
     return addFile(file.c_str());
 }
-int TpMediaInterface::addFile(const char *file)
+int TpMediaPlayer::addFile(const char *file)
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -201,11 +235,11 @@ int TpMediaInterface::addFile(const char *file)
     return Media_Add_File(medData->user, file);
 }
 
-int TpMediaInterface::deleteFile(const TpString &file)
+int TpMediaPlayer::deleteFile(const TpString &file)
 {
     return deleteFile(file.c_str());
 }
-int TpMediaInterface::deleteFile(const char *file)
+int TpMediaPlayer::deleteFile(const char *file)
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -213,11 +247,11 @@ int TpMediaInterface::deleteFile(const char *file)
     return Media_Del_File(medData->user, file);
 }
 
-int TpMediaInterface::setFile(const TpString &file)
+int TpMediaPlayer::setFile(const TpString &file)
 {
     return setFile(file.c_str());
 }
-int TpMediaInterface::setFile(const char *file)
+int TpMediaPlayer::setFile(const char *file)
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -225,7 +259,7 @@ int TpMediaInterface::setFile(const char *file)
     return Media_Set_Play(medData->user, file);
 }
 
-int TpMediaInterface::playStart()
+int TpMediaPlayer::playStart()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -233,7 +267,7 @@ int TpMediaInterface::playStart()
     return Media_Set_Start(medData->user, NULL);
 }
 
-int TpMediaInterface::playContinue()
+int TpMediaPlayer::playContinue()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -241,7 +275,7 @@ int TpMediaInterface::playContinue()
     return Media_Set_Continue(medData->user);
 }
 
-int TpMediaInterface::playPause()
+int TpMediaPlayer::playPause()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -249,7 +283,7 @@ int TpMediaInterface::playPause()
     return Media_Set_Suspend(medData->user);
 }
 
-int TpMediaInterface::playStop()
+int TpMediaPlayer::playStop()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -257,7 +291,7 @@ int TpMediaInterface::playStop()
     return Media_Set_Stop(medData->user);
 }
 
-int TpMediaInterface::playNext()
+int TpMediaPlayer::playNext()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -265,7 +299,7 @@ int TpMediaInterface::playNext()
     return Media_Play_Next(medData->user);
 }
 
-int TpMediaInterface::playLast()
+int TpMediaPlayer::playLast()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData->user)
@@ -273,7 +307,7 @@ int TpMediaInterface::playLast()
     return Media_Play_Last(medData->user);
 }
 
-tpBool TpMediaInterface::isPlayEnd()
+tpBool TpMediaPlayer::isPlayEnd()
 {
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
     if (!medData)
@@ -285,12 +319,12 @@ tpBool TpMediaInterface::isPlayEnd()
     return TP_FALSE;
 }
 
-float TpMediaInterface::getMaxSpeed()
+float TpMediaPlayer::getMaxSpeed()
 {
     return USER_CONF_SPEED_MAX;
 }
 
-float TpMediaInterface::getMinSpeed()
+float TpMediaPlayer::getMinSpeed()
 {
     return USER_CONF_SPEED_MIN;
 }

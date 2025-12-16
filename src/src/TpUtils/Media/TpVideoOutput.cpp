@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <libavutil/imgutils.h>
-#include "TpVideoInterface.h"
+#include "TpVideoOutput.h"
 #include "TpMediaDevice.h"
 #include "TpSound.h"
 
@@ -30,21 +30,21 @@ struct TpVideoInfData
 
 
 
-TpVideoInterface::TpVideoInterface(const TpString &name)
+TpVideoOutput::TpVideoOutput(const TpString &name)
 {
 	vData_ = new TpVideoInfData();
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	MediaVideoInfo *video=media_video_info_creat();
     if(!video)
     {
-        std::cerr << "Failed to creat TpVideoInterface" << std::endl;
+        std::cerr << "Failed to creat TpVideoOutput" << std::endl;
     }
 	vidData->v_name = name;
     vidData->video_params=video;
-	printf("TpVideoInterface ok\n");
+	printf("TpVideoOutput ok\n");
 }
 
-TpVideoInterface::~TpVideoInterface()
+TpVideoOutput::~TpVideoOutput()
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData)
@@ -61,7 +61,7 @@ TpVideoInterface::~TpVideoInterface()
 }
 
 
-int TpVideoInterface::setScalingMode(TpVideoScalingType mode)
+int TpVideoOutput::setScalingMode(TpVideoScalingType mode)
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
@@ -91,7 +91,7 @@ int TpVideoInterface::setScalingMode(TpVideoScalingType mode)
 	return Video_Set_Fill_Mode(vidData->video_params, type);
 }
 
-int TpVideoInterface::setWindowCoordinates(tpInt16 x, tpInt16 y)
+int TpVideoOutput::setWindowCoordinates(tpInt16 x, tpInt16 y)
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
@@ -99,7 +99,7 @@ int TpVideoInterface::setWindowCoordinates(tpInt16 x, tpInt16 y)
 	return Video_Set_Coordinates(vidData->video_params, (int16_t)x, (int16_t)y);
 }
 
-int TpVideoInterface::setWindowSize(tpUInt16 width, tpUInt16 height)
+int TpVideoOutput::setWindowSize(tpUInt16 width, tpUInt16 height)
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
@@ -108,7 +108,7 @@ int TpVideoInterface::setWindowSize(tpUInt16 width, tpUInt16 height)
 }
 
 
-int TpVideoInterface::staticBridge(uint8_t **data, int *linesize, uint32_t format, void *rawCtx)
+int TpVideoOutput::staticBridge(uint8_t **data, int *linesize, uint32_t format, void *rawCtx)
 {
 	// 安全类型转换
 	auto *ctx = static_cast<CallbackContext *>(rawCtx);
@@ -116,7 +116,7 @@ int TpVideoInterface::staticBridge(uint8_t **data, int *linesize, uint32_t forma
 	return ctx->callback ? ctx->callback(data, linesize, format, ctx->userdata) : -1;
 }
 
-int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, TpVideoDecodeType format)
+int TpVideoOutput::setDisplayFunction(UserCallback callback, void *userdata, TpVideoDecodeType format)
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
@@ -143,7 +143,7 @@ int TpVideoInterface::setDisplayFunction(UserCallback callback, void *userdata, 
 	return 0;
 }
 
-int TpVideoInterface::setDecode(TpVideoDecodeType format)
+int TpVideoOutput::setDecode(TpVideoDecodeType format)
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
@@ -178,7 +178,7 @@ int TpVideoInterface::setDecode(TpVideoDecodeType format)
 	return Video_Set_Decode_Format(vidData->video_params, format_video);
 }
 
-void *TpVideoInterface::getVideoInfo()
+void *TpVideoOutput::getVideoInfo()
 {
     TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
     if(!vidData)   

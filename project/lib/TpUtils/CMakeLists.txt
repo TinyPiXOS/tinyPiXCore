@@ -63,12 +63,12 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpNetPcap.cpp
 
-    ${SOURCE_PATH}/src/TpUtils/Media/TpAudioInterface.cpp
-    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoInterface.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpAudioOutput.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoOutput.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpMediaFile.cpp
-    ${SOURCE_PATH}/src/TpUtils/Media/TpMediaInterface.cpp
-    ${SOURCE_PATH}/src/TpUtils/Media/TpAudioInterface.cpp
-    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoInterface.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpMediaPlayer.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpAudioOutput.cpp
+    ${SOURCE_PATH}/src/TpUtils/Media/TpVideoOutput.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpSound.cpp
     ${SOURCE_PATH}/src/TpUtils/Media/TpRecordInterface.cpp
 
