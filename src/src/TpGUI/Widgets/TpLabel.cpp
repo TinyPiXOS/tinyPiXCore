@@ -95,15 +95,6 @@ void TpLabel::setText(const TpString &text)
     if (!isFixedWidth())
     {
         setMinumumWidth(labelData->font->pixelWidth());
-
-        // if (labelData->font->pixelWidth() > TpDisplay::dp2Px(131))
-        // {
-        //     setMinumumWidth(TpDisplay::dp2Px(131));
-        // }
-        // else
-        // {
-        //     setMinumumWidth(labelData->font->pixelWidth());
-        // }
     }
     if (!isFixedHeight())
     {
