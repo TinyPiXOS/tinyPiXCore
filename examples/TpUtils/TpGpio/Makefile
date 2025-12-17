@@ -9,7 +9,6 @@ LIB_PATH ?= -L/usr/lib -L/usr/lib/TinyPiX
 INC_PATH ?= -I. \
       -I/usr/include \
       -I/usr/include/SDL2 \
-      -I/usr/include/harfbuzz \
       -I/usr/include/glib-2.0 \
       -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
       -I/usr/include/TinyPiX \
