@@ -294,7 +294,7 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
             TpPoint topPiePoint(progressData->margin + roundCorners, progressData->margin + roundCorners);
 
             // // 上半圆计算弧上交点Y坐标及交点扇形
-            int32_t lineX = valueWidth;
+            int32_t lineX = valueWidth + progressData->margin;
             int32_t radius = roundCorners;
 
             CircleResult topCacuRes = calculateSectorIntersection(SECTOR_S1, topPiePoint, radius, lineX);
@@ -302,9 +302,9 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
             // 构建三角形镂空
             TpHollowMask topHollowMask;
             TpHollowMask::PolygonHollow polygonHollow;
-            polygonHollow.posintList.emplace_back(TpPoint(topCacuRes.intersection.x(), radius));
+            polygonHollow.posintList.emplace_back(TpPoint(topCacuRes.intersection.x(), topPiePoint.y()));
             polygonHollow.posintList.emplace_back(TpPoint(topCacuRes.intersection.x(), topCacuRes.intersection.y() - 2));
-            polygonHollow.posintList.emplace_back(TpPoint(radius + 2, radius));
+            polygonHollow.posintList.emplace_back(TpPoint(topPiePoint.x() + 2, topPiePoint.y()));
             topHollowMask.addPolygonHollow(polygonHollow);
 
             painter->drawPie(topPiePoint, radius, 180, 180 + (topCacuRes.angle * 180.0 / M_PI), topHollowMask);
@@ -319,14 +319,12 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
 
             // 构建三角形镂空
             TpHollowMask downHollowMask;
-            // TpHollowMask::PolygonHollow polygonHollow;
             polygonHollow.posintList.clear();
-            polygonHollow.posintList.emplace_back(TpPoint(lineX, radius));
+            polygonHollow.posintList.emplace_back(TpPoint(lineX, downPiePoint.y()));
             polygonHollow.posintList.emplace_back(TpPoint(lineX, downCacuRes.intersection.y() + 2));
-            polygonHollow.posintList.emplace_back(TpPoint(radius + 2, radius));
+            polygonHollow.posintList.emplace_back(TpPoint(downPiePoint.x() + 2, downPiePoint.y()));
             downHollowMask.addPolygonHollow(polygonHollow);
 
-            // painter->drawEllipse(downPiePoint, radius, radius, downHollowMask);
             painter->drawPie(downPiePoint, radius, 180 - (downCacuRes.angle * 180.0 / M_PI), 180, downHollowMask);
         }
         else if (valueWidth > (actualWidth - roundCorners))
