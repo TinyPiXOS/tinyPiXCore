@@ -146,7 +146,6 @@ else()
 endif()
 
 include_directories(${SYSTEM_INCLUDE_PATH})
-include_directories(${SYSTEM_INCLUDE_PATH}/harfbuzz)
 
 include_directories(${SOURCE_PATH}/include)
 include_directories(${SOURCE_PATH}/include/TpCore)
