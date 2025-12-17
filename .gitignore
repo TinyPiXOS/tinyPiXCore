@@ -146,3 +146,4 @@ examples/TpGUI/TpLayout/layout
 examples/TpGUI/TpSlideProgressBar/sliderProgress
 examples/TpGUI/TpScrollPanel/scrollpanel
 examples/TpGUI/TpHumidityWidget/temp
+examples/TpGUI/TpComBox/comBox

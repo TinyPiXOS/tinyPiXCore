@@ -41,21 +41,21 @@ TpComBox::TpComBox(TpWidget *parent)
     cbxData->titleLabel = new TpLabel(this);
     cbxData->titleLabel->font()->setFontSize(normalCss->fontSize());
     cbxData->titleLabel->font()->setFontColor(normalCss->color());
-    // cbxData->titleLabel->font()->setFontStyle(TINY_FONT_BOLD);
+    cbxData->titleLabel->font()->setAlign(Tp::AlignVCenter);
     cbxData->titleLabel->setFixedHeight(normalCss->minimumHeight());
 
     cbxData->curItemLabel = new TpLabel(this);
     // cbxData->curItemLabel->setText("测试");
     cbxData->curItemLabel->font()->setFontSize(normalCss->fontSize());
     cbxData->curItemLabel->font()->setFontColor(normalCss->color());
+    cbxData->curItemLabel->font()->setAlign(Tp::AlignVCenter);
     cbxData->curItemLabel->installEventFilter(this);
-    cbxData->titleLabel->setFixedHeight(normalCss->minimumHeight());
+    cbxData->curItemLabel->setFixedHeight(normalCss->minimumHeight());
 
     cbxData->expandIconLabel = new TpLabel(this);
     cbxData->expandIconLabel->setFixedHeight(normalCss->minimumHeight());
-    cbxData->expandIconLabel->setFixedSize(cbxData->titleLabel->font()->pixelHeight() * 0.7, cbxData->titleLabel->font()->pixelHeight());
+    cbxData->expandIconLabel->setFixedSize(normalCss->fontSize() * 1.5, normalCss->fontSize() * 1.5);
     cbxData->expandIconLabel->installEventFilter(this);
-
     cbxData->expandIconLabel->setBackGroundImage(TpImage("/usr/res/TinyPiX/双箭头上.png"));
 
     cbxData->contextMenu = new TpMenu();
