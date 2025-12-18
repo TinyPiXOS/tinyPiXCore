@@ -349,7 +349,7 @@ void TpAppDopack::setExecPath(const TpString &name)
     adpData->config.exec_path = name;
 }
 
-void TpAppDopack::getAllConfig(const TpString &path_json)
+void TpAppDopack::allConfig(const TpString &path_json)
 {
     TpAppDopackData *adpData = static_cast<TpAppDopackData *>(data_);
     TpAppmCreat::AnalysisDopackJson(path_json, &adpData->params, &adpData->config);

@@ -7,13 +7,13 @@
 class TpAppDataDisk
 {
 public:
-	TpAppDataDisk();
-	~TpAppDataDisk();
-	
+    TpAppDataDisk();
+    ~TpAppDataDisk();
+
 public:
-	long int getAppDiskSpace(const TpString &uuid);
-	long int getAppDataDiskSpace(const TpString &uuid);
-	long int getAllAppDiskSpace();
+    int64_t appDiskSpace(const TpString &uuid);
+    int64_t appDataDiskSpace(const TpString &uuid);
+    int64_t allAppDiskSpace();
 };
 
 #endif
