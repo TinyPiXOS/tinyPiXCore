@@ -105,7 +105,7 @@ tpBool TpAppInstall::isInstall()
     return (TpAppmInstallCheck::appm_get_app_is_install(&appData->conf) == 0 ? TP_FALSE : TP_TRUE);
 }
 
-TpString TpAppInstall::getIcon()
+TpString TpAppInstall::icon()
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData)
@@ -114,7 +114,7 @@ TpString TpAppInstall::getIcon()
     return icon;
 }
 
-TpAppInstall::TpAppPackageType TpAppInstall::getPackageType() // 获取安装包类型(system_app,user_app,lib,none)
+TpAppInstall::TpAppPackageType TpAppInstall::packageType() // 获取安装包类型(system_app,user_app,lib,none)
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -175,7 +175,7 @@ int TpAppInstall::completeCheck() // 安装包完整性检查
     return appData->conf.md5_flag;
 }
 
-TpString TpAppInstall::getPackVersion() // 获取安装包版本
+TpString TpAppInstall::packVersion() // 获取安装包版本
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -192,7 +192,7 @@ TpString TpAppInstall::getPackVersion() // 获取安装包版本
     return version;
 }
 
-TpString TpAppInstall::getPackArch()
+TpString TpAppInstall::packArch()
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -205,7 +205,7 @@ TpString TpAppInstall::getPackArch()
     return appData->conf.appConf.architecture;
 }
 
-int TpAppInstall::getPackSpace()
+int TpAppInstall::packSpace()
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -217,7 +217,7 @@ int TpAppInstall::getPackSpace()
     return appData->conf.appConf.diskspace;
 }
 
-TpString TpAppInstall::getAppName()
+TpString TpAppInstall::appName()
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -229,7 +229,7 @@ TpString TpAppInstall::getAppName()
     return appData->conf.appConf.appName;
 }
 
-TpString TpAppInstall::getAppUUID() // 获取应用UUID
+TpString TpAppInstall::appUUID() // 获取应用UUID
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -241,7 +241,7 @@ TpString TpAppInstall::getAppUUID() // 获取应用UUID
     return appData->conf.appConf.appID;
 }
 
-TpString TpAppInstall::getNowVersion() // 获取已安装的版本,根据uuid获取，暂时不支持获取系统库版本
+TpString TpAppInstall::nowVersion() // 获取已安装的版本,根据uuid获取，暂时不支持获取系统库版本
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData || !appData->pack_path_c)
@@ -357,7 +357,7 @@ TpAppInstall::TpInstallErrorCode TpAppInstall::installTest()
 }
 
 // 安装进度
-int TpAppInstall::getInstallSchedule()
+int TpAppInstall::installSchedule()
 {
     TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
     if (!appData)

@@ -78,7 +78,7 @@ int example_creat_app_pack_json()
 {
 	TpAppDopack package;
 	package.setPackageType(TpAppDopack::TP_PACKAGE_TYPE_APP);
-	package.getAllConfig("/home/pix/AppManage/mytestapp/dopack.json");
+	package.allConfig("/home/pix/AppManage/mytestapp/dopack.json");
 	package.setPackageName("mytestappPackage");		//必须设置安装包名称，佛则不会打包，会自动拼接后缀
 	package.creatPackage("/home/pix/AppManage");
 }

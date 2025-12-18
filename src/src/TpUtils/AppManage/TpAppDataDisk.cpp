@@ -56,13 +56,13 @@ TpAppDataDisk::~TpAppDataDisk()
 {
 }
 
-long int TpAppDataDisk::getAppDiskSpace(const TpString &uuid)
+int64_t TpAppDataDisk::appDiskSpace(const TpString &uuid)
 {
     const TpString path = "/System/app/" + uuid;
     return get_directory_size(path);
 }
 
-long int TpAppDataDisk::getAppDataDiskSpace(const TpString &uuid)
+int64_t TpAppDataDisk::appDataDiskSpace(const TpString &uuid)
 {
     const TpString path = "/System/app/temp" + uuid;
     long long size = get_directory_size(path);
@@ -71,7 +71,7 @@ long int TpAppDataDisk::getAppDataDiskSpace(const TpString &uuid)
     return size;
 }
 
-long int TpAppDataDisk::getAllAppDiskSpace()
+int64_t TpAppDataDisk::allAppDiskSpace()
 {
     const TpString path = "/System/app/";
     return get_directory_size(path);

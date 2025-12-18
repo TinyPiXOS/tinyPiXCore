@@ -129,7 +129,7 @@ public:
     /// @brief 从json文件中获取全部安装包打包参数，此操作需要提前准备json文件
     /// @param json json文件路径和名字
     /// @return
-    void getAllConfig(const TpString &json);
+    void allConfig(const TpString &json);
     /// @brief 设置生成的安装包的名字(会自动添加后缀)
     /// @param name
     /// @return

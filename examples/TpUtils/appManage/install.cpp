@@ -9,9 +9,9 @@ int install_app()
 	TpAppInstall appmanage(package_path);
 
 
-	std::cout<< "icon:" << appmanage.getIcon()<<std::endl;
-	std::cout<< "uuid:" << appmanage.getAppUUID()<<std::endl;
-	std::cout<< "name:" << appmanage.getAppName()<<std::endl;
+	std::cout<< "icon:" << appmanage.icon()<<std::endl;
+	std::cout<< "uuid:" << appmanage.appUUID()<<std::endl;
+	std::cout<< "name:" << appmanage.appName()<<std::endl;
 
 /*	TpString pack_ver;
 	pack_ver=appmanage.getPackVersion();	//
@@ -26,7 +26,7 @@ int install_app()
 
 	std::cout<<"安装"<<std::endl;
 	appmanage.install();
-	appmanage.getInstallSchedule();
+	appmanage.installSchedule();
 	std::cout<<"安装完成\n";
 	return 0;
 }

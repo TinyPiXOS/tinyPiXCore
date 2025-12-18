@@ -10,14 +10,14 @@ int install_app(const char *pack_path)
 {
 	TpString package_path(pack_path);
 	TpAppInstall appmanage(package_path);
-	std::cout<< "icon:" << appmanage.getIcon()<<std::endl;
-	std::cout<< "uuid:" << appmanage.getAppUUID()<<std::endl;
-	std::cout<< "name:" << appmanage.getAppName()<<std::endl;
+	std::cout<< "icon:" << appmanage.icon()<<std::endl;
+	std::cout<< "uuid:" << appmanage.appUUID()<<std::endl;
+	std::cout<< "name:" << appmanage.appName()<<std::endl;
 	std::cout<<"安装"<<std::endl;
 	appmanage.install();
 	while(1)
 	{
-		if(appmanage.getInstallSchedule()==100)
+		if(appmanage.installSchedule()==100)
 			break;
 		usleep(500000);
 	}

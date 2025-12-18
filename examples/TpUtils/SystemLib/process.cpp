@@ -50,9 +50,9 @@ int main()
 
 	TpAppDataDisk disk;		//磁盘占用
 	std::string uuid="f03c8f8c-dd9b-453f-b2d4-d049c073e252";
-	std::cout<<"app data:"<<disk.getAppDiskSpace(uuid)<<"Byte"<<std::endl;
-	std::cout<<"app temp data:"<<disk.getAppDataDiskSpace(uuid)<<"Byte"<<std::endl;
-	std::cout<<"all app data:"<<disk.getAllAppDiskSpace()<<"Byte"<<std::endl;
+	std::cout<<"app data:"<<disk.appDiskSpace(uuid)<<"Byte"<<std::endl;
+	std::cout<<"app temp data:"<<disk.appDataDiskSpace(uuid)<<"Byte"<<std::endl;
+	std::cout<<"all app data:"<<disk.allAppDiskSpace()<<"Byte"<<std::endl;
     return 0;
 }
 
