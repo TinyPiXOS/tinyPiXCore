@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
         // 持续监控配置变化
         while (true)
         {
-            uint32_t current_version = config_share.getVersion();
+            uint32_t current_version = config_share.version();
 
             if (current_version != last_version)
             {

@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         if (config_share.writeData(&config, sizeof(config)))
         {
             std::cout << "Process A: Configuration written successfully" << std::endl;
-            std::cout << "Current version: " << config_share.getVersion() << std::endl;
+            std::cout << "Current version: " << config_share.version() << std::endl;
         }
 
         // 模拟配置更新（每5秒更新一次）
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
             if (config_share.writeData(&config, sizeof(config)))
             {
                 std::cout << "Process A: Configuration updated to version "
-                          << config_share.getVersion() << std::endl;
+                          << config_share.version() << std::endl;
             }
         }
 
