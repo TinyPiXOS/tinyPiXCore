@@ -4,6 +4,7 @@
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
+#include "TpFont.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpPanelSwitchButtonData);
 
@@ -25,6 +26,10 @@ public:
     /// @brief 获取当前按钮文本
     /// @return 文本字符串
     TpString text();
+
+    /// @brief 获取文本字体指针
+    /// @return 字体指针
+    TpFont* font();
 
 public:
     virtual TpString pluginType() { return TO_STRING(TpPanelSwitchButton); }

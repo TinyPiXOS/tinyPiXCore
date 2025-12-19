@@ -53,8 +53,13 @@ void TpPanelSwitchButton::setText(const TpString &text)
 TpString TpPanelSwitchButton::text()
 {
     TpPanelSwitchButtonData *buttonData = static_cast<TpPanelSwitchButtonData *>(data_);
-
     return buttonData->textLabel->text();
+}
+
+TpFont *TpPanelSwitchButton::font()
+{
+    TpPanelSwitchButtonData *buttonData = static_cast<TpPanelSwitchButtonData *>(data_);
+    return buttonData->textLabel->font();
 }
 
 bool TpPanelSwitchButton::onResizeEvent(TpResizeEvent *event)

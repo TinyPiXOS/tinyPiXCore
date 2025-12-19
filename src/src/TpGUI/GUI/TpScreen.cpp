@@ -296,7 +296,7 @@ bool TpScreen::onResizeEvent(TpResizeEvent *event)
             TpRect topScreenRect = topScreenWidget->toScreen();
 
             // 目前为全局刷新，所以在此处初始化一次surface即可
-            // 修改为局部刷新时，需要在resize时，重新设置surface的rect TODO
+            // 修改为局部刷新时，需要在resize时，重新设置surface的rect
             screenData->wmSurface = tpMakeShared<TpSurface>(surface_t, topScreenRect);
 
             int32_t surfaceWidth = screenData->wmSurface->width();
