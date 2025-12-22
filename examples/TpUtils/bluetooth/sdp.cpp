@@ -14,7 +14,7 @@ int example_bluet_get_uuids()
 	TpBluetoothUuid uuid_serial(TpBluetoothUuid::TP_PROFILE_SERIAL_PORT);
 
 	TpBluetoothLocal local("hci0");
-	TpList<TpBluetoothUuid> uuid_list=local.getUuids();
+	TpList<TpBluetoothUuid> uuid_list=local.uuidList();
 	for(auto&it : uuid_list)
 	{
 		printf("uuid128:%s , Name:%s\n",it.toString().c_str(),it.toName().c_str());

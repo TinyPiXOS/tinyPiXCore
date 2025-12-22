@@ -11,11 +11,11 @@
 //本地蓝牙设备获取
 int example_list_adapter()
 {
-	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::getAllDevice();
+	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::allDevice();
 	for(auto &it:adapter_list)
 	{
-		std::cout << "name=" << it.getName() << std::endl;
-		std::cout << "addr=" << it.getAddress().toString() << std::endl ;
+		std::cout << "name=" << it.name() << std::endl;
+		std::cout << "addr=" << it.address().toString() << std::endl ;
 		std::cout << std::endl;
 	}
 }

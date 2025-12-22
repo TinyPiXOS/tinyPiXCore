@@ -241,7 +241,7 @@ void TpBluetoothDiscovery::stop()
 tpBool TpBluetoothDiscovery::isDiscovering()
 {
 	TpBluetoothDiscoveryData *data = static_cast<TpBluetoothDiscoveryData *>(data_);
-	Adapter *adp=(Adapter *)data->adapter.getAdapter();
+	Adapter *adp=(Adapter *)data->adapter.adapter();
 	return (bluet_adapter_is_discovering(adp)==1 ? TP_TRUE : TP_FALSE);
 }
 

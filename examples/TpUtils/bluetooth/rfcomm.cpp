@@ -122,11 +122,11 @@ int example_socket_server(int32_t argc, char *argv[],const TpString& adapter)
 
 int main(int32_t argc, char *argv[])
 {
-	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::getAllDevice();
+	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::allDevice();
 	for(auto &it:adapter_list)
 	{
-		std::cout << "name=" << it.getName() << std::endl;
-		std::cout << "addr=" << it.getAddress().toString() << std::endl ;
+		std::cout << "name=" << it.name() << std::endl;
+		std::cout << "addr=" << it.address().toString() << std::endl ;
 		std::cout << std::endl;
 	}
 	printf("蓝牙客户端/服务端收发数据测试\n");
