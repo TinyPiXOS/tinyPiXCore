@@ -4,7 +4,8 @@
 #include <TpCore.h>
 #include <TpList.h>
 
-#define DEFAULT_FONT_FAMILY "MiSans"
+// #define DEFAULT_FONT_FAMILY "MiSans"
+#define DEFAULT_FONT_FAMILY "WqyZenhei"
 
 TP_DEF_VOID_TYPE_VAR(ITpFontData);
 TP_DEF_VOID_TYPE_VAR(ITpFontFamilyData);
