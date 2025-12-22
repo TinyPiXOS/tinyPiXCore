@@ -221,9 +221,9 @@ TpNetworkInterface::~TpNetworkInterface()
         delete (device);
 }
 
-TpList<TpNetworkInterface> TpNetworkInterface::getAllDevice()
+TpList<tpShared<TpNetworkInterface>> TpNetworkInterface::allDevice()
 {
-    TpList<TpNetworkInterface> interface;
+    TpList<tpShared<TpNetworkInterface>> interface;
     struct ifaddrs *ifaddr;
     if (getifaddrs(&ifaddr) == -1)
     {
@@ -239,12 +239,13 @@ TpList<TpNetworkInterface> TpNetworkInterface::getAllDevice()
         {
             continue;
         }
+
         TpString name(ifa->ifa_name);
-        auto it = std::find_if(interface.begin(), interface.end(), [&name](TpNetworkInterface &dev)
-                               { return name == dev.getName(); });
+        auto it = std::find_if(interface.begin(), interface.end(), [&name](tpShared<TpNetworkInterface> dev)
+                               { return name == dev->name(); });
         if (it == interface.end())
         {
-            interface.emplace_back(name);
+            interface.emplace_back(tpMakeShared<TpNetworkInterface>(name));
             // std::cout << "Interface: " << name << std::endl;
         }
     }
@@ -252,7 +253,7 @@ TpList<TpNetworkInterface> TpNetworkInterface::getAllDevice()
     return std::move(interface);
 }
 
-TpString TpNetworkInterface::getName() const
+TpString TpNetworkInterface::name() const
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     return device->devname;
@@ -399,7 +400,7 @@ tpBool TpNetworkInterface::isOpenDevice()
 }
 
 // 制造商
-TpString TpNetworkInterface::getManu()
+TpString TpNetworkInterface::manu()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
 
@@ -492,7 +493,7 @@ tpBool TpNetworkInterface::isDhcp()
     return TP_FALSE;
 }
 
-TpList<TpString> TpNetworkInterface::getDns()
+TpList<TpString> TpNetworkInterface::dns()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     TpList<TpString> list;
@@ -540,7 +541,7 @@ tpBool TpNetworkInterface::isStaticDns()
     return TP_FALSE;
 }
 
-TpString TpNetworkInterface::getGatway()
+TpString TpNetworkInterface::gatway()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     char gw[64];
@@ -556,7 +557,7 @@ tpInt32 TpNetworkInterface::setGatway(const TpString &gw)
     return Network_Set_Gateway_Command(device->devname.c_str(), gw.c_str());
 }
 
-TpString TpNetworkInterface::getAddr()
+TpString TpNetworkInterface::addr()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     TpString addr;
@@ -574,7 +575,7 @@ int32_t TpNetworkInterface::setAddr(const TpString &addr)
     return setConf(device->devname, NET_S_ADDR, addr);
 }
 
-TpString TpNetworkInterface::getMacAddr()
+TpString TpNetworkInterface::macAddr()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     TpString addr;
@@ -588,7 +589,7 @@ int32_t TpNetworkInterface::setMacAddr(const TpString &addr)
     return setConf(device->devname, NET_S_HWADDR, addr);
 }
 
-TpString TpNetworkInterface::getNetmask()
+TpString TpNetworkInterface::netmask()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     TpString addr;
@@ -604,7 +605,7 @@ int32_t TpNetworkInterface::setNetmask(const TpString &addr)
     return setConf(device->devname, NET_S_NETMASK, addr);
 }
 
-TpString TpNetworkInterface::getBroadAddr()
+TpString TpNetworkInterface::broadAddr()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     TpString addr;
@@ -618,7 +619,7 @@ int32_t TpNetworkInterface::setBroadAddr(const TpString &addr)
     return setConf(device->devname, NET_S_BRDADDR, addr);
 }
 
-TpString TpNetworkInterface::getAddrIpv6()
+TpString TpNetworkInterface::addrIpv6()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
     TpString addr;
@@ -666,7 +667,7 @@ int TpNetworkInterface::threadScan(tpUInt16 time)
     TpList<TpWirelessInfo> list_l;
     while (device->scan_is_runing)
     {
-        TpList<TpWirelessInfo> list_n = getScan();
+        TpList<TpWirelessInfo> list_n = scanList();
         for (const TpWirelessInfo &wlan_l : list_l)
         {
             auto it = find_if(list_n.begin(), list_n.end(), [wlan_l](const TpWirelessInfo &wlan_n)
@@ -712,7 +713,7 @@ int TpNetworkInterface::stopScan()
 }
 
 // 获取扫描<结果
-TpList<TpWirelessInfo> TpNetworkInterface::getScan()
+TpList<TpWirelessInfo> TpNetworkInterface::scanList()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
 

@@ -40,7 +40,7 @@ int example_wireless()
 
 int32_t example_printf_device(void)
 {
-	auto interfaces = TpNetworkInterface::getAllDevice();
+	auto interfaces = TpNetworkInterface::allDevice();
 	TpString addr;
 	for(auto &iface : interfaces)    //printf device name         
 	{
@@ -50,9 +50,9 @@ int32_t example_printf_device(void)
 	TpString ifname("ens33");
     TpNetworkInterface network(ifname);
 	std::cout << "device Active:" << (network.isOpenDevice()==TP_TRUE ? "Yse" : "No") << std::endl;
-    std::cout << "device name: " << network.getName() << std::endl;
-	std::cout << "device mac:"  << network.getMacAddr() << std::endl;
-    std::cout << "device manu: " << network.getManu() << std::endl;
+    std::cout << "device name: " << network.name() << std::endl;
+	std::cout << "device mac:"  << network.macAddr() << std::endl;
+    std::cout << "device manu: " << network.manu() << std::endl;
     std::cout << "is wireless: " << (network.isWireless()==TP_TRUE ? "Yse" : "No") << std::endl;
 	std::cout << "Physical interface status:" << (network.isOnline()==TP_TRUE ? "Online" : "No") << std::endl;
 	std::cout << "Network Status:" << (network.isOnlineInternet()==TP_TRUE ? "OnlineInternet" : "No")  << std::endl;
@@ -178,10 +178,10 @@ int example_dhcp()
 	sleep(5);
 	printf("DNS状态%s\n",network.isStaticDns()==TP_TRUE ? "静态":"动态");
 	printf("DHCP状态%d\n",network.isDhcp()==TP_TRUE ? 1:0);
-	printf("gateway:%s\n",network.getGatway().c_str());
-	printf("netmask:%s\n",network.getNetmask().c_str());
+	printf("gateway:%s\n",network.gatway().c_str());
+	printf("netmask:%s\n",network.netmask().c_str());
 	printf("DNS:\n");
-	TpList<TpString> list_=network.getDns();
+	TpList<TpString> list_=network.dns();
 	for(TpString &it:list_)
 	{
 		printf("\t%s\n",it.c_str());
@@ -193,13 +193,13 @@ int example_network()
 	TpNetworkInterface network("ens33");
 	network.setAddr(TpString("192.168.1.200"));
 	TpString getAddr();
-	printf("Arrd:%s\n",network.getAddr().c_str());
+	printf("Arrd:%s\n",network.addr().c_str());
 	
 	network.setNetmask(TpString("255.255.255.0"));
-	printf("Netmask:%s\n",network.getNetmask().c_str());
+	printf("Netmask:%s\n",network.netmask().c_str());
 
 	network.setBroadAddr(TpString("192.168.1.255"));
-	printf("BroadAddr:%s\n",network.getBroadAddr().c_str());
+	printf("BroadAddr:%s\n",network.broadAddr().c_str());
 
 }
 

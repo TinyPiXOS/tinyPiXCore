@@ -126,14 +126,23 @@ static inline TpWidget *findObject(TpWidgetData *widgetData, int32_t x, int32_t 
 
 static void paintEnabledBox(TpWidget *child, TpPainter *paintCanvas)
 {
-    // TODO 暂时屏蔽禁用绘制效果
-    return;
+    if (child->enabled())
+        return;
 
-    if (!child->enabled())
+    if (child->parent())
+    {
+        TpWidget *parentWidget = dynamic_cast<TpWidget *>(child->parent());
+        if (parentWidget && parentWidget->enabled())
+        {
+            paintCanvas->setPen(_RGBA(192, 192, 192, 80));
+            paintCanvas->setBrush(TpBrush(_RGBA(192, 192, 192, 80)));
+            paintCanvas->drawRect(0, 0, child->width(), child->height(), child->roundCorners());
+        }
+    }
+    else
     {
         paintCanvas->setPen(_RGBA(192, 192, 192, 80));
         paintCanvas->setBrush(TpBrush(_RGBA(192, 192, 192, 80)));
-
         paintCanvas->drawRect(0, 0, child->width(), child->height(), child->roundCorners());
     }
 }
