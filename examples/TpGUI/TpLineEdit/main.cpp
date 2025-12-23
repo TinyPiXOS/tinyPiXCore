@@ -19,33 +19,33 @@ int32_t main(int32_t argc, char *argv[])
     edit->setRect(20, 20, 300, 100);
 
     TpLineEdit *edit2 = new TpLineEdit(vScreen);
-    edit2->setAlign(Tp::AlignHCenter);
+    edit2->setAlign(Tp::AlignHCenter | Tp::AlignVCenter);
     edit2->setProperty("type", "fileManageEdit");
     edit2->setPlaceholderText("请输入搜索内容");
     edit2->setRect(20, 140, 300, 100);
 
     TpLineEdit *edit3 = new TpLineEdit(vScreen);
-    edit3->setAlign(Tp::AlignRight);
+    edit3->setAlign(Tp::AlignRight | Tp::AlignVCenter);
     edit3->setProperty("type", "fileManageEdit");
     edit3->setPlaceholderText("请输入搜索内容");
     edit3->setRect(20, 260, 300, 100);
 
     TpLineEdit *edit4 = new TpLineEdit(vScreen);
     edit4->setProperty("type", "fileManageEdit");
-    // edit4->setAlign(Tp::AlignLeft | Tp::AlignVCenter);
+    edit4->setAlign(Tp::AlignLeft | Tp::AlignVCenter);
     edit4->setIcon(applicationDirPath() + "/搜索.png");
     edit4->setPlaceholderText("请输入搜索内容");
     edit4->setRect(340, 20, 300, 100);
 
     TpLineEdit *edit5 = new TpLineEdit(vScreen);
-    edit5->setAlign(Tp::AlignHCenter);
+    edit5->setAlign(Tp::AlignHCenter | Tp::AlignVCenter);
     edit5->setProperty("type", "fileManageEdit");
     edit5->setIcon(applicationDirPath() + "/搜索.png");
     edit5->setPlaceholderText("请输入搜索内容");
     edit5->setRect(340, 140, 300, 100);
 
     TpLineEdit *edit6 = new TpLineEdit(vScreen);
-    edit6->setAlign(Tp::AlignRight);
+    edit6->setAlign(Tp::AlignRight | Tp::AlignVCenter);
     edit6->setProperty("type", "fileManageEdit");
     edit6->setIcon(applicationDirPath() + "/搜索.png");
     edit6->setPlaceholderText("请输入搜索内容");

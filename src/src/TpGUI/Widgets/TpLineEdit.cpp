@@ -207,6 +207,7 @@ void TpLineEdit::setAlign(Tp::Alignment align)
     if (!editData)
         return;
 
+    // editData->textFont->setAlign(Tp::AlignVCenter);
     editData->textFont->setAlign(align);
     editData->align = align;
     update();
@@ -293,9 +294,6 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
         // editData->textOffset = leftMargin;
     }
 
-    // 默认左对齐偏移
-    uint32_t alignOffset = cacualteAlignOffset(visibleTextWidth);
-
     // 绘制选中的文本背景
     if (editData->isSelected)
     {
@@ -315,12 +313,15 @@ bool TpLineEdit::onPaintEvent(TpPaintEvent *event)
     // 绘制文本
     if (!editData->text.empty())
     {
+        // 默认左对齐偏移
+        uint32_t alignOffset = cacualteAlignOffset(visibleTextWidth);
+
         editData->textFont->setText(editData->text);
 
         int32_t textX = alignOffset - editData->textOffset;
-        textX = leftMargin - editData->textOffset;
+        // textX = leftMargin - editData->textOffset;
 
-        painter->drawText(*editData->textFont, textX, 0);
+        painter->drawText(*editData->textFont, alignOffset, 0);
     }
     else
     {
@@ -843,9 +844,11 @@ uint32_t TpLineEdit::cacualteAlignOffset(const uint32_t &visibleTextWidth)
         leftMargin = editData->iconOffset;
     }
 
-    uint32_t alignOffset = leftMargin;
+    uint32_t alignOffset = 0;
     // 只有当文本需要滚动时才调整 textOffset
     uint32_t textWidth = CaculateTextWidth(editData->textFont, editData->text);
+
+#if 0
     if (textWidth < visibleTextWidth)
     {
         if (editData->align & Tp::AlignLeft)
@@ -854,17 +857,42 @@ uint32_t TpLineEdit::cacualteAlignOffset(const uint32_t &visibleTextWidth)
         }
         else if (editData->align & Tp::AlignRight)
         {
-            alignOffset = width() - rightMargin - textWidth;
+            alignOffset = -rightMargin;
         }
         else if (editData->align & Tp::AlignHCenter)
         {
-            alignOffset = (width() - leftMargin - rightMargin - textWidth) / 2.0;
+            alignOffset = 0;
         }
         else
         {
-            alignOffset = leftMargin;
+            alignOffset = 0;
         }
     }
+#else
+    if (editData->align & Tp::AlignLeft)
+    {
+        alignOffset = leftMargin;
+        alignOffset -= editData->textOffset;
+    }
+    else if (editData->align & Tp::AlignRight)
+    {
+        alignOffset = -rightMargin;
+    }
+    else if (editData->align & Tp::AlignHCenter)
+    {
+        if (textWidth < visibleTextWidth)
+            alignOffset = 0;
+        else
+        {
+            alignOffset -= (editData->textOffset / 2.0);
+            alignOffset += editData->iconLabel->width() - curCssData->gap();
+        }
+    }
+    else
+    {
+        alignOffset = 0;
+    }
+#endif
 
     return alignOffset;
 }

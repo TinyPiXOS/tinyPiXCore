@@ -25,8 +25,6 @@ public:
     TpBluetoothLocal(int id, const char *address, const char *name);
     TpBluetoothLocal(const char *name);
     TpBluetoothLocal(const TpString &name);
-    TpBluetoothLocal(TpBluetoothLocal &other);  // 拷贝构造
-    TpBluetoothLocal(TpBluetoothLocal &&other); // 移动构造
     ~TpBluetoothLocal();
 
 public:
