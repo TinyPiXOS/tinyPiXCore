@@ -47,6 +47,8 @@ int example_in()
 
 int main()
 {
+    printf("example_out\n");
     example_out();
+    printf("example_in\n");
     example_in();
 }

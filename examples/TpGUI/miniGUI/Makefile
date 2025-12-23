@@ -24,16 +24,26 @@ INC_PATH ?= -I. \
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
-LIB =  -lTpUtils -lTpCore -lTpGUI -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog -ldl -lpthread -lSDL2   -lgobject-2.0 -lglib-2.0   -lgbm -lGLESv2 -lEGL 
+LIB = \
+      -lTpGUI -lTpUtils -lTpCore \
+      /home/pix/pix_dev/TinyPiXOS/src/depend_lib/static/arm_32/libthorvg.a \
+      -lwebp \
+      -lturbojpeg \
+      -lpng \
+      -fopenmp -lgomp \
+      -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog \
+      -lSDL2 -lgobject-2.0 -lglib-2.0 \
+      -lgbm -lGLESv2 -lEGL \
+      -ldl -lpthread
 
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标
-.PHONY:Button#即使该目标存在也重新生成
-all:Button clean#
+.PHONY:Gui#即使该目标存在也重新生成
+all:Gui clean#
 
-Button:
+Gui:
 	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Button main.o $(LIB) $(LIB_PATH)
+	$(G++) $(CFLAGS) -o Gui main.o $(LIB) $(LIB_PATH)
 clean:
 	rm *.o
