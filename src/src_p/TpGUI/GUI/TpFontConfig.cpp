@@ -106,7 +106,9 @@ TpFontConfig::TpFontConfig()
 #else
     // 仅加载默认字体
     tvg::Text::load(TpString(defaultFontDirPath + "/" + TpString(DEFAULT_FONT_FAMILY) + "-Normal.ttf").c_str());
+    //tvg::Text::load("/usr/share/fonts/wqy-zenhei.ttf");
     defaultFontNameList.emplace_back(TpString(DEFAULT_FONT_FAMILY) + "-Normal");
+    //defaultFontNameList.emplace_back(TpString("wqy-zenhei"));
 #endif
 
     fontMap[TpString(DEFAULT_FONT_FAMILY)] = defaultFontNameList;
