@@ -1,5 +1,5 @@
-#ifndef __TP_VSLIDER_H
-#define __TP_VSLIDER_H
+#ifndef __TP_SLIDER_H
+#define __TP_SLIDER_H
 
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
@@ -51,7 +51,6 @@ protected:
 	virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
 	virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
-	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 	virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 protected:

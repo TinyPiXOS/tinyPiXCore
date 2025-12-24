@@ -63,7 +63,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpTabBar.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpBattery.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpCarouselButton.cpp
-    ${SOURCE_PATH}/src/TpGUI/Widgets/TpSlideProgressBar.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpIconSlider.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpSliderProgressBar.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpPanelSwitchButton.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpNotificationWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpNotificationItem.cpp

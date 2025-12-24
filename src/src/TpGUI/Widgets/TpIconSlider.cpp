@@ -1,9 +1,9 @@
-#include "TpSlideProgressBar.h"
+#include "TpIconSlider.h"
 #include "TpImage.h"
 #include "SystemInfo/TpDisplay.h"
 #include "TpPainter.h"
 
-struct TpSlideProgressBarData
+struct TpIconSliderData
 {
     // 内部填充距外边界间距像素
     int32_t margin = 2;
@@ -17,11 +17,11 @@ struct TpSlideProgressBarData
     TpPoint pressPoint;
     bool mouseLeftPress = false;
 
-    TpSlideProgressBarData()
+    TpIconSliderData()
     {
     }
 
-    ~TpSlideProgressBarData()
+    ~TpIconSliderData()
     {
     }
 };
@@ -133,20 +133,20 @@ CircleResult calculateSectorIntersection(SectorType sectorType, TpPoint center, 
     return result;
 }
 
-TpSlideProgressBar::TpSlideProgressBar(TpWidget *parent)
+TpIconSlider::TpIconSlider(TpWidget *parent)
     : TpWidget(parent)
 {
     // 注册属性
     // TP_PROPERTY(int32_t, value, value, updateValue);
 
-    data_ = new TpSlideProgressBarData();
+    data_ = new TpIconSliderData();
 
     refreshBaseCss();
 }
 
-TpSlideProgressBar::~TpSlideProgressBar()
+TpIconSlider::~TpIconSlider()
 {
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
     if (progressData)
     {
         delete progressData;
@@ -155,15 +155,15 @@ TpSlideProgressBar::~TpSlideProgressBar()
     }
 }
 
-void TpSlideProgressBar::setIcon(const TpString &iconPath)
+void TpIconSlider::setIcon(const TpString &iconPath)
 {
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
     progressData->iconImage.load(iconPath);
 }
 
-void TpSlideProgressBar::setRange(int32_t minValue, int32_t maxValue)
+void TpIconSlider::setRange(int32_t minValue, int32_t maxValue)
 {
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
 
     progressData->minValue = minValue;
     progressData->maxValue = maxValue;
@@ -174,9 +174,9 @@ void TpSlideProgressBar::setRange(int32_t minValue, int32_t maxValue)
     }
 }
 
-void TpSlideProgressBar::setValue(int32_t value)
+void TpIconSlider::setValue(int32_t value)
 {
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
     progressData->curValue = value;
 
     if (progressData->curValue < progressData->minValue)
@@ -192,17 +192,17 @@ void TpSlideProgressBar::setValue(int32_t value)
     update();
 }
 
-int32_t TpSlideProgressBar::value()
+int32_t TpIconSlider::value()
 {
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
     return progressData->curValue;
 }
 
-bool TpSlideProgressBar::onMousePressEvent(TpMouseEvent *event)
+bool TpIconSlider::onMousePressEvent(TpMouseEvent *event)
 {
     TpWidget::onMousePressEvent(event);
 
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
 
     if (event->button() == BUTTON_LEFT)
     {
@@ -213,11 +213,11 @@ bool TpSlideProgressBar::onMousePressEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpSlideProgressBar::onMouseRleaseEvent(TpMouseEvent *event)
+bool TpIconSlider::onMouseRleaseEvent(TpMouseEvent *event)
 {
     TpWidget::onMouseRleaseEvent(event);
 
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
 
     if (event->button() == BUTTON_LEFT)
     {
@@ -227,11 +227,11 @@ bool TpSlideProgressBar::onMouseRleaseEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpSlideProgressBar::onMouseMoveEvent(TpMouseEvent *event)
+bool TpIconSlider::onMouseMoveEvent(TpMouseEvent *event)
 {
     TpWidget::onMouseMoveEvent(event);
 
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
     if (progressData->mouseLeftPress)
     {
         TpPoint curPos = event->globalPos();
@@ -260,11 +260,11 @@ bool TpSlideProgressBar::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
+bool TpIconSlider::onPaintEvent(TpPaintEvent *event)
 {
     TpWidget::onPaintEvent(event);
 
-    TpSlideProgressBarData *progressData = static_cast<TpSlideProgressBarData *>(data_);
+    TpIconSliderData *progressData = static_cast<TpIconSliderData *>(data_);
 
     tpShared<TpCssData> curCssData = enabledCss();
 
@@ -444,7 +444,7 @@ bool TpSlideProgressBar::onPaintEvent(TpPaintEvent *event)
     return true;
 }
 
-void TpSlideProgressBar::onThemeChangeEvent(TpThemeChangeEvent *event)
+void TpIconSlider::onThemeChangeEvent(TpThemeChangeEvent *event)
 {
     update();
 }

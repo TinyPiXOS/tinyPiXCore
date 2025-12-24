@@ -1,19 +1,19 @@
 
-#ifndef __TP_SLIDE_PROGRESSBAR_H
-#define __TP_SLIDE_PROGRESSBAR_H
+#ifndef __TP_ICON_SLIDER_H
+#define __TP_ICON_SLIDER_H
 
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpSlideProgressBarData);
-/// @brief 滑动进度条，可用手势或鼠标拖拽进度
-class TpSlideProgressBar : public TpWidget
+TP_DEF_VOID_TYPE_VAR(ITpIconSliderData);
+/// @brief 带图标的滑动进度条，可用手势或鼠标拖拽进度
+class TpIconSlider : public TpWidget
 {
 public:
-    TpSlideProgressBar(TpWidget *parent);
-    ~TpSlideProgressBar();
+    TpIconSlider(TpWidget *parent);
+    ~TpIconSlider();
 
     /// @brief 设置图标文件路径
     /// @param iconPath
@@ -45,10 +45,10 @@ public:
     virtual void onThemeChangeEvent(TpThemeChangeEvent *event) override;
 
 protected:
-    virtual TpString pluginType() override { return TO_STRING(TpSlideProgressBar); }
+    virtual TpString pluginType() override { return TO_STRING(TpIconSlider); }
 
 private:
-    ITpSlideProgressBarData *data_;
+    ITpIconSliderData *data_;
 };
 
 #endif

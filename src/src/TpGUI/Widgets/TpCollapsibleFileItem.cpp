@@ -31,21 +31,10 @@ struct TpCollapsibleFileItemData
 
     ~TpCollapsibleFileItemData()
     {
-        iconLabel->setParent(nullptr);
-        delete iconLabel;
-        iconLabel = nullptr;
-
-        nameLabel->setParent(nullptr);
-        delete nameLabel;
-        nameLabel = nullptr;
-
-        sizeLabel->setParent(nullptr);
-        delete sizeLabel;
-        sizeLabel = nullptr;
-
-        typeLabel->setParent(nullptr);
-        delete typeLabel;
-        typeLabel = nullptr;
+        iconLabel->deleteLater();
+        nameLabel->deleteLater();
+        sizeLabel->deleteLater();
+        typeLabel->deleteLater();
     }
 };
 
@@ -287,16 +276,6 @@ bool TpCollapsibleFileItem::onLeaveEvent(TpLeaveEvent *event)
 
     TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
     itemData->isTrigger = false;
-
-    return true;
-}
-
-bool TpCollapsibleFileItem::onMoveEvent(TpMoveEvent *event)
-{
-    TpWidget::onMoveEvent(event);
-
-    // TpCollapsibleFileItemData *itemData = static_cast<TpCollapsibleFileItemData *>(data_);
-    // itemData->selectCbx->move(itemData->iconLabel->width() - itemData->selectCbx->width() - 6, itemData->iconLabel->height() - itemData->selectCbx->height() - 6);
 
     return true;
 }
