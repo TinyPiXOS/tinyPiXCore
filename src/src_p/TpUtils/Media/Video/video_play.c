@@ -24,7 +24,7 @@
 
 
 #ifdef DEBUG_VIDEO_PLAY
-#define LOG_TAG "MediaPlayVideo"
+#define LOG_TAG "MediaPlayer.Video"
 #include "Log/elog.h"
 #define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else

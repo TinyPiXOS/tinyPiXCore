@@ -15,34 +15,25 @@ INC_PATH ?= -I. \
       -I/usr/include/TinyPiX/TpCore \
       -I/usr/include/TinyPiX/TpUtils \
       -I/usr/include/TinyPiX/TpGUI \
-	-I/usr/include/TinyPiX/TpGUI/GUI \
       -I/usr/include/TinyPiX/TpGUI/Core \
       -I/usr/include/TinyPiX/TpGUI/Screen \
       -I/usr/include/TinyPiX/TpGUI/Widgets \
       -I/usr/include/TinyPiX/TpGUI/app \
-      -I/usr/include/TinyPiX/TpWM
+      -I/usr/include/TinyPiX/TpWM \
+      -I../../../src/include_p/TpUtils
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
-LIB = \
-      -lTpGUI -lTpUtils -lTpCore \
-      -lwebp \
-      -lturbojpeg \
-      -lpng \
-      -fopenmp -lgomp \
-      -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog \
-      -lSDL2 -lgobject-2.0 -lglib-2.0 \
-      -lgbm -lGLESv2 -lEGL \
-      -ldl -lpthread
+LIB =  -lTpUtils -lTpCore -lTpGUI -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog -ldl -lpthread -lSDL2   -lgobject-2.0 -lglib-2.0   -lgbm -lGLESv2 -lEGL 
 
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标
-.PHONY:Gui#即使该目标存在也重新生成
-all:Gui clean#
+.PHONY:DebugLog#即使该目标存在也重新生成
+all:DebugLog clean#
 
-Gui:
-	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Gui main.o $(LIB) $(LIB_PATH)
+DebugLog:
+	$(G++) $(CFLAGS) -c debuglog.c $(INC_PATH)
+	$(G++) $(CFLAGS) -o DebugLog debuglog.o $(LIB) $(LIB_PATH)
 clean:
 	rm *.o

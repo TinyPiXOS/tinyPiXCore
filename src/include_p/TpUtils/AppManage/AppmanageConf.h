@@ -95,6 +95,7 @@ struct AppPackageConfig
     TpVector<TpString> otherFiles;    // 作者自己的其他文件，会被复制到根目录下，安装时候复制到app目录下
     TpVector<TpString> fileExtension; // 支持打开的文件类型
 
+    TpString configPath;                //config.json文件路径，用于基于config.json文件的相对路径打包
     AppPackageConfig()
     {
     }

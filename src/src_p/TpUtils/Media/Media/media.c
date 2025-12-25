@@ -10,7 +10,7 @@
 
 
 #ifdef DEBUG_MEDIA_PLAY
-#define LOG_TAG "MediaPlayUser"
+#define LOG_TAG "MediaPlayer.User"
 #include "Log/elog.h"
 #define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else
