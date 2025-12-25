@@ -66,6 +66,10 @@ public:
     /// @return 应用主窗口指针
     virtual TpWidget *mainWindow();
 
+    /// @brief 当前是否是桌面进程
+    /// @return 桌面进程返回true，否则返回false
+    bool isDesktop();
+
     /// @brief 获取全局单例CSS解析器
     /// @return css解析器智能指针
     tpShared<TpCssParser> cssParser();

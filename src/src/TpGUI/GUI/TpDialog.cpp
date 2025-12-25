@@ -101,6 +101,7 @@ void TpDialog::move(int32_t x, int32_t y)
     TpAppData *appData = static_cast<TpAppData *>(TpApp::Inst()->appObjectSet());
     TpScreenData *screenData = static_cast<TpScreenData *>(TpObject::data_);
 
+#if 0
     if (!appData->isDesk && appData->deskStatusBarInfo_.statusBarVislble)
     {
         uint32_t rW = 0, rH = 0;
@@ -131,6 +132,7 @@ void TpDialog::move(int32_t x, int32_t y)
         {
         }
     }
+#endif
 
     TpScreen::move(x, y);
 }

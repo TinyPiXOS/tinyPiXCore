@@ -18,7 +18,6 @@
 #include "TpObjectFunction.hpp"
 #include "TpObject_p.h"
 #include "TpShareMemory.h"
-#include "TpGateway.h"
 #include "TpMainWindow.h"
 #include <TpDir.h>
 #include "TpDef.h"
@@ -173,69 +172,6 @@ static bool bindVScreen(TpAppData *appData, TpFixScreen *object)
     appData->appExecThread->start();
 
     return ret;
-}
-
-// 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(TpAppData *appData, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
-{
-    // 偏移的XY坐标；和相对于物理屏幕需要裁剪的的宽高值
-    int32_t mainWindowX = 0;
-    int32_t mainWindowY = 0;
-    int32_t offsetW = 0;
-    int32_t offsetH = 0;
-
-    if (!appData->isDesk && appData->deskStatusBarInfo_.statusBarVislble)
-    {
-        int32_t statusBarLocation = appData->deskStatusBarInfo_.statusBarLocation;
-        if (statusBarLocation == 0)
-        {
-            mainWindowY = appData->deskStatusBarInfo_.statusBarHeight;
-            offsetH = mainWindowY;
-        }
-        else if (statusBarLocation == 1)
-        {
-            offsetW = appData->deskStatusBarInfo_.statusBarWidth;
-        }
-        else if (statusBarLocation == 2)
-        {
-            offsetH = appData->deskStatusBarInfo_.statusBarHeight;
-        }
-        else if (statusBarLocation == 3)
-        {
-            mainWindowX = appData->deskStatusBarInfo_.statusBarWidth;
-            offsetW = mainWindowX;
-        }
-        else
-        {
-            mainWindowY = appData->deskStatusBarInfo_.statusBarHeight;
-            offsetH = mainWindowY;
-        }
-    }
-
-    // 调整窗口大小和坐标
-    uint32_t rW = 0, rH = 0;
-    tinyPiX_wf_get_display_size(mainWindowObjData->agent, &rW, &rH);
-    tinyPiX_wf_set_rect(mainWindowObjData->agent, mainWindowX, mainWindowY, rW - offsetW, rH - offsetH);
-
-    mainWindowObjData->offsetX = mainWindowX;
-    mainWindowObjData->offsetY = mainWindowY;
-
-    mainWindowObjData->absoluteRect.setX(mainWindowX);
-    mainWindowObjData->absoluteRect.setY(mainWindowY);
-
-    TpResizeEventData input;
-    input.object = mainWindow;
-    input.nw = rW - offsetW;
-    input.nh = rH - offsetH;
-    input.question = TpResizeEvent::TP_NORMAL_CHANGE;
-    TpResizeEvent event;
-    bool ret = event.construct(&input);
-
-    if (ret)
-    {
-        refreshCacheImage(mainWindowObjData);
-        IssueObjEvent(mainWindow, event, onResizeEvent, true);
-    }
 }
 
 static void sendThemeChangedEvent(TpAppData *setData, const Tp::SystemTheme &sysTheme)

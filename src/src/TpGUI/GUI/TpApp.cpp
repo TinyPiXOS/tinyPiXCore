@@ -6,9 +6,6 @@
 TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     : TpCoreApp(argc, argv)
 {
-    // 初始化网关
-    bool gatewayInitRes = initializeGateway();
-
     TpCoreAppData *coreData = static_cast<TpCoreAppData *>(TpCoreApp::data_);
     if (coreData)
     {
@@ -57,46 +54,6 @@ TpApp::TpApp(int32_t argc, char *argv[], const TpString &deskStrKey)
     {
         bindVScreen(appData, new TpFixScreen());
     }
-
-#if 1 // 处理桌面 topbar信息
-
-    // 接收桌面工具栏信息
-    auto RecvDeskBarFunc = [=](const char *topic, const void *data, uint32_t dataLen)
-    {
-        TpAppData *set = static_cast<TpAppData *>(data_);
-        TpDeskStatusBarInfo recvInfo;
-        recvInfo.StructDeserialize(data, dataLen);
-
-        std::cout << "桌面信息：" << recvInfo.statusBarLocation << " , " << recvInfo.statusBarWidth
-                  << " , " << recvInfo.statusBarHeight << " , " << recvInfo.statusBarVislble << std::endl;
-
-        // 主屏幕根据Bar数据是否变化决定是否刷新主屏
-        if (recvInfo == set->deskStatusBarInfo_)
-            return;
-
-        set->deskStatusBarInfo_ = recvInfo;
-
-        // 更新主屏
-        if (!set->mainWindow)
-            return;
-
-        TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(set->mainWindow->objectSets());
-        refreshMainWindow(set, set->mainWindow, mainWindowData);
-    };
-
-    // 订阅桌面数据
-    subscribeGatewayData(TpDeskStatusBarInfoKey, RecvDeskBarFunc);
-
-    // 尝试读取桌面信息；如果没有桌面则读取失败
-    if (!appData->isDesk)
-    {
-        // 通知桌面应用启动
-        bool pubRunData = true;
-        // std::cout << "发布应用上线!" <<std::endl;
-        publishGatewayData(TpDeskAppStartKey, &pubRunData, sizeof(bool));
-    }
-
-#endif
 }
 
 TpApp::~TpApp()
@@ -189,6 +146,12 @@ TpWidget *TpApp::mainWindow()
 {
     TpAppData *set = static_cast<TpAppData *>(data_);
     return set->mainWindow;
+}
+
+bool TpApp::isDesktop()
+{
+    TpAppData *set = static_cast<TpAppData *>(data_);
+    return set->isDesk;
 }
 
 tpShared<TpCssParser> TpApp::cssParser()

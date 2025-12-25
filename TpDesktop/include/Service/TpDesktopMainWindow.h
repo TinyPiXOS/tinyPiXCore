@@ -1,0 +1,34 @@
+#ifndef __TP_DESKTOPMAIN_WINDOW_H
+#define __TP_DESKTOPMAIN_WINDOW_H
+
+#include "TpMainWindow.h"
+
+TP_DEF_VOID_TYPE_VAR(ITpDesktopMainWindowData);
+/// @brief 应用主窗体，每个应用只能拥有一个TpDesktopMainWindow;开发在本桌面运行的应用必须使用本类作为主窗体
+class TpDesktopMainWindow
+    : public TpMainWindow
+{
+public:
+    TpDesktopMainWindow();
+    virtual ~TpDesktopMainWindow();
+
+public:
+    /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
+    /// @return 类名字符串
+    virtual TpString pluginType() override { return TO_STRING(TpDesktopMainWindow); }
+
+    virtual void setBackGroundColor(const TpColors &color, bool enable = true) override;
+    virtual void setBackGroundColor(int32_t color, bool enable = true) override;
+    virtual void setBackGroundColor(const TpBrush &bgBrush, bool enable = true) override;
+    virtual void setEnableBackGroundColor(bool enable) override;
+
+    virtual void setBorderColor(const TpColors &color, bool enable = true) override;
+    virtual void setBorderColor(int32_t color, bool enable = true) override;
+    virtual void setBorderColor(const TpBrush &borderBrush, bool enable = true) override;
+    virtual void setEnabledBorderColor(bool enable) override;
+
+private:
+    ITpDesktopMainWindowData *data_;
+};
+
+#endif
