@@ -17,6 +17,8 @@
 		"Email": "123456789"
 	},
 	"FileExtension": [
+		".jpg",
+		".txt"
 	],
 	"StartupParameters": [
 		"--fullscreen",
@@ -25,17 +27,19 @@
 	"Libraries": [
 	],
 	"Dependencies": [
-	],
-	"AssertFiles": [
-		"/home/pix/AppManage/mytestapp/data/mysrc",
-		"/home/pix/AppManage/mytestapp/res/picture"
+		{
+			"Name": "libpng",
+			"Version": "1.2.0"
+		}
 	],
 	"BinFiles": [
 		"/home/pix/AppManage/mytestapp/bin_1",
 		"/home/pix/AppManage/mytestapp/bin_2"
 	],
 	"OtherFiles": [
-		"/home/pix/AppManage/mytestapp/data"
+		"/home/pix/AppManage/mytestapp/data",
+		"/home/pix/AppManage/mytestapp/conf",
+		"/home/pix/AppManage/mytestapp/res",
+		"/home/pix/AppManage/mytestapp/lib"
 	]
-	
 }
