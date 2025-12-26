@@ -26,7 +26,6 @@ INC_PATH ?= -I. \
 #LIB = -lpthread -lpcap -ltparchive
 LIB = \
       -lTpGUI -lTpUtils -lTpCore \
-      /home/pix/pix_dev/TinyPiXOS/src/depend_lib/static/arm_32/libthorvg.a \
       -lwebp \
       -lturbojpeg \
       -lpng \

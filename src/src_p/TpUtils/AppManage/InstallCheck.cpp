@@ -29,7 +29,12 @@
 #include <string.h>
 #include <ctype.h>
 
-
+#ifdef DEBUG_APPM_INSTALL
+#define debug_printf(...) 		elog_d("AppManager.Inatsll", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+#define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#endif
 
 
 struct ArchMapping arch_maps[] = {
@@ -300,7 +305,7 @@ int TpAppmInstallCheck::extract_config_info(const char *file_config, struct Pack
         conf->type = TYPE_PACKAGE_APP;
     else
         conf->type = TYPE_PACKAGE_NONE;
-    printf("解析config,%d\n", conf->type);
+    debug_printf("解析config,%d\n", conf->type);
     switch (conf->type)
     {
     // 逐行读取安装包配置文件信息
@@ -313,7 +318,7 @@ int TpAppmInstallCheck::extract_config_info(const char *file_config, struct Pack
             if (line[0] == '#') // 跳过注释行
                 continue;
 
-			printf("[Debug]: 读取config行: %s",line);
+			debug_printf("[Debug]: 读取config行: %s",line);
             // 移除换行符
             trim_newline(line);
 

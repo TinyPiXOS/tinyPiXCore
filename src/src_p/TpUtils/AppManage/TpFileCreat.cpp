@@ -23,7 +23,21 @@
 #include "TpFileInfo.h"
 #include "TpDir.h"
 
+bool isAbsolutePath(const TpString& path) {
+    return !path.empty() && path[0] == '/';
+}
 
+
+//获取文件所在目录
+static TpString getFilePath(const TpString filename)
+{   
+    size_t pos=filename.rfind("/");
+    if (pos != std::string::npos) { // 先判断是否找到
+        return filename.substr(0,pos);
+    } else {
+       return TpString("./");
+    }
+}
 // 拷贝文件列表到指定目录
 bool fileCopyList(const TpString &destDir, const TpVector<TpString> &fileList)
 {
@@ -40,6 +54,40 @@ bool fileCopyList(const TpString &destDir, const TpVector<TpString> &fileList)
             // 记录错误日志，但继续处理其他文件
         }
     }
+    return success;
+}
+
+// 加强版拷贝文件列表到指定目录
+// 相对于src的路径来计算列表中文件的路径进行拷贝，如果列表中文件是绝对路径则不计算
+bool fileCopyList2(const TpString &destDir, const TpVector<TpString> &fileList,const TpString &src)
+{
+    if (fileList.isEmpty())
+        return true;
+    
+    bool success = true;
+    
+    for (int i = 0; i < fileList.size(); i++) {
+        TpString sourcePath = fileList[i];
+        TpString finalSourcePath = sourcePath;
+        
+        // 判断是否是绝对路径，如果不是则基于src路径计算
+        if (!isAbsolutePath(sourcePath)) {
+            finalSourcePath = src + "/" + sourcePath;
+            printf("Copy relative path: %s (resolved to: %s) to %s\n", 
+                   sourcePath.c_str(), finalSourcePath.c_str(), destDir.c_str());
+        } else {
+            printf("Copy absolute path: %s to %s\n", sourcePath.c_str(), destDir.c_str());
+        }
+        
+        // 直接使用 TpDir::copy 进行拷贝，它会自动判断文件类型
+        if (!TpDir::copy(finalSourcePath, destDir)) {
+            printf("Error: Failed to copy %s to %s\n", finalSourcePath.c_str(), destDir.c_str());
+            success = false;
+        } else {
+            printf("Successfully copied: %s\n", finalSourcePath.c_str());
+        }
+    }
+    
     return success;
 }
 
@@ -129,7 +177,7 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         if (lastSlashPos != -1)
         {
             TpString execPath = conf.appexecName.substr(lastSlashPos);
-            file.write("export Appexec=." + execPath + "\n");
+            file.write("export Appexec=./bin/" + execPath + "\n");
         }
     }
 
@@ -180,16 +228,22 @@ int TpFileCreat::appm_generate_package_source(AppPackageConfig *config, const Tp
     if (config->appexecName.empty())
         return -1;
 
-    //fileCopySingle( path + "/bin", config->appexecName);
-    TpDir::copy(config->appexecName, TpString(path + "/bin/"));
+    TpString src_root=getFilePath(config->configPath);    //打包json所在目录
 
-    //fileCopySingle(path, config->icon);
-    TpDir::copy(config->icon, TpString(path + "/"));
+    //主bin
+    TpVector<TpString> fileList;
+    fileList.emplace_back(config->appexecName);
+    fileCopyList2(TpString(path + "/bin/"), fileList,src_root);
+    
+    //icon
+    fileList.clear();
+    fileList.emplace_back(config->icon);
+    fileCopyList2(TpString(path + "/"), fileList,src_root);
 
-    fileCopyList(TpString(path + "/bin/"), config->binFiles);
-    fileCopyList(TpString(path + "/lib/"), config->lib);
-    fileCopyList(TpString(path + "/assert/"), config->assertFiles);
-    fileCopyList(TpString(path + "/"), config->otherFiles);
+    fileCopyList2(TpString(path + "/bin/"), config->binFiles,src_root);
+    fileCopyList2(TpString(path + "/lib/"), config->lib,src_root);
+//    fileCopyList2(TpString(path + "/assert/"), config->assertFiles,src_root);
+    fileCopyList2(TpString(path + "/"), config->otherFiles,src_root);
 
     // 计算文件大小
     if (config->diskspace == 0)

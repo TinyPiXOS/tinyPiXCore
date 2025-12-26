@@ -32,6 +32,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #if !defined(ELOG_OUTPUT_LVL)
     #error "Please configure static output log level (in elog_cfg.h)"
@@ -152,6 +153,48 @@ extern void elog_port_output(const char *log, size_t size);
 extern void elog_port_output_lock(void);
 extern void elog_port_output_unlock(void);
 
+//环境变量读取，用于TinyPiX日志打印等级
+static void elog_env_init(void) {  
+    char *env_val;  
+      
+    /* 检查 ELOG_ENABLE 环境变量控制日志输出开关 */  
+    env_val = getenv("ELOG_ENABLE");  
+    if (env_val) {  
+        bool enabled = (strcmp(env_val, "1") == 0 ||   
+                       strcmp(env_val, "true") == 0 ||   
+                       strcmp(env_val, "on") == 0);  
+        elog_set_output_enabled(enabled);  
+    }  
+      
+    /* 检查 ELOG_LEVEL 环境变量控制日志级别 */  
+    env_val = getenv("ELOG_LEVEL");  
+    if (env_val) {  
+        uint8_t level = ELOG_LVL_VERBOSE; /* 默认值 */  
+          
+        if (strcmp(env_val, "ASSERT") == 0) level = ELOG_LVL_ASSERT;  
+        else if (strcmp(env_val, "ERROR") == 0) level = ELOG_LVL_ERROR;  
+        else if (strcmp(env_val, "WARN") == 0) level = ELOG_LVL_WARN;  
+        else if (strcmp(env_val, "INFO") == 0) level = ELOG_LVL_INFO;  
+        else if (strcmp(env_val, "DEBUG") == 0) level = ELOG_LVL_DEBUG;  
+        else if (strcmp(env_val, "VERBOSE") == 0) level = ELOG_LVL_VERBOSE;  
+        else {  
+            /* 也支持数字 0-5 */  
+            int lvl = atoi(env_val);  
+            if (lvl >= ELOG_LVL_ASSERT && lvl <= ELOG_LVL_VERBOSE) {  
+                level = (uint8_t)lvl;  
+            }  
+        }  
+          
+        elog_set_filter_lvl(level);  
+    }  
+      
+    /* 检查 ELOG_TAG 环境变量控制标签过滤 */  
+    env_val = getenv("ELOG_TAG");  
+    if (env_val && strlen(env_val) > 0) {  
+        elog_set_filter_tag(env_val);  
+    }  
+}
+
 /**
  * EasyLogger initialize.
  *
@@ -235,6 +278,7 @@ void elog_start(void) {
     
     /* enable output */
     elog_set_output_enabled(true);
+    elog_env_init();
 
 #if defined(ELOG_ASYNC_OUTPUT_ENABLE)
     elog_async_enabled(true);
@@ -265,6 +309,27 @@ void elog_stop(void) {
 
     /* show version */
     log_i("EasyLogger V%s is deinitialize success.", ELOG_SW_VERSION);
+}
+
+void TpLog_Init()
+{
+    elog_init();
+    elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL);
+    elog_set_fmt(ELOG_LVL_ERROR, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_WARN, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_INFO, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_DEBUG,  ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_VERBOSE, ELOG_FMT_ALL & ~ELOG_FMT_FUNC);
+
+    elog_set_text_color_enabled(true);
+    elog_start();
+}
+
+
+void TpLog_Deinit()
+{
+    elog_stop();
+    elog_deinit();
 }
 
 

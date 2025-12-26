@@ -280,6 +280,7 @@ int TpAppmCreat::AnalysisDopackJson(const TpString& json_path, struct AppPackage
 	std::cout<< "[Debug]： get ScriptInfo" << std::endl;
     JsonConfigParser::GetStartupInfo(json_str, *script);
 
+    conf->configPath=json_path;
 	file.close();
     return 0;
 }

@@ -16,6 +16,7 @@
 #include "ConfJson.h"
 #include "typesDef.h"
 #include "TpDir.h"
+#include "TpFile.h"
 
 
 int TpAppmUnload::Unload(TpAppID uuid)
@@ -46,9 +47,9 @@ int TpAppmUnload::Unload(TpAppID uuid)
 
     // 删除conf里面的uuid.json文件
     command = TpString(APP_JSON_PATH) + "/" + uuid.value + ".json";
-    if (!TpDir::removeRecursively(command))
+    if (!TpFile::remove(command))
     {
-        fprintf(stderr, "delete app conf json error\n");
+        fprintf(stderr, "delete app conf json (%s) error\n",command.c_str());
         // return -1;
     }
 

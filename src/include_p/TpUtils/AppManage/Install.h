@@ -96,7 +96,7 @@ extern "C"
 #define APP_LIBRARY "applib"  // 前面拼uuid
 #define APP_INSTALL_RES "res" // 资源文件，应用的各种文件，包括assert也在这下面,/System/app/<uuid>/res/
 #define APP_INSTALL_BIN "bin" // bin文件，可执行文件放在这里，/System/app/<uuid>/bin/
-#define APP_INSTALL_CONFIG "config"
+#define APP_INSTALL_CONFIG "conf"
 #define APP_INSTALL_DATA "data"
 #define APP_INSTALL_TEMP "temp"
 

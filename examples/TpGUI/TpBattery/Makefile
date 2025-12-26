@@ -26,15 +26,15 @@ INC_PATH ?= -I. \
 #LIB = -lpthread -lpcap -ltparchive
 LIB = \
       -lTpGUI -lTpUtils -lTpCore \
-      /home/pix/pix_dev/TinyPiXOS/src/depend_lib/static/arm_32/libthorvg.a \
       -lwebp \
       -lturbojpeg \
       -lpng \
-      -fopenmp -lgomp \
+      -lgomp \
       -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog \
       -lSDL2 -lgobject-2.0 -lglib-2.0 \
       -lgbm -lGLESv2 -lEGL \
       -ldl -lpthread
+#      -fopenmp -lgomp /home/pix/pix_dev/TinyPiXOS/src/depend_lib/static/arm_32/libthorvg.a 
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标

@@ -9,7 +9,7 @@
 
 #ifdef DEBUG_MEDIA_CODEC
 #include "Log/elog.h"
-#define debug_printf(...) 	elog_d("MediaPlayCodec", ##__VA_ARGS__)
+#define debug_printf(...) 	elog_d("MediaPlayer.PlayCodec", ##__VA_ARGS__)
 //#define debug_printf(fmt, ...) elog_d(fmt, ##__VA_ARGS__)
 #else
 #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做

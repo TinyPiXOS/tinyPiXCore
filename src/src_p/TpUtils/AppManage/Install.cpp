@@ -27,6 +27,13 @@
 #include "Purview.h"
 #include "AppManage/AppmanageConf.h"
 
+#ifdef DEBUG_APPM_INSTALL
+#define debug_printf(...) 		elog_d("AppManager.Inatsll", ##__VA_ARGS__)
+//#define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+#define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做
+#endif
+
 uint8_t buf_temp[1024];
 
 const char *InstallCreatFile[] = {
@@ -38,7 +45,7 @@ const char *InstallCreatFile[] = {
     NULL};
 
 const char *InstallMustFile[][3] = {
-    {"./assert", "./res/"},
+//    {"./assert", "./res/"},
     {"./start.sh", "./"},
     {"./bin", "./"},
     //...
@@ -230,7 +237,7 @@ static void modify_rpath(const char *filename, const char *new_rpath)
     }
 
     // 打印当前的 RPATH
-    printf("Old RPATH: %s\n", strtab + rpath_offset);
+    debug_printf("Old RPATH: %s\n", strtab + rpath_offset);
 
     // 检查新的 RPATH 是否比旧的长，不能超过原来预留的空间
     size_t old_rpath_len = strlen(strtab + rpath_offset);
@@ -248,7 +255,7 @@ static void modify_rpath(const char *filename, const char *new_rpath)
     memcpy(strtab + rpath_offset, new_rpath, new_rpath_len);
     memset(strtab + rpath_offset + new_rpath_len, '\0', old_rpath_len - new_rpath_len); // 填充空字符
 
-    printf("New RPATH: %s\n", strtab + rpath_offset);
+    debug_printf("New RPATH: %s\n", strtab + rpath_offset);
 
     // 释放资源
     munmap(mapped, st.st_size);
@@ -274,7 +281,7 @@ int write_config_file(const char *config, char *uuid, uint8_t type, const char *
     if (fd < 0)
     {
         perror("open configure");
-        printf("path:%s\n", path_conf);
+        debug_printf("path:%s\n", path_conf);
         return -1;
     }
     // 拼接完整的前缀的key，例如：uuid:, export lib=
@@ -322,7 +329,7 @@ int install_config_file(const struct TpAppInfo *app)
         return -1;
     }
 
-    printf("===安装配置和json文件\n");
+    debug_printf("安装配置和json文件\n");
 
     TpJsonObject static_obj;
 
@@ -358,20 +365,21 @@ int install_config_file(const struct TpAppInfo *app)
 
     // 写入JSON文件
     TpString jsonPath = TpString(APP_JSON_PATH) + "/" + app->uuid.c_str() + ".json";
-    printf("======jsonPath:%s\n",jsonPath.c_str());
-    std::cout << "Json:" << TpJsonDocument(static_obj).toJson() << std::endl;
+    debug_printf("jsonPath:%s\n",jsonPath.c_str());
+    debug_printf("Json:%s\n",TpJsonDocument(static_obj).toJson().c_str());
     ConfigJsonParser::writeJsonObjectFile(static_obj, jsonPath); // 不加密写入json
     // writeJsonObjectFileEncryption(static_obj, jsonPath.c_str()); // 加密写入json
 
     sourceFile.close();
     destFile.close();
+    TpFile::remove(destPath);
     return err;
 }
 
 // 删除安装路径(用于安装过程中出错的删除)
 static int install_remove_appfile(const char *uuid)
 {
-    printf("[debug]:安装过程出错，删除安装文件\n");
+    debug_printf("安装过程出错，删除安装文件\n");
     char path[PATH_MAX_LENGTH];
     memset(path, 0, sizeof(path));
     snprintf(path, sizeof(path), APP_INSTALL_PATH "/%s", uuid);
@@ -416,6 +424,7 @@ remove:
 // 解包的形式安装文件到目标位置
 int install_must_file_extract(struct AppInstallInfo *app, const char *file_s, const char *file_d)
 {
+    debug_printf("解包:%s to %s\n",file_s,file_d);
     return install_file_extract(app, ".", file_s, file_d);
 }
 // path:相对应用安装目录的路径
@@ -477,7 +486,7 @@ int install_must_file(struct AppInstallInfo *app)
     {
         const char *str1 = InstallMustFile[i][0];
         const char *str2 = InstallMustFile[i][1];
-        printf("安装%s\n", str1);
+        debug_printf("安装%s\n", str1);
         if (app->install_must(app, str1, str2) < 0)
             ret = -1;
     }
@@ -503,25 +512,25 @@ AppInstallPathType install_config_export_type(char *line)
     char *flag = strstr(line, "depend="); // 系统依赖库，需要跳过不复制
     if (flag != NULL)
         return INSTALL_PATH_TYPE_NONE;
-    flag = strstr(line, "export start="); // 启动脚本跳过
+    flag = strstr(line, "export Start="); // 启动脚本跳过
     if (flag != NULL)
         return INSTALL_PATH_TYPE_NONE;
-    flag = strstr(line, "export remove=");
+    flag = strstr(line, "export Remove=");
     if (flag != NULL)
         return INSTALL_PATH_TYPE_ROOT;
-    flag = strstr(line, "export lib=");
+    flag = strstr(line, PACKAGE_LIB_FILE);
     if (flag != NULL)
         return INSTALL_PATH_TYPE_ROOT;
-    flag = strstr(line, "export appexec");
+    flag = strstr(line, PACKAGE_APPEXEC_FILE);
     if (flag != NULL)
         return INSTALL_PATH_TYPE_ROOT;
-    flag = strstr(line, "export icon=");
+    flag = strstr(line, PACKAGE_ICON_FILE);
     if (flag != NULL)
         return INSTALL_PATH_TYPE_ROOT;
-    flag = strstr(line, "export userfile=");
+    flag = strstr(line, PACKAGE_USER_FILE) ;
     if (flag != NULL)
-        return INSTALL_PATH_TYPE_RES;
-    flag = strstr(line, "export bin=");
+        return INSTALL_PATH_TYPE_ROOT;
+    flag = strstr(line, "export Bin=");
     if (flag != NULL)
         return INSTALL_PATH_TYPE_BIN;
 
@@ -654,12 +663,11 @@ int Appm_Install_Archive(struct TpAppInfo *app, struct PackageUserParam *user)
 {
     struct AppInstallInfo app_install;
     struct InstallSchedule *schedule = user->schedule;
-    printf("[debug]:开始安装文件\n");
+    debug_printf("开始安装文件\n");
     app_install.app = app;
     app_install.a = NULL;
     // app.path_file =
     app_install.install_must = install_must_file_extract;
-    // app_install.install_other= install_file_copy;
     app_install.install_other = install_file_extract;
 
     // 提取icon以供显示图标
@@ -677,7 +685,6 @@ int Appm_Install_Archive(struct TpAppInfo *app, struct PackageUserParam *user)
     // json_object_put(root);
     write_install_schedule(schedule, 90);
     // 安装配置文件和json文件
-    printf("[debug]\n");
     install_config_file(app);
 
     // 其他流程
@@ -709,7 +716,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     // 应用未安装，需要新建文件目录
     if (conf->installFlag != 1)
     {
-        printf("应用未安装\n");
+        debug_printf("应用未安装\n");
         if (install_creat_path((char *)app.uuid.c_str()) < 0)
             return -1;
     }
@@ -722,7 +729,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     }
     if (get_pikname_from_path(path_pik, app.pikname) < 0)
     {
-        fprintf(stderr, "Error:获取应用安装包名(无后缀)失败，%s\n", path_pik);
+        fprintf(stderr, "[Error]: 获取应用安装包名(无后缀)失败，%s\n", path_pik);
         install_remove_appfile((char *)app.uuid.c_str());
         return -1;
     }
@@ -740,7 +747,7 @@ int appm_install_pik(const char *path_pik, TypePackage type, struct AppPackageCo
     //	Appm_Remove_Package(pik_name);
     if (conf->installFlag == 0)
     {
-        printf("应用未安装，设置用户权限\n");
+        debug_printf("应用未安装，设置用户权限\n");
         TpAppmPurview::InstallPurviewSet(uuid, type);
     }
     write_install_schedule(schedule, 100);
@@ -764,7 +771,7 @@ int Appm_Install_Library(const char *pathLib, struct LibPackageConfig *conf, str
     return 0;
 }
 
-// 安装
+// 安装主程序
 int appm_install_package(const char *path_pack, struct PackageConfigInfo *conf, struct PackageUserParam *user)
 {
     if (conf->md5_flag != 1)
@@ -780,7 +787,7 @@ int appm_install_package(const char *path_pack, struct PackageConfigInfo *conf, 
         return -1;
 	}
 
-    printf("安装类型%d\n", conf->type);
+    debug_printf("安装类型%d\n", conf->type);
     switch (conf->type)
     {
     case TYPE_PACKAGE_APP:
@@ -796,7 +803,7 @@ int appm_install_package(const char *path_pack, struct PackageConfigInfo *conf, 
         appm_install_pik(path_pack, TYPE_PACKAGE_APP, &(conf->appConf), user); // 未知类型按照普通APP安装
         break;
     }
-    printf("[debug]appm_install_package\n");
+    debug_printf("appm_install_package\n");
     return 0;
 }
 

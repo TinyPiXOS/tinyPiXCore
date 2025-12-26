@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 
 /*int main()
 {
-    TpDir::copy(TpString("/home/pix/AppManage/mytestapp/assert/mysrc"),TpString("./TestApp/assert/"));
+    TpDir::copy(TpString("/home/pix/AppManage/mytestapp/bin_2"),TpString("./"));
+    TpDir::copy(TpString("/home/pix/AppManage/mytestapp/./bin_1"),TpString("./"));
 
 }*/

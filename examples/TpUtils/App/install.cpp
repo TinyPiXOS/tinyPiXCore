@@ -8,6 +8,8 @@
 
 int install_app(const char *pack_path)
 {
+	
+
 	TpString package_path(pack_path);
 	TpAppInstall appmanage(package_path);
 	std::cout<< "icon:" << appmanage.icon()<<std::endl;

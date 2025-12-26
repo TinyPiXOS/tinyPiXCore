@@ -11,7 +11,7 @@
 
 #ifdef DEBUG_MEDIA_PLAY
 #include "Log/elog.h"
-#define debug_printf(...) 		elog_d("MediaPlayer", ##__VA_ARGS__)
+#define debug_printf(...) 		elog_d("MediaPlayer.Media", ##__VA_ARGS__)
 //#define debug_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #else
 #define debug_printf(fmt, ...)  // 如果不定义DEBUG，什么也不做

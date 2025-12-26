@@ -33,7 +33,7 @@ int32_t main(int32_t argc, char *argv[])
     connect(vSlider, valueChanged, [=](int32_t value)
             { battertWidget->setValueAnimated(value);
 				slider->setValue(value); });
-
+    //printf("update\n");
     vScreen->update();
 
     return app.run();
