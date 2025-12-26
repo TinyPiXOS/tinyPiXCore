@@ -4,7 +4,7 @@
 #include "TpAnimation.h"
 #include "DeskTopGlobal.hpp"
 #include "TpApp.h"
-#include "TpAppManager.h"
+#include "TpDesktopAPI.h"
 #include "StatusBar.h"
 #include "TpGraphicsBlurEffect.h"
 
@@ -148,7 +148,7 @@ bool NavigationBar::onMouseRleaseEvent(TpMouseEvent *event)
             {
                 globalAppTaskWindow->setWindowOpacity(0);
                 globalAppTaskWindow->setVisible(false);
-                TpAppManager::Instance()->home();
+                TpDesktopAPI::Instance()->home();
                 globalStatusBar_->setColor(_RGBA(0, 0, 0, 0));
                 std::cout << " Return Desktop " << std::endl;
             }

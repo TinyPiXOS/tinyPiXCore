@@ -7,10 +7,10 @@
  */
 
 
-#if !defined(_TpAppManager_server_hpp_)
-#define _TpAppManager_server_hpp_
+#if !defined(_TpDesktopAPI_server_hpp_)
+#define _TpDesktopAPI_server_hpp_
 
-#include "TpAppManager_interface.hpp"
+#include "TpDesktopAPI_interface.hpp"
 
 #include "erpc_server.hpp"
 #include "erpc_codec.hpp"
@@ -57,4 +57,4 @@ private:
 } // erpcShim
 
 
-#endif // _TpAppManager_server_hpp_
+#endif // _TpDesktopAPI_server_hpp_

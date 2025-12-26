@@ -7,10 +7,10 @@
  */
 
 
-#if !defined(_TpAppManager_interface_hpp_)
-#define _TpAppManager_interface_hpp_
+#if !defined(_TpDesktopAPI_interface_hpp_)
+#define _TpDesktopAPI_interface_hpp_
 
-#include "TpAppManager_common.hpp"
+#include "TpDesktopAPI_common.hpp"
 
 namespace erpcShim
 {
@@ -44,4 +44,4 @@ private:
 } // erpcShim
 
 
-#endif // _TpAppManager_interface_hpp_
+#endif // _TpDesktopAPI_interface_hpp_

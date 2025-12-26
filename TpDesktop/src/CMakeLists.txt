@@ -10,22 +10,24 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # 定义源码路径宏
 set(SOURCE_FILES
-    ${SOURCE_PATH}/TpAppManager.cpp
+    ${SOURCE_PATH}/TpDesktopAPI.cpp
     ${SOURCE_PATH}/TpSplashScreen.cpp
     ${SOURCE_PATH}/TpWidgetsGateway.cpp
     ${SOURCE_PATH}/TpDesktopMainWindow.cpp
+    ${SOURCE_PATH}/TpDeskStatusInfo.cpp
+    ${SOURCE_PATH}/TpDesktopDialog.cpp
 
-    ${SOURCE_PATH}/ServiceRPC/c_TpAppManager_client.cpp
-    ${SOURCE_PATH}/ServiceRPC/TpAppManager_client.cpp
-    ${SOURCE_PATH}/ServiceRPC/TpAppManager_interface.cpp
+    # ${SOURCE_PATH}/ServiceRPC/c_TpDesktopAPI_client.cpp
+    # ${SOURCE_PATH}/ServiceRPC/TpDesktopAPI_client.cpp
+    # ${SOURCE_PATH}/ServiceRPC/TpDesktopAPI_interface.cpp
 )
 
 # 添加包含目录
 include_directories(${SYSTEM_INCLUDE_PATH})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/Service)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/InteractDataDef)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include/Service)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include/InteractDataDef)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/include/TpCore)

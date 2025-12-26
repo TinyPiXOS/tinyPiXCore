@@ -15,7 +15,6 @@ class TpRect;
 class TpSurface
 {
 public:
-    // TpSurface(IPiDSSurface *surface = nullptr); // only for tinypix, otherwise use nullptr
     // only for tinypix, otherwise use nullptr
     TpSurface(IPiDSSurface *surface = nullptr, const TpRect& rect = TpRect()); 
 
@@ -28,11 +27,6 @@ public:
                         int32_t rmask = 0, int32_t gmask = 0, int32_t bmask = 0, int32_t amask = 0,
                         uint8_t alpha = 0xff, bool enableColroKey = false, uint32_t colorKey = 0, const TpRect &clip = TpRect());
     virtual bool create(tpShared<TpSurface> surface, bool bShareMemoried = true); // if false, can not copy source data, only copy other parameters
-
-public:
-    /// @brief 获取当前绘制画布指针
-    /// @return 画布指针
-    virtual IPiDSSurface *surface();
 
 public:
     /// @brief 获取画布指针
@@ -61,10 +55,6 @@ public:
 public:
     virtual void setClipRect(const TpRect &rect);
     virtual TpRect clipRect();
-
-public:
-    // virtual void clear();
-    // virtual void fill(TpRect *rect, int32_t color);
 
 public:
     virtual bool hasSurface();

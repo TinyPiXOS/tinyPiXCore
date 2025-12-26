@@ -10,9 +10,7 @@ set(SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # 定义源码路径宏
 set(SOURCE_FILES
-    # ${SOURCE_PATH}/rpc/DeskService_server.cpp
-    # ${SOURCE_PATH}/rpc/DeskService_interface.cpp
-    # ${SOURCE_PATH}/rpc/DeskService_server.cpp
+    ${SOURCE_PATH}/AppManage/AppRunnerManage.cpp
 
     ${SOURCE_PATH}/DeskEntry.cpp
     ${SOURCE_PATH}/DeskScreen.cpp
@@ -56,6 +54,14 @@ include_directories(${CMAKE_SOURCE_DIR}/src/include/TpGUI/Widgets)
 # 添加动态库目标
 # add_library(TpDesktop SHARED ${SOURCE_FILES})
 add_executable(TpDesktop ${SOURCE_FILES})
+
+# 设置目标属性，抑制RPATH警告
+set_target_properties(TpDesktop PROPERTIES
+    SKIP_BUILD_RPATH TRUE
+    BUILD_WITH_INSTALL_RPATH FALSE
+    INSTALL_RPATH ""
+    MACOSX_RPATH OFF
+)
 
 # 设置动态库版本 VERSION 是库的当前版本号，而 SOVERSION 是API的兼容性版本号。
 # set_target_properties(TpDesktop PROPERTIES VERSION 1.0 SOVERSION 1)

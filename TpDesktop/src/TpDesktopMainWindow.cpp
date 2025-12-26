@@ -11,16 +11,12 @@
 #include "TpDefaultCss.h"
 #include "TpWidget_p.h"
 #include "TpGateway.h"
+#include "TpDeskStatusInfo.h"
+
 #include <InteractData/TpDesktopData.h>
 
-struct TpDesktopMainWindowData
-{
-    // 桌面信息；无桌面则数据无用
-    TpDeskStatusBarInfo deskStatusBarInfo_;
-};
-
 // 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(TpDesktopMainWindowData *deskWindowData, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
+static void refreshMainWindow(const TpDeskStatusBarInfo& statusInfo, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
 {
     // 偏移的XY坐标；和相对于物理屏幕需要裁剪的的宽高值
     int32_t mainWindowX = 0;
@@ -28,30 +24,30 @@ static void refreshMainWindow(TpDesktopMainWindowData *deskWindowData, TpMainWin
     int32_t offsetW = 0;
     int32_t offsetH = 0;
 
-    if (!TpApp::Inst()->isDesktop() && deskWindowData->deskStatusBarInfo_.statusBarVislble)
+    if (!TpApp::Inst()->isDesktop() && statusInfo.statusBarVislble)
     {
-        int32_t statusBarLocation = deskWindowData->deskStatusBarInfo_.statusBarLocation;
+        int32_t statusBarLocation = statusInfo.statusBarLocation;
         if (statusBarLocation == 0)
         {
-            mainWindowY = deskWindowData->deskStatusBarInfo_.statusBarHeight;
+            mainWindowY = statusInfo.statusBarHeight;
             offsetH = mainWindowY;
         }
         else if (statusBarLocation == 1)
         {
-            offsetW = deskWindowData->deskStatusBarInfo_.statusBarWidth;
+            offsetW = statusInfo.statusBarWidth;
         }
         else if (statusBarLocation == 2)
         {
-            offsetH = deskWindowData->deskStatusBarInfo_.statusBarHeight;
+            offsetH = statusInfo.statusBarHeight;
         }
         else if (statusBarLocation == 3)
         {
-            mainWindowX = deskWindowData->deskStatusBarInfo_.statusBarWidth;
+            mainWindowX = statusInfo.statusBarWidth;
             offsetW = mainWindowX;
         }
         else
         {
-            mainWindowY = deskWindowData->deskStatusBarInfo_.statusBarHeight;
+            mainWindowY = statusInfo.statusBarHeight;
             offsetH = mainWindowY;
         }
     }
@@ -85,9 +81,6 @@ static void refreshMainWindow(TpDesktopMainWindowData *deskWindowData, TpMainWin
 TpDesktopMainWindow::TpDesktopMainWindow()
     : TpMainWindow()
 {
-    TpDesktopMainWindowData *deskWindowData = new TpDesktopMainWindowData();
-    data_ = deskWindowData;
-
 #if 1 // 处理桌面 topbar信息
 
     // 初始化网关
@@ -103,14 +96,14 @@ TpDesktopMainWindow::TpDesktopMainWindow()
                   << " , " << recvInfo.statusBarHeight << " , " << recvInfo.statusBarVislble << std::endl;
 
         // 主屏幕根据Bar数据是否变化决定是否刷新主屏
-        if (recvInfo == deskWindowData->deskStatusBarInfo_)
+        if (recvInfo == TpDeskStatusInfo::Instance()->statusInfo())
             return;
 
-        deskWindowData->deskStatusBarInfo_ = recvInfo;
+        TpDeskStatusInfo::Instance()->setStatusInfo(recvInfo);
 
         // 更新主屏
         TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(this->objectSets());
-        refreshMainWindow(deskWindowData, this, mainWindowData);
+        refreshMainWindow(recvInfo, this, mainWindowData);
     };
 
     // 订阅桌面数据
@@ -129,16 +122,9 @@ TpDesktopMainWindow::TpDesktopMainWindow()
 
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     // 调整窗口大小
-    refreshMainWindow(deskWindowData, this, widgetData);
+    refreshMainWindow(TpDeskStatusInfo::Instance()->statusInfo(), this, widgetData);
 }
 
 TpDesktopMainWindow::~TpDesktopMainWindow()
 {
-    TpDesktopMainWindowData *deskWindowData = static_cast<TpDesktopMainWindowData *>(data_);
-    if (deskWindowData)
-    {
-        delete deskWindowData;
-        deskWindowData = nullptr;
-        data_ = nullptr;
-    }
 }

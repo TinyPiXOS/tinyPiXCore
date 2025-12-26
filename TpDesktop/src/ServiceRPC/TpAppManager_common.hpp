@@ -7,17 +7,12 @@
  */
 
 
-#if !defined(_TpAppManager_common_h_)
-#define _TpAppManager_common_h_
+#if !defined(_TpDesktopAPI_common_hpp_)
+#define _TpDesktopAPI_common_hpp_
 
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 #include "erpc_version.h"
 
@@ -42,8 +37,5 @@ struct binary_t
 
 #endif // ERPC_TYPE_DEFINITIONS_TPAPPMANAGER
 
-#if defined(__cplusplus)
-}
-#endif
 
-#endif // _TpAppManager_common_h_
+#endif // _TpDesktopAPI_common_hpp_

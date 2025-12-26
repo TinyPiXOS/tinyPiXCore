@@ -9,7 +9,7 @@
 #include "TpProcess.h"
 #include "TpMessageBox.h"
 #include "TpAppConfigIO.h"
-#include "TpAppManager.h"
+#include "TpDesktopAPI.h"
 #include <InteractData/TpDesktopData.h>
 
 #include <iostream>
@@ -141,7 +141,7 @@ void DeskScreen::recvData(const char *topic, const void *data, const uint32_t &s
             std::cout << " recvArg : " << recvArg << std::endl;
             argList.emplace_back(recvArg);
         }
-        TpAppManager::Instance()->killApp(recvRunData.appUuid);
+        AppRunnerManage::Instance()->killApp(recvRunData.appUuid);
         startApp(recvRunData.appUuid, argList);
     }
     else if (topicString.compare(TpAppInitFinishKey) == 0)
@@ -369,7 +369,7 @@ void DeskScreen::slotDeleteApp(DesktopAppButton *operateBtn)
     }
 
     // 如果应用正在运行，先杀掉进程
-    TpAppManager::Instance()->killApp(removeUuid);
+    AppRunnerManage::Instance()->killApp(removeUuid);
 
     // 重置缓存操作按钮
     pressAppBtn_ = nullptr;
@@ -880,7 +880,7 @@ void DeskScreen::startApp(const TpString &uuid, const TpVector<TpString> &argLis
     // 在RecvData中接收应用启动完成的消息，然后关闭开屏动画
 
     // 启动应用
-    bool startRes = TpAppManager::Instance()->startApp(uuid, argList);
+    bool startRes = AppRunnerManage::Instance()->startApp(uuid, argList);
     std::cout << "应用启动结果： " << startRes << std::endl;
     if (!startRes)
     {

@@ -7,10 +7,10 @@
  */
 
 
-#if !defined(_TpAppManager_client_hpp_)
-#define _TpAppManager_client_hpp_
+#if !defined(_TpDesktopAPI_client_hpp_)
+#define _TpDesktopAPI_client_hpp_
 
-#include "TpAppManager_interface.hpp"
+#include "TpDesktopAPI_interface.hpp"
 
 #include "erpc_client_manager.h"
 
@@ -43,4 +43,4 @@ class SystemApiService_client: public SystemApiService_interface
 } // erpcShim
 
 
-#endif // _TpAppManager_client_hpp_
+#endif // _TpDesktopAPI_client_hpp_

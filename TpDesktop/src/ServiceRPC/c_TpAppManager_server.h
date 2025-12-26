@@ -7,16 +7,17 @@
  */
 
 
-#if !defined(_c_TpAppManager_client_h_)
-#define _c_TpAppManager_client_h_
+#if !defined(_c_TpDesktopAPI_server_h_)
+#define _c_TpDesktopAPI_server_h_
 
-#include "TpAppManager_common.h"
-#include "erpc_client_manager.h"
+#include "TpDesktopAPI_common.h"
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
+
+typedef void * erpc_service_t;
 
 #if !defined(ERPC_FUNCTIONS_DEFINITIONS)
 #define ERPC_FUNCTIONS_DEFINITIONS
@@ -48,14 +49,18 @@ bool TPR_KillApp(const char * uuid);
 bool TPR_KillAllApp(void);
 //@}
 
+
 #endif // ERPC_FUNCTIONS_DEFINITIONS
 
-void initSystemApiService_client(erpc_client_t client);
+/*! @brief Return SystemApiService_service service object. */
+erpc_service_t create_SystemApiService_service(void);
 
-void deinitSystemApiService_client(void);
+/*! @brief Destroy SystemApiService_service service object. */
+void destroy_SystemApiService_service(erpc_service_t service);
+
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif // _c_TpAppManager_client_h_
+#endif // _c_TpDesktopAPI_server_h_

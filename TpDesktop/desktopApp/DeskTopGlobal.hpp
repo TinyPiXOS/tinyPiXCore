@@ -9,6 +9,7 @@
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
 #include "InteractionDefine.h"
+#include "AppManage/AppRunnerManage.h"
 
 // TPWM 全局agent
 extern IPiSysApiAgent *globalAgent;

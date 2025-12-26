@@ -7,7 +7,7 @@
  */
 
 
-#include "TpAppManager_interface.hpp"
+#include "TpDesktopAPI_interface.hpp"
 
 #if 11400 != ERPC_VERSION_NUMBER
 #error "The generated shim code version is different to the rest of eRPC code."

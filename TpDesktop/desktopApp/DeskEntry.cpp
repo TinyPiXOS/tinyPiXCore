@@ -2,12 +2,13 @@
 #include "TpApp.h"
 #include "DeskScreen.h"
 #include <csignal>
-#include <TpAppManager.h>
+#include <TpDesktopAPI.h>
+#include "AppManage/AppRunnerManage.h"
 
 void signalHandler(int signal)
 {
     std::cout << "signal: " << signal << std::endl;
-    TpAppManager::Instance()->killAllApp();
+    AppRunnerManage::Instance()->killAllApp();
 }
 
 // int deskEntry_Start(int argc, char *argv[])

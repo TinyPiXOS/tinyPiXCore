@@ -11,7 +11,7 @@
 #include "erpc_port.h"
 #endif
 #include "erpc_codec.hpp"
-#include "TpAppManager_client.hpp"
+#include "TpDesktopAPI_client.hpp"
 #include "erpc_manually_constructed.hpp"
 
 #if 11400 != ERPC_VERSION_NUMBER

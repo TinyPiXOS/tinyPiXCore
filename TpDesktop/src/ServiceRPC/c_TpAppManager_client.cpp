@@ -7,8 +7,8 @@
  */
 
 
-#include "c_TpAppManager_client.h"
-#include "TpAppManager_client.hpp"
+#include "c_TpDesktopAPI_client.h"
+#include "TpDesktopAPI_client.hpp"
 #include "erpc_manually_constructed.hpp"
 
 using namespace erpc;

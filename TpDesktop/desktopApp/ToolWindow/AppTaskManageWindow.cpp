@@ -2,7 +2,7 @@
 #include "TpImage.h"
 #include "DeskTopGlobal.hpp"
 #include "TpGraphicsBlurEffect.h"
-#include "TpAppManager.h"
+#include "TpDesktopAPI.h"
 
 #ifndef TASK_MANAGER_COLOR
 #define TASK_MANAGER_COLOR _RGBA(255, 255, 255, 150)
@@ -68,12 +68,12 @@ void AppTaskManageWindow::setVisible(bool visible)
 
     // 获取所有应用列表
     // std::cout << "查询APP信息前++++++++" << std::endl;
-    TpVector<TpAppManager::RunAppInfo> TpRunAppList = TpAppManager::Instance()->runAppInfoList();
+    TpVector<AppRunnerManage::RunAppInfo> TpRunAppList = AppRunnerManage::Instance()->runAppInfoList();
     // std::cout << "查询APP信息后-------------" << std::endl;
 
     for (int i = 0; i < TpRunAppList.size(); ++i)
     {
-        TpAppManager::RunAppInfo appInfo = TpRunAppList.at(i);
+        AppRunnerManage::RunAppInfo appInfo = TpRunAppList.at(i);
 
         AppPreviewWidget *previewWidget = new AppPreviewWidget();
         previewWidget->setName(appInfo.appInfo.appName());
@@ -81,7 +81,7 @@ void AppTaskManageWindow::setVisible(bool visible)
         previewWidget->setAppUuid(appInfo.appInfo.appUuid());
 
         // 应用抓图，grabWindow
-        TpImage appGrapImage = TpAppManager::Instance()->appImage(appInfo.appInfo.appUuid());
+        TpImage appGrapImage = AppRunnerManage::Instance()->appImage(appInfo.appInfo.appUuid());
         previewWidget->setPreviewImg(appGrapImage);
 
         connect(previewWidget, signalKillApp, this, &AppTaskManageWindow::slotKillApp);
@@ -178,7 +178,7 @@ bool AppTaskManageWindow::onLeaveEvent(TpLeaveEvent *event)
 
 void AppTaskManageWindow::slotClearAllApp(bool)
 {
-    TpAppManager::Instance()->killAllApp();
+    AppRunnerManage::Instance()->killAllApp();
 
     // 清除界面
     TpVector<TpWidget *> objList = taskScrollPanel_->children();
@@ -199,7 +199,7 @@ void AppTaskManageWindow::slotKillApp(const TpString &uuid)
         allTaskWidgetMap_[uuid]->deleteLater();
         allTaskWidgetMap_.erase(uuid);
 
-        TpAppManager::Instance()->killApp(uuid);
+        AppRunnerManage::Instance()->killApp(uuid);
         std::cout << "移除应用 ： " << uuid << std::endl;
 
         update();
@@ -212,5 +212,5 @@ void AppTaskManageWindow::slotKillApp(const TpString &uuid)
 
 void AppTaskManageWindow::slotOpenApp(const TpString &uuid)
 {
-    TpAppManager::Instance()->startApp(uuid);
+    AppRunnerManage::Instance()->startApp(uuid);
 }
