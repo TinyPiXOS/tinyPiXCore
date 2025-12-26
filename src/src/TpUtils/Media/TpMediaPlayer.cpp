@@ -58,17 +58,8 @@ TpMediaPlayer::TpMediaPlayer()
     
     media_init(1);
     
-    elog_init();
-    elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL);
-    elog_set_fmt(ELOG_LVL_ERROR, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
-    elog_set_fmt(ELOG_LVL_WARN, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
-    elog_set_fmt(ELOG_LVL_INFO, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
-    elog_set_fmt(ELOG_LVL_DEBUG,  ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
-    elog_set_fmt(ELOG_LVL_VERBOSE, ELOG_FMT_ALL & ~ELOG_FMT_FUNC);
+    TpLog_Init();
 
-    elog_set_text_color_enabled(true);
-    elog_start();
-    elog_set_filter_lvl(ELOG_LVL_VERBOSE);
     medData->user = user;
     medData->audio=new TpAudioOutput();
     medData->user->audio_params=(struct MediaAudioInfo*)(medData->audio->getAudioInfo());
@@ -99,7 +90,7 @@ TpMediaPlayer::~TpMediaPlayer()
     if(medData->video)  
         delete(medData->video);
 
-    elog_deinit();
+    TpLog_Deinit();
     delete (medData);
 }
 

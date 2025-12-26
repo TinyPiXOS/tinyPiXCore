@@ -10,6 +10,7 @@
 #define _APP_MANAGE_CONF_H_
 
 #include <stdint.h>
+#include "Log/elog.h"
 #include "openssl/md5.h"
 #include "TpString.h"
 #include "TpVector.h"
@@ -29,7 +30,13 @@
 #define PACKAGE_TYPE_CONFIG_SAPP "#TinyPix SystemApp"
 #define PACKAGE_TYPE_CONFIG_UAPP "#TinyPix UserApp"
 
-#define PACKAGE_FILE_SUFFIX ".tpk"
+#define PACKAGE_FILE_SUFFIX  ".tpk"
+#define PACKAGE_USER_FILE    "export UserFile="
+#define PACKAGE_ICON_FILE    "export Icon="
+#define PACKAGE_APPEXEC_FILE "export Appexec="
+#define PACKAGE_LIB_FILE     "export Lib="
+
+#define DEBUG_APPM_INSTALL
 
 // 硬件架构
 enum TpEnumArchType

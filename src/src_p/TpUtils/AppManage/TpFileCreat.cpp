@@ -27,6 +27,17 @@ bool isAbsolutePath(const TpString& path) {
     return !path.empty() && path[0] == '/';
 }
 
+
+//获取文件所在目录
+static TpString getFilePath(const TpString filename)
+{   
+    size_t pos=filename.rfind("/");
+    if (pos != std::string::npos) { // 先判断是否找到
+        return filename.substr(0,pos);
+    } else {
+       return TpString("./");
+    }
+}
 // 拷贝文件列表到指定目录
 bool fileCopyList(const TpString &destDir, const TpVector<TpString> &fileList)
 {
@@ -166,7 +177,7 @@ int fileConfigCreate(const TpString &path, const AppPackageConfig &conf, TypePac
         if (lastSlashPos != -1)
         {
             TpString execPath = conf.appexecName.substr(lastSlashPos);
-            file.write("export Appexec=." + execPath + "\n");
+            file.write("export Appexec=./bin/" + execPath + "\n");
         }
     }
 
@@ -217,16 +228,22 @@ int TpFileCreat::appm_generate_package_source(AppPackageConfig *config, const Tp
     if (config->appexecName.empty())
         return -1;
 
-    //fileCopySingle( path + "/bin", config->appexecName);
-    TpDir::copy(config->appexecName, TpString(path + "/bin/"));
+    TpString src_root=getFilePath(config->configPath);    //打包json所在目录
 
-    //fileCopySingle(path, config->icon);
-    TpDir::copy(config->icon, TpString(path + "/"));
+    //主bin
+    TpVector<TpString> fileList;
+    fileList.emplace_back(config->appexecName);
+    fileCopyList2(TpString(path + "/bin/"), fileList,src_root);
+    
+    //icon
+    fileList.clear();
+    fileList.emplace_back(config->icon);
+    fileCopyList2(TpString(path + "/"), fileList,src_root);
 
-    fileCopyList(TpString(path + "/bin/"), config->binFiles);
-    fileCopyList(TpString(path + "/lib/"), config->lib);
-//    fileCopyList(TpString(path + "/assert/"), config->assertFiles);
-    fileCopyList(TpString(path + "/"), config->otherFiles);
+    fileCopyList2(TpString(path + "/bin/"), config->binFiles,src_root);
+    fileCopyList2(TpString(path + "/lib/"), config->lib,src_root);
+//    fileCopyList2(TpString(path + "/assert/"), config->assertFiles,src_root);
+    fileCopyList2(TpString(path + "/"), config->otherFiles,src_root);
 
     // 计算文件大小
     if (config->diskspace == 0)

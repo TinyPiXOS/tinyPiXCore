@@ -98,7 +98,7 @@ bool TpFile::copy(const TpString &fileName, const TpString &newName)
 
     std::ifstream src(fileName, std::ios::binary);
     std::ofstream dst(newName, std::ios::binary);
-
+    
     dst << src.rdbuf();
     return dst.good();
 }

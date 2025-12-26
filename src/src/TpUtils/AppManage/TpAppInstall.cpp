@@ -54,20 +54,12 @@ TpAppInstall::TpAppInstall()
         fprintf(stderr, "Error:creat_install_schedule\n");
         return;
     }
+    TpLog_Init();
 }
 
-TpAppInstall::TpAppInstall(const TpString &path)
+TpAppInstall::TpAppInstall(const TpString &path): TpAppInstall()
 {
-    data_ = new TpAppInstallData();
-    TpAppInstallData *appData = static_cast<TpAppInstallData *>(data_);
-    appData->conf.type = TYPE_PACKAGE_DEFAULT;
     setPath(path);
-    appData->user.schedule = creat_install_schedule();
-    if (appData->user.schedule == NULL)
-    {
-        fprintf(stderr, "Error:creat_install_schedule\n");
-        return;
-    }
 }
 
 TpAppInstall::~TpAppInstall()
@@ -85,6 +77,7 @@ TpAppInstall::~TpAppInstall()
         free(appData->pack_path_c);
     delete_install_schedule(appData->user.schedule);
     delete (appData);
+    TpLog_Deinit();
 }
 
 int TpAppInstall::setPath(const TpString &path)
