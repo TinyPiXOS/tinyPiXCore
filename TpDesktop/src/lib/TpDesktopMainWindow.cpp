@@ -9,9 +9,9 @@
 #include "TpString.h"
 #include "TpVariant.h"
 #include "TpDefaultCss.h"
-#include "TpApp_p.h"
+#include "TpWidget_p.h"
 #include "TpGateway.h"
-#include <TpInteractDataDef/TpDesktopData.h>
+#include <InteractData/TpDesktopData.h>
 
 struct TpDesktopMainWindowData
 {
@@ -20,7 +20,7 @@ struct TpDesktopMainWindowData
 };
 
 // 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(TpDesktopMainWindowData* deskWindowData, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
+static void refreshMainWindow(TpDesktopMainWindowData *deskWindowData, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
 {
     // 偏移的XY坐标；和相对于物理屏幕需要裁剪的的宽高值
     int32_t mainWindowX = 0;
@@ -85,7 +85,7 @@ static void refreshMainWindow(TpDesktopMainWindowData* deskWindowData, TpMainWin
 TpDesktopMainWindow::TpDesktopMainWindow()
     : TpMainWindow()
 {
-    TpDesktopMainWindowData* deskWindowData = new TpDesktopMainWindowData();
+    TpDesktopMainWindowData *deskWindowData = new TpDesktopMainWindowData();
     data_ = deskWindowData;
 
 #if 1 // 处理桌面 topbar信息
@@ -109,8 +109,8 @@ TpDesktopMainWindow::TpDesktopMainWindow()
         deskWindowData->deskStatusBarInfo_ = recvInfo;
 
         // 更新主屏
-        // TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(set->mainWindow->objectSets());
-        // refreshMainWindow(set, set->mainWindow, mainWindowData);
+        TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(this->objectSets());
+        refreshMainWindow(deskWindowData, this, mainWindowData);
     };
 
     // 订阅桌面数据
@@ -127,76 +127,18 @@ TpDesktopMainWindow::TpDesktopMainWindow()
 
 #endif
 
-    // TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
+    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     // 调整窗口大小
-    // refreshMainWindow(appData, this, widgetData);
+    refreshMainWindow(deskWindowData, this, widgetData);
 }
 
 TpDesktopMainWindow::~TpDesktopMainWindow()
 {
-}
-
-void TpDesktopMainWindow::setBackGroundColor(const TpColors &color, bool enable)
-{
-    // TpDesktopMainWindow 不能透明,且必须有背景色
-    TpColors newColor = color;
-    newColor.setAlpha(255);
-    TpScreen::setBackGroundColor(newColor, true);
-}
-
-void TpDesktopMainWindow::setBackGroundColor(int32_t color, bool enable)
-{
-    TpScreen::setBackGroundColor(_RGBA(_R(color), _G(color), _B(color), 255), true);
-}
-
-void TpDesktopMainWindow::setBackGroundColor(const TpBrush &bgBrush, bool enable)
-{
-    TpBrush newBrush = bgBrush;
-    TpColors setColorObj = newBrush.color();
-    setColorObj.setAlpha(255);
-    newBrush.setColor(setColorObj);
-
-    TpGradient *brushGradiwnt = newBrush.gradient();
-    if (brushGradiwnt)
+    TpDesktopMainWindowData *deskWindowData = static_cast<TpDesktopMainWindowData *>(data_);
+    if (deskWindowData)
     {
-        TpList<std::pair<float, int32_t>> colorAtList = brushGradiwnt->getColors();
-        for (auto &colorAt : colorAtList)
-        {
-            colorAt.second = _RGBA(_R(colorAt.second), _G(colorAt.second), _B(colorAt.second), 255);
-            brushGradiwnt->setColorAt(colorAt.first, colorAt.second);
-        }
+        delete deskWindowData;
+        deskWindowData = nullptr;
+        data_ = nullptr;
     }
-
-    TpScreen::setBackGroundColor(newBrush, true);
-}
-
-void TpDesktopMainWindow::setEnableBackGroundColor(bool enable)
-{
-    TpScreen::setEnableBackGroundColor(true);
-}
-
-void TpDesktopMainWindow::setBorderColor(const TpColors &color, bool enable)
-{
-    // TpDesktopMainWindow没有边框颜色
-    TpScreen::setBorderColor(color, false);
-}
-
-void TpDesktopMainWindow::setBorderColor(int32_t color, bool enable)
-{
-    TpScreen::setBorderColor(color, false);
-}
-
-void TpDesktopMainWindow::setBorderColor(const TpBrush &borderBrush, bool enable)
-{
-    TpScreen::setBorderColor(borderBrush, false);
-}
-
-void TpDesktopMainWindow::setEnabledBorderColor(bool enable)
-{
-    TpScreen::setEnabledBorderColor(false);
-}
-
-bool TpDesktopMainWindow::onResizeEvent(TpResizeEvent *event)
-{
-    return TpScreen::onResizeEvent(event);
 }

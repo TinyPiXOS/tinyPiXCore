@@ -13,6 +13,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/TpAppManager.cpp
     ${SOURCE_PATH}/TpSplashScreen.cpp
     ${SOURCE_PATH}/TpWidgetsGateway.cpp
+    ${SOURCE_PATH}/TpDesktopMainWindow.cpp
 
     ${SOURCE_PATH}/ServiceRPC/c_TpAppManager_client.cpp
     ${SOURCE_PATH}/ServiceRPC/TpAppManager_client.cpp
@@ -61,10 +62,12 @@ endif()
 
 # 依赖的静态库
 set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
+set(THORVG_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libthorvg.a)
 
 target_link_libraries(TpDesktopLib PUBLIC
     dl pthread 
     ${ERPC_STATIC_LIB}
+    ${THORVG_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpGUI.so

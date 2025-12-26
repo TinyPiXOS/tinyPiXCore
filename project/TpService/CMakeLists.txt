@@ -12,10 +12,6 @@ include(../../cmake/TargetArchConfig.cmake)
 set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpService/main.cpp
     ${SOURCE_PATH}/src/TpService/TpGatewayServerPUBSUB.cpp
-
-    # ${SOURCE_PATH}/src_p/TpService/ServiceRPC/c_TpAppManager_server.cpp
-    # ${SOURCE_PATH}/src_p/TpService/ServiceRPC/TpAppManager_server.cpp
-    # ${SOURCE_PATH}/src_p/TpService/ServiceRPC/TpAppManager_interface.cpp
 )
 
 include_directories(${SOURCE_PATH}/include)
@@ -64,7 +60,6 @@ target_link_libraries(TpService
     dl
     pthread
     ${NANOMSG_STATIC_LIB}
-    ${ERPC_STATIC_LIB}
     ${DEPEND_DYNAMIC_LIB_PATH}/librime.so.1.5.3
     ${YAML_CPP_LIBRARY}
     ${LEVELDB_LIBRARY}

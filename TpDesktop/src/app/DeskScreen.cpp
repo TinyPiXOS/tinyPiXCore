@@ -45,7 +45,7 @@ static inline void BAR_SET_ATTRIB(TpWidget *vars, int32_t x, int32_t y, int32_t 
 }
 
 DeskScreen::DeskScreen()
-    : TpMainWindow(), pressAppBtn_(nullptr), isMoveMode_(false), installingApp_(nullptr)
+    : TpDesktopMainWindow(), pressAppBtn_(nullptr), isMoveMode_(false), installingApp_(nullptr)
 {
     globalMainScreen_ = this;
 

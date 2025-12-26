@@ -48,8 +48,8 @@ add_custom_target(copyDependFiles ALL
 add_subdirectory(project/TpCore)
 add_subdirectory(project/TpUtils)
 add_subdirectory(project/TpGUI)
-# add_subdirectory(project/TpWM)
-# add_subdirectory(project/TpService)
+add_subdirectory(project/TpWM)
+add_subdirectory(project/TpService)
 
 if (BUILD_TP_DESKTOP)
     message(STATUS "构建桌面应用程序")
@@ -57,11 +57,11 @@ if (BUILD_TP_DESKTOP)
     add_dependencies(TpDesktop TpCore TpUtils TpGUI)
 endif()
 
-# add_dependencies(TpCore copyDependFiles)
-# add_dependencies(TpUtils copyDependFiles)
-# add_dependencies(TpGUI copyDependFiles)
-# add_dependencies(TpWM copyDependFiles)
-# add_dependencies(TpService copyDependFiles)
+add_dependencies(TpCore copyDependFiles)
+add_dependencies(TpUtils copyDependFiles)
+add_dependencies(TpGUI copyDependFiles)
+add_dependencies(TpWM copyDependFiles)
+add_dependencies(TpService copyDependFiles)
 
 # 安装头文件
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include/ DESTINATION ${INSTALL_INCLUDE_DIR})
