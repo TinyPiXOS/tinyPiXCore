@@ -86,7 +86,7 @@ set(CMAKE_PREFIX_PATH
 
 LoadSDKLibrary(WEBP_LIBRARY webp)
 LoadSDKLibrary(PNG_LIBRARY png)
-LoadSDKLibrary(GOMP_LIBRARY gomp)
+#LoadSDKLibrary(GOMP_LIBRARY gomp)
 
 # 将pthread库链接到可执行目标
 target_link_libraries(TpDesktop
@@ -97,7 +97,7 @@ target_link_libraries(TpDesktop
     ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libTpDesktop.so
     ${WEBP_LIBRARY}
     ${PNG_LIBRARY}
-    ${GOMP_LIBRARY}
+    gomp
 )
 
 # 包含共享模块

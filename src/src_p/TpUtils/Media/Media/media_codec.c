@@ -621,7 +621,7 @@ static void *thread_video_codec(void *param)
 		}
 		get_display_params_user_codec(user,NULL,&show_param);
 		if(show_param.rect.w==0||show_param.rect.h==0)
-		{
+		{printf("show_param error\n");
 			continue;
 		}
 		//重新设置解码器参数
@@ -683,13 +683,16 @@ static void *thread_video_codec(void *param)
 			show_param_l.rect.y=show_param.rect.y;
 		}
 
-		packet=video_t->get_packet(&video_t->list,1);
+		packet=video_t->get_packet(&video_t->list,0);
 		if(video_t->get_state(video_t)==MEDIA_STATE_EXIT)
 			break;
 		//debug_printf("开始解码：ptr of frame_s%p, pptr of packet :%p（当前状态%d)\n",frame_s,&packet,video_t->get_state(video_t));
 		video_t->set_state(video_t,MEDIA_STATE_PLAYING);
 		if(!packet)
 		{
+			usleep(1000);
+			printf("快结束了\n");
+			Media_Set_Position_N(user, (int32_t)(sys_clock->get_run_time(sys_clock) / 1000.0 / 1000.0));
 			continue;
 		}
 
@@ -812,11 +815,14 @@ static void *thread_audio_codec(void *param)
 			default:
 				break;
 		}
-		packet=audio_t->get_packet(&audio_t->list,1);		//
+		packet=audio_t->get_packet(&audio_t->list,0);		//非阻塞模式获取packet
 		if(audio_t->get_state(audio_t)==MEDIA_STATE_EXIT)
 			break;
 		audio_t->set_state(audio_t,MEDIA_STATE_PLAYING);
-
+		if(!packet)
+		{
+			continue;
+		}
 		if (media_send_packet_to_codecc(stream,audio_t, packet) < 0) {		//向解码器发送一个压缩的媒体包
 			fprintf(stderr, "Error sending packet to audio codec\n");
 			audio_t->set_state(audio_t,MEDIA_THREAD_WAITING);
@@ -850,7 +856,7 @@ static void *thread_audio_codec(void *param)
 			else if(delay_time< (-VIDEO_FRAME_LAG_LOSS_TIME))
 			{
 				//debug_printf("===========舍弃====\n");
-				//break;
+				break;
 			}
 			AVFrame *convert_frame = alloc_avframe_frames_hard(frame_s->nb_samples,stream->audio.handle->adparams);
 			if(!convert_frame)
@@ -1198,12 +1204,14 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 			if(Media_Get_DPosition(user) > user->length)
                 break;
 		}
+		printf("数据已经读完\n");
 		usleep(10000);
-		Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
+		//Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
 	}
-
+	debug_printf("数据已经读完\n");
 	player->set_state(stream_array,MEDIA_STATE_EXIT);
 	player->packet_exit(stream_array);
+	Media_Set_Position_N(user,user->length);
 	// Clean up
 
 FREE_THREAD:

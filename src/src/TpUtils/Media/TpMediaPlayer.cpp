@@ -210,7 +210,8 @@ tpUInt32 TpMediaPlayer::getDuration()
     double val = Media_Get_Length(medData->user);
     if (val < 0)
         return 0;
-    tpUInt32 duration = (tpUInt32)(val + 0.5);
+//    tpUInt32 duration = (tpUInt32)(val + 0.5);
+	tpUInt32 duration = (tpUInt32)(val);
     return duration;
 }
 
