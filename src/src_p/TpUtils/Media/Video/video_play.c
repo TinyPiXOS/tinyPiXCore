@@ -377,7 +377,6 @@ void Media_Set_Video_Callback(struct MediaVideoInfo *conf_v, CallbackVideoDispla
     pthread_rwlock_unlock(&conf_v->rw_mut);
 }
 
-
 // 获取所有显示参数
 static int video_params_get_all(struct MediaVideoInfo *conf_v, struct VideoStreamParams *video_params)
 {

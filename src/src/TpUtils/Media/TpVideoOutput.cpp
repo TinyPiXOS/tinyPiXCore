@@ -108,6 +108,43 @@ int TpVideoOutput::setWindowSize(tpUInt16 width, tpUInt16 height)
 }
 
 
+int TpVideoOutput::frameBridge(uint8_t** data, int* linesize, uint32_t format, 
+                              int width, int height, void* rawCtx)
+{
+    auto* ctx = static_cast<CallbackContext*>(rawCtx);
+    if (!ctx || !ctx->frameCallback) return -1;
+
+    // 创建帧参数对象并填充数据
+    TpVideoFrame frame(data, linesize, TpSize(width, height), ctx->userdata);
+//    frame.setFormat(format);
+    return ctx->frameCallback(frame);
+}
+
+int TpVideoOutput::setDisplayFunction(UserFrameCallback callback,void *userdata, TpVideoDecodeType format)
+{
+    TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
+    if (!vidData->video_params) return -1;
+
+    // 清理旧上下文
+    CallbackContext *oldContext = (CallbackContext *)vidData->context_;
+    delete oldContext;
+	oldContext= nullptr;
+
+    // 创建新上下文
+    CallbackContext *context_ = new CallbackContext{nullptr,callback, userdata};
+    vidData->context_ = context_;
+
+    // 设置到C层
+    using CCallback = int (*)(uint8_t **, int *, uint32_t, int, int, void *);
+	CCallback bridge = &frameBridge; // 获取静态函数地址
+
+	if (format != TP_VIDEO_DECODE_RGB24)
+		setDecode(format);
+    Media_Set_Video_Callback(vidData->video_params, frameBridge, context_);
+    
+    return 0;
+}
+
 int TpVideoOutput::staticBridge(uint8_t **data, int *linesize, uint32_t format, void *rawCtx)
 {
 	// 安全类型转换
@@ -116,7 +153,7 @@ int TpVideoOutput::staticBridge(uint8_t **data, int *linesize, uint32_t format, 
 	return ctx->callback ? ctx->callback(data, linesize, format, ctx->userdata) : -1;
 }
 
-int TpVideoOutput::setDisplayFunction(UserCallback callback, void *userdata, TpVideoDecodeType format)
+/*int TpVideoOutput::setDisplayFunction(UserCallback callback, void *userdata, TpVideoDecodeType format)
 {
 	TpVideoInfData *vidData = static_cast<TpVideoInfData *>(vData_);
 	if (!vidData->video_params)
@@ -127,10 +164,10 @@ int TpVideoOutput::setDisplayFunction(UserCallback callback, void *userdata, TpV
 	context_ = nullptr;
 
 	// 创建新上下文（存储回调指针）
-	vidData->context_ = new CallbackContext{callback, userdata};
+	vidData->context_ = new CallbackContext{callback, nullptr, userdata};
 
-	using CCallback = int (*)(uint8_t **, int *, uint32_t, void *);
-	CCallback bridge = &staticBridge; // 获取静态函数地址
+	using CCallback = int (*)(uint8_t **, int *, uint32_t, int, int, void *);
+	CCallback bridge = &frameBridge; // 获取静态函数地址
 
 	if (format != TP_VIDEO_DECODE_RGB24)
 		setDecode(format);
@@ -141,7 +178,7 @@ int TpVideoOutput::setDisplayFunction(UserCallback callback, void *userdata, TpV
 		(CallbackContext *)vidData->context_ // 用户数据
 	);
 	return 0;
-}
+}*/
 
 int TpVideoOutput::setDecode(TpVideoDecodeType format)
 {

@@ -736,7 +736,7 @@ static void *thread_video_codec(void *param)
 			if(callback)
 			{
 				//printf("callback\n");
-				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,user->video_params->userdata);
+				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,frame_d->width, frame_d->height,user->video_params->userdata);
 			}
 			else
 			{

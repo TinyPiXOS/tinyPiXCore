@@ -2,6 +2,7 @@
 #include "Media/TpVideoOutput.h"
 #include "Media/TpAudioOutput.h"
 #include "Media/TpMediaPlayer.h"
+#include "Media/TpVideoFrame.h"
 
 
 
@@ -17,6 +18,24 @@ auto callback_display = [](uint8_t **data, int *linesize, uint32_t format, void 
     for (int i = 0; i < 20; i++)
     {
         printf("%02x ", data[0][i]);
+    }
+    printf("\n");
+
+    return 0;
+};
+
+auto callback_display_frame = [](TpVideoFrame &frame) -> int
+{
+    char *user = (char *)frame.userdata();
+    void *userdata = frame.userdata();
+
+    uint8_t *r = frame.data()[0];
+    uint8_t *g = frame.data()[1];
+    uint8_t *b = frame.data()[2];
+    printf("userdata:%s\n", user);
+    for (int i = 0; i < 20; i++)
+    {
+        printf("%02x ", frame.data()[0][i]);
     }
     printf("\n");
 
@@ -50,9 +69,10 @@ int example_video_play()
     media.addFile("https://gstreamer.freedesktop.org/data/media/large/gravity.mpg");
     media.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
 
-    char *data = "Test User Data";
+    const char *data = "Test User Data";
     std::function<int(uint8_t **, int *, uint32_t, void *)> func = callback_display;
-    video.setDisplayFunction(func, data);
+    std::function<int(TpVideoFrame&)> func_ = callback_display_frame;
+    video.setDisplayFunction(func_, (void *)data);	//不需要可以直接使用video.setDisplayFunction(func_);
     media.openDevice();
     /*	video.setWindowSize(1080,720);
         video.setWindowCoordinates(200,200);
