@@ -32,7 +32,7 @@ public:
 public:
 	/// @brief 用户播放回调
 	/// @param frame 视频帧对象
-	using UserFrameCallback = std::function<int(TpVideoFrame& frame)>;
+	using UserFrameCallback = std::function<int(const TpVideoFrame& frame)>;
 
 	/// @brief 用户播放的回调
 	/// @param data 数据，可能有多行
