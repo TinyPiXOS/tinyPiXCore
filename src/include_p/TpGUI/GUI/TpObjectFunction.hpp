@@ -26,9 +26,8 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top)
 
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(set);
 
-    TpObject *parent = object->parent();
-    TpWidget *parentWidget = dynamic_cast<TpWidget *>(parent);
-    if (parent && parentWidget)
+    TpWidget *parentWidget = dynamic_cast<TpWidget *>(object->parent());
+    if (parentWidget)
     {
         TpWidgetData *parentWidgetData = static_cast<TpWidgetData *>(parentWidget->objectSets());
 
@@ -42,14 +41,9 @@ static inline void broadObjectSetTop(TpObject *object, TpObject *top)
         widgetData->offsetX = topWidget->toScreen().x();
         widgetData->offsetY = topWidget->toScreen().y();
 
-        if (widgetData->objectList.size())
+        for (const auto &childObj : widgetData->objectList)
         {
-            std::list<TpObject *>::iterator iter = widgetData->objectList.begin();
-
-            for (; iter != widgetData->objectList.end(); iter++)
-            {
-                broadObjectSetTop(*iter, widgetData->top);
-            }
+            broadObjectSetTop(childObj, widgetData->top);
         }
     }
 }
@@ -79,12 +73,9 @@ static inline TpWidget *findObject(TpWidgetData *widgetData, int32_t x, int32_t 
 
     widgetData->gMutex.lock();
 
-    std::list<TpObject *> list = widgetData->objectList;
-    std::list<TpObject *>::iterator iter = list.begin();
-
-    for (; iter != list.end(); iter++)
+    for (const auto &childObj : widgetData->objectList)
     {
-        TpWidget *childWidgetPtr = dynamic_cast<TpWidget *>(*iter);
+        TpWidget *childWidgetPtr = dynamic_cast<TpWidget *>(childObj);
         if (!childWidgetPtr)
             continue;
 
@@ -93,6 +84,8 @@ static inline TpWidget *findObject(TpWidgetData *widgetData, int32_t x, int32_t 
 
         TpWidgetData *childWidgetData = static_cast<TpWidgetData *>(childWidgetPtr->objectSets());
         bool ret = false;
+
+        // TODO dialog被强制move偏移状态栏后，子组件未及时响应坐标更新，导致第一次显示点击坐标错误问题
 
         TpRect absRect(childWidgetData->absoluteRect);
         ret = absRect.contains(x, y);

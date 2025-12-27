@@ -154,6 +154,40 @@ bool TpApp::isDesktop()
     return set->isDesk;
 }
 
+void TpApp::setClipRect(const TpRect &rect)
+{
+    if (rect.isEmpty() || rect.isNull())
+        return;
+
+    TpAppData *appData = static_cast<TpAppData *>(data_);
+    TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(appData->mainWindow->objectSets());
+
+    // 调整窗口大小和坐标
+    uint32_t rW = 0, rH = 0;
+    tinyPiX_wf_get_display_size(mainWindowData->agent, &rW, &rH);
+    tinyPiX_wf_set_rect(mainWindowData->agent, rect.x(), rect.y(), rect.width(), rect.height());
+
+    mainWindowData->offsetX = rect.x();
+    mainWindowData->offsetY = rect.y();
+
+    mainWindowData->absoluteRect.setX(rect.x());
+    mainWindowData->absoluteRect.setY(rect.y());
+
+    TpResizeEventData input;
+    input.object = appData->mainWindow;
+    input.nw = rect.width();
+    input.nh = rect.height();
+    input.question = TpResizeEvent::TP_NORMAL_CHANGE;
+    TpResizeEvent event;
+    bool ret = event.construct(&input);
+
+    if (ret)
+    {
+        refreshCacheImage(mainWindowData);
+        IssueObjEvent(appData->mainWindow, event, onResizeEvent, true);
+    }
+}
+
 tpShared<TpCssParser> TpApp::cssParser()
 {
     TpAppData *set = static_cast<TpAppData *>(data_);

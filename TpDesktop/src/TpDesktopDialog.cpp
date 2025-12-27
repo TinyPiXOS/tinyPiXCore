@@ -1,10 +1,6 @@
 #include "TpDesktopDialog.h"
 #include "TpApp.h"
-#include "TpDefaultCss.h"
-#include "TpDef.h"
 #include "TpMainWindow.h"
-#include "TpPainter.h"
-#include "thorVG/thorvg.h"
 #include <InteractData/TpDesktopData.h>
 #include "TpDeskStatusInfo.h"
 

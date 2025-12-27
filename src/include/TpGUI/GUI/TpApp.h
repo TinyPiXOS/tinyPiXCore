@@ -70,6 +70,10 @@ public:
     /// @return 桌面进程返回true，否则返回false
     bool isDesktop();
 
+    /// @brief 设置主窗体显示的默认区域；设置后应用主窗口以此区域为基准显示
+    /// @param rect 默认区域；不设置，则默认全屏显示
+    void setClipRect(const TpRect &rect = TpRect());
+
     /// @brief 获取全局单例CSS解析器
     /// @return css解析器智能指针
     tpShared<TpCssParser> cssParser();
