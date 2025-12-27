@@ -46,24 +46,6 @@ static inline int32_t cal_stride(int32_t width, int32_t depth)
     return ((stride + 3) & ~3);
 }
 
-// TpSurface::TpSurface(IPiDSSurface *surface)
-// {
-//     TpSurfaceData *set = new TpSurfaceData();
-//     set->beUsed = false;
-//     this->data_ = set;
-
-//     if (surface)
-//     {
-//         bool ret = this->create(surface);
-
-//         if (ret == false)
-//         {
-//             std::cout << "TpSurface creates failed!" << std::endl;
-//             std::exit(0);
-//         }
-//     }
-// }
-
 TpSurface::TpSurface(IPiDSSurface *surface, const TpRect &rect)
 {
     TpSurfaceData *set = new TpSurfaceData();
@@ -226,19 +208,6 @@ bool TpSurface::create(tpShared<TpSurface> surface, bool bShareMemoried)
     TpRect TpR = surface->clipRect();
 
     return this->create(matrix, width, height, depth, stride, Rmask, Gmask, Bmask, Amask, alpha, enable, colorKey, TpR);
-}
-
-IPiDSSurface *TpSurface::surface()
-{
-    TpSurfaceData *set = static_cast<TpSurfaceData *>(data_);
-
-    if (!set)
-        return nullptr;
-
-    if (!set->beUsed)
-        return nullptr;
-
-    return set->pixWFSurface;
 }
 
 void *TpSurface::matrix()

@@ -32,9 +32,6 @@ TpMainWindow::TpMainWindow()
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     widgetData->top = this->topObject();
 
-    // 调整窗口大小
-    refreshMainWindow(appData, this, widgetData);
-
     setBackGroundColor(_RGBA(255, 255, 255, 255));
 
     tinyPiX_wf_set_visible(widgetData->agent, true);

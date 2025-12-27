@@ -3,8 +3,8 @@
 
 #include <erpc_server_setup.h>
 #include <erpc_port.h>
-#include "c_TpAppManager_server.h"
-#include "TpAppManager_server.hpp"
+#include "c_TpDesktopAPI_server.h"
+#include "TpDesktopAPI_server.hpp"
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
 

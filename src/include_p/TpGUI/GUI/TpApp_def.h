@@ -8,7 +8,6 @@
 #include "TpMainWindow.h"
 #include "TpClipboard.h"
 #include "TpVirtualKeyboard.h"
-#include <TpInteractDataDef/TpDesktopData.h>
 #include <TpApp.h>
 #include <TpThread.h>
 
@@ -54,9 +53,8 @@ struct TpAppData : TpCoreAppData
     std::mutex queueUpdateMutex_;
     std::queue<UpdateCommand> updateTasks_;
 
-    // 桌面信息；无桌面则数据无用
+    // 当前进程是否为桌面程序
     bool isDesk = false;
-    TpDeskStatusBarInfo deskStatusBarInfo_;
 };
 
 // UI应用处理线程

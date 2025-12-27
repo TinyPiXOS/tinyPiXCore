@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(TinyPiXOS VERSION 1.0.0 LANGUAGES C CXX)
 
+option(BUILD_TP_DESKTOP "构建桌面应用程序" ON)
+
 # 不再提示未使用变量警告
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
@@ -43,19 +45,23 @@ add_custom_target(copyDependFiles ALL
 )
 
 # 添加子目录
-add_subdirectory(project/lib/TpCore)
-add_subdirectory(project/lib/TpUtils)
-add_subdirectory(project/lib/TpGUI)
-add_subdirectory(project/lib/TpService)
-add_subdirectory(project/app/TpWM)
-add_subdirectory(project/app/TpService)
-# add_subdirectory(examplesApp)
+add_subdirectory(project/TpCore)
+add_subdirectory(project/TpUtils)
+add_subdirectory(project/TpGUI)
+add_subdirectory(project/TpWM)
+add_subdirectory(project/TpService)
+
+if (BUILD_TP_DESKTOP)
+    message(STATUS "构建桌面应用程序")
+    add_subdirectory(TpDesktop)
+    add_dependencies(TpDesktop TpCore TpUtils TpGUI)
+endif()
 
 add_dependencies(TpCore copyDependFiles)
 add_dependencies(TpUtils copyDependFiles)
 add_dependencies(TpGUI copyDependFiles)
-# add_dependencies(TpWM copyDependFiles)
-# add_dependencies(TpService copyDependFiles)
+add_dependencies(TpWM copyDependFiles)
+add_dependencies(TpService copyDependFiles)
 
 # 安装头文件
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include/ DESTINATION ${INSTALL_INCLUDE_DIR})
@@ -116,6 +122,8 @@ add_custom_target(uninstall
     -DINSTALL_RESOURCE_DIR=${INSTALL_RESOURCE_DIR}
     -DINSTALL_DATA_DIR=${INSTALL_DATA_DIR}
     -DINSTALL_BIN_DIR=${INSTALL_BIN_DIR}
+    -DINSTALL_DESKTOP_LIB_DIR=${INSTALL_DESKTOP_LIB_DIR}
+    -DINSTALL_DESKTOP_APP_DIR=${INSTALL_DESKTOP_APP_DIR}
     -P "${CMAKE_SOURCE_DIR}/cmake/CmakeUninstall.cmake"
     COMMENT "Uninstalling"
 )

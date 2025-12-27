@@ -26,7 +26,7 @@ TpLabel::TpLabel(TpWidget *parent)
     TpLabelData *labelData = new TpLabelData();
 
     labelData->font = new TpFont();
-    labelData->font->setAlign(Tp::AlignLeft);
+    labelData->font->setAlign(Tp::AlignLeft | Tp::AlignVCenter);
     labelData->enableFit = false;
 
     setEnableBackGroundImage(false);
@@ -94,11 +94,11 @@ void TpLabel::setText(const TpString &text)
     // 根据文本宽度调整最小宽度,只有没有设置固定宽度情况下才动态调整
     if (!isFixedWidth())
     {
-        setMinumumWidth(labelData->font->pixelWidth());
+        setMinumumWidth(labelData->font->pixelWidth() + 1);
     }
     if (!isFixedHeight())
     {
-        setMinumumHeight(labelData->font->pixelHeight());
+        setMinumumHeight(labelData->font->pixelHeight() + 1);
     }
 
     update();

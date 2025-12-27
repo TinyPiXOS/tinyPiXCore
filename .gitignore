@@ -15,6 +15,7 @@ install/build
 install/system
 CMakeFiles/
 .cmake/
+TpDesktop/install/
 arm-build-debug/
 arm-build-release/
 tempSubmodule/
@@ -148,3 +149,4 @@ examples/TpGUI/TpScrollPanel/scrollpanel
 examples/TpGUI/TpHumidityWidget/temp
 examples/TpGUI/TpComBox/comBox
 examples/TpGUI/TpSliderProgressBar/sliderProgressBar
+examples/TpGUI/TpFlexLayout/flexLayout

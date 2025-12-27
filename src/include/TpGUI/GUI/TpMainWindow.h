@@ -19,15 +19,15 @@ public:
     /// @return 类名字符串
     virtual TpString pluginType() override { return TO_STRING(TpMainWindow); }
 
-    virtual void setBackGroundColor(const TpColors &color, bool enable = true) override;
-    virtual void setBackGroundColor(int32_t color, bool enable = true) override;
-    virtual void setBackGroundColor(const TpBrush &bgBrush, bool enable = true) override;
-    virtual void setEnableBackGroundColor(bool enable) override;
+    virtual void setBackGroundColor(const TpColors &color, bool enable = true) final override;
+    virtual void setBackGroundColor(int32_t color, bool enable = true) final override;
+    virtual void setBackGroundColor(const TpBrush &bgBrush, bool enable = true) final override;
+    virtual void setEnableBackGroundColor(bool enable) final override;
 
-    virtual void setBorderColor(const TpColors &color, bool enable = true) override;
-    virtual void setBorderColor(int32_t color, bool enable = true) override;
-    virtual void setBorderColor(const TpBrush &borderBrush, bool enable = true) override;
-    virtual void setEnabledBorderColor(bool enable) override;
+    virtual void setBorderColor(const TpColors &color, bool enable = true) final override;
+    virtual void setBorderColor(int32_t color, bool enable = true) final override;
+    virtual void setBorderColor(const TpBrush &borderBrush, bool enable = true) final override;
+    virtual void setEnabledBorderColor(bool enable) final override;
 
 public:
     /// @brief TpMainWindow无resize事件

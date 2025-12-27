@@ -37,12 +37,13 @@ public:
     /// @brief 指定资源buffer加载数据；当前仅支持ARGB格式
     /// @param martix 数据buffer
     /// @param size 资源图片尺寸
-    /// @param rect 裁剪矩形；为空则默认全部加载
+    /// @param clipRect 裁剪矩形；为空则默认全部加载
     /// @return 加载结果
     virtual bool load(void *martix, const TpSize &size, const TpRect &clipRect = TpRect());
 
     /// @brief 加载TpWM的图片资源
     /// @param surface TpWM提供的资源格式buffer
+    /// @param clipRect 裁剪矩形；为空则默认全部加载
     /// @return 加载结果
     virtual bool load(IPiWFSurface *surface, const TpRect &clipRect = TpRect());
 
