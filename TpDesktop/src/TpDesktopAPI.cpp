@@ -10,16 +10,14 @@
 #include "TpHash.h"
 #include "TpDir.h"
 #include "TpProcess.h"
-#include "TpSurface.h"
 #include "tinyPiXUtils.h"
 #include "tinyPiXSys.h"
 #include "TpApp.h"
-#include "TpApp_def.h"
 #include <mutex>
-#include <erpc_client_setup.h>
+// #include <erpc_client_setup.h>
 #include <InteractData/TpWidgetsData.h>
 #include <InteractData/TpDesktopData.h>
-#include <erpc/erpc_port.h>
+// #include <erpc/erpc_port.h>
 #include <future>
 
 const TpString globalAppFilePathStr = "/System/app/";
@@ -29,8 +27,8 @@ struct TpDesktopAPIData
     IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
     // RPC 传输层指针 TODO,修改为RPC维护应用信息
-    erpc_client_t erpcClient = nullptr;
-    erpc_transport_t transportPtr = nullptr;
+    // erpc_client_t erpcClient = nullptr;
+    // erpc_transport_t transportPtr = nullptr;
 
     std::mutex readAppMutex;
     TpHash<TpString, int32_t> appUuidPidMap;
@@ -192,7 +190,7 @@ TpDesktopAPI::~TpDesktopAPI()
     TpDesktopAPIData *apiData = static_cast<TpDesktopAPIData *>(data_);
     if (apiData)
     {
-        erpc_transport_tcp_deinit(apiData->transportPtr);
+        // erpc_transport_tcp_deinit(apiData->transportPtr);
         delete apiData;
         apiData = nullptr;
     }

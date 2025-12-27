@@ -190,10 +190,8 @@ void TpScreen::move(int32_t x, int32_t y)
 
     if (layer >= Tp::TP_WM_USE_FLOAT)
     {
-        // int32_t ox = 0, oy = 0;
-
-        // tinyPiX_wf_get_rect(widgetData->agent, &ox, &oy, nullptr, nullptr);
         tinyPiX_wf_set_position(widgetData->agent, x, y);
+        // tinyPiX_wf_set_rect(widgetData->agent, x, y, width(), height());
 
         widgetData->offsetX = x;
         widgetData->offsetY = y;
@@ -499,6 +497,12 @@ int32_t TpScreen::dispatchEvent(void *events)
 
         return true;
     }
+
+    // if (eventPtr->type != TP_MOUSEBUTTONDOWN && eventPtr->type != TP_MOUSEBUTTONUP)
+    //     return false;
+
+    // if (eventPtr->type == TP_MOUSEBUTTONDOWN)
+    //     int a = 0;
 
     widgetData->tmp.curObject = this->find(point);
 

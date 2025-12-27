@@ -1,6 +1,5 @@
 #include "TpWidgetsGateway.h"
 #include "TpGateway.h"
-#include "TpShareTrans.h"
 #include "TpSize.h"
 #include "InteractData/TpWidgetsData.h"
 
@@ -52,6 +51,7 @@ void TpWidgetsGateway::update()
 
 void TpWidgetsGateway::recvData(const char *topic, const void *data, const uint32_t &size)
 {
+#if 0
     TpString recvTopic(topic);
 
     TpWidgetsGatewayData *widgetsData = static_cast<TpWidgetsGatewayData *>(data_);
@@ -96,4 +96,5 @@ void TpWidgetsGateway::recvData(const char *topic, const void *data, const uint3
     else
     {
     }
+#endif
 }

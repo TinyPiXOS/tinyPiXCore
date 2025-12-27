@@ -32,6 +32,18 @@ TpMainWindow::TpMainWindow()
     TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
     widgetData->top = this->topObject();
 
+    uint32_t rW = 0, rH = 0;
+    tinyPiX_wf_get_display_size(widgetData->agent, &rW, &rH);
+    tinyPiX_wf_set_rect(widgetData->agent, 0, 0, rW, rH);
+
+    widgetData->offsetX = 0;
+    widgetData->offsetY = 0;
+
+    widgetData->absoluteRect.setX(0);
+    widgetData->absoluteRect.setY(0);
+
+    refreshCacheImage(widgetData);
+
     setBackGroundColor(_RGBA(255, 255, 255, 255));
 
     tinyPiX_wf_set_visible(widgetData->agent, true);

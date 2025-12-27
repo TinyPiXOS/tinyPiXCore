@@ -1,81 +1,57 @@
 #include "TpDesktopMainWindow.h"
 #include "TpApp.h"
-#include "TpDef.h"
 #include "TpColors.h"
 #include <tinyPiXWF.h>
 #include <mutex>
 #include "TpCssParser.h"
-#include "TpDefaultCss.h"
 #include "TpString.h"
 #include "TpVariant.h"
-#include "TpDefaultCss.h"
-#include "TpWidget_p.h"
 #include "TpGateway.h"
 #include "TpDeskStatusInfo.h"
 
 #include <InteractData/TpDesktopData.h>
 
-// 桌面工具栏变化，主窗口要刷新尺寸
-static void refreshMainWindow(const TpDeskStatusBarInfo& statusInfo, TpMainWindow *mainWindow, TpWidgetData *mainWindowObjData)
+static TpRect caculateMainScreenRect(const TpDeskStatusBarInfo &statusInfo, TpMainWindow *mainWindow)
 {
     // 偏移的XY坐标；和相对于物理屏幕需要裁剪的的宽高值
-    int32_t mainWindowX = 0;
-    int32_t mainWindowY = 0;
-    int32_t offsetW = 0;
-    int32_t offsetH = 0;
+    TpRect resRect;
 
     if (!TpApp::Inst()->isDesktop() && statusInfo.statusBarVislble)
     {
+        TpSize displayScreenSize = mainWindow->screenSize();
+
         int32_t statusBarLocation = statusInfo.statusBarLocation;
         if (statusBarLocation == 0)
         {
-            mainWindowY = statusInfo.statusBarHeight;
-            offsetH = mainWindowY;
+            resRect.setY(statusInfo.statusBarHeight);
+            resRect.setWidth(displayScreenSize.width());
+            resRect.setHeight(displayScreenSize.height() - statusInfo.statusBarHeight);
         }
         else if (statusBarLocation == 1)
         {
-            offsetW = statusInfo.statusBarWidth;
+            resRect.setWidth(displayScreenSize.width() - statusInfo.statusBarWidth);
+            resRect.setHeight(displayScreenSize.height());
         }
         else if (statusBarLocation == 2)
         {
-            offsetH = statusInfo.statusBarHeight;
+            resRect.setWidth(displayScreenSize.width());
+            resRect.setHeight(displayScreenSize.height() - statusInfo.statusBarHeight);
         }
         else if (statusBarLocation == 3)
         {
-            mainWindowX = statusInfo.statusBarWidth;
-            offsetW = mainWindowX;
+            resRect.setX(statusInfo.statusBarWidth);
+            resRect.setWidth(displayScreenSize.width() - statusInfo.statusBarWidth);
+            resRect.setHeight(displayScreenSize.height());
         }
         else
         {
-            mainWindowY = statusInfo.statusBarHeight;
-            offsetH = mainWindowY;
+            resRect.setY(statusInfo.statusBarHeight);
+            resRect.setWidth(displayScreenSize.width());
+            resRect.setHeight(displayScreenSize.height() - statusInfo.statusBarHeight);
         }
     }
 
-    // 调整窗口大小和坐标
-    uint32_t rW = 0, rH = 0;
-    tinyPiX_wf_get_display_size(mainWindowObjData->agent, &rW, &rH);
-    tinyPiX_wf_set_rect(mainWindowObjData->agent, mainWindowX, mainWindowY, rW - offsetW, rH - offsetH);
-
-    mainWindowObjData->offsetX = mainWindowX;
-    mainWindowObjData->offsetY = mainWindowY;
-
-    mainWindowObjData->absoluteRect.setX(mainWindowX);
-    mainWindowObjData->absoluteRect.setY(mainWindowY);
-
-    TpResizeEventData input;
-    input.object = mainWindow;
-    input.nw = rW - offsetW;
-    input.nh = rH - offsetH;
-    input.question = TpResizeEvent::TP_NORMAL_CHANGE;
-    TpResizeEvent event;
-    bool ret = event.construct(&input);
-
-    if (ret)
-    {
-        refreshCacheImage(mainWindowObjData);
-        IssueObjEvent(mainWindow, event, onResizeEvent, true);
-    }
+    return resRect;
 }
 
 TpDesktopMainWindow::TpDesktopMainWindow()
@@ -101,9 +77,7 @@ TpDesktopMainWindow::TpDesktopMainWindow()
 
         TpDeskStatusInfo::Instance()->setStatusInfo(recvInfo);
 
-        // 更新主屏
-        TpWidgetData *mainWindowData = static_cast<TpWidgetData *>(this->objectSets());
-        refreshMainWindow(recvInfo, this, mainWindowData);
+        TpApp::Inst()->setClipRect(caculateMainScreenRect(recvInfo, this));
     };
 
     // 订阅桌面数据
@@ -119,10 +93,6 @@ TpDesktopMainWindow::TpDesktopMainWindow()
     }
 
 #endif
-
-    TpWidgetData *widgetData = static_cast<TpWidgetData *>(TpObject::data_);
-    // 调整窗口大小
-    refreshMainWindow(TpDeskStatusInfo::Instance()->statusInfo(), this, widgetData);
 }
 
 TpDesktopMainWindow::~TpDesktopMainWindow()
