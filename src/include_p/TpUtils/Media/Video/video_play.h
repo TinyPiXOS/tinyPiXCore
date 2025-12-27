@@ -22,7 +22,7 @@ extern "C"
 typedef int (*CodecSdlPlayAudio)(uint8_t *buf, uint32_t frames, void *param);
 typedef int (*CodecSdlPlayVideo)(uint8_t *buf, uint32_t frames, void *param);
 
-typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format ,void *user_data);
+typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format , int width, int height, void *user_data);
 
 struct MediaAudioHandle;
 struct VideoStreamParams;

@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <TpCore.h>
+#include <Media/TpVideoFrame.h>
 
 TP_DEF_VOID_TYPE_VAR(ITpVideoInfData);
 
@@ -29,6 +30,10 @@ public:
 		TP_VIDEO_DECODE_UYVY
 	};
 public:
+	/// @brief 用户播放回调
+	/// @param frame 视频帧对象
+	using UserFrameCallback = std::function<int(TpVideoFrame& frame)>;
+
 	/// @brief 用户播放的回调
 	/// @param data 数据，可能有多行
 	/// @param linesize 每一行的大小，最多8行，不可超过。
@@ -40,10 +45,10 @@ public:
 	TpVideoOutput(const TpString& video_name = "default" );
 	~TpVideoOutput();
 public:
-	/// @brief 
-	/// @param callback 
+	/// @brief 设置视频显示回调函数
+	/// @param cb 
 	/// @return 
-	int setDisplayFunction(UserCallback cb, void *userdata=nullptr,TpVideoDecodeType format=TP_VIDEO_DECODE_RGB24);
+	int setDisplayFunction(UserFrameCallback cb, void *userdata=nullptr,TpVideoDecodeType format=TP_VIDEO_DECODE_RGB24);
 
 	/// @brief 设置视频播放窗口的的位置，在不设置回调，使用内部SDL播放的时候会生效
 	/// @param x 播放窗口x坐标
@@ -68,13 +73,15 @@ private:
 	void *getVideoInfo();
 
 private:
-	    struct CallbackContext {
+	struct CallbackContext {
         UserCallback callback;  // 用户回调指针
+		UserFrameCallback frameCallback; // 用户帧回调指针
         void* userdata;
     };
 	ITpVideoInfData *vData_;
 	static int staticBridge(uint8_t** data, int* linesize, uint32_t format, void* rawCtx);
+	
+	static int frameBridge(uint8_t** data, int* linesize, uint32_t format, int width, int height, void* rawCtx);
 };
-
 
 #endif
