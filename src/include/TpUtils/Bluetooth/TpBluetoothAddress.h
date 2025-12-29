@@ -18,8 +18,6 @@ public:
 	TpBluetoothAddress& operator=(const TpBluetoothAddress& other);
 	// 移动赋值运算符声明
 	TpBluetoothAddress& operator=(TpBluetoothAddress&& other) noexcept;
-	// 直接接受字符串的赋值运算符（可选优化）
-	TpBluetoothAddress& operator=(const char* address);
 	
 	bool operator==(const TpBluetoothAddress &other);
     bool operator!=(const TpBluetoothAddress &other);

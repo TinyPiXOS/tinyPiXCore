@@ -18,6 +18,7 @@ struct TpBluetoothLocalData
 {
     TpBluetoothAddress address;
     TpString name;
+	
     Adapter *adapter;
     BluetAgent *agent;
     tpBool power;
@@ -133,7 +134,7 @@ TpBluetoothAddress TpBluetoothLocal::address()
     return data->address;
 }
 
-// 此函数世纪返回类型为 Adapter *
+// 此函数实际返回类型为 Adapter *
 void *TpBluetoothLocal::adapter()
 {
     TpBluetoothLocalData *data = static_cast<TpBluetoothLocalData *>(data_);

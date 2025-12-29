@@ -621,7 +621,7 @@ static void *thread_video_codec(void *param)
 		}
 		get_display_params_user_codec(user,NULL,&show_param);
 		if(show_param.rect.w==0||show_param.rect.h==0)
-		{printf("show_param error\n");
+		{
 			continue;
 		}
 		//重新设置解码器参数
@@ -691,7 +691,6 @@ static void *thread_video_codec(void *param)
 		if(!packet)
 		{
 			usleep(1000);
-			printf("快结束了\n");
 			Media_Set_Position_N(user, (int32_t)(sys_clock->get_run_time(sys_clock) / 1000.0 / 1000.0));
 			continue;
 		}
@@ -739,7 +738,8 @@ static void *thread_video_codec(void *param)
 			if(callback)
 			{
 				//printf("callback\n");
-				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,frame_d->width, frame_d->height,user->video_params->userdata);
+				//printf("video weight size %d x %d\n", rect_dst.w, rect_dst.h);
+				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,rect_dst.w, rect_dst.h,user->video_params->userdata);
 			}
 			else
 			{
@@ -1204,7 +1204,6 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 			if(Media_Get_DPosition(user) > user->length)
                 break;
 		}
-		printf("数据已经读完\n");
 		usleep(10000);
 		//Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
 	}
