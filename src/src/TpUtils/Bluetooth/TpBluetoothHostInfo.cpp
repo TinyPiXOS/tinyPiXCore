@@ -115,13 +115,20 @@ TpBluetoothHostInfo::~TpBluetoothHostInfo()
 }
 
 
-TpString TpBluetoothHostInfo::name()
+TpString TpBluetoothHostInfo::name() const
 {
     TpBluetoothHostInfoData *data = static_cast<TpBluetoothHostInfoData *>(data_);
     return data->name;
 }
 
-TpBluetoothAddress TpBluetoothHostInfo::address()
+void TpBluetoothHostInfo::setName(const TpString &name)
+{
+    TpBluetoothHostInfoData *data = static_cast<TpBluetoothHostInfoData *>(data_);
+    data->name = name;
+}
+
+
+TpBluetoothAddress TpBluetoothHostInfo::address() const
 {
     TpBluetoothHostInfoData *data = static_cast<TpBluetoothHostInfoData *>(data_);
     return data->address;
