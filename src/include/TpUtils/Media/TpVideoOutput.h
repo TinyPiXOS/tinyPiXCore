@@ -81,7 +81,7 @@ private:
 	ITpVideoInfData *vData_;
 	static int staticBridge(uint8_t** data, int* linesize, uint32_t format, void* rawCtx);
 	
-	static int frameBridge(uint8_t** data, int* linesize, uint32_t format, int width, int height, void* rawCtx);
+	static int frameBridge(uint8_t** data, int* linesize, uint32_t format, void *rect, void* rawCtx);
 };
 
 #endif

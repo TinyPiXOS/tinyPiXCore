@@ -739,7 +739,7 @@ static void *thread_video_codec(void *param)
 			{
 				//printf("callback\n");
 				//printf("video weight size %d x %d\n", rect_dst.w, rect_dst.h);
-				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,rect_dst.w, rect_dst.h,user->video_params->userdata);
+				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,&rect_dst,user->video_params->userdata);
 			}
 			else
 			{
@@ -751,7 +751,8 @@ static void *thread_video_codec(void *param)
 			}
 				
 			//写入进度
-			Media_Set_Position_N(user,(int32_t)((double)pts * av_q2d(videoStream->time_base)));
+			//Media_Set_Position_N(user,(int32_t)((double)pts * av_q2d(videoStream->time_base)));			//按帧信息写入进度
+			Media_Set_Position_N(user, (int32_t)(sys_clock->get_run_time(sys_clock) / 1000.0 / 1000.0));	//按系统时钟写入进度
 		}
 		video_t->free_packet(packet);
 		video_t->set_state(video_t,MEDIA_THREAD_WAITING);
@@ -872,7 +873,8 @@ static void *thread_audio_codec(void *param)
 			else
 			{
 				callback((uint8_t *)convert_frame,samples_converted,-1,user->audio_params->userdata);
-				Media_Set_Position_N(user,(int32_t)((double)pts * av_q2d(audioStream->time_base)));
+				//Media_Set_Position_N(user,(int32_t)((double)pts * av_q2d(audioStream->time_base)));			//按帧信息写入进度
+				Media_Set_Position_N(user, (int32_t)(sys_clock->get_run_time(sys_clock) / 1000.0 / 1000.0));	//按系统时钟写入进度
 			}
 		}
 		audio_t->free_packet(packet);
@@ -940,7 +942,7 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 				{
 					Media_Thread_Free(thread_codec);
 					err=-1;
-					printf("[Debug]: Creat audio stream thread error\n");
+					fprintf(stderr,"[Error]: Creat audio stream thread error\n");
 					break;
 				}
 				break;
@@ -1207,10 +1209,10 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 		usleep(10000);
 		//Media_Set_Position_N(user, (int32_t)(clock->get_run_time(clock) / 1000.0 / 1000.0));
 	}
+	Media_Set_Position_N(user,user->length);
 	debug_printf("数据已经读完\n");
 	player->set_state(stream_array,MEDIA_STATE_EXIT);
 	player->packet_exit(stream_array);
-	Media_Set_Position_N(user,user->length);
 	// Clean up
 
 FREE_THREAD:

@@ -268,13 +268,13 @@ int Media_Set_Start(struct MediaUserParams *conf, const char *file)
 // 设置播放状态-暂停播放
 int Media_Set_Suspend(struct MediaUserParams *conf)
 {
-    printf("Media_Set_Suspend\n");
+    debug_printf("Media_Set_Suspend\n");
     return Media_Set_Command(conf, MEDIA_PLCMD_SUSPEND);
 }
 // 设置播放状态-继续播放
 int Media_Set_Continue(struct MediaUserParams *conf)
 {
-    printf("Media_Set_Continue\n");
+    debug_printf("Media_Set_Continue\n");
     if (Media_Get_State(conf) != MEDIA_STATE_PAUSEING)
         return -1;
     Media_Set_Command(conf, MEDIA_PLCMD_CONTINUE);

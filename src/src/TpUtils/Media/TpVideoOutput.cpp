@@ -15,6 +15,7 @@
 #include "TpMediaDevice.h"
 #include "TpSound.h"
 
+
 struct TpVideoInfData
 {
 	TpString v_name;
@@ -109,13 +110,14 @@ int TpVideoOutput::setWindowSize(tpUInt16 width, tpUInt16 height)
 
 
 int TpVideoOutput::frameBridge(uint8_t** data, int* linesize, uint32_t format, 
-                              int width, int height, void* rawCtx)
+                              void *rect, void* rawCtx)
 {
+	struct MediaRect* rect_dst = (struct MediaRect*)rect;
     auto* ctx = static_cast<CallbackContext*>(rawCtx);
     if (!ctx || !ctx->frameCallback) return -1;
 
     // 创建帧参数对象并填充数据
-    TpVideoFrame frame(data, linesize, TpSize(width, height), ctx->userdata);
+    TpVideoFrame frame(data, linesize, TpSize(rect_dst->w, rect_dst->h), rect_dst->x, rect_dst->y, ctx->userdata);
 //    frame.setFormat(format);
     return ctx->frameCallback(frame);
 }
@@ -135,7 +137,7 @@ int TpVideoOutput::setDisplayFunction(UserFrameCallback callback,void *userdata,
     vidData->context_ = context_;
 
     // 设置到C层
-    using CCallback = int (*)(uint8_t **, int *, uint32_t, int, int, void *);
+    using CCallback = int (*)(uint8_t **, int *, uint32_t, void *, void *);
 	CCallback bridge = &frameBridge; // 获取静态函数地址
 
 	if (format != TP_VIDEO_DECODE_RGB24)
