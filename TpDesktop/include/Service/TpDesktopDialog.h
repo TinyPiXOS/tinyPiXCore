@@ -3,7 +3,6 @@
 
 #include "TpDialog.h"
 
-TP_DEF_VOID_TYPE_VAR(ITpDesktopDialogData);
 class TpDesktopDialog
     : public TpDialog
 {
@@ -18,9 +17,6 @@ public:
     /// @brief 组件类名，子类实现，返回子类类名字符串，用于匹配CSS中对应样式
     /// @return 类名字符串
     virtual TpString pluginType() override { return TO_STRING(TpDesktopDialog); }
-
-private:
-    ITpDesktopDialogData *data_;
 };
 
 #endif

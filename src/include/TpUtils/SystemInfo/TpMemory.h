@@ -12,30 +12,30 @@ TP_DEF_VOID_TYPE_VAR(ITpMemoryInfoData);
 class TpMemory
 {
 public:
-	TpMemory(bool enable = true, uint16_t samp = 1000);
-	~TpMemory();
+    TpMemory(bool enable = true, uint16_t samp = 1000);
+    ~TpMemory();
 
 public:
-	/// @brief 获取内存总空间
-	/// @return 内存空间Byte
-	uint64_t getTotalSize();
-	/// @brief 获取内存可用空间
-	/// @return 内存空间Byte
-	uint64_t getAvailableSize();
-	/// @brief 获取内存空闲空间
-	/// @return 内存空间Byte
-	uint64_t getFreeSize();
-	/// @brief 获取内存使用率
-	/// @return 使用率 %
-	double getUsage(bool unupdate = false);//内存使用率
-	TpMemory getMemoryInfo(bool unupdate = false);
+    /// @brief 获取内存总空间
+    /// @return 内存空间Byte
+    uint64_t getTotalSize();
+    /// @brief 获取内存可用空间
+    /// @return 内存空间Byte
+    uint64_t getAvailableSize();
+    /// @brief 获取内存空闲空间
+    /// @return 内存空间Byte
+    uint64_t getFreeSize();
+    /// @brief 获取内存使用率
+    /// @return 使用率 %
+    double getUsage(bool unupdate = false); // 内存使用率
+    TpMemory getMemoryInfo(bool unupdate = false);
 
 private:
-	void update();
-	uint64_t getMemoryValue(const char *value);
+    void update();
+    uint64_t getMemoryValue(const char *value);
 
 private:
-	ITpMemoryInfoData *data_;
+    ITpMemoryInfoData *data_;
 };
 
 #endif
