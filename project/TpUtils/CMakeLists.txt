@@ -39,6 +39,7 @@ set(SOURCE_FILES
 
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothAddress.cpp
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothUuid.cpp
+    ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothHostInfo.cpp
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothLocal.cpp
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothDevice.cpp
     ${SOURCE_PATH}/src/TpUtils/Bluetooth/TpBluetoothDiscovery.cpp

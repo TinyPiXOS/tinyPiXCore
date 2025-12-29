@@ -3,6 +3,7 @@
 
 #include <TpCore.h>
 #include "TpBluetoothDevice.h"
+#include "TpBluetoothHostInfo.h"
 #include "TpBluetoothAddress.h"
 #include "TpBluetoothUuid.h"
 
@@ -22,7 +23,7 @@ public:
     };
 
 public:
-    TpBluetoothLocal(int id, const char *address, const char *name);
+    TpBluetoothLocal(const TpBluetoothHostInfo local);
     TpBluetoothLocal(const char *name);
     TpBluetoothLocal(const TpString &name);
     ~TpBluetoothLocal();
@@ -30,17 +31,16 @@ public:
 public:
     /// @brief 获取所有适配器列表
     /// @return
-    static TpList<tpShared<TpBluetoothLocal>> allDevice();
+    static TpList<tpShared<TpBluetoothHostInfo>> allDevice();
 
 public:
     /// @brief 获取蓝牙名字
     /// @return
-    TpString name();
-    int setName(const TpString &name);
+    TpString name() const;
 
     /// @brief 获取蓝牙地址
     /// @return
-    TpBluetoothAddress address();
+    TpBluetoothAddress address() const;
 
     /// @brief 获取以配对的设备列表
     /// @return

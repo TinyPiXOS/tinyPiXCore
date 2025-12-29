@@ -19,10 +19,11 @@ extern "C"
 #define SCALE_HANDLE_USE_SDL // 使用SDL处理缩放
 // #define SCALE_HANDLE_USE_FFMPEG		//使用FFMPEG处理缩放
 
+
 typedef int (*CodecSdlPlayAudio)(uint8_t *buf, uint32_t frames, void *param);
 typedef int (*CodecSdlPlayVideo)(uint8_t *buf, uint32_t frames, void *param);
 
-typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format , int width, int height, void *user_data);
+typedef int(*CallbackVideoDisplay)(uint8_t **data, int *linesize, uint32_t format, void *rect, void *user_data);	// void *rect=struct MediaRect* rect;
 
 struct MediaAudioHandle;
 struct VideoStreamParams;

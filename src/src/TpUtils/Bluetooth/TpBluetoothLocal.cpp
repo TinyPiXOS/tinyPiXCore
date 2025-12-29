@@ -18,7 +18,7 @@ struct TpBluetoothLocalData
 {
     TpBluetoothAddress address;
     TpString name;
-	
+
     Adapter *adapter;
     BluetAgent *agent;
     tpBool power;
@@ -40,10 +40,10 @@ struct TpBluetoothLocalData
 //
 static void adapterListCallback(const BluetoothAdapter *adapter, void *user_data)
 {
-    TpList<tpShared<TpBluetoothLocal>> *adapter_list = static_cast<TpList<tpShared<TpBluetoothLocal>> *>(user_data);
+    TpList<tpShared<TpBluetoothHostInfo>> *adapter_list = static_cast<TpList<tpShared<TpBluetoothHostInfo>> *>(user_data);
     //	TpBluetoothLocal *local=new TpBluetoothLocal(adapter->id, adapter->address, adapter->name);
     //	printf("adapter:%s %s\n",adapter->name,adapter->address);
-    adapter_list->emplace_back(tpMakeShared<TpBluetoothLocal>(adapter->id, adapter->address, adapter->name));
+    adapter_list->emplace_back(tpMakeShared<TpBluetoothHostInfo>(adapter->id, adapter->address, adapter->name));
 }
 
 static void deviceListCallback(const BluetoothRemote *remote, void *user_data)
@@ -54,19 +54,8 @@ static void deviceListCallback(const BluetoothRemote *remote, void *user_data)
     // 如有需要可以继续添加其他属性
 }
 
-TpBluetoothLocal::TpBluetoothLocal(int id, const char *address, const char *name)
+TpBluetoothLocal::TpBluetoothLocal(const TpBluetoothHostInfo local):TpBluetoothLocal(local.name().c_str())
 {
-    data_ = new TpBluetoothLocalData();
-    TpBluetoothLocalData *data = static_cast<TpBluetoothLocalData *>(data_);
-    if (TpDbusConnectManage::instance().connection() != TP_TRUE)
-    {
-        fprintf(stderr, "[Error]: connect to dbus error\n");
-        return;
-    }
-    data->address = TpBluetoothAddress(TpString(address));
-    data->name = TpString(name);
-    if (!adapter())
-        fprintf(stderr, "[Error]: Adapter does not exist\n");
 }
 
 TpBluetoothLocal::TpBluetoothLocal(const TpString &name) : TpBluetoothLocal(name.c_str())
@@ -115,20 +104,20 @@ TpBluetoothLocal::~TpBluetoothLocal()
     delete (data);
 }
 
-TpList<tpShared<TpBluetoothLocal>> TpBluetoothLocal::allDevice()
+TpList<tpShared<TpBluetoothHostInfo>> TpBluetoothLocal::allDevice()
 {
-    TpList<tpShared<TpBluetoothLocal>> list;
+    TpList<tpShared<TpBluetoothHostInfo>> list;
     bluet_get_adapters(adapterListCallback, (void *)(&list));
     return list;
 }
 
-TpString TpBluetoothLocal::name()
+TpString TpBluetoothLocal::name() const
 {
     TpBluetoothLocalData *data = static_cast<TpBluetoothLocalData *>(data_);
     return data->name;
 }
 
-TpBluetoothAddress TpBluetoothLocal::address()
+TpBluetoothAddress TpBluetoothLocal::address() const
 {
     TpBluetoothLocalData *data = static_cast<TpBluetoothLocalData *>(data_);
     return data->address;

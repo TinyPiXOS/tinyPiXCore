@@ -34,12 +34,15 @@ public:
 public:
     /// @brief 获取蓝牙名字
     /// @return
-    TpString name();
-    int setName(const TpString &name);
+    TpString name() const;
+	
+	/// @brief 设置蓝牙名字
+	/// @return 
+    void setName(const TpString &name);
 
     /// @brief 获取蓝牙地址
     /// @return
-    TpBluetoothAddress address();
+    TpBluetoothAddress address() const;
 
 private:
     ITpBluetoothHostInfoData *data_;

@@ -8,7 +8,7 @@ class TpVideoFrame
 {
 public:
     TpVideoFrame() {};
-    TpVideoFrame(uint8_t **datas, int *lines, TpSize size, void *user_data) : datas_(datas), lines_(lines), size_(size), userdata_(user_data) {};
+    TpVideoFrame(uint8_t **datas, int *lines, TpSize size, uint16_t x, uint16_t y, void *user_data) : datas_(datas), lines_(lines), size_(size), x_(x), y_(y), userdata_(user_data) {};
     ~TpVideoFrame() {};
 
     /// @brief 拷贝构造函数
@@ -19,6 +19,8 @@ public:
             datas_ = other.datas_;
             lines_ = other.lines_;
             size_ = other.size_;
+            x_ = other.x_;
+            y_ = other.y_;
             format_ = other.format_;
             userdata_ = other.userdata_;
         }
@@ -27,11 +29,13 @@ public:
 
     /// @brief 移动构造函数
     TpVideoFrame(TpVideoFrame &&other) noexcept
-        : datas_(other.datas_), lines_(other.lines_), size_(other.size_), format_(other.format_), userdata_(other.userdata_)
+        : datas_(other.datas_), lines_(other.lines_), size_(other.size_), x_(other.x_), y_(other.y_), format_(other.format_), userdata_(other.userdata_)
     {
         other.datas_ = nullptr;
         other.lines_ = nullptr;
         other.size_ = TpSize();
+        other.x_ = 0;
+        other.y_ = 0;
         other.format_ = 0;
         other.userdata_ = nullptr;
     }
@@ -40,6 +44,8 @@ public:
     /// @brief 获取视频帧尺寸
     /// @return 视频帧尺寸
     TpSize size() const { return size_; };
+	tpUInt16 x() const { return x_; };
+	tpUInt16 y() const { return y_; };
     /// @brief 获取视频帧数据，只有一行取datas_[0]，多行则取对应行数
     /// @return 视频帧数据
     uint8_t **data() const { return datas_; };
@@ -65,6 +71,8 @@ private:
     uint8_t **datas_;
     int *lines_;
     uint32_t format_;
+	uint16_t x_;
+	uint16_t y_;
     TpSize size_;
     void *userdata_;
 };

@@ -89,7 +89,7 @@ AppSettingBar::AppSettingBar()
     }
 
     // 获取蓝牙设备
-    TpList<tpShared<TpBluetoothLocal>> bluetoothDeviceList = TpBluetoothLocal::allDevice();
+    TpList<tpShared<TpBluetoothHostInfo>> bluetoothDeviceList = TpBluetoothLocal::allDevice();
     bluetoothBtn_->setEnabled(bluetoothDeviceList.size() > 0);
 
     powerManageWindow_ = new PowerManage();

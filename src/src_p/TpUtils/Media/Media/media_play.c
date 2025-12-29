@@ -160,7 +160,14 @@ int Media_Play_Main(struct MediaUserParams *user)
 				name=list->read_saft(list);
 				break;
 		}
+
 		Media_Set_State(user,MEDIA_STATE_PLAYING);
+		if(media_exit_flag)
+		{
+			debug_printf("强制退出\n");
+			exit(0);
+			break;
+		}
 		if(name==NULL)
 		{
 			usleep(5000);
@@ -169,11 +176,10 @@ int Media_Play_Main(struct MediaUserParams *user)
 		Media_Set_Is_Playing(user,true);
 		debug_printf("play file %s\n",name);
 		media_player_codec_file(user,name);
-		if(media_exit_flag)
-			return 0;
+
 		Media_Set_Is_Playing(user,false);
 	}
 
-	printf("播放结束\n");
+	debug_printf("播放结束\n");
 	return 0;
 }

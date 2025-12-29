@@ -99,7 +99,7 @@ int TpMediaPlayer::threadMedia()
     TpMediaInfData *medData = static_cast<TpMediaInfData *>(data_);
 
     Media_Play_Main(medData->user);
-    //	printf("play main exit\n");
+    printf("play main exit\n");
     return 0;
 }
 
