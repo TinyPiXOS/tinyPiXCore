@@ -43,9 +43,13 @@ public:
     /// @param iconPath 图标绝对路径
     void setIcon(const TpString &iconPath);
 
-    /// @brief 设置自定义窗口；设置后文本和icon设置无效；置空给入nullptr
+    /// @brief 设置自定义窗口；设置后文本和icon设置无效；置空给入nullptr；内部不会释放原始窗口指针
     /// @param widget 自定义窗口
     void setWidget(TpWidget *widget);
+
+    /// @brief 获取当前设置的自定义窗口；未设置则为空
+    /// @return 自定义窗口
+    TpWidget* widget();
 
     /// @brief 设置窗口显隐
     /// @param visible true显示，false隐藏

@@ -3,6 +3,7 @@
 #include "TpFont.h"
 #include "TpPainter.h"
 #include "TpEvent.h"
+#include "TpTimer.h"
 
 struct TpToastData
 {
@@ -13,12 +14,18 @@ struct TpToastData
     int32_t durationMs;
 
     TpWidget *toastWidget = nullptr;
+
+    TpTimer *closeTimer = nullptr;
 };
 
 TpToast::TpToast() : TpDialog()
 {
     TpToastData *toastData = new TpToastData();
     data_ = toastData;
+
+    toastData->closeTimer = new TpTimer();
+    connect(toastData->closeTimer, timeout, [this]()
+            { close(); });
 
     setDuaration();
 
@@ -110,6 +117,25 @@ void TpToast::setIcon(const TpString &iconPath)
 
 void TpToast::setWidget(TpWidget *widget)
 {
+    TpToastData *toastData = static_cast<TpToastData *>(data_);
+    if (toastData->toastWidget)
+    {
+        toastData->toastWidget->setParent(nullptr);
+        toastData->toastWidget = nullptr;
+    }
+
+    if (widget)
+        widget->setParent(this);
+
+    toastData->toastWidget = widget;
+
+    update();
+}
+
+TpWidget *TpToast::widget()
+{
+    TpToastData *toastData = static_cast<TpToastData *>(data_);
+    return toastData->toastWidget;
 }
 
 void TpToast::setVisible(bool visible)
@@ -119,6 +145,17 @@ void TpToast::setVisible(bool visible)
     move((screenSize.width() - width()) / 2.0, screenSize.height() * 0.06);
 
     TpDialog::setVisible(visible);
+
+    TpToastData *toastData = static_cast<TpToastData *>(data_);
+    if (visible)
+    {
+        toastData->closeTimer->setInterval(toastData->durationMs);
+        toastData->closeTimer->start();
+    }
+    else
+    {
+        toastData->closeTimer->stop();
+    }
 }
 
 bool TpToast::onPaintEvent(TpPaintEvent *event)
