@@ -64,8 +64,12 @@ TpScreen::TpScreen(const char *type, int32_t x, int32_t y, uint32_t w, uint32_t 
         uint32_t cores = std::thread::hardware_concurrency();
         tvg::Initializer::init(cores / 2);
 
+#if USE_OPENGL
+        screenData->swCanvas = tvg::GlCanvas::gen();
+#else
         screenData->swCanvas = tvg::SwCanvas::gen(tvg::EngineOption::SmartRender);
         screenData->swCanvas->push(screenData->tvgScene);
+#endif
     }
 }
 
@@ -300,7 +304,20 @@ bool TpScreen::onResizeEvent(TpResizeEvent *event)
             int32_t surfaceWidth = screenData->wmSurface->width();
             int32_t surfaceHeight = screenData->wmSurface->height();
 
-            screenData->swCanvas->target((uint32_t *)screenData->wmSurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+#if USE_OPENGL
+            // eglMakeCurrent(); // 平台特定的上下文设置函数
+#endif
+
+            auto result = screenData->swCanvas->target((uint32_t *)screenData->wmSurface->matrix(), surfaceWidth, surfaceWidth, surfaceHeight, tvg::ColorSpace::ARGB8888);
+
+#if USE_OPENGL
+            static bool setScene = false;
+            if (!setScene)
+            {
+                setScene = true;
+                screenData->swCanvas->push(screenData->tvgScene);
+            }
+#endif
         }
     }
 

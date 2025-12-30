@@ -362,3 +362,12 @@ TpSliderProgressBar {
     background-color: rgb(236, 236, 236);
     sub-color: rgb(140, 29, 235);
 }
+
+TpToast {
+    width: 275;
+    height: 60;
+    border-radius: 20;
+    font-size: 12;
+    color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.2);
+}

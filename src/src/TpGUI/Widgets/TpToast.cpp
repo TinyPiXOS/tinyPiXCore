@@ -125,7 +125,12 @@ void TpToast::setWidget(TpWidget *widget)
     }
 
     if (widget)
+    {
         widget->setParent(this);
+        widget->setRoundCorners(roundCorners());
+        widget->setSize(this->size());
+        widget->move(0, 0);
+    }
 
     toastData->toastWidget = widget;
 
