@@ -89,7 +89,7 @@ public:
     /// @brief 获取TpWM的分辨率的宽度;真机模式下与当前显示器分辨率一致
     /// @return 分辨率
     static TpSize wmResolutionSize();
-    
+
     /// @brief 设置分辨率(只能设置支持的分辨率，否则会失败)
     /// @param width 像素宽度
     /// @param height 像素高度

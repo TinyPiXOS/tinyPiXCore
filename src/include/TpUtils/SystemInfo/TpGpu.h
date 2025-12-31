@@ -8,13 +8,14 @@ TP_DEF_VOID_TYPE_VAR(ITpGpuInfoData);
 class TpGpu
 {
 public:
-	TpGpu();
-	~TpGpu();
+    TpGpu();
+    ~TpGpu();
 
 public:
-	TpString getName();
+    TpString name();
+
 private:
-	ITpGpuInfoData *data_;
+    ITpGpuInfoData *data_;
 };
 
 #endif

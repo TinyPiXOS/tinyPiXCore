@@ -2,10 +2,16 @@ cmake_minimum_required(VERSION 3.20.0)
 project(TinyPiXOS VERSION 1.0.0 LANGUAGES C CXX)
 
 option(BUILD_TP_DESKTOP "构建桌面应用程序" ON)
+option(USE_OPENGL "使用OpenGL渲染" OFF)
 
 # 不再提示未使用变量警告
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
+endif()
+
+if(USE_OPENGL)
+    message(STATUS "使用 OpenGL 渲染")
+    add_definitions(-DUSE_OPENGL)
 endif()
 
 # 添加SDK路径选项，支持命令行传入

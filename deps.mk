@@ -79,7 +79,7 @@ thorvg:
 	cd $(src_dir)/thorvg; \
 	meson setup builddir \
 	-Dbuildtype=release \
-	-Dloaders="all" \
+	-Dloaders="all" -Dengines="sw,gl" \
 	-Dsavers="all" \
 	-Dexamples=false \
 	-Dlog=false \

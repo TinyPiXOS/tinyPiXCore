@@ -25,7 +25,11 @@
 
 struct TpScreenData : TpWidgetData
 {
+#if USE_OPENGL
+    tvg::GlCanvas *swCanvas = nullptr;
+#else
     tvg::SwCanvas *swCanvas = nullptr;
+#endif
 
     // 底层渲染画布
     tpShared<TpSurface> wmSurface = nullptr;
