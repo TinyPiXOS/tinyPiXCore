@@ -159,28 +159,18 @@ void TpThreadPool::workerTask()
 
                 // 等待10秒内是否有新任务
                 if (!poolData->idleCondition_.wait_for(lock, std::chrono::seconds(10),
-                                                       [this]
-                                                       { return !static_cast<TpThreadPoolData *>(data_)->tasks_.empty() || static_cast<TpThreadPoolData *>(data_)->stop_; }))
+                                                       [&poolData]
+                                                       { return !poolData->tasks_.empty() || poolData->stop_; }))
                 {
-                    // 查找并移除当前线程
-                    auto it = std::find_if(poolData->threads_.begin(), poolData->threads_.end(),
-                                           [](const std::thread &t)
-                                           {
-                                               return t.get_id() == std::this_thread::get_id();
-                                           });
-
-                    if (it != poolData->threads_.end())
-                    {
-                        it->detach();
-                        poolData->threads_.erase(it);
-                    }
+                    // 仅返回，不直接修改threads_向量，避免竞态条件
+                    // 线程会自然退出，资源会被正确回收
                     return; // 结束多余线程
                 }
             }
 
             // 等待新任务或停止信号
-            poolData->condition_.wait(lock, [this]
-                                      { return static_cast<TpThreadPoolData *>(data_)->stop_ || !static_cast<TpThreadPoolData *>(data_)->tasks_.empty(); });
+            poolData->condition_.wait(lock, [&poolData]
+                                      { return poolData->stop_ || !poolData->tasks_.empty(); });
 
             if (poolData->stop_)
                 return;
