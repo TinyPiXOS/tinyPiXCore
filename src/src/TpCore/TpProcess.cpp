@@ -28,15 +28,20 @@ public:
     // 执行参数转换
     char **prepareArgs(const TpString &program, const TpVector<TpString> &arguments)
     {
-        char **argv = new char *[arguments.size() + 2];
+        if (program.empty())
+            return nullptr;
+
+        std::size_t argCount = arguments.size();
+
+        char **argv = new char *[argCount + 2];
         argv[0] = strdup(program.c_str());
 
-        for (int i = 0; i < arguments.size(); ++i)
+        for (int i = 0; i < argCount; ++i)
         {
             argv[i + 1] = strdup(arguments[i].c_str());
         }
 
-        argv[arguments.size() + 1] = nullptr;
+        argv[argCount + 1] = nullptr;
         return argv;
     }
 
@@ -122,8 +127,8 @@ void TpProcess::start(const TpString &program, const TpVector<TpString> &argumen
         char **argv = processData->prepareArgs(program, arguments);
         int aa = execvp(program.c_str(), argv);
         processData->freeArgs(argv);
-        // 执行失败
-        exit(EXIT_FAILURE);
+        // 执行失败;使用_exit避免刷新缓冲区
+        _exit(EXIT_FAILURE);
     }
     else if (pid > 0)
     {
