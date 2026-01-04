@@ -129,6 +129,13 @@ bool AppRunnerManage::startApp(const TpString &uuid, const TpVector<TpString> &a
         return false;
     }
 
+    // 将其他所有应用隐藏
+    for (const auto &curAppUuid : apiData->appUuidPidMap.keys())
+    {
+        tinyPiX_sys_set_visible(apiData->globalAgent, apiData->appUuidPidMap.value(curAppUuid), false);
+        tinyPiX_sys_set_active(apiData->globalAgent, apiData->appUuidPidMap.value(curAppUuid), false);
+    }
+
     if (apiData->appUuidPidMap.contains(uuid))
     {
         // 应用已启动，恢复即可
