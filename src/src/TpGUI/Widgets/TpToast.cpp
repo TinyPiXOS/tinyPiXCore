@@ -37,6 +37,10 @@ TpToast::~TpToast()
     TpToastData *toastData = static_cast<TpToastData *>(data_);
     if (toastData)
     {
+        toastData->closeTimer->stop();
+        delete toastData->closeTimer;
+        toastData->closeTimer = nullptr;
+
         delete toastData;
         toastData = nullptr;
         data_ = nullptr;
