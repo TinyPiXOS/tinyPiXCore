@@ -148,18 +148,18 @@ extern DECLSPEC int STDCALL tinyPiX_sys_float_move(IPiSysApiAgent *sysApiagent, 
 extern DECLSPEC int STDCALL tinyPiX_sys_set_close(IPiSysApiAgent *sysApiagent, int id);
 
 /**
-@brief 返回正在显示的顶级窗体id
+@brief 返回正在显示的顶级窗体pid
 @param sysApiagent（IPiSysApiAgent） 系统api的句柄
 @return 成功对应的虚拟窗体id，否则返回-1
 */
-extern DECLSPEC int STDCALL tinyPiX_sys_find_top_id(IPiSysApiAgent *sysApiagent);
+extern DECLSPEC int STDCALL tinyPiX_sys_find_top_pid(IPiSysApiAgent *sysApiagent);
 
 /**
 @brief 返回正在显示的desktop虚拟窗体id
 @param sysApiagent（IPiSysApiAgent） 系统api的句柄
 @return 成功对应的虚拟窗体id，否则返回-1
 */
-extern DECLSPEC int STDCALL tinyPiX_sys_find_desk_id(IPiSysApiAgent *sysApiagent);
+extern DECLSPEC int STDCALL tinyPiX_sys_find_desk_pid(IPiSysApiAgent *sysApiagent);
 
 /**
 @brief 根据id向指定的虚拟窗体发送属性数据

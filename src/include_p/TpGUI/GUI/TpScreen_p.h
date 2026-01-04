@@ -494,8 +494,8 @@ static inline int32_t transferResize(int32_t id, uint32_t nw, uint32_t nh, int32
 
     TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
 
-    widgetData->absoluteRect.setRect(0, 0, nw, nh);
-    widgetData->logicalRect.setRect(0, 0, nw, nh);
+    widgetData->absoluteRect.setSize(TpSize(nw, nh));
+    widgetData->logicalRect.setSize(TpSize(nw, nh));
 
     if (!widgetData->reserveImage.isNull())
     {
