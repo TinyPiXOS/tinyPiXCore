@@ -129,16 +129,17 @@ static inline void thread_wait(PiThread *thread, void *status)
 
 static inline void thread_kill(PiThread *thread)
 {
-	PiThread *t_thread = (PiThread *)thread;
+    PiThread *t_thread = (PiThread *)thread;
 
-	if (t_thread)
-	{
+    if (t_thread)
+    {
 #ifdef PTHREAD_CANCEL_ASYNCHRONOUS
-		pthread_cancel(t_thread->handle);
+        pthread_cancel(t_thread->handle);
+        // 等待线程终止
+        pthread_join(t_thread->handle, nullptr);
 #endif
-		pthread_kill(t_thread->handle, 0);
-		free(t_thread);
-	}
+        free(t_thread);
+    }
 }
 
 static inline int32_t thead_function(ITpThreadData *args)

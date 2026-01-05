@@ -1,5 +1,5 @@
-#ifndef __TP_VARIANT_P_H
-#define __TP_VARIANT_P_H
+#ifndef __TP_CORE_APP_P_H
+#define __TP_CORE_APP_P_H
 
 #include <thread>
 #include <queue>

@@ -39,10 +39,10 @@ enum{
 	PIXWM_MLOGICAL_DATA,
 };
 
-typedef struct ITpFloatSize{
+typedef struct ItpFloatSize{
 	tpFloat w;
 	tpFloat h;
-}ITpFloatSize;
+}ItpFloatSize;
 
 TP_DEF_VOID_TYPE_VAR(IPiShare);
 
@@ -89,7 +89,7 @@ extern DECLSPEC struct PiPoint STDCALL rsshare_read_position(IPiShare *share, tp
 extern DECLSPEC struct PiSize STDCALL rsshare_read_display(IPiShare *share, tpBool islogicalMode);
 
 /**read metrics for display**/
-extern DECLSPEC struct ITpFloatSize STDCALL rsshare_read_metrics(IPiShare *share, tpBool islogicalMode);
+extern DECLSPEC struct ItpFloatSize STDCALL rsshare_read_metrics(IPiShare *share, tpBool islogicalMode);
 
 /**read focus id for display function**/
 extern DECLSPEC tpInt32 STDCALL rsshare_read_focus(IPiShare *share, tpBool islogicalMode);

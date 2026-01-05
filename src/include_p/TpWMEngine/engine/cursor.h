@@ -12,6 +12,29 @@ const uint32_t pixwm_cursor_Gmask = 0x0000FF00;
 const uint32_t pixwm_cursor_Bmask = 0x00FF0000;
 const uint32_t pixwm_cursor_Amask = 0xFF000000;
 
+static char *hand_xpm[] = {
+    "16 16 2 1",
+    " 	c None",
+    "X	c #FFFFFF",
+    "                ",
+    "                ",
+    "                ",
+    "     XXXXXX     ",
+    "   XXXXXXXXXX   ",
+    "  XXXXXXXXXXXX  ",
+    " XXXXXXXXXXXXXX ",
+    "XXXXXXXXXXXXXXX ",
+    "XXXXXXXXXXXXXXX ",
+    "XXXXXXXXXXXXXXX ",
+    " XXXXXXXXXXXXXX ",
+    "  XXXXXXXXXXXX  ",
+    "   XXXXXXXXXXX  ",
+    "    XXXXXXXXXX  ",
+    "     XXXXXXX    ",
+    "      XXXXX     ",
+    "       XXX      ",
+    NULL};
+
 const uint8_t pixwm_cursor[] = {
     0x17, 0x18, 0x18, 0xBD, 0x3E, 0x3F, 0x3E, 0x9E, 0x18, 0x18, 0x18, 0x59, 
     0x00, 0x00, 0x00, 0x1B, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 
