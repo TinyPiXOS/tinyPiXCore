@@ -14,6 +14,7 @@
 #include "SecretKey.h"
 #include "AppManage/AppmUtils.h"
 #include "tools/utilslib.h"
+#include "AppManage/evp_ext.h"
 
 #define KEY_FILE_PATH "/etc/tpssl/tpappkey.bin"
 #define PASSPHRASE "tpAppManagerBinPassphrase"
@@ -70,7 +71,7 @@ int store_encrypted_key(const char *file_path, const unsigned char *raw_key, con
         return -1;
     }
 
-    int cipher_len = KEY_LEN + EVP_CIPHER_CTX_block_size(ctx); // 3.3版本的openssl使用EVP_CIPHER_CTX_get_block_size
+    int cipher_len = KEY_LEN + EVP_CIPHER_CTX_get_block_size(ctx); // 3.3版本的openssl使用EVP_CIPHER_CTX_get_block_size
 
     unsigned char *ciphertext = static_cast<unsigned char *>(malloc(cipher_len));
     int out_len1, out_len2;
