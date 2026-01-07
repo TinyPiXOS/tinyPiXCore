@@ -27,6 +27,7 @@ include_directories(${SOURCE_PATH}/src_p/TpService/ServiceRPC)
 # 指定依赖动态库目录
 if(CMAKE_CROSSCOMPILING)
     link_directories("${LOAD_SDK_LIB_PATH}")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath-link,${LOAD_SDK_LIB_PATH}")
 else()
     link_directories("/usr/lib")
 endif()

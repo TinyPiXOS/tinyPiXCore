@@ -57,8 +57,6 @@
             "hidden": true,
             "cacheVariables": {
                 "CMAKE_SYSTEM_NAME": "Linux",
-                "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
-                "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++",
                 "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
                 "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
                 "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",

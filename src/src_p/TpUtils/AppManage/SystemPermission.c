@@ -14,7 +14,6 @@
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
-#include <crypt.h>
 #include <time.h>
 
 #include "SystemPermission.h"

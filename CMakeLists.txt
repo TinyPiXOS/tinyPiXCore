@@ -1,4 +1,21 @@
 cmake_minimum_required(VERSION 3.20.0)
+# ================== 交叉编译 sysroot 注入（最早期） ==================
+# if(CMAKE_CROSSCOMPILING)
+#     if(DEFINED ARM_SDK_PATH)
+#         get_filename_component(_ARM_SDK_PATH "${ARM_SDK_PATH}" ABSOLUTE)
+
+#         # 注意这里不要设置 CMAKE_SYSROOT
+#         # set(CMAKE_SYSROOT "${_ARM_SDK_PATH}" CACHE PATH "Cross compile sysroot" FORCE)
+
+#         # 只在 CMake 查找库时使用
+#         list(APPEND CMAKE_PREFIX_PATH "${_ARM_SDK_PATH}")
+
+#         message(STATUS "Using ARM SDK path for library search: ${_ARM_SDK_PATH}")
+#     else()
+#         message(FATAL_ERROR "ARM_SDK_PATH is required for cross compiling")
+#     endif()
+# endif()
+# =====================================================================
 project(TinyPiXOS VERSION 1.0.0 LANGUAGES C CXX)
 
 option(BUILD_TP_DESKTOP "构建桌面应用程序" ON)

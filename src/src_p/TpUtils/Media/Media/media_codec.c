@@ -440,6 +440,23 @@ static AVCodecContext *media_get_decodec_context(AVFormatContext *format_ctx, in
 		goto FREE;
 	}
 	avcodec_parameters_to_context(mediaCodecContext, format_ctx->streams[index]->codecpar);
+    
+	// 如果通道布局为0，根据通道数设置默认布局
+    if (mediaCodecContext->channel_layout == 0) {
+        if (mediaCodecContext->channels > 0) {
+            // 使用通道数计算默认布局
+            mediaCodecContext->channel_layout = 
+                av_get_default_channel_layout(mediaCodecContext->channels);
+            printf("[Debug] 自动设置通道布局: 0x%lx (基于 %d 通道)\n", 
+                   mediaCodecContext->channel_layout, 
+                   mediaCodecContext->channels);
+        } else {
+            // 如果连通道数都没有，使用立体声
+            mediaCodecContext->channel_layout = AV_CH_LAYOUT_STEREO;
+            mediaCodecContext->channels = 2;
+            printf("[Warning] 无法确定通道布局，使用默认立体声\n");
+        }
+    }
 
 	// Find the decoder
 	mediaCodec = avcodec_find_decoder(mediaCodecContext->codec_id);		//AVCodec *videoCodec
@@ -460,7 +477,7 @@ FREE:
 }
 
 
-//url:
+//url:媒体文件路径或网络流地址
 //media_array:MediaStreamParams类型的动态数组
 static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *media_array)
 {
@@ -480,6 +497,7 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
 			case AVMEDIA_TYPE_VIDEO:   		// 视频流
         	case AVMEDIA_TYPE_AUDIO:   		// 音频流
 			{
+				debug_printf("[Debug]: 找到流类型:%d 索引:%d\n",format_ctx->streams[i]->codecpar->codec_type,i);
 				AVCodecContext *codec_ctx=media_get_decodec_context(format_ctx,i);
 				if(!codec_ctx)
 					break;
@@ -776,6 +794,7 @@ static void *thread_video_codec(void *param)
 
 static void *thread_audio_codec(void *param)
 {
+	debug_printf("音频线程开始\n");
 	struct ThreadData *data=(struct ThreadData *) param;
 	struct TimerHandle *sys_clock=data->clock;
 	struct MediaThread *audio_t=data->thread;
@@ -784,13 +803,18 @@ static void *thread_audio_codec(void *param)
 	struct MediaUserParams *user=data->user;
 	
 	CallbackAudioPlay callback=user->audio_params->get_callback_audio(user->audio_params);
+	debug_printf("audio thread debug:callback ptr:%p\n",callback);
 	AVFrame *frame_s = av_frame_alloc();	//原始的侦数据(直接从文件中解码出来的)
 	if(frame_s == NULL) {
 		data->err_code=-1;
 		return &data->err_code;
 	}
-	
+	debug_printf("audio thread debug:frame_s ptr:%p\n",frame_s);
+	debug_printf("audio thread debug:stream ptr:%p\n",stream);
 	int audioStreamIndex = stream->stream_index;
+	debug_printf("audio thread debug:audio stream index:%d\n",audioStreamIndex);
+	debug_printf("audio thread debug:format_ctx ptr:%p\n",stream->format_ctx);
+	debug_printf("audio thread debug:streams ptr:%p\n",stream->format_ctx->streams);
 	AVStream* audioStream = stream->format_ctx->streams[audioStreamIndex];	//流参数
 
 	// 分配音频缓冲区
@@ -800,8 +824,10 @@ static void *thread_audio_codec(void *param)
 //	debug_printf("channel:%d\n",audio->codec_ctx->channels);
 
 	data->err_code=1;
+	debug_printf("audio thread debug:开始播放音频,MEDIA_STATE_PLAYING\n");
 	audio_t->set_state(audio_t,MEDIA_STATE_PLAYING);
 	AVPacket *packet;
+	debug_printf("audio thread debug:开始循环解码播放\n");
 	while(audio_t->is_running(audio_t))
 	{
 		int cmd=user->command_get(user);
@@ -824,6 +850,7 @@ static void *thread_audio_codec(void *param)
 		{
 			continue;
 		}
+		debug_printf("audio thread debug:开始发送packet到解码器 ptr of packet:%p\n",packet);
 		if (media_send_packet_to_codecc(stream,audio_t, packet) < 0) {		//向解码器发送一个压缩的媒体包
 			fprintf(stderr, "Error sending packet to audio codec\n");
 			audio_t->set_state(audio_t,MEDIA_THREAD_WAITING);
@@ -832,6 +859,7 @@ static void *thread_audio_codec(void *param)
 		
 		while (media_recv_packet_from_codecc(stream, audio_t,frame_s) == 0) 
 		{
+			debug_printf("audio thread debug:recv audio frame ptr of frame_s:%p\n",frame_s);
 			//struct AudioData *audioData=(struct AudioData *)display->audio_data;
 			//debug_printf("recv audio侦数：%d\n",frame_s->nb_samples);
 			/*if (frame_s->nb_samples > max_samples) 
@@ -926,6 +954,7 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 		{
 			case AVMEDIA_TYPE_VIDEO:   		// 视频流
 			{
+				debug_printf("创建视频流线程\n");
 				thread_codec->list_max=VIDEO_MAX_QUEUE_SIZE;
 				if(thread_codec->start_thread(thread_codec,clock,thread_video_codec,stream,user,is_sync)<0)
 				{
@@ -937,6 +966,7 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 			}
         	case AVMEDIA_TYPE_AUDIO:   		// 音频流
 			{
+				debug_printf("创建音频流线程,%d,%p\n",i,stream->format_ctx);
 				thread_codec->list_max=AUDIO_MAX_QUEUE_SIZE;
 				if(thread_codec->start_thread(thread_codec,clock,thread_audio_codec,stream,user,is_sync)<0)
 				{
@@ -969,8 +999,10 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 	{
 		int wait_time=0;
 		struct MediaStreamParams *stream=stream_array->get(stream_array,i);
+		if(stream==NULL)
+			continue;
 		struct MediaThread *codec_thread=stream->codec_thread;
-		while(stream_array->get(stream_array,i) && !codec_thread->is_running(codec_thread)) 	//音频解码器未空就不创建音频解码线程
+		while(!codec_thread->is_running(codec_thread)) 	//音频解码器未空就不创建音频解码线程
 		{
 			debug_printf("wait stream thread init\n");
 			usleep(100000);		//10ms
@@ -980,10 +1012,9 @@ static int media_creat_player_thread(MediaStreamArray *stream_array,struct Timer
 				fprintf(stderr,"[Error]:threadm init timeout\n");
 				break;
 			}
-
 		}
 	}
-
+	debug_printf("所有流线程创建完毕\n");
 	return 0;
 }
 
@@ -1113,6 +1144,8 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 	struct TimerHandle *clock=player->clock;
 	int err=0;
 	int stream_num=stream_array->get_size(stream_array);
+	struct MediaStreamParams *stream=stream_array->get(stream_array,0);
+	debug_printf("ptr=%p,%p\n",format_ctx,stream->format_ctx);
 	if(media_creat_player_thread(stream_array, clock, user,player->sync_clk_stream_index)<0)
 	{
 		return -1;
@@ -1121,6 +1154,7 @@ int media_codec_play(struct MediaPlayerHandle *player,struct MediaUserParams *us
 	AVPacket packet;
 	int test=0;
 	//启动所有线程的共用同步时钟
+	debug_printf("启动同步时钟\n");
 	clock->start(player->clock);
 	Media_Set_State(user,MEDIA_STATE_PLAYING);
 	while (1) 	

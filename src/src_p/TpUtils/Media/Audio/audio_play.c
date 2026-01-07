@@ -888,6 +888,7 @@ int64_t code_get_channel_layout(int channels)
 //使用硬件配置重新设置重采样参数
 struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioSamplesParams *hard_param)
 {
+	debug_printf("使用硬件配置重新设置重采样参数\n");
 	struct SwrContext *swr_ctx = swr_alloc_set_opts(NULL,
 									code_get_channel_layout(hard_param->wChannels),
 									code_get_format(hard_param->wBitsPerSample),
@@ -896,7 +897,16 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
 									codec_ctx->sample_fmt,
 									codec_ctx->sample_rate,
 									0,
-									NULL);	
+									NULL);
+	//打印重设的前后参数
+	debug_printf("重采样前：channel_layout=%lld,sample_fmt=%d,sample_rate=%d\n",
+					codec_ctx->channel_layout,
+					codec_ctx->sample_fmt,
+					codec_ctx->sample_rate);
+	debug_printf("重采样后：channel_layout=%lld,sample_fmt=%d,sample_rate=%d\n",
+					code_get_channel_layout(hard_param->wChannels),
+					code_get_format(hard_param->wBitsPerSample),
+					hard_param->nSamplesPersec);						
 	return swr_ctx;
 }
 

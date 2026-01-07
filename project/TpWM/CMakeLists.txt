@@ -33,6 +33,7 @@ target_compile_definitions(TpWM PRIVATE TP_USE_SDL2 ENABLE_LOGO)
 # 指定依赖动态库目录
 if(CMAKE_CROSSCOMPILING)
     link_directories("${LOAD_SDK_LIB_PATH}")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath-link,${LOAD_SDK_LIB_PATH}")
 else()
     link_directories("/usr/lib")
 endif()
@@ -41,6 +42,7 @@ LoadSDKLibrary(SDL2_LIBRARY SDL2)
 
 # 库链接到可执行目标
 target_link_libraries(TpWM
+	m
     pthread
     ${SDL2_LIBRARY}
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
