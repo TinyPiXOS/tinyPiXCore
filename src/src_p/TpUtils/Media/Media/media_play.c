@@ -111,16 +111,13 @@ int media_player_codec_file(struct MediaUserParams *user,const char *filename)
 
 	struct MediaStreamParams *stream0=player->stream_array->get(player->stream_array,0);
 	player->format_ctx = stream0->format_ctx;
-	debug_printf("[Debug]: 获取文件信息成功,%p\n",player->format_ctx);
+	
 	//设置时长
 	debug_printf("[Debug]: Media_Set_Length\n");
 	Media_Set_Length(user,media_get_url_duration_sec(mediaFormat));
 	debug_printf("[Debug]: 初始化对应硬件\n");
 	media_stream_all_init_handle(player,user);		//初始化对应硬件
 	debug_printf("[Debug]: 解码并播放\n");
-	struct MediaStreamParams *stream=player->stream_array->get(player->stream_array,0);
-	debug_printf("ptr=%p,%p\n",player->format_ctx,stream->format_ctx);
-	debug_printf("[Debug]: 获取文件信息成功,%p\n",player->format_ctx);
 	Mediao_File_Codec_Play(player,user);
 	media_stream_all_deinit_handle(player->stream_array);
 	Media_Free_File(player->stream_array);
