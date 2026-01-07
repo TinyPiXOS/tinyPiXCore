@@ -9,6 +9,7 @@ extern "C" {
 #include <stdbool.h>
 #include <pthread.h>
 #include <libavformat/avformat.h>
+#include <libavutil/opt.h>
 #include <libavutil/time.h>
 #include "Media/media_config.h"
 #include "Media/media_file_list.h"

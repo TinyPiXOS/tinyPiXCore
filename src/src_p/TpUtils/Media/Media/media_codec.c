@@ -447,7 +447,7 @@ static AVCodecContext *media_get_decodec_context(AVFormatContext *format_ctx, in
             // 使用通道数计算默认布局
             mediaCodecContext->channel_layout = 
                 av_get_default_channel_layout(mediaCodecContext->channels);
-            printf("[Debug] 自动设置通道布局: 0x%lx (基于 %d 通道)\n", 
+            printf("[Debug] 自动设置通道布局: 0x%llx (基于 %d 通道)\n", 
                    mediaCodecContext->channel_layout, 
                    mediaCodecContext->channels);
         } else {

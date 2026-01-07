@@ -885,11 +885,11 @@ int64_t code_get_channel_layout(int channels)
 	return channel_layout;
 }
 
-//使用硬件配置重新设置重采样参数
+//使用硬件配置重新设置ffmpeg音频重采样参数
 struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct AudioSamplesParams *hard_param)
 {
 	debug_printf("使用硬件配置重新设置重采样参数\n");
-	struct SwrContext *swr_ctx = swr_alloc_set_opts(NULL,
+/*	struct SwrContext *swr_ctx = swr_alloc_set_opts(NULL,
 									code_get_channel_layout(hard_param->wChannels),
 									code_get_format(hard_param->wBitsPerSample),
 									hard_param->nSamplesPersec,
@@ -897,16 +897,114 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
 									codec_ctx->sample_fmt,
 									codec_ctx->sample_rate,
 									0,
-									NULL);
+									NULL);*/				
+    
+    if (!codec_ctx)
+        return NULL;
+    
+    // 获取输入参数
+    int64_t in_ch_layout = codec_ctx->channel_layout;
+    enum AVSampleFormat in_sample_fmt = codec_ctx->sample_fmt;
+    int in_sample_rate = codec_ctx->sample_rate;
+    int in_channels = codec_ctx->channels;
+    
+    // 验证输入参数
+    if (in_sample_rate <= 0) {
+        fprintf(stderr, "错误: 无效的采样率: %d\n", in_sample_rate);
+        return NULL;
+    }
+    
+    if (in_channels <= 0) {
+        fprintf(stderr, "错误: 无效的通道数: %d\n", in_channels);
+        return NULL;
+    }
+    
+    // 如果通道布局为0，尝试修复
+    if (in_ch_layout == 0) {
+        printf("注意: 通道布局为0，尝试自动修复...\n");
+        
+        if (in_channels > 0) {
+            in_ch_layout = av_get_default_channel_layout(in_channels);
+            if (in_ch_layout == 0) {
+                fprintf(stderr, "错误: 无法获取通道 %d 的默认布局\n", in_channels);
+                // 使用一些常见布局
+                switch (in_channels) {
+                    case 1: in_ch_layout = AV_CH_LAYOUT_MONO; break;
+                    case 2: in_ch_layout = AV_CH_LAYOUT_STEREO; break;
+                    case 6: in_ch_layout = AV_CH_LAYOUT_5POINT1; break;
+                    case 8: in_ch_layout = AV_CH_LAYOUT_7POINT1; break;
+                    default:
+                        // 生成自定义布局
+                        for (int i = 0; i < in_channels; i++) {
+                            in_ch_layout |= 1 << i;
+                        }
+                        printf("警告: 使用自定义通道布局: %lld\n", in_ch_layout);
+                        break;
+                }
+            }
+            printf("设置通道布局为: %lld\n", in_ch_layout);
+        } else {
+            fprintf(stderr, "错误: 通道数无效，无法确定布局\n");
+            return NULL;
+        }
+    }
+    
+    // 设置输出参数（可根据需求修改）
+    int64_t out_ch_layout = code_get_channel_layout(hard_param->wChannels);
+    enum AVSampleFormat out_sample_fmt = code_get_format(hard_param->wBitsPerSample);  
+    int out_sample_rate = hard_param->nSamplesPersec;
+    
+    // 创建重采样器
+	SwrContext *swr_ctx = swr_alloc_set_opts(NULL,
+        out_ch_layout,
+        out_sample_fmt,
+        out_sample_rate,
+        in_ch_layout,
+        in_sample_fmt,
+        in_sample_rate,
+        0, NULL);
+
+	if(!swr_ctx) {
+		fprintf(stderr, "错误: 无法分配重采样上下文\n");
+		return NULL;
+	}
+
 	//打印重设的前后参数
-	debug_printf("重采样前：channel_layout=%lld,sample_fmt=%d,sample_rate=%d\n",
-					codec_ctx->channel_layout,
-					codec_ctx->sample_fmt,
-					codec_ctx->sample_rate);
-	debug_printf("重采样后：channel_layout=%lld,sample_fmt=%d,sample_rate=%d\n",
-					code_get_channel_layout(hard_param->wChannels),
-					code_get_format(hard_param->wBitsPerSample),
-					hard_param->nSamplesPersec);						
+	debug_printf("重采样前参数: ch_layout=%ld, sample_fmt=%d, sample_rate=%d\n", in_ch_layout, in_sample_fmt, in_sample_rate);
+	debug_printf("重采样后参数: ch_layout=%ld, sample_fmt=%d, sample_rate=%d\n", out_ch_layout, out_sample_fmt, out_sample_rate);
+
+
+	int ret = swr_init(swr_ctx);
+    if (ret < 0) {
+        char errbuf[256];
+        av_strerror(ret, errbuf, sizeof(errbuf));
+        fprintf(stderr, "重采样器初始化失败: %s (错误码: %d)\n", errbuf, ret);
+        
+        // 尝试通过 av_opt_set 方式初始化
+        fprintf(stderr, "尝试替代方法初始化...\n");
+        swr_free(&swr_ctx);
+        swr_ctx = swr_alloc();
+        
+        if (swr_ctx) {
+            av_opt_set_int(swr_ctx, "in_channel_layout", in_ch_layout, 0);
+            av_opt_set_int(swr_ctx, "in_sample_fmt", in_sample_fmt, 0);
+            av_opt_set_int(swr_ctx, "in_sample_rate", in_sample_rate, 0);
+            av_opt_set_int(swr_ctx, "out_channel_layout", out_ch_layout, 0);
+            av_opt_set_int(swr_ctx, "out_sample_fmt", out_sample_fmt, 0);
+            av_opt_set_int(swr_ctx, "out_sample_rate", out_sample_rate, 0);
+            
+            ret = swr_init(swr_ctx);
+            if (ret < 0) {
+                av_strerror(ret, errbuf, sizeof(errbuf));
+                fprintf(stderr, "替代方法也失败: %s\n", errbuf);
+                swr_free(&swr_ctx);
+                return NULL;
+            }
+        } else {
+            return NULL;
+        }
+    }
+	
 	return swr_ctx;
 }
 
@@ -970,9 +1068,7 @@ static int callback_codec_play(uint8_t *buff,uint32_t frames,int offset,void *pa
 int media_audio_play_callback_init(struct MediaUserParams *user)
 {
 
-
 }
-
 
 //声卡硬件初始化(使用解码器的参数自动设置)
 int media_audio_hard_auto_init(struct MediaAudioHandle *pcm_play,struct MediaUserParams *user,struct MediaStreamParams *audio)
@@ -1051,11 +1147,9 @@ int media_stream_audio_init_handle(struct MediaStreamParams *audio,struct MediaU
 		return -1;
 	debug_printf("[Debug]: media_audio_hard_auto_init ok\n");
 	struct SwrContext *swrContext=swr_set_with_hard_param(codec_ctx,pcm_play->adparams);
-    if (!swrContext || swr_init(swrContext) < 0) {
+    if (!swrContext ) {
 		perror("Could not initialize resampler");
 		fprintf(stderr, "Could not initialize resampler\n");
-		avcodec_free_context(&codec_ctx);
-		avformat_close_input(&audio->format_ctx);
         return -1;
     }
 
