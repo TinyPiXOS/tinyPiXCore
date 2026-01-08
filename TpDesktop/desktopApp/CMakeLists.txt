@@ -88,6 +88,35 @@ LoadSDKLibrary(WEBP_LIBRARY webp)
 LoadSDKLibrary(PNG_LIBRARY png)
 #LoadSDKLibrary(GOMP_LIBRARY gomp)
 
+if(CMAKE_CROSSCOMPILING)
+    # 优先使用外部传入的 ARM_SDK_PATH（cmake -DARM_SDK_PATH=...）
+    if(DEFINED ARM_SDK_PATH)
+        set(_TP_SYSROOT "${ARM_SDK_PATH}")
+    elseif(DEFINED SDK_PATH)
+        set(_TP_SYSROOT "${SDK_PATH}")
+    elseif(DEFINED LOAD_SDK_LIB_PATH)
+        # 如果只有 LOAD_SDK_LIB_PATH（可能是 ".../lib"），尝试回退到上层目录作为 sysroot
+        get_filename_component(_TP_SYSROOT "${LOAD_SDK_LIB_PATH}" PATH)
+    else()
+        message(WARNING "没有找到 ARM sysroot 路径变量 (ARM_SDK_PATH / SDK_PATH / LOAD_SDK_LIB_PATH)")
+    endif()
+
+    if(DEFINED _TP_SYSROOT AND EXISTS "${_TP_SYSROOT}/lib")
+        message(STATUS "TpDesktop: using sysroot lib dir: ${_TP_SYSROOT}/lib")
+
+        # 确保 linker 能找到并在解析 DT_NEEDED 时搜索这个目录
+        # 1) 把该目录加入 link search path（等价 -L）
+        target_link_directories(TpDesktop PRIVATE "${_TP_SYSROOT}/lib")
+
+        # 2) 告诉 linker 在解析已链接的 shared objects 的 NEEDED 时，也去这个目录查找（等价 -Wl,-rpath-link=...）
+        target_link_options(TpDesktop PRIVATE
+            "-Wl,-rpath-link,${_TP_SYSROOT}/lib"
+        )
+    else()
+        message(WARNING "TpDesktop: sysroot lib dir not found: ${_TP_SYSROOT}/lib")
+    endif()
+endif()
+
 # 将pthread库链接到可执行目标
 target_link_libraries(TpDesktop
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
