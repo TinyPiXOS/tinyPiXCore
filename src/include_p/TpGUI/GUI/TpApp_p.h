@@ -50,7 +50,7 @@ static void DownUpdateCommand(std::queue<UpdateCommand> &updateCommandQueue)
         UpdateCommand task = updateCommandQueue.front();
         updateCommandQueue.pop();
 
-        if (task.updateObj->objectType() == Tp::TP_FLOAT_OBJECT ||
+        if (/*task.updateObj->objectType() == Tp::TP_FLOAT_OBJECT ||*/
             task.updateObj->objectType() == Tp::TP_FIXSCREEN_OBJECT ||
             task.updateObj->objectType() == Tp::TP_MAIN_WINDOW_OBJECT)
         {

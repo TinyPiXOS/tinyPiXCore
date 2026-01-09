@@ -9,15 +9,22 @@
 #include "TpApp.h"
 #include "TpScreen_p.h"
 #include "TpApp_def.h"
+#include "TpApp_p.h"
 
 struct TpDialogData
 {
     // 遮罩窗体，模态显示时用于遮罩屏幕
     TpWidget *maskWidget = nullptr;
+
+    // 鼠标点击坐标
+    TpPoint originPoint; // 窗口原始坐标
+    TpPoint pressPoint;
+
+    bool beMoved = false;
 };
 
 TpDialog::TpDialog(const char *type)
-    : TpScreen(type)
+    : TpWidget(TpApp::Inst()->mainWindow())
 {
     TpDialogData *dialogData = new TpDialogData();
 
@@ -28,13 +35,6 @@ TpDialog::TpDialog(const char *type)
     dialogData->maskWidget->setVisible(false);
 
     data_ = dialogData;
-
-    TpApp::Inst()->sendRegister(this);
-
-    if (this->objectType() != Tp::TP_FLOAT_OBJECT)
-    {
-        TpApp::Inst()->sendDelete(this);
-    }
 
     TpObjectData *set = (TpObjectData *)TpObject::objectSets();
     set->top = this->topObject();
@@ -93,7 +93,64 @@ void TpDialog::setVisible(bool visible)
     if (dialogData->maskWidget && (visible == false))
         dialogData->maskWidget->setVisible(false);
 
-    TpScreen::setVisible(visible);
+    TpWidget::setVisible(visible);
+}
+
+void TpDialog::setBeMoved(bool moved)
+{
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    dialogData->beMoved = moved;
+}
+
+bool TpDialog::moved()
+{
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    return dialogData->beMoved;
+}
+
+bool TpDialog::onMousePressEvent(TpMouseEvent *event)
+{
+    TpWidget::onMousePressEvent(event);
+
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (dialogData->beMoved)
+    {
+        dialogData->originPoint = pos();
+        dialogData->pressPoint = event->globalPos();
+        // std::cout << "TpDialog::onMousePressEvent: " << dialogData->pressPoint.x() << ", " << dialogData->pressPoint.y() << std::endl;
+    }
+
+    return true;
+}
+
+bool TpDialog::onMouseRleaseEvent(TpMouseEvent *event)
+{
+    TpWidget::onMouseRleaseEvent(event);
+
+    return true;
+}
+
+bool TpDialog::onMouseMoveEvent(TpMouseEvent *event)
+{
+    TpWidget::onMouseMoveEvent(event);
+
+    TpDialogData *dialogData = static_cast<TpDialogData *>(data_);
+    if (event->state() && dialogData->beMoved)
+    {
+        TpPoint movePoint = event->globalPos();
+        TpPoint curPoint = dialogData->originPoint + (movePoint - dialogData->pressPoint);
+
+        // std::cout << "TpDialog::onMouseMoveEvent: " << movePoint.x() << ", " << movePoint.y() << " --> " << curPoint.x() << ", " << curPoint.y() << std::endl;
+        move(curPoint.x(), curPoint.y());
+    }
+
+    return true;
+}
+
+bool TpDialog::onPaintEvent(TpPaintEvent *event)
+{
+    TpWidget::onPaintEvent(event);
+    return true;
 }
 
 Tp::TpObjectType TpDialog::objectType()

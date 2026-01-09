@@ -216,7 +216,7 @@ static void changeXY(TpWidget *thisPtr, TpWidgetData *widgetData, int32_t x, int
     // 调整整个scene的坐标
     if (widgetData->tvgScene)
     {
-        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
+        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT /*&& thisPtr->objectType() != Tp::TP_FLOAT_OBJECT*/)
         {
             widgetData->tvgScene->translate(x, y);
 
@@ -290,7 +290,7 @@ static void changeWidth(TpWidget *thisPtr, TpWidgetData *widgetData, const uint3
     // 限制scene区域
     if (widgetData->tvgScene)
     {
-        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
+        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT /*&& thisPtr->objectType() != Tp::TP_FLOAT_OBJECT*/)
         {
             // 获取Scene的变换矩阵
             tvg::Matrix matrix = widgetData->tvgScene->transform();
@@ -376,7 +376,7 @@ static void changeHeight(TpWidget *thisPtr, TpWidgetData *widgetData, const uint
     // 限制scene区域
     if (widgetData->tvgScene)
     {
-        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT && thisPtr->objectType() != Tp::TP_FLOAT_OBJECT)
+        if (thisPtr->objectType() != Tp::TP_MAIN_WINDOW_OBJECT /*&& thisPtr->objectType() != Tp::TP_FLOAT_OBJECT*/)
         {
             // 获取Scene的变换矩阵
             tvg::Matrix matrix = widgetData->tvgScene->transform();

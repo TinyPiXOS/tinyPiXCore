@@ -1,11 +1,11 @@
 #ifndef __TP_DIALOG_H
 #define __TP_DIALOG_H
 
-#include "TpScreen.h"
+#include "TpWidget.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpDialogData);
 class TpDialog
-    : public TpScreen
+    : public TpWidget
 {
 public:
     TpDialog(const char *type = "tinyPiX_USE_Float");
@@ -22,6 +22,16 @@ public:
     /// @brief 设置窗口显隐
     /// @param visible true显示，false隐藏
     virtual void setVisible(bool visible = true) override;
+
+public:
+    virtual void setBeMoved(bool moved = false);
+    virtual bool moved();
+
+    virtual bool onMousePressEvent(TpMouseEvent *event) override;
+    virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
+    virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
+
+    virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 public:
     virtual Tp::TpObjectType objectType() final;

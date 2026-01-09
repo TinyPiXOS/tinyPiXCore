@@ -222,7 +222,7 @@ TpObject *TpObject::topObject()
 
     Tp::TpObjectType type = objectType();
 
-    if (type == Tp::TP_FIXSCREEN_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FLOAT_OBJECT)
+    if (type == Tp::TP_FIXSCREEN_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT /*|| type == Tp::TP_FLOAT_OBJECT*/)
     {
         set->top = this;
     }
@@ -235,7 +235,7 @@ TpObject *TpObject::topObject()
             {
                 Tp::TpObjectType type = pParent->objectType();
 
-                if (type == Tp::TP_FIXSCREEN_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT || type == Tp::TP_FLOAT_OBJECT)
+                if (type == Tp::TP_FIXSCREEN_OBJECT || type == Tp::TP_MAIN_WINDOW_OBJECT /*|| type == Tp::TP_FLOAT_OBJECT*/)
                 {
                     set->top = pParent;
                     break;

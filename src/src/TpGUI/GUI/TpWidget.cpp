@@ -461,7 +461,7 @@ void TpWidget::move(int32_t x, int32_t y)
         return;
 
     changeXY(this, widgetData, x, y);
-    // update();
+    update();
 }
 
 const TpPoint TpWidget::pos()
@@ -1087,15 +1087,15 @@ bool TpWidget::onPaintEvent(TpPaintEvent *event)
 
     if (widgetData->enableColor)
     {
-        if (objectType() == Tp::TP_FLOAT_OBJECT)
-        {
-            int curAlpha = _A(curCssData->backgroundColor());
-            curAlpha *= windowOpacity();
-            if ((curAlpha & 0xff) != 0xff)
-            {
-                painter->erase();
-            }
-        }
+        // if (objectType() == Tp::TP_FLOAT_OBJECT)
+        // {
+        //     int curAlpha = _A(curCssData->backgroundColor());
+        //     curAlpha *= windowOpacity();
+        //     if ((curAlpha & 0xff) != 0xff)
+        //     {
+        //         painter->erase();
+        //     }
+        // }
 
         if (curCssData->backgroundColorIsGradient())
         {

@@ -544,16 +544,16 @@ static inline int32_t transferMoved(int32_t id, int32_t nx, int32_t ny, int32_t 
     input.ny = ny;
     event.construct(&input);
 
-    if (object->objectType() == Tp::TP_FLOAT_OBJECT)
-    {
-        TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
+    // if (object->objectType() == Tp::TP_FLOAT_OBJECT)
+    // {
+    //     TpWidgetData *widgetData = (TpWidgetData *)object->objectSets();
 
-        widgetData->absoluteRect.setX(nx);
-        widgetData->absoluteRect.setY(ny);
+    //     widgetData->absoluteRect.setX(nx);
+    //     widgetData->absoluteRect.setY(ny);
 
-        object->broadSetTop();
-        object->onMoveEvent(&event);
-    }
+    //     object->broadSetTop();
+    //     object->onMoveEvent(&event);
+    // }
 
     return true;
 }

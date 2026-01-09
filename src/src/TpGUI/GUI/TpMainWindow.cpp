@@ -48,6 +48,9 @@ TpMainWindow::TpMainWindow()
 
     tinyPiX_wf_set_visible(widgetData->agent, true);
     widgetData->visible = true;
+
+    // tinyPiX_wf_set_visible(widgetData->agent, false);
+    // widgetData->visible = false;
 }
 
 TpMainWindow::~TpMainWindow()
