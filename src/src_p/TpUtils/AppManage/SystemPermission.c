@@ -266,23 +266,56 @@ static int delete_user(const char *username){
 }
 
 /* 修改用户：示例修改 shell */
-static int modify_user_shell(const char *username,const char *newshell){
-    if(!username||!newshell) return EINVAL;
-    char **pl; size_t pn; int pfd=lock_and_read(PASSWD_FILE,&pl,&pn);
-    if(pfd<0) return pfd;
-    for(size_t i=0;i<pn;i++){
-        char *f[7]; char *cp=strdup(pl[i]); split(cp,f,7);
-        if(strcmp(f[0],username)==0) {
-            snprintf(cp,sizeof(cp),"%s:%s:%s:%s:%s:%s:%s\n",
-                     f[0],f[1],f[2],f[3],f[4],f[5],newshell);
-            free(pl[i]); pl[i]=strdup(cp);
+static int modify_user_shell(const char *username, const char *newshell) {
+    if (!username || !newshell) return EINVAL;
+    
+    char **pl; 
+    size_t pn; 
+    int pfd = lock_and_read(PASSWD_FILE, &pl, &pn);
+    if (pfd < 0) return pfd;
+    
+    int found = 0;
+    for (size_t i = 0; i < pn; i++) {
+        char *f[7]; 
+        char *cp = strdup(pl[i]);
+        split(cp, f, 7);
+        
+        if (strcmp(f[0], username) == 0) {
+            char *new_line = NULL;
+            // asprintf 自动分配足够的内存
+            if (asprintf(&new_line, "%s:%s:%s:%s:%s:%s:%s\n",
+                        f[0] ? f[0] : "",
+                        f[1] ? f[1] : "",
+                        f[2] ? f[2] : "",
+                        f[3] ? f[3] : "",
+                        f[4] ? f[4] : "",
+                        f[5] ? f[5] : "",
+                        newshell) < 0) {
+                free(cp);
+                continue;  // 内存不足，跳过
+            }
+            
+            free(pl[i]);
+            pl[i] = new_line;
+            found = 1;
+            
             free(cp);
             break;
         }
         free(cp);
     }
-    int pr=write_and_unlock(pfd,pl,pn,PASSWD_FILE);
+    
+    int pr = write_and_unlock(pfd, pl, pn, PASSWD_FILE);
+    
+    // 注意：pl 中的字符串需要释放
+    for (size_t i = 0; i < pn; i++) {
+        free(pl[i]);
+    }
     free(pl);
+    
+    if (!found) {
+        return ENOENT;  // 用户未找到
+    }
     return pr;
 }
 

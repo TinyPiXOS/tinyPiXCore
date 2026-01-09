@@ -24,21 +24,22 @@ auto callback_display = [](uint8_t **data, int *linesize, uint32_t format, void 
     return 0;
 };
 
-auto callback_display_frame = [](TpVideoFrame &frame) -> int
+auto callback_display_frame = [](const TpVideoFrame &frame) -> int
 {
     char *user = (char *)frame.userdata();
     void *userdata = frame.userdata();
 
-    uint8_t *r = frame.data()[0];
-    uint8_t *g = frame.data()[1];
-    uint8_t *b = frame.data()[2];
+    // 注意：如果 data() 方法返回的是 const uint8_t**，可能需要相应的调整
+    const uint8_t *r = frame.data()[0];
+    const uint8_t *g = frame.data()[1];
+    const uint8_t *b = frame.data()[2];
+    
     printf("userdata:%s\n", user);
     for (int i = 0; i < 20; i++)
     {
         printf("%02x ", frame.data()[0][i]);
     }
     printf("\n");
-
     return 0;
 };
 /*
@@ -62,16 +63,16 @@ int example_video_play()
     media.setVideoOutput(&video);
     TpAudioOutput *audio=media.audioOutput();
     audio->setVolume(100);
-    //video.addFile("/System/data/Videos/demo.mp4");
-    // video.addFile("/home/pix/Media/hahaha.mp4");
-    // video.addFile("/home/pix/Media/gravity.mpg");
+    //media.addFile("/System/data/Videos/demo.mp4");
+    media.addFile("/home/pix/Media/demo.mp4");
+    // media.addFile("/home/pix/Media/gravity.mpg");
     media.addFile("/home/pix/Media/sintel_trailer-480p.mkv");
     media.addFile("https://gstreamer.freedesktop.org/data/media/large/gravity.mpg");
     media.addFile("https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.mkv");
 
     const char *data = "Test User Data";
     std::function<int(uint8_t **, int *, uint32_t, void *)> func = callback_display;
-    std::function<int(TpVideoFrame&)> func_ = callback_display_frame;
+    std::function<int(const TpVideoFrame&)> func_ = callback_display_frame;
     video.setDisplayFunction(func_, (void *)data);	//不需要可以直接使用video.setDisplayFunction(func_);
     media.openDevice();
     /*	video.setWindowSize(1080,720);
