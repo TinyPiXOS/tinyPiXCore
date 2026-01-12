@@ -187,6 +187,9 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     TpList<TpString> msgTextList = messageData->text.split('\n');
 
     // 标题文本起始Y坐标
+    if (msgTextList.size() > 0)
+        messageData->font->setText(msgTextList.at(0));
+
     int32_t titleStartY = (titleHeight - (msgTextList.size() * messageData->font->pixelHeight() + (msgTextList.size() - 1) * textGap)) / 2.0;
 
     // 绘制标题
