@@ -244,7 +244,7 @@ bool TpMenu::onMouseRleaseEvent(TpMouseEvent *event)
     onClicked.emit(clickIndex);
 
     close();
-
+    
     return true;
 }
 
