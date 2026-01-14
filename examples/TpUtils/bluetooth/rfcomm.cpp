@@ -3,12 +3,12 @@
 #include <iostream>
 #include "TpApp.h"
 #include "TpMainWindow.h"
-#include "TpBluetoothLocal.h"
-#include "TpBluetoothDiscovery.h"
-#include "TpBluetoothDevice.h"
-#include "TpBluetoothSocket.h"
-#include "TpBluetoothServer.h"
-#include "TpBluetoothService.h"
+#include "Bluetooth/TpBluetoothLocal.h"
+#include "Bluetooth/TpBluetoothDiscovery.h"
+#include "Bluetooth/TpBluetoothDevice.h"
+#include "Bluetooth/TpBluetoothSocket.h"
+#include "Bluetooth/TpBluetoothServer.h"
+#include "Bluetooth/TpBluetoothService.h"
 
 //扫描蓝牙
 int example_list_device(const TpString& adapter)
@@ -35,8 +35,6 @@ int example_socket_client(int32_t argc, char *argv[],const TpString& adapter)
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	 weekly
-	
 
 	tpUInt8 buff[10]="senddata\n";
 
@@ -82,9 +80,7 @@ int example_socket_server(int32_t argc, char *argv[],const TpString& adapter)
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	 weekly
 	
-
 	TpBluetoothServer bt_server(adapter,TpBluetoothService::TP_BLUET_RFCOMM_PROTOCOL);
 	bt_server.listen(TpBluetoothAddress::any(),1);
 	printf("服务端已启动\n");
@@ -122,13 +118,6 @@ int example_socket_server(int32_t argc, char *argv[],const TpString& adapter)
 
 int main(int32_t argc, char *argv[])
 {
-	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::allDevice();
-	for(auto &it:adapter_list)
-	{
-		std::cout << "name=" << it.name() << std::endl;
-		std::cout << "addr=" << it.address().toString() << std::endl ;
-		std::cout << std::endl;
-	}
 	printf("蓝牙客户端/服务端收发数据测试\n");
 	example_socket_client(argc,argv,TpString("hci0"));
 //	example_socket_server(argc,argv,TpString("hci1"));

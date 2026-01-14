@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include "TpApp.h"
 #include "TpMainWindow.h"
-#include "TpBluetoothServiceDiscovery.h"
-#include "TpBluetoothService.h"
-#include "TpBluetoothUuid.h"
-#include "TpBluetoothLocal.h"
+#include "Bluetooth/TpBluetoothServiceDiscovery.h"
+#include "Bluetooth/TpBluetoothService.h"
+#include "Bluetooth/TpBluetoothUuid.h"
+#include "Bluetooth/TpBluetoothLocal.h"
 
 
 //获取蓝牙适配器的uuid列表
@@ -443,7 +443,6 @@ int main(int argc,char *argv[])
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	 weekly
 	
 //	example_service();
 //	testServiceDescriptorPrinting();

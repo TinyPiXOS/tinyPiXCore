@@ -1,11 +1,10 @@
 //obex发送/接收测试程序
 #include <iostream>
-#include "TpBluetoothLocal.h"
-#include "TpBluetoothDiscovery.h"
-#include "TpBluetoothDevice.h"
-#include "TpBluetoothTransfer.h"
-#include "TpBluetoothTransferAgent.h"
-
+#include "Bluetooth/TpBluetoothLocal.h"
+#include "Bluetooth/TpBluetoothDiscovery.h"
+#include "Bluetooth/TpBluetoothDevice.h"
+#include "Bluetooth/TpBluetoothTransfer.h"
+#include "Bluetooth/TpBluetoothTransferAgent.h"
 int example_obex_send()
 {
 	TpBluetoothTransfer obex;

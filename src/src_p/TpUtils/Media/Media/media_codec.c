@@ -599,7 +599,7 @@ static void *thread_video_codec(void *param)
 	int videoStreamIndex = stream->stream_index;		//流索引
 	AVStream* videoStream = stream->format_ctx->streams[videoStreamIndex];	//流参数
 
-	enum AVPixelFormat pix_fmt_dest = stream->video.format;					//需要的转换后的格式
+	enum AVPixelFormat pix_fmt_dest = AV_PIX_FMT_RGB24;//stream->video.format;					//需要的转换后的格式
 	enum AVPixelFormat pix_fmt_sour=stream->codec_ctx->pix_fmt;				//视频原始的格式
 	
 	struct VideoStreamParams show_param_l,show_param;		//视频参数(宽高亮度等)		
@@ -623,7 +623,6 @@ static void *thread_video_codec(void *param)
 #endif
 	while(video_t->is_running(video_t))
 	{
-
 		//printf("sizeof list %d,time:%ld\n",video_t->list.size ,sys_clock->get_run_time(sys_clock));
 		int cmd=user->command_get(user);
 		switch(cmd)
@@ -651,6 +650,8 @@ static void *thread_video_codec(void *param)
 			
 
 			debug_printf("thread debug:pix_fmt_sour != pix_fmt\n");
+			if(swsContext)
+				sws_freeContext(swsContext);
 			swsContext = sws_getContext(stream->codec_ctx->width, stream->codec_ctx->height, 		//创建一个swsContext用于处理图像缩放格式转换
 										pix_fmt_sour,
 										//stream->codec_ctx->width, stream->codec_ctx->height, 
@@ -726,7 +727,7 @@ static void *thread_video_codec(void *param)
 			if (pts == AV_NOPTS_VALUE) {
 				pts = frame_s->best_effort_timestamp;		//该值无效则使用默认的值
 			}
-			
+
 			//延时一段时间
 			//float speed=Media_Get_Speed(user);
 			float speed=1.0;
@@ -744,7 +745,7 @@ static void *thread_video_codec(void *param)
 				break;
 			}
 
-			// Check if we need to convert the pixel format to RGB
+			// 图像变换及格式转换
 			if(swsContext)
 			{
 				sws_scale(swsContext, (const uint8_t * const *)frame_s->data, frame_s->linesize,  0, stream->codec_ctx->height,frame_d->data, frame_d->linesize);

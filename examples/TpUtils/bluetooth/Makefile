@@ -24,25 +24,34 @@ INC_PATH ?= -I. \
 
 #引用的库
 #LIB = -lpthread -lpcap -ltparchive
-LIB = \
-      -lTpGUI -lTpUtils -lTpCore \
-      -lwebp \
+LIB = -lTpGUI -lTpUtils -lTpCore \
+	  -lwebp \
       -lturbojpeg \
       -lpng \
       -fopenmp -lgomp \
-      -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog \
-      -lSDL2 -lgobject-2.0 -lglib-2.0 \
-      -lgbm -lGLESv2 -lEGL \
-      -ldl -lpthread
+	  -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -ldl -lpthread -lSDL2   -lgobject-2.0 -lglib-2.0   -lgbm -lGLESv2 -lEGL 
 
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标
-.PHONY:Gui#即使该目标存在也重新生成
-all:Gui clean#
+.PHONY:Audio Bluetooth Obex Rfcomm Sdp#即使该目标存在也重新生成
+all:Audio Bluetooth Obex Rfcomm Sdp clean#
 
-Gui:
-	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o Gui main.o $(LIB) $(LIB_PATH)
+Audio:
+	$(G++) $(CFLAGS) -c audio.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Audio audio.o $(LIB) $(LIB_PATH)
+Bluetooth:
+	$(G++) $(CFLAGS) -c bluetooth.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Bluetooth bluetooth.o $(LIB) $(LIB_PATH)
+Obex:
+	$(G++) $(CFLAGS) -c obex.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Obex obex.o $(LIB) $(LIB_PATH)
+Rfcomm:
+	$(G++) $(CFLAGS) -c rfcomm.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Rfcomm rfcomm.o $(LIB) $(LIB_PATH)
+Sdp:
+	$(G++) $(CFLAGS) -c sdp.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o Sdp sdp.o $(LIB) $(LIB_PATH)
 clean:
 	rm *.o
+

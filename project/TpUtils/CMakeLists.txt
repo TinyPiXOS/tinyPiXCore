@@ -247,6 +247,35 @@ else()
     link_directories("/usr/lib")
 endif()
 
+# 查找RGA库
+find_path(RGA_INCLUDE_DIR
+    NAMES rga.h im2d.h
+    PATHS
+        ${SYSTEM_INCLUDE_PATH}
+        /usr/include
+        /usr/local/include
+        /opt/rockchip/include
+)
+
+find_library(RGA_LIBRARY
+    NAMES rga
+    PATHS
+        ${SYSTEM_LIBRARY_PATH}
+        /usr/lib
+        /usr/local/lib
+        /opt/rockchip/lib
+)
+
+if (RGA_INCLUDE_DIR AND RGA_LIBRARY)
+    message(STATUS "RGA support: YES")
+    set(TP_HAVE_RGA 1)
+else()
+    message(STATUS "RGA support: NO")
+    set(TP_HAVE_RGA 0)
+endif()
+
+add_compile_definitions(TP_HAVE_RGA=${TP_HAVE_RGA})
+
 LoadSDKLibrary(SDL2_LIBRARY SDL2)
 LoadSDKLibrary(GOBJECT_LIBRARY gobject-2.0)
 LoadSDKLibrary(GLIB_LIBRARY glib-2.0)
@@ -279,6 +308,7 @@ set(OPENSSL3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libssl.a)
 set(CRYPTO3_LIB_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/libcrypto.a)
 set(ERPC_STATIC_LIB ${DEPEND_STATIC_LIB_PATH}/liberpc.a)
 
+
 target_link_libraries(TpUtils PUBLIC
     dl pthread 
     ${ERPC_STATIC_LIB}
@@ -298,3 +328,8 @@ target_link_libraries(TpUtils PUBLIC
     ${DEPEND_DYNAMIC_LIB_PATH}/libTpWMEngine.so
     ${INSTALL_PACKAGE_ROOT_PATH}/lib/libTpCore.so
 )
+
+if (TP_HAVE_RGA)
+    target_link_libraries(TpUtils PUBLIC ${RGA_LIBRARY})
+endif()
+

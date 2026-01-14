@@ -3,19 +3,20 @@
 //适配器扫描，蓝牙扫描
 
 #include <iostream>
-#include "TpBluetoothLocal.h"
-#include "TpBluetoothDiscovery.h"
-#include "TpBluetoothDevice.h"
-#include "blt_service.h"
+#include "Bluetooth/TpBluetoothHostInfo.h"
+#include "Bluetooth/TpBluetoothLocal.h"
+#include "Bluetooth/TpBluetoothDiscovery.h"
+#include "Bluetooth/TpBluetoothDevice.h"
+//#include "blt_service.h"
 
 //本地蓝牙设备获取
 int example_list_adapter()
 {
-	TpList<TpBluetoothLocal> adapter_list=TpBluetoothLocal::allDevice();
+	TpList<tpShared<TpBluetoothHostInfo>> adapter_list=TpBluetoothLocal::allDevice();
 	for(auto &it:adapter_list)
 	{
-		std::cout << "name=" << it.name() << std::endl;
-		std::cout << "addr=" << it.address().toString() << std::endl ;
+		std::cout << "name=" << it->name() << std::endl;
+		std::cout << "addr=" << it->address().toString() << std::endl ;
 		std::cout << std::endl;
 	}
 }
