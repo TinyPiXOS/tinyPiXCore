@@ -938,11 +938,11 @@ struct SwrContext *swr_set_with_hard_param(AVCodecContext *codec_ctx,struct Audi
                         for (int i = 0; i < in_channels; i++) {
                             in_ch_layout |= 1 << i;
                         }
-                        printf("警告: 使用自定义通道布局: %lld\n", in_ch_layout);
+                        printf("警告: 使用自定义通道布局: %ld\n", in_ch_layout);
                         break;
                 }
             }
-            printf("设置通道布局为: %lld\n", in_ch_layout);
+            printf("设置通道布局为: %ld\n", in_ch_layout);
         } else {
             fprintf(stderr, "错误: 通道数无效，无法确定布局\n");
             return NULL;

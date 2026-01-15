@@ -7,6 +7,7 @@
 
 
 #include "video_filters.h"
+#include "allocator/dma_alloc.h"
 #include "Media/TpVideoFormat.h"
 //#if TP_HAVE_RGA
 #include <rga/rga.h>
@@ -24,6 +25,16 @@
 #define debug_printf(fmt, ...) // 如果不定义DEBUG，什么也不做
 #endif
 
+
+static int file_exists(const char* file_name) {
+    FILE* file = fopen(file_name, "r");
+    if (file != NULL) {
+        fclose(file);
+        return true;
+    }
+
+    return false;
+}
 
 //tinypix媒体格式转换为RGA媒体格式
 static uint32_t media_pixfmt_to_rga(TpVideoFormat format)
@@ -111,12 +122,65 @@ static TpVideoFormat ffmpeg_pixfmt_to_media(enum AVPixelFormat format)
 
 
 
-//RGA申请图像缓存
-void video_rga_malloc_codec_frame()
+//智能申请内存
+//依次尝试使用DMA->DRM->CMA分配内存，失败后使用普通malloc分配内存
+struct VideoMemoryBuffer *video_smart_malloc(int size)
 {
+	struct VideoMemoryBuffer *video_buf = malloc(sizeof(struct VideoMemoryBuffer));
+	video_buf->size = size;
+	void *ptr = NULL;
+	int dma_fd;
+	
+	//1. 尝试DMA分配
+	dma_fd = dma_alloc(NULL, size, &ptr);
+	if (dma_fd >= 0) {	
+		video_buf->fd = dma_fd;
+		video_buf->ptr = ptr;
+		video_buf->type = VIDEO_MEMORY_TYPE_DMA;
+		return video_buf;
+	}
+	
+	//2.尝试DRM分配
 
+	//3.尝试CMA分配
 
+	//4.普通malloc分配
+	ptr = malloc(size);
+	if (ptr) {
+		video_buf->fd = -1;
+		video_buf->ptr = ptr;
+		video_buf->type = VIDEO_MEMORY_TYPE_NORMAL;
+		return video_buf;
+	}
+	free(video_buf);
+	return NULL;
 }
+
+void video_smart_free(struct VideoMemoryBuffer *video_buf)
+{
+	if(!video_buf) {
+		return;
+	}
+
+	switch(video_buf->type) {
+		case VIDEO_MEMORY_TYPE_DMA:
+			dma_buf_free(video_buf->size, video_buf->fd, video_buf->ptr);
+			break;
+		case VIDEO_MEMORY_TYPE_DRM:
+			break;
+		case VIDEO_MEMORY_TYPE_CMA:
+			break;
+		case VIDEO_MEMORY_TYPE_NORMAL:
+			free(video_buf->ptr);
+			break;
+		default:
+			break;
+	}
+
+	free(video_buf);
+	return 0;
+}	
+
 
 //ffmpeg申请图像缓存
 //主要用于为转码后的图像分配缓存
@@ -156,14 +220,14 @@ void video_malloc_codec_frame(int width,int height, TpVideoFormat pix_fmt,uint8_
 	video_ffmpeg_malloc_codec_frame(width, height, pix_fmt, buffer, frame_d);
 }
 
-//将AVFrame数据转换为RGA缓冲区
+//将RGB格式的AVFrame数据转换为RGA缓冲区
 static void avframe_to_rga_buffer(AVFrame *frame, struct rga_buffer_t *rga_buf)
 {
 	int rga_fmt = ffmpeg_pixfmt_to_media(media_pixfmt_to_rga(frame->format));
     if (rga_fmt < 0)
         return -1;
 
-    *rga_buf = wrapbuffer_virtualaddr_t(
+    *rga_buf = wrapbuffer_virtualaddr(
         frame->data[0],
         frame->width,
         frame->height,
@@ -173,21 +237,22 @@ static void avframe_to_rga_buffer(AVFrame *frame, struct rga_buffer_t *rga_buf)
     return 0;
 }
 
-//初始化滤镜上下文（或重新初始化）
-int video_filter_init(struct VideoFilterContext *filter_ctx, VideoFilterType type)
-{
-	
 
-
-}
-
-
-
-void video_filter_resize_crop(struct VideoFilterContext *filter_ctx,
+struct VideoFilterContext * video_filter_context_resize_crop(
 								int src_w, int src_h, TpVideoFormat src_format,
 								int dst_w, int dst_h, TpVideoFormat dst_format)
 {
-
+	struct VideoFilterContext *filter_ctx = malloc(sizeof(struct VideoFilterContext));
+	if (!filter_ctx) {
+		fprintf(stderr, "Could not allocate VideoFilterContext.\n");
+		return NULL;
+	}
+	filter_ctx->type = VIDEO_FILTER_FFMPEG;
+#ifdef TP_HAVE_RGA
+	filter_ctx->type = VIDEO_FILTER_RGA;
+#endif
+	filter_ctx->src_format = src_format;
+	filter_ctx->dst_format = dst_format;
 
 	//缩放滤镜创建
 	switch (filter_ctx->type) {
@@ -196,13 +261,33 @@ void video_filter_resize_crop(struct VideoFilterContext *filter_ctx,
 			break;
 
 		case VIDEO_FILTER_RGA:
-			
-			break;
+			rga_buffer_t *rga_buf=malloc(sizeof(rga_buffer_t));
+			rga_buffer_handle_t dst_handle;
+			int dst_buf_size = dst_w * dst_h * get_bpp_from_format(dst_format);
+			struct VideoMemoryBuffer *video_buf = video_smart_malloc(dst_buf_size);
+			if(!video_buf) {
 
+				return NULL;
+			}
+
+			if(video_buf->type == VIDEO_MEMORY_TYPE_NORMAL) {		//普通malloc
+				dst_handle = importbuffer_virtualaddr(video_buf->ptr, &(im_handle_param_t){dst_w, dst_h, dst_format});
+			}
+			else{
+				dst_handle = importbuffer_fd(video_buf->fd, &(im_handle_param_t){dst_w, dst_h, dst_format});
+			}
+			if (dst_handle == 0) {
+				printf("Failed to import CMA buffer fd for dst channel! %s\n", imStrError());
+			}
+			*rga_buf = wrapbuffer_handle(dst_handle, dst_w, dst_h, dst_format);
+			filter_ctx->filter_ctx.rga_frame_d = rga_buf;
+			break;
 		case VIDEO_FILTER_FFMPEG:
 		default:
 			// 使用ffmpeg的sws_scale进行处理
 			{
+				uint8_t *buffer = NULL;
+				AVFrame *frame_d = NULL;
 				struct SwsContext *swsContext=NULL;
 				swsContext = sws_getContext(src_w, src_h, 		//创建一个swsContext用于处理图像缩放格式转换
 							media_pixfmt_to_ffmpeg(src_format),
@@ -213,14 +298,56 @@ void video_filter_resize_crop(struct VideoFilterContext *filter_ctx,
 					fprintf(stderr, "Could not initialize SwsContext.\n");
 					return -1;
 				}
-				video_ffmpeg_malloc_codec_frame(dst_w, dst_h, media_pixfmt_to_ffmpeg(dst_format), NULL, NULL);
-				
+				if(video_ffmpeg_malloc_codec_frame(dst_w, dst_h, media_pixfmt_to_ffmpeg(dst_format), &buffer, &frame_d)<0)
+				{
+					sws_freeContext(swsContext);
+					return -1;
+				}
+				filter_ctx->filter_ctx.swsContext = swsContext;
+				filter_ctx->filter_ctx.frame_d = frame_d;
+				filter_ctx->filter_ctx.buffer = buffer;
 			}
 			break;
 	}
 
 }
 
+void video_filter_context_free(struct VideoFilterContext *filter_ctx)
+{
+	if (!filter_ctx) {
+		return;
+	}
+
+	switch (filter_ctx->type) {
+		case VIDEO_FILTER_HARDWARE:
+			// 硬件加速处理
+			break;
+
+		case VIDEO_FILTER_RGA:
+			
+			break;
+		case VIDEO_FILTER_FFMPEG:
+		default:
+			if (filter_ctx->filter_ctx.swsContext) {
+				sws_freeContext(filter_ctx->filter_ctx.swsContext);
+			}
+			if (filter_ctx->filter_ctx.frame_d) {
+				av_frame_free(&filter_ctx->filter_ctx.frame_d);
+			}
+			if (filter_ctx->filter_ctx.buffer) {
+				av_free(filter_ctx->filter_ctx.buffer);
+			}
+			break;
+	}
+
+	free(filter_ctx);
+}
+
+
+static int rga_sws_scale()
+{
+
+}
 
 
 
@@ -234,22 +361,21 @@ int video_filter_process(struct VideoFilterContext *filter_ctx, AVFrame *frame_s
 
 	case VIDEO_FILTER_RGA:
 		// RGA处理
-		rga_buffer_t src_rga_buf, dst_rga_buf;
+		rga_buffer_t src_rga_buf;
+
 		avframe_to_rga_buffer(frame_s, &src_rga_buf);
-		imresize(src_rga_buf,
-			dst_rga_buf,
-			double fx = 0,
-			double fy = 0,
-			int interpolation = INTER_LINEAR,
-			int sync = 1,
-			int *release_fence_fd = NULL);
+
+		imresize(src_rga_buf, *filter_ctx->filter_ctx.rga_frame_d);
 		break;
 	case VIDEO_FILTER_FFMPEG:
 	default:
 		// 使用ffmpeg的sws_scale进行处理
 		if(filter_ctx->filter_ctx.swsContext)
 		{
-			sws_scale(filter_ctx->filter_ctx.swsContext, (const uint8_t * const *)frame_s->data, frame_s->linesize,  0, stream->codec_ctx->height,frame_d->data, frame_d->linesize);
+
+			sws_scale(filter_ctx->filter_ctx.swsContext, (const uint8_t * const *)frame_s->data, frame_s->linesize,  
+					0, stream->codec_ctx->height,
+					filter_ctx->filter_ctx.frame_d->data, filter_ctx->filter_ctx.frame_d->linesize);
 		}
 
 		break;

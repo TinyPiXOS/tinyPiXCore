@@ -168,6 +168,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Log/src/elog_utils.c
     ${SOURCE_PATH}/src_p/TpUtils/Log/port/elog_port.c
 
+	${SOURCE_PATH}/src_p/TpUtils/allocator/dma_alloc.c
+#	${SOURCE_PATH}/src_p/TpUtils/allocator/drm_alloc.c
+
     ${SOURCE_PATH}/src/TpUtils/TpCompress.cpp
     ${SOURCE_PATH}/src/TpUtils/TpSystemBatteryInfo.cpp
 
