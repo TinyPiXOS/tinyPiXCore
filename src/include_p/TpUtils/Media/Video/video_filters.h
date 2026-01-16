@@ -17,6 +17,7 @@ extern "C"
 #include <libavutil/imgutils.h>
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
+#include "Media/TpVideoFormat.h"
 
 #define DMA_HEAP_DMA32_UNCACHED_PATH    "/dev/dma_heap/system-uncached-dma32"
 
@@ -53,17 +54,20 @@ struct RgaSwsContext{
 struct VideoFilterContext{
 	VideoFilterType type;
 
-
 	union {
 		struct{
 			struct SwsContext *swsContext;
+			int srcSliceY;
+			int srcSliceH;
 			AVFrame *frame_d;
 			uint8_t *buffer;
 		};
+#if TP_HAVE_RGA
 		struct{
-			struct RgaSwsContext *rgaSwsContext;
+			struct RgaSwsContext rgaSwsContext;
 			rga_buffer_t *rga_frame_d;
 		};
+#endif
 	}filter_ctx;		//滤镜上下文
 
 	enum AVPixelFormat src_format;	//源格式
@@ -72,6 +76,17 @@ struct VideoFilterContext{
 };
 
 
+enum AVPixelFormat media_pixfmt_to_ffmpeg(TpVideoFormat format);
+TpVideoFormat ffmpeg_pixfmt_to_media(enum AVPixelFormat format);
+
+struct VideoMemoryBuffer *video_smart_malloc(int size);
+void video_smart_free(struct VideoMemoryBuffer *video_buf);
+
+struct VideoFilterContext * video_filter_context_creat(
+								int src_w, int src_h, TpVideoFormat src_format,
+								int dst_w, int dst_h, TpVideoFormat dst_format);
+void video_filter_context_free(struct VideoFilterContext *filter_ctx);
+int video_filter_process(struct VideoFilterContext *filter_ctx, AVFrame *frame_s);
 
 #ifdef __cplusplus
 }

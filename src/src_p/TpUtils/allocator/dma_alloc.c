@@ -22,38 +22,41 @@ struct dma_heap_allocation_data {
 };
 
 const char *DmaHeapList[] = {
+	"system-uncached-dma32",
+	"system-uncached",
+	"system",
 	"linux,cma",
 	"cma",
-	"system",
-	"system-uncached",
-	"system-uncached-dma32",
 	"carveout",
-	"ion"
+	//添加更多heap名称根据需要
+	NULL
 };
 
 int dma_heap_open(const char *heap_name)
 {
     char path[256];
     int fd;
-    
-    if (!heap_name) {
-        heap_name = "linux,cma";  // 默认使用CMA heap
-    }
-    
+	
+	// 尝试打开指定的heap
     snprintf(path, sizeof(path), "%s%s", DMA_HEAP_PATH_PREFIX, heap_name);
     
     fd = open(path, O_RDWR);
     if (fd < 0) {
-        // 尝试不同的heap名称
-        if (strcmp(heap_name, "linux,cma") == 0) {
-            snprintf(path, sizeof(path), "%s%s", DMA_HEAP_PATH_PREFIX, "cma");
-            fd = open(path, O_RDWR);
-        } else if (strcmp(heap_name, "cma") == 0) {
-            snprintf(path, sizeof(path), "%s%s", DMA_HEAP_PATH_PREFIX, "linux,cma");
-            fd = open(path, O_RDWR);
-        }
+       //使用列表中的heap名称尝试打开
+	   const char **name = DmaHeapList;
+	   while (*name) {
+		   snprintf(path, sizeof(path), "%s%s", DMA_HEAP_PATH_PREFIX, *name);
+		   fd = open(path, O_RDWR);
+		   if (fd >= 0) {
+			   printf("[Debug] 使用替代DMA堆: %s\n", *name);
+			   return fd;
+		   }
+		   name++;
+		}
+	   perror("Failed to open DMA heap");
+	   return -1;
     }
-    
+
     if (fd < 0) {
         return -1;
     }

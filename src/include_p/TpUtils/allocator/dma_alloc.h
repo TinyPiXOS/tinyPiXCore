@@ -17,7 +17,7 @@
 								  
 
 int dma_alloc(const char* heap_name, size_t size, void** out_ptr);
-
+void dma_buf_free(size_t size, int dma_fd, void* ptr);
 
 
 

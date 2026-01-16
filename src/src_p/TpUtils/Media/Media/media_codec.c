@@ -5,6 +5,7 @@
 #include "Media/Video/video_display.h"
 #include "Media/Video/video_play.h"
 #include "Media/Audio/audio_play.h"
+#include "Media/Video/video_filters.h"
 
 
 #ifdef DEBUG_MEDIA_CODEC
@@ -367,37 +368,6 @@ static int thread_is_running(struct MediaThread *thread)
 	return 0;
 }
 
-
-//为转码后的图像申请帧空间
-static int malloc_codec_frame(int dst_width,int dst_height, enum AVPixelFormat pix_fmt,uint8_t **buffer, AVFrame **frame_d)
-{
-	int numBytes;
-	numBytes = av_image_get_buffer_size(pix_fmt, dst_width, dst_height, 1);		//计算需要的空间大小
-	*buffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
-	if(*buffer == NULL) {
-		return -1;
-	}
-	*frame_d = av_frame_alloc();
-	if(*frame_d == NULL) {
-		av_free(*buffer);
-		return -1;
-	}
-	if(av_image_fill_arrays((*frame_d)->data, (*frame_d)->linesize, *buffer, pix_fmt,
-							dst_width, dst_height, 1)<0)
-	{
-		av_free(*buffer);
-		av_frame_free(&(*frame_d));
-		return -1;
-	}
-	return 0;
-}
-static int free_codec_frame(uint8_t *buffer,AVFrame *frame_d)
-{
-	av_frame_free(&frame_d);
-	av_free(buffer);
-	return 0;
-}
-
 static int re_alloc_codec_context(int srcW, int srcH, enum AVPixelFormat srcFormat,
                                   int dstW, int dstH, enum AVPixelFormat dstFormat,
                                   int flags, SwsFilter *srcFilter,
@@ -418,7 +388,6 @@ static double count_media_clock_delay_time(struct MediaUserParams *user,struct T
 
 
 
-
 uint8_t media_exit_flag=0;
 struct MediaThread *Media_Thread_Creat();
 static int Media_Thread_Free(struct MediaThread *thread);
@@ -429,7 +398,57 @@ static void exit_signal(int sig)
 }
 
 
-static AVCodecContext *media_get_decodec_context(AVFormatContext *format_ctx, int index)
+struct CodecAllocCbUserData{
+	AVFrame *frame_s;
+	void *buffer;	//内存(uint8_t*) 或 连续物理内存(struct VideoMemoryBuffer*)
+};
+
+//为视频解码原始数据申请连续物理内存(由media_recv_packet_from_codecc内部调用,除此之外不允许调用),此函数暂时无法用于软解码，可能在未来硬解码版本支持
+static int video_get_buffer_from_frame(struct AVCodecContext *c, AVFrame *frame, int flags)
+{
+	int ret;
+	ret = av_frame_get_buffer(frame, 32);  // 对齐32字节
+    if (ret < 0) 
+		return ret;
+	struct CodecAllocCbUserData *frame_ctx = (struct CodecAllocCbUserData *)c->opaque;
+	if( !frame_ctx)
+		return -1;
+	if(!frame_ctx->frame_s)
+	{
+		// 第一次申请内存
+		debug_printf("video_get_buffer_from_frame: 第一次申请内存\n");
+        int buf_size = av_image_get_buffer_size(c->pix_fmt, c->width, c->height, 32);
+        struct VideoMemoryBuffer *video_buf = video_smart_malloc(buf_size);
+        if (!video_buf)
+			return AVERROR(ENOMEM);
+
+        frame_ctx->frame_s = frame;  // 绑定frame
+        int ret = av_image_fill_arrays(frame->data, frame->linesize,
+                                       video_buf->ptr,
+                                       c->pix_fmt, c->width, c->height, 32);
+        if (ret < 0) {
+            video_smart_free(video_buf);
+            video_buf = NULL;
+            return ret;
+        }
+		frame_ctx->buffer = video_buf;
+        frame->opaque = frame_ctx->buffer;
+        return 0;
+	}
+	struct VideoMemoryBuffer *video_buf = (struct VideoMemoryBuffer *)frame_ctx->buffer;
+	ret = av_image_fill_arrays(frame->data, frame->linesize,
+                                  video_buf->ptr,
+                                   c->pix_fmt, c->width, c->height, 32);
+    frame->opaque = frame_ctx->buffer;
+
+	return 0;
+}
+
+//获取解码器上下文
+//format_ctx:媒体格式上下文
+//index:流索引
+//is_auto_alloc:是否手动分配内存
+static AVCodecContext *media_get_decodec_context(AVFormatContext *format_ctx, int index, bool is_auto_alloc)
 {
 	AVCodecContext *mediaCodecContext;
 	AVCodec *mediaCodec;		//无需显式释放
@@ -465,6 +484,21 @@ static AVCodecContext *media_get_decodec_context(AVFormatContext *format_ctx, in
 		goto FREE;
 	}
 
+	//设置解码器的内存申请器为自定义的内存申请器
+	/*if(!is_auto_alloc)
+	{
+		struct CodecAllocCbUserData *user_data = (struct CodecAllocCbUserData *)malloc(sizeof(struct CodecAllocCbUserData));
+		user_data->frame_s = NULL;
+		user_data->buffer = NULL;
+		mediaCodecContext->get_buffer2 = video_get_buffer_from_frame;
+		mediaCodecContext->opaque = user_data; // 可以在这里存储自定义数据
+	}*/
+	/*else
+	{
+		mediaCodecContext->get_buffer2 = NULL;
+		mediaCodecContext->opaque = NULL;
+	}*/
+
 	// Open codec
 	if (avcodec_open2(mediaCodecContext, mediaCodec, NULL) < 0) {
 		fprintf(stderr, "Could not open codec.\n");
@@ -476,6 +510,23 @@ FREE:
 	return NULL;
 }
 
+//释放/删除解码器上下文
+static void media_free_decodec_context(AVCodecContext *codec_ctx)
+{
+	if(!codec_ctx)
+		return ;
+	/*if(codec_ctx->get_buffer2 == video_get_buffer_from_frame)
+	{
+		// 释放自定义分配的内存
+		struct CodecAllocCbUserData *frame_ctx = (struct CodecAllocCbUserData *)codec_ctx->opaque;
+		if (frame_ctx->buffer) {
+			video_smart_free(frame_ctx->buffer);
+		}
+		free(frame_ctx);
+	}*/
+
+	avcodec_free_context(&codec_ctx);
+}
 
 //url:媒体文件路径或网络流地址
 //media_array:MediaStreamParams类型的动态数组
@@ -498,7 +549,8 @@ static MediaFormatContext *media_find_codec(const char *url, MediaStreamArray *m
         	case AVMEDIA_TYPE_AUDIO:   		// 音频流
 			{
 				//debug_printf("[Debug]: 找到流类型:%d 索引:%d\n",format_ctx->streams[i]->codecpar->codec_type,i);
-				AVCodecContext *codec_ctx=media_get_decodec_context(format_ctx,i);
+				bool isvideo=(format_ctx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO);
+				AVCodecContext *codec_ctx=media_get_decodec_context(format_ctx,i,!isvideo);	//视频流需要手动分配连续物理内存
 				if(!codec_ctx)
 					break;
 				struct MediaStreamParams *stream=media_stream_params_creat();
@@ -594,8 +646,8 @@ static void *thread_video_codec(void *param)
 		data->err_code=-1;
 		return &data->err_code;
 	}
-	AVFrame *frame_d ;		//需要写入SDL的格式的数据(/可能和frame_s一致，也可能不一致，不一致的时候需要使用sws_scale转码)
-	struct SwsContext *swsContext=NULL;
+	struct VideoFilterContext *filterContext=NULL;		//图像转化上下文
+
 	int videoStreamIndex = stream->stream_index;		//流索引
 	AVStream* videoStream = stream->format_ctx->streams[videoStreamIndex];	//流参数
 
@@ -609,8 +661,7 @@ static void *thread_video_codec(void *param)
 
 	int64_t pts=0;	//帧的位置(需要解码才能知道)，可以辅助判断是否丢帧
 	int numBytes;
-	uint8_t *buffer = NULL;
-
+	
 	data->err_code=1;
 	video_t->set_state(video_t,MEDIA_STATE_PLAYING);
 	AVPacket *packet;
@@ -650,23 +701,14 @@ static void *thread_video_codec(void *param)
 			
 
 			debug_printf("thread debug:pix_fmt_sour != pix_fmt\n");
-			if(swsContext)
-				sws_freeContext(swsContext);
-			swsContext = sws_getContext(stream->codec_ctx->width, stream->codec_ctx->height, 		//创建一个swsContext用于处理图像缩放格式转换
-										pix_fmt_sour,
-										//stream->codec_ctx->width, stream->codec_ctx->height, 
+			if(filterContext)
+				video_filter_context_free(filterContext);
+			filterContext =video_filter_context_creat(stream->codec_ctx->width, stream->codec_ctx->height, 		//创建一个swsContext用于处理图像缩放格式转换
+										ffmpeg_pixfmt_to_media(pix_fmt_sour), 
 										rect_dst.w,rect_dst.h,
-										pix_fmt_dest,
-										SWS_BICUBIC, NULL, NULL, NULL);
-			if (!swsContext) {
-				fprintf(stderr, "Could not initialize SwsContext.\n");
-				data->err_code=-1;
-				return &data->err_code;
-			}
-			// 为转换后的格式申请空间
-			if(malloc_codec_frame(rect_dst.w,rect_dst.h,pix_fmt_dest,&buffer,&frame_d)<0)
-			{
-				sws_freeContext(swsContext);
+										ffmpeg_pixfmt_to_media(pix_fmt_dest));
+			if (!filterContext) {
+				fprintf(stderr, "Could not initialize VideoFilterContext.\n");
 				data->err_code=-1;
 				return &data->err_code;
 			}
@@ -746,16 +788,18 @@ static void *thread_video_codec(void *param)
 			}
 
 			// 图像变换及格式转换
-			if(swsContext)
+			if(filterContext)
 			{
-				sws_scale(swsContext, (const uint8_t * const *)frame_s->data, frame_s->linesize,  0, stream->codec_ctx->height,frame_d->data, frame_d->linesize);
+				video_filter_process(filterContext,frame_s);
+				//sws_scale(swsContext, (const uint8_t * const *)frame_s->data, frame_s->linesize,  0, stream->codec_ctx->height,frame_d->data, frame_d->linesize);
 			} 
 
 			// 显示
 			if(callback)
 			{
 				//printf("callback\n");
-				//printf("video weight size %d x %d\n", rect_dst.w, rect_dst.h);
+				AVFrame *frame_d=filterContext->filter_ctx.frame_d;
+				debug_printf("video weight size %d x %d, linsize:%d\n", rect_dst.w, rect_dst.h, frame_d->linesize[0]);
 				callback(frame_d->data,frame_d->linesize,pix_fmt_dest,&rect_dst,user->video_params->userdata);
 			}
 			else
@@ -778,10 +822,7 @@ static void *thread_video_codec(void *param)
 	if(1)
 	//if (pix_fmt_sour != pix_fmt) 
 	{
-		free_codec_frame(buffer,frame_d);
-		if (swsContext) {
-			sws_freeContext(swsContext);
-		}
+		video_filter_context_free(filterContext);
 	}  
 
 	if(frame_s)
@@ -1381,6 +1422,8 @@ MediaFormatContext *Media_Get_File_All_Info(const char *filename,MediaStreamArra
 	return media_find_codec(filename,media_array);
 }
 
+
+
 /// @brief 释放文件
 /// @param codec_v 
 /// @param codec_a 
@@ -1392,7 +1435,7 @@ int Media_Free_File(MediaStreamArray *media_array)
 	for(int i=0 ;i<size_array;i++)
 	{
 		stream =media_array->get(media_array,i);
-		avcodec_free_context(&stream->codec_ctx);
+		media_free_decodec_context(stream->codec_ctx);
 	}
 	avformat_close_input(&stream->format_ctx);		//因为是一个文件，所有流共用一个format_ctx只需释放一次
 	return 0;

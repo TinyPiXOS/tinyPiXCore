@@ -6,16 +6,16 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
 
 
-#include "video_filters.h"
+#include "Media/Video/video_filters.h"
 #include "allocator/dma_alloc.h"
 #include "Media/TpVideoFormat.h"
-//#if TP_HAVE_RGA
+#if TP_HAVE_RGA
 #include <rga/rga.h>
 #include <rga/im2d.h>
 #include <rga/im2d_buffer.h>
 #include <rga/im2d_type.h>
 #include <rga/im2d_single.h>
-//#endif
+#endif
 
 #ifdef DEBUG_VIDEO_PLAY
 #define LOG_TAG "MediaPlayer.Video"
@@ -36,6 +36,7 @@ static int file_exists(const char* file_name) {
     return false;
 }
 
+#if TP_HAVE_RGA
 //tinypix媒体格式转换为RGA媒体格式
 static uint32_t media_pixfmt_to_rga(TpVideoFormat format)
 {
@@ -77,9 +78,9 @@ static TpVideoFormat rga_pixfmt_to_media(uint32_t rga_format)
 		return TP_VIDEO_FORMAT_UNKNOWN;
 	}
 }
-
+#endif
 //tinypix媒体格式转换为ffmpeg媒体格式
-static enum AVPixelFormat media_pixfmt_to_ffmpeg(TpVideoFormat format)
+enum AVPixelFormat media_pixfmt_to_ffmpeg(TpVideoFormat format)
 {
 	switch (format) {
 	case TP_VIDEO_FORMAT_RGB24:
@@ -100,7 +101,7 @@ static enum AVPixelFormat media_pixfmt_to_ffmpeg(TpVideoFormat format)
 }
 
 //ffmpeg媒体格式转换为tinypix媒体格式
-static TpVideoFormat ffmpeg_pixfmt_to_media(enum AVPixelFormat format)
+TpVideoFormat ffmpeg_pixfmt_to_media(enum AVPixelFormat format)
 {
 	switch (format) {
 	case AV_PIX_FMT_RGB24:
@@ -178,7 +179,6 @@ void video_smart_free(struct VideoMemoryBuffer *video_buf)
 	}
 
 	free(video_buf);
-	return 0;
 }	
 
 
@@ -220,10 +220,11 @@ void video_malloc_codec_frame(int width,int height, TpVideoFormat pix_fmt,uint8_
 	video_ffmpeg_malloc_codec_frame(width, height, pix_fmt, buffer, frame_d);
 }
 
+#if TP_HAVE_RGA
 //将RGB格式的AVFrame数据转换为RGA缓冲区
-static void avframe_to_rga_buffer(AVFrame *frame, struct rga_buffer_t *rga_buf)
+static void avframe_to_rga_buffer(const AVFrame *frame, rga_buffer_t *rga_buf)
 {
-	int rga_fmt = ffmpeg_pixfmt_to_media(media_pixfmt_to_rga(frame->format));
+	int rga_fmt = media_pixfmt_to_rga(ffmpeg_pixfmt_to_media(frame->format));
     if (rga_fmt < 0)
         return -1;
 
@@ -236,9 +237,9 @@ static void avframe_to_rga_buffer(AVFrame *frame, struct rga_buffer_t *rga_buf)
 
     return 0;
 }
+#endif
 
-
-struct VideoFilterContext * video_filter_context_resize_crop(
+struct VideoFilterContext * video_filter_context_creat(
 								int src_w, int src_h, TpVideoFormat src_format,
 								int dst_w, int dst_h, TpVideoFormat dst_format)
 {
@@ -248,7 +249,7 @@ struct VideoFilterContext * video_filter_context_resize_crop(
 		return NULL;
 	}
 	filter_ctx->type = VIDEO_FILTER_FFMPEG;
-#ifdef TP_HAVE_RGA
+#if TP_HAVE_RGA
 	filter_ctx->type = VIDEO_FILTER_RGA;
 #endif
 	filter_ctx->src_format = src_format;
@@ -259,7 +260,7 @@ struct VideoFilterContext * video_filter_context_resize_crop(
 		case VIDEO_FILTER_HARDWARE:
 			// 硬件加速处理
 			break;
-
+#if TP_HAVE_RGA
 		case VIDEO_FILTER_RGA:
 			rga_buffer_t *rga_buf=malloc(sizeof(rga_buffer_t));
 			rga_buffer_handle_t dst_handle;
@@ -282,6 +283,7 @@ struct VideoFilterContext * video_filter_context_resize_crop(
 			*rga_buf = wrapbuffer_handle(dst_handle, dst_w, dst_h, dst_format);
 			filter_ctx->filter_ctx.rga_frame_d = rga_buf;
 			break;
+#endif
 		case VIDEO_FILTER_FFMPEG:
 		default:
 			// 使用ffmpeg的sws_scale进行处理
@@ -293,23 +295,25 @@ struct VideoFilterContext * video_filter_context_resize_crop(
 							media_pixfmt_to_ffmpeg(src_format),
 							dst_w,dst_h,
 							media_pixfmt_to_ffmpeg(dst_format),
-							SWS_BICUBIC, NULL, NULL, NULL);
+							SWS_BICUBIC, NULL, NULL, NULL);	//缩放算法及参数
 				if (!swsContext) {
 					fprintf(stderr, "Could not initialize SwsContext.\n");
-					return -1;
+					return NULL;
 				}
 				if(video_ffmpeg_malloc_codec_frame(dst_w, dst_h, media_pixfmt_to_ffmpeg(dst_format), &buffer, &frame_d)<0)
 				{
 					sws_freeContext(swsContext);
-					return -1;
+					return NULL;
 				}
 				filter_ctx->filter_ctx.swsContext = swsContext;
 				filter_ctx->filter_ctx.frame_d = frame_d;
 				filter_ctx->filter_ctx.buffer = buffer;
+				filter_ctx->filter_ctx.srcSliceY = 0;
+				filter_ctx->filter_ctx.srcSliceH = src_h;
 			}
 			break;
 	}
-
+	return filter_ctx;
 }
 
 void video_filter_context_free(struct VideoFilterContext *filter_ctx)
@@ -324,7 +328,7 @@ void video_filter_context_free(struct VideoFilterContext *filter_ctx)
 			break;
 
 		case VIDEO_FILTER_RGA:
-			
+
 			break;
 		case VIDEO_FILTER_FFMPEG:
 		default:
@@ -358,7 +362,7 @@ int video_filter_process(struct VideoFilterContext *filter_ctx, AVFrame *frame_s
 	case VIDEO_FILTER_HARDWARE:
 		// 硬件加速处理
 		break;
-
+#if TP_HAVE_RGA
 	case VIDEO_FILTER_RGA:
 		// RGA处理
 		rga_buffer_t src_rga_buf;
@@ -367,6 +371,7 @@ int video_filter_process(struct VideoFilterContext *filter_ctx, AVFrame *frame_s
 
 		imresize(src_rga_buf, *filter_ctx->filter_ctx.rga_frame_d);
 		break;
+#endif
 	case VIDEO_FILTER_FFMPEG:
 	default:
 		// 使用ffmpeg的sws_scale进行处理
@@ -374,7 +379,7 @@ int video_filter_process(struct VideoFilterContext *filter_ctx, AVFrame *frame_s
 		{
 
 			sws_scale(filter_ctx->filter_ctx.swsContext, (const uint8_t * const *)frame_s->data, frame_s->linesize,  
-					0, stream->codec_ctx->height,
+					filter_ctx->filter_ctx.srcSliceY, filter_ctx->filter_ctx.srcSliceH,
 					filter_ctx->filter_ctx.frame_d->data, filter_ctx->filter_ctx.frame_d->linesize);
 		}
 
