@@ -15,7 +15,6 @@
 #include "TpMediaDevice.h"
 #include "TpSound.h"
 
-
 struct TpVideoInfData
 {
 	TpString v_name;
