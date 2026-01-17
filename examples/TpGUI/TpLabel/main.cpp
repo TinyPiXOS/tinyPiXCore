@@ -27,9 +27,10 @@ int32_t main(int32_t argc, char *argv[])
     TpLabel *label3 = new TpLabel(vScreen);
     label3->font()->setFontColor(_RGB(0, 255, 0));
     label3->font()->setItalic(true);
+    label3->font()->setVerticalText(true);
     label3->setAlign(Tp::AlignRight);
     label3->setText("斜体");
-    label3->setRect(50, 110, 250, 30);
+    label3->setRect(50, 110, 250, 100);
 
     TpLabel *label6 = new TpLabel(vScreen);
     label6->setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));

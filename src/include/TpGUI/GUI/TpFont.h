@@ -83,6 +83,13 @@ public:
     /// @return 居中模式
     Tp::Alignment align();
 
+    /// @brief 设置是否为垂直文本
+    /// @param isVertical 是否垂直
+    void setVerticalText(bool isVertical);
+    /// @brief 获取是否为垂直文本
+    /// @return 垂直文本为true
+    bool isVerticalText();
+
     /// @brief 获取字体大小 px
     /// @return px值
     int32_t fontSize();
