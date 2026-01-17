@@ -195,6 +195,29 @@ Tp::Alignment TpFont::align()
     return fontData->alignFlag;
 }
 
+void TpFont::setVerticalText(bool isVertical)
+{
+    TpFontData *fontData = static_cast<TpFontData *>(data_);
+    fontData->isVerticalText = isVertical;
+
+    // 应用垂直变换
+    tvg::Matrix verticalTransform;
+    if (isVertical)
+    {
+        fontData->tvgTextPtr->rotate(90.0f);
+    }
+    else
+    {
+        fontData->tvgTextPtr->rotate(-90.0f);
+    }
+}
+
+bool TpFont::isVerticalText()
+{
+    TpFontData *fontData = static_cast<TpFontData *>(data_);
+    return fontData->isVerticalText;
+}
+
 int32_t TpFont::fontSize()
 {
     TpFontData *fontData = static_cast<TpFontData *>(data_);

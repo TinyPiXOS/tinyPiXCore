@@ -15,6 +15,7 @@ struct TpFontData
     // 字体大小
     int32_t ptsize;
 
+    bool isVerticalText = false;
     bool italic = false;
     bool bold = false;
     bool wrap = false;

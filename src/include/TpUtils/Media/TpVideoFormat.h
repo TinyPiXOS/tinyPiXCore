@@ -1,0 +1,15 @@
+#ifndef _TP_VIDEO_FORMAT_H_
+#define _TP_VIDEO_FORMAT_H_
+
+typedef enum TpVideoFormat
+{
+    TP_VIDEO_FORMAT_UNKNOWN = 0,
+    TP_VIDEO_FORMAT_RGB24,    // 24-bit RGB
+    TP_VIDEO_FORMAT_BGR24,    // 24-bit BGR
+    TP_VIDEO_FORMAT_RGBA8888, // 32-bit RGBA
+    TP_VIDEO_FORMAT_IYUV,     // IYUV (YUV420P)
+    TP_VIDEO_FORMAT_YUV2,     // YUV422
+    TP_VIDEO_FORMAT_UYVY      // UYVY422
+} TpVideoFormat;
+
+#endif
