@@ -5,7 +5,7 @@
 #include "TpEvent.h"
 #include "TpCollapsibleFileItem.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpCollapsibleFileWidgetData);
+TP_DEF_VOID_TYPE_VAR(ITpCollapsibleFileWidgetData);
 
 /// @brief 可折叠文件窗口
 class TpCollapsibleFileWidget
@@ -58,7 +58,7 @@ protected:
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 private:
-    ItpCollapsibleFileWidgetData *data_;
+    ITpCollapsibleFileWidgetData *data_;
 };
 
 #endif

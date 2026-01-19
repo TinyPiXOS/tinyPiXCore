@@ -34,12 +34,12 @@ extern "C"{
 #endif
 
 /**create share ex information between server and client, only use once**/
-extern DECLSPEC IPiSharedEx *STDCALL cache_ex_map_surface_create(const char *filename, unsigned int width, unsigned int height, ItpFormat format,
+extern DECLSPEC IPiSharedEx *STDCALL cache_ex_map_surface_create(const char *filename, unsigned int width, unsigned int height, ITpFormat format,
 																 unsigned int Rmask, unsigned int Gmask, unsigned int Bmask, unsigned int Amask);
 /**open the existed information **/
 extern DECLSPEC IPiSharedEx *STDCALL cache_ex_map_surface_read(const char *filename);
 /**resize the maptrix **/
-extern DECLSPEC IPiSharedEx *STDCALL cache_ex_map_resize(IPiSharedEx *shareEx, unsigned int nwidth, unsigned int nheight, ItpFormat format);
+extern DECLSPEC IPiSharedEx *STDCALL cache_ex_map_resize(IPiSharedEx *shareEx, unsigned int nwidth, unsigned int nheight, ITpFormat format);
 /**get the new surface**/
 extern DECLSPEC IPiSurface *STDCALL cache_ex_map_get_surface(IPiSharedEx *shareEx);
 /**get matrix size**/

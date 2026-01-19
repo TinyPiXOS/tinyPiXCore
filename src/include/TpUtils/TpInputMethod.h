@@ -8,7 +8,7 @@
 /*
     输入法　0.9
 */
-TP_DEF_VOID_TYPE_VAR(ItpInputMethodData);
+TP_DEF_VOID_TYPE_VAR(ITpInputMethodData);
 class TpInputMethod
 {
 public:
@@ -50,7 +50,7 @@ public:
     bool hasNext();
 
 private:
-    ItpInputMethodData *data_;
+    ITpInputMethodData *data_;
 };
 
 #endif

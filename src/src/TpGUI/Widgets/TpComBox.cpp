@@ -40,22 +40,22 @@ TpComBox::TpComBox(TpWidget *parent)
 
     cbxData->titleLabel = new TpLabel(this);
     cbxData->titleLabel->font()->setFontSize(normalCss->fontSize());
-    cbxData->titleLabel->font()->setFontColor(normalCss->color(), normalCss->color());
-    // cbxData->titleLabel->font()->setFontStyle(TINY_FONT_BOLD);
+    cbxData->titleLabel->font()->setFontColor(normalCss->color());
+    cbxData->titleLabel->font()->setAlign(Tp::AlignVCenter);
     cbxData->titleLabel->setFixedHeight(normalCss->minimumHeight());
 
     cbxData->curItemLabel = new TpLabel(this);
     // cbxData->curItemLabel->setText("测试");
     cbxData->curItemLabel->font()->setFontSize(normalCss->fontSize());
-    cbxData->curItemLabel->font()->setFontColor(normalCss->color(), normalCss->color());
+    cbxData->curItemLabel->font()->setFontColor(normalCss->color());
+    cbxData->curItemLabel->font()->setAlign(Tp::AlignVCenter);
     cbxData->curItemLabel->installEventFilter(this);
-    cbxData->titleLabel->setFixedHeight(normalCss->minimumHeight());
+    cbxData->curItemLabel->setFixedHeight(normalCss->minimumHeight());
 
     cbxData->expandIconLabel = new TpLabel(this);
     cbxData->expandIconLabel->setFixedHeight(normalCss->minimumHeight());
-    cbxData->expandIconLabel->setFixedSize(cbxData->titleLabel->font()->pixelHeight() * 0.7, cbxData->titleLabel->font()->pixelHeight());
+    cbxData->expandIconLabel->setFixedSize(normalCss->fontSize() * 1.5, normalCss->fontSize() * 1.5);
     cbxData->expandIconLabel->installEventFilter(this);
-
     cbxData->expandIconLabel->setBackGroundImage(TpImage("/usr/res/TinyPiX/双箭头上.png"));
 
     cbxData->contextMenu = new TpMenu();
@@ -96,21 +96,11 @@ TpComBox::~TpComBox()
     TpComboxData *cbxData = static_cast<TpComboxData *>(data_);
     if (cbxData)
     {
-        cbxData->titleLabel->setParent(nullptr);
-        cbxData->curItemLabel->setParent(nullptr);
-        cbxData->expandIconLabel->setParent(nullptr);
+        cbxData->titleLabel->deleteLater();
+        cbxData->curItemLabel->deleteLater();
+        cbxData->expandIconLabel->deleteLater();
 
-        delete cbxData->titleLabel;
-        cbxData->titleLabel = nullptr;
-
-        delete cbxData->curItemLabel;
-        cbxData->curItemLabel = nullptr;
-
-        delete cbxData->expandIconLabel;
-        cbxData->expandIconLabel = nullptr;
-
-        delete cbxData->contextMenu;
-        cbxData->contextMenu = nullptr;
+        cbxData->contextMenu->deleteLater();
 
         delete cbxData;
         cbxData = nullptr;

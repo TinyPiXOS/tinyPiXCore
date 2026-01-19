@@ -152,13 +152,17 @@ void TpFlexLayout::removeLayout(TpLayout *layout)
             TpList<TpObject *> layoutChildObjList = curItemData.layoutWidget->objectList();
             for (const auto &childObj : layoutChildObjList)
             {
-				childObj->uninstallEventFilter();
-                childObj->setParent(nullptr);
+                TpWidget *childWidget = dynamic_cast<TpWidget *>(childObj);
+                if (!childWidget)
+                    continue;
+
+                childWidget->uninstallEventFilter();
+                childWidget->setParent(nullptr);
             }
 
             layout->setParent(nullptr);
-			layout->uninstallEventFilter();
-            
+            // layout->uninstallEventFilter();
+
             curItemData.layoutWidget->deleteLater();
             curItemData.layoutWidget = nullptr;
 
@@ -742,7 +746,7 @@ void TpFlexLayout::update()
                 if (!isReverse)
                     currentMain += item.mainSize + spacing();
             }
-        
+
             // item.widget->update();
         }
 

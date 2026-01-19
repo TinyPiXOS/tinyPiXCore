@@ -2,7 +2,7 @@
 #include "TpMainWindow.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
-#include "TpUtils.h"
+#include <TpGUI.h>
 
 class PaintPathWidget : public TpWidget
 {

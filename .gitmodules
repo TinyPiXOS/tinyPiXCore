@@ -7,3 +7,6 @@
 [submodule "3rdparty/nanomsg"]
 	path = 3rdparty/nanomsg
 	url = https://gitee.com/tinypixos/nanomsg.git
+[submodule "3rdparty/erpc"]
+	path = 3rdparty/erpc
+	url = https://gitee.com/tinypixos/erpc.git

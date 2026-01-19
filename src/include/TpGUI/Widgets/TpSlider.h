@@ -1,11 +1,11 @@
-#ifndef __TP_VSLIDER_H
-#define __TP_VSLIDER_H
+#ifndef __TP_SLIDER_H
+#define __TP_SLIDER_H
 
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpColors.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpSliderData);
+TP_DEF_VOID_TYPE_VAR(ITpSliderData);
 /// @brief 可拖动滑块
 class TpSlider : public TpWidget
 {
@@ -51,14 +51,13 @@ protected:
 	virtual bool onMousePressEvent(TpMouseEvent *event) override;
 	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
 	virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
-	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 	virtual bool onPaintEvent(TpPaintEvent *event) override;
 
 protected:
 	virtual TpString pluginType() override { return TO_STRING(TpSlider); }
 
 private:
-	ItpSliderData *data_;
+	ITpSliderData *data_;
 };
 
 #endif

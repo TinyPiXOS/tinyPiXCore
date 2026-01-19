@@ -2,9 +2,11 @@
 #include "TpLabel.h"
 #include "TpButton.h"
 #include "TpImage.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 #include "TpEvent.h"
 #include "TpFont.h"
+
+#define BTN_MARGIN TpDisplay::dp2Px(8)
 
 struct TpIconTopButtonData
 {
@@ -44,6 +46,7 @@ void TpIconTopButton::setText(const TpString &text)
 
     TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
     buttonData->textLabel->setText(text);
+    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight() + 3);
 }
 
 void TpIconTopButton::setIcon(const TpString &iconPath)
@@ -68,11 +71,11 @@ void TpIconTopButton::setIconSize(const uint32_t &width, const uint32_t &height)
     buttonData->iconLabel->setHeight(height);
 
     buttonData->textLabel->setWidth(width);
-    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight());
-    buttonData->textLabel->move(0, height + TpDisplay::dp2Px(6));
+    buttonData->textLabel->setHeight(buttonData->textLabel->font()->pixelHeight() + 3);
+    buttonData->textLabel->move(0, height + BTN_MARGIN);
 
     setWidth(width);
-    setHeight(height + buttonData->textLabel->font()->pixelHeight() + TpDisplay::dp2Px(6));
+    setHeight(height + buttonData->textLabel->font()->pixelHeight() + 3 + BTN_MARGIN);
 }
 
 void TpIconTopButton::setIconSize(const TpSize &size)
@@ -93,7 +96,7 @@ void TpIconTopButton::setTextVisible(const bool &visible)
 
     if (visible)
     {
-        setHeight(buttonData->iconLabel->height() * 1.25 + TpDisplay::dp2Px(6));
+        setHeight(buttonData->iconLabel->height() + buttonData->textLabel->font()->pixelHeight() + BTN_MARGIN);
     }
     else
     {
@@ -145,6 +148,8 @@ bool TpIconTopButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpIconTopButton::onMouseLongPressEvent(TpMouseEvent *event)
 {
+    TpWidget::onMouseLongPressEvent(event);
+
     onLongPress.emit();
     return true;
 }
@@ -173,6 +178,8 @@ bool TpIconTopButton::onPaintEvent(TpPaintEvent *event)
 
 bool TpIconTopButton::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
+
     // TpIconTopButtonData *buttonData = static_cast<TpIconTopButtonData *>(data_);
     // buttonData->iconButton->setRect(0, 0, rect().w, rect().h * 0.8);
 
@@ -225,7 +232,8 @@ void TpIconTopButton::Init()
     buttonData->iconLabel->setEnableBackGroundColor(false);
     buttonData->textLabel->setEnableBackGroundColor(false);
 
-    buttonData->textLabel->setAlign(Tp::AlignHCenter);
+    buttonData->textLabel->setAlign(Tp::AlignCenter);
+    // buttonData->textLabel->setBackGroundColor(_RGB(255, 0, 0));
 
     tpShared<TpCssData> curCssData = currentStatusCss();
     setIconSize(curCssData->iconSize(), curCssData->iconSize());

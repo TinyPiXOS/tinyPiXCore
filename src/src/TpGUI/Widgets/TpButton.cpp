@@ -63,12 +63,18 @@ void TpButton::setText(const TpString &text)
     if (!buttonData)
         return;
 
-    TpWidget::setText(text);
-
     buttonData->textLabel->setText(text);
     buttonData->textLabel->update();
 
     refreshLayout();
+}
+
+TpString TpButton::text() const
+{
+    TpButtonData *buttonData = static_cast<TpButtonData *>(this->data_);
+    if (!buttonData)
+        return TpString();
+    return buttonData->textLabel->text();
 }
 
 TpFont *TpButton::font()
@@ -118,7 +124,7 @@ void TpButton::setButtonStyle(TpButton::ButtonTextStyle buttonStyle)
     {
         set->textLabel->setVisible(true);
         set->iconLabel->setVisible(false);
-        set->textLabel->setAlign(Tp::AlignHCenter);
+        set->textLabel->setAlign(Tp::AlignCenter);
     }
     else if (buttonStyle == TpButton::IconOnly)
     {
@@ -129,7 +135,7 @@ void TpButton::setButtonStyle(TpButton::ButtonTextStyle buttonStyle)
     {
         set->textLabel->setVisible(true);
         set->iconLabel->setVisible(true);
-        set->textLabel->setAlign(Tp::AlignHCenter);
+        set->textLabel->setAlign(Tp::AlignCenter);
     }
     else
     {
@@ -168,9 +174,6 @@ bool TpButton::onMouseRleaseEvent(TpMouseEvent *event)
 
 bool TpButton::onPaintEvent(TpPaintEvent *event)
 {
-    // std::cout << "按钮 " << text() << " 渲染" << std::endl;
-    // std::cout << "按钮 " << text() << " 尺寸" << pos().x() << " " << pos().y() << "  " << width() << "  " << height() << std::endl;
-
     TpWidget::onPaintEvent(event);
 
     TpButtonData *buttonData = static_cast<TpButtonData *>(data_);
@@ -182,7 +185,7 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
     tpShared<TpCssData> curCssData = currentStatusCss();
 
     TpFont *textLabelFont = buttonData->textLabel->font();
-    textLabelFont->setFontForeColor(curCssData->color());
+    textLabelFont->setFontColor(curCssData->color());
     textLabelFont->setFontSize(curCssData->fontSize());
 
     return true;
@@ -190,6 +193,7 @@ bool TpButton::onPaintEvent(TpPaintEvent *event)
 
 bool TpButton::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
     refreshLayout();
 
     return true;
@@ -236,12 +240,12 @@ void TpButton::init()
     set->textLabel = new TpLabel(this);
     set->textLabel->installEventFilter(this);
     set->textLabel->setVisible(true);
-    set->textLabel->setAlign(Tp::AlignHCenter);
+    set->textLabel->setAlign(Tp::AlignCenter);
 
     set->iconLabel = new TpLabel(this);
     set->iconLabel->installEventFilter(this);
     set->iconLabel->setVisible(false);
-    set->iconLabel->setAlign(Tp::AlignHCenter);
+    set->iconLabel->setAlign(Tp::AlignCenter);
 
     setEnableBackGroundColor(true);
     refreshBaseCss();
@@ -280,8 +284,12 @@ void TpButton::refreshLayout()
         int32_t availableHeight = height() - curCssData->paddingTop() - curCssData->paddingBottom();
 
         // 图标保持正方形 (高度决定宽度)
-        int32_t iconWidth = buttonData->textLabel->font()->pixelHeight();
-        int32_t iconHeight = iconWidth;
+        uint32_t iconWidth = buttonData->iconSize.width();
+        uint32_t iconHeight = buttonData->iconSize.height();
+        if (iconWidth == 0)
+            iconWidth = buttonData->textLabel->font()->pixelHeight() * 1.2;
+        if (iconHeight == 0)
+            iconHeight = iconWidth;
 
         // 判断是否文字超出显示区域
         bool isOverland = (buttonData->textLabel->font()->pixelWidth() + iconWidth + curCssData->gap()) > availableWidth;

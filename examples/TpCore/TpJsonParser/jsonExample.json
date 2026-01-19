@@ -1,0 +1,34 @@
+{
+    "key1": 110119,
+    "key2": "qazxswed",
+    "key3": "qweqweasd",
+    "keyJson": {
+        "sonKey": "zxcvvb"
+    },
+    "keyArray": [
+        1,
+        2,
+        3
+    ],
+    "keyArrayStr": [
+        "att1",
+        "att2",
+        "att3"
+    ],
+    "keyArrayObj": [
+        {
+            "key1": 110119,
+            "key3": "qweqweasd",
+            "keyJson": {
+                "sonKey": "zxcvvb"
+            }
+        },
+        {
+            "key1": 110120,
+            "key3": "qweqweasd",
+            "keyJson": {
+                "sonKey": "zxcvvb"
+            }
+        }
+    ]
+}

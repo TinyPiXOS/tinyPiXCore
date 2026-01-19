@@ -7,7 +7,7 @@
 #include "TpVector.h"
 #include "TpFont.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpMessageBoxData);
+TP_DEF_VOID_TYPE_VAR(ITpMessageBoxData);
 /// @brief 消息提示框
 class TpMessageBox : public TpDialog
 {
@@ -50,14 +50,12 @@ signals:
 protected:
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onPaintEvent(TpPaintEvent *event) override;
-    virtual bool onResizeEvent(TpResizeEvent *event) override;
-    virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 protected:
     virtual TpString pluginType() override { return TO_STRING(TpMessageBox); }
 
 private:
-    ItpMessageBoxData *data_;
+    ITpMessageBoxData *data_;
 };
 
 #endif

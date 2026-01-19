@@ -7,7 +7,7 @@
 #include "TpNotificationItem.h"
 #include "TpEvent.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpNotificationWidgetData);
+TP_DEF_VOID_TYPE_VAR(ITpNotificationWidgetData);
 class TpNotificationWidget : public TpWidget
 {
 public:
@@ -23,7 +23,7 @@ public:
     virtual bool onResizeEvent(TpResizeEvent *event) override;
 
 private:
-    ItpNotificationWidgetData *data_;
+    ITpNotificationWidgetData *data_;
 };
 
 #endif

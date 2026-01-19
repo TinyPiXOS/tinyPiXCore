@@ -100,7 +100,7 @@ typedef struct
 	tpChar snapDir[TOKEN_RING_LENGTH];//save image for objects, if shareone enable
 	tpChar uuidIPC[TOKEN_RING_LENGTH];
 
-	ItpFormat display_format;
+	ITpFormat display_format;
 	tpUInt32 Rmask, Gmask, Bmask, Amask;
 	
 	tpBool shareone;
@@ -129,7 +129,7 @@ typedef struct
 typedef struct
 {
 	tpInt32 id;
-	ItpEvent event;
+	ITpEvent event;
 } PiXEvents;
 
 typedef struct

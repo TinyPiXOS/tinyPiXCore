@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBatteryData);
+TP_DEF_VOID_TYPE_VAR(ITpBatteryData);
 /// @brief 电池UI组件
 class TpBattery : public TpWidget
 {
@@ -29,13 +29,17 @@ public:
     /// @return 样式枚举
     BatteryStyle style();
 
-    /// @brief 设置电量，最大100，最小0
+    /// @brief 设置电量，[0, 100]
     /// @param value 电量值
-    void setValue(const int32_t &value);
+    void setValue(int32_t value);
 
     /// @brief 获取当前电量
     /// @return 电量值[0,100]
     int32_t value();
+
+    /// @brief 动画效果更新电量 [0, 100]
+    /// @param value 电量值
+    void setValueAnimated(int32_t value);
 
     /// @brief 设置告警值
     /// @param value 告警值
@@ -57,7 +61,7 @@ public:
     virtual TpString pluginType() override { return TO_STRING(TpBattery); }
 
 private:
-    ItpBatteryData *data_;
+    ITpBatteryData *data_;
 };
 
 #endif

@@ -10,7 +10,6 @@
 #include <atomic>
 #include <cstring>
 #include "TpString.h"
-#include "TpGatewayServerPUBSUB.h"
 
 // 平台特定的IPC地址
 #ifdef _WIN32
@@ -99,19 +98,15 @@ class GatewayServerPUBSUBImpl : public TpGatewayServerPUBSUB
 
             if (msg.data && msg.size > 0)
             {
-                std::cout << "收到发布数据，数据长度：" << msg.size << std::endl;
                 // 处理消息并转发
                 if (msg.size > 4)
                 {
                     uint32_t topicLen = *reinterpret_cast<uint32_t *>(msg.data);
-                    std::cout << "收到发布数据，主题长度：" << topicLen << std::endl;
 
                     if (topicLen > 0 && topicLen < (msg.size - sizeof(uint32_t)))
                     {
                         const char *topic = msg.data + sizeof(uint32_t);
                         TpString topicString(topic);
-
-                        std::cout << "收到发布数据，主题为：" << topicString << std::endl;
 
                         // 广播消息
                         nn_send(pubSocket_, msg.data, msg.size, 0);
@@ -160,18 +155,8 @@ public:
         nn_setsockopt(subSocket_, NN_SOL_SOCKET, NN_RCVBUF, &recv_size, sizeof(recv_size));
         nn_setsockopt(pubSocket_, NN_SOL_SOCKET, NN_SNDBUF, &recv_size, sizeof(recv_size));
 
-        // 设置IPC连接
-        // if (nn_bind(subSocket_, IPC_ADDRESS) < 0)
-        // {
-        // 允许IPC绑定失败
-        // }
-
-        // 绑定TCP端口
-        // std::string pub_addr = "tcp://*:" + std::to_string(tcpPort);
-        // std::string sub_addr = "tcp://*:" + std::to_string(tcpPort + 1);
-
-        std::string sub_addr = "tcp://*:" + std::to_string(tcpPort);
-        std::string pub_addr = "tcp://*:" + std::to_string(tcpPort + 1);
+        TpString sub_addr = "tcp://*:" + std::to_string(tcpPort);
+        TpString pub_addr = "tcp://*:" + std::to_string(tcpPort + 1);
 
         if (nn_bind(pubSocket_, pub_addr.c_str()) < 0)
         {

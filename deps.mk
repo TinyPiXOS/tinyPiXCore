@@ -8,7 +8,7 @@ endif
 build ?= build
 prefix ?= $(core_root)/tempSubmodule
 
-rime_deps = librime nanomsg thorvg
+rime_deps = librime nanomsg thorvg erpc
 
 # 判断平台
 # 获取系统架构信息
@@ -51,7 +51,7 @@ clean-src:
 librime:
 	cd $(src_dir)/librime; \
 	cmake . -B $(build) \
-	-DCMAKE_BUILD_TYPE:STRING=Releas \
+	-DCMAKE_BUILD_TYPE:STRING=Release \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
 	--no-warn-unused-cli \
 	-G Ninja \
@@ -78,14 +78,32 @@ nanomsg:
 thorvg:
 	cd $(src_dir)/thorvg; \
 	meson setup builddir \
-	--buildtype=release \
-	-Dloaders="all" \
+	-Dbuildtype=release \
+	-Dloaders="all" -Dengines="sw,gl" \
 	-Dsavers="all" \
 	-Dexamples=false \
-	-Dlog="false" \
+	-Dlog=false \
 	--default-library=static \
 	--prefix=$(prefix)/thorvg \
 	--libdir=lib \
 	&& ninja -C builddir install; \
-	cp $(prefix)/thorvg/include/* $(core_root)/src/include_p/TpUtils/thorVG/; \
+	cp $(prefix)/thorvg/include/* $(core_root)/src/include_p/TpGUI/thorVG/; \
 	cp $(prefix)/thorvg/lib/libthorvg.a $(core_root)/src/depend_lib/static/$(libDir)/;
+
+erpc:
+	cd $(src_dir)/erpc; \
+	cmake -DCMAKE_BUILD_TYPE:STRING=Release \
+	-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
+	-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+	-DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC" \
+	-B $(build) \
+	-DCMAKE_INSTALL_PREFIX:PATH="$(prefix)/erpc" \
+	-DCMAKE_INSTALL_BINDIR:PATH="$(prefix)/erpc/bin" \
+	-DCMAKE_INSTALL_LIBDIR:PATH="$(prefix)/erpc/lib" \
+	-DCMAKE_INSTALL_INCLUDEDIR:PATH="$(prefix)/erpc/include" \
+	&& cmake --build $(build) --target install; \
+	cp $(prefix)/erpc/include/erpc/* $(core_root)/src/include_p/TpUtils/erpc/; \
+	cp $(prefix)/erpc/bin/* $(core_root)/src/bin/; \
+	cp $(prefix)/erpc/lib/liberpc.a $(core_root)/src/depend_lib/static/$(libDir)/;
+
+

@@ -4,9 +4,11 @@
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
+#include "TpFont.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpPanelSwitchButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpPanelSwitchButtonData);
 
+/// @brief 面板开关按钮
 class TpPanelSwitchButton : public TpWidget
 {
 public:
@@ -25,6 +27,10 @@ public:
     /// @return 文本字符串
     TpString text();
 
+    /// @brief 获取文本字体指针
+    /// @return 字体指针
+    TpFont* font();
+
 public:
     virtual TpString pluginType() { return TO_STRING(TpPanelSwitchButton); }
 
@@ -42,7 +48,7 @@ protected:
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 private:
-    ItpPanelSwitchButtonData *data_;
+    ITpPanelSwitchButtonData *data_;
 };
 
 #endif // __TP_COMBOX_H

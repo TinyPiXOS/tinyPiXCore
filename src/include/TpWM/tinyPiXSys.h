@@ -86,11 +86,16 @@ extern DECLSPEC int STDCALL tinyPiX_sys_set_lock(IPiSysApiAgent *sysApiagent, in
 /**
 @brief 根据虚拟窗体的id，指定的虚拟窗体设置显隐，除desktop，对其他虚拟窗体都有效果
 @param sysApiagent（IPiSysApiAgent） 系统api的句柄
-@param id（int）虚拟窗体id
+@param pid（int）进程id
 @param visible（int）设置为TP_FALSE时，指定的虚拟窗体会被设置成隐藏；设置为TP_TRUE时，指定窗体会被设置成显示（但未必会出现在显示的顶层，需要active属性）
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC int STDCALL tinyPiX_sys_set_visible(IPiSysApiAgent *sysApiagent, int id, int visible);
+extern DECLSPEC int STDCALL tinyPiX_sys_set_visible(IPiSysApiAgent *sysApiagent, int pid, int visible);
+
+/**
+@brief 对tinyPiX_sys_set_active重新定义
+**/
+#define tinyPiX_sys_set_visible_bypid tinyPiX_sys_set_visible
 
 /**
 @brief 将一个未被激活的虚拟窗体激活，可以从隐藏状态或未占用屏幕状态切换为顶级显示状态（对floatScreen无效）
@@ -99,7 +104,7 @@ extern DECLSPEC int STDCALL tinyPiX_sys_set_visible(IPiSysApiAgent *sysApiagent,
 @param actived（int）设置为TP_FALSE时，指定的虚拟窗体所在应用将不在顶级显示；设置为TP_TRUE时，指定窗体会被设置成顶级显示）
 @return 成功返回TP_TRUE，失败返回TP_FALSE
 */
-extern DECLSPEC int STDCALL tinyPiX_sys_set_active(IPiSysApiAgent *sysApiagent, int id, int actived);
+extern DECLSPEC int STDCALL tinyPiX_sys_set_active(IPiSysApiAgent *sysApiagent, int pid, int actived);
 
 /**
 @brief 对tinyPiX_sys_set_active重新定义
@@ -143,18 +148,18 @@ extern DECLSPEC int STDCALL tinyPiX_sys_float_move(IPiSysApiAgent *sysApiagent, 
 extern DECLSPEC int STDCALL tinyPiX_sys_set_close(IPiSysApiAgent *sysApiagent, int id);
 
 /**
-@brief 返回正在显示的顶级窗体id
+@brief 返回正在显示的顶级窗体pid
 @param sysApiagent（IPiSysApiAgent） 系统api的句柄
 @return 成功对应的虚拟窗体id，否则返回-1
 */
-extern DECLSPEC int STDCALL tinyPiX_sys_find_top_id(IPiSysApiAgent *sysApiagent);
+extern DECLSPEC int STDCALL tinyPiX_sys_find_top_pid(IPiSysApiAgent *sysApiagent);
 
 /**
 @brief 返回正在显示的desktop虚拟窗体id
 @param sysApiagent（IPiSysApiAgent） 系统api的句柄
 @return 成功对应的虚拟窗体id，否则返回-1
 */
-extern DECLSPEC int STDCALL tinyPiX_sys_find_desk_id(IPiSysApiAgent *sysApiagent);
+extern DECLSPEC int STDCALL tinyPiX_sys_find_desk_pid(IPiSysApiAgent *sysApiagent);
 
 /**
 @brief 根据id向指定的虚拟窗体发送属性数据

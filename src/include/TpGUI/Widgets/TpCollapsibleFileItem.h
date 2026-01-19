@@ -5,7 +5,7 @@
 #include "TpEvent.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpCollapsibleFileItemData);
+TP_DEF_VOID_TYPE_VAR(ITpCollapsibleFileItemData);
 
 /// @brief 可折叠文件窗口的单个文件单元
 class TpCollapsibleFileItem
@@ -52,12 +52,11 @@ protected:
     virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onMouseMoveEvent(TpMouseEvent *event) override;
     virtual bool onLeaveEvent(TpLeaveEvent *event) override;
-    virtual bool onMoveEvent(TpMoveEvent *event) override;
     virtual bool onResizeEvent(TpResizeEvent *event) override;
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 private:
-    ItpCollapsibleFileItemData *data_;
+    ITpCollapsibleFileItemData *data_;
 };
 
 #endif

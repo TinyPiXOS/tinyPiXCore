@@ -40,15 +40,15 @@ declare -A PATH_MAPPINGS=(
 	["./{ARCH}/res"]="update:/usr/res/TinyPiX"
 
     #System
-#    ["./system"]="overwrite:/System"
+    ["./system"]="overwrite:/System"
 
 	# 系统基本构建环境（必须使用preserve模式）
-#	["./build/{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX/build"
-#	["./build/{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX/build"
-#	["./build/{ARCH}/libexec"]="overwrite:/usr/libexec/TinyPiX/build"
-#	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
+	["./build/{ARCH}/lib"]="overwrite:/usr/lib/TinyPiX/build"
+	["./build/{ARCH}/bin"]="overwrite:/usr/bin/TinyPiX/build"
+	["./build/{ARCH}/libexec"]="overwrite:/usr/libexec/TinyPiX/build"
+	["./build/{ARCH}/etc"]="preserve:/usr/etc/TinyPiX"
 
-#	["./build/{ARCH}/systemd"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
+	["./build/{ARCH}/systemd"]="preserve:/usr/lib/TinyPiX/systemd"	#这个目录仅用于映射保存，实际安装位置为/usr/lib/systemd/system
 )
 # =====================================================
 
@@ -93,66 +93,6 @@ resolve_path() {
     else
         echo "$path"
     fi
-}
-
-# 智能拷贝函数
-intelligent_copy() {
-    local src="$1"
-    local mode="$2"  # 新增模式参数
-    local dst="$3"
-    
-	# 处理空模式情况
-    if [ -z "$mode" ]; then
-        echo "⚠️  拷贝模式未指定，使用默认覆盖模式" >&2
-        mode="overwrite"
-    fi
-
-    echo "  → $src => $dst (模式: $mode)"
-    
-    case "$mode" in
-        overwrite)
-            # 覆盖模式：完全替换目标目录
-            if [ -d "$dst" ] && [ -n "$(ls -A "$dst")" ]; then
-                local backup_dir="${dst}.bak-$(date +%s)"
-                echo "  🔄 目标非空，创建备份: $backup_dir"
-                mv "$dst" "$backup_dir"
-            fi
-            ;;
-        merge)
-            # 合并模式：保留目标目录已有文件
-            if [ ! -d "$dst" ]; then
-                mkdir -p "$dst"
-            fi
-            ;;
-        update)
-            # 更新模式：只覆盖旧文件
-			if [ ! -d "$full_dest" ]; then
-				echo "  📁 创建目标目录 (update 模式): $full_dest"
-				mkdir -p "$full_dest"
-			else
-				echo "  🔄 保留目标目录内容 (模式: update)"
-			fi
-			;;
-        *)
-            echo "❌ 未知拷贝模式: $mode" >&2
-            exit 1
-            ;;
-    esac
-    
-    # 递归拷贝
-    safe_mkdir "$(dirname "$dst")"
-    
-    case "$mode" in
-        overwrite|merge)
-            cp -a "$src" "$dst"
-            ;;
-        update)
-            rsync -a -u "$src/" "$dst/"
-            ;;
-    esac || {
-        echo "❌ 复制失败: $src => $dst" >&2
-        exit 1
-    }
 }
 
 # ---------------------- 主流程 ----------------------
@@ -201,7 +141,7 @@ echo "▸ 处理路径映射 (ARCH=$ACTUAL_ARCH)"
 for src_key in "${!PATH_MAPPINGS[@]}"; do
 
     #如果是在线模式跳过build目录
-    if [ "$PACKAGE_MODE" = "online" ] && [[ "$src_key" == *"build"* ]]; then
+    if [ "$PACKAGE_MODE_VALUE" = "online" ] && [[ "$src_key" == "./build/"* ]]; then
         echo "  ⏭️  在线模式: 跳过 $src_key"
         continue
     fi
@@ -244,6 +184,12 @@ done
 # 4. 处理每个目标路径组
 echo "▸ 开始处理目标路径组"
 for target_path in "${!target_groups[@]}"; do
+
+    #如果是在线模式跳过build目录
+    if [ "$PACKAGE_MODE_VALUE" = "online" ] && [[ "$src_key" == "./build/"* ]]; then
+        echo "  ⏭️  在线模式: 跳过 $src_key"
+        continue
+    fi
     # 获取模式
     mode="${mode_map[$target_path]}"
     
@@ -275,10 +221,14 @@ for target_path in "${!target_groups[@]}"; do
 done
 
 # 5. 创建智能安装器 (添加软链接功能)
-cat > "$TMP_ROOT_DIR/installer.sh" <<'EOF'
+cat > "$TMP_ROOT_DIR/installer.sh" << EOF
+PACKAGE_MODE="$PACKAGE_MODE_VALUE"
+EOF
+
+cat >> "$TMP_ROOT_DIR/installer.sh" << 'EOF'
 #!/bin/bash
 # TinyPiXOS 智能安装器 (完整覆盖版)
-PACKAGE_MODE="$PACKAGE_MODE_VALUE"
+
 SCRIPTS_DIR="config"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
@@ -408,8 +358,7 @@ echo "映射文件: $MAPPING_FILE"
 echo "▸ 正在检查系统依赖包 (架构: $ARCH)"
 packages=(
     libsdl2-dev libdrm-dev libudev-dev
-	libcairo2-dev libpango1.0-dev libglib2.0-dev \
-	libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
+	libglib2.0-dev \
 	libgbm-dev libgles2 libegl-dev \
 	libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
 	libavutil-dev libswscale-dev libswresample-dev \

@@ -1,7 +1,7 @@
 #include "TpMessageBox.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
-#include "TpDisplay.h"
+#include "SystemInfo/TpDisplay.h"
 
 static int32_t BtnFontColor = _RGB(38, 38, 38);
 
@@ -39,17 +39,18 @@ TpMessageBox::TpMessageBox(MessageType type)
     TpMessageBoxData *messageData = new TpMessageBoxData();
 
     messageData->font->setFontSize(20);
-    messageData->font->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
+    messageData->font->setFontColor(_RGB(38, 38, 38));
 
     messageData->btnFont->setFontSize(17);
-    messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
+    messageData->btnFont->setFontColor(BtnFontColor);
 
     data_ = messageData;
 
     refreshBaseCss();
 
+    setEnabledBorderColor(false);
     setBackGroundColor(_RGBA(255, 255, 255, 230));
-    setRoundCorners(25);
+    setRoundCorners(20);
 
     setMessageType(type);
 }
@@ -60,10 +61,10 @@ TpMessageBox::TpMessageBox(const TpString &text, MessageType type)
     TpMessageBoxData *messageData = new TpMessageBoxData();
 
     messageData->font->setFontSize(20);
-    messageData->font->setFontColor(_RGB(38, 38, 38), _RGB(38, 38, 38));
+    messageData->font->setFontColor(_RGB(38, 38, 38));
 
     messageData->btnFont->setFontSize(17);
-    messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
+    messageData->btnFont->setFontColor(BtnFontColor);
 
     data_ = messageData;
 
@@ -135,6 +136,8 @@ void TpMessageBox::setButtonList(const TpVector<TpString> &buttonList)
 
 bool TpMessageBox::onMouseRleaseEvent(TpMouseEvent *event)
 {
+    TpDialog::onMouseRleaseEvent(event);
+
     TpMessageBoxData *messageData = static_cast<TpMessageBoxData *>(data_);
 
     int btnIndex = 0;
@@ -160,7 +163,7 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     if (messageData->text.empty())
         return true;
 
-    TpDialog::onPaintEvent(event);
+    // TpDialog::onPaintEvent(event);
 
     TpPainter *painter = event->painter();
 
@@ -220,11 +223,11 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
         // 绘制按钮文本
         if ((i == (messageData->btnList.size() - 1)) && messageData->type == TpMessageBox::Question)
         {
-            messageData->btnFont->setFontColor(_RGB(255, 77, 79), _RGB(255, 77, 79));
+            messageData->btnFont->setFontColor(_RGB(255, 77, 79));
         }
         else
         {
-            messageData->btnFont->setFontColor(BtnFontColor, BtnFontColor);
+            messageData->btnFont->setFontColor(BtnFontColor);
         }
         painter->drawText(*messageData->btnFont, btnTextX, btnTextY);
 
@@ -240,14 +243,4 @@ bool TpMessageBox::onPaintEvent(TpPaintEvent *event)
     }
 
     return true;
-}
-
-bool TpMessageBox::onResizeEvent(TpResizeEvent *event)
-{
-    return true;
-}
-
-bool TpMessageBox::eventFilter(TpObject *watched, TpEvent *event)
-{
-    return false;
 }

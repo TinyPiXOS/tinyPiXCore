@@ -3,7 +3,7 @@
 
 #include "TpWidget.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpLayoutItemData);
+TP_DEF_VOID_TYPE_VAR(ITpLayoutItemData);
 
 class TpLayout;
 /// @brief 布局内成员item类，暂未启用
@@ -25,7 +25,7 @@ public:
     TpWidget* widget();
 
 private:
-    ItpLayoutItemData *data_;
+    ITpLayoutItemData *data_;
 };
 
 #endif

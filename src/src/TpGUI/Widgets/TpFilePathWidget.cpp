@@ -88,7 +88,7 @@ void TpFilePathWidget::setPath(const TpString &path)
         TpFilePathWidgetItem *newPathLabel = new TpFilePathWidgetItem(this);
         newPathLabel->setChecked(false);
         newPathLabel->setEnableBackGroundColor(true);
-        newPathLabel->setAlign(Tp::AlignHCenter);
+        newPathLabel->setAlign(Tp::AlignCenter);
         newPathLabel->setText(subPath);
         newPathLabel->setProperty("Path", curAllPath);
         newPathLabel->installEventFilter(this);
@@ -96,57 +96,6 @@ void TpFilePathWidget::setPath(const TpString &path)
 
         buttonData->pathLabelList.emplace_back(newPathLabel);
     }
-
-    // TpList<TpString> pathList = dealPath.split('/');
-    // for (const auto &subPath : pathList)
-    // {
-    //     if (subPath.empty())
-    //         continue;
-
-    //     curAllPath += "/" + subPath;
-
-    //     bool isCreateNewLabel = true;
-    //     for (; startFindIndex < buttonData->pathLabelList.size(); ++startFindIndex)
-    //     {
-    //         TpFilePathWidgetItem *curShowLabel = buttonData->pathLabelList.at(startFindIndex);
-    //         curShowLabel->setChecked(false);
-
-    //         TpString curShowPath = curShowLabel->property("Path").toString();
-    //         if (curShowPath.compare(curAllPath) == 0)
-    //         {
-    //             isCreateNewLabel = false;
-    //             ++startFindIndex;
-    //             break;
-    //         }
-    //     }
-
-    //     if (isCreateNewLabel == false)
-    //         continue;
-
-    //     TpFilePathWidgetItem *newPathLabel = new TpFilePathWidgetItem(this);
-    //     newPathLabel->setChecked(false);
-    //     newPathLabel->setEnableBackGroundColor(true);
-    //     newPathLabel->setAlign(Tp::AlignHCenter);
-    //     newPathLabel->setText(subPath);
-    //     newPathLabel->setProperty("Path", curAllPath);
-    //     newPathLabel->installEventFilter(this);
-    //     newPathLabel->setHeight(height());
-
-    //     if (startFindIndex == buttonData->pathLabelList.size())
-    //         ++startFindIndex;
-
-    //     buttonData->pathLabelList.emplace_back(newPathLabel);
-    // }
-
-    // // 释放不需要的路径
-    // uint32_t removeCount = buttonData->pathLabelList.size() - startFindIndex;
-    // for (int i = 0; i < removeCount; ++i)
-    // {
-    //     TpFilePathWidgetItem *curShowLabel = buttonData->pathLabelList.back();
-    //     buttonData->pathLabelList.pop_back();
-
-    //     curShowLabel->deleteLater();
-    // }
 
     // 最后一个item选中
     if (buttonData->pathLabelList.size() > 0)
@@ -159,33 +108,6 @@ TpString TpFilePathWidget::path()
 {
     TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
     return buttonData->curPath;
-}
-
-bool TpFilePathWidget::onMousePressEvent(TpMouseEvent *event)
-{
-    TpWidget::onMousePressEvent(event);
-
-    return true;
-}
-
-bool TpFilePathWidget::onMouseRleaseEvent(TpMouseEvent *event)
-{
-    TpWidget::onMouseRleaseEvent(event);
-
-    TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
-    if (buttonData->curClickedItem)
-    {
-        TpString curLastPath = buttonData->rootPath + buttonData->pathLabelList.back()->property("Path").toString();
-        TpString curClickedPath = buttonData->rootPath + buttonData->curClickedItem->property("Path").toString();
-
-        if (curClickedPath.compare(curLastPath) != 0)
-        {
-            setPath(curClickedPath);
-            onPathChanged.emit(curLastPath, curClickedPath);
-        }
-    }
-
-    return true;
 }
 
 bool TpFilePathWidget::onPaintEvent(TpPaintEvent *event)
@@ -270,9 +192,10 @@ bool TpFilePathWidget::eventFilter(TpObject *watched, TpEvent *event)
         if (pathItem)
         {
             buttonData->curClickedItem = pathItem;
-            TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
-            onMousePressEvent(mouseEvent);
+            // TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
+            // onMousePressEvent(mouseEvent);
         }
+        return true;
     }
     else if (event->eventType() == TpEvent::EVENT_MOUSE_RELEASE_TYPE)
     {
@@ -282,16 +205,28 @@ bool TpFilePathWidget::eventFilter(TpObject *watched, TpEvent *event)
         if (pathItem)
         {
             buttonData->curClickedItem = pathItem;
-            TpMouseEvent *mouseEvent = dynamic_cast<TpMouseEvent *>(event);
-            onMouseRleaseEvent(mouseEvent);
+
+            TpFilePathWidgetData *buttonData = static_cast<TpFilePathWidgetData *>(data_);
+            if (buttonData->curClickedItem)
+            {
+                TpString curLastPath = buttonData->rootPath + buttonData->pathLabelList.back()->property("Path").toString();
+                TpString curClickedPath = buttonData->rootPath + buttonData->curClickedItem->property("Path").toString();
+
+                if (curClickedPath.compare(curLastPath) != 0)
+                {
+                    setPath(curClickedPath);
+                    onPathChanged.emit(curLastPath, curClickedPath);
+                }
+            }
         }
+
+        return true;
     }
     else
     {
-
     }
 
-    return true;
+    return false;
 }
 
 void TpFilePathWidget::onThemeChangeEvent(TpThemeChangeEvent *event)

@@ -13,7 +13,7 @@ int32_t main(int32_t argc, char *argv[])
 	TpLabel *valueText = new TpLabel(vScreen);
 	valueText->setText(TpString::number(50));
 	valueText->setAlign(Tp::AlignCenter);
-	valueText->font()->setFontColor(_RGB(255, 255, 255),_RGB(255, 255, 255));
+	valueText->font()->setFontColor(_RGB(255, 255, 255));
 	valueText->font()->setFontSize(30);
 	valueText->setWidth(600);
 	valueText->setHeight(400);
@@ -37,8 +37,6 @@ int32_t main(int32_t argc, char *argv[])
 	connect(vSlider, valueChanged, [=](int32_t value)
 			{ valueText->setText(TpString::number(value));
 				slider->setValue(value); });
-
-	vScreen->update();
 
 	return app.run();
 }

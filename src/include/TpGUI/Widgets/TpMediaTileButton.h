@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpMediaTileButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpMediaTileButtonData);
 
 /// @brief 多媒体磁铁开关按钮
 class TpMediaTileButton : public TpWidget
@@ -45,7 +45,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpMediaTileButton); }
 
 private:
-    ItpMediaTileButtonData *data_;
+    ITpMediaTileButtonData *data_;
 };
 
 #endif

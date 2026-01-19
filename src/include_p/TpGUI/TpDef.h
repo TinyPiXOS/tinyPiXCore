@@ -5,7 +5,7 @@
 #ifndef __TP_DEF_H
 #define __TP_DEF_H
 
-#include "TpUtils.h"
+#include <TpGUI.h>
 #include "TpList.h"
 #include "TpEvent.h"
 #include "TpCDef.h"
@@ -17,15 +17,14 @@
 #include "TpVariant.h"
 #include "TpWidget.h"
 #include "TpImage.h"
+#include "TpBrush.h"
 #include "TpGraphicsBlurEffect.h"
-
-#define OBJECT_MAX_TEXT_LENGTH 1024
 
 class TpLayout;
 class TpObjectStack;
 class TpEvent;
 
-struct ItpTempDef
+struct ITpTempDef
 {
     TpWidget *curfocus = nullptr;
     TpWidget *lstfocus = nullptr;
@@ -37,11 +36,7 @@ struct ItpTempDef
     // 鼠标移动前的上一个坐标
     TpPoint lastPoint;
 
-    // 新增悬停链状态
-    // TpVector<TpWidget *> prevHoverChain; // 上一帧悬停链
-    // TpVector<TpWidget *> currHoverChain; // 当前悬停链
-
-    ItpTempDef()
+    ITpTempDef()
     {
     }
 
@@ -73,106 +68,8 @@ struct ItpTempDef
     }
 };
 
-struct TpObjectData
+struct TpMouseEventData
 {
-    // 对象类型；用于区分当前应用是否是桌面
-    TpString objectType = "";
-
-    // 鼠标按下的对象，用于判断拖拽、等事件
-    // 记录鼠标按下时的对象，最后鼠标无论在哪释放，都触发按下对象的release
-    TpWidget *mousePressObject = nullptr;
-
-    TpList<TpObject *> objectList;
-
-    TpObject *filterObject = nullptr;
-
-    TpObject *parent = nullptr;
-    TpObject *top = nullptr;
-
-    bool visible = true;
-    bool enable = true;
-
-    char text[OBJECT_MAX_TEXT_LENGTH];
-
-    std::mutex layoutMutex;
-    TpLayout *layout = nullptr;
-
-    // XY偏移量
-    int32_t offsetX;
-    int32_t offsetY;
-
-    /// @brief 绝对坐标
-    TpRect absoluteRect;
-    /// @brief 逻辑坐标
-    TpRect logicalRect;
-
-    // 窗口最小宽高
-    uint32_t minimumWidth = 0;
-    uint32_t minimumHeight = 0;
-
-    // 窗口最大宽高
-    uint32_t maximumWidth = WIDGET_MAX_WIDTH;
-    uint32_t maximumHeight = WIDGET_MAX_HEIGHT;
-
-    int32_t objectID;
-
-    // 背景图片
-    bool enableImage;
-    TpImage reserveImage;
-    TpImage cacheImage;
-    bool keepAspectRatio = true;
-
-    // 背景颜色
-    bool enableColor = true;
-    uint32_t backColor;
-    TpBrush backBrush;
-
-    // 边框颜色
-    bool enableBorderColor = false;
-    uint32_t borderColor;
-    TpBrush borderBrush;
-
-    // 是否可选中；选中状态
-    bool checkable = false;
-    bool isChecked = false;
-
-    // 是否启用背景模糊，模糊半径 px
-    bool enableBlur = false;
-    TpGraphicsBlurEffect blurEffect;
-
-    bool isHover = false;
-    bool isPress = false;
-    TpPoint pressPoint;
-
-    // 圆角值，单位px
-    uint32_t round = 0;
-
-    // 窗口不透明度乘数，[0,1]，1=完全不透明
-    float windowOpacity = 1.0;
-
-    IPiWFApiAgent *agent = nullptr;
-    std::mutex gMutex;
-    // TpObjectStack *objectStack = nullptr;
-    ItpTempDef tmp;
-
-    // 对象属性信息
-    TpHash<TpString, TpVariant> objPropertyMap;
-
-    // 缓存有多少发送者信号绑定了自己
-    std::unordered_map<void *, std::vector<std::function<void()>>> slotConnections_;
-    std::mutex slotConnectMutex_;
-
-    // 组件抓图
-    TpImage grapImage;
-
-    TpObjectData()
-    {
-    }
-};
-
-struct ItpMouseSet
-{
-    TpEvent::ItpEventType type;
     uint32_t which;
     MouseEventType button;
     bool state;
@@ -180,16 +77,14 @@ struct ItpMouseSet
     TpPoint pos;
     TpPoint globalPos;
 
-    ItpMouseSet() : type(TpEvent::EVENT_NONE_TYPE), which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
+    TpMouseEventData() : which(0), button(BUTTON_INVALIDATE_VALUE), state(false)
     {
     }
 };
 
 /// @brief 键盘事件数据
-struct ItpKeyboardSet
+struct TpKeyboardEventData
 {
-    /// @brief 事件类型
-    TpEvent::ItpEventType type;
     /// @brief 测试注释
     uint8_t which;
     bool state;
@@ -200,9 +95,8 @@ struct ItpKeyboardSet
     KeyModeType keyMod;
 };
 
-struct ItpFingerSet
+struct TpFingerEventData
 {
-    TpEvent::ItpEventType type;
     int32_t touchFingerType;
     uint32_t timestamp;
     int64_t fingerID;
@@ -214,9 +108,8 @@ struct ItpFingerSet
     float pressure;
 };
 
-struct ItpDollarSet
+struct TpDollAREventData
 {
-    TpEvent::ItpEventType type;
     int32_t dollarType;
     uint32_t timestamp;
     int64_t touchID;
@@ -225,14 +118,13 @@ struct ItpDollarSet
     int32_t x;
     int32_t y;
 
-    ItpDollarSet()
+    TpDollAREventData()
     {
     }
 };
 
-struct ItpMultiGestureSet
+struct TpMultiGestureEventData
 {
-    TpEvent::ItpEventType type;
     uint32_t timestamp;
     int64_t touchID;
     float dtheta;
@@ -241,118 +133,81 @@ struct ItpMultiGestureSet
     uint16_t numfingers;
     uint16_t padding;
 
-    ItpMultiGestureSet()
+    TpMultiGestureEventData()
     {
     }
 };
 
-struct ItpObjectMoveSet
+struct TpMoveEventData
 {
-    TpEvent::ItpEventType type;
     TpObject *object;
     int32_t nx;
     int32_t ny;
 
-    ItpObjectMoveSet()
+    TpMoveEventData()
     {
     }
 };
 
-struct ItpObjectResizeSet
+struct TpResizeEventData
 {
-    TpEvent::ItpEventType type;
     TpObject *object;
     int32_t nw;
     int32_t nh;
     int32_t question;
 
-    ItpObjectResizeSet()
+    TpResizeEventData()
     {
     }
 };
 
-struct ItpObjectFocusSet
+struct TpFocusEventData
 {
-    TpEvent::ItpEventType type;
     TpObject *object;
     bool focused;
 
-    ItpObjectFocusSet()
+    TpFocusEventData()
     {
     }
 };
 
-struct ItpObjectLeaveSet
+struct TpLeaveEventData
 {
-    TpEvent::ItpEventType type;
     TpObject *object;
     bool leaved;
 };
 
-struct ItpObjectVisibleSet
+struct TpVisibleEventData
 {
-    TpEvent::ItpEventType type;
     TpObject *object;
     bool visible;
 };
 
-struct ItpObjectRotateSet
-{
-    TpEvent::ItpEventType type;
-    TpObject *object;
-    ItpRotateType rotate;
-};
-
-struct ItpObjectPaintInput
+struct TpPaintEventInput
 {
     TpObject *object;
-    tpShared<TpSurface> surface;
     TpRect updateRect;
 };
 
-struct ItpObjectPaintSet
+struct TpPaintEventData
 {
-    TpEvent::ItpEventType type;
-
     TpObject *object;
-
-    TpPainter *canvas;
-    tpShared<TpSurface> surface;
-    ItpSufaceData *itpSurface;
-
-    int32_t offsetX;
-    int32_t offsetY;
-
+    TpPainter *painter;
     TpRect updateRect;
-    TpRect rect;
 
     bool canDraw;
 
-    ItpObjectPaintSet()
+    TpPaintEventData()
     {
         int a = 0;
     }
 };
 
-typedef struct
+struct TpActiveEventData
 {
-    TpEvent::ItpEventType type;
-    struct
-    {
-        TpObject *object;
-        struct
-        {
-            bool actived;
-        };
-    };
-} ItpObjectActiveSet;
-
-// static int64_t testCount = 0;
-
-// // 使用 type alias 简化代码
-// using Clock = std::chrono::high_resolution_clock;
-// using Duration = std::chrono::duration<double>;
-// using TimePoint = std::chrono::time_point<Clock>;
+    TpObject *object;
+    bool actived;
+};
 
 #endif
 

@@ -1,6 +1,6 @@
 # TinyPiXOS 🚀
 
-<div align="center">
+<div align="center"> 
 
 ![License](https://file.tinypixos.com/tinypixos/License-Apache2.0.svg)  ![Language](https://file.tinypixos.com/tinypixos/language-c++-red.svg)  ![Platform](https://file.tinypixos.com/tinypixos/platform-linux-lightgrey.svg)
 
@@ -8,7 +8,7 @@
 
 </div>
 
-TinyPiXOS 包括窗口管理器（TpWM）、GUI库（TpGUI）、工具库（TpUtil）、扩展库（TpExtUtils）四大部分。
+TinyPiXOS 包括窗口管理器（TpWM）、核心库（TpCore）、GUI库（TpGUI）、工具库（TpUtil）四大部分。
 
 ---
 
@@ -28,6 +28,18 @@ TpWM是 TinyPiXOS 的窗口管理引擎，是 TinyPiXOS 的核心支撑要件。
 
 TpService 是 ​​TiniPiXOS​​ 框架的后台服务模块，基于 ​​nanomsg​​ 实现高效通信，目前主要提供 ​​进程间通信（IPC）​​ 和 ​​局域网设备间通信​​ 功能，并计划逐步扩展为更强大的系统服务节点。
 
+## TpCore
+
+TpCore 库为 TinyPiXOS 应用程序的核心库，提供了信号槽、核心数据结构、文件操作、JSON 处理、泛类型等。
+
+---
+
+- 统一数据抽象：提供 TpString、TpList、TpHash、TpVector 等作为框架中所有数据操作的通用容器基类,建立统一的数据结构管理体系,确保类型安全与内存效率。
+- 高效序列化机制：统一处理二进制与 JSON 格式的数据转换,支持结构体与内存缓冲区的快速互转,适用于高性能数据存储与传输。
+- 事件驱动调度：内建信号槽系统,基于观察者模式实现松耦合的组件间通信,支持异步事件传播与回调处理。
+
+---
+
 ## TpGUI
 
 TpGUI 库为 TinyPiXOS 应用程序提供了核心 GUI 框架，实现了一个全面的基于小部件的用户界面系统，具有 CSS 样式、事件处理和动画功能。该库是在 TinyPiXOS 平台上构建图形应用程序的基础。
@@ -44,23 +56,11 @@ TpGUI 库为 TinyPiXOS 应用程序提供了核心 GUI 框架，实现了一个�
 
 ## TpUtils
 
-TpUtils​​ 是 TinyPiXOS 中的基础实用程序库，提供核心数据结构、文件作、CSS 解析、JSON 处理、系统集成 API 和通信机制。该库用作其他 TinyPiXOS 组件的基本功能所依赖的基础层。
+TpUtils​​ 库为 TinyPiXOS 应用程序提供全面的系统级集成功能。该库充当高级应用程序逻辑和低级系统资源之间的桥梁，为媒体处理、网络通信、蓝牙连接、应用程序生命周期管理、硬件监控和设备管理提供标准化接口。
 
 ---
 
-- 统一数据抽象：提供 TpString、TpList、TpHash、TpVector 等作为框架中所有数据操作的通用容器基类,建立统一的数据结构管理体系,确保类型安全与内存效率。
-- 高效序列化机制：统一处理二进制与 JSON 格式的数据转换,支持结构体与内存缓冲区的快速互转,适用于高性能数据存储与传输。
-- 事件驱动调度：内建信号槽系统,基于观察者模式实现松耦合的组件间通信,支持异步事件传播与回调处理。
-
----
-
-## TpExtUtils
-
-TpExtUtils 库为 TinyPiXOS 应用程序提供全面的系统级集成功能。该库充当高级应用程序逻辑和低级系统资源之间的桥梁，为媒体处理、网络通信、蓝牙连接、应用程序生命周期管理、硬件监控和设备管理提供标准化接口。
-
----
-
-- 统一媒体处理:提供 TpAudioInterface、TpVideoInterface 作为音视频处理的统一抽象层,集成 FFmpeg 编解码能力,支持多格式媒体文件的高效播放与录制。
+- 统一媒体处理:提供 TpAudioOutput、TpVideoOutput 作为音视频处理的统一抽象层,集成 FFmpeg 编解码能力,支持多格式媒体文件的高效播放与录制。
 - 设备管理:通过 TpDiskManage、TpUsbManager 实现热插拔设备的自动检测与挂载,提供设备状态变化的信号驱动通知机制,降低外设管理复杂度。
 - 高效网络通信:内建完整的 TCP/UDP Socket 框架,提供 TpTcpSocket、TpUdpSocket、TpTcpServer 等标准化网络接口,支持异步事件驱动的连接管理与数据传输。
 - 蓝牙协议栈:基于 BlueZ 实现完整的蓝牙设备配对、音频传输与文件交换能力,通过 TpBluetoothLocal、TpBluetoothAudioManager 提供声明式设备管理接口。
@@ -69,6 +69,7 @@ TpExtUtils 库为 TinyPiXOS 应用程序提供全面的系统级集成功能。�
 - 显示系统集成:TpDisplay 提供 DPI 缩放计算与 TpWM 窗口管理器的分辨率适配,支持多显示器配置与运行时分辨率切换。
 
 ---
+
 
 # 二、系统优势 🌟
 
@@ -157,14 +158,15 @@ git clone https://gitee.com/tinypixos/TinyPiXOS.git
 
 ```bash
 sudo apt install \
-  libsdl2-dev libcairo2-dev libpango1.0-dev libglib2.0-dev \
-  libpangocairo-1.0-0 libfontconfig-dev libfreetype-dev \
+  libsdl2-dev libglib2.0-dev \
   libgbm-dev libgles2 libegl-dev \
-  libasound2-dev libjson-c-dev libssl-dev libavcodec-dev libavformat-dev \
+  libasound2-dev libssl-dev libavcodec-dev libavformat-dev \
   libavutil-dev libswscale-dev libswresample-dev \
   libavfilter-dev libavdevice-dev librsvg2-dev bluez libbluetooth-dev \
   libdbus-1-dev bluez-alsa-utils libasound2-plugin-bluez bluez-obexd  libusb-1.0-0-dev \
-  libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgoogle-glog-dev
+  libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev
+
+# libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev
 ```
 
 - ​**构建 TinyPiXOS 依赖子模块（可跳过）**
@@ -200,6 +202,43 @@ make
 make install
 ```
 
+- ​**交叉编译构建 TinyPiXOS Arm64-Debug版本(32位版本将64修改为32即可)**
+
+```bash
+cmake --preset=arm64-debug \
+    -DCMAKE_C_COMPILER=/your/custom/path/arm-linux-gnueabihf-gcc \
+    -DCMAKE_CXX_COMPILER=/your/custom/path/arm-linux-gnueabihf-g++ \
+    -DARM_SDK_PATH=/your/sdk/path
+make
+make install
+```
+
+- ​**交叉编译构建 TinyPiXOS Arm64-Release版本(32位版本将64修改为32即可)**
+
+```bash
+cmake --preset=arm64-release \
+    -DCMAKE_C_COMPILER=/your/custom/path/arm-linux-gnueabihf-gcc \
+    -DCMAKE_CXX_COMPILER=/your/custom/path/arm-linux-gnueabihf-g++ \
+    -DARM_SDK_PATH=/your/sdk/path
+make
+make install
+```
+
+### 环境变量
+
+将生成库目录添加至系统环境变量
+
+```bash
+gedit ~/.bashrc
+export LD_LIBRARY_PATH="/usr/lib/TinyPiX:$LD_LIBRARY_PATH"
+```
+
+### 卸载
+
+```bash
+make uninstall
+```
+
 ### 使用说明
 
 #### 目录结构
@@ -219,21 +258,26 @@ make install
 
 #### 应用程序库引入
 
+```bash
+export LD_LIBRARY_PATH="/usr/lib/TinyPiX:$LD_LIBRARY_PATH"
+```
+
 ```cmake
+# TpCore引入
+include_directories(/usr/include/TinyPiX/TpCore)
+link_directories("/usr/lib/TinyPiX")
+link_directories("/usr/lib/TpWM")
+target_link_libraries(你的应用程序名称 TpCore)
+
 # TpGUI引入：
 include_directories(/usr/include/TinyPiX/TpGUI)
-link_directories("/usr/lib")
+link_directories("/usr/lib/TinyPiX")
 target_link_libraries(你的应用程序名称 TpGUI)
 
 # TpUtils引入：
 include_directories(/usr/include/TinyPiX/TpUtils)
-link_directories("/usr/lib")
+link_directories("/usr/lib/TinyPiX")
 target_link_libraries(你的应用程序名称 TpUtils)
-
-# TpExtUtils引入
-include_directories(/usr/include/TinyPiX/TpExtUtils)
-link_directories("/usr/lib")
-target_link_libraries(你的应用程序名称 TpExtUtils)
 ```
 
 #### 配置文件解析

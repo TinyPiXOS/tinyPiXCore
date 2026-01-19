@@ -32,15 +32,18 @@ TpMenuPanelItem::TpMenuPanelItem(TpWidget *parent)
     itemData->iconLabel->setVisible(false);
     itemData->iconLabel->setFixedSize(curCssData->iconSize(), curCssData->iconSize());
     itemData->iconLabel->installEventFilter(this);
+    // itemData->iconLabel->setBackGroundColor(_RGB(255, 0, 0));
 
     itemData->titleLabel = new TpLabel(this);
+    itemData->titleLabel->setAlign(Tp::AlignCenter);
     itemData->titleLabel->font()->setFontSize(curCssData->fontSize());
-    itemData->titleLabel->font()->setFontColor(curCssData->color(), curCssData->color());
+    itemData->titleLabel->font()->setFontColor(curCssData->color());
     itemData->titleLabel->installEventFilter(this);
 
     itemData->subTitleLabel = new TpLabel(this);
+    itemData->subTitleLabel->setAlign(Tp::AlignCenter);
     itemData->subTitleLabel->font()->setFontSize(curCssData->fontSize());
-    itemData->subTitleLabel->font()->setFontColor(_RGB(89, 89, 89), _RGB(89, 89, 89));
+    itemData->subTitleLabel->font()->setFontColor(_RGB(89, 89, 89));
     itemData->subTitleLabel->installEventFilter(this);
     itemData->subTitleLabel->setVisible(false);
 
@@ -75,22 +78,6 @@ TpMenuPanelItem::~TpMenuPanelItem()
     TpMenuPanelItemData *itemData = static_cast<TpMenuPanelItemData *>(data_);
     if (itemData)
     {
-        itemData->iconLabel->setParent(nullptr);
-        delete itemData->iconLabel;
-        itemData->iconLabel = nullptr;
-
-        itemData->titleLabel->setParent(nullptr);
-        delete itemData->titleLabel;
-        itemData->titleLabel = nullptr;
-
-        itemData->subTitleLabel->setParent(nullptr);
-        delete itemData->subTitleLabel;
-        itemData->subTitleLabel = nullptr;
-
-        itemData->expandLabel->setParent(nullptr);
-        delete itemData->expandLabel;
-        itemData->expandLabel = nullptr;
-
         delete itemData;
         itemData = nullptr;
         data_ = nullptr;
@@ -108,7 +95,6 @@ void TpMenuPanelItem::setIcon(const TpString &iconPath)
         return;
 
     itemData->iconLabel->setVisible(true);
-
     itemData->iconLabel->setBackGroundImage(TpImage(iconPath));
 }
 

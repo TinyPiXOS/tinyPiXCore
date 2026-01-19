@@ -1,8 +1,9 @@
-#include "TpWeatherInfoPanel.h"
-#include "TpImage.h"
-#include "TpPainter.h"
-#include "TpFont.h"
-#include "TpLinearGradient.h"
+#include <TpWeatherInfoPanel.h>
+#include <TpImage.h>
+#include <TpPainter.h>
+#include <TpFont.h>
+#include <TpLinearGradient.h>
+#include <TpEvent.h>
 
 struct TpWeatherInfoPanelData
 {
@@ -187,7 +188,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
         TpImage weatherIcon(weatherIconPath(weatherInfo.weatherType));
 
         weatherData->titleFont.setText(weatherInfo.text);
-        weatherData->titleFont.setFontColor(titleTextFontColor, titleTextFontColor);
+        weatherData->titleFont.setFontColor(titleTextFontColor);
 
         int32_t titleTextX = (singleWeatherWidth - weatherData->titleFont.pixelWidth()) / 2.0;
         int32_t titleTextY = ((height() - iconSize) / 2.0 - weatherData->titleFont.pixelHeight()) / 2.0;
@@ -196,7 +197,7 @@ bool TpWeatherInfoPanel::onPaintEvent(TpPaintEvent *event)
         painter->drawImage(iconX + i * singleWeatherWidth, iconY, weatherIcon.scaled(iconSize, iconSize));
 
         weatherData->subTextFont.setText(weatherInfo.subText);
-        weatherData->subTextFont.setFontColor(subTextFontColor, subTextFontColor);
+        weatherData->subTextFont.setFontColor(subTextFontColor);
 
         int32_t subTitleTextX = (singleWeatherWidth - weatherData->subTextFont.pixelWidth()) / 2.0;
         int32_t subTitleTextY = ((height() - iconSize) / 2.0 - weatherData->subTextFont.pixelHeight()) / 2.0;

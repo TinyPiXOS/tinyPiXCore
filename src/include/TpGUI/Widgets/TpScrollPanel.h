@@ -7,7 +7,7 @@
 #include "TpEvent.h"
 #include "TpVector.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpScrollPanelData);
+TP_DEF_VOID_TYPE_VAR(ITpScrollPanelData);
 
 class TpScrollPanel : public TpWidget
 {
@@ -77,6 +77,8 @@ public:
 public:
 	virtual bool recal(bool enableOffset = false); // when child rect be changed, call this function
 
+    virtual TpString pluginType() { return TO_STRING(TpScrollPanel); }
+
 public:
 	virtual bool onPaintEvent(TpPaintEvent *event) override;
 	virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
@@ -88,7 +90,7 @@ public:
 	virtual bool onLeaveEvent(TpLeaveEvent *event) override;
 
 private:
-	ItpScrollPanelData *data_;
+	ITpScrollPanelData *data_;
 };
 
 #endif

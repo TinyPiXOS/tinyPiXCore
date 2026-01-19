@@ -127,8 +127,7 @@ bool TpLottieAnimation::onPaintEvent(TpPaintEvent *event)
 
     TpLottieAnimationData *lottieData = static_cast<TpLottieAnimationData *>(data_);
 
-    std::pair<void *, void *> canvasPtrPair = TpWidget::canvasPtr();
-    tvg::Scene *widgetScene = (tvg::Scene *)canvasPtrPair.second;
+    tvg::Scene *widgetScene = (tvg::Scene *)TpWidget::scenePtr();
 
     tvg::Picture *dupPicture = static_cast<tvg::Picture *>(lottieData->animation->picture()->duplicate());
     dupPicture->size(width(), height());

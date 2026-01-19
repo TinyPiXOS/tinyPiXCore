@@ -1,7 +1,7 @@
 #ifndef __TP_SVG_H
 #define __TP_SVG_H
 
-#include "TpUtils.h"
+#include <TpCore.h>
 #include "TpSize.h"
 #include "TpFile.h"
 

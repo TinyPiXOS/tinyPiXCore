@@ -361,7 +361,6 @@ bool TpScrollPanel::setWidget(TpWidget *widget)
         widget->setRect(0, 0, width(), height());
         recal();
 
-        // std::cout << "SetWidget  :: scrollData->centralWidget Height  " << scrollData->centralWidget->height() << std::endl;
         // std::cout << "SetWidget  :: Height  " << height() << std::endl;
     }
 
@@ -519,7 +518,6 @@ bool TpScrollPanel::recal(bool enableOffset)
         int32_t scrollAreaY = realHeight - rectHeight;
 
         scrollData->panel->setRect(0, 0, realWidth, realHeight);
-        // std::cout << "acutalPanelWidth " << acutalPanelWidth << "  realHeight  " << realHeight << std::endl;
 
         if (enableOffset)
         {
@@ -612,6 +610,8 @@ bool TpScrollPanel::eventFilter(TpObject *watched, TpEvent *event)
 
 bool TpScrollPanel::onMousePressEvent(TpMouseEvent *event)
 {
+    TpWidget::onMousePressEvent(event);
+
     if (event->button() != BUTTON_LEFT)
         return true;
 
@@ -629,6 +629,8 @@ bool TpScrollPanel::onMousePressEvent(TpMouseEvent *event)
 
 bool TpScrollPanel::onMouseRleaseEvent(TpMouseEvent *event)
 {
+    TpWidget::onMouseRleaseEvent(event);
+
     if (event->button() != BUTTON_LEFT)
         return true;
 
@@ -638,27 +640,58 @@ bool TpScrollPanel::onMouseRleaseEvent(TpMouseEvent *event)
 
     scrollData->mouseLeftPress = event->state();
 
-    // 鼠标释放，如果拖拽的偏移边界了，回归0点位或终止位
-    int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
-    if (curScrollValue <= 0)
+    // std::cout << "scrollData->centralWidget->height(): " << scrollData->centralWidget->height() << std::endl;
+
+    int32_t curScrollValue = scrollMode() ? verticalPostion() : horizontalPostion();
+
+    if (curScrollValue > 0)
     {
         curScrollValue = 0;
-        scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
-    }
-    else if (curScrollValue >= 100)
-    {
-        curScrollValue = 100;
-        scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
+        scrollMode() ? setVerticalPostion(curScrollValue) : setHorizontalPostion(curScrollValue);
     }
     else
     {
+        uint32_t delta = 0;
+
+        if (scrollMode())
+        {
+            delta = scrollData->scrollRange[TP_RBSCR_INDEX_V];
+        }
+        else
+        {
+            delta = scrollData->scrollRange[TP_LTSCR_INDEX_H];
+        }
+
+        if (std::fabs(curScrollValue) > delta)
+        {
+            curScrollValue = -delta;
+            scrollMode() ? setVerticalPostion(curScrollValue) : setHorizontalPostion(curScrollValue);
+        }
     }
+
+    // 鼠标释放，如果拖拽的偏移边界了，回归0点位或终止位
+    // int32_t curScrollValue = scrollMode() ? verticalScrollBarValue() : horizontalScrollBarValue();
+    // if (curScrollValue <= 0)
+    // {
+    //     curScrollValue = 0;
+    //     scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
+    // }
+    // else if (curScrollValue >= 100)
+    // {
+    //     curScrollValue = 100;
+    //     scrollMode() ? setVerticalScrollBarValue(curScrollValue) : setHorizontalScrollBarValue(curScrollValue);
+    // }
+    // else
+    // {
+    // }
 
     return true;
 }
 
 bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
 {
+    TpWidget::onMouseMoveEvent(event);
+
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
         return false;
@@ -699,6 +732,8 @@ bool TpScrollPanel::onMouseMoveEvent(TpMouseEvent *event)
 
 bool TpScrollPanel::onWheelEvent(TpWheelEvent *event)
 {
+    TpWidget::onWheelEvent(event);
+
     int32_t delta = event->angleDelta();
 
     if (delta > 0)
@@ -733,6 +768,8 @@ bool TpScrollPanel::onWheelEvent(TpWheelEvent *event)
 
 bool TpScrollPanel::onResizeEvent(TpResizeEvent *event)
 {
+    TpWidget::onResizeEvent(event);
+
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
         return true;
@@ -748,6 +785,8 @@ bool TpScrollPanel::onResizeEvent(TpResizeEvent *event)
 
 bool TpScrollPanel::onLeaveEvent(TpLeaveEvent *event)
 {
+    TpWidget::onLeaveEvent(event);
+
     TpScrollPanelData *scrollData = static_cast<TpScrollPanelData *>(data_);
     if (!scrollData)
         return true;

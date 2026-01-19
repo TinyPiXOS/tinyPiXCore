@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpTabBarData);
+TP_DEF_VOID_TYPE_VAR(ITpTabBarData);
 /// @brief 底部菜单,宽度设置暂时无效，跟随父窗口宽度变化
 class TpTabBar : public TpWidget
 {
@@ -81,7 +81,7 @@ private:
     void caculateButtonSize();
 
 private:
-    ItpTabBarData *data_;
+    ITpTabBarData *data_;
 };
 
 #endif

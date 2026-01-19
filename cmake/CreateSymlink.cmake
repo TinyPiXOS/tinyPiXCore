@@ -1,113 +1,92 @@
-# tinyPiXOS 生成库创建软链接
-# CreateSymlink.cmake - 可重用的软链接创建模块
-#
-# 用法:
-#   CmakeCreateSymlink(TARGET <target> 
-#       [INSTALL_DIR <install_dir>]
-#       [LINK_DIR <link_dir>]
-#       [LINK_NAME <link_name>]
-#   )
-#
-# 参数:
-#   TARGET        CMake目标名
-#   INSTALL_DIR   库安装目录 (默认: /usr/lib/TinyPiX)
-#   LINK_DIR      软链接创建目录 (默认: /usr/lib)
-#   LINK_NAME     自定义链接名 (默认为目标文件名)
+# 将安装目录的库创建软链接
+# file(GLOB INSTALLED_SO_FILES "${INSTALL_DIR}/*.so*")
+file(GLOB INSTALLED_SO_FILES "${INSTALL_DIR}/*")
+foreach(SO_FILE IN LISTS INSTALLED_SO_FILES)
+    # 提取文件名（不带路径）
+    get_filename_component(FILENAME "${SO_FILE}" NAME)
 
-function(CmakeCreateSymlink)
-    # 解析参数
-    set(options)
-    set(oneValueArgs TARGET INSTALL_DIR LINK_DIR LINK_NAME)
-    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "" ${ARGN})
+    # 初始化变量
+    set(BASE_NAME_WITHOUT_ANY_VERSION "") # 不带任何版本号的名称
+    set(BASE_NAME_WITH_MAJOR_VERSION "") # 只带主版本号的名称
 
-    # 检查必填参数
-    if(NOT ARG_TARGET)
-        message(FATAL_ERROR "TARGET argument is required")
-    endif()
+    # 匹配带完整版本号的库文件 (lib.so.x.y.z)
+    if("${FILENAME}" MATCHES "^(.*)\\.so\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
+        set(LIB_BASE "${CMAKE_MATCH_1}")
+        set(MAJOR_VERSION "${CMAKE_MATCH_2}")
+        set(MINOR_VERSION "${CMAKE_MATCH_3}")
+        set(PATCH_VERSION "${CMAKE_MATCH_4}")
 
-    # 设置默认值
-    if(NOT ARG_INSTALL_DIR)
-        set(ARG_INSTALL_DIR "/usr/lib/TinyPiX")
-    endif()
+        set(BASE_NAME_WITHOUT_ANY_VERSION "${LIB_BASE}.so")
+        set(BASE_NAME_WITH_MAJOR_VERSION "${LIB_BASE}.so.${MAJOR_VERSION}")
 
-    if(NOT ARG_LINK_DIR)
-        set(ARG_LINK_DIR "/usr/lib")
-    endif()
+    # 匹配带主次版本号的库文件 (lib.so.x.y)
+    elseif("${FILENAME}" MATCHES "^(.*)\\.so\\.([0-9]+)\\.([0-9]+)$")
+        set(LIB_BASE "${CMAKE_MATCH_1}")
+        set(MAJOR_VERSION "${CMAKE_MATCH_2}")
+        set(MINOR_VERSION "${CMAKE_MATCH_3}")
 
-    # 设置链接名称
-    if(ARG_LINK_NAME)
-        set(link_name "${ARG_LINK_NAME}")
+        set(BASE_NAME_WITHOUT_ANY_VERSION "${LIB_BASE}.so")
+        set(BASE_NAME_WITH_MAJOR_VERSION "${LIB_BASE}.so.${MAJOR_VERSION}")
+
+    # 匹配只带主版本号的库文件 (lib.so.x)
+    elseif("${FILENAME}" MATCHES "^(.*)\\.so\\.([0-9]+)$")
+        set(LIB_BASE "${CMAKE_MATCH_1}")
+        set(MAJOR_VERSION "${CMAKE_MATCH_2}")
+
+        set(BASE_NAME_WITHOUT_ANY_VERSION "${LIB_BASE}.so")
+        set(BASE_NAME_WITH_MAJOR_VERSION "${FILENAME}") # 已经是主版本号形式
+
+    # 处理没有版本号后缀的文件
     else()
-        set(link_name "$<TARGET_FILE_NAME:${ARG_TARGET}>")
+        # 没有版本号则直接返回不处理
+        set(BASE_NAME_WITHOUT_ANY_VERSION "${FILENAME}")
+        set(BASE_NAME_WITH_MAJOR_VERSION "${FILENAME}") # 没有版本则两者相同
     endif()
 
-        # 关键修复：使用 FILE(GENERATE) 预解析生成器表达式
-    set(config_file "${CMAKE_CURRENT_BINARY_DIR}/${ARG_TARGET}_symlink.cmake")
+    # 创建无版本号的软链接
+    # 先删除已存在的符号链接（如果存在）
+    if(EXISTS "${LINK_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}" AND 
+            IS_SYMLINK "${LINK_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}")
     
-    file(GENERATE OUTPUT ${config_file} CONTENT "
-        # 在安装时计算实际文件名
-        set(target_file \"${ARG_INSTALL_DIR}/$<TARGET_FILE_NAME:${ARG_TARGET}>\")
-        
-        # 计算链接名（支持普通字符串和生成器表达式）
-        if(\"${ARG_LINK_NAME}\" STREQUAL \"\")
-            set(link_name \"$<TARGET_FILE_NAME:${ARG_TARGET}>\")
-        else()
-            set(link_name \"${ARG_LINK_NAME}\")
-        endif()
-        
-        # 创建链接完整路径
-        set(link_path \"${ARG_LINK_DIR}/\${link_name}\")
-        
-        # 删除旧链接（如果存在）
+        message(STATUS "删除软链接: ${LINK_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}")
         execute_process(
-            COMMAND \${CMAKE_COMMAND} -E rm -f \"\${link_path}\"
-            RESULT_VARIABLE rm_result
+            COMMAND ${CMAKE_COMMAND} -E remove "${LINK_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}"
+            RESULT_VARIABLE remove_result
         )
-        
-        # 创建新链接
-        execute_process(
-            COMMAND \${CMAKE_COMMAND} -E create_symlink \"\${target_file}\" \"\${link_path}\"
-            RESULT_VARIABLE link_result
-        )
-        
-        # 结果处理
-        if(link_result EQUAL 0)
-            message(STATUS \"Created symlink: \${link_path} -> \${target_file}\")
-        else()
-            message(WARNING \"Failed to create symlink \${link_path}: error \${link_result}\")
+
+        if(NOT remove_result EQUAL 0)
+            message(WARNING "删除软链接失败: ${remove_result}")
         endif()
-    ")
-    
-    # 使用生成的脚本文件
-    install(SCRIPT ${config_file})
-    
-    # # 创建软链接的安装脚本
-    # install(CODE "
-    #     # 获取目标文件完整路径
-    #     set(target_file \"${ARG_INSTALL_DIR}/$<TARGET_FILE_NAME:${ARG_TARGET}>\")
-        
-    #     # 创建软链接完整路径
-    #     set(link_path \"${ARG_LINK_DIR}/${link_name}\")
-        
-    #     # 删除旧链接（如果存在）
-    #     execute_process(
-    #         COMMAND \${CMAKE_COMMAND} -E rm -f \"\${link_path}\"
-    #         RESULT_VARIABLE rm_result
-    #     )
-        
-    #     # 创建新链接
-    #     execute_process(
-    #         COMMAND \${CMAKE_COMMAND} -E create_symlink \"\${target_file}\" \"\${link_path}\"
-    #         RESULT_VARIABLE link_result
-    #         OUTPUT_VARIABLE link_output
-    #         ERROR_VARIABLE link_error
-    #     )
-        
-    #     # 错误处理
-    #     if(NOT link_result EQUAL 0)
-    #         message(WARNING \"Failed to create symlink \${link_path}: \${link_error}\")
-    #     else()
-    #         message(STATUS \"Created symlink: \${link_path} -> \${target_file}\")
-    #     endif()
-    # ")
-endfunction()
+
+    endif()
+
+    if(NOT "${SO_FILE}" STREQUAL "${LINK_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}")
+
+        message(STATUS "创建符号链接: ${BASE_NAME_WITHOUT_ANY_VERSION}")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E create_symlink
+                "${SO_FILE}"
+                "${LINK_DIR}/${BASE_NAME_WITHOUT_ANY_VERSION}"
+            RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+            message(WARNING "创建符号链接失败: ${result}")
+        endif()
+    endif()
+
+    if(NOT "${SO_FILE}" STREQUAL "${LINK_DIR}/${BASE_NAME_WITH_MAJOR_VERSION}"
+        AND NOT "${BASE_NAME_WITHOUT_ANY_VERSION}" STREQUAL "${BASE_NAME_WITH_MAJOR_VERSION}")
+
+        message(STATUS "创建符号链接: ${BASE_NAME_WITH_MAJOR_VERSION}")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E create_symlink
+                "${SO_FILE}"
+                "${LINK_DIR}/${BASE_NAME_WITH_MAJOR_VERSION}"
+            RESULT_VARIABLE result
+        )
+        if(NOT result EQUAL 0)
+            message(WARNING "创建符号链接失败: ${result}")
+        endif()
+    endif()
+
+endforeach()

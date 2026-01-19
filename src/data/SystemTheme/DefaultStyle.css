@@ -72,7 +72,16 @@ TpButton[type="FunctionButton"]:hover {
     background-color: rgb(224, 197, 250);
 }
 
-TpSlideProgressBar {
+TpButton[type="TextButton"] {
+    font-size: 13dp;
+    color: rgb(150, 100, 246);
+}
+
+TpButton[type="TextButton"]:active {
+    color: rgb(204, 143, 237);
+}
+
+TpIconSlider {
     height: 64dp;
     width: 305dp;
     icon-size: 33dp;
@@ -157,7 +166,7 @@ TpLineEdit[type="fileManageEdit"] {
     font-size: 13;
     padding-top: 16dp;
     padding-bottom: 16dp;
-    border-radius: 28;
+    border-radius: 25;
     padding-left: 25;
     padding-right: 25;
     min-height: 56dp;
@@ -185,8 +194,8 @@ TpCollapsibleFileItem {
     font-size: 9dp;
     icon-size: 75dp;
     gap: 20dp;
-    min-width: 131dp;
-    min-height: 130;
+    min-width: 100;
+    min-height: 135;
 }
 
 TpMediaTileButton {
@@ -223,7 +232,7 @@ TpMenuPanelItem {
     padding-bottom: 15dp;
     padding-left: 20dp;
     padding-right: 20dp;
-    icon-size: 35dp;
+    icon-size: 34dp;
 }
 
 TpMenuPanelItem:checked {
@@ -352,5 +361,21 @@ TpProgressBar {
     color: rgb(38, 38, 38);
     background-color: rgba(255, 255, 255, 0.5);
     sub-color: rgb(140, 29, 235);
-    font-size: 11;
+    font-size: 10;
+}
+
+TpSliderProgressBar {
+    border-radius: 15;
+    color: rgb(255, 255, 255);
+    background-color: rgb(236, 236, 236);
+    sub-color: rgb(140, 29, 235);
+}
+
+TpToast {
+    width: 275;
+    height: 60;
+    border-radius: 20;
+    font-size: 12;
+    color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.2);
 }

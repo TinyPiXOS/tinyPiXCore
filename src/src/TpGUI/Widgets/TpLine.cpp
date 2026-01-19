@@ -4,7 +4,7 @@
 
 struct TpLineData
 {
-    Tp::AlignmentFlag alignmentType = Tp::AlignCenter;
+    Tp::Alignment alignmentType = Tp::AlignCenter;
     TpLine::LineType lineType = TpLine::HLine;
 
     uint32_t length = 0;
@@ -106,7 +106,7 @@ void TpLine::setLineLengthMode(const bool &isAuto)
     update();
 }
 
-void TpLine::setAlign(const Tp::AlignmentFlag &alignment)
+void TpLine::setAlign(const Tp::Alignment &alignment)
 {
     TpLineData *lineData = static_cast<TpLineData *>(data_);
     lineData->alignmentType = alignment;

@@ -6,7 +6,7 @@
 #include "TpString.h"
 #include "TpVariant.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpComboxData);
+TP_DEF_VOID_TYPE_VAR(ITpComboxData);
 /// @brief 下拉框组件
 class TpComBox : public TpWidget
 {
@@ -59,7 +59,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpComBox); }
 
 private:
-    ItpComboxData *data_;
+    ITpComboxData *data_;
 };
 
 #endif

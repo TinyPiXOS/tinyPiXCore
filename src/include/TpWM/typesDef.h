@@ -99,8 +99,8 @@ typedef enum
     TP_ROT_270 = 270,
     TP_ROT_270X = -270,
     TP_ROT_360 = 360,
-} ItpRotateType,
-    ItpRotate;
+} ITpRotateType,
+    ITpRotate;
 
 typedef enum
 {
@@ -109,6 +109,6 @@ typedef enum
     TP_RGB_16 = 16, // only support RGB  for 16 true color
     TP_RGB_24 = 24, // only support RGB  for 24 true color
     TP_RGB_32 = 32, // only support RGBA for 32 true color
-} ItpFormat;
+} ITpFormat;
 
 #endif

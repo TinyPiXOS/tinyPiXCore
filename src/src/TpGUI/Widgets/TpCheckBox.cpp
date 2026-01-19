@@ -26,7 +26,7 @@ TpCheckBox::TpCheckBox(TpWidget *parent)
 
     TpCheckBoxData *cbxData = new TpCheckBoxData();
 
-    cbxData->textFont->setFontColor(normalCss->color(), normalCss->color());
+    cbxData->textFont->setFontColor(normalCss->color());
     cbxData->textFont->setFontSize(normalCss->fontSize());
 
     cbxData->originIcon.load("/usr/res/TinyPiX/勾选-白.png");

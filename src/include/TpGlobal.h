@@ -110,16 +110,14 @@ namespace Tp
         AlignLeft = 0x0001,
         AlignRight = 0x0002,
         AlignHCenter = 0x0004,
-        // AlignJustify = 0x0008,
-        // AlignAbsolute = 0x0010,
 
         AlignTop = 0x0020,
         AlignBottom = 0x0040,
         AlignVCenter = 0x0080,
-        // AlignBaseline = 0x0100,
 
         AlignCenter = AlignVCenter | AlignHCenter
     };
+    typedef int32_t Alignment;
 
     enum ItemSelectionMode
     {

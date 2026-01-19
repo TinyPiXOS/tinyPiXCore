@@ -52,11 +52,13 @@ TpMenu::TpMenu() : TpDialog(), data_(nullptr)
 
     menuData->font->setText("TpMenu");
     menuData->font->setFontSize(normalCss->fontSize());
-    menuData->font->setFontColor(normalCss->color(), normalCss->color());
+    menuData->font->setFontColor(normalCss->color());
 
     menuData->itemHeight = menuData->font->pixelHeight() + normalCss->paddingTop() + normalCss->paddingBottom();
 
     setVisible(false);
+
+    setEnabledBorderColor(false);
 
     // setFixedSize(150, 150);
     // setBackGroundColor(_RGB(255, 0, 0));
@@ -241,7 +243,7 @@ bool TpMenu::onMouseRleaseEvent(TpMouseEvent *event)
 
     onClicked.emit(clickIndex);
 
-    setVisible(false);
+    close();
 
     return true;
 }
@@ -270,7 +272,7 @@ bool TpMenu::onLeaveEvent(TpLeaveEvent *event)
 
 bool TpMenu::onPaintEvent(TpPaintEvent *event)
 {
-    TpWidget::onPaintEvent(event);
+    TpDialog::onPaintEvent(event);
 
     TpPainter *painter = event->painter();
 
@@ -280,7 +282,7 @@ bool TpMenu::onPaintEvent(TpPaintEvent *event)
 
     tpShared<TpCssData> normalCss = currentStatusCss();
     menuData->font->setFontSize(normalCss->fontSize());
-    menuData->font->setFontColor(normalCss->color(), normalCss->color());
+    menuData->font->setFontColor(normalCss->color());
 
     for (int i = 0; i < menuData->itemList.size(); ++i)
     {

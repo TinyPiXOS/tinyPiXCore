@@ -46,7 +46,7 @@ TpPercentProgressBar::TpPercentProgressBar(TpWidget *parent)
     tpShared<TpCssData> normalCss = currentStatusCss();
 
     progressData->itemFont->setFontSize(normalCss->fontSize());
-    progressData->itemFont->setFontColor(normalCss->color(), normalCss->color());
+    progressData->itemFont->setFontColor(normalCss->color());
 
     data_ = progressData;
 

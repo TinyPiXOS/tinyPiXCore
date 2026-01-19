@@ -76,7 +76,7 @@ typedef struct __PIXWMConfigs{
 		tpUInt32 width;
 		tpUInt32 height;
 		
-		ItpFormat format;
+		ITpFormat format;
 		
 		tpUInt32 Rmask;
 		tpUInt32 Gmask;

@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpList.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpRadioButtonGroupData);
+TP_DEF_VOID_TYPE_VAR(ITpRadioButtonGroupData);
 
 class TpRadioButton;
 
@@ -49,7 +49,7 @@ signals:
     declare_signal(buttonClicked, TpRadioButton *);
 
 private:
-    ItpRadioButtonGroupData *data_;
+    ITpRadioButtonGroupData *data_;
 };
 
 #endif

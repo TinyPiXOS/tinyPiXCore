@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include "TpString.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpImageWidgetData);
+TP_DEF_VOID_TYPE_VAR(ITpImageWidgetData);
 /// @brief 图片资源查看窗体
 class TpImageWidget : public TpDialog
 {
@@ -27,7 +27,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpImageWidget); }
 
 private:
-    ItpImageWidgetData *data_;
+    ITpImageWidgetData *data_;
 };
 
 #endif

@@ -90,35 +90,6 @@ bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
     int32_t barWidth = width();
     int32_t barHeight = height();
 
-    // 绘制文本
-    if (progressData->showText)
-    {
-        TpFont textFont;
-        textFont.setFontColor(curCssData->color(), curCssData->color());
-        textFont.setFontSize(curCssData->fontSize());
-
-        // 直接预留好百分比文本显示的最大宽度和高度，避免文本长度变化导致进度条尺寸变化
-        textFont.setText("100%");
-        int32_t maxTextWidth = textFont.pixelWidth();
-        int32_t maxTextHeight = textFont.pixelHeight();
-
-        TpString valueText = TpString::number(int32_t(progressData->valueRange.percent() * 100)) + "%";
-        textFont.setText(valueText);
-
-        if (progressData->direction == TpProgressBar::Horizon)
-        {
-            barWidth = barWidth - maxTextWidth;
-            int32_t textY = (height() - textFont.pixelHeight()) / 2.0;
-            painter->drawText(textFont, width() - textFont.pixelWidth(), textY);
-        }
-        else
-        {
-            barHeight = barHeight - maxTextHeight;
-            int32_t textX = (width() - textFont.pixelWidth()) / 2.0;
-            painter->drawText(textFont, textX, 0);
-        }
-    }
-
     if (progressData->direction == TpProgressBar::Horizon)
     {
         // 绘制背景色
@@ -140,6 +111,28 @@ bool TpProgressBar::onPaintEvent(TpPaintEvent *event)
         int32_t valueHeight = progressData->valueRange.percent() * barHeight;
         painter->setBrush(TpBrush(curCssData->subColor()));
         painter->drawRect(0, height() - valueHeight, width(), valueHeight, roundCorners());
+    }
+
+    // 绘制文本
+    if (progressData->showText)
+    {
+        TpFont textFont;
+        textFont.setFontColor(curCssData->color());
+        textFont.setFontSize(curCssData->fontSize());
+
+        TpString valueText = TpString::number(int32_t(progressData->valueRange.percent() * 100)) + "%";
+        textFont.setText(valueText);
+
+        if (progressData->direction == TpProgressBar::Horizon)
+        {
+            int32_t textY = (height() - textFont.pixelHeight()) / 2.0;
+            painter->drawText(textFont, (width() - textFont.pixelWidth()) / 2.0, textY);
+        }
+        else
+        {
+            int32_t textX = (width() - textFont.pixelWidth()) / 2.0;
+            painter->drawText(textFont, textX, (height() - textFont.pixelHeight()) / 2.0);
+        }
     }
 
     return true;

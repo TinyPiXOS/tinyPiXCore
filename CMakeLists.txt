@@ -1,57 +1,99 @@
 cmake_minimum_required(VERSION 3.20.0)
+# ================== 交叉编译 sysroot 注入（最早期） ==================
+# if(CMAKE_CROSSCOMPILING)
+#     if(DEFINED ARM_SDK_PATH)
+#         get_filename_component(_ARM_SDK_PATH "${ARM_SDK_PATH}" ABSOLUTE)
+
+#         # 注意这里不要设置 CMAKE_SYSROOT
+#         # set(CMAKE_SYSROOT "${_ARM_SDK_PATH}" CACHE PATH "Cross compile sysroot" FORCE)
+
+#         # 只在 CMake 查找库时使用
+#         list(APPEND CMAKE_PREFIX_PATH "${_ARM_SDK_PATH}")
+
+#         message(STATUS "Using ARM SDK path for library search: ${_ARM_SDK_PATH}")
+#     else()
+#         message(FATAL_ERROR "ARM_SDK_PATH is required for cross compiling")
+#     endif()
+# endif()
+# =====================================================================
 project(TinyPiXOS VERSION 1.0.0 LANGUAGES C CXX)
 
-# 定义选项控制是否构建子项目
-option(BUILD_SUBPROJECTS "Build subprojects from source" OFF)
-option(FORCE_REBUILD_SUBPROJECTS "Force rebuild subprojects" OFF)
+option(BUILD_TP_DESKTOP "构建桌面应用程序" ON)
+option(USE_OPENGL "使用OpenGL渲染" OFF)
+
+# 不再提示未使用变量警告
+if(POLICY CMP0072)
+    cmake_policy(SET CMP0072 NEW)
+endif()
+
+if(USE_OPENGL)
+    message(STATUS "使用 OpenGL 渲染")
+    add_definitions(-DUSE_OPENGL)
+endif()
+
+# 添加SDK路径选项，支持命令行传入
+set(DEFAULT_SDK_PATH "/home/hawk/Public/arm_64")
+set(SDK_PATH ${DEFAULT_SDK_PATH})
+set(ARM_SDK_PATH "${SDK_PATH}" CACHE PATH "交叉编译SDK路径")
+
+# 显示使用的SDK路径
+message(STATUS "使用 SDK 路径: ${ARM_SDK_PATH}")
 
 # 引入cmake模块
 include(cmake/GlobalConfig.cmake)
 include(cmake/TargetArchConfig.cmake)
-include(cmake/CopyDependLib.cmake)
+include(cmake/LoadCrossSDK.cmake)
 
-# 添加子目录
-add_subdirectory(TpWM)
-add_subdirectory(TpUtils)
-add_subdirectory(TpExtUtils)
-add_subdirectory(TpGUI)
-add_subdirectory(TpService)
+# 加载SDK
+LoadCrossSDK(${ARM_SDK_PATH})
 
-# add_subdirectory(examplesApp)
+# 清理并拷贝数据目录；头文件、数据文件等目录
+add_custom_target(copyDependFiles ALL
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_PACKAGE_ROOT_PATH}/include
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/include ${INSTALL_PACKAGE_ROOT_PATH}/include
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_PACKAGE_ROOT_PATH}/res
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/res ${INSTALL_PACKAGE_ROOT_PATH}/res
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_PACKAGE_ROOT_PATH}/data
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/data ${INSTALL_PACKAGE_ROOT_PATH}/data
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_PACKAGE_ROOT_PATH}/lib
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DEPEND_DYNAMIC_LIB_PATH} ${INSTALL_PACKAGE_ROOT_PATH}/lib
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_PACKAGE_ROOT_PATH}/../system
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/system ${INSTALL_PACKAGE_ROOT_PATH}/../system
 
-# 创建一个虚拟目标用于执行自定义命令，清理安装目录
-add_custom_target(clean_install_directory
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_INCLUDE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_INCLUDE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_RESOURCE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_RESOURCE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_DATA_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_DATA_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_BIN_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_BIN_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_PACKAGE_ROOT_PATH}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_PACKAGE_ROOT_PATH}"
-    COMMENT "Cleaning install directory for headers and res"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_INCLUDE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_RESOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${INSTALL_DATA_DIR}
+
+    COMMENT "生成数据文件至 ${INSTALL_PACKAGE_ROOT_PATH}"
 )
 
-# 将清理目标添加为全局安装的依赖
-# install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target clean_install_directory)")
+# 添加子目录
+add_subdirectory(project/TpCore)
+add_subdirectory(project/TpUtils)
+add_subdirectory(project/TpGUI)
+add_subdirectory(project/TpWM)
+add_subdirectory(project/TpService)
 
-# 安装整个头文件目录到/usr/include
+if (BUILD_TP_DESKTOP)
+    message(STATUS "构建桌面应用程序")
+    add_subdirectory(TpDesktop)
+    add_dependencies(TpDesktop TpCore TpUtils TpGUI)
+endif()
+
+add_dependencies(TpCore copyDependFiles)
+add_dependencies(TpUtils copyDependFiles)
+add_dependencies(TpGUI copyDependFiles)
+add_dependencies(TpWM copyDependFiles)
+add_dependencies(TpService copyDependFiles)
+
+# 安装头文件
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include/ DESTINATION ${INSTALL_INCLUDE_DIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include DESTINATION ${INSTALL_PACKAGE_ROOT_PATH})
-
-# 安装资源文件到/usr/res/
+# # 安装资源文件到/usr/res/
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/res/ DESTINATION ${INSTALL_RESOURCE_DIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/res DESTINATION ${INSTALL_PACKAGE_ROOT_PATH})
-
-# 安装数据文件
+# # 安装数据文件
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/data/ DESTINATION ${INSTALL_DATA_DIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/data DESTINATION ${INSTALL_PACKAGE_ROOT_PATH})
-
-# 安装TpWM的system文件
+# # 安装TpWM的system文件
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/system/ DESTINATION ${INSTALL_SYSTEM_DIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/system/ DESTINATION ${INSTALL_PACKAGE_ROOT_PATH}/../system)
 
 # 修改bin下文件权限
 install(CODE "
@@ -60,13 +102,51 @@ install(CODE "
     execute_process(COMMAND chmod -R 0777 ${INSTALL_BIN_DIR})
 ")
 
-# 需要依赖此操作的目标列表
-set(TARGET_LIST TpUtils TpExtUtils TpGUI TpService)
+# 调安装所有动态库至安装目录，并在/usr/lib下创建软链接
+# 构建拷贝命令
+set(COPY_DEPEND_COMMANDS
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${INSTALL_LIB_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${INSTALL_LIB_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${INSTALL_PACKAGE_ROOT_PATH}/lib ${INSTALL_LIB_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${INSTALL_PACKAGE_ROOT_PATH}/bin ${INSTALL_BIN_DIR}
+)
 
-# 调用函数;将公共依赖动态库拷贝至指定目录
-setup_dependency_libraries(
-    "${DEPEND_DYNAMIC_LIB_PATH}"
-    "${INSTALL_LIB_DIR}"
-    "${LINK_LIB_DIR}"
-    "${TARGET_LIST}"
+# 创建自定义目标，执行拷贝和创建符号链接的命令
+add_custom_target(create_symlinks
+    COMMAND ${CMAKE_COMMAND} -E echo "开始处理依赖库与可执行程序..."
+    ${COPY_DEPEND_COMMANDS}
+    COMMAND ${CMAKE_COMMAND} -E echo "开始创建符号链接..."
+    COMMAND ${CMAKE_COMMAND} 
+        -DINSTALL_DIR=${INSTALL_LIB_DIR}
+        -DLINK_DIR=${INSTALL_LIB_DIR}
+        -P "${CMAKE_SOURCE_DIR}/cmake/CreateSymlink.cmake"
+    COMMAND ${CMAKE_COMMAND} 
+        -DINSTALL_DIR=${INSTALL_BIN_DIR}
+        -DLINK_DIR=${LINK_BIN_DIR}
+        -P "${CMAKE_SOURCE_DIR}/cmake/CreateSymlink.cmake"
+    COMMENT "正在拷贝可执行程序到 ${INSTALL_BIN_DIR} 并创建符号链接到 ${LINK_BIN_DIR}"
+    VERBATIM
+)
+
+# 添加install后执行的脚本
+install(CODE "
+    message(STATUS \"安装完成，开始设置依赖库...\")
+    execute_process(
+        COMMAND \${CMAKE_COMMAND} --build \${CMAKE_BINARY_DIR} --target create_symlinks
+        WORKING_DIRECTORY \${CMAKE_BINARY_DIR}
+    )
+")
+
+# 添加卸载目标
+add_custom_target(uninstall
+    COMMAND "${CMAKE_COMMAND}" 
+    -DINSTALL_LIB_DIR=${INSTALL_LIB_DIR}
+    -DINSTALL_INCLUDE_DIR=${INSTALL_INCLUDE_DIR}
+    -DINSTALL_RESOURCE_DIR=${INSTALL_RESOURCE_DIR}
+    -DINSTALL_DATA_DIR=${INSTALL_DATA_DIR}
+    -DINSTALL_BIN_DIR=${INSTALL_BIN_DIR}
+    -DINSTALL_DESKTOP_LIB_DIR=${INSTALL_DESKTOP_LIB_DIR}
+    -DINSTALL_DESKTOP_APP_DIR=${INSTALL_DESKTOP_APP_DIR}
+    -P "${CMAKE_SOURCE_DIR}/cmake/CmakeUninstall.cmake"
+    COMMENT "Uninstalling"
 )

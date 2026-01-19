@@ -4,12 +4,12 @@
 #include "TpDialog.h"
 #include "TpSignalSlot.h"
 #include "TpEvent.h"
-#include "TpUtils.h"
+#include <TpCore.h>
 
 class TpButton;
 
-/// @brief 虚拟键盘;使用tpApp相关接口获取实例
-TP_DEF_VOID_TYPE_VAR(ItpVirtualKeyboardData);
+/// @brief 虚拟键盘;使用TpApp相关接口获取实例
+TP_DEF_VOID_TYPE_VAR(ITpVirtualKeyboardData);
 class TpVirtualKeyboard
     : public TpDialog
 {
@@ -72,7 +72,7 @@ private:
     void pressLetterButton(TpButton *pressBtn);
 
 private:
-    ItpVirtualKeyboardData *data_;
+    ITpVirtualKeyboardData *data_;
 };
 
 #endif

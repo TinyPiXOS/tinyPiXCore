@@ -1,8 +1,9 @@
 #ifndef __TP_SHARED_TRANS_H
 #define __TP_SHARED_TRANS_H
 
-#include "TpString.h"
-#include "tinyPiXUtils.h"
+#include <TpString.h>
+#include <tinyPiXUtils.h>
+#include <TpCore.h>
 
 /// @brief 画布共享内存相关接口；用于跨进程共享surface画布
 class TpShareTrans

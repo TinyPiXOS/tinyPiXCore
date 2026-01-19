@@ -7,7 +7,7 @@
 
 #include <functional>
 
-TP_DEF_VOID_TYPE_VAR(ItpAnimationData);
+TP_DEF_VOID_TYPE_VAR(ITpAnimationData);
 /// @brief 动画类；使用指针对象，不要使用对象变量
 class TpAnimation : public TpObject
 {
@@ -28,11 +28,9 @@ public:
         WindowOpacity,
         /// @brief 背景颜色 int32_t
         BackgroundColor,
-        /// @brief 自定义动画 ，数值自定义；暂未启用
+        /// @brief 自定义动画;支持属性函数参数类型：整形、浮点型、TpRect、TpPoint、TpSize
         CustomAnimation
     };
-    typedef std::function<void(const TpVariant &)> CustomAnimationFunc;
-
     enum DeletionPolicy
     {
         /// @brief 动画停止时不释放指针
@@ -47,6 +45,11 @@ public:
     /// @param propertyType 动画类型
     TpAnimation(TpWidget *target, const AnimationType &propertyType);
 
+    /// @brief 创建自定义动画；需目标对象注册对应属性；参考 TpProperty
+    /// @param target 动画绑定目标
+    /// @param propertyName 动画关联属性名称
+    TpAnimation(TpWidget *target, const TpString &propertyName);
+
     virtual ~TpAnimation();
 
     /// @brief 设置动画绑定窗体
@@ -57,6 +60,14 @@ public:
     /// @return 窗体指针
     TpWidget *targetWidget();
 
+    /// @brief 设置属性名称；设置后动画类型为自定义动画；需目标对象注册对应属性；参考 TpProperty
+    /// @param propertyName 动画关联属性名称
+    void setPropertyName(const TpString &propertyName);
+
+    /// @brief 获取当前设置的属性名称
+    /// @return 
+    TpString propertyName();
+
     /// @brief 设置动画循环次数，默认为1次
     /// @param count -1为无限循环，需要手动终止动画
     void setLoopCount(const int32_t count);
@@ -64,10 +75,6 @@ public:
     /// @brief 获取动画循环次数
     /// @return 循环次数
     int32_t loopCount();
-
-    /// @brief 设置自定义动画处理函数,暂未启用
-    /// @param func 自定义动画值修改函数
-    void setCustomAnimationFunc(CustomAnimationFunc func);
 
     /// @brief 设置动画持续时间
     /// @param timeMs 时间，单位ms
@@ -114,7 +121,7 @@ private:
     void AnimationRun();
 
 private:
-    ItpAnimationData *data_;
+    ITpAnimationData *data_;
 };
 
 #endif

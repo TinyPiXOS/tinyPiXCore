@@ -2,7 +2,7 @@
 #include "TpMainWindow.h"
 #include "TpEvent.h"
 #include "TpPainter.h"
-#include "TpUtils.h"
+#include <TpGUI.h>
 #include "TpImage.h"
 #include "TpBattery.h"
 #include "TpLabel.h"
@@ -16,26 +16,22 @@
 #include "TpButton.h"
 #include "tinyPiXSys.h"
 #include "tinyPiXUtils.h"
-#include "TpSurface.h"
 #include "png.h"
 #include "TpMainWindow.h"
-#include "Service/TpSystemApi.h"
+#include "Service/TpDesktopAPI.h"
+#include "TpVBoxLayout.h"
+#include "TpHBoxLayout.h"
 
-// class ThorVgPaintWidget : public TpWidget
-class ThorVgPaintWidget : public TpDialog
+class ThorVgPaintWidget : public TpWidget
+// class ThorVgPaintWidget : public TpDialog
 {
 public:
     ThorVgPaintWidget(TpWidget *parent)
-    // : TpWidget(parent)
+        : TpWidget(parent)
     {
-        // setBackGroundColor(_RGBA(100, 100, 100, 200));
+        setBackGroundColor(_RGBA(100, 100, 100, 255));
         // setBackGroundImage(TpImage(applicationDirPath() + "/test.svg"));
         setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
-        testBattery_ = new TpBattery(this);
-        testBattery_->setValue(100);
-        testBattery_->setRect(10, 100, 200, 80);
-
-        testBattery_->setVisible(false);
     }
     ~ThorVgPaintWidget()
     {
@@ -43,12 +39,6 @@ public:
 
     virtual bool onMousePressEvent(TpMouseEvent *event) override
     {
-        int32_t batteryValue = testBattery_->value();
-        batteryValue -= 10;
-        if (batteryValue < 0)
-            batteryValue = 100;
-        testBattery_->setValue(batteryValue);
-
         std::cout << "pos: " << pos().x() << " , " << pos().y() << std::endl;
 
         move(pos().x() + 10, pos().y());
@@ -59,12 +49,6 @@ public:
 
         TpImage grabImage = grabWindow();
 
-        // static int32_t saveIndexS = 0;
-        // TpString savePngPath = "/home/hawk/Public/TinyPiXOS/examples/TpGUI/test/grapWindow_" + std::to_string(saveIndexS++) + ".png";
-        // grabImage.save(savePngPath, TpImage::PNG_FMT);
-
-        // update();
-
         return true;
     }
 
@@ -73,170 +57,45 @@ public:
         // static uint64_t paintCount = 0;
         // std::cout << "ThorVgPaintWidget::onPaintEvent " << paintCount++ << std::endl;
 
-        // TpWidget::onPaintEvent(event);
-        TpDialog::onPaintEvent(event);
+        TpWidget::onPaintEvent(event);
+        // TpDialog::onPaintEvent(event);
 
         TpPainter *painter = event->painter();
         // painter->paintTest();
 
-        // 测试 1: 默认构造函数和 moveTo/lineTo
-        {
-            TpPainterPath path;
-            path.moveTo(TpPoint(50, 50));
-            path.lineTo(TpPoint(150, 50));
-            path.lineTo(TpPoint(150, 150));
-            path.lineTo(TpPoint(50, 150));
-            path.closeSubpath();
+        TpFont testFont;
+        testFont.setText("这是一个测试字符串");
+        testFont.setFontSize(15);
+        testFont.setFontColor(_RGB(220, 0, 0));
 
-            painter->setPen(TpPen(TpColors::Red, 2));
-            painter->setBrush(TpBrush(TpColors::LightGray));
-            painter->drawPath(path);
-        }
-
-        // 测试 2: 带起始点的构造函数和 cubicTo
-        {
-            TpPainterPath path(TpPoint(200, 100));
-            path.cubicTo(TpPoint(250, 50), TpPoint(300, 150), TpPoint(350, 100));
-
-            painter->setPen(TpPen(TpColors::Blue, 3));
-            painter->setBrush(TpBrush(TpColors::Transparent));
-            painter->drawPath(path);
-        }
-
-        // 测试 3: addRect
-        {
-            TpPainterPath path;
-            path.addRect(TpRect(250, 200, 100, 80));
-
-            painter->setPen(TpPen(TpColors::Green, 2));
-            painter->setBrush(TpBrush(TpColors::Yellow));
-            painter->drawPath(path);
-        }
-
-        // 测试 4: addEllipse
-        {
-            TpPainterPath path;
-            path.addEllipse(TpRect(100, 250, 120, 80));
-
-            painter->setPen(TpPen(TpColors::Purple, 2));
-            painter->setBrush(TpBrush(TpColors::LightBlue));
-            painter->drawPath(path);
-        }
-
-        // 测试 5: addRoundedRect
-        {
-            TpPainterPath path;
-            path.addRoundedRect(TpRect(300, 300, 120, 80), 20);
-
-            painter->setPen(TpPen(TpColors::DarkGreen, 2));
-            painter->setBrush(TpBrush(TpColors::LightGreen));
-            painter->drawPath(path);
-        }
-
-        // 测试 6: addArc
-        {
-            TpPainterPath path;
-            path.addArc(TpPoint(400, 200), 50, 0, 270);
-
-            painter->setPen(TpPen(TpColors::Orange, 3));
-            painter->setBrush(TpBrush(TpColors::Transparent));
-            painter->drawPath(path);
-        }
-
-        // 测试 7: addPie
-        {
-            TpPainterPath path;
-            path.addPie(TpPoint(150, 400), 60, 45, 270);
-
-            painter->setPen(TpPen(TpColors::DarkRed, 2));
-            painter->setBrush(TpBrush(TpColors::Pink));
-            painter->drawPath(path);
-        }
-
-        // 测试 8: 运算符重载 (+)
-        {
-            TpPainterPath path1;
-            path1.addRect(TpRect(350, 400, 50, 50));
-
-            TpPainterPath path2;
-            path2.addEllipse(TpRect(375, 425, 50, 50));
-
-            TpPainterPath combinedPath = path1 + path2;
-
-            painter->setPen(TpPen(TpColors::DarkBlue, 2));
-            painter->setBrush(TpBrush(TpColors::LightYellow));
-            painter->drawPath(combinedPath);
-        }
-
-        // 测试 9: 复杂路径组合
-        {
-            TpPainterPath path;
-            path.moveTo(TpPoint(200, 50));
-            path.lineTo(TpPoint(250, 50));
-            path.cubicTo(TpPoint(275, 75), TpPoint(275, 125), TpPoint(250, 150));
-            path.lineTo(TpPoint(200, 150));
-            path.cubicTo(TpPoint(175, 125), TpPoint(175, 75), TpPoint(200, 50));
-            path.closeSubpath();
-
-            painter->setPen(TpPen(TpColors::Black, 2));
-            painter->setBrush(TpBrush(TpColors::Cyan));
-            painter->drawPath(path);
-        }
+        painter->drawText(testFont, 20, 20);
 
         return true;
     }
 
 private:
-    TpBattery *testBattery_;
-};
-
-class TestWidget : public TpWidget
-{
-public:
-    TestWidget(TpWidget *parent) : TpWidget(parent)
-    {
-    }
-    ~TestWidget() {}
-
-    virtual bool onMousePressEvent(TpMouseEvent *event) override
-    {
-        std::cout << "clickPos : " << event->pos().x() << " , " << event->pos().y() << std::endl;
-        std::cout << "clickGlobalPos : " << event->globalPos().x() << " , " << event->globalPos().y() << std::endl;
-        return true;
-    }
-
-    virtual bool onPaintEvent(TpPaintEvent *event) override
-    {
-        TpWidget::onPaintEvent(event);
-
-        TpPainter *painter = event->painter();
-        painter->setPen(TpPen(_RGB(255, 165, 255), 3));
-        painter->setBrush(TpBrush(_RGB(255, 165, 255)));
-        painter->drawRect(0, 0, 50, 50);
-        return true;
-    }
 };
 
 IPiSysApiAgent *globalAgent = tinyPiX_sys_create();
 
-TpImage getImage()
-{
-    IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
-    if (!surfacePtr)
-        return TpImage();
+// TpImage getImage()
+// {
+//     IPiWFSurface *surfacePtr = tinyPiX_sys_get_process_surface(globalAgent, getpid());
+//     if (!surfacePtr)
+//         return TpImage();
 
-    tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
+//     tpShared<TpSurface> appDisplayImage = tpMakeShared<TpSurface>(surfacePtr);
 
-    TpImage resImage;
-    resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()),
-                  TpRect(0, 36, appDisplayImage->width(), appDisplayImage->height() - 36));
+//     TpImage resImage;
+//     resImage.load(appDisplayImage->matrix(), TpSize(appDisplayImage->width(), appDisplayImage->height()),
+//                   TpRect(0, 36, appDisplayImage->width(), appDisplayImage->height() - 36));
 
-    TpImage copyImage = resImage;
+//     TpImage copyImage = resImage;
 
-    tinyPiX_surface_free(surfacePtr);
+//     tinyPiX_surface_free(surfacePtr);
 
-    return copyImage;
-}
+//     return copyImage;
+// }
 
 int32_t main(int32_t argc, char *argv[])
 {
@@ -244,24 +103,86 @@ int32_t main(int32_t argc, char *argv[])
     app.setStyle(Tp::SmartDeviceGUIStyle);
 
     TpMainWindow *vScreen = new TpMainWindow();
-    vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
+    vScreen->setBackGroundColor(_RGBA(128, 128, 128, 0));
+    // vScreen->setBackGroundColor(_RGB(255, 255, 255));
     // vScreen->setBackGroundImage(TpImage(applicationDirPath() + "/icon.png"));
 
-    TpLabel *bgLabel = new TpLabel(vScreen);
-    bgLabel->setBorderColor(_RGB(255, 0, 0));
-    bgLabel->setRect(250, 50, 450, 450);
+    // TestPaintWidget *testWidget2 = new TestPaintWidget(vScreen);
+    // testWidget2->setRect(10, 10, 500, 500);
 
-    TpButton *testBtn = new TpButton(vScreen);
-    testBtn->setText("获取当前进程截图");
-    testBtn->setRect(50, 50, 150, 50);
-    connect(testBtn, onClicked, [=](bool)
-            { bgLabel->setBackGroundImage(getImage()); });
+    // TpLabel *bgLabel = new TpLabel(vScreen);
+    // bgLabel->setBorderColor(_RGB(255, 0, 0));
+    // bgLabel->setRect(250, 50, 450, 450);
 
-    // ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
-    // thorVGPaint->setRect(600, 100, 500, 500);
+    // TpButton *testBtn = new TpButton(vScreen);
+    // testBtn->setText("获取当前进程截图");
+    // testBtn->setRect(50, 50, 150, 50);
+    // connect(testBtn, onClicked, [=](bool)
+    //         { bgLabel->setBackGroundImage(getImage()); });
+
+    // TpLabel *textTestLabel = new TpLabel("自动获取", vScreen);
+    // textTestLabel->setBackGroundColor(_RGB(255, 0, 0));
+    // textTestLabel->setAlign(Tp::AlignCenter);
+    // textTestLabel->font()->setFontSize(19);
+    // textTestLabel->setRect(520, 20, textTestLabel->font()->pixelWidth(), textTestLabel->font()->pixelHeight());
+
+    // TpLabel *textTestLabel2 = new TpLabel("以太网", vScreen);
+    // textTestLabel2->setBackGroundColor(_RGB(255, 0, 0));
+    // textTestLabel2->font()->setFontSize(19);
+    // textTestLabel2->setAlign(Tp::AlignCenter);
+    // textTestLabel2->setRect(520, 200, textTestLabel2->font()->pixelWidth(), textTestLabel2->font()->pixelHeight());
+
+    // TpLabel *nameLabel = new TpLabel("测试", vScreen);
+    // nameLabel->setBackGroundColor(_RGB(255, 0, 0));
+    // nameLabel->setAlign(Tp::AlignCenter);
+    // nameLabel->font()->setFontSize(9);
+    // nameLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // nameLabel->setWordWrap(false);
+    // nameLabel->installEventFilter(vScreen);
+
+    // TpLabel *sizeLabel = new TpLabel(vScreen);
+    // sizeLabel->setAlign(Tp::AlignCenter);
+    // sizeLabel->font()->setFontSize(9);
+    // sizeLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // sizeLabel->setText("0Kb");
+    // sizeLabel->installEventFilter(vScreen);
+
+    // TpLabel *typeLabel = new TpLabel(vScreen);
+    // typeLabel->setAlign(Tp::AlignCenter);
+    // typeLabel->font()->setFontSize(9);
+    // typeLabel->font()->setFontColor(_RGB(255, 255, 255));
+    // typeLabel->setText("未知");
+    // typeLabel->installEventFilter(vScreen);
+
+    // TpVBoxLayout *testLayout = new TpVBoxLayout();
+    // testLayout->setContentsMargins(0, 0, 0, 0);
+    // testLayout->setSpacing(2);
+    // testLayout->addWidget(nameLabel);
+    // testLayout->addWidget(sizeLabel);
+    // testLayout->addWidget(typeLabel);
+
+    // TpWidget *testLayoutWidget = new TpWidget(vScreen);
+    // testLayoutWidget->setLayout(testLayout);
+    // testLayoutWidget->setRect(20, 20, 200, 200);
+
+    // static bool testOn = false;
+    // TpButton *testBtn = new TpButton(vScreen);
+    // testBtn->setText("Label显隐");
+    // testBtn->setRect(50, 400, 150, 50);
+    // connect(testBtn, onClicked, [=](bool)
+    //         {
+    //             testLayoutWidget->setParent(testOn ? vScreen : nullptr);
+    //             // testLayoutWidget->setVisible(testOn ? true : false);
+    //             testOn = !testOn; });
+
+    ThorVgPaintWidget *thorVGPaint = new ThorVgPaintWidget(vScreen);
+    thorVGPaint->setWindowOpacity(0.3);
+    thorVGPaint->setRect(0, 0, 500, 500);
+
     // TpGraphicsBlurEffect btnBlurEffect;
-    // btnBlurEffect.setBlurRadius(15);
+    // btnBlurEffect.setBlurRadius(30);
     // thorVGPaint->setGraphicsEffect(btnBlurEffect);
+    // thorVGPaint->setEnableGraphicsEffect(true);
 
     vScreen->update();
 

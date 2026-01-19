@@ -5,7 +5,7 @@
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
-TP_DEF_VOID_TYPE_VAR(ItpTabWidgetData);
+TP_DEF_VOID_TYPE_VAR(ITpTabWidgetData);
 class TpTabBar;
 /// @brief 菜单在底部的桌面tab
 class TpTabWidget : public TpWidget
@@ -75,9 +75,6 @@ public:
 
 public:
     virtual bool onResizeEvent(TpResizeEvent *event) override;
-    virtual bool onMoveEvent(TpMoveEvent *event) override;
-    virtual bool onPaintEvent(TpPaintEvent *event) override;
-    virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
 protected:
     virtual TpString pluginType() override { return TO_STRING(TpTabWidget); }
@@ -90,7 +87,7 @@ signals:
     declare_signal(indexChanged, int32_t);
 
 private:
-    ItpTabWidgetData *data_;
+    ITpTabWidgetData *data_;
 };
 
 #endif

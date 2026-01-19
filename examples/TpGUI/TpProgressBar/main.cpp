@@ -8,10 +8,6 @@ int32_t main(int32_t argc, char *argv[])
     TpApp app(argc, argv);
     TpMainWindow *vScreen = new TpMainWindow();
     vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-    vScreen->setVisible(true); // vScreen setvisible will be update display1234567498
-
-    
-    vScreen->update();
 
     TpButton *button1 = new TpButton(vScreen);
     button1->setRect(100, 150, 50, 50);
@@ -27,7 +23,7 @@ int32_t main(int32_t argc, char *argv[])
     progressH->setRect(100, 100, 400, 20);
 
     TpProgressBar *progressV = new TpProgressBar(vScreen, TpProgressBar::Vertical);
-    progressV->setRect(300, 140, 20, 400);
+    progressV->setRect(300, 140, 40, 400);
 
     connect(button1, onClicked, [=](bool)
             { 

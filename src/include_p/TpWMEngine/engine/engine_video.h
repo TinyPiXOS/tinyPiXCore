@@ -29,7 +29,7 @@
 #include "engine.h"
 
 typedef struct{
-	ItpFormat format;
+	ITpFormat format;
 	tpUInt32 width;
 	tpUInt32 height;
 	tpUInt32 stride;

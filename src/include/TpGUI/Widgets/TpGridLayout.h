@@ -3,7 +3,7 @@
 
 #include "TpLayout.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpGridLayoutData);
+TP_DEF_VOID_TYPE_VAR(ITpGridLayoutData);
 
 class TpGridLayout : public TpLayout
 {
@@ -14,7 +14,7 @@ public:
 	virtual void update() override;
 
 private:
-	ItpGridLayoutData *data_;
+	ITpGridLayoutData *data_;
 };
 
 #endif

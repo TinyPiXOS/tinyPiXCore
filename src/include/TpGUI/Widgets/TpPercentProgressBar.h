@@ -3,7 +3,7 @@
 
 #include "TpWidget.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpPercentProgressBarData);
+TP_DEF_VOID_TYPE_VAR(ITpPercentProgressBarData);
 /// @brief 百分比显示的进度条
 class TpPercentProgressBar : public TpWidget
 {
@@ -48,7 +48,7 @@ public:
     virtual TpString pluginType() override { return TO_STRING(TpPercentProgressBar); }
 
 private:
-    ItpPercentProgressBarData *data_;
+    ITpPercentProgressBarData *data_;
 };
 
 #endif

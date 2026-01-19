@@ -1,0 +1,134 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "base-debug",
+            "hidden": true,
+            "binaryDir": ".",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/debug/install/${presetName}",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_FLAGS": "-g -O0 -fno-omit-frame-pointer -fno-inline -fno-optimize-sibling-calls",
+                "CMAKE_CXX_FLAGS": "-g -O0 -fno-omit-frame-pointer -fno-inline -fno-optimize-sibling-calls",
+                "CMAKE_EXE_LINKER_FLAGS": "-g",
+                "CMAKE_SHARED_LINKER_FLAGS": "-g",
+                "CMAKE_MODULE_LINKER_FLAGS": "-g",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF"
+            }
+        },
+        {
+            "name": "base-release",
+            "hidden": true,
+            "binaryDir": ".",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/release/install/${presetName}",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS": "-O2 -march=native -flto -DNDEBUG -fno-stack-protector",
+                "CMAKE_EXE_LINKER_FLAGS": "-flto -fuse-linker-plugin -Wl,--strip-debug",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug ",
+            "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "inherits": "base-debug",
+            "cacheVariables": {
+                "TARGET_ARCH": "x86/ARM",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1",
+                "CMAKE_CXX_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release ",
+            "description": "使用编译器: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "inherits": "base-release",
+            "cacheVariables": {
+                "TARGET_ARCH": "x86/ARM",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "arm-toolchain-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Linux",
+                "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++",
+                "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
+                "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "ONLY",
+                "CMAKE_CROSSCOMPILING": true
+            }
+        },
+        {
+            "name": "arm64-debug",
+            "displayName": "ARM64 Debug",
+            "description": "ARM64 交叉编译调试模式: C = /usr/bin/aarch64-linux-gnu-gcc, CXX = /usr/bin/aarch64-linux-gnu-g++",
+            "inherits": [
+                "base-debug",
+                "arm-toolchain-base"
+            ],
+            "cacheVariables": {
+                "TARGET_ARCH": "arm64",
+                "CMAKE_SYSTEM_PROCESSOR": "arm64",
+                "CMAKE_C_COMPILER": "/usr/bin/aarch64-linux-gnu-gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/aarch64-linux-gnu-g++",
+                "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1",
+                "CMAKE_CXX_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1"
+            }
+        },
+        {
+            "name": "arm64-release",
+            "displayName": "ARM64 Release ",
+            "description": "ARM64 交叉编译模式: C = /usr/bin/aarch64-linux-gnu-gcc, CXX = /usr/bin/aarch64-linux-gnu-g++",
+            "inherits": [
+                "base-release",
+                "arm-toolchain-base"
+            ],
+            "cacheVariables": {
+                "TARGET_ARCH": "arm64",
+                "CMAKE_SYSTEM_PROCESSOR": "arm64",
+                "CMAKE_C_COMPILER": "/usr/bin/aarch64-linux-gnu-gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/aarch64-linux-gnu-g++"
+            }
+        },
+        {
+            "name": "arm32-debug",
+            "displayName": "ARM32 Debug",
+            "description": "ARM32 交叉编译调试模式: C = /usr/bin/arm-linux-gnueabihf-gcc, CXX = /usr/bin/arm-linux-gnueabihf-g++",
+            "inherits": [
+                "base-debug",
+                "arm-toolchain-base"
+            ],
+            "cacheVariables": {
+                "TARGET_ARCH": "arm32",
+                "CMAKE_SYSTEM_PROCESSOR": "arm32",
+                "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++",
+                "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1",
+                "CMAKE_CXX_FLAGS_DEBUG": "-D_DEBUG -DDEBUG=1"
+            }
+        },
+        {
+            "name": "arm32-release",
+            "displayName": "ARM32 Release ",
+            "description": "ARM32 交叉编译模式: C = /usr/bin/arm-linux-gnueabihf-gcc, CXX = /usr/bin/arm-linux-gnueabihf-g++",
+            "inherits": [
+                "base-release",
+                "arm-toolchain-base"
+            ],
+            "cacheVariables": {
+                "TARGET_ARCH": "arm32",
+                "CMAKE_SYSTEM_PROCESSOR": "arm32",
+                "CMAKE_C_COMPILER": "/usr/bin/arm-linux-gnueabihf-gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/arm-linux-gnueabihf-g++"
+            }
+        }
+    ]
+}

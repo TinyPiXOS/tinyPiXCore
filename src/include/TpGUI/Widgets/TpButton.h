@@ -6,9 +6,7 @@
 #include "TpSignalSlot.h"
 #include <TpString.h>
 
-// 需要在四个地方根据样式刷新UI，构造、设置父窗口。resize、themechange
-
-TP_DEF_VOID_TYPE_VAR(ItpButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpButtonData);
 
 class TpFont;
 /// @brief 按钮类
@@ -35,6 +33,9 @@ public:
     /// @brief 设置按钮文本
     /// @param text 文本内容
     virtual void setText(const TpString &text);
+    /// @brief 获取按钮文本
+    /// @return 文本内容
+    TpString text() const;
 
     /// @brief 获取按钮文本字体
     /// @return 字体指针
@@ -84,7 +85,7 @@ private:
     void refreshLayout();
 
 private:
-    ItpButtonData *data_;
+    ITpButtonData *data_;
 };
 
 #endif

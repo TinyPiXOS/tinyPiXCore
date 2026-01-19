@@ -143,7 +143,7 @@ bool TpSlider::onMousePressEvent(TpMouseEvent *event)
         {
             // 点击位置占高度度的百分比
             float pressPointPercent = 1.0 * mousePoint.y() / height();
-            float pressValue = pressPointPercent * (sliderData->maxValue - sliderData->minValue) + sliderData->minValue;
+            float pressValue = (1.0 - pressPointPercent) * (sliderData->maxValue - sliderData->minValue) + sliderData->minValue;
 
             if (pressValue != sliderData->value)
                 valueChanged.emit(pressValue);
@@ -221,13 +221,6 @@ bool TpSlider::onMouseMoveEvent(TpMouseEvent *event)
     return true;
 }
 
-bool TpSlider::onLeaveEvent(TpLeaveEvent *event)
-{
-    // TpSliderData *sliderData = static_cast<TpSliderData *>(data_);
-    // sliderData->isPressVertex = false;
-    return true;
-}
-
 bool TpSlider::onPaintEvent(TpPaintEvent *event)
 {
     TpSliderData *sliderData = static_cast<TpSliderData *>(data_);
@@ -244,7 +237,7 @@ bool TpSlider::onPaintEvent(TpPaintEvent *event)
     uint32_t bgY = 0;
 
     // 不能用父类绘制，绘制背景色
-    TpRect rect = event->rect();
+    TpRect rect = this->rect();
     if (objectType() == Tp::TP_FLOAT_OBJECT)
     {
         if ((curCssData->backgroundColor() & 0xff) != 0xff)

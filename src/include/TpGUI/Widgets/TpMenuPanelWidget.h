@@ -6,7 +6,7 @@
 #include "TpString.h"
 #include "TpMenuPanelItem.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpMenuPanelWidgetData);
+TP_DEF_VOID_TYPE_VAR(ITpMenuPanelWidgetData);
 
 /// @brief 菜单面板窗体,item只能单选；失去焦点时取消所有选中；选中后不可取消选中
 class TpMenuPanelWidget : public TpWidget
@@ -58,7 +58,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpMenuPanelWidget); }
 
 private:
-    ItpMenuPanelWidgetData *data_;
+    ITpMenuPanelWidgetData *data_;
 };
 
 #endif

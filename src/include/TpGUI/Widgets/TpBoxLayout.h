@@ -3,7 +3,7 @@
 
 #include "TpLayout.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpBoxLayoutData);
+TP_DEF_VOID_TYPE_VAR(ITpBoxLayoutData);
 class TpBoxLayout
     : public TpLayout
 {
@@ -35,7 +35,7 @@ public:
 	virtual uint32_t columnCount() override;
 
 private:
-    ItpBoxLayoutData *data_;
+    ITpBoxLayoutData *data_;
 };
 
 #endif

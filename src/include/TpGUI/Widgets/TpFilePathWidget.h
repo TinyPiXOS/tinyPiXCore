@@ -6,7 +6,7 @@
 #include "TpString.h"
 #include "TpFilePathWidgetItem.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpFilePathWidgetData);
+TP_DEF_VOID_TYPE_VAR(ITpFilePathWidgetData);
 
 /// @brief 路径显示按钮类
 class TpFilePathWidget : public TpWidget
@@ -41,11 +41,8 @@ signals:
     declare_signal(onPathChanged, const TpString &, const TpString &);
 
 protected:
-	virtual bool onMousePressEvent(TpMouseEvent *event) override;
-	virtual bool onMouseRleaseEvent(TpMouseEvent *event) override;
     virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onResizeEvent(TpResizeEvent *event) override;
-
     virtual bool eventFilter(TpObject *watched, TpEvent *event) override;
 
     /// @brief
@@ -56,7 +53,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpFilePathWidget); }
 
 private:
-    ItpFilePathWidgetData *data_;
+    ITpFilePathWidgetData *data_;
 };
 
 #endif

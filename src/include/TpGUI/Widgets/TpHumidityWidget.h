@@ -7,7 +7,7 @@
 #include "TpVector.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpHumidityWidgetData);
-/// @brief 湿度计组件
+/// @brief 湿度计组件；宽高比例需为 2:3，如果外部设置尺寸不满足则会内部自动按照宽度值调整高度;直接设置高度无效
 class TpHumidityWidget : public TpWidget
 {
 public:
@@ -46,6 +46,9 @@ public:
     int32_t lineWidth() const;
 
 public:
+    virtual void setWidth(const int32_t &width) override;
+    virtual void setHeight(const int32_t &height) override;
+
     virtual bool onPaintEvent(TpPaintEvent *event) override;
 
     virtual TpString pluginType() override { return TO_STRING(TpHumidityWidget); }

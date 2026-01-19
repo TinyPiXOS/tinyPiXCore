@@ -4,7 +4,7 @@
 #include "TpWidget.h"
 #include "TpSignalSlot.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpRadioButtonData);
+TP_DEF_VOID_TYPE_VAR(ITpRadioButtonData);
 
 class TpColors;
 class TpFont;
@@ -31,8 +31,11 @@ public:
 
 public:
     /// @brief 设置按钮文本
-    /// @param text
+    /// @param text 文本字符串
     virtual void setText(const TpString &text);
+    /// @brief 获取文本
+    /// @return 文本字符串
+    TpString text() const;
 
     virtual TpFont *font();
 
@@ -48,7 +51,7 @@ protected:
     virtual bool onPaintEvent(TpPaintEvent *event);
 
 private:
-    ItpRadioButtonData *data_;
+    ITpRadioButtonData *data_;
 };
 
 #endif

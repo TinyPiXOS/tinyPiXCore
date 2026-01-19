@@ -5,7 +5,7 @@
 #include "TpString.h"
 #include "TpGlobal.h"
 
-TP_DEF_VOID_TYPE_VAR(ItpLineData);
+TP_DEF_VOID_TYPE_VAR(ITpLineData);
 /// @brief 分割线组件
 class TpLine : public TpWidget
 {
@@ -38,7 +38,7 @@ public:
 
     /// @brief 设置居中模式
     /// @param alignment 居中模式
-    void setAlign(const Tp::AlignmentFlag& alignment = Tp::AlignCenter);
+    void setAlign(const Tp::Alignment& alignment = Tp::AlignCenter);
 
     /// @brief 设置线条颜色
     /// @param color 颜色_RGB()
@@ -57,7 +57,7 @@ protected:
     virtual TpString pluginType() override { return TO_STRING(TpLine); }
 
 private:
-    ItpLineData *data_;
+    ITpLineData *data_;
 };
 
 #endif

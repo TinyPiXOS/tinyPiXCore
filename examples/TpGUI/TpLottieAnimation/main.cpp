@@ -1,7 +1,7 @@
 #include "TpApp.h"
 #include "TpMainWindow.h"
 #include "TpLottieAnimation.h"
-#include "TpUtils.h"
+#include <TpGUI.h>
 
 int32_t main(int32_t argc, char *argv[])
 {
