@@ -56,6 +56,8 @@ public:
     /// @brief 设置是否自动换行
     /// @param wrap 是否换行
     void setWrap(bool wrap);
+    /// @brief 获取当前是否为自动换行状态
+    /// @return 自动换行为true
     bool wrap();
 
     /// @brief 布局宽高；根据布局宽高实现自动换行和居中模式
