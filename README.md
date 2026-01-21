@@ -164,7 +164,7 @@ sudo apt install \
   libavutil-dev libswscale-dev libswresample-dev \
   libavfilter-dev libavdevice-dev librsvg2-dev bluez libbluetooth-dev \
   libdbus-1-dev bluez-alsa-utils libasound2-plugin-bluez bluez-obexd  libusb-1.0-0-dev \
-  libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev
+  libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libexpat1-dev libbz2-dev libwebp-dev
 
 # libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev
 ```
