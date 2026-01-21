@@ -395,7 +395,9 @@ gboolean device_get_paired(Device *self, GError **error)
     g_assert(self->priv->properties != NULL);
     GVariant *prop = g_proxy_properties_get(self->priv->properties, DEVICE_DBUS_INTERFACE, "Paired", error);
     if (prop == NULL)
-        return FALSE;
+	{
+		return FALSE;
+	}
     gboolean ret = g_variant_get_boolean(prop);
     g_variant_unref(prop);
     return ret;

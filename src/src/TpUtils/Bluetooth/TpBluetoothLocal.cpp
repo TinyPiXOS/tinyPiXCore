@@ -157,13 +157,18 @@ int TpBluetoothLocal::requestPairing(TpBluetoothAddress &address, TpBluetoothLoc
     if (!adapter())
         return -1;
 
+	if(getPairStatus(address) == pair)
+	{
+		printf("The device is already in the specified pairing state.\n");
+		return 0;
+	}
+
     BluetDevice *device = bluet_device_creat(data->adapter, address.toString().c_str());
     if (!device)
     {
         fprintf(stderr, "Target device not found\n");
         return -1;
     }
-    data->device_list.emplace_back(device);
 
     switch (pair)
     {
@@ -174,10 +179,11 @@ int TpBluetoothLocal::requestPairing(TpBluetoothAddress &address, TpBluetoothLoc
         bluet_device_pair_with_remote(device, 1);
         break;
     case TpBluetoothLocal::TP_LOCAL_UNPAIRED:
-        bluet_cancel_paie_with_remote(device);
+        bluet_cancel_pair_with_remote(device);
         break;
     }
-
+	
+	data->device_list.emplace_back(device);
     //	int bluet_disconnect_remote(Adapter *adapter,const char *name);
     return 0;
 }
@@ -194,8 +200,16 @@ TpBluetoothLocal::TpLocalPair TpBluetoothLocal::getPairStatus(TpBluetoothAddress
 {
     TpBluetoothLocalData *data = static_cast<TpBluetoothLocalData *>(data_);
     if (!adapter())
+	{
+		printf("Adapter not found\n");
         return TpBluetoothLocal::TP_LOCAL_UNPAIRED;
+	}
     Device *device = find_device(data->adapter, address.toString().c_str(), NULL);
+	if(!device)
+	{
+		printf("Device not found\n");
+		return TpBluetoothLocal::TP_LOCAL_UNPAIRED;
+	}
 
     int paired = bluet_device_get_paired(device);
     int trusted = bluet_device_get_trusted(device);

@@ -24,8 +24,8 @@ int bluet_device_delete(BluetDevice *self);
 Device *bluet_device_get_device(BluetDevice *device);
 
 int bluet_device_pair_with_remote(BluetDevice *self, uint8_t trused);
-int bluet_device_cancel_paie_with_remote(Device *device);
-int bluet_cancel_paie_with_remote(BluetDevice *self);
+int bluet_device_cancel_pair_with_remote(Device *device);
+int bluet_cancel_pair_with_remote(BluetDevice *self);
 int bluet_connect_remote_device(BluetDevice *device,const char *uuid);
 int bluet_disconnect_remote_device(BluetDevice *device,const char *uuid);
 int bluet_remove_remote(Adapter *adapter,const char *name);

@@ -12,7 +12,7 @@
 #include "Bluetooth/TpBluetoothAudioDevice.h"
 
 //主要用于启动bluealsa守护进程
-int example_audio_service()
+void example_audio_service()
 {
 	int err=0;
 	TpBluetoothAudioManager audio_service;
@@ -23,13 +23,13 @@ int example_audio_service()
 		if(err>20)
 		{
 			std::cout << "蓝牙音频服务启动失败\n";
-			return 0;
+			return ;
 		}
 	}
 }
 
 
-int example_play_audio()
+void example_play_audio()
 {
 	example_audio_service();
 
@@ -54,7 +54,7 @@ int example_play_audio()
 	if(player.openDevice()<0)
 	{
 		printf("open device error\n");
-		return -1;
+		return ;
 	}
 	player.playStart();
 	sleep(10);

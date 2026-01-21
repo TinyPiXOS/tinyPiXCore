@@ -26,11 +26,10 @@ INC_PATH ?= -I. \
 #LIB = -lpthread -lpcap -ltparchive
 LIB = -lTpGUI -lTpUtils -lTpCore \
 	  -lwebp \
-      -lturbojpeg \
       -lpng \
       -fopenmp -lgomp \
 	  -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -ldl -lpthread -lSDL2   -lgobject-2.0 -lglib-2.0   -lgbm -lGLESv2 -lEGL 
-
+	  
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标

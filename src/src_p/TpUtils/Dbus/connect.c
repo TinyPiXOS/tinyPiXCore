@@ -181,9 +181,12 @@ DbusMainThread *dbus_main_thread_creat_once(DbusMainThreadType type)
 		// 第一次获取，分配单例
 		main=dbus_main_thread_creat(type);
 	}
-
+	else {
+		// 不是第一次获取，返回已有单例
+		main = main_thread_once;
+	}
 	ref_count++;
-	printf("dbus_main_thread_delete_once:第%d次创建\n",ref_count);
+	printf("dbus_main_thread_creat_once:第%d次创建\n",ref_count);
 	pthread_mutex_unlock(&ref_mutex);
 
 	return main;
