@@ -217,9 +217,10 @@ int bluet_device_pair_with_remote(BluetDevice *self,uint8_t trused)
 
 
 //取消配对
-int bluet_device_cancel_paie_with_remote(Device *device)
+int bluet_device_cancel_pair_with_remote(Device *device)
 {
 	GError *error = NULL;
+	printf("取消配对\n");
 	device_cancel_pair(device,&error);
 	if(error)
 	{
@@ -230,9 +231,9 @@ int bluet_device_cancel_paie_with_remote(Device *device)
 }
 
 //取消配对
-int bluet_cancel_paie_with_remote(BluetDevice *self)
+int bluet_cancel_pair_with_remote(BluetDevice *self)
 {
-	return bluet_device_cancel_paie_with_remote(self->priv->device);
+	return bluet_device_cancel_pair_with_remote(self->priv->device);
 }
 
 
@@ -332,13 +333,13 @@ const char *bluet_device_get_name(BluetDevice *self)
 int bluet_device_get_trusted(Device *device)
 {
 	GError *error = NULL;
-	device_get_trusted(device,&error);
+	gboolean trusted = device_get_trusted(device,&error);
 	if(error)
 	{
 		g_clear_error(&error);
 		return -1;
 	}
-	return 0;
+	return trusted ? 1 : 0;
 }
 
 //获取远程设备信任状态
@@ -389,13 +390,13 @@ int bluet_adapter_set_trusted(Adapter *adapter,const char *name,uint8_t value)
 int bluet_device_get_paired(Device *device)
 {
 	GError *error = NULL;
-	device_get_paired(device,&error);
+	gboolean paired = device_get_paired(device,&error);
 	if(error)
 	{
 		g_clear_error(&error);
 		return -1;
 	}
-	return 0;
+	return paired ? 1 : 0;
 }
 
 //获取远程设备配对状态

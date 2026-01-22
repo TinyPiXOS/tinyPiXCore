@@ -9,8 +9,25 @@
 #include "Bluetooth/TpBluetoothDevice.h"
 //#include "blt_service.h"
 
+
+void printf_paired_status(TpBluetoothLocal::TpLocalPair status)
+{
+	switch(status)
+	{
+		case TpBluetoothLocal::TP_LOCAL_PAIRED:
+			std::cout << "未信任已配对" << std::endl;
+			break;
+		case TpBluetoothLocal::TP_LOCAL_UNPAIRED:
+			std::cout << "未配对" << std::endl;
+			break;
+		case TpBluetoothLocal::TP_LOCAL_AUTHORIZED_PAIRED:
+			std::cout << "已配对且已信任" << std::endl;
+			break;
+	}
+}
+
 //本地蓝牙设备获取
-int example_list_adapter()
+void example_list_adapter()
 {
 	TpList<tpShared<TpBluetoothHostInfo>> adapter_list=TpBluetoothLocal::allDevice();
 	for(auto &it:adapter_list)
@@ -22,31 +39,39 @@ int example_list_adapter()
 }
 
 //扫描蓝牙
-int example_list_device()
+void example_list_device()
 {
 	TpBluetoothDiscovery discovery("hci0");
 	discovery.start();
 	
 	connect(&discovery, bluetoothDeviceRemove, [=](TpBluetoothAddress address)
-            { std::cout << "[Signal]设备消失：" << address.toString() << std::endl; });
+            { std::cout << "[Signal]设备消失：" << address.toString() << std::endl; },Tp::DirectConnection);
 
 	connect(&discovery, bluetoothDeviceAdd, [=](const TpBluetoothDevice &device)
-            { std::cout << "[Signal]设备新增：" << device.getAddress().toString() << std::endl; });
+            { std::cout << "[Signal]设备新增：" << device.getAddress().toString() << std::endl; },Tp::DirectConnection);
 
 	while(1);
 	discovery.stop();
 }
 
-int example_pair()
+void example_pair()
 {
 	TpBluetoothLocal local("hci0");
 	TpBluetoothAddress remote(TpString("6C:D1:99:69:BF:F0"));
+	
+	TpBluetoothLocal::TpLocalPair status = local.getPairStatus(remote);
+	printf_paired_status(status);
+/*	printf("开始配对\n");
+	local.requestPairing(remote,TpBluetoothLocal::TP_LOCAL_AUTHORIZED_PAIRED);
+	printf_paired_status(status);
+	sleep(20);
+	printf("取消配对\n");
 	local.requestPairing(remote,TpBluetoothLocal::TP_LOCAL_UNPAIRED);
-	sleep(10);
+	printf_paired_status(status);*/
 }
 
 //适配器电源开关
-int example_power()
+void example_power()
 {
 	TpBluetoothLocal local("hci0");
 	if(local.isPowerOn())
@@ -62,7 +87,8 @@ int example_power()
 int main()
 {
 	example_list_adapter();
-	example_list_device();
+//	example_list_device();
 //	example_power();
-//	example_pair();
+	example_pair();
+	return 0;
 }

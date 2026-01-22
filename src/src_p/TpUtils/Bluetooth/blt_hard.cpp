@@ -634,7 +634,7 @@ static void _manager_device_found(GDBusConnection *connection,
                                   gpointer user_data)
 {
     g_assert(user_data != NULL);
-    printf("蓝牙信号新增？？？？？？？？？？？？？？？？？\n");
+    printf("新的蓝牙设备\n");
     struct CallbackDataInterfacesAdded *callback_data = (struct CallbackDataInterfacesAdded *)user_data;
     const gchar *adapter_object_path = callback_data->adapter_object_path;
     BluetoothRemoteCallback callback = callback_data->callback;
