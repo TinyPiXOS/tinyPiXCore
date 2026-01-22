@@ -151,3 +151,4 @@ examples/TpGUI/TpComBox/comBox
 examples/TpGUI/TpSliderProgressBar/sliderProgressBar
 examples/TpGUI/TpFlexLayout/flexLayout
 examples/TpGUI/TpToast/toast
+examples/TpCore/TpDataDefine/data
