@@ -10,7 +10,7 @@ extern "C"
 #include <stdio.h>
 #include <string.h>
 
-#include "bluetooth_inc.h"
+#include "Bluetooth/bluetooth_inc.h"
 
 #define BLUETOOTH_BASE_UUID_STR "00000000-0000-1000-8000-00805F9B34FB"
 

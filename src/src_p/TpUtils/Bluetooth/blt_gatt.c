@@ -12,12 +12,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <bluetooth/bluetooth.h>
+#include "Bluetooth/bluetooth_inc.h"
 #include <dbus/dbus.h>
 
 // 蓝牙适配器相关定义
 #define ADAPTER_PATH "/org/bluez/hci1"
 #define ADAPTER_INTERFACE "org.bluez.Adapter1"
-#define PROPERTIES_INTERFACE "org.freedesktop.DBus.Properties"
 
 // OBEX相关定义
 #define OBEX_SERVICE "org.bluez.obex"
@@ -41,7 +41,7 @@ void set_discoverable(DBusConnection *conn) {
     // 构造对 org.freedesktop.DBus.Properties 接口 Set 方法的调用消息
     msg = dbus_message_new_method_call("org.bluez",   // 目标服务
                                        ADAPTER_PATH,  // 对象路径
-                                       PROPERTIES_INTERFACE, // 接口
+                                       BLUEZ_DBUS_INTERFACE_PROPERTIES, // 接口
                                        "Set");        // 方法名
     if (msg == NULL) {
         fprintf(stderr, "创建消息失败\n");

@@ -1,6 +1,5 @@
 说明：
 	蓝牙服务&底层接口
-程序版本：V1.1.6
 开发环境：Ubuntu22.04
 创建日期：2025/5/26
 作者：Chingan
@@ -15,6 +14,8 @@
 其他辅助开发的库
 	bluez-tools:命令行工具
 	bluetooth:可以一键安装所所有蓝牙开发相关的共话剧或库，apt-get install bluetooth
+	d-feet:可视化工具DBUS调试工具
+	D-Spy:另一个可视化工具DBUS调试工具(更美观，占用空间比较大)
 示例说明：
 
 源码说明：
@@ -29,13 +30,8 @@
 	4.音频服务安装
 	音频测试不能使用系统的连接，需要使用测试程序中的连接，连接到蓝牙耳机后使用aplay命令测试
 
-编译：
-	1.安装依赖库：apt-get install bluez libbluetooth-dev libdbus-1-dev libglib2.0-dev bluez-alsa-utils libasound2-plugin-bluez
-	2.编译：make		
-	3.清除编译：make clean	清除编译信息
-	4.生成共享库：make libso
-
-运行：
+依赖库安装：
+	apt-get install bluez libbluetooth-dev libdbus-1-dev libglib2.0-dev bluez-alsa-utils libasound2-plugin-bluez
 
 	
 

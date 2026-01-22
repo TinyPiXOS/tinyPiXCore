@@ -56,18 +56,23 @@ void example_list_device()
 
 void example_pair()
 {
+	TpBluetoothDiscovery discovery("hci0");
+	discovery.start();	//开启扫描功能才能正确获取配对状态
+
 	TpBluetoothLocal local("hci0");
 	TpBluetoothAddress remote(TpString("6C:D1:99:69:BF:F0"));
 	
 	TpBluetoothLocal::TpLocalPair status = local.getPairStatus(remote);
 	printf_paired_status(status);
-/*	printf("开始配对\n");
+	printf("开始配对\n");
 	local.requestPairing(remote,TpBluetoothLocal::TP_LOCAL_AUTHORIZED_PAIRED);
 	printf_paired_status(status);
 	sleep(20);
 	printf("取消配对\n");
 	local.requestPairing(remote,TpBluetoothLocal::TP_LOCAL_UNPAIRED);
-	printf_paired_status(status);*/
+	printf_paired_status(status);
+
+	discovery.stop();
 }
 
 //适配器电源开关

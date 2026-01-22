@@ -17,9 +17,10 @@ class TpBluetoothLocal
 public:
     enum TpLocalPair
     {
-        TP_LOCAL_PAIRED,           // 已配对但未授权(未信任)
-        TP_LOCAL_UNPAIRED,         // 未配对
-        TP_LOCAL_AUTHORIZED_PAIRED // 已配对且已授权(配对+信任)
+		TP_LOCAL_UNKNOWN,			// 未知状态,通常是未打开蓝牙扫描无法获取状态
+        TP_LOCAL_PAIRED,			// 已配对但未授权(未信任)
+        TP_LOCAL_UNPAIRED,			// 未配对
+        TP_LOCAL_AUTHORIZED_PAIRED 	// 已配对且已授权(配对+信任)
     };
 
 public:

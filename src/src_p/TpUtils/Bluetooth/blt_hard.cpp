@@ -394,7 +394,7 @@ DBusHandlerResult signal_handler(DBusConnection *conn, DBusMessage *msg, void *u
     BluetoothRemoteCallback callback = (BluetoothRemoteCallback)cb_data->callback;
     struct LinkedList *remote_list = (struct LinkedList *)cb_data->userdata;
 
-    if (!dbus_message_is_signal(msg, "org.freedesktop.DBus.ObjectManager", "InterfacesAdded"))
+    if (!dbus_message_is_signal(msg, BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER, "InterfacesAdded"))
     {
         printf("不是新增信号？？？\n");
         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;

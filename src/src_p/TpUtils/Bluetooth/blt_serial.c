@@ -27,7 +27,7 @@ int bluet_serial_()
 g_dbus_connection_signal_subscribe(
         system_conn,
         "org.bluez",
-        "org.freedesktop.DBus.Properties",
+        BLUEZ_DBUS_INTERFACE_PROPERTIES,
         "PropertiesChanged",
         NULL,
         NULL,

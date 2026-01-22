@@ -257,11 +257,7 @@ int send_file_obex(const char *addr) {
 #include "bluetooth_inc.h"
 
 #define OBEX_AGENT_OBJECT_PATH "/com/example/obex_agent"
-#define OBEX_MANAGER_INTERFACE "org.bluez.obex.AgentManager1"
-#define OBEX_TRANSFER_INTERFACE "org.bluez.obex.Transfer1"
-#define OBEX_SESSION_DBUS_INTERFACE "org.bluez.obex.Session1"
 #define MANAGER_DBUS_PATH "/"
-#define MANAGER_DBUS_INTERFACE "org.freedesktop.DBus.ObjectManager"
 
 static GHashTable *_transfers = NULL;
 static GHashTable *_transfer_infos = NULL;
@@ -645,7 +641,7 @@ static void on_transfer_properties_changed(GDBusConnection *connection,
     GVariant *changed_properties, *invalidated_properties;
     g_variant_get(parameters, "(&sa{sv}as)", &iface, &changed_properties, &invalidated_properties);
 
-    if (g_strcmp0(iface, OBEX_TRANSFER_INTERFACE) == 0)
+    if (g_strcmp0(iface, OBEX_TRANSFER_DBUS_INTERFACE) == 0)
     {
         g_print("Transfer status update from %s:\n", object_path);
         GVariantIter iter;
@@ -676,7 +672,7 @@ BluetDbusSignal *bluet_obex_agent_signal_subscribe_properties(BluetObexAgent *ag
 {
     return bluet_dbus_signal_subscribe(session_conn,
                                        "org.bluez.obex",
-                                       "org.freedesktop.DBus.ObjectManager",
+                                       BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER,
                                        NULL, NULL,
                                        _obex_server_object_manager_handler,
                                        userdata, NULL);
@@ -687,7 +683,7 @@ BluetDbusSignal *bluet_obex_agent_signal_subscribe_objext_manager(BluetObexAgent
 {
     return bluet_dbus_signal_subscribe(session_conn,
                                        "org.bluez.obex",
-                                       "org.freedesktop.DBus.Properties",
+                                       BLUEZ_DBUS_INTERFACE_PROPERTIES,
                                        "PropertiesChanged", NULL,
                                        _obex_server_properties_handler,
                                        userdata, NULL);
@@ -810,14 +806,14 @@ int recv_file_dbus()
     printf("dbus_session_connect ok\n");
 
     // Check, that bluetooth daemon is running
-    if (!intf_supported(BLUEZ_BUS_NAME, MANAGER_DBUS_PATH, MANAGER_DBUS_INTERFACE))
+    if (!intf_supported(BLUEZ_BUS_NAME, MANAGER_DBUS_PATH, BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER))
     {
         g_printerr("%s: bluez service is not found\n", g_get_prgname());
         g_printerr("Did you forget to run bluetoothd?\n");
         exit(EXIT_FAILURE);
     }
     // Check, that obexd daemon is running
-    if (!intf_supported(BLUEZ_OBEX_DBUS_SERVICE_NAME, MANAGER_DBUS_PATH, MANAGER_DBUS_INTERFACE))
+    if (!intf_supported(BLUEZ_OBEX_DBUS_SERVICE_NAME, MANAGER_DBUS_PATH, BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER))
     {
         g_printerr("%s: obex service is not found\n", g_get_prgname());
         g_printerr("Did you forget to run obexd?\n");
@@ -831,7 +827,7 @@ int recv_file_dbus()
     BluetDbusSignal *sig_registration = bluet_obex_agent_signal_subscribe_objext_manager(NULL, NULL);
     /*registration_id = g_dbus_connection_signal_subscribe(session_conn,
                                                         "org.bluez.obex",
-                                                        "org.freedesktop.DBus.ObjectManager",
+                                                        BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER,
                                                         NULL,
                                                         NULL,
                                                         NULL,
@@ -843,7 +839,7 @@ int recv_file_dbus()
     BluetDbusSignal *signal_sub = bluet_obex_agent_signal_subscribe_properties(NULL, NULL);
     /*signal_sub_id = g_dbus_connection_signal_subscribe(session_conn,
                                                         "org.bluez.obex",
-                                                        "org.freedesktop.DBus.Properties",
+                                                        BLUEZ_DBUS_INTERFACE_PROPERTIES,
                                                         "PropertiesChanged",
                                                         NULL,
                                                         NULL,
@@ -946,7 +942,7 @@ BluetDbusSignal *bluet_obex_push_signal_subscribe_properties(BluetObexPush *push
 {
     return bluet_dbus_signal_subscribe(session_conn,
                                        "org.bluez.obex",
-                                       "org.freedesktop.DBus.ObjectManager",
+                                       BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER,
                                        NULL, NULL,
                                        _obex_opp_client_object_manager_handler,
                                        userdata, NULL);
@@ -965,7 +961,7 @@ BluetDbusSignal *bluet_obex_push_signal_subscribe_objext_manager(BluetObexPush *
 
     return bluet_dbus_signal_subscribe(session_conn,
                                        "org.bluez.obex",
-                                       "org.freedesktop.DBus.Properties",
+                                       BLUEZ_DBUS_INTERFACE_PROPERTIES,
                                        "PropertiesChanged", NULL,
                                        _obex_opp_client_properties_handler,
                                        data, NULL);
@@ -1017,14 +1013,14 @@ int send_file_dbus_(const char *dst_address, const char *files_to_send)
     printf("dbus_session_connect ok\n");
 
     // Check, that bluetooth daemon is running
-    if (!intf_supported(BLUEZ_BUS_NAME, MANAGER_DBUS_PATH, MANAGER_DBUS_INTERFACE))
+    if (!intf_supported(BLUEZ_BUS_NAME, MANAGER_DBUS_PATH, BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER))
     {
         g_printerr("%s: bluez service is not found\n", g_get_prgname());
         g_printerr("Did you forget to run bluetoothd?\n");
         exit(EXIT_FAILURE);
     }
     // Check, that obexd daemon is running
-    if (!intf_supported(BLUEZ_OBEX_DBUS_SERVICE_NAME, MANAGER_DBUS_PATH, MANAGER_DBUS_INTERFACE))
+    if (!intf_supported(BLUEZ_OBEX_DBUS_SERVICE_NAME, MANAGER_DBUS_PATH, BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER))
     {
         g_printerr("%s: obex service is not found\n", g_get_prgname());
         g_printerr("Did you forget to run obexd?\n");

@@ -89,7 +89,7 @@ BluetDbusSignal *bluet_dbus_signal_subscribe_interfaces_added(GDBusConnection *c
     guint object_sig_sub_id = g_dbus_connection_signal_subscribe(
         connection,
         BLUEZ_DBUS_SERVICE_NAME,
-        "org.freedesktop.DBus.ObjectManager",
+        BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER,
         "InterfacesAdded",
         NULL, NULL,
         G_DBUS_SIGNAL_FLAGS_NONE,
@@ -112,7 +112,7 @@ BluetDbusSignal *bluet_dbus_signal_subscribe_interfaces_removed(GDBusConnection 
     guint object_sig_sub_id = g_dbus_connection_signal_subscribe(
         connection,
         BLUEZ_DBUS_SERVICE_NAME,
-        "org.freedesktop.DBus.ObjectManager",
+        BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER,
         "InterfacesRemoved",
         NULL, NULL,
         G_DBUS_SIGNAL_FLAGS_NONE,
@@ -135,7 +135,7 @@ BluetDbusSignal *bluet_dbus_signal_subscribe_properties_changed(GDBusConnection 
     guint prop_sig_sub_id = g_dbus_connection_signal_subscribe(
         connection,
         BLUEZ_DBUS_SERVICE_NAME,
-        "org.freedesktop.DBus.Properties",
+        BLUEZ_DBUS_INTERFACE_PROPERTIES,
         "PropertiesChanged",
         adapter_get_dbus_object_path(adapter),
         NULL,

@@ -9,7 +9,6 @@
 #include <iostream>
 #include "blt_hard.h"
 #include "blt_device.h"
-// #include "bluetooth/include/blt_dbus.h"
 #include "bluetooth_inc.h"
 #include "TpBluetoothAddress.h"
 #include "TpDbusConnectManage.h"

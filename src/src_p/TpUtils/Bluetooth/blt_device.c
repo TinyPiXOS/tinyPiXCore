@@ -129,7 +129,7 @@ static void bluet_device_properties_changed_handle(GDBusConnection *connection,
 
 	printf("interface_name:%s\nsignal_name:%s\n",interface_name,signal_name);
 	// 只处理 PropertiesChanged 信号
-	if (g_strcmp0(interface_name, "org.freedesktop.DBus.Properties") != 0 ||
+	if (g_strcmp0(interface_name, BLUEZ_DBUS_INTERFACE_PROPERTIES) != 0 ||
         g_strcmp0(signal_name,     "PropertiesChanged")     != 0)
         return;
 
@@ -244,7 +244,7 @@ int bluet_connect_remote_device(BluetDevice *self,const char *uuid)
 
 	BluetDbusSignal *signal_p=bluet_dbus_signal_subscribe(system_conn,
 									"org.bluez",
-									"org.freedesktop.DBus.Properties",
+									BLUEZ_DBUS_INTERFACE_PROPERTIES,
 									"PropertiesChanged",
 									NULL,
 									bluet_device_properties_changed_handle,
@@ -272,7 +272,7 @@ int bluet_disconnect_remote_device(BluetDevice *self,const char *uuid)
 
 	BluetDbusSignal *signal_p=bluet_dbus_signal_subscribe(system_conn,
 									"org.bluez",
-									"org.freedesktop.DBus.Properties",
+									BLUEZ_DBUS_INTERFACE_PROPERTIES,
 									"PropertiesChanged",
 									NULL,
 									bluet_device_properties_changed_handle,

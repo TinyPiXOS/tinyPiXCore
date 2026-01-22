@@ -11,6 +11,7 @@
 #include <gio/gio.h>
 
 #include "blt_glibscan.h"
+#include "Bluetooth/bluetooth_inc.h"
 
 #define ADAPTER_PATH "/org/bluez/hci1"
 
@@ -30,7 +31,7 @@ BluetScanFilter* scan_filter_new(GDBusConnection *conn,const gchar *adapter_path
         NULL,
         "org.bluez",
         adapter_path,
-        "org.bluez.Adapter1",
+        ADAPTER_DBUS_INTERFACE,
         NULL, error
     );
     if (!self->proxy) {
@@ -139,7 +140,7 @@ int glib_scan_test()
     subscription_id = g_dbus_connection_signal_subscribe(
         connection,
         "org.bluez",                           // 信号发送者
-        "org.freedesktop.DBus.ObjectManager",  // 信号接口
+        BLUEZ_DBUS_INTERFACE_OBJECT_MANAGER,  // 信号接口
         "InterfacesAdded",                     // 信号名
         NULL,                                  // 对象路径（NULL 表示所有对象）
         NULL,

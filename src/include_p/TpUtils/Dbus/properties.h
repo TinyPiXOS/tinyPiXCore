@@ -19,44 +19,44 @@ extern "C"
 
 #define PROPERTIES_DBUS_INTERFACE "org.freedesktop.DBus.Properties"
 
-    typedef struct _Properties Properties;
-    typedef struct _PropertiesPrivate PropertiesPrivate;
-    typedef struct _PropertiesClass PropertiesClass;
+typedef struct _Properties Properties;
+typedef struct _PropertiesPrivate PropertiesPrivate;
+typedef struct _PropertiesClass PropertiesClass;
 
-    struct _Properties
-    {
-        /* Parent instance structure */
-        GObject parent_instance;
+struct _Properties
+{
+	/* Parent instance structure */
+	GObject parent_instance;
 
-        /* instance members */
-        PropertiesPrivate *priv;
-    };
+	/* instance members */
+	PropertiesPrivate *priv;
+};
 
-    struct _PropertiesClass
-    {
-        /* Parent class structure */
-        GObjectClass parent_class;
+struct _PropertiesClass
+{
+	/* Parent class structure */
+	GObjectClass parent_class;
 
-        /* class members */
-    };
+	/* class members */
+};
 
-    /* used by PROPERTIES_TYPE */
-    GType properties_get_type(void);
+/* used by PROPERTIES_TYPE */
+GType properties_get_type(void);
 
-    /*
-     * Method definitions.
-     */
-    const gchar *properties_get_dbus_type(Properties *self);
-    const gchar *properties_get_dbus_service_name(Properties *self);
-    const gchar *properties_get_dbus_object_path(Properties *self);
-    GVariant *g_proxy_properties_get(Properties *self, const gchar *interface_name, const gchar *property_name, GError **error);
-    void g_proxy_properties_set(Properties *self, const gchar *interface_name, const gchar *property_name, const GVariant *value, GError **error);
-    GVariant *properties_get_all(Properties *self, const gchar *interface_name, GError **error);
+/*
+	* Method definitions.
+	*/
+const gchar *properties_get_dbus_type(Properties *self);
+const gchar *properties_get_dbus_service_name(Properties *self);
+const gchar *properties_get_dbus_object_path(Properties *self);
+GVariant *g_proxy_properties_get(Properties *self, const gchar *interface_name, const gchar *property_name, GError **error);
+void g_proxy_properties_set(Properties *self, const gchar *interface_name, const gchar *property_name, const GVariant *value, GError **error);
+GVariant *properties_get_all(Properties *self, const gchar *interface_name, GError **error);
 
-    double properties_get_double(Properties *self, const gchar *interface_name, const char *property_name);
-    uint32_t properties_get_uint(Properties *self, const gchar *interface_name, const char *property_name);
-    Properties *properties_new(GDBusConnection *conn, const char *dbus_type, const char *dbus_service_name, const char *dbus_object_path);
-    void properties_free(Properties *self);
+double properties_get_double(Properties *self, const gchar *interface_name, const char *property_name);
+uint32_t properties_get_uint(Properties *self, const gchar *interface_name, const char *property_name);
+Properties *properties_new(GDBusConnection *conn, const char *dbus_type, const char *dbus_service_name, const char *dbus_object_path);
+void properties_free(Properties *self);
 
 #ifdef __cplusplus
 }

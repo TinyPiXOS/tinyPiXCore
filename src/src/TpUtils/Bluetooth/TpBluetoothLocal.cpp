@@ -23,7 +23,7 @@ struct TpBluetoothLocalData
     BluetAgent *agent;
     tpBool power;
 
-    TpList<BluetDevice *> device_list; //
+    TpList<BluetDevice *> device_list; //此接口暂不使用，因为Device无法作为设备的唯一标识，只能使用MAC
     TpBluetoothLocalData()
     {
         adapter = NULL;
@@ -159,7 +159,6 @@ int TpBluetoothLocal::requestPairing(TpBluetoothAddress &address, TpBluetoothLoc
 
 	if(getPairStatus(address) == pair)
 	{
-		printf("The device is already in the specified pairing state.\n");
 		return 0;
 	}
 
@@ -182,8 +181,7 @@ int TpBluetoothLocal::requestPairing(TpBluetoothAddress &address, TpBluetoothLoc
         bluet_cancel_pair_with_remote(device);
         break;
     }
-	
-	data->device_list.emplace_back(device);
+
     //	int bluet_disconnect_remote(Adapter *adapter,const char *name);
     return 0;
 }
@@ -199,16 +197,16 @@ int TpBluetoothLocal::removeDevice(TpBluetoothAddress &address)
 TpBluetoothLocal::TpLocalPair TpBluetoothLocal::getPairStatus(TpBluetoothAddress &address)
 {
     TpBluetoothLocalData *data = static_cast<TpBluetoothLocalData *>(data_);
-    if (!adapter())
+    if (!data->adapter)
 	{
 		printf("Adapter not found\n");
-        return TpBluetoothLocal::TP_LOCAL_UNPAIRED;
+        return TpBluetoothLocal::TP_LOCAL_UNKNOWN;
 	}
     Device *device = find_device(data->adapter, address.toString().c_str(), NULL);
 	if(!device)
 	{
 		printf("Device not found\n");
-		return TpBluetoothLocal::TP_LOCAL_UNPAIRED;
+		return TpBluetoothLocal::TP_LOCAL_UNKNOWN;
 	}
 
     int paired = bluet_device_get_paired(device);

@@ -1,6 +1,5 @@
 #include "stdio.h"
 #include <gio/gio.h>
-//#include "bluetooth_inc.h"
 #include "manager.h"
 
 struct _ManagerPrivate
