@@ -67,8 +67,8 @@ int32_t main(int32_t argc, char *argv[])
     floatScreenH->setLayout(hLayout);
     floatScreenV->setLayout(vLayout);
 
-    floatScreenH->update();
-    floatScreenV->update();
+    floatScreenH->show();
+    floatScreenV->show();
 
     vScreen->update();
 
