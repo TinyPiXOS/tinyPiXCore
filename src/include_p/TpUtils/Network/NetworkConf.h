@@ -1,6 +1,11 @@
 #ifndef _NETWORK_CONF_H_
 #define _NETWORK_CONF_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -149,10 +154,8 @@ int NetworkConf_Get_Sens(int Netfd,struct iw_param *param, char *name);
 int NetworkConf_Set_Sens(int Netfd,struct iw_param param, char *name);
 int Network_Get_Wifi(struct NetworkWireless *head, char *name);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
+//以下为C++调用接口
 
 int systemCmdTimeout(const char *cmd, uint32_t timeout);
 //------------------------------------------

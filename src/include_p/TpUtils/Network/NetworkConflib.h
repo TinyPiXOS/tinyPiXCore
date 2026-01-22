@@ -1,6 +1,10 @@
 #ifndef _NETWORK_CONFLIB_H_
 #define _NETWORK_CONFLIB_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -88,7 +92,9 @@ double iw_freq2float(const struct iw_freq *	in);
 
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

@@ -25,6 +25,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Network/TpNetworkManage.cpp
     ${SOURCE_PATH}/src/TpUtils/Network/TpNetworkInterface.cpp
     ${SOURCE_PATH}/src/TpUtils/Network/TpWirelessInfo.cpp
+	${SOURCE_PATH}/src/TpUtils/Network/TpHostAddress.cpp
 
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpu.cpp
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpuManage.cpp
@@ -59,7 +60,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifier.cpp
     ${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifierManager.cpp
 
-    ${SOURCE_PATH}/src_p/TpUtils/Network/TpHostAddress.cpp
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConflib.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpNetPcap.cpp

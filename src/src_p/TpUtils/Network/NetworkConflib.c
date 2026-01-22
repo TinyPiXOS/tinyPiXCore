@@ -1,7 +1,5 @@
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 #include "NetworkConflib.h"
 
 /* Type of headers we know about (basically union iwreq_data) */
@@ -562,8 +560,3 @@ double iw_freq2float(const struct iw_freq *	in)
   return ((double) in->m) * pow(10,in->e);
 #endif	/* WE_NOLIBM */
 }
-
-
-#ifdef __cplusplus
-}
-#endif
