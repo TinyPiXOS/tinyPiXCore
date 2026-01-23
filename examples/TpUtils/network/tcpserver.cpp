@@ -26,15 +26,13 @@ void example_tcp_server()
 				if (n > 0) {
 					std::cout << "Received: " << buf << std::endl;
 				}
-			});
+			}, Tp::DirectConnection);
 			connect(tcp_c, TpTcpSocket::disconnected, [=](TpTcpSocket *client) {
 				std::cout << "Client disconnected: "
 							<< client->getPeerAddress() << ":" << client->getPeerPort() << std::endl;
-			});
+			}, Tp::DirectConnection);
 		}
-
-
-    });
+    }, Tp::DirectConnection);
 	while(1);
     tcp_s.close();
 }

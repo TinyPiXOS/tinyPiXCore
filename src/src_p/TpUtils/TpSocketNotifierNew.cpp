@@ -16,7 +16,21 @@ TpSocketNotifierNew::TpSocketNotifierNew(int fd,
       callback_(std::move(callback)),
       hangupCallback_(std::move(hangupCallback))
 {
-    // 默认构造不注册
+    autoAttachIfNeeded();   // 自动 attach defaultLoop
+}
+
+TpSocketNotifierNew::TpSocketNotifierNew(TpEventLoop *loop,
+										 int fd,
+                                         Type type,
+                                         std::function<void()> callback,
+                                         std::function<void()> hangupCallback)
+    : fd_(fd),
+      type_(type),
+      callback_(std::move(callback)),
+      hangupCallback_(std::move(hangupCallback))
+{
+    attach(loop);           // 显式 attach
+
 }
 
 TpSocketNotifierNew::~TpSocketNotifierNew() 
@@ -26,6 +40,8 @@ TpSocketNotifierNew::~TpSocketNotifierNew()
 
 uint32_t TpSocketNotifierNew::events() const 
 {
+	if (!isEnabled()) 
+		return TpEventSource::None;
     switch (type_) 
 	{
         case Read:
@@ -37,13 +53,25 @@ uint32_t TpSocketNotifierNew::events() const
         default:
             return TpEventSource::None;
     }
+	/*uint32_t ev = 0;
+    switch (type_) {
+        case Type::Read:
+            ev = TpEventSource::Read;
+            break;
+        case Type::Write:
+            ev = TpEventSource::Write;
+            break;
+        case Type::Exception:
+            ev = TpEventSource::Error | TpEventSource::Hangup;
+            break;
+    }
+    // 挂断和错误总是关心
+    ev |= TpEventSource::Error | TpEventSource::Hangup;
+    return ev;*/
 }
 
 void TpSocketNotifierNew::onEvent(uint32_t revents) 
 {
-    if (!enabled_)
-        return;
-
     switch (type_) 
 	{
         case Read:
@@ -63,34 +91,15 @@ void TpSocketNotifierNew::onEvent(uint32_t revents)
                 hangupCallback_();
             break;
     }
-}
-
-int TpSocketNotifierNew::attach(TpEventLoop *loop) 
-{
-    if (!loop || loop_ == loop)
-        return -1;
-
-    loop_ = loop;
-    loop_->add(this);
-}
-
-void TpSocketNotifierNew::detach() 
-{
-    if (loop_) {
-        loop_->remove(this);
-        loop_ = nullptr;
+	
+	/*if (ev & (TpEventSource::Hangup | TpEventSource::Error)) {
+        if (hangupCallback_) hangupCallback_();
+        return;
     }
-}
 
-void TpSocketNotifierNew::setEnabled(bool enable) 
-{
-    enabled_ = enable;
-    if (loop_) {
-        loop_->update(this);
-    }
-}
-
-bool TpSocketNotifierNew::isEnabled() const 
-{
-	return enabled_;
+    // 可读 / 可写
+    if (((type_ == Type::Read) && (ev & TpEventSource::Read)) ||
+        ((type_ == Type::Write) && (ev & TpEventSource::Write))) {
+        if (readyCallback_) readyCallback_();
+    }*/
 }

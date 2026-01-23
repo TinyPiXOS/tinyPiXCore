@@ -9,6 +9,7 @@
 #include <sys/socket.h>  // <-- 这里定义了 MSG_PEEK
 #include "TpTcpSocket.h"
 #include "TpSocketNotifier.h"
+#include "TpSocketNotifierNew.h"
 #include "TpSocket.h"
 
 struct TpTcpSocketData{

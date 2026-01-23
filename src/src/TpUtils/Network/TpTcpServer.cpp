@@ -14,6 +14,7 @@
 #include <arpa/inet.h>             //地址转换
 #include "TpTcpServer.h"
 #include "TpSocketNotifier.h"
+#include "TpSocketNotifierNew.h"
 
 #define MAX_CONNECTS	32		//最大允许连接数量
 
@@ -203,7 +204,7 @@ void TpTcpServer::handleNewConnection()
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             delete client;
         }).detach();
-    });
+    },Tp::DirectConnection);
 	
 	newConnection.emit();
 }
