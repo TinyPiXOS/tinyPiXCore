@@ -10,20 +10,20 @@
 #include <map>
 #include <unordered_map>
 
-class TpSocketNotifierManager
+class TpAbstractEventDispatcher
 {
 public:
-    static TpSocketNotifierManager &instance();
+    static TpAbstractEventDispatcher &instance();
     void registerNotifier(TpSocketNotifier *notifier);
     void unregisterNotifier(TpSocketNotifier *notifier);
 
     void stop();
 
 private:
-    TpSocketNotifierManager();
-    ~TpSocketNotifierManager();
-    TpSocketNotifierManager(const TpSocketNotifierManager &) = delete;
-    TpSocketNotifierManager &operator=(const TpSocketNotifierManager &) = delete;
+    TpAbstractEventDispatcher();
+    ~TpAbstractEventDispatcher();
+    TpAbstractEventDispatcher(const TpAbstractEventDispatcher &) = delete;
+    TpAbstractEventDispatcher &operator=(const TpAbstractEventDispatcher &) = delete;
 
     void eventLoop();
 

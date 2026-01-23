@@ -9,6 +9,7 @@
 #include "TpBluetoothLocal.h"
 #include "TpBluetoothAddress.h"
 #include "TpDbusConnectManage.h"
+#include "TpBluetoothDevice.h"
 #include "blt_hard.h"
 #include "blt_device.h"
 #include "blt_agent.h"
@@ -23,7 +24,7 @@ struct TpBluetoothLocalData
     BluetAgent *agent;
     tpBool power;
 
-    TpList<BluetDevice *> device_list; //此接口暂不使用，因为Device无法作为设备的唯一标识，只能使用MAC
+    TpList<TpBluetoothDevice *> device_list; 	//已配对设备缓存
     TpBluetoothLocalData()
     {
         adapter = NULL;
@@ -96,7 +97,7 @@ TpBluetoothLocal::~TpBluetoothLocal()
 
     for (auto it = data->device_list.begin(); it != data->device_list.end();)
     {
-        BluetDevice *ptr = *it;           // 获取当前结构体指针
+        TpBluetoothDevice *ptr = *it;           // 获取当前结构体指针
         delete ptr;                       // 释放结构体内存
         it = data->device_list.erase(it); // 删除链表节点，并更新迭代器
     }

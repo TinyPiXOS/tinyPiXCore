@@ -1,6 +1,6 @@
 
 #include "TpSocketNotifier.h"
-#include "TpSocketNotifierManager.h"
+#include "TpAbstractEventDispatcher.h"
 #include <unistd.h>
 #include <iostream>
 #include <map>
@@ -9,7 +9,7 @@
 
 /*TpSocketNotifier::TpSocketNotifier(int fd, Type type, std::function<void()> callback)
     : fd_(fd), type_(type), callback_(callback), enabled_(true) {
-    TpSocketNotifierManager::instance().registerNotifier(this);
+    TpAbstractEventDispatcher::instance().registerNotifier(this);
 }*/
 //callback_(std::move(callback)),
 //      hangupCallback_(std::move(hangupCb)) , // 默认空
@@ -18,11 +18,11 @@ TpSocketNotifier::TpSocketNotifier(int fd, Type type, std::function<void()> call
       callback_(std::move(callback)),
       hangupCallback_(std::move(hangupCb)) , // 默认空
       enabled_(true) {
-     TpSocketNotifierManager::instance().registerNotifier(this);
+     TpAbstractEventDispatcher::instance().registerNotifier(this);
  }
 
 TpSocketNotifier::~TpSocketNotifier() {
-    TpSocketNotifierManager::instance().unregisterNotifier(this);
+    TpAbstractEventDispatcher::instance().unregisterNotifier(this);
 }
 
 void TpSocketNotifier::setEnabled(bool enable) {

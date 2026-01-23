@@ -5,7 +5,7 @@
 #include <functional>
 #include <sys/epoll.h>
 
-class TpSocketNotifierManager;
+class TpAbstractEventDispatcher;
 
 class TpSocketNotifier {
 public:

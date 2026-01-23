@@ -1,16 +1,24 @@
+/*///------------------------------------------------------------------------------------------------------------------------//
+		使用epoll实现的事件分发器
+说 明 : 重构自 TpSocketNotifierManager
+日 期 : 
+作 者 ：Chingan
+
+/*///------------------------------------------------------------------------------------------------------------------------//
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <unistd.h>
-#include "TpSocketNotifierManager.h"
+#include "TpAbstractEventDispatcher.h"
 
-TpSocketNotifierManager &TpSocketNotifierManager::instance()
+TpAbstractEventDispatcher &TpAbstractEventDispatcher::instance()
 {
-    static TpSocketNotifierManager inst;
+    static TpAbstractEventDispatcher inst;
     return inst;
 }
 
-TpSocketNotifierManager::TpSocketNotifierManager()
+TpAbstractEventDispatcher::TpAbstractEventDispatcher()
     : running_(true)
 {
     epollFd_ = epoll_create1(0);
@@ -19,16 +27,16 @@ TpSocketNotifierManager::TpSocketNotifierManager()
         perror("epoll_create1 failed");
         return;
     }
-    
-    loopThread_ = std::thread(&TpSocketNotifierManager::eventLoop, this);
+
+    loopThread_ = std::thread(&TpAbstractEventDispatcher::eventLoop, this);
 }
 
-TpSocketNotifierManager::~TpSocketNotifierManager()
+TpAbstractEventDispatcher::~TpAbstractEventDispatcher()
 {
     stop();
 }
 
-void TpSocketNotifierManager::stop()
+void TpAbstractEventDispatcher::stop()
 {
     running_ = false;
     if (loopThread_.joinable())
@@ -48,7 +56,7 @@ void TpSocketNotifierManager::stop()
 //	EPOLLHUP：挂断
 //	EPOLLET：边缘触发模式
 // V1版本
-void TpSocketNotifierManager::registerNotifier(TpSocketNotifier *notifier)
+void TpAbstractEventDispatcher::registerNotifier(TpSocketNotifier *notifier)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -98,7 +106,7 @@ void TpSocketNotifierManager::registerNotifier(TpSocketNotifier *notifier)
 }
 
 // V2版本
-/*void TpSocketNotifierManager::registerNotifier(TpSocketNotifier* notifier) {
+/*void TpAbstractEventDispatcher::registerNotifier(TpSocketNotifier* notifier) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     // 查找相同socket的已有通知器
@@ -165,7 +173,7 @@ void TpSocketNotifierManager::registerNotifier(TpSocketNotifier *notifier)
     notifiers_.push_back(notifier);
 }*/
 
-void TpSocketNotifierManager::unregisterNotifier(TpSocketNotifier *notifier)
+void TpAbstractEventDispatcher::unregisterNotifier(TpSocketNotifier *notifier)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     epoll_ctl(epollFd_, EPOLL_CTL_DEL, notifier->socket(), nullptr);
@@ -173,7 +181,7 @@ void TpSocketNotifierManager::unregisterNotifier(TpSocketNotifier *notifier)
 }
 
 // V1版本
-void TpSocketNotifierManager::eventLoop()
+void TpAbstractEventDispatcher::eventLoop()
 {
     epoll_event events[64];
     printf("debug:eventLoop\n");
@@ -234,7 +242,7 @@ void TpSocketNotifierManager::eventLoop()
 }
 
 // V2版本
-/*void TpSocketNotifierManager::eventLoop() {
+/*void TpAbstractEventDispatcher::eventLoop() {
     epoll_event events[64];
 
     while (running_) {
