@@ -40,10 +40,10 @@ int32_t main(int32_t argc, char *argv[])
 	std::cout << "监测磁盘设备插拔" << std::endl;
 	
 	connect(&diskManager, diskRemove, [=](TpString name)
-            { std::cout << "[Signal]设备弹出：" << name<< std::endl; });
+            { std::cout << "[Signal]设备弹出：" << name<< std::endl; }, Tp::DirectConnection);
 
 	connect(&diskManager, diskAdd, [=](TpDisk *disk)
-            { std::cout << "[Signal]设备插入：" << disk->getName() << std::endl; });
+            { std::cout << "[Signal]设备插入：" << disk->getName() << std::endl; }, Tp::DirectConnection);
 	
 	
 	app.run();

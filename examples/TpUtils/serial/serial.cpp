@@ -8,8 +8,6 @@ int main(int32_t argc, char *argv[])
 	TpApp app(argc, argv);
 	TpMainWindow *vScreen = new TpMainWindow();
 	vScreen->setBackGroundColor(_RGBA(128, 128, 128, 255));
-	 weekly
-	
 
 	TpSerialPort tty("/dev/ttyUSB0");
 	if(!tty.open())
@@ -32,7 +30,7 @@ int main(int32_t argc, char *argv[])
 			int len=tty.read((uint8_t *)buf,10240);
 			printf("recv[%d]byte: %s\n",len, buf);
 			
-		});
+		}, Tp::DirectConnection);
 
 	
 	/*while(1)

@@ -19,10 +19,10 @@ int example_list_device(const TpString& adapter)
 	discovery.start();
 	
 	connect(&discovery, bluetoothDeviceRemove, [=](TpBluetoothAddress address)
-            { std::cout << "[Signal]设备消失：" << address.toString() << std::endl; });
+            { std::cout << "[Signal]设备消失：" << address.toString() << std::endl; }, Tp::DirectConnection);
 
 	connect(&discovery, bluetoothDeviceAdd, [=](const TpBluetoothDevice &device)
-            { std::cout << "[Signal]设备新增：" << device.getAddress().toString() << std::endl; });
+            { std::cout << "[Signal]设备新增：" << device.getAddress().toString() << std::endl; }, Tp::DirectConnection);
 
 	
 	discovery.stop();
@@ -64,11 +64,11 @@ int example_socket_client(int32_t argc, char *argv[],const TpString& adapter)
 				sleep(1);
 			}
 				
-		});
+		}, Tp::DirectConnection);
 	connect(&bt_client, disconnected, [=](TpBluetoothSocket *bt)
         {	
 			std::cout << "disconnect from remote" << std::endl; 
-		});
+		}, Tp::DirectConnection);
 			
 	
 	app.run();
@@ -102,14 +102,14 @@ int example_socket_server(int32_t argc, char *argv[],const TpString& adapter)
 					client->send(buf,n);
 				}
 
-			});
+			}, Tp::DirectConnection);
 			connect(bt_c, TpBluetoothSocket::disconnected, [=](TpBluetoothSocket *client) {
 				std::cout << "Client disconnected" << std::endl;
 							
-			});			
+			}, Tp::DirectConnection);			
 		}
 			
-	});
+	}, Tp::DirectConnection);
 	
 	app.run();
 	return 0;

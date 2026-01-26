@@ -20,10 +20,10 @@ int example_wireless()
 		std::cout << "不能扫描\n";
 
 	connect(&device, wirelessRemove, [=](TpString name)
-            { std::cout << "[Signal]网络消失：" << name<< std::endl; });
+            { std::cout << "[Signal]网络消失：" << name<< std::endl; }, Tp::DirectConnection);
 
 	connect(&device, wirelessAdd, [=](TpWirelessInfo wifi)
-            { std::cout << "[Signal]新添网络：" << wifi.getSsid() << "  \tLevel: "<< wifi.getLevel()<<std::endl; });
+            { std::cout << "[Signal]新添网络：" << wifi.getSsid() << "  \tLevel: "<< wifi.getLevel()<<std::endl; }, Tp::DirectConnection);
 
 	while(1);
 

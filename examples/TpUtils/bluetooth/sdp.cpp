@@ -420,7 +420,7 @@ int example_service_scan(TpApp& app,bool signal)
 			{
 				printServiceDescriptor(it);
 			}
-		});
+		}, Tp::DirectConnection);
 	}
 	else{
 		while(scan.isDiscovering())	//等待扫描完成
