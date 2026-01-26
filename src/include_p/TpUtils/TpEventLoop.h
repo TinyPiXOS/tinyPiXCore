@@ -23,6 +23,9 @@ public:
 	/// @brief 停止事件循环
     void stop();
 
+	// 安全删除
+    void scheduleDelete(TpEventSource* obj);
+
     // ===== 供 TpEventSource 调用（不是给用户）=====
     void add(TpEventSource *src);
     void update(TpEventSource *src);
@@ -37,6 +40,7 @@ public:
 private:
     void loop();
     void handleWakeup();
+	void processPendingDeletes();
 
     uint32_t toEpoll(uint32_t ev) const;
     uint32_t fromEpoll(uint32_t ev) const;
@@ -48,8 +52,8 @@ private:
     std::atomic<bool> running_{false};
     std::thread loopThread_;
     std::mutex mutex_;
-
-    std::unordered_map<int, TpEventSource*> sources_;
+    std::map<int, TpEventSource*> sources_;
+	std::vector<TpEventSource*> pendingDelete_;
 };
 
 

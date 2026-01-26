@@ -16,8 +16,8 @@ struct TpTcpSocketData{
 	TpSocket *sock;		//本地的sock
 //	TpSocket sock_r;	//远程的sock连接
 	TpSocket::TpSocketStatus status;	//当前的socket状态
-	TpSocketNotifier *notifier_read;
-	TpSocketNotifier *notifier_write;
+	TpSocketNotifierNew *notifier_read;
+	TpSocketNotifierNew *notifier_write;
 	TpTcpSocketData()
 	{
 		sock=nullptr;
@@ -30,6 +30,7 @@ struct TpTcpSocketData{
 
 TpTcpSocket::TpTcpSocket(TpSocket *sock)
 {
+	printf("TpTcpSocket 构造\n");
 	data_=new TpTcpSocketData();
 	TpTcpSocketData *tcp=static_cast<TpTcpSocketData *>(data_);
 
@@ -46,7 +47,7 @@ TpTcpSocket::TpTcpSocket(TpSocket *sock)
 		tcp->status=TpSocket::TP_SOCK_CONNECT;
 	}
 
-	tcp->notifier_read = new TpSocketNotifier(tcp->sock->getSocket(), TpSocketNotifier::Read, 
+	tcp->notifier_read = new TpSocketNotifierNew(tcp->sock->getSocket(), TpSocketNotifierNew::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleDisconnected(); }
 	);
@@ -59,6 +60,16 @@ TpTcpSocket::~TpTcpSocket()
 		return ;
 	if(tcp->status==TpSocket::TP_SOCK_CONNECT)
 		close();
+	if(tcp->notifier_read) {
+        tcp->notifier_read->deleteLater();
+        tcp->notifier_read = nullptr;
+    }
+
+    if(tcp->notifier_write) {
+        tcp->notifier_write->deleteLater();
+        tcp->notifier_write = nullptr;
+    }
+
 	if(tcp->sock)
 	{
 		delete(tcp->sock);
@@ -66,7 +77,7 @@ TpTcpSocket::~TpTcpSocket()
 	}
 	delete(tcp);
 	tcp=nullptr;
-	printf("析构\n");
+	printf("TpTcpSocket 析构\n");
 }
 
 tpInt32 TpTcpSocket::bind(const TpString &addr, tpUInt16 port)
@@ -94,8 +105,8 @@ tpInt32 TpTcpSocket::connectToHost(const TpString &addr, tpUInt16 port)
 		connected.emit();
 		return 0;
 	}
-	tcp->notifier_write = new TpSocketNotifier(
-			tcp->sock->getSocket(), TpSocketNotifier::Write,
+	tcp->notifier_write = new TpSocketNotifierNew(
+			tcp->sock->getSocket(), TpSocketNotifierNew::Write,
 			[this](){ handleWrite(); }
 		);
 	return 0;
@@ -200,7 +211,8 @@ void TpTcpSocket::handleWrite() {
 	{
 		// 停掉写事件监听
 		if (tcp->notifier_write) {
-			delete tcp->notifier_write;
+			//delete tcp->notifier_write;
+			tcp->notifier_write->deleteLater();	//延迟删除
 			tcp->notifier_write = nullptr;
 		}
         tcp->status = TpSocket::TP_SOCK_CONNECT;

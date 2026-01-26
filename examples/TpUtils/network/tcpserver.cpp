@@ -17,7 +17,7 @@ void example_tcp_server()
 		TpTcpSocket *tcp_c=tcp_s.nextPendingConnection();
 		if (tcp_c) 
 		{
-			std::cout << "New client from " << tcp_c->getPeerAddress() << ":" << tcp_c->getPeerAddress() << std::endl;
+			std::cout << "New client from " << tcp_c->getPeerAddress() << ":" << tcp_c->getPeerPort() << std::endl;
 
 			connect(tcp_c, TpTcpSocket::readyRead, [=](TpTcpSocket *client) {
 				tpUInt8 buf[1024];

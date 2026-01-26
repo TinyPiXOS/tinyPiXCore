@@ -32,7 +32,7 @@ void example_udp()
 			std::cout << "Received data " << datagram.size()<< ":" << datagram.data()<<std::endl;
 			std::cout << std::endl;
         }
-    });
+    }, Tp::DirectConnection);
 	while (1);
 }
 

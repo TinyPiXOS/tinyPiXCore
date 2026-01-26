@@ -72,7 +72,7 @@ uint32_t TpSocketNotifierNew::events() const
 
 void TpSocketNotifierNew::onEvent(uint32_t revents) 
 {
-    switch (type_) 
+    /*switch (type_) 
 	{
         case Read:
             if ((revents & TpEventSource::Hangup) && hangupCallback_)
@@ -90,16 +90,16 @@ void TpSocketNotifierNew::onEvent(uint32_t revents)
             if ((revents & (TpEventSource::Hangup | TpEventSource::Error)) && hangupCallback_)
                 hangupCallback_();
             break;
-    }
+    }*/
 	
-	/*if (ev & (TpEventSource::Hangup | TpEventSource::Error)) {
-        if (hangupCallback_) hangupCallback_();
+    if (revents & (TpEventSource::Hangup | TpEventSource::Error)) {
+        if (hangupCallback_)
+            hangupCallback_();
+        detach();
         return;
     }
 
-    // 可读 / 可写
-    if (((type_ == Type::Read) && (ev & TpEventSource::Read)) ||
-        ((type_ == Type::Write) && (ev & TpEventSource::Write))) {
-        if (readyCallback_) readyCallback_();
-    }*/
+    if (type_ == Read && (revents & TpEventSource::Read)) {
+        callback_();
+    }
 }

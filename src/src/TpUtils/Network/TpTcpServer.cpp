@@ -25,7 +25,7 @@ struct TpTcpServerData
 	TpSocket::TpSocketStatus status;	//当前的socket状态
 	tpInt32 connect_max;				//最大允许连接数量
 	std::atomic<bool> wait_connect;		//是否有待连接的客户端
-	TpSocketNotifier *notifier;
+	TpSocketNotifierNew *notifier;
 	TpTcpServerData(){
 		status=TpSocket::TP_SOCK_DISCONNECT;
 		connect_max=MAX_CONNECTS;
@@ -55,7 +55,14 @@ TpTcpServer::~TpTcpServer()
 		tcp->sock=nullptr;
 	}
 
+	if (tcp->notifier) {
+        delete tcp->notifier;
+        tcp->notifier = nullptr;
+    }
+
+
 	delete(tcp);
+	printf("TpTcpServer 析构\n");
 }
 
 void TpTcpServer::setMaxPendingConnects(tpInt32 max)
@@ -73,10 +80,7 @@ tpInt32 TpTcpServer::getMaxPendingConnects()
 tpInt32 TpTcpServer::close()
 {
 	TpTcpServerData *tcp=static_cast<TpTcpServerData *>(data_);
-	if (tcp->notifier) {
-        delete tcp->notifier; 
-		tcp->notifier = nullptr;
-    }
+
 	for(auto it : tcp->tcp_connect)
 	{
 		if(it==nullptr)
@@ -84,7 +88,16 @@ tpInt32 TpTcpServer::close()
 		it->close();
 		delete(it);
 	}
-	tcp->sock->close();
+	tcp->tcp_connect.clear();
+
+	if(tcp->sock)
+		tcp->sock->close();
+
+	if (tcp->notifier) {
+        delete tcp->notifier; 
+		tcp->notifier = nullptr;
+    }
+	tcp->status = TpSocket::TP_SOCK_DISCONNECT;
 	return 0;
 }
 
@@ -100,7 +113,7 @@ tpBool TpTcpServer::listen(TpString &addr, tpUInt16 port)
 	if(tcp->sock->listen(tcp->connect_max)<0)
 		return TP_FALSE;
 
-	tcp->notifier = new TpSocketNotifier(tcp->sock->getSocket(), TpSocketNotifier::Read, 
+	tcp->notifier = new TpSocketNotifierNew(tcp->sock->getSocket(), TpSocketNotifierNew::Read, 
 		[this]() {handleNewConnection();}
 	);
 	
@@ -190,12 +203,9 @@ void TpTcpServer::handleNewConnection()
     // 调试点4：尝试调用成员函数
     std::cout << "Peer address: " << tcp_c->getPeerAddress() << std::endl;
     
-    // 将对象添加到列表
-    tcp->tcp_connect.push_front(tcp_c);
-    
     // 调试点5：在连接信号前暂停
     std::cout << "About to connect signal..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	connect(tcp_c, TpTcpSocket::disconnected, [=](TpTcpSocket *client) {
 		printf("[DEBUG] Creating new connection: %p\n", client);
         tcp->tcp_connect.remove(client);

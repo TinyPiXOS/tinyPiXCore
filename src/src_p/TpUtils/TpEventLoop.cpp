@@ -137,8 +137,26 @@ void TpEventLoop::loop()
 
 			src->onEvent(fromEpoll(events[i].events));
 		}
+
+		processPendingDeletes();
 	}
 }
+
+void TpEventLoop::processPendingDeletes() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (TpEventSource* obj : pendingDelete_) {
+        delete obj;  // 自动调用虚析构
+    }
+	pendingDelete_.clear();
+}
+
+
+void TpEventLoop::scheduleDelete(TpEventSource* obj) {
+    if (!obj) return;
+    std::lock_guard<std::mutex> lock(mutex_);
+    pendingDelete_.push_back(obj);
+}
+
 
 void TpEventLoop::handleWakeup() 
 {
@@ -157,7 +175,8 @@ void TpEventLoop::handleWakeup()
 	}
 }
 
-TpEventLoop& TpEventLoop::defaultLoop() {
+TpEventLoop& TpEventLoop::defaultLoop() 
+{
     static TpEventLoop loop;
     static std::once_flag flag;
 

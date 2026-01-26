@@ -133,6 +133,10 @@ examples/TpUtils/media/Hard
 examples/TpUtils/media/Record
 examples/TpUtils/media/Video
 examples/TpUtils/network/Network
+examples/TpUtils/network/TcpClient
+examples/TpUtils/network/TcpServer
+examples/TpUtils/network/Udp
+examples/TpUtils/network/Wireless
 examples/TpUtils/other/Custom
 examples/TpUtils/other/Power
 examples/TpUtils/serial/Serial

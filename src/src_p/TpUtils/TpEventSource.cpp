@@ -10,15 +10,20 @@
 
 TpEventSource::TpEventSource() = default;
 
-TpEventSource::~TpEventSource() {
+TpEventSource::~TpEventSource() 
+{
     detach();
 }
 
-bool TpEventSource::isEnabled() const {
+bool TpEventSource::isEnabled() const 
+{
     return enabled_;
 }
 
-void TpEventSource::setEnabled(bool enable) {
+void TpEventSource::setEnabled(bool enable) 
+{
+	if (enabled_ == enable)
+        return;
     enabled_ = enable;
     if (loop_) {
         loop_->update(this);
@@ -26,29 +31,41 @@ void TpEventSource::setEnabled(bool enable) {
 }
 
 //绑定事件源到事件循环
-int TpEventSource::attach(TpEventLoop *loop) {
+int TpEventSource::attach(TpEventLoop *loop) 
+{
     if (!loop || loop_ == loop)
         return -1;
 
-    detach();
-    loop_ = loop;
-
     if (loop_) {
-        loop_->add(this);
+        loop_->remove(this);
     }
+
+    loop_ = loop;
+    loop_->add(this);
 	return 0;
 }
 
 //解绑事件源
-void TpEventSource::detach() {
+void TpEventSource::detach() 
+{
     if (loop_) {
         loop_->remove(this);
         loop_ = nullptr;
     }
 }
 
-void TpEventSource::autoAttachIfNeeded() {
+void TpEventSource::autoAttachIfNeeded() 
+{
     if (!loop_) {
         attach(&TpEventLoop::defaultLoop());
+    }
+}
+
+void TpEventSource::deleteLater() 
+{
+    if (loop_) {
+        loop_->scheduleDelete(this);
+    } else {
+        TpEventLoop::defaultLoop().scheduleDelete(this);
     }
 }

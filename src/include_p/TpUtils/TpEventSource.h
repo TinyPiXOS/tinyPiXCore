@@ -36,6 +36,8 @@ public:
     int attach(TpEventLoop *loop);
 	/// @brief 解绑事件源
     void detach();
+	/// @brief 延迟删除对象（安全删除）
+	void deleteLater();
 
 protected:
 	void autoAttachIfNeeded();
