@@ -14,7 +14,6 @@
 #include <arpa/inet.h>             //地址转换
 #include "TpTcpServer.h"
 #include "TpSocketNotifier.h"
-#include "TpSocketNotifierNew.h"
 
 #define MAX_CONNECTS	32		//最大允许连接数量
 
@@ -25,7 +24,7 @@ struct TpTcpServerData
 	TpSocket::TpSocketStatus status;	//当前的socket状态
 	tpInt32 connect_max;				//最大允许连接数量
 	std::atomic<bool> wait_connect;		//是否有待连接的客户端
-	TpSocketNotifierNew *notifier;
+	TpSocketNotifier *notifier;
 	TpTcpServerData(){
 		status=TpSocket::TP_SOCK_DISCONNECT;
 		connect_max=MAX_CONNECTS;
@@ -113,7 +112,7 @@ tpBool TpTcpServer::listen(TpString &addr, tpUInt16 port)
 	if(tcp->sock->listen(tcp->connect_max)<0)
 		return TP_FALSE;
 
-	tcp->notifier = new TpSocketNotifierNew(tcp->sock->getSocket(), TpSocketNotifierNew::Read, 
+	tcp->notifier = new TpSocketNotifier(tcp->sock->getSocket(), TpSocketNotifier::Read, 
 		[this]() {handleNewConnection();}
 	);
 	

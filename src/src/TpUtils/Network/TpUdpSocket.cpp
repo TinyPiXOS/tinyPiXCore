@@ -20,11 +20,10 @@
 #include "TpSocket.h"
 #include "TpNetworkDatagram.h"
 #include "TpSocketNotifier.h"
-#include "TpSocketNotifierNew.h"
 
 struct TpUdpSocketData{
 	TpSocket *sock;
-	TpSocketNotifierNew *notifier;
+	TpSocketNotifier *notifier;
 	mutable tpBool hasData;
 	TpUdpSocketData(){
 		sock=nullptr;
@@ -61,7 +60,7 @@ tpInt32 TpUdpSocket::bind(const TpString &addr, tpUInt16 port)
 	if(err<0)
 		return err;
 
-	sockData->notifier = new TpSocketNotifierNew(sockData->sock->getSocket(), TpSocketNotifierNew::Read, [this]() { handleReadyRead(); });
+	sockData->notifier = new TpSocketNotifier(sockData->sock->getSocket(), TpSocketNotifier::Read, [this]() { handleReadyRead(); });
 	return 0;
 }
 

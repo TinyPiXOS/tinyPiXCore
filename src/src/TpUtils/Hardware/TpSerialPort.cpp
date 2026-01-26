@@ -7,7 +7,7 @@
 #include <linux/serial.h>
 #include <asm/termbits.h> // 包含 termios2 定义
 #include "TpSerialPort.h"
-#include "TpSocketNotifierNew.h"
+#include "TpSocketNotifier.h"
 
 struct SerialParams {
 	int baudRate = 115200;      // 波特率
@@ -26,7 +26,7 @@ struct TpSerialPortData{
 	struct termios2 tty;	//串口配置
 	TpSerialPort::Parity parity;	//奇偶校验，用于设置1.5停止位的时候，保存设置之前的正常的奇偶校验(因为设置1.5停止会强制修改启用校验)
 	TpSerialPort::StopBits stop_bits;	//停止位
-	TpSocketNotifierNew *notifier_read;
+	TpSocketNotifier *notifier_read;
 	TpSerialPortData(const TpString &name_):name(name_){
 		memset(&tty,0,sizeof(struct termios2));
 		is_open=TP_FALSE;
@@ -102,7 +102,7 @@ tpBool TpSerialPort::open()
 
 	setBaudRate(TP_BAUD_RATE_115200);
 
-	data->notifier_read=new TpSocketNotifierNew(data->devfd, TpSocketNotifierNew::Read, 
+	data->notifier_read=new TpSocketNotifier(data->devfd, TpSocketNotifier::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleHangup(); }
 	);

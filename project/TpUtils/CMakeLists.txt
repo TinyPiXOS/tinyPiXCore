@@ -57,11 +57,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/TpThreadManage.cpp
     ${SOURCE_PATH}/src_p/TpUtils/TpDbusConnectManage.cpp
     ${SOURCE_PATH}/src_p/TpUtils/TpSystemDataManage.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifier.cpp
-    ${SOURCE_PATH}/src_p/TpUtils/TpAbstractEventDispatcher.cpp
 	${SOURCE_PATH}/src_p/TpUtils/TpEventLoop.cpp
 	${SOURCE_PATH}/src_p/TpUtils/TpEventSource.cpp
-	${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifierNew.cpp
+	${SOURCE_PATH}/src_p/TpUtils/TpSocketNotifier.cpp
 
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConflib.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c

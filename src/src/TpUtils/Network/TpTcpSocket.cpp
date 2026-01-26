@@ -9,15 +9,14 @@
 #include <sys/socket.h>  // <-- 这里定义了 MSG_PEEK
 #include "TpTcpSocket.h"
 #include "TpSocketNotifier.h"
-#include "TpSocketNotifierNew.h"
 #include "TpSocket.h"
 
 struct TpTcpSocketData{
 	TpSocket *sock;		//本地的sock
 //	TpSocket sock_r;	//远程的sock连接
 	TpSocket::TpSocketStatus status;	//当前的socket状态
-	TpSocketNotifierNew *notifier_read;
-	TpSocketNotifierNew *notifier_write;
+	TpSocketNotifier *notifier_read;
+	TpSocketNotifier *notifier_write;
 	TpTcpSocketData()
 	{
 		sock=nullptr;
@@ -47,7 +46,7 @@ TpTcpSocket::TpTcpSocket(TpSocket *sock)
 		tcp->status=TpSocket::TP_SOCK_CONNECT;
 	}
 
-	tcp->notifier_read = new TpSocketNotifierNew(tcp->sock->getSocket(), TpSocketNotifierNew::Read, 
+	tcp->notifier_read = new TpSocketNotifier(tcp->sock->getSocket(), TpSocketNotifier::Read, 
 		[this]() { handleRead(); },
 		[this]() { handleDisconnected(); }
 	);
@@ -105,8 +104,8 @@ tpInt32 TpTcpSocket::connectToHost(const TpString &addr, tpUInt16 port)
 		connected.emit();
 		return 0;
 	}
-	tcp->notifier_write = new TpSocketNotifierNew(
-			tcp->sock->getSocket(), TpSocketNotifierNew::Write,
+	tcp->notifier_write = new TpSocketNotifier(
+			tcp->sock->getSocket(), TpSocketNotifier::Write,
 			[this](){ handleWrite(); }
 		);
 	return 0;
