@@ -26,7 +26,8 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Network/TpNetworkInterface.cpp
     ${SOURCE_PATH}/src/TpUtils/Network/TpWirelessInfo.cpp
 	${SOURCE_PATH}/src/TpUtils/Network/TpHostAddress.cpp
-
+	${SOURCE_PATH}/src/TpUtils/Network/TpNetworkConfig.cpp
+	
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpu.cpp
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpuManage.cpp
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpGpu.cpp
@@ -64,6 +65,9 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConflib.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpNetPcap.cpp
+	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkManager.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/NmConnection.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/NmDevice.c
 
     ${SOURCE_PATH}/src/TpUtils/Media/TpAudioOutput.cpp
 	${SOURCE_PATH}/src/TpUtils/Media/TpVideoOutput.cpp
@@ -137,7 +141,6 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Dbus/manager.c
     ${SOURCE_PATH}/src_p/TpUtils/Dbus/properties.c
     ${SOURCE_PATH}/src_p/TpUtils/Dbus/connect.c
-    ${SOURCE_PATH}/src_p/TpUtils/Dbus/network_manager.c
     ${SOURCE_PATH}/src_p/TpUtils/Dbus/freedesktop_upower.c
     ${SOURCE_PATH}/src_p/TpUtils/Dbus/logind.c
 

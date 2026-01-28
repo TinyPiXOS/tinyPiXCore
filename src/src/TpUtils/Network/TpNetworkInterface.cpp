@@ -28,23 +28,12 @@
 #include <linux/wireless.h>
 #include <iomanip>
 #include "NetworkConf.h"
-#include "Dbus/network_manager.h"
+//#include "Network/NetworkManager.h"
 #include "TpNetworkInterface.h"
 
 #define MAX_DNS_NUMBER 64
 #define WPA_SUPPLICATION_CONFIG "/System/conf/wap_supplication/wap_supplication.conf"
 
-#ifdef __cplusplus
-extern "C"
-{ //  告诉编译器下列代码要以C链接约定的模式进行链接
-#endif
-    int32_t Network_SockConf_Open();
-    int32_t Network_Set_DHCP(const char *dev, uint8_t status);
-    int32_t Network_Conf_Device(char *name, int32_t type, void *conf);
-    void Network_Connect_Wireless(const char *dev, const char *ssid, const char *psk);
-#ifdef __cplusplus
-}
-#endif
 
 struct iw_essid
 {
@@ -66,31 +55,6 @@ struct TpNetworkData
         scan_is_runing = false;
     }
 };
-
-// 创建临时文件,
-static TpString open_directories_temp()
-{
-    pid_t pid = getpid();                 // 获取进程 ID
-    time_t t = time(NULL);                // 获取当前时间
-    char *filename = (char *)malloc(256); // 分配内存
-    if (filename == NULL)
-    {
-        perror("malloc");
-        return nullptr;
-    }
-    snprintf(filename, 256, "/tmp/tmpfile_%d_%ld.tmp", pid, t);
-    return filename;
-}
-// 删除临时文件
-static int32_t close_directories_temp(char *file)
-{
-    if (remove(file) != 0)
-    {
-        perror("remove() error");
-    }
-    free(file);
-    return 0;
-}
 
 TpString getVendorID(const TpString &iface)
 {
@@ -261,21 +225,19 @@ TpString TpNetworkInterface::name() const
 
 tpInt32 TpNetworkInterface::setConf(const TpString &name, uint16_t type, const TpString &addr)
 {
-    char *c_name = new char[name.length() + 1];
     char *c_addr = new char[addr.length() + 1];
-    std::strcpy(c_name, name.c_str());
     std::strcpy(c_addr, addr.c_str());
-    return Network_Conf_Device(c_name, type, c_addr);
+    int ret = Network_Conf_Device(name.c_str(), type, c_addr);
+	delete [] c_addr;
+	return ret;
 }
 
 tpInt32 TpNetworkInterface::getConf(const TpString &name, uint16_t type, TpString &addr)
 {
     int32_t err;
-    char *c_name = new char[name.length() + 1];
     char c_addr[32];
     std::memset(c_addr, 0, sizeof(c_addr));
-    std::strcpy(c_name, name.c_str());
-    if ((err = Network_Conf_Device(c_name, type, c_addr)) < 0)
+    if ((err = Network_Conf_Device(name.c_str(), type, c_addr)) < 0)
         return err;
     addr = TpString(c_addr);
     return 0;
@@ -284,8 +246,8 @@ tpInt32 TpNetworkInterface::getConf(const TpString &name, uint16_t type, TpStrin
 tpInt32 TpNetworkInterface::setStatus(bool status)
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
-    char *dev = new char[device->devname.length() + 1];
-    std::strcpy(dev, device->devname.c_str());
+//    char *dev = new char[device->devname.length() + 1];
+//    std::strcpy(dev, device->devname.c_str());
 
     int32_t sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
@@ -295,7 +257,7 @@ tpInt32 TpNetworkInterface::setStatus(bool status)
     }
 
     struct ifreq ifr;
-    std::strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+    std::strncpy(ifr.ifr_name, device->devname.c_str(), IFNAMSIZ);
     if (ioctl(sock, SIOCGIFFLAGS, &ifr) < 0)
     {
         std::cerr << "SIOCGIFFLAGS\n";
@@ -322,7 +284,7 @@ tpInt32 TpNetworkInterface::setStatus(bool status)
 }
 
 // 子网掩码转CIDR 前缀长度，如 "255.255.255.0" -> 24
-int netmask_to_prefix(const char *netmask_str)
+static int netmask_to_prefix(const char *netmask_str)
 {
     struct in_addr netmask;
     if (inet_pton(AF_INET, netmask_str, &netmask) != 1)
@@ -445,7 +407,6 @@ tpBool TpNetworkInterface::isOnlineInternet()
 tpInt32 TpNetworkInterface::setDhcp()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
-    //	return Network_Set_DHCP(device->devname.c_str(), 1);
     //	return Network_Enable_DHCP(device->devname.c_str());
     return Network_Enable_DHCP_Command(device->devname.c_str()); // 需要清设置的DNS
 }
@@ -453,7 +414,6 @@ tpInt32 TpNetworkInterface::setDhcp()
 /*tpInt32 TpNetworkInterface::setStatic()
 {
     TpNetworkData *device=static_cast<TpNetworkData *>(data_);
-//	return Network_Set_DHCP(device->devname.c_str(), 0);
     return  Network_Disable_DHCP(device->devname.c_str());
 }*/
 

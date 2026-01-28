@@ -29,6 +29,7 @@ extern "C"
 
 #define IP_FAMILY AF_INET
 
+typedef void (*NetworkGetListCallback)(const char *devname, void *user_data);
 typedef enum {
 	WIRED=1,	//有线网卡
 	WIRELESS=2,	//无线网卡
@@ -115,44 +116,36 @@ struct NETWORK_SET{
 }; 
 extern struct NETWORK_SET userset[];
 
-struct NetworkDevice *Network_List_CreatHead(); //初始化链表头
-int Network_List_Free(struct NetworkDevice *head);
-struct NetworkWireless *NetworkWireless_List_CreatHead(); //初始化链表头
 
+int network_get_broadaddr(int fd,const char *name,struct sockaddr_in *addr);
+int network_set_broadaddr(int fd,const char *name,struct sockaddr_in *addr);
+int network_get_macaddr(int fd,const char *name,struct sockaddr_in *addr);
+int network_get_macaddr(int fd,const char *name,struct sockaddr_in *addr);
 
-int network_get_addr(int fd,char *name, struct sockaddr_in *addr);
-int network_set_addr(int fd,char *name,struct sockaddr_in *addr);
-int network_get_netmask(int fd,char *name,struct sockaddr_in *addr);
-int network_set_netmask(int fd,char *name,struct sockaddr_in *addr);
-int network_get_broadaddr(int fd,char *name,struct sockaddr_in *addr);
-int network_set_broadaddr(int fd,char *name,struct sockaddr_in *addr);
-int network_get_macaddr(int fd,char *name,struct sockaddr_in *addr);
-int network_get_macaddr(int fd,char *name,struct sockaddr_in *addr);
-
-int NetworkConf_Get_Device(struct NetworkDevice *card_head);
-int NetworkConf_Get_Addr(int Netfd ,char *conf, char *name);
-int NetworkConf_Set_Addr(int Netfd ,char *conf, char *name);
-int NetworkConf_Get_AddrIpv6(int Netfd ,char *conf, char *name);
-int NetworkConf_Set_AddrIpv6(int Netfd ,char *conf, char *name);
-int NetworkConf_Get_DstAddr(int Netfd ,char *conf, char *name);
-int NetworkConf_Set_DstAddr(int Netfd ,char *conf, char *name);
-int NetworkConf_Get_Netmask(int Netfd,char *conf, char *name);
-int NetworkConf_Set_Netmask(int Netfd,char *conf, char *name);
-int NetworkConf_Get_BroadAddr(int Netfd,char *conf, char *name);
-int NetworkConf_Set_BroadAddr(int Netfd,char *conf, char *name);
-int NetworkConf_Get_MacAddr(int Netfd,char *conf, char *name);
-int NetworkConf_Set_MacAddr(int Netfd,char *conf, char *name);
-int NetworkConf_Get_Flags(int Netfd,short *flag, char *name);
-int NetworkConf_Set_Flags(int Netfd,short flag, char *name);
-int NetworkConf_Get_Mtu(int Netfd,int *mtu, char *name);
+int NetworkConf_Get_Device(NetworkGetListCallback callback, void *userdata);
+int NetworkConf_Get_Addr(int Netfd ,char *conf, const char *name);
+int NetworkConf_Set_Addr(int Netfd ,const char *conf, const char *name);
+int NetworkConf_Get_AddrIpv6(int Netfd ,char *conf, const char *name);
+int NetworkConf_Set_AddrIpv6(int Netfd ,const char *conf, const char *name);
+int NetworkConf_Get_DstAddr(int Netfd ,char *conf, const char *name);
+int NetworkConf_Set_DstAddr(int Netfd ,char *conf, const char *name);
+int NetworkConf_Get_Netmask(int Netfd,char *conf, const char *name);
+int NetworkConf_Set_Netmask(int Netfd,char *conf, const char *name);
+int NetworkConf_Get_BroadAddr(int Netfd,char *conf, const char *name);
+int NetworkConf_Set_BroadAddr(int Netfd,char *conf, const char *name);
+int NetworkConf_Get_MacAddr(int Netfd,char *conf, const char *name);
+int NetworkConf_Set_MacAddr(int Netfd,char *conf, const char *name);
+int NetworkConf_Get_Flags(int Netfd,short *flag, const char *name);
+int NetworkConf_Set_Flags(int Netfd,short flag, const char *name);
+int NetworkConf_Get_Mtu(int Netfd,int *mtu, const char *name);
 //-------以下为无限网卡专用配置-----
-int NetworkConf_Get_Freq(int Netfd,struct iw_freq *freq, char *name);
-int NetworkConf_Set_Freq(int Netfd,struct iw_freq freq, char *name);
-int NetworkConf_Get_Nwid(int Netfd,struct iw_param *param, char *name);
-int NetworkConf_Set_Nwid(int Netfd,struct iw_param param, char *name);
-int NetworkConf_Get_Sens(int Netfd,struct iw_param *param, char *name);
-int NetworkConf_Set_Sens(int Netfd,struct iw_param param, char *name);
-int Network_Get_Wifi(struct NetworkWireless *head, char *name);
+int NetworkConf_Get_Freq(int Netfd,struct iw_freq *freq, const char *name);
+int NetworkConf_Set_Freq(int Netfd,struct iw_freq freq, const char *name);
+int NetworkConf_Get_Nwid(int Netfd,struct iw_param *param, const char *name);
+int NetworkConf_Set_Nwid(int Netfd,struct iw_param param, const char *name);
+int NetworkConf_Get_Sens(int Netfd,struct iw_param *param, const char *name);
+int NetworkConf_Set_Sens(int Netfd,struct iw_param param, const char *name);
+int Network_Get_Wifi(struct NetworkWireless *head, const char *name);
 
 
 //以下为C++调用接口
@@ -161,11 +154,10 @@ int systemCmdTimeout(const char *cmd, uint32_t timeout);
 //------------------------------------------
 int Network_SockConf_Open() __attribute__((used));
 int Network_Sock_Close(int) __attribute__((used));
-int Network_Conf_Device(char *name,int type,void *conf) __attribute__((used));
-int Network_Conf_Wireless(char *name,int type,void *conf) __attribute__((used));
+int Network_Conf_Device(const char *name,int type,void *conf) __attribute__((used));
+int Network_Conf_Wireless(const char *name,int type,void *conf) __attribute__((used));
 
 //设置DHCP
-int Network_Set_DHCP(const char* dev,uint8_t status) __attribute__((used));
 int Network_Enable_DHCP(const char *ifname);
 // 返回 0 成功，-1 失败
 int Network_Disable_DHCP(const char *ifname) ;

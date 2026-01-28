@@ -21,6 +21,9 @@
 
 struct NETWORK_SET userset[MAX_NETWORK_THREAD];
 
+static int ip_string_to_sockaddr(const char *ip_str, struct sockaddr_in *addr);
+static int ipv6_string_to_sockaddr(const char *ip_str, struct sockaddr_in6 *addr);
+
 static void setNonblocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);
@@ -148,104 +151,6 @@ unsigned char my_hex_to_ascii(unsigned char hex)
 		return (hex + 0x30);
 }
 
-struct NetworkDevice *Network_List_CreatHead() // 初始化链表头
-{
-	// 为头节点申请空间
-	struct NetworkDevice *head = NULL;
-	head = (struct NetworkDevice *)malloc(sizeof(struct NetworkDevice));
-	if (head == NULL)
-		printf("head malloc error!\n");
-
-	// 为头节点的指针域赋值
-	head->next = NULL;
-	return head;
-}
-
-struct NetworkWireless *NetworkWireless_List_CreatHead() // 初始化链表头
-{
-	// 为头节点申请空间
-	struct NetworkWireless *head = NULL;
-	head = (struct NetworkWireless *)malloc(sizeof(struct NetworkWireless));
-	if (head == NULL)
-		printf("head malloc error!\n");
-	// 为头节点的指针域赋值
-	head->next = NULL;
-	return head;
-}
-/*
-struct wireless_scan_head *NetworkWireless_List2_CreatHead()//初始化链表头
-{
-		//为头节点申请空间
-	struct wireless_scan_head *head=NULL;
-	head = (struct wireless_scan_head *) malloc(sizeof (struct wireless_scan_head));
-	if (head == NULL)
-		printf("head malloc error!\n");
-	//为头节点的指针域赋值
-	head->next = NULL;
-		return head;
-}*/
-
-// 链表增加节点，网卡程序内部使用
-static int Network_List_AddNode(struct NetworkDevice *head, char gateway[20], char name[20], int type, int metric)
-{
-	// 为新节点申请空间
-	struct NetworkDevice *Node = NULL;
-	Node = (struct NetworkDevice *)malloc(sizeof(struct NetworkDevice));
-
-	// 为新节点赋值
-	if (gateway != NULL)
-		strcpy(Node->gateway, gateway);
-	if (name != NULL)
-		strcpy(Node->name, name);
-	Node->type = type;
-	Node->metric = metric;
-	Node->next = NULL;
-
-	// 寻找最后一个节点，并尾插
-	struct NetworkDevice *p = NULL;
-	for (p = head; p->next != NULL; p = p->next)
-		;
-	// 从循环出来时，p->next=NULL，也就是说，p指向最后一个节点！
-	p->next = Node;
-
-	return 0;
-}
-
-// 删除链表
-int Network_List_Free(struct NetworkDevice *head)
-{
-	struct NetworkDevice *node = head->next;
-	while (head != NULL)
-	{
-		node = head;
-		head = head->next;
-		free(node);
-		node = NULL;
-	}
-}
-
-// 链表增加节点，无线网程序内部使用
-static int NetworkWireless_List_Add(struct NetworkWireless *head, char ssid[30], uint8_t use, uint8_t intensity, uint8_t WPA1, uint8_t WPA2)
-{
-	// 为新节点申请空间
-	struct NetworkWireless *Node = NULL;
-	Node = (struct NetworkWireless *)malloc(sizeof(struct NetworkWireless));
-
-	strcpy(Node->SSID, ssid);
-	Node->inuse = use;
-	Node->signal = intensity;
-	Node->WPA1 = WPA1;
-	Node->WPA2 = WPA2;
-	Node->next = NULL;
-
-	// 寻找最后一个节点，并尾插
-	struct NetworkWireless *p = NULL;
-	for (p = head; p->next != NULL; p = p->next)
-		;
-	p->next = Node;
-
-	return 0;
-}
 
 static inline struct wireless_scan *iw_process_scanning_token(struct iw_event *event, struct wireless_scan *wscan)
 {
@@ -348,124 +253,13 @@ int socket_open_ipv6()
 	return sock;
 }
 
-// 获取网卡IP()
-int network_get_addr(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	char *ip;
-	if (ioctl(fd, SIOCGIFADDR, &if_req) != -1)
-	{
-		memcpy(addr, &(if_req.ifr_addr), sizeof(struct sockaddr_in)); // 两个结构体大小一样，内容不一样，使用内存拷贝
-		ip = inet_ntoa(addr->sin_addr);
-		printf("ip%s\n", ip);
-	}
-	else
-	{
-		perror("get addr error\n");
-		return -1;
-	}
-	return 0;
-}
-
-// 设置网卡IP
-int network_set_addr(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if_req.ifr_addr = *(struct sockaddr *)(addr);
-	if (ioctl(fd, SIOCSIFADDR, &if_req) < 0)
-	{
-		return -1;
-	}
-	return 0;
-}
-
-// 获取mask 子网掩码
-int network_get_netmask(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if (ioctl(fd, SIOCGIFNETMASK, &if_req) < 0)
-	{
-		return -1;
-	}
-	memcpy(addr, &(if_req.ifr_netmask), sizeof(struct sockaddr_in));
-	return 0;
-}
-
-// 设置mask 子网掩码
-int network_set_netmask(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if_req.ifr_netmask = *(struct sockaddr *)(addr);
-	if (ioctl(fd, SIOCSIFNETMASK, &if_req) < 0)
-	{
-		return -1;
-	}
-	return 0;
-}
-
-// 获取广播地址
-int network_get_broadaddr(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if (ioctl(fd, SIOCGIFBRDADDR, &if_req) < 0)
-	{
-		return -1;
-	}
-	memcpy(addr, &(if_req.ifr_broadaddr), sizeof(struct sockaddr_in));
-	return 0;
-}
-
-// 设置广播地址
-int network_set_broadaddr(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if_req.ifr_broadaddr = *(struct sockaddr *)(addr);
-	if (ioctl(fd, SIOCSIFBRDADDR, &if_req) < 0)
-	{
-		return -1;
-	}
-	return 0;
-}
-
-// 获取MAC地址
-int network_get_macaddr(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if (ioctl(fd, SIOCGIFHWADDR, &if_req) < 0)
-	{
-		return -1;
-	}
-	memcpy(addr, &(if_req.ifr_hwaddr), sizeof(struct sockaddr_in));
-	return 0;
-}
-
-// 设置MAC地址
-int network_set_macaddr(int fd, char *name, struct sockaddr_in *addr)
-{
-	struct ifreq if_req;
-	strcpy(if_req.ifr_name, name);
-	if_req.ifr_hwaddr = *(struct sockaddr *)(addr);
-	if (ioctl(fd, SIOCSIFHWADDR, &if_req) < 0)
-	{
-		return -1;
-	}
-	return 0;
-}
-
 //------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------分割线 以下是无限网卡专用的配置------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
 
 // 获取信道(频率)
-int network_get_freq(int fd, char *name, struct iw_freq *freq)
+int network_get_freq(int fd, const char *name, struct iw_freq *freq)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name); // 网卡名字
@@ -478,7 +272,7 @@ int network_get_freq(int fd, char *name, struct iw_freq *freq)
 }
 
 // 设置信道(频率)
-int network_set_freq(int fd, char *name, struct iw_freq *freq)
+int network_set_freq(int fd, const char *name, struct iw_freq *freq)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -492,7 +286,7 @@ int network_set_freq(int fd, char *name, struct iw_freq *freq)
 }
 
 // 获取网络id
-int network_get_nwid(int fd, char *name, struct iw_param *param)
+int network_get_nwid(int fd, const char *name, struct iw_param *param)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -505,7 +299,7 @@ int network_get_nwid(int fd, char *name, struct iw_param *param)
 }
 
 // 设置网络id
-int network_set_nwid(int fd, char *name, struct iw_param *param)
+int network_set_nwid(int fd, const char *name, struct iw_param *param)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -518,7 +312,7 @@ int network_set_nwid(int fd, char *name, struct iw_param *param)
 }
 
 // 获取灵敏度
-int network_get_sens(int fd, char *name, struct iw_param *param)
+int network_get_sens(int fd, const char *name, struct iw_param *param)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -531,7 +325,7 @@ int network_get_sens(int fd, char *name, struct iw_param *param)
 }
 
 // 设置灵敏度
-int network_set_sens(int fd, char *name, struct iw_param *param)
+int network_set_sens(int fd, const char *name, struct iw_param *param)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -578,11 +372,10 @@ int Network_Sock_Close(int socketfd)
 参数：网络类型
 返回：网络接口描述符
 *********************************************************/
-int NetworkConf_Get_Device(struct NetworkDevice *card_head)
+int NetworkConf_Get_Device(NetworkGetListCallback callback, void *userdata)
 {
-	//	struct NetworkDevice *Node = NULL;
-	//	struct NetworkDevice *p = NULL;
-	// struct NetworkDevice *card_head=Network_List_CreatHead(); //初始化链表头
+	if(!callback)
+		return -1;
 	char buff[2048];
 	struct ifconf if_conf;
 	int int_num = 0;
@@ -601,17 +394,7 @@ int NetworkConf_Get_Device(struct NetworkDevice *card_head)
 		{
 			ifr = if_conf.ifc_req + int_num;
 			printf("devname:%s\n", ifr->ifr_name);
-
-			// Node = (struct NetworkDevice *)malloc(sizeof(struct NetworkDevice));
-			// strcpy(Node->name,ifr->ifr_name);
-			// Node->next = NULL;
-
-			Network_List_AddNode(card_head, NULL, ifr->ifr_name, 0, 0);
-			// for(p=card_head;p->next!=NULL;p=p->next)
-			//{
-			//	;
-			// }
-			// p->next = Node;
+			callback(ifr->ifr_name, userdata);
 		}
 	}
 	else
@@ -624,11 +407,11 @@ int NetworkConf_Get_Device(struct NetworkDevice *card_head)
 }
 
 // 获取网卡ip
-int NetworkConf_Get_Addr(int Netfd, char *conf, char *name)
+int NetworkConf_Get_Addr(int Netfd, char *conf, const char *name)
 {
 	int err;
 	struct ifreq if_req;
-	struct sockaddr_in addr_in;
+	struct sockaddr_in *addr_in;
 	strcpy(if_req.ifr_name, name);
 
 	if ((err = ioctl(Netfd, SIOCGIFADDR, &if_req)) < 0)
@@ -636,31 +419,25 @@ int NetworkConf_Get_Addr(int Netfd, char *conf, char *name)
 		perror("get addr error");
 		return -1;
 	}
-	// memcpy(&addr_in,&(if_req.ifr_addr),sizeof(struct sockaddr_in));   //两个结构体大小一样，内容不一样，使用内存拷贝
-	addr_in = *((struct sockaddr_in *)(&if_req.ifr_addr)); // 或者先取地址尽享强制类型转换再取地址的值
-	//	char *ip=inet_ntoa(addr_in.sin_addr);
+
+	addr_in = (struct sockaddr_in *)(&if_req.ifr_addr); // 或者先取地址进行强制类型转换再取地址的值
 	char ip[20];
-	if (inet_ntop(AF_INET, &addr_in.sin_addr, ip, sizeof(ip)) == NULL)
+	if (inet_ntop(AF_INET, &(addr_in->sin_addr), ip, sizeof(ip)) == NULL)
 	{
 		perror("inet_ntop");
 		return -1;
 	}
 	// memcpy(conf,ip,strlen(ip));
 	my_ipv4_memcpy(conf, ip);
-	// conf=inet_ntoa(addr_in.sin_addr);
 	// printf("addr:%s,len=%d\n",conf,(int)strlen(ip));
 	return 0;
 }
 
 // 设置网卡IP
-int NetworkConf_Set_Addr(int Netfd, char *conf, char *name)
+int NetworkConf_Set_Addr(int Netfd, const char *conf, const char *name)
 {
-	struct in_addr inp; // 二进制网络地址
-	inet_aton(conf, &inp);
 	struct sockaddr_in addr_in;
-	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = 0;
-	addr_in.sin_addr = inp;
+	ip_string_to_sockaddr(conf, &addr_in);
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
 	memcpy(&if_req.ifr_addr, &addr_in, sizeof(struct sockaddr_in));
@@ -671,12 +448,12 @@ int NetworkConf_Set_Addr(int Netfd, char *conf, char *name)
 	return 0;
 }
 
-int NetworkConf_Get_Addr6(char *conf, char *name)
+int NetworkConf_Get_Addr6(char *conf, const char *name)
 {
 	int fd = socket_open_ipv6();
 	int err;
 	struct ifreq if_req;
-	struct sockaddr_in6 addr_in;
+	struct sockaddr_in6 *addr_in;
 	strcpy(if_req.ifr_name, name);
 
 	if ((err = ioctl(fd, SIOCGIFADDR, &if_req)) < 0)
@@ -684,29 +461,22 @@ int NetworkConf_Get_Addr6(char *conf, char *name)
 		perror("get addr error");
 		return -1;
 	}
-	// memcpy(&addr_in,&(if_req.ifr_addr),sizeof(struct sockaddr_in));   //两个结构体大小一样，内容不一样，使用内存拷贝
-	addr_in = *((struct sockaddr_in6 *)(&if_req.ifr_addr)); // 或者先取地址尽享强制类型转换再取地址的值
-	//	char *ip=inet_ntoa(addr_in.sin_addr);
+	addr_in = (struct sockaddr_in6 *)(&if_req.ifr_addr); // 或者先取地址进行强制类型转换再取地址的值
 	char ip[40];
-	if (inet_ntop(AF_INET6, &addr_in.sin6_addr, ip, sizeof(ip)) == NULL)
+	if (inet_ntop(AF_INET6, &addr_in->sin6_addr, ip, sizeof(ip)) == NULL)
 	{
 		perror("inet_ntop");
 		return -1;
 	}
 	memcpy(conf, ip, strlen(ip));
-	//	my_ipv4_memcpy(conf,ip);
-	// conf=inet_ntoa(addr_in.sin_addr);
-	// printf("addr:%s,len=%d\n",conf,(int)strlen(ip));
 	return 0;
 }
 
-int NetworkConf_Set_Addr6(char *conf, char *name)
+int NetworkConf_Set_Addr6(const char *conf, const char *name)
 {
 	int fd = socket_open_ipv6();
 	struct sockaddr_in6 addr_in;
-	addr_in.sin6_family = AF_INET6;
-	addr_in.sin6_port = 0;
-	inet_pton(AF_INET6, conf, &addr_in.sin6_addr);
+	ipv6_string_to_sockaddr(conf, &addr_in);
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
 	memcpy(&if_req.ifr_addr, &addr_in, sizeof(struct sockaddr_in));
@@ -718,7 +488,7 @@ int NetworkConf_Set_Addr6(char *conf, char *name)
 }
 
 // 获取网卡跃点数
-int NetworkConf_Get_Metric(int Netfd, int *met, char *name)
+int NetworkConf_Get_Metric(int Netfd, int *met, const char *name)
 {
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
@@ -733,7 +503,7 @@ int NetworkConf_Get_Metric(int Netfd, int *met, char *name)
 }
 
 // 设置网卡跃点数
-int NetworkConf_Set_Metric(int Netfd, int met, char *name)
+int NetworkConf_Set_Metric(int Netfd, int met, const char *name)
 {
 	struct ifreq if_req;
 	if_req.ifr_metric = met;
@@ -747,7 +517,7 @@ int NetworkConf_Set_Metric(int Netfd, int met, char *name)
 }
 
 // 获取点到点ip
-int NetworkConf_Get_DstAddr(int Netfd, char *conf, char *name)
+int NetworkConf_Get_DstAddr(int Netfd, char *conf, const char *name)
 {
 	struct ifreq if_req;
 	struct sockaddr_in addr_in;
@@ -762,20 +532,15 @@ int NetworkConf_Get_DstAddr(int Netfd, char *conf, char *name)
 	addr_in = *(struct sockaddr_in *)(&if_req.ifr_addr); // 或者先取地址尽享强制类型转换再取地址的值
 	ip = inet_ntoa(addr_in.sin_addr);
 	memcpy(conf, ip, strlen(ip));
-	// conf=inet_ntoa(addr_in.sin_addr);
 	// printf("%s\n",conf);
 	return 0;
 }
 
 // 设置点到点IP
-int NetworkConf_Set_DstAddr(int Netfd, char *conf, char *name)
+int NetworkConf_Set_DstAddr(int Netfd, char *conf, const char *name)
 {
-	struct in_addr inp; // 二进制网络地址
-	inet_aton(conf, &inp);
 	struct sockaddr_in addr_in;
-	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = 0;
-	addr_in.sin_addr = inp;
+	ip_string_to_sockaddr(conf, &addr_in);
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
 	memcpy(&if_req.ifr_addr, &addr_in, sizeof(struct sockaddr_in));
@@ -786,7 +551,7 @@ int NetworkConf_Set_DstAddr(int Netfd, char *conf, char *name)
 	return 0;
 }
 // 获取mask 子网掩码
-int NetworkConf_Get_Netmask(int Netfd, char *conf, char *name)
+int NetworkConf_Get_Netmask(int Netfd, char *conf, const char *name)
 {
 	struct ifreq if_req;
 	struct sockaddr_in addr_in;
@@ -800,20 +565,15 @@ int NetworkConf_Get_Netmask(int Netfd, char *conf, char *name)
 	addr_in = *(struct sockaddr_in *)(&if_req.ifr_netmask);
 	ip = inet_ntoa(addr_in.sin_addr);
 	memcpy(conf, ip, strlen(ip));
-	//	conf=inet_ntoa(addr_in.sin_addr);
 	// printf("%s\n",conf);
 	return 0;
 }
 
 // 设置mask 子网掩码
-int NetworkConf_Set_Netmask(int Netfd, char *conf, char *name)
+int NetworkConf_Set_Netmask(int Netfd, char *conf, const char *name)
 {
-	struct in_addr inp; // 二进制网络地址
-	inet_aton(conf, &inp);
 	struct sockaddr_in addr_in;
-	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = 0;
-	addr_in.sin_addr = inp;
+	ip_string_to_sockaddr(conf, &addr_in);
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
 	memcpy(&if_req.ifr_addr, &addr_in, sizeof(struct sockaddr_in));
@@ -825,7 +585,7 @@ int NetworkConf_Set_Netmask(int Netfd, char *conf, char *name)
 }
 
 // 获取广播地址
-int NetworkConf_Get_BroadAddr(int Netfd, char *conf, char *name)
+int NetworkConf_Get_BroadAddr(int Netfd, char *conf, const char *name)
 {
 	struct ifreq if_req;
 	struct sockaddr_in addr_in;
@@ -839,20 +599,15 @@ int NetworkConf_Get_BroadAddr(int Netfd, char *conf, char *name)
 	addr_in = *(struct sockaddr_in *)(&if_req.ifr_broadaddr);
 	ip = inet_ntoa(addr_in.sin_addr);
 	memcpy(conf, ip, strlen(ip));
-	//	conf=inet_ntoa(addr_in.sin_addr);
 	// printf("%s\n",conf);
 	return 0;
 }
 
 // 设置广播地址
-int NetworkConf_Set_BroadAddr(int Netfd, char *conf, char *name)
+int NetworkConf_Set_BroadAddr(int Netfd, char *conf, const char *name)
 {
-	struct in_addr inp; // 二进制网络地址
-	inet_aton(conf, &inp);
 	struct sockaddr_in addr_in;
-	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = 0;
-	addr_in.sin_addr = inp;
+	ip_string_to_sockaddr(conf, &addr_in);	
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
 	memcpy(&if_req.ifr_addr, &addr_in, sizeof(struct sockaddr_in));
@@ -865,7 +620,7 @@ int NetworkConf_Set_BroadAddr(int Netfd, char *conf, char *name)
 }
 
 // 获取MAC地址
-int NetworkConf_Get_MacAddr(int Netfd, char *conf, char *name)
+int NetworkConf_Get_MacAddr(int Netfd, char *conf, const char *name)
 {
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
@@ -900,7 +655,7 @@ int NetworkConf_Get_MacAddr(int Netfd, char *conf, char *name)
 }
 
 // 设置MAC地址格式00:00:00:00:00:00
-int NetworkConf_Set_MacAddr(int Netfd, char *conf, char *name)
+int NetworkConf_Set_MacAddr(int Netfd, char *conf, const char *name)
 {
 	struct ifreq if_req;
 	char *mac = malloc(17);
@@ -924,7 +679,7 @@ int NetworkConf_Set_MacAddr(int Netfd, char *conf, char *name)
 }
 
 // 获取接口标志
-int NetworkConf_Get_Flags(int Netfd, short *flag, char *name)
+int NetworkConf_Get_Flags(int Netfd, short *flag, const char *name)
 {
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
@@ -939,7 +694,7 @@ int NetworkConf_Get_Flags(int Netfd, short *flag, char *name)
 }
 
 // 设置接口标志
-int NetworkConf_Set_Flags(int Netfd, short flag, char *name)
+int NetworkConf_Set_Flags(int Netfd, short flag, const char *name)
 {
 	struct ifreq if_req;
 	printf("%s,%d\n", name, flag);
@@ -952,7 +707,7 @@ int NetworkConf_Set_Flags(int Netfd, short flag, char *name)
 	}
 }
 // 获取接口MTU
-int NetworkConf_Get_Mtu(int Netfd, int *mtu, char *name)
+int NetworkConf_Get_Mtu(int Netfd, int *mtu, const char *name)
 {
 	struct ifreq if_req;
 	strcpy(if_req.ifr_name, name);
@@ -965,9 +720,13 @@ int NetworkConf_Get_Mtu(int Netfd, int *mtu, char *name)
 	printf("mtu=%d\n", *mtu);
 	return 0;
 }
+int NetworkConf_Set_Mtu(int Netfd, int *mtu, const char *name)
+{	//不允许设置
+}
+
 //---------------------------以下是无线网卡的配置----------------------------------------
 // 获取信道(频率)
-int NetworkConf_Get_Freq(int Netfd, struct iw_freq *freq, char *name)
+int NetworkConf_Get_Freq(int Netfd, struct iw_freq *freq, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name); // 网卡名字
@@ -980,7 +739,7 @@ int NetworkConf_Get_Freq(int Netfd, struct iw_freq *freq, char *name)
 }
 
 // 设置信道(频率)
-int NetworkConf_Set_Freq(int Netfd, struct iw_freq freq, char *name)
+int NetworkConf_Set_Freq(int Netfd, struct iw_freq freq, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -993,7 +752,7 @@ int NetworkConf_Set_Freq(int Netfd, struct iw_freq freq, char *name)
 }
 
 // 获取网络id
-int NetworkConf_Get_Nwid(int Netfd, struct iw_param *param, char *name)
+int NetworkConf_Get_Nwid(int Netfd, struct iw_param *param, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -1006,7 +765,7 @@ int NetworkConf_Get_Nwid(int Netfd, struct iw_param *param, char *name)
 }
 
 // 设置网络id
-int NetworkConf_Set_Nwid(int Netfd, struct iw_param param, char *name)
+int NetworkConf_Set_Nwid(int Netfd, struct iw_param param, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -1019,7 +778,7 @@ int NetworkConf_Set_Nwid(int Netfd, struct iw_param param, char *name)
 }
 
 // 获取灵敏度
-int NetworkConf_Get_Sens(int Netfd, struct iw_param *param, char *name)
+int NetworkConf_Get_Sens(int Netfd, struct iw_param *param, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -1032,7 +791,7 @@ int NetworkConf_Get_Sens(int Netfd, struct iw_param *param, char *name)
 }
 
 // 设置灵敏度
-int NetworkConf_Set_Sens(int Netfd, struct iw_param param, char *name)
+int NetworkConf_Set_Sens(int Netfd, struct iw_param param, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -1045,7 +804,7 @@ int NetworkConf_Set_Sens(int Netfd, struct iw_param param, char *name)
 }
 
 // 获取默认传输速率
-int NetworkConf_Get_Rate(int Netfd, struct iw_param *param, char *name)
+int NetworkConf_Get_Rate(int Netfd, struct iw_param *param, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -1058,7 +817,7 @@ int NetworkConf_Get_Rate(int Netfd, struct iw_param *param, char *name)
 }
 
 // 设置默认传输速率
-int NetworkConf_Set_Rate(int Netfd, struct iw_param param, char *name)
+int NetworkConf_Set_Rate(int Netfd, struct iw_param param, const char *name)
 {
 	struct iwreq iw_req;
 	strcpy(iw_req.ifr_name, name);
@@ -1071,7 +830,7 @@ int NetworkConf_Set_Rate(int Netfd, struct iw_param param, char *name)
 }
 
 // 获取周围网络信息,内部调用
-int NetworkConf_Get_Scan_Wifi(int fd, wireless_scan_head *context, char *name)
+int NetworkConf_Get_Scan_Wifi(int fd, wireless_scan_head *context, const char *name)
 {
 	struct iw_scan_req scanopt; // AP信息结构体
 	int we_version = 20;        // 临时为了程序不报错使用，后期删除
@@ -1161,7 +920,7 @@ realloc:
 }
 
 // 扫描周围网络信息，内部调用
-int NetworkConf_Set_Scan_Wifi(int fd, char *name)
+int NetworkConf_Set_Scan_Wifi(int fd, const char *name)
 {
 	struct iwreq iw_req; //
 	strcpy(iw_req.ifr_name, name);
@@ -1176,7 +935,7 @@ int NetworkConf_Set_Scan_Wifi(int fd, char *name)
 }
 
 // 获取无线网信息
-int Network_Get_Wifi(struct NetworkWireless *head, char *name)
+int Network_Get_Wifi(struct NetworkWireless *head, const char *name)
 {
 	int err = 0;
 	uint8_t used;
@@ -1215,7 +974,8 @@ int Network_Get_Wifi(struct NetworkWireless *head, char *name)
 			used = 1;
 		else
 			used = 0;
-		NetworkWireless_List_Add(head, node->b.essid, used, node->stats.qual.level, 0, 0);
+		//NetworkWireless_List_Add(head, node->b.essid, used, node->stats.qual.level, 0, 0);
+
 		printf("ssid=%s,\thasstats=%d,\tqual=%d,\tlevel=%d\n", node->b.essid, node->has_stats, node->stats.qual.qual, node->stats.qual.level);
 		node = node->next;
 	}
@@ -1223,15 +983,6 @@ int Network_Get_Wifi(struct NetworkWireless *head, char *name)
 	return 0;
 }
 
-// 暂时实现不了，调用_userset的接口
-int Network_Connect()
-{
-}
-
-// 暂时实现不了，调用_userset的接口
-int Network_Down_Connect()
-{
-}
 
 void Network_Connect_Wireless(const char *dev, const char *ssid, const char *psk)
 {
@@ -1292,53 +1043,6 @@ void Network_Connect_Wireless(const char *dev, const char *ssid, const char *psk
 	g_object_unref(connection);
 }
 
-// 设置dhcp
-int Network_Set_DHCP(const char *dev, uint8_t status)
-{
-	int ret = 0;
-	int sock = socket(AF_INET, SOCK_DGRAM, 0);
-	if (sock < 0)
-	{
-		perror("socket");
-		return -1;
-	}
-
-	struct ifreq ifr;
-	memset(&ifr, 0, sizeof(ifr));
-	strncpy(ifr.ifr_name, dev, IFNAMSIZ);
-
-	// 启用 DHCP
-	if (ioctl(sock, SIOCGIFFLAGS, &ifr) < 0)
-	{
-		perror("ioctl (SIOCGIFFLAGS)");
-		close(sock);
-		return -1;
-	}
-
-	// 设置DHCP接口
-	if (status)
-		ifr.ifr_flags |= IFF_UP;
-	else
-		ifr.ifr_flags &= ~IFF_UP;
-	if (ioctl(sock, SIOCSIFFLAGS, &ifr) < 0)
-	{
-		perror("ioctl (SIOCSIFFLAGS)");
-		close(sock);
-		return -1;
-	}
-
-	// 配置为 DHCP
-	// 这里需要安装 dhclient 并调用它
-	if (status)
-	{
-		char command[128];
-		snprintf(command, sizeof(command), "dhclient %s", dev);
-		ret = system(command);
-	}
-
-	close(sock);
-	return ret;
-}
 
 // 下面是DHCP部分，后期考虑优化
 #include <sys/wait.h>
@@ -1906,7 +1610,7 @@ int Network_Get_Gateway_Command(const char *ifname, char *gateway, size_t len)
 参数：网络类型
 返回：网络接口描述符
 *********************************************************/
-int Network_Conf_Device(char *name, int type, void *conf)
+int Network_Conf_Device(const char *name, int type, void *conf)
 {
 	struct ifreq ifr;
 	struct in_addr inp; // 二进制网络地址
@@ -2010,7 +1714,7 @@ int Network_Conf_Device(char *name, int type, void *conf)
 	return 0;
 }
 
-int Network_Conf_Wireless(char *name, int type, void *conf)
+int Network_Conf_Wireless(const char *name, int type, void *conf)
 {
 	struct iwreq iwr;
 	struct iw_freq freq;
@@ -2070,3 +1774,36 @@ int Network_Conf_Wireless(char *name, int type, void *conf)
 }
 
 
+static int ip_string_to_sockaddr(const char *ip_str, struct sockaddr_in *addr)
+{
+	struct in_addr inp; // 二进制网络地址
+	if (inet_aton(ip_str, &inp) == 0)
+	{
+		return -1; // 无效的IP地址字符串
+	}
+	addr->sin_family = AF_INET;
+	addr->sin_port = 0;
+	addr->sin_addr = inp;		//ipv4本身是uint32_t类型，直接赋值
+	return 0;
+}
+
+static int ipv6_string_to_sockaddr(const char *ip_str, struct sockaddr_in6 *addr)
+{
+	addr->sin6_family = AF_INET6;
+	addr->sin6_port = 0;
+	if (inet_pton(AF_INET6, ip_str, &addr->sin6_addr) != 1)		//ipv6本身是结构体不能直接赋值
+	{
+		return -1; // 无效的IPv6地址字符串
+	}
+	return 0;
+}
+
+
+int Network_Ioctl(int sock, const char *ifname, unsigned long cmd, struct sockaddr* addr) 
+{
+	struct ifreq ifr;
+	memset(&ifr, 0, sizeof(ifr));
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
+	memcpy(&ifr.ifr_addr, addr, sizeof(struct sockaddr));
+	return ioctl(sock, cmd, &ifr) == 0;
+}

@@ -23,29 +23,29 @@ extern "C"
 #define PROFILE_MANAGER_IS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), PROFILE_MANAGER_TYPE))
 #define PROFILE_MANAGER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), PROFILE_MANAGER_TYPE, ProfileManagerClass))
 
-    typedef struct _ProfileManager ProfileManager;
-    typedef struct _ProfileManagerClass ProfileManagerClass;
-    typedef struct _ProfileManagerPrivate ProfileManagerPrivate;
+typedef struct _ProfileManager ProfileManager;
+typedef struct _ProfileManagerClass ProfileManagerClass;
+typedef struct _ProfileManagerPrivate ProfileManagerPrivate;
 
-    struct _ProfileManager
-    {
-        GObject parent_instance;
+struct _ProfileManager
+{
+	GObject parent_instance;
 
-        /*< private >*/
-        ProfileManagerPrivate *priv;
-    };
+	/*< private >*/
+	ProfileManagerPrivate *priv;
+};
 
-    struct _ProfileManagerClass
-    {
-        GObjectClass parent_class;
-    };
+struct _ProfileManagerClass
+{
+	GObjectClass parent_class;
+};
 
-    GType profile_manager_get_type(void) G_GNUC_CONST;
+GType profile_manager_get_type(void) G_GNUC_CONST;
 
-    ProfileManager *profile_manager_new();
+ProfileManager *profile_manager_new();
 
-    void profile_manager_proxy_register_profile(ProfileManager *self, const gchar *profile, const gchar *uuid, const GVariant *options, GError **error);
-    void profile_manager_proxy_unregister_profile(ProfileManager *self, const gchar *profile, GError **error);
+void profile_manager_proxy_register_profile(ProfileManager *self, const gchar *profile, const gchar *uuid, const GVariant *options, GError **error);
+void profile_manager_proxy_unregister_profile(ProfileManager *self, const gchar *profile, GError **error);
 
 #ifdef __cplusplus
 }
