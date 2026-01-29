@@ -1,8 +1,8 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
-		网卡管理(DBUS)Device接口相关操作
-说 明 : org.freedesktop.NetworkManager.Device接口
-日 期 : 2026.1.27
-作 者 : Chingan
+		网卡管理(DBUS)Settings接口相关操作
+说 明 : org.freedesktop.NetworkManager.Settings接口
+		主要用于网络配置的object_path（object_path可以用于创建NmConnection），
+日 期 : 2026.1.28
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
@@ -69,8 +69,7 @@ static GDBusProxy *nm_settings_create_proxy(const gchar *path, GError **error)
     return proxy;
 }
 
-NmSettings *nm_settings_create(GDBusConnection *conn,
-                               GError **error)
+NmSettings *nm_settings_create(GDBusConnection *conn, GError **error)
 {
     g_return_val_if_fail(conn != NULL, NULL);
 
@@ -95,7 +94,7 @@ int nm_settings_delete(NmSettings *self)
 	return 0;
 }
 
-//列出系统所有连接 object_path
+//列出系统所有配置
 GList *nm_settings_list_connections(NmSettings *self, GError **error)
 {
     g_return_val_if_fail(self != NULL, NULL);
@@ -127,8 +126,8 @@ GList *nm_settings_list_connections(NmSettings *self, GError **error)
     return g_list_reverse(list);
 }
 
-//根据 conn_name 查找 object_path
-char *nm_settings_find_connection_by_id(NmSettings *self, const char *conn_name, GError **error)
+//根据 配置名 查找 配置(connection)的object_path
+char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name, GError **error)
 {
     g_return_val_if_fail(self != NULL, NULL);
     g_return_val_if_fail(conn_name != NULL, NULL);
@@ -188,36 +187,28 @@ char *nm_settings_find_connection_by_id(NmSettings *self, const char *conn_name,
     return NULL;
 }
 
-//创建一个最小空配置 (Ethernet 类型)
-NmConnection *nm_settings_add_empty_ethernet(NmSettings *self, const char *conn_name, GError **error)
+
+char *nm_settings_add_connection(NmSettings *self, GVariant *settings, GError **error)
 {
-    g_return_val_if_fail(self != NULL, NULL);
-    g_return_val_if_fail(conn_name != NULL, NULL);
+    GVariant *ret;
+    gchar *path = NULL;
 
-    GVariantBuilder builder;
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
-
-    g_variant_builder_add(&builder, "{sv}", "type", g_variant_new_string("ethernet"));
-    g_variant_builder_add(&builder, "{sv}", "interface-name", g_variant_new_string("*"));
-    g_variant_builder_add(&builder, "{sv}", "id", g_variant_new_string(conn_name));
-
-    GVariant *ret = g_dbus_proxy_call_sync(
+    ret = g_dbus_proxy_call_sync(
         self->priv->proxy,
         "AddConnection",
-        g_variant_new("(a{sv})", &builder),
+        g_variant_new("(a{sa{sv}})", settings),
         G_DBUS_CALL_FLAGS_NONE,
         -1,
         NULL,
         error
     );
 
-    if (!ret) return NULL;
+    if (!ret)
+        return NULL;
 
-    // 返回 NmConnection 对象
-    NmConnection *conn = nm_connection_create(
-        g_dbus_proxy_get_connection(self->priv->proxy),
-        g_variant_get_string(ret, NULL)
-    );
+    g_variant_get(ret, "(o)", &path);
     g_variant_unref(ret);
-    return conn;
+
+    return path;  // ⚠️ 调用者负责 g_free
 }
+

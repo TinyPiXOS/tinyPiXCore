@@ -9,6 +9,7 @@ extern "C" {
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
+#include "Network/NmConnection.h"
 
 #define NM_SETTINGS_OBJECT_PATH       	"/org/freedesktop/NetworkManager/Settings"
 #define NM_SETTINGS_INTERFACE 			"org.freedesktop.NetworkManager.Settings"
@@ -37,6 +38,19 @@ struct NmSettingsClass_ {
 
 GType nm_settings_get_type(void) G_GNUC_CONST;		//此函数由Glib根据G_DEFINE_TYPE_WITH_PRIVATE自动生成，此处声明是为了方便调用
 
+
+NmSettings *nm_settings_create(GDBusConnection *conn, GError **error);
+int nm_settings_delete(NmSettings *self);
+
+//列出系统所有配置
+GList *nm_settings_list_connections(NmSettings *self, GError **error);
+
+//根据 配置名 查找 配置(connection)的object_path
+//conn_name 配置名
+char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name, GError **error);
+
+//setting添加配置
+char *nm_settings_add_connection(NmSettings *self, GVariant *settings, GError **error);
 
 
 

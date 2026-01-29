@@ -112,7 +112,7 @@ GDBusProxy* nm_connection_get_proxy_internal(NmConnection *self)
 	return self->priv->proxy;
 }
 
-static GVariant *nm_connection_get_settings(NmConnection *self, GError **error)
+GVariant *nm_connection_get_settings(NmConnection *self, GError **error)
 {
     g_return_val_if_fail(NETWORK_MANAGER_IS(self), NULL);
     g_return_val_if_fail(self->priv->proxy != NULL, NULL);
@@ -135,8 +135,12 @@ static GVariant *nm_connection_get_settings(NmConnection *self, GError **error)
 	g_variant_unref(ret);
 	return settings;
 }
+void nm_connection_free_settings(GVariant *settings)
+{
+	g_variant_unref(settings);
+}
 
-static int nm_connection_update(NmConnection *self, GVariantBuilder *settings, GError **error)
+int nm_connection_update(NmConnection *self, GVariantBuilder *settings, GError **error)
 {
 	g_return_val_if_fail(NETWORK_MANAGER_IS(self), -1);
     g_return_val_if_fail(self->priv->proxy != NULL, -1);
@@ -152,61 +156,7 @@ static int nm_connection_update(NmConnection *self, GVariantBuilder *settings, G
 }
 
 
-
-// 开启 DHCP
-bool nm_connection_enable_ipv4_dhcp(NmConnection *self,
-                                    const char *conn_name,
-                                    const char *ifname,
-                                    GError **error)
-{
-    g_return_val_if_fail(self != NULL, false);
-
-    //此处增加配置检查
-
-    // 设置 DHCP 自动
-    nm_connection_set_ipv4_dhcp_is_enabled(self, true, error);
-    if (error && *error) return false;
-
-    // DNS 自动
-    nm_connection_set_ipv4_dns_mode(self, true, error);
-    if (error && *error) return false;
-
-    // 应用连接
-   // 此处增加配置链接
-    return true;
-}
-
-// 设置静态 IP + 网关
-void nm_connection_set_ipv4_static_ip(NmConnection *self,
-                                      const char *ip,
-                                      int prefix,
-                                      const char *gateway,
-                                      GError **error)
-{
-    g_return_if_fail(self != NULL);
-    g_return_if_fail(ip != NULL);
-    g_return_if_fail(gateway != NULL);
-
-    GVariantBuilder ipv4;
-    GVariantBuilder settings;
-
-    g_variant_builder_init(&ipv4, G_VARIANT_TYPE("a{sv}"));
-    g_variant_builder_add(&ipv4, "{sv}", "method", g_variant_new_string("manual"));
-
-    gchar addr_buf[64];
-    snprintf(addr_buf, sizeof(addr_buf), "%s/%d", ip, prefix);
-    g_variant_builder_add(&ipv4, "{sv}", "address-data", g_variant_new_string(addr_buf));
-    g_variant_builder_add(&ipv4, "{sv}", "gateway", g_variant_new_string(gateway));
-
-    g_variant_builder_init(&settings, G_VARIANT_TYPE("a{sa{sv}}"));
-    g_variant_builder_add(&settings, "{sa{sv}}", "ipv4", &ipv4);
-
-    nm_connection_update(self, &settings, error);
-}
-
-
-
-//设置dhcp
+//设置dhcp是否使能
 void nm_connection_set_ipv4_dhcp_is_enabled(NmConnection *self,
                                      bool enable,
                                      GError **error)
@@ -229,7 +179,7 @@ void nm_connection_set_ipv4_dhcp_is_enabled(NmConnection *self,
     nm_connection_update(self, &settings, error);
 }
 
-// 查询 DHCP 状态：1=auto/DHCP, 0=manual/static, -1=error/no-active
+// 获取 DHCP 状态：1=auto/DHCP, 0=manual/static, -1=error/no-active
 int nm_connection_get_ipv4_dhcp_state(NmConnection *self,
                                           GError **error)
 {

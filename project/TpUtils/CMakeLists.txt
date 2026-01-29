@@ -66,8 +66,10 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpNetPcap.cpp
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkManager.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/NmSettings.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NmConnection.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NmDevice.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkAppConf.c
 
     ${SOURCE_PATH}/src/TpUtils/Media/TpAudioOutput.cpp
 	${SOURCE_PATH}/src/TpUtils/Media/TpVideoOutput.cpp

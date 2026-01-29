@@ -1,0 +1,18 @@
+网络模块设计说明：
+	NetworkConf和NetworkConflib为旧版接口，对于基础的网络配置使用系统的ioctl相关接口实现，对于应用层相关配置(DNS和DHCP)使用nmcli
+	命令行工具来实现。
+	NetPcap主要借助于libpcap进行网络抓包来计算网速
+	nm系列主要为新版接口，参考NetworkManger的方式使用了DBUS进行网卡管理，当前主要为了替换掉旧版接口的命令行方式。方便嵌入式平台使用。
+
+NetworkManger模块功能：
+	NetworkManger：
+		网卡以及网络管理
+
+	NmSettings：
+		Settings相关接口，可以获取网络配置
+
+	NmDevice：
+		Device相关接口，可以理解为网卡硬件相关，
+
+	NmConnection：
+		Connection相关接口，可以理解作网络配置，但是此配置不是网卡配置，而是类似于配置文件，可以应用于网卡

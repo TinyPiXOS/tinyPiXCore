@@ -188,6 +188,8 @@ char *network_manager_get_object_path_by_iface(NetworkManager *self, const char 
 
 
 // 将配置应用到指定网卡上，返回 0 成功
+//conn：要激活的配置
+//dev：要应用的网卡
 int nm_connection_activate_on_device(NetworkManager *self,
                                         NmConnection *conn,
                                         NmDevice *dev,
@@ -197,7 +199,9 @@ int nm_connection_activate_on_device(NetworkManager *self,
 
 	GDBusProxy *c_proxy = nm_connection_get_proxy_internal(conn);
 	GDBusProxy *d_proxy = nm_device_get_proxy_internal(dev);
-
+	
+	if(!c_proxy || d_proxy)
+		return -1;
     // 调用 ActivateConnection(Connection, Device, SpecificObjectPath)
 	g_dbus_proxy_call_sync(
 		self->priv->proxy,
@@ -211,3 +215,93 @@ int nm_connection_activate_on_device(NetworkManager *self,
     return 0;
 }
 
+/**
+ * network_manager_is_connection_active:
+ * @nm: NetworkManager 对象
+ * @conn_name: 要检查的配置名
+ *
+ * 返回值:
+ *   1 已激活
+ *   0 未激活
+ *  -1 出错
+ */
+int network_manager_is_connection_active(NetworkManager *nm, const char *conn_name)
+{
+    g_return_val_if_fail(NETWORK_MANAGER_IS(nm), -1);
+    g_return_val_if_fail(conn_name != NULL, -1);
+
+    GError *error = NULL;
+
+    // 获取系统所有活动连接
+    GVariant *ret = g_dbus_proxy_call_sync(
+        nm->priv->proxy,
+        "ListConnections",
+        NULL,
+        G_DBUS_CALL_FLAGS_NONE,
+        -1,
+        NULL,
+        &error
+    );
+
+    if (!ret) {
+        g_printerr("Failed to list connections: %s\n", error ? error->message : "unknown");
+        g_clear_error(&error);
+        return -1;
+    }
+
+    GVariantIter *iter;
+    GVariant *child;
+    g_variant_get(ret, "(ao)", &iter);
+    int active = 0;
+
+    while (g_variant_iter_loop(iter, "o", &child)) {
+        const char *conn_path = g_variant_get_string(child, NULL);
+
+        GDBusProxy *conn_proxy = g_dbus_proxy_new_sync(
+            g_dbus_proxy_get_connection(nm->priv->proxy),
+            G_DBUS_PROXY_FLAGS_NONE,
+            NULL,
+            NETWORK_MANAGER_DBUS_SERVER,
+            conn_path,
+            NM_CONNECTION_INTERFACE,
+            NULL,
+            &error
+        );
+
+        if (!conn_proxy) continue;
+
+        GVariant *settings = g_dbus_proxy_call_sync(
+            conn_proxy,
+            "GetSettings",
+            NULL,
+            G_DBUS_CALL_FLAGS_NONE,
+            -1,
+            NULL,
+            &error
+        );
+
+        if (settings) {
+            GVariant *conn_info = g_variant_lookup_value(settings, "connection", G_VARIANT_TYPE("a{sv}"));
+            if (conn_info) {
+                GVariant *id_var = g_variant_lookup_value(conn_info, "id", G_VARIANT_TYPE_STRING);
+                if (id_var) {
+                    const char *name = g_variant_get_string(id_var, NULL);
+                    if (g_strcmp0(name, conn_name) == 0) {
+                        active = 1;
+                    }
+                    g_variant_unref(id_var);
+                }
+                g_variant_unref(conn_info);
+            }
+            g_variant_unref(settings);
+        }
+
+        g_object_unref(conn_proxy);
+        if (active) break;
+    }
+
+    g_variant_iter_free(iter);
+    g_variant_unref(ret);
+
+    return active;
+}

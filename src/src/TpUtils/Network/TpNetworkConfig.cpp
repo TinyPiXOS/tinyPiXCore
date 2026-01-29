@@ -27,8 +27,10 @@
 #include <linux/wireless.h>
 #include <iomanip>
 #include "Network/NetworkConf.h"
+#include "Network/NetworkAppConf.h"
 #include "Network/NetworkManager.h"
 #include "Network/NmConnection.h"
+#include "Network/NmSettings.h"
 #include "TpNetworkInterface.h"
 #include "TpNetworkConfig.h"
 #include "Dbus/connect.h"
@@ -41,11 +43,16 @@ struct TpNetworkConfigData
 	std::thread thread_t;
 	int sockfd;
 	TpString devname;		//设备名字，需要频繁使用
+	NetworkManager *nm;
 	NmConnection *nmc;
+	NmSettings *nms;
 	TpNetworkConfigData(TpString name):interface(name)
 	{
 		sockfd=-1;
 		devname=name;
+		nm=NULL;
+		nmc=NULL;
+		nms=NULL;
 	}
 };
 
@@ -62,32 +69,27 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 		free(device);
         return;
     }
-	NetworkManager *nm = network_manager_create(system_conn);
-	if(!nm)
-	{
-		free(device);
-        return;
-	}
+	device->nm = network_manager_create(system_conn);
+	if(!device->nm)
+		goto FREE;
 
-	char *obj_path = network_manager_get_object_path_by_iface(nm, name.c_str(), NULL);
-	if(!obj_path)
-	{
-		network_manager_delete(nm);
-		free(device);
-		return;
-	}
+	device->nms = nm_settings_create(system_conn,NULL);
+	if(!device->nms)
+		goto FREE;
 	
-	NmConnection *nmc = nm_connection_create(system_conn,obj_path);
-	if(!nmc)
-	{
-		free(obj_path);
-		network_manager_delete(nm);
-		free(device);
-		return;
-	}
+	device->nmc = network_open_connection(system_conn, device->nms, device->devname.c_str(),NULL);
+	if(!device->nmc)
+		goto FREE;
+	return ;
+FREE:
 
-	device->nmc=nmc;
-	network_manager_delete(nm);
+	if(!device->nms)
+		nm_settings_delete(device->nms);
+
+	if(!device->nm)
+		network_manager_delete(device->nm);
+
+	delete(device);
 }
 
 TpNetworkConfig::~TpNetworkConfig()
@@ -95,7 +97,12 @@ TpNetworkConfig::~TpNetworkConfig()
     TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return;
-	nm_connection_delete(device->nmc);
+	if(device->nmc)
+		nm_connection_delete(device->nmc);
+	if(!device->nms)
+		nm_settings_delete(device->nms);
+	if(!device->nm)
+		network_manager_delete(device->nm);
 	delete(device);
 }
 
