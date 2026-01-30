@@ -46,8 +46,8 @@ GType network_manager_get_type(void) G_GNUC_CONST;		//此函数由Glib根据G_DE
 NetworkManager *network_manager_create(GDBusConnection *conn);
 int network_manager_delete(NetworkManager *self);
 char *network_manager_get_object_path_by_iface(NetworkManager *self, const char *iface_name, GError **error);
-int nm_connection_activate_on_device(NetworkManager *self, NmConnection *conn, NmDevice *dev, GError **error);
-
+int network_manager_activate_connection_to_device(NetworkManager *self, NmConnection *conn, NmDevice *dev, GError **error);
+int network_manager_is_connection_active(NetworkManager *self, const char *conn_name);
 
 #ifdef __cplusplus
 }

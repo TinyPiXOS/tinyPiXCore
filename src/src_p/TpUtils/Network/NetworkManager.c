@@ -20,6 +20,7 @@ static void network_manager_dispose(GObject *gobject);
 struct NetworkManagerPrivate_{
 	GDBusProxy *proxy;
 	gchar *object_path;
+//	GDBusConnection *system_conn;
 };
 
 //告诉glib自己的类型和私有结构体
@@ -151,9 +152,9 @@ char *network_manager_get_object_path_by_iface(NetworkManager *self, const char 
     while (g_variant_iter_loop(iter, "o", &path)) {
         GError *err = NULL;
         GDBusProxy *dev_proxy = g_dbus_proxy_new_sync(
-            g_dbus_proxy_get_connection(self->priv->proxy),
+            system_conn,
             G_DBUS_PROXY_FLAGS_NONE,
-            NULL,
+            NULL,                                                        
             NETWORK_MANAGER_DBUS_SERVER,
             path,
             NM_DEVICE_INTERFACE,
@@ -190,7 +191,7 @@ char *network_manager_get_object_path_by_iface(NetworkManager *self, const char 
 // 将配置应用到指定网卡上，返回 0 成功
 //conn：要激活的配置
 //dev：要应用的网卡
-int nm_connection_activate_on_device(NetworkManager *self,
+int network_manager_activate_connection_to_device(NetworkManager *self,
                                         NmConnection *conn,
                                         NmDevice *dev,
                                         GError **error)
@@ -225,83 +226,86 @@ int nm_connection_activate_on_device(NetworkManager *self,
  *   0 未激活
  *  -1 出错
  */
-int network_manager_is_connection_active(NetworkManager *nm, const char *conn_name)
+int network_manager_is_connection_active(NetworkManager *self, const char *conn_name)
 {
-    g_return_val_if_fail(NETWORK_MANAGER_IS(nm), -1);
+    g_return_val_if_fail(NETWORK_MANAGER_IS(self), -1);
     g_return_val_if_fail(conn_name != NULL, -1);
 
     GError *error = NULL;
 
-    // 获取系统所有活动连接
     GVariant *ret = g_dbus_proxy_call_sync(
-        nm->priv->proxy,
-        "ListConnections",
-        NULL,
+        self->priv->proxy,
+        "Get",
+        g_variant_new("(ss)",
+		"org.freedesktop.NetworkManager",
+		"ActiveConnections"),
         G_DBUS_CALL_FLAGS_NONE,
         -1,
         NULL,
-        &error
-    );
+        &error);
 
     if (!ret) {
-        g_printerr("Failed to list connections: %s\n", error ? error->message : "unknown");
         g_clear_error(&error);
         return -1;
     }
 
-    GVariantIter *iter;
-    GVariant *child;
-    g_variant_get(ret, "(ao)", &iter);
-    int active = 0;
-
-    while (g_variant_iter_loop(iter, "o", &child)) {
-        const char *conn_path = g_variant_get_string(child, NULL);
-
-        GDBusProxy *conn_proxy = g_dbus_proxy_new_sync(
-            g_dbus_proxy_get_connection(nm->priv->proxy),
-            G_DBUS_PROXY_FLAGS_NONE,
-            NULL,
-            NETWORK_MANAGER_DBUS_SERVER,
-            conn_path,
-            NM_CONNECTION_INTERFACE,
-            NULL,
-            &error
-        );
-
-        if (!conn_proxy) continue;
-
-        GVariant *settings = g_dbus_proxy_call_sync(
-            conn_proxy,
-            "GetSettings",
-            NULL,
-            G_DBUS_CALL_FLAGS_NONE,
-            -1,
-            NULL,
-            &error
-        );
-
-        if (settings) {
-            GVariant *conn_info = g_variant_lookup_value(settings, "connection", G_VARIANT_TYPE("a{sv}"));
-            if (conn_info) {
-                GVariant *id_var = g_variant_lookup_value(conn_info, "id", G_VARIANT_TYPE_STRING);
-                if (id_var) {
-                    const char *name = g_variant_get_string(id_var, NULL);
-                    if (g_strcmp0(name, conn_name) == 0) {
-                        active = 1;
-                    }
-                    g_variant_unref(id_var);
-                }
-                g_variant_unref(conn_info);
-            }
-            g_variant_unref(settings);
-        }
-
-        g_object_unref(conn_proxy);
-        if (active) break;
-    }
-
-    g_variant_iter_free(iter);
+    GVariant *v;
+    g_variant_get(ret, "(@v)", &v);
+    GVariant *acs = g_variant_get_variant(v);
+    g_variant_unref(v);
     g_variant_unref(ret);
 
-    return active;
+    GVariantIter iter;
+    const char *ac_path;
+
+    g_variant_iter_init(&iter, acs);
+    while (g_variant_iter_loop(&iter, "o", &ac_path)) {
+
+        GDBusProxy *ac = g_dbus_proxy_new_sync(
+			system_conn,
+			G_DBUS_PROXY_FLAGS_NONE,
+			NULL,
+			NETWORK_MANAGER_DBUS_SERVER,
+			ac_path,
+			"org.freedesktop.NetworkManager.Connection.Active",
+			NULL,
+			NULL);
+
+        if (!ac)
+            continue;
+
+        GVariant *idv = g_dbus_proxy_call_sync(
+			ac,
+			"Get",
+			g_variant_new("(ss)",
+			"org.freedesktop.NetworkManager.Connection.Active",
+			"Id"),
+			G_DBUS_CALL_FLAGS_NONE,
+			-1,
+			NULL,
+			NULL);
+
+        if (idv) {
+            GVariant *iv;
+            g_variant_get(idv, "(@v)", &iv);
+            const char *id = g_variant_get_string(
+                g_variant_get_variant(iv), NULL);
+
+            if (g_strcmp0(id, conn_name) == 0) {
+                g_variant_unref(iv);
+                g_variant_unref(idv);
+                g_object_unref(ac);
+                g_variant_unref(acs);
+                return 1;
+            }
+
+            g_variant_unref(iv);
+            g_variant_unref(idv);
+        }
+
+        g_object_unref(ac);
+    }
+
+    g_variant_unref(acs);
+    return 0;
 }

@@ -36,13 +36,13 @@
 #include "Dbus/connect.h"
 #include "TpDbusConnectManage.h"
 
-
 struct TpNetworkConfigData
 {
 	TpNetworkInterface interface;
 	std::thread thread_t;
 	int sockfd;
 	TpString devname;		//设备名字，需要频繁使用
+	TpString connpath;		//对应的配置路径，根据设备名生成
 	NetworkManager *nm;
 	NmConnection *nmc;
 	NmSettings *nms;
@@ -63,6 +63,7 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return ;
+	device->connpath = TpString(NETWORK_CONFIG_PREFIX)+ name;
 	if (TpDbusConnectManage::instance().connection() != TP_TRUE)
     {
         fprintf(stderr, "[Error]: connect to dbus error\n");
@@ -77,7 +78,7 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	if(!device->nms)
 		goto FREE;
 	
-	device->nmc = network_open_connection(system_conn, device->nms, device->devname.c_str(),NULL);
+	device->nmc = network_open_connection(system_conn, device->nms, device->connpath.c_str(), device->devname.c_str(), NULL);
 	if(!device->nmc)
 		goto FREE;
 	return ;

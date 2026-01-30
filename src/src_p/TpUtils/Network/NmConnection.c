@@ -22,7 +22,7 @@ static GDBusProxy *nm_connection_create_proxy(const gchar *path, GError **error)
 
 struct NmConnectionPrivate_{
 	GDBusProxy *proxy;
-	//gchar *object_path;	//网卡的object_path，暂时去掉，此文件专注于配置，剥离硬件
+	//gchar *conn_path;	//网卡的conn_path，暂时去掉
 };
 
 //告诉glib自己的类型和私有结构体,前缀等
@@ -39,7 +39,7 @@ static void nm_connection_init(NmConnection *self)
 {
     self->priv = nm_connection_get_instance_private(self);
     self->priv->proxy = NULL;
-    //self->priv->object_path = NULL;
+    //self->priv->conn_path = NULL;
 }
 
 static void nm_connection_dispose(GObject *gobject)
@@ -47,7 +47,7 @@ static void nm_connection_dispose(GObject *gobject)
     NmConnection *self = NM_CONNECTION(gobject);
 
     g_clear_object(&self->priv->proxy);
-    //g_free(self->priv->object_path);
+    //g_free(self->priv->conn_path);
 
     G_OBJECT_CLASS(nm_connection_parent_class)->dispose(gobject);
 }
@@ -78,16 +78,20 @@ static GDBusProxy *nm_connection_create_proxy(const gchar *path, GError **error)
 	return proxy;
 }
 
-NmConnection *nm_connection_create(GDBusConnection *conn, const char *object_path)
+/// @brief 创建配置
+/// @param conn dbus连接
+/// @param conn_path 配置的路径，一般为"/org/freedesktop/NetworkManager/Settings/Connection/xxxx"，通常从NmSettings根据配置名获取
+/// @return 
+NmConnection *nm_connection_create(GDBusConnection *conn, const char *conn_path)
 {
 	GError *error;
     g_return_val_if_fail(conn != NULL, NULL);
-    g_return_val_if_fail(object_path != NULL, NULL);
-
+    g_return_val_if_fail(conn_path != NULL, NULL);
+	system_conn=conn;
     NmConnection *self = g_object_new(NM_CONNECTION_TYPE, NULL);
-    //self->priv->object_path = g_strdup(object_path);
+    //self->priv->conn_path = g_strdup(conn_path);
 
-    self->priv->proxy = nm_connection_create_proxy((const gchar *)object_path, &error);
+    self->priv->proxy = nm_connection_create_proxy((const gchar *)conn_path, &error);
     if (!self->priv->proxy) {
         g_object_unref(self);
         return NULL;
@@ -140,18 +144,20 @@ void nm_connection_free_settings(GVariant *settings)
 	g_variant_unref(settings);
 }
 
+//注意：此接口外部不要轻易使用，GVariantBuilder的接口必须是"(a{sa{sv}})"，否则会出错，后续考虑更换
 int nm_connection_update(NmConnection *self, GVariantBuilder *settings, GError **error)
 {
 	g_return_val_if_fail(NETWORK_MANAGER_IS(self), -1);
     g_return_val_if_fail(self->priv->proxy != NULL, -1);
-
+	GVariant *variant = g_variant_new("(a{sa{sv}})", settings);
 	g_dbus_proxy_call_sync(self->priv->proxy,
 		"Update",
-		g_variant_new("(a{sa{sv}})", settings),
+		variant,
 		G_DBUS_CALL_FLAGS_NONE,
 		-1,
 		NULL,
 		error);
+	g_variant_unref(variant);
 	return 0;
 }
 
@@ -436,49 +442,3 @@ bool nm_connection_ipv4_manual_needs_params(NmConnection *self, GError **error)
 }
 
 
-int nm_connection_disable_ipv4_dhcp_safe(
-    NmConnection *self,
-    const char *ip,
-    int prefix,
-    const char *gateway,
-    const char **dns,
-    uint32_t dns_count,
-    GError **error
-)
-{
-    g_return_val_if_fail(self != NULL, -1);
-
-    GVariantBuilder ipv4;
-    GVariantBuilder settings;
-
-    g_variant_builder_init(&ipv4, G_VARIANT_TYPE("a{sv}"));
-
-    // 1. manual
-    g_variant_builder_add(&ipv4, "{sv}", "method", g_variant_new_string("manual"));
-
-    // 2. IP
-    gchar addr[64];
-    snprintf(addr, sizeof(addr), "%s/%d", ip, prefix);
-    g_variant_builder_add(&ipv4, "{sv}", "addresses", g_variant_new_strv((const gchar *[]){ addr }, 1));
-
-    // 3. Gateway
-    if (gateway)
-        g_variant_builder_add(&ipv4, "{sv}", "gateway", g_variant_new_string(gateway));
-
-    // 4. DNS（如果给了）
-    if (dns && dns_count > 0) {
-        GVariantBuilder dns_array;
-        g_variant_builder_init(&dns_array, G_VARIANT_TYPE("au"));
-
-        for (uint32_t i = 0; i < dns_count; i++)
-            g_variant_builder_add(&dns_array, "u", inet_addr(dns[i]));
-
-        g_variant_builder_add(&ipv4, "{sv}", "dns", &dns_array);
-        g_variant_builder_add(&ipv4, "{sv}", "ignore-auto-dns", g_variant_new_boolean(TRUE));
-    }
-
-    g_variant_builder_init(&settings, G_VARIANT_TYPE("a{sa{sv}}"));
-    g_variant_builder_add(&settings, "{sa{sv}}", "ipv4", &ipv4);
-
-    return nm_connection_update(self, &settings, error);
-}

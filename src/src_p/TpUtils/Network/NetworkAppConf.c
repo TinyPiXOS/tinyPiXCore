@@ -1,12 +1,10 @@
 
-
+#include <arpa/inet.h>
 #include "Network/NetworkManager.h"
 #include "Network/NetworkAppConf.h"
 #include "Network/NmSettings.h"
 #include "Network/NmConnection.h"
 
-
-#define NETWORK_CONFIG_PREFIX	"TpNetworkManager"			//网卡配置前缀，完整的需要拼接网卡名称
 
 
 static void network_gvariant_build_add_ipv4_empty(GVariantBuilder *settings)
@@ -27,10 +25,13 @@ static void network_gvariant_build_add_ipv4_dhcp(GVariantBuilder *settings)
 }
 
 //设置ipv4为static
+//dns可以为空
 static void network_gvariant_build_add_ipv4_static(GVariantBuilder *settings,
                             const char *ip,
                             guint prefix,
-                            const char *gateway)
+                            const char *gateway,   
+							const char **dns,
+    						uint32_t dns_count)
 {
     GVariantBuilder ipv4;
     GVariantBuilder addr;
@@ -52,6 +53,18 @@ static void network_gvariant_build_add_ipv4_static(GVariantBuilder *settings,
 
     g_variant_builder_add(&ipv4, "{sv}", "method", g_variant_new_string("manual"));
     g_variant_builder_add(&ipv4, "{sv}", "addresses", g_variant_builder_end(&addrs));
+
+	 // 4. DNS（如果给了）
+    if (dns && dns_count > 0) {
+        GVariantBuilder dns_array;
+        g_variant_builder_init(&dns_array, G_VARIANT_TYPE("au"));
+
+        for (uint32_t i = 0; i < dns_count; i++)
+            g_variant_builder_add(&dns_array, "u", inet_addr(dns[i]));
+
+        g_variant_builder_add(&ipv4, "{sv}", "dns", &dns_array);
+        g_variant_builder_add(&ipv4, "{sv}", "ignore-auto-dns", g_variant_new_boolean(TRUE));
+    }
 
     g_variant_builder_add(settings, "{sa{sv}}", "ipv4", &ipv4);
 }
@@ -87,7 +100,14 @@ static void network_gvariant_build_add_connection_basic(GVariantBuilder *setting
 
 //打开网卡配置
 //配置不存在就创建，存在就直接打开并返回
-NmConnection *network_open_connection(GDBusConnection *dbus_conn, NmSettings *nms, const char *conn_name ,GError **error)
+//dbus_conn：dbus连接
+//nms：系统网卡设置接口句柄
+//ifname：网卡名称,可以传空，表示不指定网卡，即使设置了网卡只代表次配置优先对改网卡生效，如果使用热插拔的网卡建议不要指定
+NmConnection *network_open_connection(GDBusConnection *dbus_conn, 
+									NmSettings *nms, 
+									const char *conn_name, 
+									const char *ifname, 
+									GError **error)
 {
     g_return_val_if_fail(dbus_conn != NULL, NULL);
     g_return_val_if_fail(nms != NULL, NULL);
@@ -123,3 +143,55 @@ NmConnection *network_open_connection(GDBusConnection *dbus_conn, NmSettings *nm
 	return nmc;
 }
 
+
+//设置网络配置为静态，如需应用于网卡需要调用 network_manager_activate_connection_to_device 接口应用到网卡
+//ip:IP地址
+//prefix:掩码
+//gateway:网关
+//dns_flag:是否启用DNS
+int network_set_connection_static_ipv4(
+    NmConnection *self,
+    const char *ip,
+    int prefix,
+    const char *gateway,
+	bool dns_flag)
+{
+	GError *error = NULL;
+	g_return_val_if_fail(self != NULL, -1);
+	g_return_val_if_fail(ip != NULL, -1);
+	g_return_val_if_fail(prefix > 0 && prefix <= 32, -1);
+
+    GVariantBuilder settings;
+    g_variant_builder_init(&settings, G_VARIANT_TYPE("a{sa{sv}}"));
+	network_gvariant_build_add_ipv4_static(&settings, ip, prefix, gateway, NULL, 0);
+	network_gvariant_build_add_ipv6_ignore(&settings);
+    
+	if (!dns_flag) {
+        GVariantBuilder ipv4;
+        g_variant_builder_init(&ipv4, G_VARIANT_TYPE("a{sv}"));
+        g_variant_builder_add(&ipv4, "{sv}", "ignore-auto-dns", g_variant_new_boolean(TRUE));
+        g_variant_builder_add(&settings, "{sa{sv}}", "ipv4", &ipv4);
+    }
+
+
+	//GVariant *v = g_variant_builder_end(&settings);	//封装成GVariant更安全
+	//nm_connection_update()
+	//g_variant_unref(v);
+
+	nm_connection_update(self, &settings, &error);
+}
+
+
+int network_set_connection_ipv4_dhcp(NmConnection *self)
+{
+    GError *error = NULL;
+    g_return_val_if_fail(self != NULL, -1);
+
+    GVariantBuilder settings;
+    g_variant_builder_init(&settings, G_VARIANT_TYPE("a{sa{sv}}"));
+
+    network_gvariant_build_add_ipv4_dhcp(&settings);
+    network_gvariant_build_add_ipv6_ignore(&settings);
+
+    return nm_connection_update(self, &settings, &error);
+}
