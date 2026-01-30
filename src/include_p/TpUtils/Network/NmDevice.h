@@ -10,7 +10,7 @@ extern "C" {
 #include <glib.h>
 #include <glib-object.h>
 
-#define NM_DEVICE_OBJECT_PATH 			"/org/freedesktop/NetworkManager/Device"
+//#define NM_DEVICE_OBJECT_PATH 		//Device是多实例模式，每个设备都有自己的路径，此处不需要
 #define NM_DEVICE_INTERFACE 			"org.freedesktop.NetworkManager.Device"
 
 
@@ -37,7 +37,8 @@ struct NmDeviceClass_ {
 
 GType nm_device_get_type(void) G_GNUC_CONST;		//此函数由Glib根据G_DEFINE_TYPE_WITH_PRIVATE自动生成，此处声明是为了方便调用
 
-
+NmDevice *nm_device_create(GDBusConnection *conn, const char *devpath, GError **error);
+int nm_device_delete(NmDevice *self);
 
 
 #ifdef __cplusplus

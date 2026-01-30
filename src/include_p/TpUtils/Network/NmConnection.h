@@ -11,7 +11,7 @@ extern "C" {
 #include <glib.h>
 #include <glib-object.h>
 
-
+//#define NM_CONNECTION_OBJECT_PATH 		//Connection是多实例模式，每个配置都有自己的路径，此处不需要
 #define NM_CONNECTION_INTERFACE 			"org.freedesktop.NetworkManager.Settings.Connection"
 
 
@@ -40,7 +40,7 @@ struct NmConnectionClass_ {
 
 GType nm_connection_get_type(void) G_GNUC_CONST;		//此函数由Glib根据G_DEFINE_TYPE_WITH_PRIVATE自动生成，此处声明是为了方便调用
 
-NmConnection *nm_connection_create(GDBusConnection *conn, const char *object_path);
+NmConnection *nm_connection_create(GDBusConnection *conn, const char *object_path, GError **error);
 int nm_connection_delete(NmConnection *self);				   
 
 //获取配置（需要自行解析和释放）

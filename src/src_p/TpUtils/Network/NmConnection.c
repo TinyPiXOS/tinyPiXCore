@@ -82,16 +82,15 @@ static GDBusProxy *nm_connection_create_proxy(const gchar *path, GError **error)
 /// @param conn dbus连接
 /// @param conn_path 配置的路径，一般为"/org/freedesktop/NetworkManager/Settings/Connection/xxxx"，通常从NmSettings根据配置名获取
 /// @return 
-NmConnection *nm_connection_create(GDBusConnection *conn, const char *conn_path)
+NmConnection *nm_connection_create(GDBusConnection *conn, const char *conn_path, GError **error)
 {
-	GError *error;
     g_return_val_if_fail(conn != NULL, NULL);
     g_return_val_if_fail(conn_path != NULL, NULL);
 	system_conn=conn;
     NmConnection *self = g_object_new(NM_CONNECTION_TYPE, NULL);
     //self->priv->conn_path = g_strdup(conn_path);
 
-    self->priv->proxy = nm_connection_create_proxy((const gchar *)conn_path, &error);
+    self->priv->proxy = nm_connection_create_proxy((const gchar *)conn_path, error);
     if (!self->priv->proxy) {
         g_object_unref(self);
         return NULL;

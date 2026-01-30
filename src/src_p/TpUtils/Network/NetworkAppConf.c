@@ -1,9 +1,6 @@
 
 #include <arpa/inet.h>
-#include "Network/NetworkManager.h"
 #include "Network/NetworkAppConf.h"
-#include "Network/NmSettings.h"
-#include "Network/NmConnection.h"
 
 
 
@@ -98,27 +95,27 @@ static void network_gvariant_build_add_connection_basic(GVariantBuilder *setting
     g_variant_builder_add(settings, "{sa{sv}}", "connection", &conn);
 }
 
-//打开网卡配置
+//打开网卡配置,使用
 //配置不存在就创建，存在就直接打开并返回
 //dbus_conn：dbus连接
 //nms：系统网卡设置接口句柄
 //ifname：网卡名称,可以传空，表示不指定网卡，即使设置了网卡只代表次配置优先对改网卡生效，如果使用热插拔的网卡建议不要指定
-NmConnection *network_open_connection(GDBusConnection *dbus_conn, 
+NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn, 
 									NmSettings *nms, 
 									const char *conn_name, 
-									const char *ifname, 
-									GError **error)
+									const char *ifname)
 {
     g_return_val_if_fail(dbus_conn != NULL, NULL);
     g_return_val_if_fail(nms != NULL, NULL);
     g_return_val_if_fail(conn_name != NULL, NULL);
 
+	GError *error = NULL;
 	NmConnection *nmc;
 	//查找配置
-	char *path = nm_settings_find_connection_object(nms, conn_name, error);
+	char *path = nm_settings_find_connection_object(nms, conn_name, &error);
 	if(path)
 	{
-		nmc = nm_connection_create(dbus_conn, path);
+		nmc = nm_connection_create(dbus_conn, path, &error);
 		g_free(path);
 		return nmc;
 	}
@@ -128,19 +125,24 @@ NmConnection *network_open_connection(GDBusConnection *dbus_conn,
     GVariantBuilder settings_builder;
     g_variant_builder_init(&settings_builder, G_VARIANT_TYPE("a{sa{sv}}"));
 
-    network_gvariant_build_add_connection_basic(&settings_builder, conn_name, "802-3-ethernet", NULL);
+    network_gvariant_build_add_connection_basic(&settings_builder, conn_name, "802-3-ethernet", ifname);
 
     network_gvariant_build_add_ipv4_empty(&settings_builder);
 
 	GVariant *v = g_variant_builder_end(&settings_builder);	//封装成GVariant
-    path = nm_settings_add_connection(nms, v, error);
+    path = nm_settings_add_connection(nms, v, &error);
 	g_variant_unref(v);
 	if(!path)
 		return NULL;
 
-	nmc = nm_connection_create(dbus_conn, path);
+	nmc = nm_connection_create(dbus_conn, path, &error);
 	free(path);
 	return nmc;
+}
+void network_close_nm_connection(NmConnection *nmc)
+{
+	if(nmc)
+		nm_connection_delete(nmc);
 }
 
 
@@ -181,7 +183,7 @@ int network_set_connection_static_ipv4(
 	nm_connection_update(self, &settings, &error);
 }
 
-
+//设置网络配置为动态DHCP，如需应用于网卡需要调用 network_manager_activate_connection_to_device 接口应用到网卡
 int network_set_connection_ipv4_dhcp(NmConnection *self)
 {
     GError *error = NULL;
@@ -194,4 +196,29 @@ int network_set_connection_ipv4_dhcp(NmConnection *self)
     network_gvariant_build_add_ipv6_ignore(&settings);
 
     return nm_connection_update(self, &settings, &error);
+}
+
+
+//打开网卡设备(NmDevice)
+NmDevice *network_open_nm_device(GDBusConnection *dbus_conn, NetworkManager *nm, const char *name)
+{
+	GError *error = NULL;
+	char *path=network_manager_get_device_path_by_iface(nm, name, &error);
+
+	if(!path)
+		path = network_manager_get_device_path_by_iface_fallback(nm, name, &error);	//使用保底方案尝试
+
+	if(!path)
+		return NULL;
+
+	NmDevice *nmd = nm_device_create(dbus_conn, path, &error);
+	free(path);
+	return nmd;
+}
+
+//关闭网卡设备(NmDevice)
+void network_close_nm_device(NmDevice *nmd)
+{
+	if(nmd)
+		nm_device_delete(nmd);
 }

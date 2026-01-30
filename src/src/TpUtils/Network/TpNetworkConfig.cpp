@@ -31,6 +31,7 @@
 #include "Network/NetworkManager.h"
 #include "Network/NmConnection.h"
 #include "Network/NmSettings.h"
+#include "Network/NmDevice.h"
 #include "TpNetworkInterface.h"
 #include "TpNetworkConfig.h"
 #include "Dbus/connect.h"
@@ -46,6 +47,7 @@ struct TpNetworkConfigData
 	NetworkManager *nm;
 	NmConnection *nmc;
 	NmSettings *nms;
+	NmDevice *nmd;
 	TpNetworkConfigData(TpString name):interface(name)
 	{
 		sockfd=-1;
@@ -53,6 +55,7 @@ struct TpNetworkConfigData
 		nm=NULL;
 		nmc=NULL;
 		nms=NULL;
+		nmd=NULL;
 	}
 };
 
@@ -70,15 +73,20 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 		free(device);
         return;
     }
+
 	device->nm = network_manager_create(system_conn);
 	if(!device->nm)
+		goto FREE;
+
+	device->nmd = network_open_nm_device(system_conn, device->nm, device->devname.c_str());
+	if(!device->nmd)
 		goto FREE;
 
 	device->nms = nm_settings_create(system_conn,NULL);
 	if(!device->nms)
 		goto FREE;
 	
-	device->nmc = network_open_connection(system_conn, device->nms, device->connpath.c_str(), device->devname.c_str(), NULL);
+	device->nmc = network_open_nm_connection(system_conn, device->nms, device->connpath.c_str(), NULL);
 	if(!device->nmc)
 		goto FREE;
 	return ;
@@ -86,6 +94,9 @@ FREE:
 
 	if(!device->nms)
 		nm_settings_delete(device->nms);
+
+	if(!device->nmd)
+		nm_device_delete(device->nmd);
 
 	if(!device->nm)
 		network_manager_delete(device->nm);
@@ -254,8 +265,8 @@ int32_t TpNetworkConfig::setAddr(const TpString &addr)
 tpInt32 TpNetworkConfig::setDhcp()
 {
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
-	nm_connection_set_ipv4_dhcp_is_enabled(device->nmc, true, NULL);
-	return 0;
+	network_set_connection_ipv4_dhcp(device->nmc);
+	return network_manager_activate_connection_to_device(device->nm, device->nmc,device->nmd,NULL);
 }
 
 
@@ -269,12 +280,13 @@ tpInt32 TpNetworkConfig::setStatic(const TpString &ip, const TpString &gatway, c
         fprintf(stderr, "Netmask type is error\n");
         return -1;
     }
-    uint8_t dns_flag = 0;
-    if (dns.size() == 0)
-        dns_flag = 1;
+	bool dns_flag = dns.size() == 0 ? true : false;
 
-    if (Network_Disable_DHCP_Command(device->devname.c_str(), ip.c_str(), prefix, gatway.c_str(), dns_flag) < 0)
-        return -1;
+    if (network_set_connection_static_ipv4(device->nmc, ip.c_str(), prefix, gatway.c_str(), dns_flag) < 0)
+	{
+		if(network_manager_activate_connection_to_device(device->nm, device->nmc,device->nmd,NULL)<0)
+			return -1;
+	}
     if (dns_flag == 1)
         return 0;
     if (setDns(TP_FALSE, dns) < 0)

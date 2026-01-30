@@ -72,14 +72,15 @@ static GDBusProxy *nm_device_create_proxy(const gchar *path, GError **error)
 
 
 NmDevice *nm_device_create(GDBusConnection *conn,
-                               GError **error)
+							const char *devpath,
+                            GError **error)
 {
     g_return_val_if_fail(conn != NULL, NULL);
 
 	system_conn=conn;
     NmDevice *self = g_object_new(NM_DEVICE_TYPE, NULL);
 
-	self->priv->proxy = nm_device_create_proxy(NM_DEVICE_OBJECT_PATH, error);
+	self->priv->proxy = nm_device_create_proxy(devpath, error);
     if (!self->priv->proxy) {
         g_object_unref(self);
         return NULL;

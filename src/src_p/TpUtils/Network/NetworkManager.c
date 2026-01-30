@@ -125,8 +125,10 @@ char *network_manager_get_connections(NetworkManager *self,GError *error)
 	return NULL;
 }
 
-//获取object_path
-char *network_manager_get_object_path_by_iface(NetworkManager *self, const char *iface_name, GError **error)
+//根据设备名获取object_path
+//iface_name：网卡设备名
+//返回值:object_path，可以用于创建NmDevice句柄
+char *network_manager_get_device_path_by_iface_fallback(NetworkManager *self, const char *iface_name, GError **error)
 {
     g_return_val_if_fail(NETWORK_MANAGER_IS(self), NULL);
     g_return_val_if_fail(iface_name != NULL, NULL);
@@ -171,7 +173,7 @@ char *network_manager_get_object_path_by_iface(NetworkManager *self, const char 
         if (iface_var) {
             const gchar *dev_iface = g_variant_get_string(iface_var, NULL);
             if (g_strcmp0(dev_iface, (const gchar*)iface_name) == 0) {
-                found_path = strdup(path);
+                found_path = g_strdup(path);
                 g_variant_unref(iface_var);
                 g_object_unref(dev_proxy);
                 break;
@@ -185,6 +187,40 @@ char *network_manager_get_object_path_by_iface(NetworkManager *self, const char 
     g_variant_iter_free(iter);
     g_variant_unref(ret);
     return found_path; // 外部使用完记得 g_free()
+}
+
+
+char *network_manager_get_device_path_by_iface(NetworkManager *self,
+    									const char *iface_name,
+										GError **error)
+{
+    g_return_val_if_fail(NETWORK_MANAGER_IS(self), NULL);
+    g_return_val_if_fail(iface_name != NULL, NULL);
+
+    GVariant *ret = g_dbus_proxy_call_sync(
+        self->priv->proxy,
+        "GetDeviceByIpIface",
+        g_variant_new("(s)", iface_name),
+        G_DBUS_CALL_FLAGS_NONE,
+        -1,
+        NULL,
+        error
+    );
+
+    if (!ret)
+        return NULL;
+
+    const char *path = NULL;
+    g_variant_get(ret, "(&o)", &path);
+
+    char *out = g_strdup(path);  // 调用者释放
+    g_variant_unref(ret);
+    return out;
+}
+
+void network_manager_free_device_path(char *device)
+{
+	g_free(device);
 }
 
 
