@@ -66,7 +66,7 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return ;
-	device->connpath = TpString(NETWORK_CONFIG_PREFIX)+ name;
+	device->connpath = TpString(NETWORK_CONFIG_PREFIX) + name;
 	if (TpDbusConnectManage::instance().connection() != TP_TRUE)
     {
         fprintf(stderr, "[Error]: connect to dbus error\n");
@@ -77,18 +77,19 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	device->nm = network_manager_create(system_conn);
 	if(!device->nm)
 		goto FREE;
-
+	printf("network_manager_create ok \n");
 	device->nmd = network_open_nm_device(system_conn, device->nm, device->devname.c_str());
 	if(!device->nmd)
 		goto FREE;
-
+	printf("network_open_nm_device ok \n");
 	device->nms = nm_settings_create(system_conn,NULL);
 	if(!device->nms)
 		goto FREE;
-	
+	printf("nm_settings_create ok \n");
 	device->nmc = network_open_nm_connection(system_conn, device->nms, device->connpath.c_str(), NULL);
 	if(!device->nmc)
 		goto FREE;
+	printf("network_open_nm_connection ok \n");
 	return ;
 FREE:
 
@@ -96,7 +97,7 @@ FREE:
 		nm_settings_delete(device->nms);
 
 	if(!device->nmd)
-		nm_device_delete(device->nmd);
+		network_close_nm_device(device->nmd);
 
 	if(!device->nm)
 		network_manager_delete(device->nm);
@@ -110,9 +111,11 @@ TpNetworkConfig::~TpNetworkConfig()
 	if(!device)
 		return;
 	if(device->nmc)
-		nm_connection_delete(device->nmc);
+		network_close_nm_connection(device->nmc);
 	if(!device->nms)
 		nm_settings_delete(device->nms);
+	if(!device->nmd)
+		network_close_nm_device(device->nmd);
 	if(!device->nm)
 		network_manager_delete(device->nm);
 	delete(device);
@@ -257,9 +260,6 @@ int32_t TpNetworkConfig::setAddr(const TpString &addr)
     }
 	return NetworkConf_Set_Addr(device->sockfd,addr.c_str(),device->devname.c_str());
 }
-
-
-
 
 
 tpInt32 TpNetworkConfig::setDhcp()

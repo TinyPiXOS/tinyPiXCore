@@ -6,6 +6,7 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
+#include <stdio.h>
 #include "Network/NetworkManagerPriv.h"
 #include "Network/NetworkManager.h"
 #include "Network/NmSettings.h"
@@ -107,18 +108,18 @@ GList *nm_settings_list_connections(NmSettings *self, GError **error)
         G_DBUS_CALL_FLAGS_NONE,
         -1,
         NULL,
-        error
-    );
+        error);
 
-    if (!ret) return NULL;
+    if (!ret) 
+		return NULL;
 
     GVariantIter *iter;
-    GVariant *child;
+    const char *path;
     GList *list = NULL;
 
     g_variant_get(ret, "(ao)", &iter);
-    while (g_variant_iter_loop(iter, "o", &child)) {
-        list = g_list_prepend(list, g_strdup(g_variant_get_string(child, NULL)));
+    while (g_variant_iter_loop(iter, "o", &path)) {
+        list = g_list_prepend(list, g_strdup(path));
     }
     g_variant_iter_free(iter);
     g_variant_unref(ret);
@@ -131,10 +132,10 @@ char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name
 {
     g_return_val_if_fail(self != NULL, NULL);
     g_return_val_if_fail(conn_name != NULL, NULL);
-
+	printf("获取配置列表\n");
     GList *conns = nm_settings_list_connections(self, error);
     if (!conns) return NULL;
-
+	printf("获取配置列表成功\n");
     for (GList *l = conns; l != NULL; l = l->next) {
         char *path = (char *)l->data;
         GDBusProxy *proxy = g_dbus_proxy_new_sync(

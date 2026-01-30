@@ -1,8 +1,12 @@
+/*///------------------------------------------------------------------------------------------------------------------------//
+		对NetworkManager相关的接口的初级封装
+说 明 : 
+日 期 : 2026.1.28
+
+/*///------------------------------------------------------------------------------------------------------------------------//
 
 #include <arpa/inet.h>
 #include "Network/NetworkAppConf.h"
-
-
 
 static void network_gvariant_build_add_ipv4_empty(GVariantBuilder *settings)
 {
@@ -108,7 +112,7 @@ NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn,
     g_return_val_if_fail(dbus_conn != NULL, NULL);
     g_return_val_if_fail(nms != NULL, NULL);
     g_return_val_if_fail(conn_name != NULL, NULL);
-
+	printf("network_open_nm_connection start\n");
 	GError *error = NULL;
 	NmConnection *nmc;
 	//查找配置
@@ -117,10 +121,11 @@ NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn,
 	{
 		nmc = nm_connection_create(dbus_conn, path, &error);
 		g_free(path);
+		printf("已有配置，打开配置成功\n");
 		return nmc;
 	}
 	g_free(path);
-
+	printf("不存在配置，创建默认配置\n");
 	//不存在就创建默认的空配置
     GVariantBuilder settings_builder;
     g_variant_builder_init(&settings_builder, G_VARIANT_TYPE("a{sa{sv}}"));
@@ -134,7 +139,7 @@ NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn,
 	g_variant_unref(v);
 	if(!path)
 		return NULL;
-
+	printf("创建默认配置成功\n");
 	nmc = nm_connection_create(dbus_conn, path, &error);
 	free(path);
 	return nmc;

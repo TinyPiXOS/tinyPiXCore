@@ -1,9 +1,7 @@
 #include <iostream>
 #include "Network/TpNetworkInterface.h"
 #include "Network/TpWirelessInfo.h"
-#include "Network/TpTcpServer.h"
-#include "Network/TpTcpSocket.h"
-#include "Network/TpUdpSocket.h"
+#include "Network/TpNetworkConfig.h"
 #include "TpString.h"
 
 
@@ -69,6 +67,17 @@ int example_dhcp()
 	return 0;
 }
 
+//应用层配置测试（dhcp和dns）
+int example_app_config()
+{
+	TpNetworkConfig config("ens33");
+	printf("test\n");
+	printf("DNS状态%s\n",config.isStaticDns()==TP_TRUE ? "静态":"动态");
+	printf("DHCP状态%d\n",config.isDhcp()==TP_TRUE ? 1:0);
+
+	return 0;
+}
+
 int example_network()
 {
 	TpNetworkInterface network("ens33");
@@ -102,6 +111,7 @@ int32_t main(int32_t argc, char *argv[])
 //	example_printf_device();
 //	example_dhcp();
 //    example_printf_device();
+	example_app_config();
     return 0;
 }
 

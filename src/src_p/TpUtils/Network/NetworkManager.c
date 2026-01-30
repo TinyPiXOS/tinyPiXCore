@@ -80,8 +80,11 @@ static GDBusProxy *network_manager_create_gdbus_proxy(NetworkManager *self, cons
 //glib第一步调用
 NetworkManager *network_manager_create(GDBusConnection *conn)
 {
+	g_return_val_if_fail(conn != NULL, NULL);
+
 	system_conn=conn;
 	NetworkManager *self = g_object_new(NETWORK_MANAGER_TYPE,NULL);
+
 	return self;
 }
 
