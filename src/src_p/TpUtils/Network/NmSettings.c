@@ -194,13 +194,15 @@ char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name
             if (id) {
                 const char *name = g_variant_get_string(id, NULL);
                 if (g_strcmp0(name, conn_name) == 0) {
-                    g_variant_unref(id);
-                    g_variant_unref(connection);
-                    g_variant_unref(settings);
-                    g_object_unref(proxy);
-                    g_list_free_full(conns, g_free);
-					printf("找到配置：%s\n",path);
-                    return g_strdup(path);
+					char *ret_path = g_strdup(path);  
+					g_variant_unref(id);
+					g_variant_unref(connection);
+					g_variant_unref(settings);
+					g_object_unref(proxy);
+					g_list_free_full(conns, g_free);
+
+					printf("找到配置：%s\n", ret_path);
+					return ret_path;
                 }
                 g_variant_unref(id);
             }
