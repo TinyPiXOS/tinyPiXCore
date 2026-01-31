@@ -90,6 +90,11 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	if(!device->nmc)
 		goto FREE;
 	printf("network_open_nm_connection ok \n");
+	sleep(2);
+	if(!device->nmc)
+	{
+		printf("device->nmc是空的？？？？\n");
+	}
 	return ;
 FREE:
 
@@ -355,6 +360,10 @@ tpInt32 TpNetworkConfig::setDns(tpBool autoDns, const TpList<TpString> &dnsList)
 tpBool TpNetworkConfig::isStaticDns()
 {
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
+	if(!device->nmc)
+	{
+		printf("device->nmc是空的？？？？\n");
+	}
 	int ret = nm_connection_get_ipv4_dns_mode(device->nmc,NULL);
 	if(ret == 1)
 		return TP_FALSE;

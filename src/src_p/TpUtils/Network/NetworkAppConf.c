@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include "Network/NetworkAppConf.h"
 
+//此函数调用后必须手动为配置设置method字段，这是强制要求的，若不想手动处理，可以使用network_gvariant_build_add_ipv4_dhcp
 static void network_gvariant_build_add_ipv4_empty(GVariantBuilder *settings)
 {
     GVariantBuilder ipv4;
@@ -103,6 +104,7 @@ static void network_gvariant_build_add_connection_basic(GVariantBuilder *setting
 //配置不存在就创建，存在就直接打开并返回
 //dbus_conn：dbus连接
 //nms：系统网卡设置接口句柄
+//conn_name：配置名
 //ifname：网卡名称,可以传空，表示不指定网卡，即使设置了网卡只代表次配置优先对改网卡生效，如果使用热插拔的网卡建议不要指定
 NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn, 
 									NmSettings *nms, 
@@ -119,6 +121,7 @@ NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn,
 	char *path = nm_settings_find_connection_object(nms, conn_name, &error);
 	if(path)
 	{
+		printf("已有配置，打开配置，%s\n",path);
 		nmc = nm_connection_create(dbus_conn, path, &error);
 		g_free(path);
 		printf("已有配置，打开配置成功\n");
@@ -129,19 +132,21 @@ NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn,
 	//不存在就创建默认的空配置
     GVariantBuilder settings_builder;
     g_variant_builder_init(&settings_builder, G_VARIANT_TYPE("a{sa{sv}}"));
-
+	printf("添加基础配置\n");
     network_gvariant_build_add_connection_basic(&settings_builder, conn_name, "802-3-ethernet", ifname);
-
-    network_gvariant_build_add_ipv4_empty(&settings_builder);
-
+	printf("添加ipv4的DHCP配置\n");
+    network_gvariant_build_add_ipv4_dhcp(&settings_builder);
+	printf("准备封装成GVariant\n");
 	GVariant *v = g_variant_builder_end(&settings_builder);	//封装成GVariant
+	printf("添加到connecton\n");
     path = nm_settings_add_connection(nms, v, &error);
+	printf("创建默认配置\n");
 	g_variant_unref(v);
 	if(!path)
 		return NULL;
 	printf("创建默认配置成功\n");
 	nmc = nm_connection_create(dbus_conn, path, &error);
-	free(path);
+	g_free(path);
 	return nmc;
 }
 void network_close_nm_connection(NmConnection *nmc)

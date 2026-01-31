@@ -111,13 +111,13 @@ int nm_connection_delete(NmConnection *self)
 //私有,只有NetWorkManager可用
 GDBusProxy* nm_connection_get_proxy_internal(NmConnection *self)
 {
-	g_return_val_if_fail(NETWORK_MANAGER_IS(self), NULL);
+	g_return_val_if_fail(NM_CONNECTION_IS(self), NULL);
 	return self->priv->proxy;
 }
 
 GVariant *nm_connection_get_settings(NmConnection *self, GError **error)
 {
-    g_return_val_if_fail(NETWORK_MANAGER_IS(self), NULL);
+    g_return_val_if_fail(NM_CONNECTION_IS(self), NULL);
     g_return_val_if_fail(self->priv->proxy != NULL, NULL);
 
 	GVariant *ret = NULL;
@@ -132,7 +132,10 @@ GVariant *nm_connection_get_settings(NmConnection *self, GError **error)
 			error);
 
 	if (!ret)
+	{
+		fprintf(stderr,"GetSetting error\n");
 		return NULL;
+	}
 
 	g_variant_get(ret, "(@a{sa{sv}})", &settings);
 	g_variant_unref(ret);
@@ -146,7 +149,7 @@ void nm_connection_free_settings(GVariant *settings)
 //注意：此接口外部不要轻易使用，GVariantBuilder的接口必须是"(a{sa{sv}})"，否则会出错，后续考虑更换
 int nm_connection_update(NmConnection *self, GVariantBuilder *settings, GError **error)
 {
-	g_return_val_if_fail(NETWORK_MANAGER_IS(self), -1);
+	g_return_val_if_fail(NM_CONNECTION_IS(self), -1);
     g_return_val_if_fail(self->priv->proxy != NULL, -1);
 	GVariant *variant = g_variant_new("(a{sa{sv}})", settings);
 	g_dbus_proxy_call_sync(self->priv->proxy,
@@ -166,7 +169,7 @@ void nm_connection_set_ipv4_dhcp_is_enabled(NmConnection *self,
                                      bool enable,
                                      GError **error)
 {
-	g_return_if_fail(NETWORK_MANAGER_IS(self));
+	g_return_if_fail(NM_CONNECTION_IS(self));
     g_return_if_fail(self->priv->proxy != NULL);
 
     GVariantBuilder ipv4;
@@ -232,7 +235,7 @@ void nm_connection_set_ipv4_dns_list(NmConnection *self,
                                  uint32_t dns_count,
                                  GError **error)
 {
-    g_return_if_fail(NETWORK_MANAGER_IS(self));
+    g_return_if_fail(NM_CONNECTION_IS(self));
     g_return_if_fail(self->priv->proxy != NULL);
 
     GVariantBuilder dns_array;
@@ -328,7 +331,7 @@ int nm_connection_free_ipv4_dns_list(char **dns_list_out)
 //mode:1动态，0静态
 void nm_connection_set_dns_mode(NmConnection *self, const char *key, gboolean isauto, GError **error)
 {
-    g_return_if_fail(NETWORK_MANAGER_IS(self));
+    g_return_if_fail(NM_CONNECTION_IS(self));
     g_return_if_fail(self->priv->proxy != NULL);
 
     GVariantBuilder ipv;
@@ -348,14 +351,24 @@ void nm_connection_set_dns_mode(NmConnection *self, const char *key, gboolean is
 //获取dns模式
 int nm_connection_get_dns_mode(NmConnection *self, const char *key, GError **error)
 {
+	if(!self)
+	{
+		printf("self is null\n");
+	}
     GVariant *settings = nm_connection_get_settings(self,error);
     if (!settings)
-        return -1;
+	{
+		printf("get settings error\n");
+		return -1;
+	}
 
     GVariant *ipv = g_variant_lookup_value(settings, key, G_VARIANT_TYPE("a{sv}"));
 
     if (!ipv)
+	{
+		printf("get a{sv} error\n");
         goto out;
+	}
 
     GVariant *ignore = g_variant_lookup_value(ipv, "ignore-auto-dns", G_VARIANT_TYPE_BOOLEAN);
 
@@ -363,6 +376,7 @@ int nm_connection_get_dns_mode(NmConnection *self, const char *key, GError **err
     int mode = 1;
 
     if (ignore) {
+
         if (g_variant_get_boolean(ignore))
             mode = 0;
         g_variant_unref(ignore);
@@ -374,6 +388,7 @@ int nm_connection_get_dns_mode(NmConnection *self, const char *key, GError **err
 
 out:
     g_variant_unref(settings);
+	printf("nm_connection_get_dns_mode error\n");
     return -1;
 }
 

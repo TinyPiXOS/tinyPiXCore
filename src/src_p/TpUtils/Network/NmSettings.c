@@ -10,6 +10,7 @@
 #include "Network/NetworkManagerPriv.h"
 #include "Network/NetworkManager.h"
 #include "Network/NmSettings.h"
+#include "Network/NmUtils.h"
 
 static GDBusConnection *system_conn = NULL;
 
@@ -134,10 +135,13 @@ char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name
     g_return_val_if_fail(conn_name != NULL, NULL);
 	printf("获取配置列表\n");
     GList *conns = nm_settings_list_connections(self, error);
-    if (!conns) return NULL;
-	printf("获取配置列表成功\n");
-    for (GList *l = conns; l != NULL; l = l->next) {
-        char *path = (char *)l->data;
+    if (!conns) 
+		return NULL;
+	printf("获取配置列表成功,查找%s\n",conn_name);
+    for (GList *l = conns; l != NULL; l = l->next) 
+	{
+        char *path = l->data;
+
         GDBusProxy *proxy = g_dbus_proxy_new_sync(
             g_dbus_proxy_get_connection(self->priv->proxy),
             G_DBUS_PROXY_FLAGS_NONE,
@@ -146,58 +150,85 @@ char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name
             path,
             NM_CONNECTION_INTERFACE,
             NULL,
-            error
-        );
+            error);
 
-        if (proxy) {
-            GVariant *ret = g_dbus_proxy_call_sync(
-                proxy,
-                "GetSettings",
-                NULL,
-                G_DBUS_CALL_FLAGS_NONE,
-                -1,
-                NULL,
-                error
-            );
+        if (!proxy)
+            continue;
 
-            if (ret) {
-                GVariant *id_variant = g_variant_lookup_value(ret, "connection", G_VARIANT_TYPE("a{sv}"));
-                if (id_variant) {
-                    GVariant *name_var = g_variant_lookup_value(id_variant, "id", G_VARIANT_TYPE_STRING);
-                    if (name_var) {
-                        const char *name = g_variant_get_string(name_var, NULL);
-                        if (g_strcmp0(name, conn_name) == 0) {
-                            g_variant_unref(name_var);
-                            g_variant_unref(id_variant);
-                            g_variant_unref(ret);
-                            g_object_unref(proxy);
-                            g_list_free_full(conns, g_free);
-                            return g_strdup(path); // 找到
-                        }
-                        g_variant_unref(name_var);
-                    }
-                    g_variant_unref(id_variant);
-                }
-                g_variant_unref(ret);
-            }
+        /* GetSettings() -> (a{sa{sv}}) */
+        GVariant *ret = g_dbus_proxy_call_sync(
+            proxy,
+            "GetSettings",
+            NULL,
+            G_DBUS_CALL_FLAGS_NONE,
+            -1,
+            NULL,
+            error);
+
+        if (!ret) {
             g_object_unref(proxy);
+            continue;
         }
-        g_free(path);
+
+        /* ① 拆 tuple */
+        GVariant *settings = NULL;
+        g_variant_get(ret, "(@a{sa{sv}})", &settings);
+        g_variant_unref(ret);
+
+        if (!settings) {
+            g_object_unref(proxy);
+            continue;
+        }
+
+        /* ② 取 connection setting */
+        GVariant *connection =
+            g_variant_lookup_value(settings, "connection",
+                                   G_VARIANT_TYPE("a{sv}"));
+
+        if (connection) {
+            /* ③ 取 id（名字） */
+            GVariant *id =
+                g_variant_lookup_value(connection, "id",
+                                       G_VARIANT_TYPE_STRING);
+
+            if (id) {
+                const char *name = g_variant_get_string(id, NULL);
+                if (g_strcmp0(name, conn_name) == 0) {
+                    g_variant_unref(id);
+                    g_variant_unref(connection);
+                    g_variant_unref(settings);
+                    g_object_unref(proxy);
+                    g_list_free_full(conns, g_free);
+					printf("找到配置：%s\n",path);
+                    return g_strdup(path);
+                }
+                g_variant_unref(id);
+            }
+            g_variant_unref(connection);
+        }
+
+        g_variant_unref(settings);
+        g_object_unref(proxy);
     }
-    g_list_free(conns);
+
+    g_list_free_full(conns, g_free);
     return NULL;
 }
 
-
+//添加配置到settings，成功返回配置的connection_path,失败返回NULL，返回的path需要调用者负责 g_free
 char *nm_settings_add_connection(NmSettings *self, GVariant *settings, GError **error)
 {
     GVariant *ret;
     gchar *path = NULL;
+g_print("proxy path = %s\n",
+    g_dbus_proxy_get_object_path(self->priv->proxy));
 
+g_print("proxy iface = %s\n",
+    g_dbus_proxy_get_interface_name(self->priv->proxy));
     ret = g_dbus_proxy_call_sync(
         self->priv->proxy,
         "AddConnection",
-        g_variant_new("(a{sa{sv}})", settings),
+		network_variant_tuple1(settings),
         G_DBUS_CALL_FLAGS_NONE,
         -1,
         NULL,
@@ -205,7 +236,12 @@ char *nm_settings_add_connection(NmSettings *self, GVariant *settings, GError **
     );
 
     if (!ret)
-        return NULL;
+	{
+		if (error && *error) {
+        	g_printerr("AddConnection failed: %s\n", (*error)->message);
+		}
+		return NULL;
+	}
 
     g_variant_get(ret, "(o)", &path);
     g_variant_unref(ret);

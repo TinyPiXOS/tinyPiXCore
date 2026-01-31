@@ -66,6 +66,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpNetPcap.cpp
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkManager.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/NmUtils.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NmSettings.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NmConnection.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NmDevice.c
