@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "Network/NmDevice.h"
-#include "Network/NetworkManagerPriv.h"
-#include "Network/NetworkManager.h"
+#include "Network/nm/NmDevice.h"
+#include "Network/nm/NetworkManagerPriv.h"
+#include "Network/nm/NetworkManager.h"
 
 static GDBusConnection *system_conn = NULL;
 static GDBusProxy *network_manager_create_gdbus_proxy(NetworkManager *self, const gchar *dbus_interface, GError **error);
@@ -240,13 +240,13 @@ int network_manager_activate_connection_to_device(NetworkManager *self,
 	GDBusProxy *c_proxy = nm_connection_get_proxy_internal(conn);
 	GDBusProxy *d_proxy = nm_device_get_proxy_internal(dev);
 	
-	if(!c_proxy || d_proxy)
+	if(!c_proxy || !d_proxy)
 		return -1;
     // 调用 ActivateConnection(Connection, Device, SpecificObjectPath)
 	g_dbus_proxy_call_sync(
 		self->priv->proxy,
 		"ActivateConnection",
-		g_variant_new("(ooo)", c_proxy, d_proxy, NULL),
+		g_variant_new("(ooo)", g_dbus_proxy_get_object_path(c_proxy), g_dbus_proxy_get_object_path(d_proxy), "/"),
 		G_DBUS_CALL_FLAGS_NONE,
 		-1,
 		NULL,

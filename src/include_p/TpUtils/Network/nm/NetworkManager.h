@@ -9,8 +9,8 @@ extern "C" {
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
-#include "Network/NmDevice.h"
-#include "Network/NmConnection.h"
+#include "Network/nm/NmDevice.h"
+#include "Network/nm/NmConnection.h"
 
 #define NETWORK_MANAGER_DBUS_SERVER			"org.freedesktop.NetworkManager"          // D-Bus 服务名 
 #define NETWORK_MANAGER_DBUS_PATH			"/org/freedesktop/NetworkManager"         // 对象路径，NetworkManager只有一个，单实例模式

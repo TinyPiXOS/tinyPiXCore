@@ -6,9 +6,9 @@
 
 /*///------------------------------------------------------------------------------------------------------------------------//
 
-#include "Network/NetworkManagerPriv.h"
-#include "Network/NetworkManager.h"
-#include "Network/NmDevice.h"
+#include "Network/nm/NetworkManagerPriv.h"
+#include "Network/nm/NetworkManager.h"
+#include "Network/nm/NmDevice.h"
 
 static GDBusConnection *system_conn = NULL;
 

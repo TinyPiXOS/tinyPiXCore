@@ -26,16 +26,12 @@
 #include <ifaddrs.h>
 #include <linux/wireless.h>
 #include <iomanip>
+#include "Network/NetworkMidInterface.h"
 #include "Network/NetworkConf.h"
-#include "Network/NetworkAppConf.h"
-#include "Network/NetworkManager.h"
-#include "Network/NmConnection.h"
-#include "Network/NmSettings.h"
-#include "Network/NmDevice.h"
 #include "TpNetworkInterface.h"
 #include "TpNetworkConfig.h"
-#include "Dbus/connect.h"
-#include "TpDbusConnectManage.h"
+#include "TpNetworkDhcpcd.h"
+
 
 struct TpNetworkConfigData
 {
@@ -43,19 +39,14 @@ struct TpNetworkConfigData
 	std::thread thread_t;
 	int sockfd;
 	TpString devname;		//设备名字，需要频繁使用
-	TpString connpath;		//对应的配置路径，根据设备名生成
-	NetworkManager *nm;
-	NmConnection *nmc;
-	NmSettings *nms;
-	NmDevice *nmd;
+	struct NetworkMidInterface *netmi;
+	NetworkMidContext *net_ctx;
+
 	TpNetworkConfigData(TpString name):interface(name)
 	{
 		sockfd=-1;
 		devname=name;
-		nm=NULL;
-		nmc=NULL;
-		nms=NULL;
-		nmd=NULL;
+		netmi=NULL;
 	}
 };
 
@@ -66,48 +57,10 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return ;
-	device->connpath = TpString(NETWORK_CONFIG_PREFIX) + name;
-	if (TpDbusConnectManage::instance().connection() != TP_TRUE)
-    {
-        fprintf(stderr, "[Error]: connect to dbus error\n");
-		free(device);
-        return;
-    }
-
-	device->nm = network_manager_create(system_conn);
-	if(!device->nm)
-		goto FREE;
-	printf("network_manager_create ok \n");
-	device->nmd = network_open_nm_device(system_conn, device->nm, device->devname.c_str());
-	if(!device->nmd)
-		goto FREE;
-	printf("network_open_nm_device ok \n");
-	device->nms = nm_settings_create(system_conn,NULL);
-	if(!device->nms)
-		goto FREE;
-	printf("nm_settings_create ok \n");
-	device->nmc = network_open_nm_connection(system_conn, device->nms, device->connpath.c_str(), NULL);
-	if(!device->nmc)
-		goto FREE;
-	printf("network_open_nm_connection ok \n");
-	sleep(2);
-	if(!device->nmc)
-	{
-		printf("device->nmc是空的？？？？\n");
-	}
-	return ;
-FREE:
-
-	if(!device->nms)
-		nm_settings_delete(device->nms);
-
-	if(!device->nmd)
-		network_close_nm_device(device->nmd);
-
-	if(!device->nm)
-		network_manager_delete(device->nm);
-
-	delete(device);
+	struct NetworkMidInterface *netmi = network_mid_interface_create();
+	if(!netmi)
+		return ;
+	device->netmi=netmi;
 }
 
 TpNetworkConfig::~TpNetworkConfig()
@@ -115,17 +68,9 @@ TpNetworkConfig::~TpNetworkConfig()
     TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return;
-	if(device->nmc)
-		network_close_nm_connection(device->nmc);
-	if(!device->nms)
-		nm_settings_delete(device->nms);
-	if(!device->nmd)
-		network_close_nm_device(device->nmd);
-	if(!device->nm)
-		network_manager_delete(device->nm);
+	network_mid_interface_delete(device->netmi);
 	delete(device);
 }
-
 
 tpInt32 TpNetworkConfig::setStatus(bool status)
 {
@@ -270,8 +215,8 @@ int32_t TpNetworkConfig::setAddr(const TpString &addr)
 tpInt32 TpNetworkConfig::setDhcp()
 {
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
-	network_set_connection_ipv4_dhcp(device->nmc);
-	return network_manager_activate_connection_to_device(device->nm, device->nmc,device->nmd,NULL);
+	device->netmi->set_dhcp_ipv4(device->net_ctx);
+	return 0;
 }
 
 
@@ -287,10 +232,9 @@ tpInt32 TpNetworkConfig::setStatic(const TpString &ip, const TpString &gatway, c
     }
 	bool dns_flag = dns.size() == 0 ? true : false;
 
-    if (network_set_connection_static_ipv4(device->nmc, ip.c_str(), prefix, gatway.c_str(), dns_flag) < 0)
+    if (device->netmi->set_static_ipv4(device->net_ctx, ip.c_str(), prefix, gatway.c_str(), dns_flag) < 0)
 	{
-		if(network_manager_activate_connection_to_device(device->nm, device->nmc,device->nmd,NULL)<0)
-			return -1;
+		return -1;
 	}
     if (dns_flag == 1)
         return 0;
@@ -303,7 +247,7 @@ tpBool TpNetworkConfig::isDhcp()
 {
     TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 
-    int ret = nm_connection_get_ipv4_dhcp_state(device->nmc,NULL);
+    int ret = device->netmi->get_dhcp_ipv4_is_enable(device->net_ctx);
     if (ret == 1)
         return TP_TRUE;
     else if(ret == 0)
@@ -317,13 +261,14 @@ TpList<TpString> TpNetworkConfig::dns()
     TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
     TpList<TpString> list;
     char **dns_c;
-    int count = nm_connection_get_ipv4_dns_list(device->nmc, &dns_c, NULL); //
+    int count =  device->netmi->get_dns_ipv4_list(device->net_ctx, &dns_c); //
     for (int i = 0; i < count; i++)
     {
         TpString dns(dns_c[i]);
         list.emplace_back(dns);
+		free(dns_c[i]);
     }
-	nm_connection_free_ipv4_dns_list(dns_c);
+	free(dns_c);
 	return list;
 }
 
@@ -332,11 +277,10 @@ tpInt32 TpNetworkConfig::setDns(tpBool autoDns, const TpList<TpString> &dnsList)
     TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
     if (autoDns)
 	{
-        nm_connection_set_ipv4_dns_mode(device->nmc, true, NULL);
+		device->netmi->set_dns_ipv4_is_auto(device->net_ctx, true);
 		return 0;
 	}
 
-	nm_connection_set_ipv4_dns_mode(device->nmc, false, NULL);
     int len = dnsList.size();
     char *dns_servers[len];
     int count = 0;
@@ -348,7 +292,11 @@ tpInt32 TpNetworkConfig::setDns(tpBool autoDns, const TpList<TpString> &dnsList)
         count++;
     }
 	
-    nm_connection_set_ipv4_dns_list(device->nmc, (const char **)dns_servers, count, NULL);
+    if(device->netmi->set_dns_ipv4_list(device->net_ctx, (const char **)dns_servers, count)<0)
+    {
+        printf("[ERROR] Failed to activate connection\n");
+    }
+
     do
     {
         count--;
@@ -360,11 +308,8 @@ tpInt32 TpNetworkConfig::setDns(tpBool autoDns, const TpList<TpString> &dnsList)
 tpBool TpNetworkConfig::isStaticDns()
 {
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
-	if(!device->nmc)
-	{
-		printf("device->nmc是空的？？？？\n");
-	}
-	int ret = nm_connection_get_ipv4_dns_mode(device->nmc,NULL);
+
+	int ret = device->netmi->get_dns_ipv4_auto_is_enable(device->net_ctx);
 	if(ret == 1)
 		return TP_FALSE;
 	else if(ret == 0)

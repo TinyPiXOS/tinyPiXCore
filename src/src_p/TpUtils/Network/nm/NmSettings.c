@@ -7,10 +7,10 @@
 /*///------------------------------------------------------------------------------------------------------------------------//
 
 #include <stdio.h>
-#include "Network/NetworkManagerPriv.h"
-#include "Network/NetworkManager.h"
-#include "Network/NmSettings.h"
-#include "Network/NmUtils.h"
+#include "Network/nm/NetworkManagerPriv.h"
+#include "Network/nm/NetworkManager.h"
+#include "Network/nm/NmSettings.h"
+#include "Network/nm/NmUtils.h"
 
 static GDBusConnection *system_conn = NULL;
 
@@ -133,11 +133,10 @@ char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name
 {
     g_return_val_if_fail(self != NULL, NULL);
     g_return_val_if_fail(conn_name != NULL, NULL);
-	printf("获取配置列表\n");
     GList *conns = nm_settings_list_connections(self, error);
     if (!conns) 
 		return NULL;
-	printf("获取配置列表成功,查找%s\n",conn_name);
+
     for (GList *l = conns; l != NULL; l = l->next) 
 	{
         char *path = l->data;
@@ -200,8 +199,6 @@ char *nm_settings_find_connection_object(NmSettings *self, const char *conn_name
 					g_variant_unref(settings);
 					g_object_unref(proxy);
 					g_list_free_full(conns, g_free);
-
-					printf("找到配置：%s\n", ret_path);
 					return ret_path;
                 }
                 g_variant_unref(id);
@@ -222,11 +219,7 @@ char *nm_settings_add_connection(NmSettings *self, GVariant *settings, GError **
 {
     GVariant *ret;
     gchar *path = NULL;
-g_print("proxy path = %s\n",
-    g_dbus_proxy_get_object_path(self->priv->proxy));
-
-g_print("proxy iface = %s\n",
-    g_dbus_proxy_get_interface_name(self->priv->proxy));
+	
     ret = g_dbus_proxy_call_sync(
         self->priv->proxy,
         "AddConnection",

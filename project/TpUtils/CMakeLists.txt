@@ -65,12 +65,16 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConflib.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/NetworkConf.c
     ${SOURCE_PATH}/src_p/TpUtils/Network/TpNetPcap.cpp
-	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkManager.c
-	${SOURCE_PATH}/src_p/TpUtils/Network/NmUtils.c
-	${SOURCE_PATH}/src_p/TpUtils/Network/NmSettings.c
-	${SOURCE_PATH}/src_p/TpUtils/Network/NmConnection.c
-	${SOURCE_PATH}/src_p/TpUtils/Network/NmDevice.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NetworkManager.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmUtils.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmSettings.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmConnection.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmDevice.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkAppConf.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/NetEnvironment.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/dhcpcd/DhcpcdControl.c	
+	${SOURCE_PATH}/src_p/TpUtils/Network/TpNetworkDhcpcd.cpp
+	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkMidInterface.c
 
     ${SOURCE_PATH}/src/TpUtils/Media/TpAudioOutput.cpp
 	${SOURCE_PATH}/src/TpUtils/Media/TpVideoOutput.cpp

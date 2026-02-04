@@ -9,7 +9,7 @@ extern "C" {
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
-#include "Network/NmConnection.h"
+#include "Network/nm/NmConnection.h"
 
 #define NM_SETTINGS_OBJECT_PATH       	"/org/freedesktop/NetworkManager/Settings"	//对象路径，Settings为单实例
 #define NM_SETTINGS_INTERFACE 			"org.freedesktop.NetworkManager.Settings"

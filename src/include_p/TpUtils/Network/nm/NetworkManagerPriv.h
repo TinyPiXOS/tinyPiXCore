@@ -2,8 +2,8 @@
 #ifndef _NETWORK_MANAGER_PRIV_H
 #define _NETWORK_MANAGER_PRIV_H
 
-#include "NmConnection.h"
-#include "NmDevice.h"
+#include "Network/nm/NmConnection.h"
+#include "Network/nm/NmDevice.h"
 #include <gio/gio.h>
 
 // 以下接口只允许 NetworkManager 内部使用
