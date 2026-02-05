@@ -22,6 +22,7 @@ extern "C"
 typedef union NetworkMidContext NetworkMidContext;
 
 
+//nm接口
 NmConnection *network_open_nm_connection(GDBusConnection *dbus_conn, NmSettings *nms, const char *conn_name, const char *ifname);
 void network_close_nm_connection(NmConnection *nmc);
 
@@ -45,6 +46,28 @@ int network_get_ipv4_dhcp_state(NetworkMidContext *ctx);
 
 NmDevice *network_open_nm_device(GDBusConnection *dbus_conn, NetworkManager *nm, const char *name);
 void network_close_nm_device(NmDevice *nmd);
+
+
+
+//dhcpcd接口
+
+int network_dhcpcd_set_static_ipv4(NetworkMidContext *ctx, const char *ip, int subnet_mask, const char *gateway, bool dns_flag);
+
+int network_dhcpcd_set_dynamic_ipv4(NetworkMidContext *ctx);
+
+int network_dhcpcd_get_ipv4_dhcp_state(NetworkMidContext *ctx);
+
+int network_dhcpcd_set_ipv4_dns_list(NetworkMidContext *ctx, const char **dns, uint32_t dns_count);
+
+int network_dhcpcd_set_ipv4_dns_mode(NetworkMidContext *ctx, bool isauto);
+
+int network_dhcpcd_get_ipv4_dns_status(NetworkMidContext *ctx);
+
+int network_dhcpcd_get_ipv4_dns_list(NetworkMidContext *ctx, char ***dns);
+
+
+
+
 
 #ifdef __cplusplus
 }

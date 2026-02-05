@@ -54,11 +54,11 @@ network_tools_t net_environment_detect_network_tools(void) {
     network_tools_t tools = {0};
     
     // 网络管理器检测
-    tools.has_network_manager = (command_exists("nmcli") || 
+/*    tools.has_network_manager = (command_exists("nmcli") || 
                                 dbus_service_exists("org.freedesktop.NetworkManager"));
     
     tools.has_connman = (command_exists("connmanctl") ||
-                        dbus_service_exists("net.connman"));
+                        dbus_service_exists("net.connman"));*/
     
     // DHCP客户端检测
     tools.has_dhcpcd = (command_exists("dhcpcd") ||

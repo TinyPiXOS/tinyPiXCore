@@ -7,6 +7,7 @@
 
 #include <arpa/inet.h>
 #include "Network/NetworkAppConf.h"
+#include "Network/dhcpcd/DhcpcdControl.h"
 #include "Network/NetworkMidInterface.h"
 
 //此函数调用后必须手动为配置设置method字段，这是强制要求的，若不想手动处理，可以使用network_gvariant_build_add_ipv4_dhcp
@@ -356,9 +357,58 @@ void network_close_nm_device(NmDevice *nmd)
 
 
 
+int network_dhcpcd_set_static_ipv4(NetworkMidContext *ctx, 
+                        const char *ip,
+                        int subnet_mask,
+                        const char *gateway,
+						bool dns_flag)
+{
+	const char *ifname = ctx->devname;
+	
+	return dhcpcd_set_static_ip(ifname, ip, subnet_mask, gateway);
+}
+
+int network_dhcpcd_set_dynamic_ipv4(NetworkMidContext *ctx)
+{
+	const char *ifname = ctx->devname;
+	return dhcpcd_set_dynamic_dhcp(ifname);
+}
+
+int network_dhcpcd_get_ipv4_dhcp_state(NetworkMidContext *ctx)
+{
+	const char *ifname = ctx->devname;
+	return dhcpcd_get_dhcp_status(ifname);
+}
 
 
+int network_dhcpcd_set_ipv4_dns_list(NetworkMidContext *ctx,
+									 const char **dns,  
+									 uint32_t dns_count)
+{
+	const char *ifname = ctx->devname;
+	return dhcpcd_set_static_dns(ifname, dns, dns_count);
+}
 
+int network_dhcpcd_set_ipv4_dns_mode(NetworkMidContext *ctx, bool isauto)
+{
+	const char *ifname = ctx->devname;
+	if(isauto)
+		return dhcpcd_set_dynamic_dns(ifname);
+	else
+		return dhcpcd_set_static_dns(ifname, NULL, 0);
+}
+
+int network_dhcpcd_get_ipv4_dns_status(NetworkMidContext *ctx)
+{
+	const char *ifname = ctx->devname;
+	return dhcpcd_get_dns_status(ifname);
+}
+
+int network_dhcpcd_get_ipv4_dns_list(NetworkMidContext *ctx, char ***dns)
+{
+	const char *ifname = ctx->devname;
+	return dhcpcd_get_dns_list(ifname, dns);
+}
 
 /*c++接口：
 

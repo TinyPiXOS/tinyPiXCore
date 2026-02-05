@@ -1,7 +1,8 @@
-#ifndef DHCPCD_CONTROL_H
-#define DHCPCD_CONTROL_H
+#ifndef _DHCPCD_CONTROL_H_
+#define _DHCPCD_CONTROL_H_
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -49,5 +50,14 @@ typedef struct {
     unsigned int expire_time;   // 过期时间（秒）
     int remaining_seconds;      // 剩余秒数
 } dhcp_lease_t;
+
+
+int dhcpcd_set_dynamic_dhcp(const char *ifname);
+int dhcpcd_set_static_ip(const char *ifname, const char *ip_cidr,int subnet_mask,const char *gateway) ;
+int dhcpcd_set_static_dns(const char *ifname, const char **dns_list, uint32_t count);
+int dhcpcd_set_dynamic_dns(const char *ifname);
+int dhcpcd_get_dns_status(const char *ifname);
+int dhcpcd_get_dns_list(const char *ifname, char ***dns_list_out);
+int dhcpcd_get_dhcp_status(const char *ifname);
 
 #endif // DHCPCD_CONTROL_H

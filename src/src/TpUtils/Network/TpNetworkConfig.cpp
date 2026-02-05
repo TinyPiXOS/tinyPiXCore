@@ -57,10 +57,12 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return ;
-	struct NetworkMidInterface *netmi = network_mid_interface_create();
+	struct NetworkMidInterface *netmi = network_mid_interface_create(name.c_str());
 	if(!netmi)
 		return ;
 	device->netmi=netmi;
+	device->net_ctx=&netmi->context;
+	printf("构造成功\n");
 }
 
 TpNetworkConfig::~TpNetworkConfig()
@@ -280,8 +282,10 @@ tpInt32 TpNetworkConfig::setDns(tpBool autoDns, const TpList<TpString> &dnsList)
 		device->netmi->set_dns_ipv4_is_auto(device->net_ctx, true);
 		return 0;
 	}
-
+	device->netmi->set_dns_ipv4_is_auto(device->net_ctx, false);
     int len = dnsList.size();
+	if(len == 0)
+		return 0;
     char *dns_servers[len];
     int count = 0;
     for (auto &dns : dnsList)

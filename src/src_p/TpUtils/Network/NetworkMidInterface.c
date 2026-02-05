@@ -67,7 +67,40 @@ static int set_use_wpa_supplicant(struct NetworkMidInterface *self)
 
 static int set_use_dhcpcd(struct NetworkMidInterface *self)
 {
-	
+	self->set_static_ipv4 = network_dhcpcd_set_static_ipv4;
+	self->set_dhcp_ipv4 = network_dhcpcd_set_dynamic_ipv4;
+
+	self->set_static_ipv6=NULL;
+	self->set_dhcp_ipv6=NULL;
+
+	//设置ipv4DNS列表
+	self->set_dns_ipv4_list = network_dhcpcd_set_ipv4_dns_list;
+
+	//设置ipv6DNS列表
+	self->set_dns_ipv6_list=NULL;
+
+	//设置ipv4的dns是否为自动
+	self->set_dns_ipv4_is_auto = network_dhcpcd_set_ipv4_dns_mode;
+
+	//设置ipv6的dns是否为自动
+	self->set_dns_ipv6_is_auto = NULL;
+
+	//获取ipv4的dhcp是否使能
+	self->get_dhcp_ipv4_is_enable = network_dhcpcd_get_ipv4_dhcp_state;
+
+	//获取ipv4的dhcp是否使能
+	self->get_dhcp_ipv6_is_enable = NULL;
+
+	//获取ipv4的dns是否自动
+	self->get_dns_ipv4_auto_is_enable = network_dhcpcd_get_ipv4_dns_status;
+
+	//获取ipv6的dns是否自动
+	self->get_dns_ipv6_auto_is_enable = NULL;
+
+	//获取ipv4DNS列表
+	self->get_dns_ipv4_list = network_dhcpcd_get_ipv4_dns_list;
+
+	return 0;
 }
 
 
@@ -79,21 +112,19 @@ static int set_use_iwd(struct NetworkMidInterface *self)
 
 
 // 选择最佳工具组合
-static int select_best_toolset(struct NetworkMidInterface *self, const network_tools_t *tools) {
+static int select_best_toolset(struct NetworkMidInterface *self, const network_tools_t *tools, const char *devname) {
     if (!tools) return TOOLSET_EMBEDDED;
     
     // 优先级1: NetworkManager (最完整)
-    if (tools->has_network_manager) {
+    /*if (tools->has_network_manager) {
 		printf("完整网络管理解决方案，支持GUI和DBus API\n");
-		set_use_network_manager(self);
-        return 0;
+		return set_use_network_manager(self);
     }
     
     // 优先级2: ConnMan (嵌入式网络管理)
     if (tools->has_connman) {
 		printf("嵌入式网络管理器，支持DBus API\n");
-		set_use_connman(self);
-        return 0;
+		return set_use_connman(self);
     }
     
     // 优先级3: systemd-networkd + iwd (现代组合)
@@ -101,7 +132,7 @@ static int select_best_toolset(struct NetworkMidInterface *self, const network_t
 		printf("现代组合：systemd-networkd + iwd，轻量高效\n");
 		set_use_systemd_networkd(self);
 		set_use_iwd(self);
-        return 0;
+        return -1;
     }
     
     // 优先级4: systemd-networkd + wpa_supplicant
@@ -109,14 +140,15 @@ static int select_best_toolset(struct NetworkMidInterface *self, const network_t
 		printf("传统组合：systemd-networkd + wpa_supplicant\n");
 		set_use_systemd_networkd(self);
 		set_use_wpa_supplicant(self);
-        return 0;
-    }
+        return -1;
+    }*/
     
     // 优先级5: dhcpcd + iwd
     if (tools->has_dhcpcd && tools->has_iwd) {
 		printf("传统组合：dhcpcd + iwd\n");
-		set_use_iwd(self);
+		self->context.devname=strdup(devname);
 		set_use_dhcpcd(self);
+		set_use_iwd(self);
         return 0;
     }
     
@@ -135,7 +167,7 @@ static int select_best_toolset(struct NetworkMidInterface *self, const network_t
 
 
 
-struct NetworkMidInterface *network_mid_interface_create()
+struct NetworkMidInterface *network_mid_interface_create(const char *devname)
 {
 	struct NetworkMidInterface *self = malloc(sizeof(struct NetworkMidInterface));
 	if(!self)
@@ -154,7 +186,7 @@ struct NetworkMidInterface *network_mid_interface_create()
 	self->get_dns_ipv6_auto_is_enable = NULL;
 	self->get_dns_ipv4_list = NULL;
 	network_tools_t  envir = net_environment_detect_network_tools();
-	select_best_toolset(self, &envir);
+	select_best_toolset(self, &envir, devname);
 
 	return self;
 }
@@ -162,6 +194,7 @@ void network_mid_interface_delete(struct NetworkMidInterface *self)
 {
 	if(!self)
 		return;
-
+	if(self->context.devname)
+		free(self->context.devname);
 	free(self);
 }

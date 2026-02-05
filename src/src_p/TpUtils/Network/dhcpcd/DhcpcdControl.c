@@ -1,8 +1,10 @@
 
-
+#include <assert.h>
 #include "Network/dhcpcd/DhcpcdControl.h"
 
 // 工具函数
+
+//去掉头尾空白字符
 static char* trim_whitespace(char *str) {
     while (isspace((unsigned char)*str)) str++;
     if (*str == 0) return str;
@@ -61,10 +63,26 @@ static int restart_dhcpcd(const char *ifname) {
     pid_t pid = get_dhcpcd_pid(ifname);
     
     if (pid > 0) {
-        // 发送SIGHUP信号重新加载配置
+        // 1. 先停止接口
+        char stop_cmd[256];
+        snprintf(stop_cmd, sizeof(stop_cmd), "ip link set %s down 2>/dev/null", ifname);
+        system(stop_cmd);
+        
+        // 2. 发送SIGHUP信号重新加载配置
         if (kill(pid, SIGHUP) != 0) {
             return DHCPCD_ERROR;
         }
+        
+        // 3. 等待配置重新加载
+        usleep(500000);  // 等待500ms
+        
+        // 4. 重新启动接口
+        snprintf(stop_cmd, sizeof(stop_cmd), "ip link set %s up 2>/dev/null", ifname);
+        system(stop_cmd);
+        
+        // 5. 等待网络完全就绪
+        sleep(2);
+        
         return DHCPCD_SUCCESS;
     } else {
         // dhcpcd没有运行，启动它
@@ -108,11 +126,11 @@ int dhcpcd_set_dynamic_dhcp(const char *ifname) {
     }
     
     // 备份原配置
-    char backup_path[256];
+    char backup_path[260];
+
     snprintf(backup_path, sizeof(backup_path), "%s.bak", config_path);
-    char backup_cmd[512];
-    snprintf(backup_cmd, sizeof(backup_cmd), "cp -f %s %s 2>/dev/null", 
-             config_path, backup_path);
+    char backup_cmd[534];
+    snprintf(backup_cmd, sizeof(backup_cmd), "cp -f %s %s 2>/dev/null", config_path, backup_path);
     system(backup_cmd);
     
     // 读取并修改配置文件
@@ -193,10 +211,9 @@ int dhcpcd_set_dynamic_dhcp(const char *ifname) {
 
 int dhcpcd_set_static_ip(const char *ifname, 
                         const char *ip_cidr,
-                        const char *subnet_mask,
-                        const char *gateway,
-                        const char **dns_servers,
-                        int dns_count) {
+                        int subnet_mask,
+                        const char *gateway) 
+{
     if (!ifname || !ip_cidr) return DHCPCD_ERROR;
     
     char config_path[256];
@@ -205,7 +222,7 @@ int dhcpcd_set_static_ip(const char *ifname,
     }
     
     // 备份原配置
-    char backup_cmd[512];
+    char backup_cmd[534];
     snprintf(backup_cmd, sizeof(backup_cmd), "cp -f %s %s.bak 2>/dev/null", 
              config_path, config_path);
     system(backup_cmd);
@@ -234,26 +251,23 @@ int dhcpcd_set_static_ip(const char *ifname,
     
     while (fgets(line, sizeof(line), in_fp)) {
         char current_ifname[64];
-        char *trimmed_line = trim_whitespace(strdup(line));
+		char *original_line = strdup(line);  // 保存原始指针
+        char *trimmed_line = trim_whitespace(original_line);
         
         // 检查是否是接口声明
         if (sscanf(trimmed_line, "interface %63s", current_ifname) == 1) {
             if (in_interface_block && !has_written_config) {
                 // 离开前一个接口块前写入配置
                 fprintf(out_fp, "static ip_address=%s\n", ip_cidr);
-                if (subnet_mask && strlen(subnet_mask) > 0) {
-                    fprintf(out_fp, "static subnet_mask=%s\n", subnet_mask);
+                
+                // 注意：dhcpcd不需要单独设置subnet_mask，因为它可以从CIDR表示法推断
+                // 但为了兼容性，我们保留这个参数
+                if (subnet_mask > 0 && subnet_mask <= 32) {
+                    fprintf(out_fp, "static subnet_mask=%d\n", subnet_mask);
                 }
+                
                 if (gateway && strlen(gateway) > 0) {
                     fprintf(out_fp, "static routers=%s\n", gateway);
-                }
-                if (dns_servers && dns_count > 0) {
-                    fprintf(out_fp, "static domain_name_servers=");
-                    for (int i = 0; i < dns_count; i++) {
-                        fprintf(out_fp, "%s%s", dns_servers[i],
-                                (i + 1 < dns_count) ? " " : "");
-                    }
-                    fprintf(out_fp, "\n");
                 }
                 has_written_config = 1;
             }
@@ -267,36 +281,29 @@ int dhcpcd_set_static_ip(const char *ifname,
         }
         
         if (in_interface_block) {
-            // 跳过旧的静态配置
+            // 跳过旧的IP、网关和子网掩码配置
             if (strstr(line, "static ip_address") ||
                 strstr(line, "static routers") ||
-                strstr(line, "static subnet_mask") ||
-                (dns_servers && dns_count > 0 && strstr(line, "static domain_name_servers"))) {
-                free(trimmed_line);
+                strstr(line, "static subnet_mask")) {
+                free(original_line);
                 continue;
             }
         }
         
         fputs(line, out_fp);
-        free(trimmed_line);
+        free(original_line);
     }
     
     // 处理文件末尾
     if (in_interface_block && !has_written_config) {
         fprintf(out_fp, "static ip_address=%s\n", ip_cidr);
-        if (subnet_mask && strlen(subnet_mask) > 0) {
-            fprintf(out_fp, "static subnet_mask=%s\n", subnet_mask);
+        
+        if (subnet_mask > 0 && subnet_mask <= 32) {
+            fprintf(out_fp, "static subnet_mask=%d\n", subnet_mask);
         }
+        
         if (gateway && strlen(gateway) > 0) {
             fprintf(out_fp, "static routers=%s\n", gateway);
-        }
-        if (dns_servers && dns_count > 0) {
-            fprintf(out_fp, "static domain_name_servers=");
-            for (int i = 0; i < dns_count; i++) {
-                fprintf(out_fp, "%s%s", dns_servers[i],
-                        (i + 1 < dns_count) ? " " : "");
-            }
-            fprintf(out_fp, "\n");
         }
         has_written_config = 1;
     }
@@ -306,19 +313,13 @@ int dhcpcd_set_static_ip(const char *ifname,
         fprintf(out_fp, "\n# Auto-configured static IP for %s\n", ifname);
         fprintf(out_fp, "interface %s\n", ifname);
         fprintf(out_fp, "static ip_address=%s\n", ip_cidr);
-        if (subnet_mask && strlen(subnet_mask) > 0) {
-            fprintf(out_fp, "static subnet_mask=%s\n", subnet_mask);
+        
+        if (subnet_mask > 0 && subnet_mask <= 32) {
+            fprintf(out_fp, "static subnet_mask=%d\n", subnet_mask);
         }
+        
         if (gateway && strlen(gateway) > 0) {
             fprintf(out_fp, "static routers=%s\n", gateway);
-        }
-        if (dns_servers && dns_count > 0) {
-            fprintf(out_fp, "static domain_name_servers=");
-            for (int i = 0; i < dns_count; i++) {
-                fprintf(out_fp, "%s%s", dns_servers[i],
-                        (i + 1 < dns_count) ? " " : "");
-            }
-            fprintf(out_fp, "\n");
         }
     }
     
@@ -334,10 +335,151 @@ int dhcpcd_set_static_ip(const char *ifname,
     return restart_dhcpcd(ifname);
 }
 
+
+// DNS配置缓存结构
+typedef struct {
+    char ifname[16];
+    int dns_count;
+    char dns_servers[5][20];  // 最多保存5个DNS，每个最长20字符
+    int is_valid;
+} DnsCache;
+
+#define MAX_CACHE_ENTRIES 10
+static DnsCache dns_cache[MAX_CACHE_ENTRIES];
+static int cache_initialized = 0;
+
+// 初始化缓存
+static void init_cache(void) {
+    if (!cache_initialized) {
+        memset(dns_cache, 0, sizeof(dns_cache));
+        cache_initialized = 1;
+    }
+}
+
+// 保存DNS配置到缓存
+static void save_dns_to_cache(const char *ifname, const char **dns_list, int count) {
+    init_cache();
+    
+    if (count <= 0 || count > 5) return;
+    
+    // 查找或创建缓存条目
+    DnsCache *entry = NULL;
+    for (int i = 0; i < MAX_CACHE_ENTRIES; i++) {
+        if (!dns_cache[i].is_valid) {
+            entry = &dns_cache[i];
+            break;
+        } else if (strcmp(dns_cache[i].ifname, ifname) == 0) {
+            entry = &dns_cache[i];
+            break;
+        }
+    }
+    
+    if (!entry) {
+        // 缓存已满，覆盖第一个
+        entry = &dns_cache[0];
+    }
+    
+    // 保存配置
+    strncpy(entry->ifname, ifname, sizeof(entry->ifname) - 1);
+    entry->ifname[sizeof(entry->ifname) - 1] = '\0';
+    entry->dns_count = count;
+    
+    for (int i = 0; i < count; i++) {
+        strncpy(entry->dns_servers[i], dns_list[i], sizeof(entry->dns_servers[i]) - 1);
+        entry->dns_servers[i][sizeof(entry->dns_servers[i]) - 1] = '\0';
+    }
+    
+    entry->is_valid = 1;
+}
+
+// 从缓存读取DNS配置
+static int get_dns_from_cache(const char *ifname, const char **dns_list_out) {
+    init_cache();
+    
+    for (int i = 0; i < MAX_CACHE_ENTRIES; i++) {
+        if (dns_cache[i].is_valid && strcmp(dns_cache[i].ifname, ifname) == 0) {
+            for (int j = 0; j < dns_cache[i].dns_count; j++) {
+                dns_list_out[j] = dns_cache[i].dns_servers[j];
+            }
+            return dns_cache[i].dns_count;
+        }
+    }
+    
+    return 0;  // 没有缓存
+}
+
+// 从配置文件中读取当前静态DNS配置
+static int read_current_static_dns(const char *config_path, const char *ifname, 
+                                   char **dns_list, int *dns_count) {
+    FILE *fp = fopen(config_path, "r");
+    if (!fp) return DHCPCD_ERROR;
+    
+    char line[512];
+    int in_interface_block = 0;
+    int found_dns = 0;
+    
+    *dns_count = 0;
+    
+    while (fgets(line, sizeof(line), fp)) {
+        char current_ifname[64];
+        
+        if (sscanf(line, "interface %63s", current_ifname) == 1) {
+            in_interface_block = (strcmp(trim_whitespace(current_ifname), ifname) == 0);
+        }
+        
+        if (in_interface_block) {
+            if (strstr(line, "static domain_name_servers=")) {
+                char *dns_str = strchr(line, '=');
+                if (dns_str) {
+                    dns_str++;  // 跳过'='
+                    char *saveptr = NULL;
+                    char *token = strtok_r(dns_str, " \t\n", &saveptr);
+                    
+                    while (token && *dns_count < 5) {
+                        char *trimmed = trim_whitespace(token);
+                        if (strlen(trimmed) > 0) {
+                            dns_list[*dns_count] = strdup(trimmed);
+                            (*dns_count)++;
+                        }
+                        token = strtok_r(NULL, " \t\n", &saveptr);
+                    }
+                    found_dns = 1;
+                }
+            }
+        }
+    }
+    
+    fclose(fp);
+    return found_dns ? DHCPCD_SUCCESS : DHCPCD_ERROR;
+}
+
 int dhcpcd_set_static_dns(const char *ifname, 
                          const char **dns_list, 
-                         size_t count) {
-    if (!ifname || !dns_list || count == 0) return DHCPCD_ERROR;
+                         uint32_t count) 
+{
+    if (!ifname) 
+		return DHCPCD_ERROR;
+    printf("[Debug]:dhcpcd_set_static_dns\n");
+    // 如果dns_list为空，尝试从缓存读取
+    const char *use_dns_list[5];
+    int use_count = 0;
+    
+    if (dns_list == NULL || count == 0) {
+        // 尝试从缓存读取
+        use_count = get_dns_from_cache(ifname, use_dns_list);
+        if (use_count == 0) {
+            return DHCPCD_ERROR;  // 缓存中没有配置
+        }
+    } else {
+        // 使用传入的配置
+        for (uint32_t i = 0; i < count && i < 5; i++) {
+            use_dns_list[i] = dns_list[i];
+        }
+        use_count = (count < 5) ? count : 5;
+    }
+    
+    // 保存到缓存
+    save_dns_to_cache(ifname, use_dns_list, use_count);
     
     char config_path[256];
     if (get_dhcpcd_config_path(config_path, sizeof(config_path)) != DHCPCD_SUCCESS) {
@@ -365,17 +507,19 @@ int dhcpcd_set_static_dns(const char *ifname,
     int found_interface = 0;
     int has_written_dns = 0;
     
-    while (fgets(line, sizeof(line), in_fp)) {
+    while (fgets(line, sizeof(line), in_fp)) 
+    {
         char current_ifname[64];
         
         // 检查是否是接口声明
-        if (sscanf(line, "interface %63s", current_ifname) == 1) {
+        if (sscanf(line, "interface %63s", current_ifname) == 1) 
+        {
             if (in_interface_block && !has_written_dns) {
                 // 离开接口块前写入DNS配置
                 fprintf(out_fp, "static domain_name_servers=");
-                for (size_t i = 0; i < count; i++) {
-                    fprintf(out_fp, "%s%s", dns_list[i],
-                            (i + 1 < count) ? " " : "");
+                for (int i = 0; i < use_count; i++) {
+                    fprintf(out_fp, "%s%s", use_dns_list[i],
+                            (i + 1 < use_count) ? " " : "");
                 }
                 fprintf(out_fp, "\n");
                 has_written_dns = 1;
@@ -402,9 +546,9 @@ int dhcpcd_set_static_dns(const char *ifname,
     // 处理文件末尾
     if (in_interface_block && !has_written_dns) {
         fprintf(out_fp, "static domain_name_servers=");
-        for (size_t i = 0; i < count; i++) {
-            fprintf(out_fp, "%s%s", dns_list[i],
-                    (i + 1 < count) ? " " : "");
+        for (int i = 0; i < use_count; i++) {
+            fprintf(out_fp, "%s%s", use_dns_list[i],
+                    (i + 1 < use_count) ? " " : "");
         }
         fprintf(out_fp, "\n");
     }
@@ -414,9 +558,9 @@ int dhcpcd_set_static_dns(const char *ifname,
         fprintf(out_fp, "\n# DNS configuration for %s\n", ifname);
         fprintf(out_fp, "interface %s\n", ifname);
         fprintf(out_fp, "static domain_name_servers=");
-        for (size_t i = 0; i < count; i++) {
-            fprintf(out_fp, "%s%s", dns_list[i],
-                    (i + 1 < count) ? " " : "");
+        for (int i = 0; i < use_count; i++) {
+            fprintf(out_fp, "%s%s", use_dns_list[i],
+                    (i + 1 < use_count) ? " " : "");
         }
         fprintf(out_fp, "\n");
     }
@@ -434,11 +578,37 @@ int dhcpcd_set_static_dns(const char *ifname,
 }
 
 int dhcpcd_set_dynamic_dns(const char *ifname) {
-    if (!ifname) return DHCPCD_ERROR;
-    
+    if (!ifname) 
+		return DHCPCD_ERROR;
+    printf("[Debug]:dhcpcd_set_dynamic_dns\n");
     char config_path[256];
     if (get_dhcpcd_config_path(config_path, sizeof(config_path)) != DHCPCD_SUCCESS) {
         return DHCPCD_ERROR;
+    }
+    
+    // 在删除之前，先读取当前的静态DNS配置并保存到缓存
+    char *current_dns[5] = {NULL};
+    int dns_count = 0;
+    
+    // 确保有文件存在
+    if (file_exists(config_path)) {
+        int result = read_current_static_dns(config_path, ifname, current_dns, &dns_count);
+        
+        if (result == DHCPCD_SUCCESS && dns_count > 0) {
+            // 保存到缓存
+            const char *dns_list[5];
+            for (int i = 0; i < dns_count; i++) {
+                dns_list[i] = current_dns[i];
+            }
+            save_dns_to_cache(ifname, dns_list, dns_count);
+        }
+    }
+    
+    // 清理内存
+    for (int i = 0; i < dns_count; i++) {
+        if (current_dns[i]) {
+            free(current_dns[i]);
+        }
     }
     
     FILE *in_fp = fopen(config_path, "r");
@@ -486,7 +656,7 @@ int dhcpcd_set_dynamic_dns(const char *ifname) {
 }
 
 int dhcpcd_get_dns_status(const char *ifname) {
-    if (!ifname) return DHCPCD_ERROR;
+    if (!ifname) return DNS_STATE_UNKNOWN;
     
     char config_path[256];
     if (get_dhcpcd_config_path(config_path, sizeof(config_path)) != DHCPCD_SUCCESS) {
@@ -505,7 +675,6 @@ int dhcpcd_get_dns_status(const char *ifname) {
     while (fgets(line, sizeof(line), fp)) {
         char current_ifname[64];
         
-        // 检查是否是接口声明
         if (sscanf(line, "interface %63s", current_ifname) == 1) {
             in_interface_block = (strcmp(trim_whitespace(current_ifname), ifname) == 0);
         }
@@ -519,24 +688,6 @@ int dhcpcd_get_dns_status(const char *ifname) {
     }
     
     fclose(fp);
-    
-    // 也检查租约文件
-    char lease_path[256];
-    snprintf(lease_path, sizeof(lease_path), 
-             "/var/lib/dhcpcd/dhcpcd-%s.lease", ifname);
-    
-    if (file_exists(lease_path)) {
-        fp = fopen(lease_path, "r");
-        if (fp) {
-            while (fgets(line, sizeof(line), fp)) {
-                if (strstr(line, "static domain_name_servers")) {
-                    has_static_dns = 1;
-                    break;
-                }
-            }
-            fclose(fp);
-        }
-    }
     
     return has_static_dns ? DNS_STATE_STATIC : DNS_STATE_DYNAMIC;
 }
@@ -561,8 +712,17 @@ int dhcpcd_get_dns_list(const char *ifname, char ***dns_list_out) {
                     if (start) {
                         char *end = strchr(start, ';');
                         if (end) *end = '\0';
-                        strncpy(dns_line, start + 1, sizeof(dns_line) - 1);
-                        dns_line[sizeof(dns_line) - 1] = '\0';
+                        
+                        // 复制并去除可能的单引号
+                        char *ptr = start + 1;  // 跳过'='
+                        int i = 0;
+                        while (*ptr && i < sizeof(dns_line) - 1) {
+                            if (*ptr != '\'' && *ptr != '"') {  // 跳过单引号和双引号
+                                dns_line[i++] = *ptr;
+                            }
+                            ptr++;
+                        }
+                        dns_line[i] = '\0';
                         break;
                     }
                 }
@@ -585,8 +745,17 @@ int dhcpcd_get_dns_list(const char *ifname, char ***dns_list_out) {
                     dns_start += strlen("domain_name_servers=");
                     char *dns_end = strchr(dns_start, '\n');
                     if (dns_end) *dns_end = '\0';
-                    strncpy(dns_line, dns_start, sizeof(dns_line) - 1);
-                    dns_line[sizeof(dns_line) - 1] = '\0';
+                    
+                    // 去除可能的单引号
+                    char *ptr = dns_start;
+                    int i = 0;
+                    while (*ptr && i < sizeof(dns_line) - 1) {
+                        if (*ptr != '\'' && *ptr != '"') {
+                            dns_line[i++] = *ptr;
+                        }
+                        ptr++;
+                    }
+                    dns_line[i] = '\0';
                     break;
                 }
             }
@@ -630,6 +799,7 @@ int dhcpcd_get_dns_list(const char *ifname, char ***dns_list_out) {
     *dns_list_out = dns_list;
     return count;
 }
+
 
 int dhcpcd_get_dhcp_status(const char *ifname) {
     if (!ifname) return DHCPCD_ERROR;
@@ -693,6 +863,7 @@ int dhcpcd_get_dhcp_status(const char *ifname) {
 }
 
 
+//租约
 int dhcpcd_get_lease_info(const char *ifname, dhcp_lease_t *lease) {
     if (!ifname || !lease) return DHCPCD_ERROR;
     

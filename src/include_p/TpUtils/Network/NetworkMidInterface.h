@@ -14,7 +14,7 @@ extern "C"
 
 typedef union NetworkMidContext
 {
-	const char *devname;
+	char *devname;
 	int fd;
 	NmConnection *nmc;
 	void *ctx;
@@ -64,7 +64,7 @@ struct NetworkMidInterface{
 
 };
 
-struct NetworkMidInterface *network_mid_interface_create();
+struct NetworkMidInterface *network_mid_interface_create(const char *devname);
 void network_mid_interface_delete(struct NetworkMidInterface *self);
 
 

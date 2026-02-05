@@ -71,13 +71,15 @@ int example_dhcp()
 int example_app_config()
 {
 	TpNetworkConfig config("ens33");
-	TpString ip("192.168.1.200");
+	TpString ip("192.168.1.107");
 	TpString gatway("192.168.1.1");
 	TpString dns("192.168.1.2");
 	TpString netmsk("255.255.255.0");
+	printf("设置DNS打开\n");
 	config.setDns(TP_TRUE);
 	printf("设置DHCP打开\n");
 	config.setDhcp();
+	printf("DNS状态:%s\n",config.isStaticDns()==TP_TRUE ? "静态":"动态");
 	printf("DHCP状态:%d\n",config.isDhcp()==TP_TRUE ? 1:0);
 	printf("\n\n设置DNS:\n");
 	TpList<TpString> dns_list;
@@ -92,17 +94,16 @@ int example_app_config()
 	{
 		printf("\t%s\n",it.c_str());
 	}
-	/*sleep(5);
-	printf("\n\n设置打开DHCP:\n");
-	config.setDhcp();
-	sleep(5);
+	printf("DNS状态:%s\n",config.isStaticDns()==TP_TRUE ? "静态":"动态");
 	printf("DHCP状态:%d\n",config.isDhcp()==TP_TRUE ? 1:0);
-	printf("\n\n设置关闭DHCP:\n");
-	config.setStatic(ip, gatway, netmsk,dns_list);
+	sleep(5);
+//	printf("\n\n 设置关闭DHCP:\n");
+//	config.setStatic(ip, gatway, netmsk,dns_list);
 	config.setDns(TP_TRUE);
 	sleep(5);
 	printf("DNS状态:%s\n",config.isStaticDns()==TP_TRUE ? "静态":"动态");
-	printf("DHCP状态:%d\n",config.isDhcp()==TP_TRUE ? 1:0);
+//	printf("DHCP状态:%d\n",config.isDhcp()==TP_TRUE ? 1:0);
+//	config.setDhcp();
 //	printf("gateway:%s\n",config.gatway().c_str());
 //	printf("netmask:%s\n",config.netmask().c_str());
 	printf("DNS List:\n");
@@ -111,7 +112,8 @@ int example_app_config()
 	{
 		printf("\t%s\n",it.c_str());
 	}
-	return 0;*/
+
+	return 0;
 }
 
 int example_network()
