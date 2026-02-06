@@ -73,6 +73,10 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkAppConf.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetEnvironment.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/dhcpcd/DhcpcdControl.c	
+	${SOURCE_PATH}/src_p/TpUtils/Network/iwd/IwdStation.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/iwd/IwdNetwork.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/iwd/IwdManager.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/iwd/IwdKnownNetwork.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/TpNetworkDhcpcd.cpp
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkMidInterface.c
 
