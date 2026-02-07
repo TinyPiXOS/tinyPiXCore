@@ -64,8 +64,19 @@ struct NetworkMidInterface{
 
 };
 
+
+struct WirelessMidInterface{
+	NetworkMidContext context;
+	
+	int (*connect_to_ssid)(NetworkMidContext *context, const char *ssid, const char *password); //connect_to_ssid
+};
+
+
 struct NetworkMidInterface *network_mid_interface_create(const char *devname);
 void network_mid_interface_delete(struct NetworkMidInterface *self);
+
+
+
 
 
 #ifdef __cplusplus

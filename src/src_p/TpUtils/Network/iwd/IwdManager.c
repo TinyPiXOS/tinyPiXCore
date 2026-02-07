@@ -470,3 +470,163 @@ void iwd_device_info_free(IwdDeviceInfo *info)
         g_free(info);
     }
 }
+
+
+
+static bool wait_scan_complete(IwdStation *station, int timeout_ms)
+{
+    int waited = 0;
+    const int interval = 200; // 200ms 轮询一次
+
+    while (waited < timeout_ms) {
+
+        GError *err = NULL;
+        char *state = iwd_station_get_state(station, &err);
+
+        if (state) {
+            bool scanning = (strcmp(state, "scanning") == 0);
+            free(state);
+
+            if (!scanning) {
+                return true;
+            }
+        }
+
+        if (err) {
+            g_error_free(err);
+        }
+
+        g_usleep(interval * 1000);
+        waited += interval;
+    }
+
+    return false;
+}
+
+bool iwd_manager_connect_by_ssid(
+    IwdManager *manager,
+    const char *ssid,
+    const char *password,
+    int timeout,
+    GError **error)
+{
+    g_return_val_if_fail(IWD_MANAGER_IS(manager), false);
+    g_return_val_if_fail(ssid != NULL, false);
+
+    // 1. 获取 station
+    GPtrArray *station_paths = iwd_manager_get_stations(manager, error);
+    if (!station_paths || station_paths->len == 0) {
+        if (station_paths)
+            g_ptr_array_free(station_paths, TRUE);
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, "No station found");
+        return false;
+    }
+
+    gchar *station_path = g_ptr_array_index(station_paths, 0);
+
+    IwdStation *station = iwd_station_create(system_conn, station_path, error);
+    g_ptr_array_free(station_paths, TRUE);
+
+    if (!station) {
+        return false;
+    }
+
+	// 2. 触发扫描
+	iwd_station_scan(station, NULL, NULL, NULL);
+
+	// 3. 等待扫描真正完成（最多等待10秒）然后获取列表
+	if (!wait_scan_complete(station, 10000)) {
+		iwd_station_delete(station);
+		g_set_error(error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT, "iwd scan did not complete in time");
+		return false;
+	}
+
+	GPtrArray *networks = iwd_station_get_ordered_networks(station, error);
+	if (!networks) {
+		iwd_station_delete(station);
+		return false;
+	}
+
+    // 4. 在 iwd 的结果里找目标 SSID
+    char *target_path = NULL;
+
+    for (guint i = 0; i < networks->len; i++) {
+        gchar *path = g_ptr_array_index(networks, i);
+
+        IwdNetwork *network = iwd_network_create(system_conn, path, NULL);
+        if (!network)
+            continue;
+
+        char *name = iwd_network_get_name(network, NULL);
+
+        if (name && strcmp(name, ssid) == 0) {
+            target_path = g_strdup(path);
+            free(name);
+            iwd_network_delete(network);
+            break;
+        }
+
+        if (name)
+            free(name);
+
+        iwd_network_delete(network);
+    }
+
+    g_ptr_array_free(networks, TRUE);
+
+    if (!target_path) {
+        iwd_station_delete(station);
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                    "SSID '%s' not found in iwd scan list", ssid);
+        return false;
+    }
+
+    // 5. 创建 network 对象并连接
+    IwdNetwork *network = iwd_network_create(system_conn, target_path, error);
+    g_free(target_path);
+
+    if (!network) {
+        iwd_station_delete(station);
+        return false;
+    }
+
+    bool ret = iwd_network_connect(network, password, timeout, error);
+
+    iwd_network_delete(network);
+    iwd_station_delete(station);
+
+    return ret;
+}
+
+
+bool iwd_connect_simple(
+    GDBusConnection *conn,
+    const char *ssid,
+    const char *password,
+    int timeout)
+{
+    GError *error = NULL;
+
+    IwdManager *manager = iwd_manager_create(conn, &error);
+    if (!manager) {
+        g_printerr("Create manager failed: %s\n", error->message);
+        g_error_free(error);
+        return false;
+    }
+
+    bool ret = iwd_manager_connect_by_ssid(
+        manager,
+        ssid,
+        password,
+        timeout,
+        &error);
+
+    if (!ret) {
+        g_printerr("Connect failed: %s\n", error->message);
+        g_error_free(error);
+    }
+
+    iwd_manager_delete(manager);
+
+    return ret;
+}
