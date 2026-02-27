@@ -96,10 +96,10 @@ int iwd_network_delete(IwdNetwork *network)
 
 // 连接到网络
 // password:密码
-// timeout:连接超时时间
+// timeout:连接超时时间，单位ms
 bool iwd_network_connect(IwdNetwork *network, 
                               const gchar *password, 
-							  int timeout,
+							  int timeoutms,
                               GError **error)
 {
     g_return_val_if_fail(IWD_NETWORK_IS(network), FALSE);
@@ -117,7 +117,7 @@ bool iwd_network_connect(IwdNetwork *network,
         "Connect",
         parameters,
         G_DBUS_CALL_FLAGS_NONE,
-        timeout,  // 30秒超时
+        timeoutms,  // 超时时间,单位ms
         NULL,   // cancellable
         error);
     

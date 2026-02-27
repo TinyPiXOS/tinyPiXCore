@@ -9,6 +9,8 @@
 #include "Network/NetworkAppConf.h"
 #include "Network/dhcpcd/DhcpcdControl.h"
 #include "Network/NetworkMidInterface.h"
+#include "Network/iwd/IwdManager.h"
+#include "Network/nm/NmWireless.h"
 
 //此函数调用后必须手动为配置设置method字段，这是强制要求的，若不想手动处理，可以使用network_gvariant_build_add_ipv4_dhcp
 static void network_gvariant_build_add_ipv4_empty(GVariantBuilder *settings)
@@ -165,7 +167,7 @@ int network_set_connection_static_ipv4(
 	bool dns_flag)
 {
 
-	NmConnection *self=ctx->nmc;
+	NmConnection *self=ctx->net.nmc;
 	GError *error = NULL;
 	g_return_val_if_fail(self != NULL, -1);
 	g_return_val_if_fail(ip != NULL, -1);
@@ -191,7 +193,7 @@ int network_set_connection_static_ipv4(
 //设置网络配置为动态DHCP，如需应用于网卡需要调用 network_manager_activate_connection_to_device 接口应用到网卡
 int network_set_connection_ipv4_dhcp(NetworkMidContext *ctx)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
     GError *error = NULL;
     g_return_val_if_fail(self != NULL, -1);
 
@@ -262,7 +264,7 @@ int network_set_connection_ipv4_dhcp(NetworkMidContext *ctx)
 
 int network_set_ipv6_dns_mode(NetworkMidContext *ctx, bool isauto)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
 	GError *error = NULL;
 	nm_connection_set_dns_mode(self, "ipv6", (gboolean)isauto, &error);
 	if (error != NULL) {
@@ -275,9 +277,9 @@ int network_set_ipv6_dns_mode(NetworkMidContext *ctx, bool isauto)
 
 int network_set_ipv4_dns_mode(NetworkMidContext *ctx, bool isauto)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
 	GError *error = NULL;
-	nm_connection_set_dns_mode(self, "ipv6", (gboolean)isauto, &error);
+	nm_connection_set_dns_mode(self, "ipv4", (gboolean)isauto, &error);
 	if (error != NULL) {
 		g_printerr("设置IPv4 DNS失败: %s (code: %d)\n", error->message, error->code);        
 		g_error_free(error);
@@ -288,14 +290,14 @@ int network_set_ipv4_dns_mode(NetworkMidContext *ctx, bool isauto)
 
 int network_get_ipv6_dns_mode(NetworkMidContext *ctx)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
 	GError *error = NULL;
 	return nm_connection_get_dns_mode(self, "ipv6", &error);
 }
 
 int network_get_ipv4_dns_mode(NetworkMidContext *ctx)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
 	GError *error = NULL;
 	return nm_connection_get_dns_mode(self, "ipv4", &error);
 }
@@ -305,7 +307,7 @@ int network_set_ipv4_dns_list(NetworkMidContext *ctx,
 								const char **dns,  
                                 uint32_t dns_count)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
     GError *error = NULL;
 
 	nm_connection_set_ipv4_dns_list(self, dns, dns_count, &error);
@@ -319,14 +321,14 @@ int network_set_ipv4_dns_list(NetworkMidContext *ctx,
 
 int network_get_ipv4_dns_list(NetworkMidContext *ctx, char ***dns)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
 	GError *error = NULL;
 	return nm_connection_get_ipv4_dns_list(self, dns, &error);
 }
 
 int network_get_ipv4_dhcp_state(NetworkMidContext *ctx)
 {
-	NmConnection *self = ctx->nmc;
+	NmConnection *self = ctx->net.nmc;
 	GError *error = NULL;
 	return nm_connection_get_ipv4_dhcp_state(self, &error);
 }
@@ -363,20 +365,20 @@ int network_dhcpcd_set_static_ipv4(NetworkMidContext *ctx,
                         const char *gateway,
 						bool dns_flag)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	
 	return dhcpcd_set_static_ip(ifname, ip, subnet_mask, gateway);
 }
 
 int network_dhcpcd_set_dynamic_ipv4(NetworkMidContext *ctx)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	return dhcpcd_set_dynamic_dhcp(ifname);
 }
 
 int network_dhcpcd_get_ipv4_dhcp_state(NetworkMidContext *ctx)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	return dhcpcd_get_dhcp_status(ifname);
 }
 
@@ -385,13 +387,13 @@ int network_dhcpcd_set_ipv4_dns_list(NetworkMidContext *ctx,
 									 const char **dns,  
 									 uint32_t dns_count)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	return dhcpcd_set_static_dns(ifname, dns, dns_count);
 }
 
 int network_dhcpcd_set_ipv4_dns_mode(NetworkMidContext *ctx, bool isauto)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	if(isauto)
 		return dhcpcd_set_dynamic_dns(ifname);
 	else
@@ -400,13 +402,13 @@ int network_dhcpcd_set_ipv4_dns_mode(NetworkMidContext *ctx, bool isauto)
 
 int network_dhcpcd_get_ipv4_dns_status(NetworkMidContext *ctx)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	return dhcpcd_get_dns_status(ifname);
 }
 
 int network_dhcpcd_get_ipv4_dns_list(NetworkMidContext *ctx, char ***dns)
 {
-	const char *ifname = ctx->devname;
+	const char *ifname = ctx->net.devname;
 	return dhcpcd_get_dns_list(ifname, dns);
 }
 
@@ -524,3 +526,38 @@ tpBool TpNetworkConfig::isStaticDns()
 	return TP_TRUE;
 }
 */
+
+
+
+
+
+
+
+
+//==================================无线网卡部分==========================================//
+
+//nmcli连接无线网络
+int nmcli_connect_wireless(NetworkMidContext *ctx, const char *ssid, const char *password, int timeout)
+{
+	return nm_wireless_connect_ssid(ssid, password, timeout) == 0 ? 0 : -1;
+}
+
+//nmcli断开无线网络
+int nmcli_disconnect_wireless(NetworkMidContext *ctx)
+{
+	char *ifname = ctx->net.devname;
+	return nm_wireless_disconnect((const char *)ifname);
+}
+
+//iwd连接无线网络
+int wireless_connect_network(NetworkMidContext *ctx, const char *ssids, const char *password, int timeout)
+{
+	IwdManager *iwdm = ctx->wl.iwdm;
+	return iwd_manager_connect_by_ssid(iwdm, ssids, password,timeout,NULL)==true?0:-1;
+}
+
+//iwd断开无线网络
+int wireless_disconnect(NetworkMidContext *ctx)
+{
+	
+}

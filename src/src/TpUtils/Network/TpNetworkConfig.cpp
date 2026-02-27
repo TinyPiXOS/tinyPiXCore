@@ -321,4 +321,3 @@ tpBool TpNetworkConfig::isStaticDns()
 	fprintf(stderr,"get dns status error\n");
 	return TP_TRUE;
 }
-

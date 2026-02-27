@@ -42,13 +42,14 @@ GType iwd_station_get_type(void) G_GNUC_CONST;		//此函数由Glib根据G_DEFINE
 IwdStation *iwd_station_create(GDBusConnection *conn, const char *devpath, GError **error);
 int iwd_station_delete(IwdStation *self);
 
-int iwd_station_scan(IwdStation *station, GAsyncReadyCallback callback, gpointer user_data, GError **error);
+int iwd_station_scan(IwdStation *station, GError **error);
 GPtrArray* iwd_station_get_ordered_networks(IwdStation *station, GError **error);
 int iwd_station_connect(IwdStation *station, const gchar *network_path, GError **error);
 int iwd_station_disconnect(IwdStation *station, GError **error);
 char* iwd_station_get_state(IwdStation *station, GError **error);
 char* iwd_station_get_connected_network(IwdStation *station, GError **error);
 char* iwd_station_get_name(IwdStation *station, GError **error);
+gboolean iwd_station_is_scanning(IwdStation *station, GError **error);
 
 #ifdef __cplusplus
 }

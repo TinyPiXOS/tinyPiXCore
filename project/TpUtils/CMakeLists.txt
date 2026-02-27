@@ -70,6 +70,7 @@ set(SOURCE_FILES
 	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmSettings.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmConnection.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmDevice.c
+	${SOURCE_PATH}/src_p/TpUtils/Network/nm/NmWireless.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetworkAppConf.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/NetEnvironment.c
 	${SOURCE_PATH}/src_p/TpUtils/Network/dhcpcd/DhcpcdControl.c	

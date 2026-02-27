@@ -95,25 +95,26 @@ int iwd_station_delete(IwdStation *station)
     }
 }
 
-// 非阻塞扫描网络（此接口暂时不用，无法实时获取，直接使用ioctl的方式）
-int iwd_station_scan(IwdStation *station, GAsyncReadyCallback callback, gpointer user_data, GError **error)
+// 开始扫描网络（此接口暂时不用，无法实时获取，直接使用ioctl的方式）
+int iwd_station_scan(IwdStation *station, GError **error)
 {
-    g_return_val_if_fail(IWD_STATION_IS(station), FALSE);
-    
-    g_dbus_proxy_call(
-        station->priv->proxy,
-        "Scan",
-        NULL,  // parameters
-        G_DBUS_CALL_FLAGS_NONE,
-        30000,  // 30秒超时
-        NULL,   // cancellable
-		callback,
-		user_data);
-    
-    return 0;
+	g_return_val_if_fail(IWD_STATION_IS(station), FALSE);
+
+	GVariant *result = g_dbus_proxy_call_sync(
+		station->priv->proxy,
+		"Scan",
+		NULL,  // parameters
+		G_DBUS_CALL_FLAGS_NONE,
+		5000,  // timeout in milliseconds
+		NULL,
+		error);
+	if (result) {
+        g_variant_unref(result);
+    }
+	return 0;
 }
 
-// 获取有序网络列表,不管是阻塞还是非阻塞，都要等完成才能获取列表
+// 获取有序网络列表,不管是同步还是异步，都要等完成才能获取列表
 GPtrArray* iwd_station_get_ordered_networks(IwdStation *station, GError **error)
 {
     g_return_val_if_fail(IWD_STATION_IS(station), NULL);
@@ -196,12 +197,17 @@ int iwd_station_disconnect(IwdStation *station, GError **error)
 }
 
 // 获取连接状态
+//返回值如下：
+//"disconnected"​	未连接任何网络（空闲状态）
+//"connected"​		已成功连接并获取了IP地址
+//"connecting"​		正在连接过程中（认证、获取IP等）
+//"disconnecting"​	正在断开连接
+//"roaming"​		在同一ESSID内的不同AP间漫游
 char* iwd_station_get_state(IwdStation *station, GError **error)
 {
     g_return_val_if_fail(IWD_STATION_IS(station), NULL);
     
-    GVariant *value = g_dbus_proxy_get_cached_property(
-        station->priv->proxy, "State");
+    GVariant *value = g_dbus_proxy_get_cached_property(station->priv->proxy, "State");
     
     if (!value) {
         g_set_error(error, G_IO_ERROR, G_IO_ERROR_FAILED, "Failed to get State property");
@@ -253,4 +259,21 @@ char* iwd_station_get_name(IwdStation *station, GError **error)
     return result;
 }
 
+// 获取扫描状态
+gboolean iwd_station_is_scanning(IwdStation *station, GError **error)
+{
+	g_return_val_if_fail(IWD_STATION_IS(station), FALSE);
 
+	GVariant *value = g_dbus_proxy_get_cached_property(
+		station->priv->proxy, "Scanning");
+
+	if (!value) {
+		g_set_error(error, G_IO_ERROR, G_IO_ERROR_FAILED, "Failed to get Scanning property");
+		return FALSE;
+	}
+
+	gboolean is_scanning = g_variant_get_boolean(value);
+	g_variant_unref(value);
+
+	return is_scanning;
+}

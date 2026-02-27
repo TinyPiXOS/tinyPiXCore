@@ -30,6 +30,7 @@
 #include "NetworkConf.h"
 //#include "Network/NetworkManager.h"
 #include "TpNetworkInterface.h"
+#include "Network/nm/NmWireless.h"
 
 #define MAX_DNS_NUMBER 64
 #define WPA_SUPPLICATION_CONFIG "/System/conf/wap_supplication/wap_supplication.conf"
@@ -807,59 +808,7 @@ SCAN:
 
 int32_t TpNetworkInterface::connectWireless(const TpString &ssid, const TpString &psk, tpUInt32 timeout)
 {
-    TpNetworkData *device = static_cast<TpNetworkData *>(data_);
-    int32_t err = -1;
-    const char *name = ssid.c_str();
-    const char *passwd = psk.c_str();
-    char *buff = (char *)malloc(1024);
-    char *buf = (char *)malloc(200);
-    memset(buf, 0, 200);
-    char *all = buf;
-    FILE *outstream = NULL;
-    sprintf(buf, "nmcli dev wifi con %s password %s name %s", name, passwd, name);
-    if (systemCmdTimeout((const char *)buf, (uint32_t)timeout) < 0) // 执行all字符串所包含的命令
-        goto EXIT_FREE;
-    //	printf("1\n");
-    sprintf(buf, "nmcli con mod %s wifi-sec.psk %s", name, passwd); // ke'yi'sheng'lue
-    if (systemCmdTimeout((const char *)buf, (uint32_t)timeout) < 0)
-    {
-        goto EXIT_FREE;
-    }
-    //	printf("2\n");
-
-    sprintf(buf, "nmcli con up %s", name); // 启用网络连接
-    if ((outstream = popen(buf, "r")) == NULL)
-    {
-        std::cerr << "get command information error\n";
-        goto EXIT_FREE;
-    }
-    while (fgets(buff, 1024, outstream) != NULL)
-    {
-        if (strstr(buff, "error") != NULL || strstr(buff, "错误") != NULL)
-        {
-            goto EXIT;
-        }
-    }
-    //	printf("3\n");
-    // sprintf(buf, "nmcli con mod %s connection.autoconnect yes", name); // 修改网络连接的单项参数，修改为自动连接
-    if (passwd == NULL || strlen(passwd) == 0)
-    {
-        sprintf(buf, "nmcli dev wifi connect '%s' name '%s'", name, name);
-    }
-    else
-    {
-        sprintf(buf, "nmcli dev wifi connect '%s' password '%s' name '%s'", name, passwd, name);
-    }
-    if (systemCmdTimeout((const char *)buf, (uint32_t)timeout) < -1)
-        goto EXIT;
-
-    err = 0;
-EXIT:
-    pclose(outstream);
-EXIT_FREE:
-    free(buf);
-    free(buff);
-    return err;
+   return nm_wireless_connect_ssid(ssid.c_str(), psk.c_str(), timeout);
 }
 
 TpString TpNetworkInterface::getWirelessSsid()
@@ -893,11 +842,7 @@ TpString TpNetworkInterface::getWirelessSsid()
 int32_t TpNetworkInterface::disconnectWireless()
 {
     TpNetworkData *device = static_cast<TpNetworkData *>(data_);
-    char buff[1024];
-    sprintf(buff, "nmcli dev disconnect %s", device->devname.c_str());
-    if (system(buff) < 0) //
-        return -1;
-    return 0;
+    return nm_wireless_disconnect(device->devname.c_str());
 }
 
 tpInt32 TpNetworkInterface::setHotspotSsid(const TpString &ssid)

@@ -264,72 +264,240 @@ GPtrArray* iwd_manager_get_stations(IwdManager *manager, GError **error)
     return stations;
 }
 
-// 扫描 WiFi 网络
-GPtrArray* iwd_manager_scan_networks(IwdManager *manager, GError **error)
+
+//根据网卡名创建IwdStation对象
+IwdStation* iwd_manager_get_station_by_name(IwdManager *manager, const char *interface_name, GError **error)
 {
     g_return_val_if_fail(IWD_MANAGER_IS(manager), NULL);
+    g_return_val_if_fail(interface_name != NULL, NULL);
     
-    // 获取第一个站点
+    // 1. 获取所有站点路径
     GPtrArray *station_paths = iwd_manager_get_stations(manager, error);
     if (!station_paths || station_paths->len == 0) {
-        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, "No station found");
-        if (station_paths) 
-			g_ptr_array_free(station_paths, TRUE);
+        if (station_paths) {
+            g_ptr_array_free(station_paths, TRUE);
+        }
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, 
+                   "No Wi-Fi stations found");
         return NULL;
     }
     
-    gchar *station_path = g_ptr_array_index(station_paths, 0);
-    IwdStation *station = iwd_station_create(system_conn, station_path, error);
+    IwdStation *found_station = NULL;
+    
+    // 2. 遍历所有站点，查找匹配的网卡名
+    for (guint i = 0; i < station_paths->len; i++) {
+        gchar *station_path = g_ptr_array_index(station_paths, i);
+        
+        // 创建临时站点对象来获取名称
+        IwdStation *temp_station = iwd_station_create(system_conn, station_path, NULL);
+        if (!temp_station) {
+            g_warning("Failed to create temporary station for path: %s", station_path);
+            continue;
+        }
+        
+        // 获取站点名称（网卡名）
+        GError *name_error = NULL;
+        gchar *station_name = iwd_station_get_name(temp_station, &name_error);
+        
+        if (!name_error && station_name) {
+            // 比较网卡名
+            if (g_strcmp0(station_name, interface_name) == 0) {
+                // 找到匹配的，创建最终站点对象
+                found_station = iwd_station_create(system_conn, station_path, error);
+                g_free(station_name);
+                iwd_station_delete(temp_station);
+                break;
+            }
+            g_free(station_name);
+        } else if (name_error) {
+            g_warning("Failed to get name for station %s: %s", 
+                     station_path, name_error->message);
+            g_error_free(name_error);
+        }
+        
+        iwd_station_delete(temp_station);
+    }
+    
+    // 3. 清理
     g_ptr_array_free(station_paths, TRUE);
     
+    // 4. 检查是否找到
+    if (!found_station) {
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "No Wi-Fi station found with interface name: %s", interface_name);
+    }
+    
+    return found_station;
+}
+
+
+// 获取指定索引的站点（索引从0开始）
+IwdStation* iwd_manager_get_station_by_index(IwdManager *manager, int index, GError **error)
+{
+    g_return_val_if_fail(IWD_MANAGER_IS(manager), NULL);
+    
+    // 1. 获取所有站点路径
+    GPtrArray *station_paths = iwd_manager_get_stations(manager, error);
+    if (!station_paths || station_paths->len == 0) {
+        if (station_paths) {
+            g_ptr_array_free(station_paths, TRUE);
+        }
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, 
+                   "No Wi-Fi stations found");
+        return NULL;
+    }
+    
+    // 2. 检查索引是否有效
+    if (index < 0 || index >= (int)station_paths->len) {
+        g_ptr_array_free(station_paths, TRUE);
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT, "Station index %d out of range (0-%d)", 
+                   index, station_paths->len - 1);
+        return NULL;
+    }
+    
+    // 3. 获取对应路径
+    gchar *station_path = g_ptr_array_index(station_paths, index);
+    
+    // 4. 创建站点对象
+    IwdStation *station = iwd_station_create(system_conn, station_path, error);
+    
+    // 5. 清理
+    g_ptr_array_free(station_paths, TRUE);
+    
+    return station;
+}
+
+
+//把原始的网络路径列表转换成包含更多信息的网络信息列表
+//输出的类型为IwdNetworkInfo
+static GPtrArray* convert_networks_to_infos(GPtrArray *networks)
+{
+	GPtrArray *network_infos = g_ptr_array_new_with_free_func(
+		(GDestroyNotify)iwd_network_info_free);
+
+	for (guint i = 0; networks && i < networks->len; i++) 
+	{
+		gchar *network_path = g_ptr_array_index(networks, i);
+		IwdNetwork *network = iwd_network_create(system_conn, network_path, NULL);
+		
+		if (network) 
+		{
+			IwdNetworkInfo *info = g_new0(IwdNetworkInfo, 1);
+			info->path = g_strdup(network_path);
+			info->ssid = iwd_network_get_name(network, NULL);
+			info->signal_strength = iwd_network_get_signal_strength(network, NULL);
+			info->is_connected = iwd_network_get_connected(network, NULL);
+			
+			g_ptr_array_add(network_infos, info);
+			iwd_network_delete(network);
+		}
+	}
+
+	return network_infos;
+}
+
+// 扫描 WiFi 网络
+GPtrArray* iwd_manager_scan_networks(IwdManager *manager, int timeout_ms ,GError **error)
+{
+	g_return_val_if_fail(IWD_MANAGER_IS(manager), NULL);
+    
+    // 参数验证
+    if (timeout_ms <= 0) {
+        timeout_ms = 10000;  // 默认10秒
+    }
+    
+    // 获取第一个站点
+    IwdStation *station = iwd_manager_get_station_by_index(manager, 0, error);  
     if (!station) {
         return NULL;
     }
     
+    // 先检查是否已在扫描中
+    GError *scan_status_error = NULL;
+    gboolean scanning = iwd_station_is_scanning(station, &scan_status_error);
+    
+    if (scan_status_error) {
+        g_warning("Failed to check scan status: %s", scan_status_error->message);
+        g_error_free(scan_status_error);
+    }
+    
+    // 如果已经在扫描中，直接获取当前结果
+    if (scanning) {
+        GPtrArray *current_networks = iwd_station_get_ordered_networks(station, error);
+        if (current_networks) {
+            iwd_station_delete(station);
+            return convert_networks_to_infos(current_networks);
+        }
+    }
+    
     // 执行扫描
-    if (!iwd_station_scan(station, NULL, NULL, error)) {
+    if (!iwd_station_scan(station, error)) {
         iwd_station_delete(station);
         return NULL;
     }
     
     // 等待扫描完成
-    g_usleep(3000000);  // 3秒
+    gint64 end_time = g_get_monotonic_time() + timeout_ms * 1000;
+    GPtrArray *networks = NULL;
+    gboolean scan_success = FALSE;
     
-    // 获取网络列表
-    GPtrArray *networks = iwd_station_get_ordered_networks(station, error);
-    iwd_station_delete(station);
+    while (g_get_monotonic_time() < end_time) 
+    {
+        // 检查扫描状态
+        GError *check_error = NULL;
+        scanning = iwd_station_is_scanning(station, &check_error);
+        
+        if (check_error) {
+            g_warning("Failed to check scan status: %s", check_error->message);
+            g_error_free(check_error);
+            g_usleep(100000);  // 100ms
+            continue;
+        }
+        
+        if (!scanning) {
+            // 扫描完成，尝试获取网络列表
+            networks = iwd_station_get_ordered_networks(station, error);
+            
+            // 即使没有网络，也可能是成功扫描但没有发现网络
+            if (networks || (error && *error)) {
+                scan_success = TRUE;  // 扫描完成（成功或失败）
+                break;
+            }
+        }
+        
+        g_usleep(100000);  // 100ms
+    }
     
-    if (!networks) {
+    // 检查结果
+    if (!scan_success) {
+        // 超时
+        if (!(*error)) {
+            g_set_error(error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT,
+                       "Wi-Fi scan timed out after %d ms", timeout_ms);
+        }
+        iwd_station_delete(station);
         return NULL;
     }
     
-    // 转换为 IwdNetworkInfo 数组
-    GPtrArray *network_infos = g_ptr_array_new_with_free_func(
-        (GDestroyNotify)iwd_network_info_free);
-    
-    for (guint i = 0; i < networks->len; i++) 
-	{
-        gchar *network_path = g_ptr_array_index(networks, i);
-        IwdNetwork *network = iwd_network_create(system_conn,network_path, NULL);
-        
-        if (network) 
-		{
-            IwdNetworkInfo *info = g_new0(IwdNetworkInfo, 1);
-            info->path = g_strdup(network_path);
-            info->ssid = iwd_network_get_name(network, NULL);
-            info->signal_strength = iwd_network_get_signal_strength(network, NULL);
-            info->is_connected = iwd_network_get_connected(network, NULL);
-            
-            g_ptr_array_add(network_infos, info);
-            iwd_network_delete(network);
-        }
+    // 如果没有网络但也没有错误，可能只是没有发现任何网络
+    if (!networks && !(*error)) {
+        iwd_station_delete(station);
+        return g_ptr_array_new_with_free_func((GDestroyNotify)iwd_network_info_free);
     }
     
-    g_ptr_array_free(networks, TRUE);
+    // 转换网络列表
+    GPtrArray *network_infos = convert_networks_to_infos(networks);
+    
+    if (networks) {
+        g_ptr_array_free(networks, TRUE);
+    }
+    
+    iwd_station_delete(station);
     return network_infos;
 }
 
 // 连接到指定 WiFi
+// timeout:连接超时时间，单位ms
 gboolean iwd_manager_connect_to_network(IwdManager *manager,
                                         const gchar *ssid,
                                         const gchar *password,
@@ -340,14 +508,15 @@ gboolean iwd_manager_connect_to_network(IwdManager *manager,
     g_return_val_if_fail(ssid != NULL, FALSE);
     
     // 首先扫描网络
-    GPtrArray *networks = iwd_manager_scan_networks(manager, error);
+    GPtrArray *networks = iwd_manager_scan_networks(manager, 3000, error);
     if (!networks) {
         return FALSE;
     }
     
     // 查找目标网络
     gchar *target_path = NULL;
-    for (guint i = 0; i < networks->len; i++) {
+    for (guint i = 0; i < networks->len; i++) 
+	{
         IwdNetworkInfo *info = g_ptr_array_index(networks, i);
         if (g_strcmp0(info->ssid, ssid) == 0) {
             target_path = g_strdup(info->path);
@@ -377,77 +546,7 @@ gboolean iwd_manager_connect_to_network(IwdManager *manager,
     return success;
 }
 
-// 断开当前连接
-gboolean iwd_manager_disconnect(IwdManager *manager, GError **error)
-{
-    g_return_val_if_fail(IWD_MANAGER_IS(manager), FALSE);
-    
-    // 获取站点
-    GPtrArray *station_paths = iwd_manager_get_stations(manager, error);
-    if (!station_paths || station_paths->len == 0) {
-        if (station_paths) 
-			g_ptr_array_free(station_paths, TRUE);
-        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, "No station found");
-        return FALSE;
-    }
-    
-    gchar *station_path = g_ptr_array_index(station_paths, 0);
-    IwdStation *station = iwd_station_create(system_conn, station_path, error);
-    g_ptr_array_free(station_paths, TRUE);
-    
-    if (!station) {
-        return FALSE;
-    }
-    
-    // 断开连接
-    gboolean success = iwd_station_disconnect(station, error);
-    iwd_station_delete(station);
-    
-    return success;
-}
 
-// 获取当前连接的 SSID
-char* iwd_manager_get_connected_ssid(IwdManager *manager, GError **error)
-{
-    g_return_val_if_fail(IWD_MANAGER_IS(manager), NULL);
-    
-    // 获取站点
-    GPtrArray *station_paths = iwd_manager_get_stations(manager, error);
-    if (!station_paths || station_paths->len == 0) {
-        if (station_paths) g_ptr_array_free(station_paths, TRUE);
-        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, "No station found");
-        return NULL;
-    }
-    
-    gchar *station_path = g_ptr_array_index(station_paths, 0);
-    IwdStation *station = iwd_station_create(system_conn, station_path, error);
-    g_ptr_array_free(station_paths, TRUE);
-    
-    if (!station) {
-        return NULL;
-    }
-    
-    // 获取连接的网络路径
-    gchar *network_path = iwd_station_get_connected_network(station, error);
-    if (!network_path) {
-        iwd_station_delete(station);
-        return NULL;
-    }
-    
-    // 创建网络对象获取名称
-    IwdNetwork *network = iwd_network_create(system_conn,network_path, error);
-    g_free(network_path);
-    iwd_station_delete(station);
-    
-    if (!network) {
-        return NULL;
-    }
-    
-    char *ssid = iwd_network_get_name(network, error);
-    iwd_network_delete(network);
-    
-    return ssid;
-}
 
 // 释放网络信息结构
 void iwd_network_info_free(IwdNetworkInfo *info)
@@ -514,25 +613,13 @@ bool iwd_manager_connect_by_ssid(
     g_return_val_if_fail(ssid != NULL, false);
 
     // 1. 获取 station
-    GPtrArray *station_paths = iwd_manager_get_stations(manager, error);
-    if (!station_paths || station_paths->len == 0) {
-        if (station_paths)
-            g_ptr_array_free(station_paths, TRUE);
-        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, "No station found");
-        return false;
-    }
-
-    gchar *station_path = g_ptr_array_index(station_paths, 0);
-
-    IwdStation *station = iwd_station_create(system_conn, station_path, error);
-    g_ptr_array_free(station_paths, TRUE);
-
+	IwdStation *station = iwd_manager_get_station_by_index(manager, 0, error);
     if (!station) {
         return false;
     }
 
 	// 2. 触发扫描
-	iwd_station_scan(station, NULL, NULL, NULL);
+	iwd_station_scan(station,  NULL);
 
 	// 3. 等待扫描真正完成（最多等待10秒）然后获取列表
 	if (!wait_scan_complete(station, 10000)) {
@@ -550,7 +637,8 @@ bool iwd_manager_connect_by_ssid(
     // 4. 在 iwd 的结果里找目标 SSID
     char *target_path = NULL;
 
-    for (guint i = 0; i < networks->len; i++) {
+    for (guint i = 0; i < networks->len; i++) 
+	{
         gchar *path = g_ptr_array_index(networks, i);
 
         IwdNetwork *network = iwd_network_create(system_conn, path, NULL);
@@ -598,7 +686,7 @@ bool iwd_manager_connect_by_ssid(
     return ret;
 }
 
-
+// 简单连接,
 bool iwd_connect_simple(
     GDBusConnection *conn,
     const char *ssid,

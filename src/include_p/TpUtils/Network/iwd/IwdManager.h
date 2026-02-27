@@ -64,6 +64,8 @@ int iwd_manager_delete(IwdManager *self);
 void iwd_network_info_free(IwdNetworkInfo *info);
 void iwd_device_info_free(IwdDeviceInfo *info);
 
+bool iwd_manager_connect_by_ssid(IwdManager *manager,const char *ssid,const char *password,int timeout, GError **error);
+
 #ifdef __cplusplus
 }
 #endif
