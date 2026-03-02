@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <algorithm>	//find_if
+#include <iomanip>		//setw,setfill
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -23,29 +25,89 @@
 #include <linux/wireless.h>
 #include "NetworkConf.h"
 //#include "Network/NetworkManager.h"
-#include "TpWirelessConfig.h"
 #include "Network/iwd/IwdManager.h"
 #include "Network/NetworkMidInterface.h"
 #include "Network/nm/NmWireless.h"
+#include "TpWirelessConfig.h"
+#include "TpDbusConnectManage.h"
+#include "Dbus/connect.h"
 
+struct iw_essid
+{
+    uint16_t len;
+    uint16_t flags;
+    char __attribute__((aligned(8))) essid;
+};
 
 struct TpWirelessConfigData
 {
 	std::thread thread_t;
 	TpString devname;		//设备名字，需要频繁使用
-	NetworkMidContext *net_ctx;
+	struct WirelessMidInterface *wlmid;
+	WirelessMidContext *net_ctx;
+
+    std::atomic<bool> scan_is_runing;
+	TpWirelessConfigData(TpString name)
+	{
+		devname=name;
+		net_ctx=NULL;
+		scan_is_runing=false;
+	}
 };
 
 
-TpWirelessConfig::TpWirelessConfig()
+static tpBool Network_Wl_Check(const char *dev)
 {
+    int32_t sock;
+    struct iwreq wreq;
+    tpBool type = TP_FALSE;
+    memset(&wreq, 0, sizeof(wreq));
+    strncpy(wreq.ifr_name, dev, IFNAMSIZ); // 接口名称
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (ioctl(sock, SIOCGIWNAME, &wreq) == 0)
+    {
+        type = TP_TRUE;
+    }
+    close(sock);
+    return type;
+}
 
+TpWirelessConfig::TpWirelessConfig(const TpString &name)
+{
+	if(Network_Wl_Check(name.c_str())==TP_FALSE)
+	{
+		throw std::invalid_argument("该网卡不是无线网卡，请检查设备名称是否正确");
+		return;
+	}
+
+	if(TpDbusConnectManage::instance().connection()!=TP_TRUE)
+	{
+		fprintf(stderr,"[Error]:connect to dbus error\n");
+		return ;
+	}
+
+	data_ = new TpWirelessConfigData(name);
+	TpWirelessConfigData *device = static_cast<TpWirelessConfigData *>(data_);
+	if(!device)
+		return ;
+	if(!system_conn)
+		return ;
+	struct WirelessMidInterface *wlmid = wireless_mid_interface_create(system_conn,name.c_str());
+	if(!wlmid)
+		return ;
+
+	device->wlmid=wlmid;
+	device->net_ctx=&wlmid->context;
 }
 
 
 TpWirelessConfig::~TpWirelessConfig()
 {
-	
+	TpWirelessConfigData *device = static_cast<TpWirelessConfigData *>(data_);
+	if(!device)
+		return;
+	wireless_mid_interface_delete(device->wlmid);
+	delete(device);
 }
 
 // 启动无线扫描
@@ -181,7 +243,7 @@ SCAN:
     int32_t total = wrq.u.data.length; // 获取返回数据长度
                                        //    char* buffer = new char[total];
                                        //    std::memcpy(buff, wrq.u.data.pointer, total);
-    printf("get length%d\n", total);
+    printf("get length：%d\n", total);
     int32_t offset = 0;
     while (offset < total)
     {
@@ -263,7 +325,8 @@ SCAN:
 
 int32_t TpWirelessConfig::connectWireless(const TpString &ssid, const TpString &psk, tpUInt32 timeout)
 {
-   return nm_wireless_connect_ssid(ssid.c_str(), psk.c_str(), timeout);
+	TpWirelessConfigData *device = static_cast<TpWirelessConfigData *>(data_);
+   	return device->wlmid->connect_to_ssid(device->net_ctx, ssid.c_str(), psk.c_str(), timeout);
 }
 
 TpString TpWirelessConfig::getWirelessSsid()
@@ -297,7 +360,7 @@ TpString TpWirelessConfig::getWirelessSsid()
 int32_t TpWirelessConfig::disconnectWireless()
 {
     TpWirelessConfigData *device = static_cast<TpWirelessConfigData *>(data_);
-    return nmcli_disconnect_wireless(device->devname.c_str());
+    return device->wlmid->disconnect_to_ssid(device->net_ctx);
 }
 
 tpInt32 TpWirelessConfig::setHotspotSsid(const TpString &ssid)

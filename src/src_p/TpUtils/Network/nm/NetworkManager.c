@@ -13,14 +13,14 @@
 #include "Network/nm/NetworkManagerPriv.h"
 #include "Network/nm/NetworkManager.h"
 
-static GDBusConnection *system_conn = NULL;
+static GDBusConnection *dbus_conn = NULL;
 static GDBusProxy *network_manager_create_gdbus_proxy(NetworkManager *self, const gchar *dbus_interface, GError **error);
 static void network_manager_dispose(GObject *gobject);
 
 struct NetworkManagerPrivate_{
 	GDBusProxy *proxy;
 	gchar *object_path;
-//	GDBusConnection *system_conn;
+//	GDBusConnection *dbus_conn;
 };
 
 //告诉glib自己的类型和私有结构体
@@ -38,7 +38,7 @@ static void network_manager_init (NetworkManager *self)
 {
 	self->priv = network_manager_get_instance_private (self);
 	self->priv->proxy = NULL;
-//	g_assert(system_conn != NULL);
+//	g_assert(dbus_conn != NULL);
 	GError *error = NULL;
 
 	//也可以放在用户调用的new中创建私有
@@ -61,7 +61,7 @@ static void network_manager_dispose(GObject *gobject)
 static GDBusProxy *network_manager_create_gdbus_proxy(NetworkManager *self, const gchar *dbus_interface, GError **error)
 {
 	GDBusProxy *proxy=g_dbus_proxy_new_sync(
-		system_conn,                            // 已获取的连接
+		dbus_conn,                            // 已获取的连接
 		G_DBUS_PROXY_FLAGS_NONE,         // 默认标志
 		NULL,                            // 自动加载 introspection
 		NETWORK_MANAGER_DBUS_SERVER,			// D-Bus 服务名 
@@ -82,7 +82,7 @@ NetworkManager *network_manager_create(GDBusConnection *conn)
 {
 	g_return_val_if_fail(conn != NULL, NULL);
 
-	system_conn=conn;
+	dbus_conn=conn;
 	NetworkManager *self = g_object_new(NETWORK_MANAGER_TYPE,NULL);
 
 	return self;
@@ -157,7 +157,7 @@ char *network_manager_get_device_path_by_iface_fallback(NetworkManager *self, co
     while (g_variant_iter_loop(iter, "o", &path)) {
         GError *err = NULL;
         GDBusProxy *dev_proxy = g_dbus_proxy_new_sync(
-            system_conn,
+            dbus_conn,
             G_DBUS_PROXY_FLAGS_NONE,
             NULL,                                                        
             NETWORK_MANAGER_DBUS_SERVER,
@@ -301,7 +301,7 @@ int network_manager_is_connection_active(NetworkManager *self, const char *conn_
     while (g_variant_iter_loop(&iter, "o", &ac_path)) {
 
         GDBusProxy *ac = g_dbus_proxy_new_sync(
-			system_conn,
+			dbus_conn,
 			G_DBUS_PROXY_FLAGS_NONE,
 			NULL,
 			NETWORK_MANAGER_DBUS_SERVER,

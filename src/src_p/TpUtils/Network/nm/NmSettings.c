@@ -12,7 +12,7 @@
 #include "Network/nm/NmSettings.h"
 #include "Network/nm/NmUtils.h"
 
-static GDBusConnection *system_conn = NULL;
+static GDBusConnection *dbus_conn = NULL;
 
 struct NmSettingsPrivate_{
 	GDBusProxy *proxy;
@@ -54,7 +54,7 @@ static void nm_settings_finalize(GObject *gobject)
 static GDBusProxy *nm_settings_create_proxy(const gchar *path, GError **error)
 {
     GDBusProxy *proxy = g_dbus_proxy_new_sync(
-        system_conn,                               // system bus
+        dbus_conn,                               // system bus
         G_DBUS_PROXY_FLAGS_NONE,
         NULL,                               // introspection
         NETWORK_MANAGER_DBUS_SERVER,        // service
@@ -75,7 +75,7 @@ NmSettings *nm_settings_create(GDBusConnection *conn, GError **error)
 {
     g_return_val_if_fail(conn != NULL, NULL);
 
-	system_conn=conn;
+	dbus_conn=conn;
     NmSettings *self = g_object_new(NM_SETTINGS_TYPE, NULL);
 
 	self->priv->proxy = nm_settings_create_proxy(NM_SETTINGS_OBJECT_PATH, error);

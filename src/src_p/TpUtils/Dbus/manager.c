@@ -8,6 +8,7 @@ struct _ManagerPrivate
     GDBusProxy *proxy;
 
 	gchar *dbus_service_name;
+	gchar *dbus_object_path; 
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(Manager, manager, G_TYPE_OBJECT)
@@ -44,6 +45,8 @@ static void manager_dispose (GObject *gobject)
     g_clear_object (&self->priv->proxy);
 	g_clear_object (&self->priv->conn);		//不确定是否需要这一步
 
+	g_clear_pointer(&self->priv->dbus_service_name, g_free);
+    g_clear_pointer(&self->priv->dbus_object_path, g_free);
     /* Always chain up to the parent class; there is no need to check if
      * the parent class implements the dispose() virtual function: it is
      * always guaranteed to do so
@@ -165,6 +168,51 @@ static void manager_get_property(GObject *object, guint prop_id, GValue *value, 
 Manager *manager_new(GDBusConnection *conn)
 {
     return g_object_new(MANAGER_TYPE, "connection", conn, NULL);
+}
+
+
+Manager *manager_new_with_service(GDBusConnection *conn, 
+                                  const gchar *service_name,
+                                  const gchar *object_path,
+                                  GError **error)
+{
+    g_return_val_if_fail(conn != NULL, NULL);
+    g_return_val_if_fail(service_name != NULL, NULL);
+    g_return_val_if_fail(object_path != NULL, NULL);
+    
+    // 创建Manager对象
+    Manager *self = g_object_new(MANAGER_TYPE, NULL);
+    ManagerPrivate *priv = manager_get_instance_private(self);
+    
+    priv->conn = g_object_ref(conn);
+    priv->dbus_service_name = g_strdup(service_name);
+    priv->dbus_object_path = g_strdup(object_path);
+    
+    // 创建代理
+    priv->proxy = g_dbus_proxy_new_sync(
+        conn,
+        G_DBUS_PROXY_FLAGS_NONE,
+        NULL,
+        service_name,
+        object_path,
+        "org.freedesktop.DBus.ObjectManager",  // 通用接口
+        NULL,
+        error);
+    
+    if (!priv->proxy) {
+        g_object_unref(self);
+        return NULL;
+    }
+    
+    return self;
+}
+
+const gchar *manager_get_service_name(Manager *self)
+{
+    g_return_val_if_fail(MANAGER_IS(self), NULL);
+    
+    ManagerPrivate *priv = manager_get_instance_private(self);
+    return priv->dbus_service_name;
 }
 
 GVariant *manager_get_managed_objects(Manager *self, GError **error)
@@ -368,4 +416,49 @@ const gchar **manager_get_devices(Manager *self, const gchar *adapter_pattern)
     }
     else
         return NULL;
+}
+
+
+GPtrArray *manager_find_objects_by_interface(Manager *self, 
+                                            const gchar *interface_name,
+                                            GError **error)
+{
+    g_return_val_if_fail(MANAGER_IS(self), NULL);
+    g_return_val_if_fail(interface_name != NULL, NULL);
+    
+    // 获取所有对象
+    GVariant *objects = manager_get_managed_objects(self, error);
+    if (!objects) {
+        return NULL;
+    }
+    
+    GPtrArray *found_objects = g_ptr_array_new_with_free_func(g_free);
+    
+    const gchar *object_path;
+    GVariant *ifaces_and_properties;
+    GVariantIter i;
+    
+    g_variant_iter_init(&i, objects);
+    while (g_variant_iter_next(&i, "{&o@a{sa{sv}}}", 
+                               &object_path, &ifaces_and_properties)) {
+        const gchar *iface_name;
+        GVariant *properties;
+        GVariantIter ii;
+        
+        g_variant_iter_init(&ii, ifaces_and_properties);
+        while (g_variant_iter_next(&ii, "{&s@a{sv}}", 
+                                   &iface_name, &properties)) {
+            if (g_strcmp0(iface_name, interface_name) == 0) {
+                g_ptr_array_add(found_objects, g_strdup(object_path));
+                g_variant_unref(properties);
+                break;
+            }
+            g_variant_unref(properties);
+        }
+        g_variant_unref(ifaces_and_properties);
+    }
+    
+    g_variant_unref(objects);
+    
+    return found_objects;
 }

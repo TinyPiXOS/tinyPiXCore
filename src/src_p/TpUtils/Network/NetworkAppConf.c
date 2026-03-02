@@ -537,27 +537,28 @@ tpBool TpNetworkConfig::isStaticDns()
 //==================================无线网卡部分==========================================//
 
 //nmcli连接无线网络
-int nmcli_connect_wireless(NetworkMidContext *ctx, const char *ssid, const char *password, int timeout)
+int nmcli_connect_wireless(WirelessMidContext *ctx, const char *ssid, const char *password, int timeout)
 {
 	return nm_wireless_connect_ssid(ssid, password, timeout) == 0 ? 0 : -1;
 }
 
 //nmcli断开无线网络
-int nmcli_disconnect_wireless(NetworkMidContext *ctx)
+int nmcli_disconnect_wireless(WirelessMidContext *ctx)
 {
-	char *ifname = ctx->net.devname;
+	char *ifname = ctx->wl.devname;
 	return nm_wireless_disconnect((const char *)ifname);
 }
 
 //iwd连接无线网络
-int wireless_connect_network(NetworkMidContext *ctx, const char *ssids, const char *password, int timeout)
+int wireless_connect_network(WirelessMidContext *ctx, const char *ssids, const char *password, int timeout)
 {
-	IwdManager *iwdm = ctx->wl.iwdm;
-	return iwd_manager_connect_by_ssid(iwdm, ssids, password,timeout,NULL)==true?0:-1;
+	IwdStation *iwds = ctx->wl.iwds;
+	return iwd_station_connect_by_ssid(iwds, ssids, password,timeout,NULL)==true?0:-1;
 }
 
 //iwd断开无线网络
-int wireless_disconnect(NetworkMidContext *ctx)
+int wireless_disconnect_network(WirelessMidContext *ctx)
 {
-	
+	IwdStation *iwds = ctx->wl.iwds;
+	return iwd_station_disconnect(iwds, 10000, NULL);
 }

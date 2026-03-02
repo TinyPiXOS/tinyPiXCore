@@ -16,7 +16,7 @@
 #include "Network/nm/NmConnection.h"
 
 
-static GDBusConnection *system_conn = NULL;
+static GDBusConnection *dbus_conn = NULL;
 static void nm_connection_dispose(GObject *object);
 static void nm_connection_finalize(GObject *object);
 static GDBusProxy *nm_connection_create_proxy(const gchar *path, GError **error);
@@ -63,7 +63,7 @@ static void nm_connection_finalize(GObject *gobject)
 static GDBusProxy *nm_connection_create_proxy(const gchar *path, GError **error)
 {
     GDBusProxy *proxy = g_dbus_proxy_new_sync(
-        system_conn,                        // 连接对象
+        dbus_conn,                        // 连接对象
         G_DBUS_PROXY_FLAGS_NONE,            // 标志
         NULL,                               // 自动 introspection
         NETWORK_MANAGER_DBUS_SERVER,		// D-Bus 服务
@@ -87,7 +87,7 @@ NmConnection *nm_connection_create(GDBusConnection *conn, const char *conn_path,
 {
     g_return_val_if_fail(conn != NULL, NULL);
     g_return_val_if_fail(conn_path != NULL, NULL);
-	system_conn=conn;
+	dbus_conn=conn;
     NmConnection *self = g_object_new(NM_CONNECTION_TYPE, NULL);
     //self->priv->conn_path = g_strdup(conn_path);
 

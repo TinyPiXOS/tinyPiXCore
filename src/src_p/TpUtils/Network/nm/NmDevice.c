@@ -10,7 +10,7 @@
 #include "Network/nm/NetworkManager.h"
 #include "Network/nm/NmDevice.h"
 
-static GDBusConnection *system_conn = NULL;
+static GDBusConnection *dbus_conn = NULL;
 
 struct NmDevicePrivate_{
 	GDBusProxy *proxy;
@@ -53,7 +53,7 @@ static void nm_device_finalize(GObject *gobject)
 static GDBusProxy *nm_device_create_proxy(const gchar *path, GError **error)
 {
 	GDBusProxy *proxy=g_dbus_proxy_new_sync(
-		system_conn,                            // 已获取的连接
+		dbus_conn,                            // 已获取的连接
 		G_DBUS_PROXY_FLAGS_NONE,				// 默认标志
 		NULL,									// 自动加载 introspection
 		NETWORK_MANAGER_DBUS_SERVER,			// D-Bus 服务名 
@@ -77,7 +77,7 @@ NmDevice *nm_device_create(GDBusConnection *conn,
 {
     g_return_val_if_fail(conn != NULL, NULL);
 
-	system_conn=conn;
+	dbus_conn=conn;
     NmDevice *self = g_object_new(NM_DEVICE_TYPE, NULL);
 
 	self->priv->proxy = nm_device_create_proxy(devpath, error);

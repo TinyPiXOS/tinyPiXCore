@@ -20,6 +20,7 @@ extern "C"
 #define NETWORK_CONFIG_PREFIX	"TpNetworkManager_"
 
 typedef struct NetworkMidContext NetworkMidContext;
+typedef struct WirelessMidContext WirelessMidContext;
 
 
 //nm接口
@@ -69,11 +70,11 @@ int network_dhcpcd_get_ipv4_dns_list(NetworkMidContext *ctx, char ***dns);
 
 //无线网卡接口
 
-int nmcli_connect_wireless(NetworkMidContext *ctx, const char *ssid, const char *password, int timeout);
-int nmcli_disconnect_wireless(NetworkMidContext *ctx);
+int nmcli_connect_wireless(WirelessMidContext *ctx, const char *ssid, const char *password, int timeout);
+int nmcli_disconnect_wireless(WirelessMidContext *ctx);
 
-int wireless_connect_network(NetworkMidContext *ctx, const char *ssids, const char *password, int timeout);
-
+int wireless_connect_network(WirelessMidContext *ctx, const char *ssids, const char *password, int timeout);
+int wireless_disconnect_network(WirelessMidContext *ctx);
 
 
 

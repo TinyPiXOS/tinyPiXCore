@@ -2,6 +2,7 @@
 #define __TP_WIRELESS_CONFIG_H
 
 #include <TpCore.h>
+#include "TpSignalSlot.h"
 #include "TpWirelessInfo.h"
 
 TP_DEF_VOID_TYPE_VAR(ITpWirelessConfigData);
@@ -9,7 +10,7 @@ TP_DEF_VOID_TYPE_VAR(ITpWirelessConfigData);
 class TpWirelessConfig
 {
 public:
-    TpWirelessConfig();
+    TpWirelessConfig(const TpString &name);
     ~TpWirelessConfig();
 
 public:
@@ -47,6 +48,13 @@ public:
     /// @return
     tpInt32 openHotspot();
 
+public
+signals:
+    declare_signal(wirelessRemove, TpString);
+    declare_signal(wirelessAdd, TpWirelessInfo);
+
+private:
+    int threadScan(tpUInt16 time);
 
 private:
     ITpWirelessConfigData *data_;

@@ -10,6 +10,7 @@ extern "C"
 #include <stdbool.h>
 #include "Network/nm/NmConnection.h"
 #include "Network/iwd/IwdManager.h"
+#include "Network/iwd/IwdStation.h"
 
 
 typedef struct NetworkMidContext
@@ -20,12 +21,17 @@ typedef struct NetworkMidContext
 		NmConnection *nmc;
 		void *ctx;
 	}net;
-	union{
-		IwdManager *iwdm;
-	}wl;
-	
 }NetworkMidContext;
 
+
+typedef struct WirelessMidContext
+{
+	union{
+		char *devname;
+		IwdManager *iwdm;
+		IwdStation *iwds;
+	}wl;
+}WirelessMidContext;
 
 
 struct NetworkMidInterface{
@@ -90,30 +96,30 @@ struct NetworkMidInterface{
 
 struct WirelessMidInterface{
 
-	NetworkMidContext context;
+	WirelessMidContext context;
 		//无线网卡接口
 
 	/// @brief 开始扫描
-	int (*scan_network)(NetworkMidContext *context, int timeout);
+	int (*scan_network)(WirelessMidContext *context, int timeout);
 
 	/// @brief 停止扫描
-	int (*stop_scan_network)(NetworkMidContext *context);
+	int (*stop_scan_network)(WirelessMidContext *context);
 
 	/// @brief 获取扫描结果列表，返回的列表需要调用者free
-	int (*get_scan_results)(NetworkMidContext *context, char ***ssids_out);
+	int (*get_scan_results)(WirelessMidContext *context, char ***ssids_out);
 
 	/// @brief 连接到指定SSID
-	int (*connect_to_ssid)(NetworkMidContext *context, const char *ssid, const char *password, int timeout); //connect_to_ssid
+	int (*connect_to_ssid)(WirelessMidContext *context, const char *ssid, const char *password, int timeout); //connect_to_ssid
 
 	/// @brief 断开连接
-	int (*disconnect)(NetworkMidContext *context);
+	int (*disconnect_to_ssid)(WirelessMidContext *context);
 };
 
 
-struct NetworkMidInterface *network_mid_interface_create(const char *devname);
+struct NetworkMidInterface *network_mid_interface_create(GDBusConnection *conn, const char *devname);
 void network_mid_interface_delete(struct NetworkMidInterface *self);
 
-struct WirelessMidInterface *wireless_mid_interface_create(const char *devname);
+struct WirelessMidInterface *wireless_mid_interface_create(GDBusConnection *conn, const char *devname);
 void wireless_mid_interface_delete(struct WirelessMidInterface *self);
 
 

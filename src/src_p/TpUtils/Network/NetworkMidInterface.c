@@ -11,8 +11,13 @@
 #include "Network/NetEnvironment.h"
 #include "Network/nm/NmWireless.h"
 
-static int set_use_network_manager(struct NetworkMidInterface *network,struct WirelessMidInterface *wireless)
+
+//设置使用NetworkManager
+//conn暂时未用，由于直接使用了nmcli命令，因此直接使用了网卡名
+static int set_use_network_manager(GDBusConnection *conn,struct NetworkMidInterface *network,struct WirelessMidInterface *wireless)
 {
+
+
 	if(network)
 	{
 		network->set_static_ipv4 = network_set_connection_static_ipv4;
@@ -55,7 +60,7 @@ static int set_use_network_manager(struct NetworkMidInterface *network,struct Wi
 		wireless->stop_scan_network = NULL;	
 		wireless->get_scan_results = NULL;	
 		wireless->connect_to_ssid = nmcli_connect_wireless;
-		wireless->disconnect = nmcli_disconnect_wireless;
+		wireless->disconnect_to_ssid = nmcli_disconnect_wireless;
 	}
 
 	return 0;
@@ -125,19 +130,20 @@ static int set_use_iwd(struct WirelessMidInterface *self)
 	self->stop_scan_network = NULL;	
 	self->get_scan_results = NULL;	
 	self->connect_to_ssid = wireless_connect_network;
+	self->disconnect_to_ssid = wireless_disconnect_network;
 	return 0;
 }
 
 
 // 选择最佳工具组合
-static int select_best_toolset(struct NetworkMidInterface *self, const network_tools_t *tools, const char *devname) {
+static int select_best_toolset(GDBusConnection *conn, struct NetworkMidInterface *self, const network_tools_t *tools, const char *devname) {
     if (!tools) 
 		return TOOLSET_EMBEDDED;
     
     // 优先级1: NetworkManager (最完整)
     /*if (tools->has_network_manager) {
 		printf("完整网络管理解决方案，支持GUI和DBus API\n");
-		return set_use_network_manager(self,NULL);
+		return set_use_network_manager(conn, self,NULL);
     }
     
     // 优先级2: ConnMan (嵌入式网络管理)
@@ -183,33 +189,50 @@ static int select_best_toolset(struct NetworkMidInterface *self, const network_t
 }
 
 
-static int selset_best_wireless_toolset(struct WirelessMidInterface *self, const network_tools_t *tools, const char *devname)
+static int selset_best_wireless_toolset(GDBusConnection *conn, struct WirelessMidInterface *self, const network_tools_t *tools, const char *devname)
 {
 	if (!tools) 
 		return TOOLSET_EMBEDDED;
-
-	if (tools->has_network_manager) {
+	if(0);
+	/*if (tools->has_network_manager) {
 		printf("完整网络管理解决方案，支持GUI和DBus API\n");
 
-		return set_use_network_manager(NULL, self);
-    }
+		return set_use_network_manager(conn, NULL, self);
+    }*/
 
 	/*if (tools->has_connman) {
 		printf("嵌入式网络管理器，支持DBus API\n");
 		return set_use_connman(self);
     }*/
 
-	if (tools->has_systemd_networkd && tools->has_iwd) {
+	else if (tools->has_iwd) 
+	{
 		printf("iwd\n");
-
+		IwdManager *manager = iwd_manager_create(conn, NULL);
+		if(!manager)
+		{
+			printf("创建iwd manager失败\n");
+			return -1;
+		}
+		printf("创建iwd manager成功\n");
+		IwdStation *station = iwd_manager_get_station_by_name(manager, devname, NULL);
+		iwd_manager_delete(manager);
+		if(!station)
+		{
+			return -1;
+		}
+		printf("获取iwd station成功\n");
+		self->context.wl.iwds=station;
 		set_use_iwd(self);
-        return -1;
+		printf("使用iwd作为无线管理工具\n");
+        return 0;
     }
+	return -1;
 }
 
 
 
-struct NetworkMidInterface *network_mid_interface_create(const char *devname)
+struct NetworkMidInterface *network_mid_interface_create(GDBusConnection *conn, const char *devname)
 {
 	struct NetworkMidInterface *self = malloc(sizeof(struct NetworkMidInterface));
 	if(!self)
@@ -228,7 +251,7 @@ struct NetworkMidInterface *network_mid_interface_create(const char *devname)
 	self->get_dns_ipv6_auto_is_enable = NULL;
 	self->get_dns_ipv4_list = NULL;
 	network_tools_t  envir = net_environment_detect_network_tools();
-	select_best_toolset(self, &envir, devname);
+	select_best_toolset(conn, self, &envir, devname);
 
 	return self;
 }
@@ -241,7 +264,7 @@ void network_mid_interface_delete(struct NetworkMidInterface *self)
 	free(self);
 }
 
-struct WirelessMidInterface *wireless_mid_interface_create(const char *devname)
+struct WirelessMidInterface *wireless_mid_interface_create(GDBusConnection *conn, const char *devname)
 {
 	struct WirelessMidInterface *self = malloc(sizeof(struct WirelessMidInterface));
 	if(!self)
@@ -250,10 +273,14 @@ struct WirelessMidInterface *wireless_mid_interface_create(const char *devname)
 	self->stop_scan_network = NULL;
 	self->get_scan_results = NULL;
 	self->connect_to_ssid = NULL;
-	self->disconnect = NULL;
+	self->disconnect_to_ssid = NULL;
 
 	network_tools_t  envir = net_environment_detect_network_tools();
-	selset_best_wireless_toolset(self, &envir, devname);
+	if(selset_best_wireless_toolset(conn, self, &envir, devname) < 0)
+	{
+		free(self);
+		return NULL;
+	}
 	return self;
 }
 
@@ -263,12 +290,6 @@ void wireless_mid_interface_delete(struct WirelessMidInterface *self)
 		return;
 	free(self);
 }
-
-
-
-
-
-
 
 
 

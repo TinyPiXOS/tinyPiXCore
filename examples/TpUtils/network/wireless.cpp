@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Network/TpNetworkInterface.h"
 #include "Network/TpWirelessInfo.h"
+#include "Network/TpWirelessConfig.h"
 #include "TpString.h"
 
 
@@ -23,7 +24,7 @@ int example_wireless()
             { std::cout << "[Signal]网络消失：" << name<< std::endl; }, Tp::DirectConnection);
 
 	connect(&device, wirelessAdd, [=](TpWirelessInfo wifi)
-            { std::cout << "[Signal]新添网络：" << wifi.getSsid() << "  \tLevel: "<< wifi.getLevel()<<std::endl; }, Tp::DirectConnection);
+            { std::cout << "[Signal]新添网络：" << wifi.getSsid() << "  \tLevel: "<< std::to_string(wifi.getLevel())<<std::endl; }, Tp::DirectConnection);
 
 	while(1);
 
@@ -33,6 +34,30 @@ int example_wireless()
 	std::cout << "连接完成\n";
 	while(1);
 }
+
+
+int example_wireless_new()
+{
+	TpWirelessConfig device("wlx502b73e07098");
+
+	/*if(device.startScan()<0)
+		std::cout << "不能扫描\n";
+
+	connect(&device, wirelessRemove, [=](TpString name)
+            { std::cout << "[Signal]网络消失：" << name<< std::endl; }, Tp::DirectConnection);
+
+	connect(&device, wirelessAdd, [=](TpWirelessInfo wifi)
+            { std::cout << "[Signal]新添网络：" << wifi.getSsid() << "  \tLevel: "<< std::to_string(wifi.getLevel())<<std::endl; }, Tp::DirectConnection);
+
+	while(1);*/
+
+//	std::cout << "网络SSID:" << device.getWirelessSsid()<< std::endl;
+	std::cout << "准备连接\n";
+	device.connectWireless("Chingan","123456789");
+	std::cout << "连接完成\n";
+	while(1);
+}
+
 
 int example_hotspot()
 {
@@ -50,6 +75,6 @@ int example_hotspot()
 
 int main()
 {
-	example_wireless();
+	example_wireless_new();
 	return 0;
 }

@@ -118,7 +118,7 @@ TpString getManufacturer(const TpString &vendorID, const TpString &deviceID)
 }
 
 // 判断是否是无限网卡
-tpBool Network_Wl_Check(const char *dev)
+static tpBool Network_Wl_Check(const char *dev)
 {
     int32_t sock;
     struct iwreq wreq;

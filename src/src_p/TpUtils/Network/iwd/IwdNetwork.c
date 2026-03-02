@@ -9,7 +9,7 @@
 #include "Network/iwd/IwdNetwork.h"
 #include <string.h>
 
-static GDBusConnection *system_conn = NULL;
+static GDBusConnection *dbus_conn = NULL;
 // 私有结构体
 struct IwdNetworkPrivate_ {
     GDBusProxy *proxy;
@@ -22,7 +22,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(IwdNetwork, iwd_network, G_TYPE_OBJECT);
 static GDBusProxy* _network_create_proxy(const gchar *path, GError **error)
 {
     GDBusProxy *proxy = g_dbus_proxy_new_sync(
-        system_conn,
+        dbus_conn,
         G_DBUS_PROXY_FLAGS_NONE,
         NULL,  // interface info
         IWD_DBUS_SERVICE,
@@ -73,7 +73,7 @@ static void iwd_network_init(IwdNetwork *self)
 IwdNetwork* iwd_network_create(GDBusConnection *conn, const char *path, GError **error)
 {
     g_return_val_if_fail(path != NULL, NULL);
-    system_conn = conn;
+    dbus_conn = conn;
 
     IwdNetwork *self = g_object_new(IWD_NETWORK_TYPE, NULL);
     self->priv->path = g_strdup(path);
@@ -228,4 +228,17 @@ int iwd_network_get_signal_strength(IwdNetwork *network, GError **error)
     g_variant_unref(value);
     
     return strength;
+}
+
+gchar* iwd_network_get_path(IwdNetwork *network, GError **error)
+{
+    g_return_val_if_fail(IWD_NETWORK_IS(network), NULL);
+    
+    if (network->priv->path) {
+        return g_strdup(network->priv->path);
+    }
+    
+    g_set_error(error, G_IO_ERROR, G_IO_ERROR_FAILED,
+               "Network path is NULL");
+    return NULL;
 }

@@ -27,6 +27,7 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpUtils/Network/TpWirelessInfo.cpp
 	${SOURCE_PATH}/src/TpUtils/Network/TpHostAddress.cpp
 	${SOURCE_PATH}/src/TpUtils/Network/TpNetworkConfig.cpp
+	${SOURCE_PATH}/src/TpUtils/Network/TpWirelessConfig.cpp
 	
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpu.cpp
     ${SOURCE_PATH}/src/TpUtils/SystemInfo/TpCpuManage.cpp

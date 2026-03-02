@@ -10,10 +10,10 @@ extern "C" {
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
+#include "Network/iwd/IwdStation.h"
 
 
 #define IWD_MANAGER_PATH        	"/"
-#define IWD_MANAGER_INTERFACE 		"net.connman.iwd.Manager"
 
 
 
@@ -41,7 +41,6 @@ typedef struct {
     gchar *path;
     gint signal_strength;
     gboolean is_connected;
-    gboolean is_protected;
 } IwdNetworkInfo;
 
 // 设备信息结构
@@ -58,13 +57,10 @@ typedef struct {
 GType iwd_manager_get_type(void) G_GNUC_CONST;		//此函数由Glib根据G_DEFINE_TYPE_WITH_PRIVATE自动生成，此处声明是为了方便调用
 
 IwdManager *iwd_manager_create(GDBusConnection *conn, GError **error);
-int iwd_manager_delete(IwdManager *self);
-
-
+void iwd_manager_delete(IwdManager *self);
 void iwd_network_info_free(IwdNetworkInfo *info);
-void iwd_device_info_free(IwdDeviceInfo *info);
+IwdStation* iwd_manager_get_station_by_name(IwdManager *manager, const char *interface_name, GError **error);
 
-bool iwd_manager_connect_by_ssid(IwdManager *manager,const char *ssid,const char *password,int timeout, GError **error);
 
 #ifdef __cplusplus
 }

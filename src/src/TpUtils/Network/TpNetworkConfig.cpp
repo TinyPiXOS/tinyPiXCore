@@ -57,11 +57,11 @@ TpNetworkConfig::TpNetworkConfig(const TpString &name)
 	TpNetworkConfigData *device = static_cast<TpNetworkConfigData *>(data_);
 	if(!device)
 		return ;
-	struct NetworkMidInterface *netmi = network_mid_interface_create(name.c_str());
-	if(!netmi)
+	struct NetworkMidInterface *netmid = network_mid_interface_create(NULL,name.c_str());
+	if(!netmid)
 		return ;
-	device->netmi=netmi;
-	device->net_ctx=&netmi->context;
+	device->netmi=netmid;
+	device->net_ctx=&netmid->context;
 	printf("构造成功\n");
 }
 
