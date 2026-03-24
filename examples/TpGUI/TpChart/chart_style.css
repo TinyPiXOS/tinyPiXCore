@@ -1,0 +1,54 @@
+/**
+ * TpChart CSS 样式文件示例
+ *
+ * 支持的样式属性：
+ * - background-color: 设置图表背景色（支持渐变）
+ * - color: 设置系列颜色（折线图/柱状图）
+ * - border-color: 设置边框颜色
+ * - border-radius: 设置圆角
+ * - border-width: 边框宽度
+ * - padding: 内边距
+ *
+ * 选择器语法：
+ * - TpLineSeries - 所有折线图系列
+ * - TpLineSeries[name="CPU Usage"] - 指定名称的系列
+ */
+
+/* TpChart 基本样式 */
+TpChart {
+    background-color: rgb(255, 255, 255);
+    border-radius: 10;
+    border-color: rgb(200, 200, 200);
+    border-width: 1;
+    padding: 10;
+}
+
+/* 所有折线图系列的默认样式 */
+TpLineSeries {
+    color: rgb(107, 80, 246);
+    border-width: 2;
+}
+
+/* 指定名称的系列样式 - CPU Usage */
+TpLineSeries[name="CPU Usage"] {
+    color: rgb(255, 140, 0);
+    border-width: 3;
+}
+
+/* 指定名称的系列样式 - Memory Usage */
+TpLineSeries[name="Memory Usage"] {
+    color: rgb(0, 120, 212);
+    border-width: 2;
+}
+
+/* 所有柱状图系列的默认样式 */
+TpBarSeries {
+    color: linear-gradient(90deg, rgb(238, 164, 206), rgb(193, 80, 246));
+    border-width: 1;
+}
+
+/* 指定名称的柱状图样式 */
+TpBarSeries[name="System Value"] {
+    color: linear-gradient(90deg, rgb(0, 184, 148), rgb(0, 120, 212));
+    border-width: 1;
+}
