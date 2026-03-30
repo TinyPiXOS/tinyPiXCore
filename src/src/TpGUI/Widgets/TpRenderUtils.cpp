@@ -214,7 +214,8 @@ void TpRenderUtils::drawPolyline(TpPainter* painter, const TpVector<TpPoint>& po
 }
 
 // 平滑曲线（使用 Catmull-Rom 样条算法）
-void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>& points, const TpRect& clipRect, int32_t color, int32_t lineWidth, float tension) {
+void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>& points, const TpRect& clipRect, int32_t color, int32_t lineWidth, float tension)
+{
     if (points.size() < 2) return;
 
     TpPen pen(color, lineWidth);
@@ -223,63 +224,33 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
     int32_t count = points.size();
 
     if (count == 2) {
-        drawClippedLine(painter, points[0].x(), points[0].y(), points[1].x(), points[1].y(), clipRect);
+        painter->drawLine(points[0], points[1]);
         return;
     }
 
-    // Catmull-Rom 样条曲线的标准张力系数
-    // tension = 0.5 时为标准的 Catmull-Rom 曲线
-    // tension = 0  时为折线
-    // tension = 1  时曲线更松弛
     float scale = tension * 0.5f;
 
-    PointF prev, curr, next, afterNext;
-    PointF cp1, cp2;
+    for (int32_t i = 0; i < count - 1; ++i)
+    {
+        TpPoint p0 = (i == 0) ? points[i]     : points[i - 1];
+        TpPoint p1 = points[i];
+        TpPoint p2 = points[i + 1];
+        TpPoint p3 = (i + 2 < count) ? points[i + 2] : p2;
 
-    for (int32_t i = 0; i < count - 1; ++i) {
-        curr = PointF((float)points[i].x(), (float)points[i].y());
-        next = PointF((float)points[i+1].x(), (float)points[i+1].y());
+        // Catmull-Rom → Bezier
+        float cp1x = p1.x() + (p2.x() - p0.x()) * scale;
+        float cp1y = p1.y() + (p2.y() - p0.y()) * scale;
 
-        if (i == 0) {
-            prev = curr;
-        } else {
-            prev = PointF((float)points[i-1].x(), (float)points[i-1].y());
-        }
-
-        if (i + 2 < count) {
-            afterNext = PointF((float)points[i+2].x(), (float)points[i+2].y());
-        } else {
-            afterNext = next;
-        }
-
-        // 计算控制点（Catmull-Rom 样条）
-        float tan1_x = (next.x - prev.x);
-        float tan1_y = (next.y - prev.y);
-
-        float tan2_x = (afterNext.x - curr.x);
-        float tan2_y = (afterNext.y - curr.y);
-
-        cp1.x = curr.x + tan1_x * scale;
-        cp1.y = curr.y + tan1_y * scale;
-
-        cp2.x = next.x - tan2_x * scale;
-        cp2.y = next.y - tan2_y * scale;
-
-        float minX = std::min({curr.x, cp1.x, cp2.x, next.x});
-        float maxX = std::max({curr.x, cp1.x, cp2.x, next.x});
-        float minY = std::min({curr.y, cp1.y, cp2.y, next.y});
-        float maxY = std::max({curr.y, cp1.y, cp2.y, next.y});
-
-        if (maxX < clipRect.x() || minX > clipRect.right() ||
-            maxY < clipRect.y() || minY > clipRect.bottom()) {
-            continue;
-        }
+        float cp2x = p2.x() - (p3.x() - p1.x()) * scale;
+        float cp2y = p2.y() - (p3.y() - p1.y()) * scale;
 
         painter->drawCubic(
-            (int32_t)(curr.x + 0.5f), (int32_t)(curr.y + 0.5f),
-            (int32_t)(cp1.x  + 0.5f), (int32_t)(cp1.y  + 0.5f),
-            (int32_t)(cp2.x  + 0.5f), (int32_t)(cp2.y  + 0.5f),
-            (int32_t)(next.x + 0.5f), (int32_t)(next.y + 0.5f)
+            p1.x(), p1.y(),
+            (int32_t)(cp1x + 0.5f),
+            (int32_t)(cp1y + 0.5f),
+            (int32_t)(cp2x + 0.5f),
+            (int32_t)(cp2y + 0.5f),
+            p2.x(), p2.y()
         );
     }
 }
