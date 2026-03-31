@@ -90,6 +90,10 @@ set(SOURCE_FILES
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpHumidityWidget.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpLottieAnimation.cpp
     ${SOURCE_PATH}/src/TpGUI/Widgets/TpToast.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpChart.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpAxis.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpSeries.cpp
+    ${SOURCE_PATH}/src/TpGUI/Widgets/TpRenderUtils.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpObjectStack.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpSurface.cpp
     ${SOURCE_PATH}/src_p/TpGUI/GUI/TpFixScreen.cpp
