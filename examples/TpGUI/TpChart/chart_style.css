@@ -29,15 +29,21 @@ TpLineSeries {
     border-width: 2;
 }
 
-/* 指定名称的系列样式 - CPU Usage */
+/* 动态折线图 - CPU Usage */
 TpLineSeries[name="CPU Usage"] {
     color: rgb(255, 140, 0);
     border-width: 3;
 }
 
-/* 指定名称的系列样式 - Memory Usage */
+/* 动态折线图 - Memory Usage */
 TpLineSeries[name="Memory Usage"] {
     color: rgb(0, 120, 212);
+    border-width: 2;
+}
+
+/* 静态折线图（单个系列，不平滑） */
+TpLineSeries[name="Static Line"] {
+    color: rgb(220, 60, 60);
     border-width: 2;
 }
 
@@ -47,8 +53,14 @@ TpBarSeries {
     border-width: 1;
 }
 
-/* 指定名称的柱状图样式 */
+/* 动态柱状图 - System Value */
 TpBarSeries[name="System Value"] {
     color: linear-gradient(90deg, rgb(0, 184, 148), rgb(0, 120, 212));
+    border-width: 1;
+}
+
+/* 静态柱状图 - Static Bar */
+TpBarSeries[name="Static Bar"] {
+    color: linear-gradient(90deg, rgb(255, 180, 80), rgb(255, 100, 50));
     border-width: 1;
 }

@@ -39,6 +39,10 @@ struct TpChart::Impl {
     int32_t marginBottom;            // 下边距
     int32_t marginLeft;              // 左边距
     int32_t marginRight;             // 右边距
+
+    bool gridXVisible;               // X轴网格线可见性
+    bool gridYVisible;               // Y轴网格线可见性
+    int32_t gridColor;               // 网格线基础颜色
 };
 
 
@@ -51,6 +55,9 @@ TpChart::TpChart()
     m_impl->marginBottom = 60; // 留给X轴刻度
     m_impl->marginLeft = 60;   // 留给Y轴刻度
     m_impl->marginRight = 20;  // 防止溢出
+    m_impl->gridXVisible = true;
+    m_impl->gridYVisible = true;
+    m_impl->gridColor = _RGB(230, 230, 230); // 默认浅灰色网格
 
     // 显式设置背景颜色
     this->setBackGroundColor(0xFFFFFFFF, true);
@@ -111,6 +118,24 @@ void TpChart::setBackgroundColor(int32_t color) {
 void TpChart::setAxisLabels(const char* xLabel, const char* yLabel) {
     m_impl->labelX = xLabel;
     m_impl->labelY = yLabel;
+    this->update();
+}
+
+/// 设置 X 轴网格线可见性
+void TpChart::setGridXVisible(bool visible) {
+    m_impl->gridXVisible = visible;
+    this->update();
+}
+
+/// 设置 Y 轴网格线可见性
+void TpChart::setGridYVisible(bool visible) {
+    m_impl->gridYVisible = visible;
+    this->update();
+}
+
+/// 设置网格线颜色
+void TpChart::setGridColor(int32_t color) {
+    m_impl->gridColor = color;
     this->update();
 }
 
@@ -209,29 +234,45 @@ void TpChart::updateAxisRange() {
     // 判断 X 轴是否开启自动范围
     if (m_impl->axisX->isAutoRange()) {
         if (hasBarSeries) {
-            double spanX = maxX - minX;
-            if (spanX == 0) spanX = 1.0; // 容错：防止只有一个数据点时跨度为0
-            
-            // 留白大小：取总跨度的 8%
-            double paddingX = spanX * 0.08;
-            if (paddingX < 1.0) paddingX = 1.0; 
-
-            // 强行把 X 轴两边撑开
-            m_impl->axisX->setRange(minX - paddingX, maxX + paddingX);
+           double spanX = maxX - minX;
+            if (spanX <= 0) spanX = 1.0;
+            double leftPad = m_impl->axisX->xLeftPaddingRatio() * spanX;
+            double rightPad = m_impl->axisX->xRightPaddingRatio() * spanX;
+            m_impl->axisX->setRange(minX - leftPad, maxX + rightPad);
         } else {
-            // 如果只有折线图，保持原来的贴边逻辑
-            m_impl->axisX->setRange(minX, maxX);
+            // 折线图：使用左右留白比例（默认均为0，则贴边）
+            double spanX = maxX - minX;
+            if (spanX <= 0) spanX = 1.0;
+            double leftPad = m_impl->axisX->xLeftPaddingRatio() * spanX;
+            double rightPad = m_impl->axisX->xRightPaddingRatio() * spanX;
+            m_impl->axisX->setRange(minX - leftPad, maxX + rightPad);
         }
     }
 
     // 判断 Y 轴是否开启自动范围
     if (m_impl->axisY->isAutoRange()) {
-        double rangeY = maxY - minY;
-        if (rangeY == 0) rangeY = 1.0;
+        double spanY = maxY - minY;
+        if (spanY <= 0) spanY = 1.0;
         
-        double setMinY = (minY > 0) ? 0 : minY; 
+        double topPad = m_impl->axisY->yTopPaddingRatio() * spanY;
+        double bottomPad = m_impl->axisY->yBottomPaddingRatio() * spanY;
         
-        m_impl->axisY->setRange(setMinY, maxY + rangeY * 0.1);
+        double newMin = minY - bottomPad;
+        double newMax = maxY + topPad;
+        
+        // 强制包含零点，但保留留白扩展
+        if (minY > 0) {
+            // 数据全为正：最小值设为 0，并向下扩展底部留白
+            newMin = 0 - bottomPad;
+            // 最大值仍为 maxY + topPad（但 maxY>0，所以顶部留白自然生效）
+        } else if (maxY < 0) {
+            // 数据全为负：最大值设为 0，并向上扩展顶部留白
+            newMax = 0 + topPad;
+            // 最小值仍为 minY - bottomPad（自然生效）
+        }
+        // 跨零点的情况：留白已经在 newMin/newMax 中体现，无需额外处理
+        
+        m_impl->axisY->setRange(newMin, newMax);
     }
 }
 
@@ -438,20 +479,45 @@ void TpChart::drawBackground(TpPainter* painter, const TpRect& totalRect, const 
 
 /// 绘制网格
 void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
-    // 简单根据刻度数画网格
-    int32_t rows = m_impl->axisY->getTickValues().size() - 1;
-    int32_t cols = m_impl->axisX->getTickValues().size() - 1;
-    
-    if (rows < 1) rows = 5;
-    if (cols < 1) cols = 6;
+    // 1. 基础安全检查
+    if (!painter || !m_impl || !m_impl->axisX || !m_impl->axisY) {
+        return; 
+    }
 
-    TpRenderUtils::drawGrid(painter, chartRect, rows, cols, _RGB(220, 220, 220));
+    TpPen gridPen(m_impl->gridColor, 1);
 
-    // Y=0 基准线
-    if (m_impl->axisY->containsZero()) {
-        int32_t yZero = m_impl->axisY->ZeroPixel(chartRect.height(), chartRect.y(), true);
+    // 2. 绘制垂直网格线
+    if (m_impl->gridXVisible) {
+        const TpVector<double>& xTicks = m_impl->axisX->getTickValues();
+        painter->setPen(gridPen);
+        for (int32_t i = 0; i < xTicks.size(); ++i) {
+            int32_t x = m_impl->axisX->mapToPixel(xTicks[i], chartRect.width(), chartRect.x(), false);
+            if (x >= chartRect.x() && x <= chartRect.right()) {
+                painter->drawLine(x, chartRect.y(), x, chartRect.bottom());
+            }
+        }
+    }
+
+    // 3. 绘制水平网格线
+    if (m_impl->gridYVisible) {
+        const TpVector<double>& yTicks = m_impl->axisY->getTickValues();
+        painter->setPen(gridPen);
+        for (int32_t i = 0; i < yTicks.size(); ++i) {
+            int32_t y = m_impl->axisY->mapToPixel(yTicks[i], chartRect.height(), chartRect.y(), true);
+            if (y >= chartRect.y() && y <= chartRect.bottom()) {
+                painter->drawLine(chartRect.x(), y, chartRect.right(), y);
+            }
+        }
+    }
+
+    // 4. 零刻度线（X轴主线）强化绘制
+    // 增加逻辑保护，防止 min/max 异常导致的问题
+    double yMin = m_impl->axisY->min();
+    double yMax = m_impl->axisY->max();
+    if (yMin < 0 && yMax > 0) {
+        int32_t yZero = m_impl->axisY->mapToPixel(0.0, chartRect.height(), chartRect.y(), true);
         if (yZero >= chartRect.y() && yZero <= chartRect.bottom()) {
-            TpPen zeroPen(_RGB(0, 0, 0), 1);
+            TpPen zeroPen(_RGB(150, 150, 150), 1);
             painter->setPen(zeroPen);
             painter->drawLine(chartRect.x(), yZero, chartRect.right(), yZero);
         }

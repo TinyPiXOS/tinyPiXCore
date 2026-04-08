@@ -166,6 +166,55 @@ public:
     /// @return 转换后的像素坐标数组
     static TpVector<int32_t> mapAllToPixels(const TpAxis& axis, const TpVector<double>& rawData, int32_t startIndex,
                                              int32_t count, int32_t length, int32_t offset, bool inverse = false);
+    
+    /// @brief 设置固定的刻度数量（强制将坐标轴划分为固定段数，保证动画时网格线不动）
+    /// @param count 刻度数量（<=1 表示恢复自动计算）
+    void setTickCount(int32_t count);
+
+    /// @brief 设置固定的刻度步长（设置后将覆盖自动计算的步长）
+    /// @param step 刻度步长（<=0 表示恢复自动计算）
+    void setTickStep(double step);
+
+    /// @brief 设置是否开启对称范围（开启后范围将变为 [-maxAbs, maxAbs]）
+    /// @param enabled 是否开启
+    void setSymmetric(bool enabled);
+
+    /// @brief 获取是否开启了对称范围
+    /// @return 是否开启
+    bool isSymmetric() const;
+
+    /// @brief 设置是否允许 updateNiceTicks 自动调整数据范围（美化范围）
+    /// @param enabled true: 允许调整范围（默认），false: 只生成刻度值，不改变范围
+    void setAutoRangeNice(bool enabled);
+
+    /// @brief 获取是否允许自动调整范围
+    bool isAutoRangeNice() const;
+
+    /// @brief 设置是否启用滚动模式（用于动态数据滚动窗口）
+    /// @param enabled true: 启用，X轴范围左侧留白；false: 保持原始贴边逻辑
+    void setRollingMode(bool enabled);
+    
+    /// @brief 获取是否启用滚动模式
+    bool isRollingMode() const;
+
+     /// @brief 设置 X 轴方向的留白比例（相对于数据范围）
+    /// @param leftRatio  左侧留白比例，默认 0
+    /// @param rightRatio 右侧留白比例，默认 0
+    void setXPadding(double leftRatio, double rightRatio);
+    
+    /// @brief 设置 Y 轴方向的留白比例（相对于数据范围）
+    /// @param topRatio   顶部留白比例，默认 0
+    /// @param bottomRatio底部留白比例，默认 0
+    void setYPadding(double topRatio, double bottomRatio);
+    
+    /// @brief 获取当前 X 轴左侧留白比例
+    double xLeftPaddingRatio() const;
+    /// @brief 获取当前 X 轴右侧留白比例
+    double xRightPaddingRatio() const;
+    /// @brief 获取当前 Y 轴顶部留白比例
+    double yTopPaddingRatio() const;
+    /// @brief 获取当前 Y 轴底部留白比例
+    double yBottomPaddingRatio() const;
 
 private:
     /// @brief 计算人类易读步长内部函数
@@ -179,3 +228,4 @@ private:
 };
 
 #endif // TP_AXIS_H
+

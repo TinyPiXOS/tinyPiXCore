@@ -9,6 +9,7 @@
 
 
 #include "TpRenderUtils.h"
+#include "TpPainterPath.h"
 #include <TpString.h>
 #include <algorithm>
 #include <cmath>
@@ -205,11 +206,35 @@ void TpRenderUtils::drawPolyline(TpPainter* painter, const TpVector<TpPoint>& po
     TpPen pen(color, lineWidth);
     painter->setPen(pen);
 
-    for (size_t i = 0; i < points.size() - 1; ++i) {
-        const TpPoint& p1 = points[i];
-        const TpPoint& p2 = points[i+1];
-        
-        drawClippedLine(painter, p1.x(), p1.y(), p2.x(), p2.y(), clipRect);
+    // 缓存边界值
+    int32_t left = clipRect.x(), right = clipRect.right();
+    int32_t top = clipRect.y(), bottom = clipRect.bottom();
+
+    // 检查是否所有点都在裁剪区内
+    bool allInside = true;
+    for (size_t i = 0; i < points.size(); ++i) {
+        const TpPoint& p = points[i];
+        if (p.x() < left || p.x() > right || p.y() < top || p.y() > bottom) {
+            allInside = false;
+            break;
+        }
+    }
+
+    if (allInside) {
+        // 批量路径绘制（高性能）
+        TpPainterPath path;
+        path.moveTo(points[0]);
+        for (size_t i = 1; i < points.size(); ++i) {
+            path.lineTo(points[i]);
+        }
+        painter->drawPath(path);
+    } else {
+        // 逐段裁剪绘制（保证正确性，仅在有点超出时使用）
+        for (size_t i = 0; i < points.size() - 1; ++i) {
+            const TpPoint& p1 = points[i];
+            const TpPoint& p2 = points[i+1];
+            drawClippedLine(painter, p1.x(), p1.y(), p2.x(), p2.y(), clipRect);
+        }
     }
 }
 
@@ -244,6 +269,7 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
         float cp2x = p2.x() - (p3.x() - p1.x()) * scale;
         float cp2y = p2.y() - (p3.y() - p1.y()) * scale;
 
+        // ⭐ 直接使用 ThorVG cubic
         painter->drawCubic(
             p1.x(), p1.y(),
             (int32_t)(cp1x + 0.5f),
@@ -511,3 +537,4 @@ void TpRenderUtils::drawAxisY(TpPainter* painter, const TpRect& rect, const TpAx
         painter->drawText(font, drawX, drawY);
     }
 }
+

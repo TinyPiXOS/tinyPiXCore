@@ -27,11 +27,15 @@ private:
     void initCharts();
 
 private:
-    TpChart* m_chartLine;
-    TpChart* m_chartBar;
+    TpChart* m_chartLine_1;
+    TpChart* m_chartBar_1;
+    TpChart* m_chartLine_2;
+    TpChart* m_chartBar_2;
     TpLineSeries* m_lineSeries1;
     TpLineSeries* m_lineSeries2;
-    TpBarSeries* m_barSeries;
+    TpBarSeries* m_barSeries_1;
+    TpLineSeries* m_lineSeries3;
+    TpBarSeries* m_barSeries_2;
     double m_currentX;
     TpTimer* m_timer;
     TpTimer* m_barTimer;

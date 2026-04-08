@@ -13,6 +13,8 @@
 #include "TpRect.h"
 #include "TpApp.h"
 #include "TpCssData.h"
+#include <thread>
+#include <vector>
 
 /// @brief 系列私有数据类
 class TpSeriesPrivate
@@ -132,7 +134,7 @@ void TpSeries::addPoint(double x, double y)
     d_ptr->m_data.push_back(TpDataPoint(x, y));
 
     // 超出最大容量则移除最旧的数据
-    if (d_ptr->m_maxCount > 0 && d_ptr->m_data.size() > d_ptr->m_maxCount)
+    if (d_ptr->m_maxCount > 0 && d_ptr->m_data.size() > d_ptr->m_maxCount + 2)
     {
         d_ptr->m_data.remove(0);
     }
@@ -294,6 +296,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
 
     TpVector<TpPoint> pixelPoints;
 
+    // ========== 降采样分支 ==========
     if (d->m_useDownsample && d->m_data.size() > rectW * 2)
     {
         // 降采样模式：使用 Min-Max 算法
@@ -322,17 +325,36 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
             pixelPoints.push_back(TpPoint(px, pyMax));
         }
     }
+    // ========== 全量绘制分支（多线程优化，不丢失任何点） ==========
     else
     {
-        // 全量绘制模式：绘制每一个点
-        for (int32_t i = 0; i < d->m_data.size(); ++i)
-        {
-            int32_t px = axisX.mapToPixel(d->m_data[i].x, rectW, rectX, false);
-            int32_t py = axisY.mapToPixel(d->m_data[i].y, rectH, rectY, true);
-            pixelPoints.push_back(TpPoint(px, py)); 
+        const int32_t totalPoints = d->m_data.size();
+        // 预分配空间，避免动态扩容
+        pixelPoints.resize(totalPoints);
+
+        // 多线程并行映射
+        const int32_t numThreads = std::max(1, (int32_t)std::thread::hardware_concurrency());
+        std::vector<std::thread> threads;
+        int32_t chunkSize = (totalPoints + numThreads - 1) / numThreads;
+
+        auto mapper = [&](int32_t startIdx, int32_t endIdx) {
+            for (int32_t i = startIdx; i < endIdx; ++i) {
+                int32_t px = axisX.mapToPixel(d->m_data[i].x, rectW, rectX, false);
+                int32_t py = axisY.mapToPixel(d->m_data[i].y, rectH, rectY, true);
+                pixelPoints[i] = TpPoint(px, py);
+            }
+        };
+
+        for (int32_t t = 0; t < numThreads; ++t) {
+            int32_t start = t * chunkSize;
+            int32_t end = std::min(start + chunkSize, totalPoints);
+            if (start < end)
+                threads.emplace_back(mapper, start, end);
         }
+        for (auto& th : threads) th.join();
     }
 
+    // ========== 后续绘制逻辑 ==========
     // 使用动态线宽绘制折线或平滑曲线
     if (d->m_smooth)
     {
@@ -486,3 +508,4 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
         }
     }
 }
+

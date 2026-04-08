@@ -71,6 +71,18 @@ public:
     /// @return 样式表字符串
     TpString styleSheet();
 
+    /// @brief 设置 X 轴网格线是否可见（垂直网格线）
+    /// @param visible 是否可见
+    void setGridXVisible(bool visible);
+
+    /// @brief 设置 Y 轴网格线是否可见（水平网格线）
+    /// @param visible 是否可见
+    void setGridYVisible(bool visible);
+
+    /// @brief 设置网格线颜色
+    /// @param color 颜色值 (ARGB 格式)
+    void setGridColor(int32_t color);
+
 private:
     /// @brief 计算布局矩形
     /// @param totalRect 总体矩形

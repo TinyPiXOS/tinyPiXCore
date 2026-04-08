@@ -207,3 +207,4 @@ public:
 };
 
 #endif // TP_SERIES_H
+

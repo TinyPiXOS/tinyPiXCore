@@ -19,6 +19,16 @@ struct TpAxisData{
     int32_t categoryCount_ = 1;
     TpVector<double> tickValues_;
     bool autoRange_ = true;
+
+    int32_t tickCount_ = 0;   
+    double fixedStep_ = 0.0;
+    bool symmetric_ = false; // 是否强制对称标志
+    bool autoRangeNice_ = true;   // 新增：默认允许美化范围
+    bool rollingMode_ = false;   // 新增：滚动模式标志
+    double xLeftPad_ = 0.0;
+    double xRightPad_ = 0.0;
+    double yTopPad_ = 0.0;
+    double yBottomPad_ = 0.0;
 };
 
 TpAxis::TpAxis() {
@@ -165,34 +175,6 @@ double TpAxis::calculateNiceStep(double range, int32_t targetCount) {
     return niceFraction * std::pow(10, exponent);
 }
 
-void TpAxis::updateNiceTicks(int32_t targetCount) {
-    TpAxisData *d = (TpAxisData*)data_;
-    if (targetCount <= 1) {
-        d->tickValues_.clear();
-        d->tickValues_.append(d->min_);
-        return;
-    }
-
-    double range = d->max_ - d->min_;
-    d->step_ = calculateNiceStep(range, targetCount);
-
-    double eps = d->step_ * 1e-10;
-    double niceMin = std::floor((d->min_ + eps) / d->step_) * d->step_;
-    double niceMax = std::ceil((d->max_ - eps) / d->step_) * d->step_;
-
-    int32_t tickCount = static_cast<int32_t>((niceMax - niceMin) / d->step_ + 0.5);
-
-    d->tickValues_.clear();
-    for (int32_t i = 0; i <= tickCount; ++i) {
-        double val = niceMin + i * d->step_;
-        if (std::abs(val) < eps) val = 0.0;
-        d->tickValues_.append(val);
-    }
-
-    d->min_ = niceMin;
-    d->max_ = niceMax;
-}
-
 const TpVector<double>& TpAxis::getTickValues() const {
     return ((TpAxisData*)data_)->tickValues_;
 }
@@ -299,4 +281,164 @@ void TpAxis::setAutoRange(bool autoRange) {
 //  获取当前是否是自动范围
 bool TpAxis::isAutoRange() const {
     return ((TpAxisData*)data_)->autoRange_;
+}
+
+void TpAxis::setTickCount(int32_t count) {
+    ((TpAxisData*)data_)->tickCount_ = count;
+}
+
+void TpAxis::setTickStep(double step) {
+    ((TpAxisData*)data_)->fixedStep_ = step;
+}
+
+void TpAxis::setSymmetric(bool enabled) {
+    ((TpAxisData*)data_)->symmetric_ = enabled;
+}
+
+bool TpAxis::isSymmetric() const {
+    return ((TpAxisData*)data_)->symmetric_;
+}
+
+void TpAxis::updateNiceTicks(int32_t targetCount) {
+    TpAxisData *d = (TpAxisData*)data_;
+
+     if (d->mode_ == AxisMode::Category) {
+        d->tickValues_.clear();
+        for (int32_t i = 0; i < d->categoryCount_; ++i) {
+            d->tickValues_.append(static_cast<double>(i));
+        }
+        return;
+    }
+
+    // 保存原始范围（如果需要恢复）
+    double origMin = d->min_;
+    double origMax = d->max_;
+    bool restoreRange = !d->autoRangeNice_;
+
+    // --- 对称性处理：仅在允许美化范围时才修改范围 ---
+    if (d->symmetric_ && d->autoRangeNice_) {
+        double maxAbs = std::max(std::abs(d->min_), std::abs(d->max_));
+        if (maxAbs < 1e-9) maxAbs = 1.0;
+        d->min_ = -maxAbs;
+        d->max_ = maxAbs;
+    }
+
+    // 1. 固定刻度个数（不修改范围）
+    if (d->tickCount_ > 1) {
+        d->tickValues_.clear();
+        d->step_ = (d->max_ - d->min_) / (d->tickCount_ - 1);
+        for (int32_t i = 0; i < d->tickCount_; ++i) {
+            double val = d->min_ + i * d->step_;
+            if (std::abs(val) < (d->step_ * 1e-10)) val = 0.0;
+            d->tickValues_.append(val);
+        }
+        if (restoreRange) {
+            d->min_ = origMin;
+            d->max_ = origMax;
+        }
+        return;
+    }
+
+    // 2. 固定步长
+    if (d->fixedStep_ > 0) {
+        d->step_ = d->fixedStep_;
+        double eps = d->step_ * 1e-10;
+        double niceMin = std::floor((d->min_ + eps) / d->step_) * d->step_;
+        double niceMax = std::ceil((d->max_ - eps) / d->step_) * d->step_;
+        int32_t tickCount = static_cast<int32_t>((niceMax - niceMin) / d->step_ + 0.5);
+
+        d->tickValues_.clear();
+        for (int32_t i = 0; i <= tickCount; ++i) {
+            double val = niceMin + i * d->step_;
+            if (std::abs(val) < eps) val = 0.0;
+            d->tickValues_.append(val);
+        }
+
+        if (d->autoRangeNice_) {
+            d->min_ = niceMin;
+            d->max_ = niceMax;
+        } else {
+            // 不修改范围，但可能后续需要恢复（以防前面对称性修改过）
+            if (restoreRange) {
+                d->min_ = origMin;
+                d->max_ = origMax;
+            }
+        }
+        return;
+    }
+
+    // 3. 自动计算步长
+    if (targetCount <= 1) {
+        d->tickValues_.clear();
+        d->tickValues_.append(d->min_);
+        if (restoreRange) {
+            d->min_ = origMin;
+            d->max_ = origMax;
+        }
+        return;
+    }
+
+    double range = d->max_ - d->min_;
+    d->step_ = calculateNiceStep(range, targetCount);
+    double eps = d->step_ * 1e-10;
+    double niceMin = std::floor((d->min_ + eps) / d->step_) * d->step_;
+    double niceMax = std::ceil((d->max_ - eps) / d->step_) * d->step_;
+    int32_t tickCount = static_cast<int32_t>((niceMax - niceMin) / d->step_ + 0.5);
+
+    d->tickValues_.clear();
+    for (int32_t i = 0; i <= tickCount; ++i) {
+        double val = niceMin + i * d->step_;
+        if (std::abs(val) < eps) val = 0.0;
+        d->tickValues_.append(val);
+    }
+
+    if (d->autoRangeNice_) {
+        d->min_ = niceMin;
+        d->max_ = niceMax;
+    } else {
+        // 恢复原始范围
+        d->min_ = origMin;
+        d->max_ = origMax;
+    }
+}
+
+void TpAxis::setAutoRangeNice(bool enabled) {
+    ((TpAxisData*)data_)->autoRangeNice_ = enabled;
+}
+
+bool TpAxis::isAutoRangeNice() const {
+    return ((TpAxisData*)data_)->autoRangeNice_;
+}
+
+void TpAxis::setRollingMode(bool enabled) {
+    ((TpAxisData*)data_)->rollingMode_ = enabled;
+}
+
+bool TpAxis::isRollingMode() const {
+    return ((TpAxisData*)data_)->rollingMode_;
+}
+
+void TpAxis::setXPadding(double leftRatio, double rightRatio) {
+    TpAxisData* d = (TpAxisData*)data_;
+    d->xLeftPad_ = leftRatio;
+    d->xRightPad_ = rightRatio;
+}
+
+void TpAxis::setYPadding(double topRatio, double bottomRatio) {
+    TpAxisData* d = (TpAxisData*)data_;
+    d->yTopPad_ = topRatio;
+    d->yBottomPad_ = bottomRatio;
+}
+
+double TpAxis::xLeftPaddingRatio() const {
+    return ((TpAxisData*)data_)->xLeftPad_;
+}
+double TpAxis::xRightPaddingRatio() const {
+    return ((TpAxisData*)data_)->xRightPad_;
+}
+double TpAxis::yTopPaddingRatio() const {
+    return ((TpAxisData*)data_)->yTopPad_;
+}
+double TpAxis::yBottomPaddingRatio() const {
+    return ((TpAxisData*)data_)->yBottomPad_;
 }
