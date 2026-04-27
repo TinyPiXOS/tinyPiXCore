@@ -43,6 +43,7 @@ struct TpChart::Impl {
     bool gridXVisible;               // X轴网格线可见性
     bool gridYVisible;               // Y轴网格线可见性
     int32_t gridColor;               // 网格线基础颜色
+    bool cssAppliedToSeries = false; // CSS样式是否已应用到series
 };
 
 
@@ -158,6 +159,7 @@ void TpChart::removeAllSeries() {
 void TpChart::setStyleSheet(const TpString& styleSheet) {
     TpApp::Inst()->cssParser()->parseCss(styleSheet);
     refreshBaseCss();
+    m_impl->cssAppliedToSeries = false;
 }
 
 /// 获取当前样式表（CSS）
@@ -348,6 +350,21 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
     // 获取当前状态的CSS数据（用于系列绘制）
     tpShared<TpCssData> seriesCssData = currentStatusCss();
 
+    // CSS样式应用：首次绘制或样式变更后应用一次即可（运行时不变，无需每帧重复）
+    if (!m_impl->cssAppliedToSeries) {
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            TpSeries* s = m_impl->seriesList[i];
+            if (s && s->isVisible()) {
+                if (s->type() == TpSeries::TypeLine) {
+                    s->applyCssData("TpLineSeries", TpCssParser::Enabled);
+                } else if (s->type() == TpSeries::TypeBar) {
+                    s->applyCssData("TpBarSeries", TpCssParser::Enabled);
+                }
+            }
+        }
+        m_impl->cssAppliedToSeries = true;
+    }
+
     // 绘制数据 Series (柱状图/折线图)
     int32_t barSeriesCount = 0;
     for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
@@ -361,16 +378,6 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
             if (s->type() == TpSeries::TypeBar) {
                 static_cast<TpBarSeries*>(s)->setLayoutInfo(barIndex++, barSeriesCount);
             }
-
-            // 根据系列类型应用CSS样式
-            if (s->type() == TpSeries::TypeLine) {
-                // 折线图系列应用 CSS
-                s->applyCssData("TpLineSeries", TpCssParser::Enabled);
-            } else if (s->type() == TpSeries::TypeBar) {
-                // 柱状图系列应用 CSS
-                s->applyCssData("TpBarSeries", TpCssParser::Enabled);
-            }
-
             s->draw(painter, *m_impl->axisX, *m_impl->axisY, chartRect);
         }
     }
@@ -461,7 +468,7 @@ void TpChart::drawBackground(TpPainter* painter, const TpRect& totalRect, const 
     tpShared<TpCssData> curCssData = currentStatusCss();
     int32_t bgColor = curCssData->backgroundColor();
 
-    TpRenderUtils::fillGradientRect(painter, totalRect, _RGB(240, 240, 240), _RGB(255, 255, 255));
+    TpRenderUtils::fillGradientRect(painter, totalRect, _RGB(248, 248, 248), _RGB(248, 248, 248));
 
     // 使用CSS背景色或默认背景色
     if (curCssData->backgroundColorIsGradient()) {

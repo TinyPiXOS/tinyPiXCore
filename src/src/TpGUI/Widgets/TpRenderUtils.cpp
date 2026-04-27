@@ -109,13 +109,17 @@ void TpRenderUtils::fillGradientRect(TpPainter *painter, const TpRect &rect, uin
         return;
     }
 
-    for (int32_t y = 0; y < h; ++y) {
+    const int32_t STEP = 4;
+    for (int32_t y = 0; y < h; y += STEP) {
+        int32_t bandH = (y + STEP <= h) ? STEP : (h - y);
         int32_t ratio = (y * 256) / h;
-        uint32_t curColor = blendColor(colorStart, colorEnd, ratio); 
-        
-        TpPen tempPen(curColor);
-        painter->setPen(tempPen);
-        painter->drawLine(rect.x(), rect.y() + y, rect.right(), rect.y() + y);
+        uint32_t curColor = blendColor(colorStart, colorEnd, ratio);
+
+        TpPen pen(curColor);
+        TpBrush brush(curColor);
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRect(rect.x(), rect.y() + y, rect.width(), bandH);
     }
 }
 

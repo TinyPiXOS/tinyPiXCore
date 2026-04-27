@@ -13,8 +13,6 @@
 #include "TpRect.h"
 #include "TpApp.h"
 #include "TpCssData.h"
-#include <thread>
-#include <vector>
 
 /// @brief 系列私有数据类
 class TpSeriesPrivate
@@ -325,33 +323,17 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
             pixelPoints.push_back(TpPoint(px, pyMax));
         }
     }
-    // ========== 全量绘制分支（多线程优化，不丢失任何点） ==========
+    // ========== 全量绘制分支（单线程高效映射，每个点都完整绘制） ==========
     else
     {
         const int32_t totalPoints = d->m_data.size();
-        // 预分配空间，避免动态扩容
         pixelPoints.resize(totalPoints);
 
-        // 多线程并行映射
-        const int32_t numThreads = std::max(1, (int32_t)std::thread::hardware_concurrency());
-        std::vector<std::thread> threads;
-        int32_t chunkSize = (totalPoints + numThreads - 1) / numThreads;
-
-        auto mapper = [&](int32_t startIdx, int32_t endIdx) {
-            for (int32_t i = startIdx; i < endIdx; ++i) {
-                int32_t px = axisX.mapToPixel(d->m_data[i].x, rectW, rectX, false);
-                int32_t py = axisY.mapToPixel(d->m_data[i].y, rectH, rectY, true);
-                pixelPoints[i] = TpPoint(px, py);
-            }
-        };
-
-        for (int32_t t = 0; t < numThreads; ++t) {
-            int32_t start = t * chunkSize;
-            int32_t end = std::min(start + chunkSize, totalPoints);
-            if (start < end)
-                threads.emplace_back(mapper, start, end);
+        for (int32_t i = 0; i < totalPoints; ++i) {
+            int32_t px = axisX.mapToPixel(d->m_data[i].x, rectW, rectX, false);
+            int32_t py = axisY.mapToPixel(d->m_data[i].y, rectH, rectY, true);
+            pixelPoints[i] = TpPoint(px, py);
         }
-        for (auto& th : threads) th.join();
     }
 
     // ========== 后续绘制逻辑 ==========
