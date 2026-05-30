@@ -9,6 +9,26 @@
 #define _RGB(r, g, b) ((0xFF << 24) | ((r) << 16) | ((g) << 8) | (b))
 #endif
 
+namespace {
+
+/// @brief 启用鍥捐〃浜や簰
+/// @param chart 鍥捐〃鎸囬拡
+static void enableChartInteraction(TpChart* chart, bool pieMode)
+{
+    if (!chart) {
+        return;
+    }
+
+    chart->setTooltipVisible(true);
+    chart->setSelectionEnabled(true);
+    chart->setLegendClickable(true);
+    chart->setCrosshairVisible(!pieMode);
+    chart->setPanEnabled(!pieMode);
+    chart->setWheelZoomEnabled(!pieMode);
+}
+
+}
+
 MainWindowService::MainWindowService()
     : TpMainWindow(), m_scatterChart(NULL), m_pieChart(NULL), m_scatterSeriesA(NULL), m_scatterSeriesB(NULL), m_pieSeries(NULL)
 {
@@ -41,6 +61,7 @@ void MainWindowService::initCharts() {
     m_scatterChart->axisY()->setTickCount(7);
     m_scatterChart->setGridXVisible(true);
     m_scatterChart->setGridYVisible(true);
+    enableChartInteraction(m_scatterChart, false);
 
     m_scatterSeriesA = new TpScatterSeries();
     m_scatterSeriesA->setName("Cluster A");
@@ -81,6 +102,7 @@ void MainWindowService::initCharts() {
     m_pieChart->setBackgroundColor(_RGB(255, 255, 255));
     m_pieChart->setGridXVisible(false);
     m_pieChart->setGridYVisible(false);
+    enableChartInteraction(m_pieChart, true);
 
     m_pieSeries = new TpPieSeries();
     m_pieSeries->setName("Market Share");

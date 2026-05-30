@@ -9,6 +9,27 @@
 #define _RGB(r, g, b) ((0xFF << 24) | ((r) << 16) | ((g) << 8) | (b))
 #endif
 
+namespace {
+
+/// @brief 启用鍥捐〃浜や簰
+/// @param chart 鍥捐〃鎸囬拡
+/// @param pieMode 鏄惁涓洪ゼ鍥?
+static void enableChartInteraction(TpChart* chart, bool pieMode)
+{
+    if (!chart) {
+        return;
+    }
+
+    chart->setTooltipVisible(true);
+    chart->setSelectionEnabled(true);
+    chart->setLegendClickable(true);
+    chart->setCrosshairVisible(!pieMode);
+    chart->setPanEnabled(!pieMode);
+    chart->setWheelZoomEnabled(!pieMode);
+}
+
+}
+
 MainWindowService::MainWindowService()
     : TpMainWindow(), m_chartLine_1(NULL), m_chartBar_1(NULL), m_lineSeries1(NULL), m_lineSeries2(NULL), m_barSeries_1(NULL), m_currentX(-40.0), m_timer(NULL), m_lineSeries3(NULL), m_barSeries_2(NULL)
 {
@@ -106,6 +127,7 @@ void MainWindowService::initCharts() {
     m_chartLine_1->axisY()->setSymmetric(true);
     m_chartLine_1->axisY()->setTickCount(7);
     m_chartLine_1->axisY()->setYPadding(0.3, 0.5);
+    enableChartInteraction(m_chartLine_1, false);
 
     m_lineSeries1 = new TpLineSeries();
     m_lineSeries1->setName("CPU Usage");
@@ -147,6 +169,7 @@ void MainWindowService::initCharts() {
     m_chartLine_2->axisY()->setSymmetric(true);
     m_chartLine_2->setGridXVisible(true);
     m_chartLine_2->setGridYVisible(true);
+    enableChartInteraction(m_chartLine_2, false);
 
     // 只有一个折线系列，名称为 "Static Line"，关闭平滑（折线效果）
     m_lineSeries3 = new TpLineSeries();
@@ -174,6 +197,7 @@ void MainWindowService::initCharts() {
     m_chartBar_1->axisY()->setAutoRange(true);
     m_chartBar_1->axisY()->setYPadding(0.1, 0);
     m_chartBar_1->setGridXVisible(false);
+    enableChartInteraction(m_chartBar_1, false);
 
     m_barSeries_1 = new TpBarSeries();
     m_barSeries_1->setName("System Value");
@@ -197,6 +221,7 @@ void MainWindowService::initCharts() {
     m_chartBar_2->axisY()->setTickCount(6);
     m_chartBar_2->setGridXVisible(false);
     m_chartBar_2->setGridYVisible(true);
+    enableChartInteraction(m_chartBar_2, false);
 
     m_barSeries_2 = new TpBarSeries();
     m_barSeries_2->setName("Static Bar");

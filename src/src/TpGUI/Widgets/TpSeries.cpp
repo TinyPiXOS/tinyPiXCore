@@ -801,6 +801,24 @@ int32_t TpPieSeries::sliceColor(int32_t index) const
     return d->m_slices[index].color;
 }
 
+void TpPieSeries::setSliceVisible(int32_t index, bool visible)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return;
+
+    d->m_slices[index].visible = visible;
+}
+
+bool TpPieSeries::isSliceVisible(int32_t index) const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return false;
+
+    return d->m_slices[index].visible;
+}
+
 void TpPieSeries::setLabelsVisible(bool visible)
 {
     auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
@@ -828,6 +846,12 @@ void TpPieSeries::setDonutVisible(bool visible)
     }
 }
 
+bool TpPieSeries::donutVisible() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_donutVisible : false;
+}
+
 void TpPieSeries::setDonutRatio(double ratio)
 {
     auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
@@ -841,6 +865,12 @@ void TpPieSeries::setDonutRatio(double ratio)
     }
 }
 
+double TpPieSeries::donutRatio() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_donutRatio : 0.0;
+}
+
 void TpPieSeries::setStartAngle(int32_t angle)
 {
     auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
@@ -848,6 +878,12 @@ void TpPieSeries::setStartAngle(int32_t angle)
     {
         d->m_startAngle = angle;
     }
+}
+
+int32_t TpPieSeries::startAngle() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_startAngle : 0;
 }
 
 void TpPieSeries::setExplodedIndex(int32_t index)
@@ -859,6 +895,12 @@ void TpPieSeries::setExplodedIndex(int32_t index)
     }
 }
 
+int32_t TpPieSeries::explodedIndex() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_explodedIndex : -1;
+}
+
 void TpPieSeries::setExplodeDistance(int32_t distance)
 {
     auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
@@ -866,6 +908,12 @@ void TpPieSeries::setExplodeDistance(int32_t distance)
     {
         d->m_explodeDistance = distance > 0 ? distance : 0;
     }
+}
+
+int32_t TpPieSeries::explodeDistance() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_explodeDistance : 0;
 }
 
 void TpPieSeries::setLabelColor(int32_t color)
@@ -877,6 +925,12 @@ void TpPieSeries::setLabelColor(int32_t color)
     }
 }
 
+int32_t TpPieSeries::labelColor() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_labelColor : 0;
+}
+
 void TpPieSeries::setLabelSize(int32_t size)
 {
     auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
@@ -884,6 +938,12 @@ void TpPieSeries::setLabelSize(int32_t size)
     {
         d->m_labelSize = size > 0 ? size : 1;
     }
+}
+
+int32_t TpPieSeries::labelSize() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_labelSize : 0;
 }
 
 void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const TpRect& rect)
@@ -895,7 +955,11 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
     double totalValue = 0.0;
     for (int32_t i = 0; i < d->m_slices.size(); ++i)
     {
-        double value = d->m_slices[i].value;
+        const TpPieSlice& slice = d->m_slices[i];
+        if (!slice.visible)
+            continue;
+
+        double value = slice.value;
         if (value > 0.0)
         {
             totalValue += value;
@@ -939,7 +1003,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
     for (int32_t i = 0; i < d->m_slices.size(); ++i)
     {
         const TpPieSlice& slice = d->m_slices[i];
-        if (slice.value <= 0.0)
+        if (!slice.visible || slice.value <= 0.0)
             continue;
 
         double sweep = (slice.value * 360.0) / totalValue;
