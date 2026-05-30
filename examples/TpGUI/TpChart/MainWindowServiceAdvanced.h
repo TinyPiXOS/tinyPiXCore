@@ -1,5 +1,5 @@
-#ifndef MAINWINDOWSERVICE_H
-#define MAINWINDOWSERVICE_H
+#ifndef MAINWINDOWSERVICEADVANCED_H
+#define MAINWINDOWSERVICEADVANCED_H
 
 #include <TpMainWindow.h>
 #include <cstdint>
@@ -10,10 +10,10 @@ class TpChart;
 class TpScatterSeries;
 class TpPieSeries;
 
-class MainWindowService : public TpMainWindow {
+class MainWindowServiceAdvanced : public TpMainWindow {
 public:
-    MainWindowService();
-    virtual ~MainWindowService();
+    MainWindowServiceAdvanced();
+    virtual ~MainWindowServiceAdvanced();
 
     virtual bool onPaintEvent(TpPaintEvent *event) override;
     virtual bool onActiveEvent(TpActiveEvent *event) override;
@@ -30,4 +30,4 @@ private:
     TpPieSeries* m_pieSeries;
 };
 
-#endif // MAINWINDOWSERVICE_H
+#endif // MAINWINDOWSERVICEADVANCED_H

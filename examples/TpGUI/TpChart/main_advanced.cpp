@@ -1,5 +1,5 @@
 #include <TpApp.h>
-#include "MainWindowService.h"
+#include "MainWindowServiceAdvanced.h"
 #include <signal.h>
 #include <stdlib.h>
 
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     TpApp app(argc, argv);
     g_app = &app;
 
-    MainWindowService mainWindow;
+    MainWindowServiceAdvanced mainWindow;
     mainWindow.show();
 
     return app.run();

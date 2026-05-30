@@ -1,4 +1,4 @@
-#include "MainWindowService.h"
+#include "MainWindowServiceAdvanced.h"
 #include "TpChart.h"
 #include "TpSeries.h"
 #include <TpEvent.h>
@@ -11,8 +11,8 @@
 
 namespace {
 
-/// @brief 启用鍥捐〃浜や簰
-/// @param chart 鍥捐〃鎸囬拡
+/// @brief 启用图表交互
+/// @param chart 图表指针
 static void enableChartInteraction(TpChart* chart, bool pieMode)
 {
     if (!chart) {
@@ -29,13 +29,13 @@ static void enableChartInteraction(TpChart* chart, bool pieMode)
 
 }
 
-MainWindowService::MainWindowService()
+MainWindowServiceAdvanced::MainWindowServiceAdvanced()
     : TpMainWindow(), m_scatterChart(NULL), m_pieChart(NULL), m_scatterSeriesA(NULL), m_scatterSeriesB(NULL), m_pieSeries(NULL)
 {
     initCharts();
 }
 
-MainWindowService::~MainWindowService() {
+MainWindowServiceAdvanced::~MainWindowServiceAdvanced() {
     if (m_scatterChart) {
         delete m_scatterChart;
         m_scatterChart = NULL;
@@ -46,7 +46,7 @@ MainWindowService::~MainWindowService() {
     }
 }
 
-void MainWindowService::initCharts() {
+void MainWindowServiceAdvanced::initCharts() {
     m_scatterChart = new TpChart();
     m_scatterChart->setParent(this);
     m_scatterChart->setRect(10, 10, 500, 700);
@@ -139,14 +139,14 @@ void MainWindowService::initCharts() {
     m_pieChart->setStyleSheet(cssContent);
 }
 
-bool MainWindowService::onPaintEvent(TpPaintEvent *event) {
+bool MainWindowServiceAdvanced::onPaintEvent(TpPaintEvent *event) {
     return TpMainWindow::onPaintEvent(event);
 }
 
-bool MainWindowService::onActiveEvent(TpActiveEvent *event) {
+bool MainWindowServiceAdvanced::onActiveEvent(TpActiveEvent *event) {
     return TpMainWindow::onActiveEvent(event);
 }
 
-bool MainWindowService::appChange(int32_t, int32_t, int32_t, int32_t, int32_t, uint8_t, int32_t) {
+bool MainWindowServiceAdvanced::appChange(int32_t, int32_t, int32_t, int32_t, int32_t, uint8_t, int32_t) {
     return true;
 }

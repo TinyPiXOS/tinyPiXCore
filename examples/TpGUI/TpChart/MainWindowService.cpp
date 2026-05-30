@@ -11,9 +11,9 @@
 
 namespace {
 
-/// @brief 启用鍥捐〃浜や簰
-/// @param chart 鍥捐〃鎸囬拡
-/// @param pieMode 鏄惁涓洪ゼ鍥?
+/// @brief 启用图表交互
+/// @param chart 图表指针
+/// @param pieMode 是否为饼图
 static void enableChartInteraction(TpChart* chart, bool pieMode)
 {
     if (!chart) {

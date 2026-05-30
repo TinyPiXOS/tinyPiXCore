@@ -1,9 +1,9 @@
 /*
  * 版权声明 (Copyright Declaration)
- * 作者 (Author)：张家庆
- * 邮箱 (Email)：1494197384@qq.com
- * 版权所有 (Copyright)：© 2026 张家庆。All rights reserved.
- * 描述 (Description)：图表系列基类及其派生类的实现 (Pimpl 模式)
+ * 作者: 刘杨
+ * 邮箱: 825143438@qq.com
+ * 版权所有: 2026 刘杨. All rights reserved.
+ * 描述: 图表数据系列类实现 (TpSeries)
  */
 
 #include "TpSeries.h"
@@ -235,15 +235,15 @@ void TpSeries::setMaxPointCount(int32_t count)
     }
 }
 
-/// @brief 从CSS获取颜色值
-/// @param className 类名（如 "TpLineSeries" 或 "TpBarSeries"）
-/// @param status 状态（ Enabled, Hover, Pressed等）
+/// @brief 从 CSS 获取颜色值
+/// @param className 类名（例如 "TpLineSeries" 或 "TpBarSeries"）
+/// @param status 状态（Enabled, Hover, Pressed 等）
 void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus status)
 {
-    // 1. 首先读取通用类样式（如 TpLineSeries）
+    // 1. 首先读取通用类样式（例如 TpLineSeries）
     tpShared<TpCssData> cssData = TpApp::Inst()->cssParser()->readCss(className, "", status);
 
-    // 2. 尝试读取带名称的样式（如 TpLineSeries[name="CPU Usage"]）
+    // 2. 尝试读取带名称的样式（例如 TpLineSeries[name="CPU Usage"]）
     TpString typeName = name();
     if (!typeName.empty())
     {
@@ -257,7 +257,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
 
     if (cssData)
     {
-        // 设置颜色（如果CSS中定义了）
+        // 设置颜色（如果 CSS 中定义了）
         if (color() == 0xFF000000 || cssData->color() != 0)
         {
             d_ptr->m_color = cssData->color();
@@ -291,7 +291,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
     }
 }
 
-// TpLineSeries 实现
+// TpLineSeries 瀹炵幇
 
 TpLineSeries::TpLineSeries()
     : TpSeries(TypeLine)
@@ -357,7 +357,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
-    // 计算缩放因子 (基准分辨率按 800x600 算)
+    // 计算缩放因子（基准分辨率按 800x600 计算）
     double scaleX = rectW / 800.0;
     double scaleY = rectH / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY;
@@ -391,7 +391,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         // 调用 downsample 进行降采样
         TpVector<TpAxis::SamplePoint> samples = TpAxis::downsample(yData, 0, yData.size(), rectW);
 
-        // 将降采样结果转换为像素点（每个 bucket 取 min 和 max 两个点，形成垂直线效果）
+        // 将降采样结果转换为像素点（每个 bucket 取 min 和 max 两个点，形成竖线效果）
         for (int32_t i = 0; i < samples.size(); ++i)
         {
             const TpAxis::SamplePoint& sp = samples[i];
@@ -419,7 +419,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         }
     }
 
-    // ========== 后续绘制逻辑 ==========
+    // ========== 鍚庣画绘制閫昏緫 ==========
     // 使用动态线宽绘制折线或平滑曲线
     if (d->m_smooth)
     {
@@ -430,7 +430,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         TpRenderUtils::drawPolyline(painter, pixelPoints, rect, d->m_color, dynamicLineWidth);
     }
 
-    // 使用动态半径绘制数据锚点（点数较少时才绘制）
+    // 使用动态半径绘制数据点（点数较少时才绘制）
     if (pixelPoints.size() < 50)
     {
         for (int32_t i = 0; i < pixelPoints.size(); ++i)
@@ -440,7 +440,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     }
 }
 
-// TpBarSeries 实现
+// TpBarSeries 瀹炵幇
 
 TpBarSeries::TpBarSeries()
     : TpSeries(TypeBar)
@@ -574,8 +574,7 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
     }
 }
 
-// TpScatterSeries 瀹炵幇
-
+// TpScatterSeries 鐎圭偟骞?
 TpScatterSeries::TpScatterSeries()
     : TpSeries(TypeScatter)
 {
@@ -734,8 +733,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     }
 }
 
-// TpPieSeries 瀹炵幇
-
+// TpPieSeries 鐎圭偟骞?
 TpPieSeries::TpPieSeries()
     : TpSeries(TypePie)
 {

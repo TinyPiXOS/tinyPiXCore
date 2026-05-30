@@ -1,9 +1,9 @@
-﻿/*
- * 鐗堟潈澹版槑 (Copyright Declaration)
- * 浣滆€?(Author)锛氬垬鏉?
- * 閭 (Email)锛?825143438@qq.com
- * 鐗堟潈鎵€鏈?(Copyright)锛毬?2026 鍒樻潹. All rights reserved.
- * 鎻忚堪 (Description)锛氬浘琛ㄧ被瀹炵幇 (TpChart) - 鍝嶅簲寮忕缉鏀句笌鏋侀檺灏哄淇鐗?
+/*
+ * 版权声明 (Copyright Declaration)
+ * 作者: 刘杨
+ * 邮箱: 825143438@qq.com
+ * 版权所有: 2026 刘杨. All rights reserved.
+ * 描述: 图表类实现 (TpChart) - 响应式缩放与极限尺寸修复版
  */
 
 #include "TpChart.h"
@@ -15,14 +15,14 @@
 #include "TpWidget.h"
 #include <cfloat>
 #include <cmath>
-#include <cstdint> // 寮曞叆瀹氬鏁存暟绫诲瀷
+#include <cstdint> // 引入定宽整数类型
 
-// 瀹忓畾涔夐槻姝㈤鑹叉姤閿?
+// 宏定义防止颜色报错
 #ifndef _RGB
 #define _RGB(r, g, b) ((0xFF << 24) | ((r) << 16) | ((g) << 8) | (b))
 #endif
 
-// 绉佹湁瀹炵幇缁撴瀯浣撳畾涔?
+// 私有实现结构体定义
 namespace {
 
 /// @brief 图例项
@@ -97,8 +97,8 @@ static TpRect pieSeriesRect(const TpRect& chartRect, int32_t pieCount, int32_t p
 }
 
 struct TpChart::Impl {
-    TpString title;                  // 鍥捐〃鏍囬
-    int32_t backgroundColor;         // 鑳屾櫙棰滆壊
+    TpString title;                  // 图表标题
+    int32_t backgroundColor;         // 背景颜色
 
     TpAxis* axisX;                   // X 杞?
     TpAxis* axisY;                   // Y 杞?
@@ -106,17 +106,17 @@ struct TpChart::Impl {
     TpString labelX;                 // X 杞存爣绛?
     TpString labelY;                 // Y 杞存爣绛?
 
-    TpVector<TpSeries*> seriesList;  // 鏁版嵁绯诲垪鍒楄〃
+    TpVector<TpSeries*> seriesList;  // 数据绯诲垪鍒楄〃
 
-    int32_t marginTop;               // 涓婅竟璺?
-    int32_t marginBottom;            // 涓嬭竟璺?
-    int32_t marginLeft;              // 宸﹁竟璺?
-    int32_t marginRight;             // 鍙宠竟璺?
+    int32_t marginTop;               // 上边距
+    int32_t marginBottom;            // 下边距
+    int32_t marginLeft;              // 左边距
+    int32_t marginRight;             // 右边距
 
-    bool gridXVisible;               // X杞寸綉鏍肩嚎鍙鎬?
-    bool gridYVisible;               // Y杞寸綉鏍肩嚎鍙鎬?
-    int32_t gridColor;               // 缃戞牸绾垮熀纭€棰滆壊
-    bool cssAppliedToSeries = false; // CSS鏍峰紡鏄惁宸插簲鐢ㄥ埌series
+    bool gridXVisible;               // X 轴网格线可见性
+    bool gridYVisible;               // Y 轴网格线可见性
+    int32_t gridColor;               // 网格线基础颜色
+    bool cssAppliedToSeries = false; // CSS 样式是否已应用到 series
     bool tooltipVisible = false;
     bool crosshairVisible = false;
     bool selectionEnabled = false;
@@ -140,6 +140,9 @@ struct TpChart::Impl {
     int32_t hoverSliceIndex = -1;
     TpString tooltipText;
 
+    bool hasPointerPos = false;
+    TpPoint pointerPos;
+
     int32_t selectedSeriesIndex = -1;
     int32_t selectedPointIndex = -1;
     int32_t selectedSliceIndex = -1;
@@ -153,28 +156,28 @@ TpChart::TpChart()
 {
     m_impl = new Impl();
     m_impl->backgroundColor = _RGB(255, 255, 255);
-    m_impl->marginTop = 60;    // 鐣欑粰鏍囬
-    m_impl->marginBottom = 60; // 鐣欑粰X杞村埢搴?
-    m_impl->marginLeft = 60;   // 鐣欑粰Y杞村埢搴?
+    m_impl->marginTop = 60;    // 留给标题
+    m_impl->marginBottom = 60; // 留给 X 轴刻度
+    m_impl->marginLeft = 60;   // 留给 Y 轴刻度
     m_impl->marginRight = 20;  // 闃叉婧㈠嚭
     m_impl->gridXVisible = true;
     m_impl->gridYVisible = true;
-    m_impl->gridColor = _RGB(230, 230, 230); // 榛樿娴呯伆鑹茬綉鏍?
+    m_impl->gridColor = _RGB(230, 230, 230); // 默认浅灰色网格线
 
-    // 鏄惧紡璁剧疆鑳屾櫙棰滆壊
+    // 鏄惧紡设置背景颜色
     this->setBackGroundColor(0xFFFFFFFF, true);
 
-    // 鍒濆鍖朇SS鏁版嵁
+    // 鍒濆鍖朇SS数据
     enabledCssData = nullptr;
     disabledCssData = nullptr;
     hoverCssData = nullptr;
     pressCssData = nullptr;
     checkedCssData = nullptr;
 
-    // 鍒锋柊鍩虹CSS鏍峰紡
+    // 刷新基础 CSS 样式
     refreshBaseCss();
 
-    // 鑷姩鍒涘缓榛樿鍧愭爣杞?
+    // 鑷姩创建榛樿坐标轴
     m_impl->axisX = new TpAxis();
     m_impl->axisX->setMode(TpAxis::AxisMode::Value);
 
@@ -194,54 +197,54 @@ TpChart::~TpChart() {
 
 
 // 鍏叡鎺ュ彛
-/// 璁剧疆鍥捐〃鏍囬
+/// @brief 设置图表标题
 void TpChart::setTitle(const char* title) {
     m_impl->title = title;
     this->update(); 
 }
 
-/// 鑾峰彇 X 杞村紩鐢?
+/// 获取 X 杞村紩鐢?
 TpAxis* TpChart::axisX() {
     return m_impl->axisX;
 }
 
-/// 鑾峰彇 Y 杞村紩鐢?
+/// 获取 Y 杞村紩鐢?
 TpAxis* TpChart::axisY() {
     return m_impl->axisY;
 }
 
-/// 璁剧疆鍥捐〃鑳屾櫙棰滆壊
+/// @brief 设置图表背景颜色
 void TpChart::setBackgroundColor(int32_t color) {
     m_impl->backgroundColor = color;
     this->update();
 }
 
-/// 璁剧疆鍧愭爣杞存爣绛?
+/// 设置鍧愭爣杞存爣绛?
 void TpChart::setAxisLabels(const char* xLabel, const char* yLabel) {
     m_impl->labelX = xLabel;
     m_impl->labelY = yLabel;
     this->update();
 }
 
-/// 璁剧疆 X 杞寸綉鏍肩嚎鍙鎬?
+/// @brief 设置 X 轴网格线可见性
 void TpChart::setGridXVisible(bool visible) {
     m_impl->gridXVisible = visible;
     this->update();
 }
 
-/// 璁剧疆 Y 杞寸綉鏍肩嚎鍙鎬?
+/// @brief 设置 Y 轴网格线可见性
 void TpChart::setGridYVisible(bool visible) {
     m_impl->gridYVisible = visible;
     this->update();
 }
 
-/// 璁剧疆缃戞牸绾块鑹?
+/// 设置网格线颜色
 void TpChart::setGridColor(int32_t color) {
     m_impl->gridColor = color;
     this->update();
 }
 
-/// 璁剧疆鏄惁鏄剧ず鎻愮ず妗?
+/// @brief 设置是否显示提示框
 void TpChart::setTooltipVisible(bool visible) {
     m_impl->tooltipVisible = visible;
     if (!visible) {
@@ -251,13 +254,13 @@ void TpChart::setTooltipVisible(bool visible) {
     this->update();
 }
 
-/// 璁剧疆鏄惁鏄剧ず鍗佸瓧绾?
+/// @brief 设置是否显示十字线
 void TpChart::setCrosshairVisible(bool visible) {
     m_impl->crosshairVisible = visible;
     this->update();
 }
 
-/// 璁剧疆鏄惁鍚敤閫変腑
+/// @brief 设置是否启用选中
 void TpChart::setSelectionEnabled(bool enabled) {
     m_impl->selectionEnabled = enabled;
     if (!enabled) {
@@ -268,27 +271,28 @@ void TpChart::setSelectionEnabled(bool enabled) {
     this->update();
 }
 
-/// 璁剧疆鏄惁鍏佽鎷栧姩骞崇Щ
+/// @brief 设置是否允许拖拽平移
 void TpChart::setPanEnabled(bool enabled) {
     m_impl->panEnabled = enabled;
 }
 
-/// 璁剧疆鏄惁鍏佽婊氳疆缂╂斁
+/// @brief 设置是否允许滚轮缩放
 void TpChart::setWheelZoomEnabled(bool enabled) {
     m_impl->wheelZoomEnabled = enabled;
 }
 
-/// 璁剧疆鍥句緥鏄惁鍙偣鍑?
+/// @brief 设置图例是否可点击
 void TpChart::setLegendClickable(bool enabled) {
     m_impl->legendClickable = enabled;
     this->update();
 }
 
-/// 鎭㈠榛樿瑙嗗浘
+/// 恢复榛樿视图
 void TpChart::resetView() {
     m_impl->axisX->setAutoRange(true);
     m_impl->axisY->setAutoRange(true);
     clearHoverState();
+    m_impl->hasPointerPos = false;
     m_impl->mousePressed = false;
     m_impl->isDragging = false;
     m_impl->selectedSeriesIndex = -1;
@@ -297,22 +301,22 @@ void TpChart::resetView() {
     this->update();
 }
 
-/// 鑾峰彇褰撳墠閫変腑绯诲垪绱㈠紩
+/// 获取褰撳墠选中系列索引
 int32_t TpChart::selectedSeriesIndex() const {
     return m_impl ? m_impl->selectedSeriesIndex : -1;
 }
 
-/// 鑾峰彇褰撳墠閫変腑鏁版嵁鐐圭储寮?
+/// 获取褰撳墠选中数据鐐圭储寮?
 int32_t TpChart::selectedPointIndex() const {
     return m_impl ? m_impl->selectedPointIndex : -1;
 }
 
-/// 鑾峰彇褰撳墠閫変腑鍒囩墖绱㈠紩
+/// 获取褰撳墠选中切片绱㈠紩
 int32_t TpChart::selectedSliceIndex() const {
     return m_impl ? m_impl->selectedSliceIndex : -1;
 }
 
-/// 娣诲姞鏁版嵁绯诲垪
+/// 添加数据绯诲垪
 void TpChart::addSeries(TpSeries* series) {
     if (series) {
         m_impl->seriesList.push_back(series);
@@ -321,7 +325,7 @@ void TpChart::addSeries(TpSeries* series) {
     }
 }
 
-/// 绉婚櫎鎵€鏈夋暟鎹郴鍒?
+/// 移除鎵€鏈夋暟鎹郴鍒?
 void TpChart::removeAllSeries() {
     for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
         delete m_impl->seriesList[i];
@@ -329,6 +333,7 @@ void TpChart::removeAllSeries() {
     m_impl->seriesList.clear();
     m_impl->legendItems.clear();
     clearHoverState();
+    m_impl->hasPointerPos = false;
     m_impl->mousePressed = false;
     m_impl->isDragging = false;
     m_impl->selectedSeriesIndex = -1;
@@ -337,22 +342,22 @@ void TpChart::removeAllSeries() {
     this->update();
 }
 
-/// 璁剧疆鏍峰紡琛紙CSS锛?
+/// @brief 设置样式表（CSS）
 void TpChart::setStyleSheet(const TpString& styleSheet) {
     TpApp::Inst()->cssParser()->parseCss(styleSheet);
     refreshBaseCss();
     m_impl->cssAppliedToSeries = false;
 }
 
-/// 鑾峰彇褰撳墠鏍峰紡琛紙CSS锛?
+/// 获取当前样式表（CSS）
 TpString TpChart::styleSheet() {
     return TpApp::Inst()->cssParser()->cssStr();
 }
 
-/// 鑾峰彇褰撳墠鐘舵€佺殑CSS鏁版嵁
+/// 获取当前状态的 CSS 数据
 tpShared<TpCssData> TpChart::currentStatusCss() {
-    // TpChart 涓昏浣跨敤鍚敤鐘舵€佺殑CSS
-    // 濡傛灉闇€瑕佹偓鍋?鎸変笅鏁堟灉锛屽彲浠ュ湪澶栭儴閫氳繃 setChecked() 绛夋柟寮忔帶鍒?
+    // TpChart 主要使用启用状态的 CSS
+    // 如果需要悬停/按下效果，可以在外部通过 setChecked() 等方式控制
     tpShared<TpCssData> curCssData = enabledCssData;
     if (!enabled()) {
         curCssData = disabledCssData;
@@ -362,7 +367,7 @@ tpShared<TpCssData> TpChart::currentStatusCss() {
     return curCssData;
 }
 
-/// 鍒锋柊鍩虹CSS鏍峰紡
+/// 刷新基础 CSS 样式
 void TpChart::refreshBaseCss() {
     enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
     disabledCssData = readCss(pluginType(), TpCssParser::Disabled);
@@ -371,8 +376,8 @@ void TpChart::refreshBaseCss() {
     checkedCssData = readCss(pluginType(), TpCssParser::Checked);
 }
 
-// 鍐呴儴閫昏緫锛氳嚜鍔ㄨ绠楄寖鍥?
-/// 鏍规嵁鎵€鏈?Series 鏁版嵁鑷姩璋冩暣鍧愭爣杞磋寖鍥?
+// 内部逻辑：自动计算范围
+/// @brief 根据所有 Series 数据自动调整坐标轴范围
 void TpChart::updateAxisRange() {
     bool autoRangeX = m_impl->axisX->isAutoRange();
     bool autoRangeY = m_impl->axisY->isAutoRange();
@@ -384,7 +389,7 @@ void TpChart::updateAxisRange() {
     }
 
     if (m_impl->seriesList.empty()) {
-        // 濡傛灉娌℃湁鏁版嵁锛屼笖鏄嚜鍔ㄨ寖鍥达紝鎵嶈缃粯璁ゅ€?
+        // 如果没有数据，并且是自动范围，则设置默认值
         if (autoRangeX) m_impl->axisX->setRange(0, 10);
         if (autoRangeY) m_impl->axisY->setRange(0, 10);
         return;
@@ -394,7 +399,7 @@ void TpChart::updateAxisRange() {
     double minY = DBL_MAX, maxY = -DBL_MAX;
     bool hasData = false;
     
-    // 鏍囪鏄惁鏈夋煴鐘跺浘
+    // 标记是否有柱状图
     bool hasBarSeries = false; 
 
     // 閬嶅巻鎵€鏈?Series 鎵惧嚭鏈€澶ф渶灏忓€?
@@ -441,7 +446,7 @@ void TpChart::updateAxisRange() {
         return;
     }
 
-    // 鍒ゆ柇 X 杞存槸鍚﹀紑鍚嚜鍔ㄨ寖鍥?
+    // 判断 X 轴是否开启自动范围
     if (autoRangeX) {
         if (hasBarSeries) {
            double spanX = maxX - minX;
@@ -450,7 +455,7 @@ void TpChart::updateAxisRange() {
             double rightPad = m_impl->axisX->xRightPaddingRatio() * spanX;
             m_impl->axisX->setRange(minX - leftPad, maxX + rightPad);
         } else {
-            // 鎶樼嚎鍥撅細浣跨敤宸﹀彸鐣欑櫧姣斾緥锛堥粯璁ゅ潎涓?锛屽垯璐磋竟锛?
+            // 折线图：使用左右留白比例（默认均匀），则贴边
             double spanX = maxX - minX;
             if (spanX <= 0) spanX = 1.0;
             double leftPad = m_impl->axisX->xLeftPaddingRatio() * spanX;
@@ -459,7 +464,7 @@ void TpChart::updateAxisRange() {
         }
     }
 
-    // 鍒ゆ柇 Y 杞存槸鍚﹀紑鍚嚜鍔ㄨ寖鍥?
+    // 判断 Y 轴是否开启自动范围
     if (autoRangeY) {
         double spanY = maxY - minY;
         if (spanY <= 0) spanY = 1.0;
@@ -470,24 +475,24 @@ void TpChart::updateAxisRange() {
         double newMin = minY - bottomPad;
         double newMax = maxY + topPad;
         
-        // 寮哄埗鍖呭惈闆剁偣锛屼絾淇濈暀鐣欑櫧鎵╁睍
+        // 强制包含零点，但保留留白扩展
         if (minY > 0) {
-            // 鏁版嵁鍏ㄤ负姝ｏ細鏈€灏忓€艰涓?0锛屽苟鍚戜笅鎵╁睍搴曢儴鐣欑櫧
+            // 数据全为正：最小值设为 0，并向下扩展底部留白
             newMin = 0 - bottomPad;
-            // 鏈€澶у€间粛涓?maxY + topPad锛堜絾 maxY>0锛屾墍浠ラ《閮ㄧ暀鐧借嚜鐒剁敓鏁堬級
+            // 最大值仍为 maxY + topPad（但 maxY>0，因此顶部留白自然生效）
         } else if (maxY < 0) {
-            // 鏁版嵁鍏ㄤ负璐燂細鏈€澶у€艰涓?0锛屽苟鍚戜笂鎵╁睍椤堕儴鐣欑櫧
+            // 数据全为负：最大值设为 0，并向上扩展顶部留白
             newMax = 0 + topPad;
-            // 鏈€灏忓€间粛涓?minY - bottomPad锛堣嚜鐒剁敓鏁堬級
+            // 最小值仍为 minY - bottomPad（自然生效）
         }
-        // 璺ㄩ浂鐐圭殑鎯呭喌锛氱暀鐧藉凡缁忓湪 newMin/newMax 涓綋鐜帮紝鏃犻渶棰濆澶勭悊
+        // 璺ㄩ浂鐐圭殑鎯呭喌锛氱暀鐧藉凡缁忓湪 newMin/newMax 涓綋鐜帮紝鏃犻渶棰濆处理
         
         m_impl->axisY->setRange(newMin, newMax);
     }
 }
 
-// 鏍稿績缁樺埗閫昏緫
-/// 鏈€涓婚缁樺埗浜嬩欢
+// 核心绘制逻辑
+/// 鏈€涓婚绘制浜嬩欢
 bool TpChart::onPaintEvent(TpPaintEvent* event) {
     if (!event) {
         return false;
@@ -613,6 +618,10 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
         drawLegend(painter, totalRect, chartRect);
     }
 
+    if (m_impl->hasHover) {
+        drawHoverHighlight(painter, chartRect);
+    }
+
     if (m_impl->selectionEnabled) {
         drawSelection(painter, chartRect);
     }
@@ -629,7 +638,7 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
 }
 
 // 鍐呴儴绉佹湁瀹炵幇
-/// 璁＄畻甯冨眬鐭╁舰
+/// 计算甯冨眬鐭╁舰
 TpRect TpChart::calculateLayout(const TpRect& totalRect) {
     int32_t top = m_impl->marginTop;
     if (m_impl->title.empty()) top -= 20;
@@ -648,21 +657,21 @@ TpRect TpChart::calculateLayout(const TpRect& totalRect) {
     );
 }
 
-/// 缁樺埗鑳屾櫙
+/// 绘制鑳屾櫙
 void TpChart::drawBackground(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect) {
-    // 浣跨敤CSS鑳屾櫙鑹诧紙濡傛灉璁剧疆浜嗭級
+    // 使用 CSS 背景颜色（如果设置了）
     tpShared<TpCssData> curCssData = currentStatusCss();
     int32_t bgColor = curCssData->backgroundColor();
 
     TpRenderUtils::fillGradientRect(painter, totalRect, _RGB(248, 248, 248), _RGB(248, 248, 248));
 
-    // 浣跨敤CSS鑳屾櫙鑹叉垨榛樿鑳屾櫙鑹?
+    // 使用 CSS 背景颜色或默认背景颜色
     if (curCssData->backgroundColorIsGradient()) {
         TpBrush brush(curCssData->backgroundColorGradiant());
         painter->setBrush(brush);
         painter->drawRect(chartRect.x(), chartRect.y(), chartRect.width(), chartRect.height(), 0);
     } else {
-        // 浣跨敤 drawRect 濉厖鐭╁舰锛堣缃鑹插拰瀹炲績鐢诲埛锛?
+        // 使用 drawRect 填充矩形（设置颜色和实心画刷）
         painter->setPen(bgColor);
         painter->setBrush(TpBrush(bgColor));
         painter->drawRect(chartRect.x(), chartRect.y(), chartRect.width(), chartRect.height(), 0);
@@ -670,16 +679,16 @@ void TpChart::drawBackground(TpPainter* painter, const TpRect& totalRect, const 
     }
 }
 
-/// 缁樺埗缃戞牸
+/// 绘制缃戞牸
 void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
-    // 1. 鍩虹瀹夊叏妫€鏌?
+    // 1. 基础瀹夊叏妫€鏌?
     if (!painter || !m_impl || !m_impl->axisX || !m_impl->axisY) {
         return; 
     }
 
     TpPen gridPen(m_impl->gridColor, 1);
 
-    // 2. 缁樺埗鍨傜洿缃戞牸绾?
+    // 2. 绘制鍨傜洿网格线
     if (m_impl->gridXVisible) {
         const TpVector<double>& xTicks = m_impl->axisX->getTickValues();
         painter->setPen(gridPen);
@@ -691,7 +700,7 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
         }
     }
 
-    // 3. 缁樺埗姘村钩缃戞牸绾?
+    // 3. 绘制姘村钩网格线
     if (m_impl->gridYVisible) {
         const TpVector<double>& yTicks = m_impl->axisY->getTickValues();
         painter->setPen(gridPen);
@@ -703,7 +712,7 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
         }
     }
 
-    // 4. 闆跺埢搴︾嚎锛圶杞翠富绾匡級寮哄寲缁樺埗
+    // 4. 闆跺埢搴︾嚎锛圶杞翠富绾匡級寮哄寲绘制
     // 澧炲姞閫昏緫淇濇姢锛岄槻姝?min/max 寮傚父瀵艰嚧鐨勯棶棰?
     double yMin = m_impl->axisY->min();
     double yMax = m_impl->axisY->max();
@@ -717,7 +726,7 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
     }
 }
 
-/// 缁樺埗鏍囬
+/// 绘制标题
 void TpChart::drawTitle(TpPainter* painter, const TpRect& totalRect) {
     if (m_impl->title.empty()) return;
     
@@ -728,7 +737,7 @@ void TpChart::drawTitle(TpPainter* painter, const TpRect& totalRect) {
     if (scale < 0.5) scale = 0.5;
     if (scale > 2.5) scale = 2.5;
 
-    // 鍔ㄦ€佽绠楁爣棰樺瓧浣撳ぇ灏?(鍩哄噯 18px)
+    // 动态计算标题字体大小（基准 18px）
     int32_t titleFontSize = (int32_t)(18 * scale);
     if (titleFontSize < 10) titleFontSize = 10;
 
@@ -794,7 +803,7 @@ void TpChart::drawPieChart(TpPainter* painter, const TpRect& chartRect) {
     }
 }
 
-/// @brief 璁＄畻褰撳墠甯冨眬鐘舵€?
+/// @brief 计算褰撳墠甯冨眬鐘舵€?
 void TpChart::prepareLayoutState(const TpRect& totalRect, TpRect& chartRect, bool& showTitleAndLegend, bool& showAxisLabels,
                                  bool& showAxisTicks, bool& pieChartMode, double& scale)
 {
@@ -837,7 +846,7 @@ void TpChart::prepareLayoutState(const TpRect& totalRect, TpRect& chartRect, boo
     chartRect = calculateLayout(totalRect);
 }
 
-/// @brief 鏋勫缓鍥句緥鏁版嵁
+/// @brief 构建图例数据
 void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, TpVector<const char*>& names,
                               TpVector<int32_t>& colors, TpVector<int32_t>& endColors, TpVector<int32_t>& types)
 {
@@ -955,7 +964,7 @@ void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, 
     }
 }
 
-/// @brief 缁樺埗鍥句緥
+/// @brief 绘制图例
 void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect)
 {
     if (!painter || !m_impl) return;
@@ -1044,8 +1053,8 @@ void TpChart::clearHoverState()
     m_impl->tooltipText.clear();
 }
 
-/// @brief 鍛戒腑娴嬭瘯
-/// @brief 鍛戒腑娴嬭瘯
+/// @brief 命中测试
+/// @brief 命中测试
 bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMode, int32_t& seriesIndex, int32_t& pointIndex,
                         int32_t& sliceIndex, TpString& text, TpPoint& hitPos)
 {
@@ -1279,7 +1288,7 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
 
     return hit;
 }
-/// @brief 鎸夊綋鍓嶄綅缃缉鏀惧潗鏍囪酱
+/// @brief 按当前位置缩放坐标轴
 void TpChart::zoomAxisAt(const TpPoint& pos, const TpRect& chartRect, double factor)
 {
     if (!m_impl || factor <= 0.0) return;
@@ -1299,10 +1308,31 @@ void TpChart::zoomAxisAt(const TpPoint& pos, const TpRect& chartRect, double fac
     double yMin = m_impl->axisY->min();
     double yMax = m_impl->axisY->max();
 
+    double xSpan = xMax - xMin;
+    double ySpan = yMax - yMin;
+    if (xSpan == 0.0) xSpan = 1.0;
+    if (ySpan == 0.0) ySpan = 1.0;
+
     double newXMin = xAnchor - (xAnchor - xMin) * factor;
     double newXMax = xAnchor + (xMax - xAnchor) * factor;
     double newYMin = yAnchor - (yAnchor - yMin) * factor;
     double newYMax = yAnchor + (yMax - yAnchor) * factor;
+
+    double minXSpan = std::abs(xSpan) / (chartRect.width() > 0 ? chartRect.width() : 1);
+    double minYSpan = std::abs(ySpan) / (chartRect.height() > 0 ? chartRect.height() : 1);
+    if (minXSpan < 1e-6) minXSpan = 1e-6;
+    if (minYSpan < 1e-6) minYSpan = 1e-6;
+
+    if (newXMax - newXMin < minXSpan) {
+        double midX = (newXMin + newXMax) * 0.5;
+        newXMin = midX - minXSpan * 0.5;
+        newXMax = midX + minXSpan * 0.5;
+    }
+    if (newYMax - newYMin < minYSpan) {
+        double midY = (newYMin + newYMax) * 0.5;
+        newYMin = midY - minYSpan * 0.5;
+        newYMax = midY + minYSpan * 0.5;
+    }
 
     if (newXMin == newXMax) {
         newXMin -= 1.0;
@@ -1317,18 +1347,21 @@ void TpChart::zoomAxisAt(const TpPoint& pos, const TpRect& chartRect, double fac
     m_impl->axisY->setRange(newYMin, newYMax);
 }
 
-/// @brief 鎸夊綋鍓嶄綅缃钩绉诲潗鏍囪酱
+/// @brief 按当前位置平移坐标轴
 void TpChart::panAxisTo(const TpPoint& pos, const TpRect& chartRect)
 {
     if (!m_impl) return;
 
-    double startX = m_impl->axisX->mapToValue(m_impl->dragStartPos.x(), chartRect.width(), chartRect.x(), false);
-    double currentX = m_impl->axisX->mapToValue(pos.x(), chartRect.width(), chartRect.x(), false);
-    double deltaX = currentX - startX;
+    double width = chartRect.width() > 0 ? chartRect.width() : 1;
+    double height = chartRect.height() > 0 ? chartRect.height() : 1;
 
-    double startY = m_impl->axisY->mapToValue(m_impl->dragStartPos.y(), chartRect.height(), chartRect.y(), true);
-    double currentY = m_impl->axisY->mapToValue(pos.y(), chartRect.height(), chartRect.y(), true);
-    double deltaY = currentY - startY;
+    double startXSpan = m_impl->dragStartXMax - m_impl->dragStartXMin;
+    double startYSpan = m_impl->dragStartYMax - m_impl->dragStartYMin;
+    double valuePerPixelX = startXSpan / width;
+    double valuePerPixelY = startYSpan / height;
+
+    double deltaX = (pos.x() - m_impl->dragStartPos.x()) * valuePerPixelX;
+    double deltaY = (pos.y() - m_impl->dragStartPos.y()) * valuePerPixelY;
 
     m_impl->axisX->setAutoRange(false);
     m_impl->axisY->setAutoRange(false);
@@ -1336,7 +1369,7 @@ void TpChart::panAxisTo(const TpPoint& pos, const TpRect& chartRect)
     m_impl->axisY->setRange(m_impl->dragStartYMin - deltaY, m_impl->dragStartYMax - deltaY);
 }
 
-/// @brief 澶勭悊鍥句緥鐐瑰嚮
+/// @brief 处理图例点击
 bool TpChart::toggleLegendAt(const TpPoint& pos, const TpRect& totalRect, const TpRect& chartRect)
 {
     if (!m_impl || !m_impl->legendClickable) return false;
@@ -1384,7 +1417,7 @@ bool TpChart::toggleLegendAt(const TpPoint& pos, const TpRect& totalRect, const 
     return false;
 }
 
-/// @brief 缁樺埗鎻愮ず妗?
+/// @brief 绘制提示框
 void TpChart::drawTooltip(TpPainter* painter, const TpRect& chartRect)
 {
     if (!painter || !m_impl || !m_impl->tooltipVisible || !m_impl->hasHover || m_impl->tooltipText.empty()) {
@@ -1431,7 +1464,7 @@ void TpChart::drawTooltip(TpPainter* painter, const TpRect& chartRect)
     painter->drawText(font, x + (int32_t)(6 * scale), y + (int32_t)(4 * scale));
 }
 
-/// @brief 缁樺埗鍗佸瓧绾?
+/// @brief 绘制十字线
 void TpChart::drawCrosshair(TpPainter* painter, const TpRect& chartRect)
 {
     if (!painter || !m_impl || !m_impl->crosshairVisible || !m_impl->hasHover || !pointInRect(chartRect, m_impl->hoverPos)) {
@@ -1444,7 +1477,184 @@ void TpChart::drawCrosshair(TpPainter* painter, const TpRect& chartRect)
     painter->drawLine(chartRect.x(), m_impl->hoverPos.y(), chartRect.right(), m_impl->hoverPos.y());
 }
 
-/// @brief 缁樺埗閫変腑鏁堟灉
+/// @brief 绘制悬停高亮
+void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
+{
+    if (!painter || !m_impl || !m_impl->hasHover || m_impl->hoverSeriesIndex < 0 || m_impl->hoverSeriesIndex >= m_impl->seriesList.size()) {
+        return;
+    }
+
+    TpSeries* s = m_impl->seriesList[m_impl->hoverSeriesIndex];
+    if (!s || !s->isVisible()) {
+        return;
+    }
+
+    double scaleX = chartRect.width() / 800.0;
+    double scaleY = chartRect.height() / 600.0;
+    double scale = scaleX < scaleY ? scaleX : scaleY;
+    if (scale < 0.5) scale = 0.5;
+    if (scale > 2.5) scale = 2.5;
+
+    if (s->type() == TpSeries::TypePie && m_impl->hoverSliceIndex >= 0) {
+        TpPieSeries* pieSeries = static_cast<TpPieSeries*>(s);
+        int32_t pieCount = 0;
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            TpSeries* cur = m_impl->seriesList[i];
+            if (cur && cur->isVisible() && cur->type() == TpSeries::TypePie) {
+                pieCount++;
+            }
+        }
+
+        int32_t pieIndex = 0;
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            TpSeries* cur = m_impl->seriesList[i];
+            if (!cur || !cur->isVisible() || cur->type() != TpSeries::TypePie) {
+                continue;
+            }
+            if (i != m_impl->hoverSeriesIndex) {
+                pieIndex++;
+                continue;
+            }
+
+            TpRect pieRect = pieSeriesRect(chartRect, pieCount, pieIndex);
+            int32_t rectX = pieRect.x();
+            int32_t rectY = pieRect.y();
+            int32_t rectW = pieRect.width();
+            int32_t rectH = pieRect.height();
+            int32_t padding = 12;
+            if (rectW < 160 || rectH < 160) padding = 6;
+            int32_t minSide = rectW < rectH ? rectW : rectH;
+            int32_t diameter = minSide - padding * 2;
+            if (diameter < 20) diameter = minSide;
+            int32_t radius = diameter / 2;
+            if (radius < 1) return;
+
+            int32_t centerX = rectX + rectW / 2;
+            int32_t centerY = rectY + rectH / 2;
+            double totalValue = 0.0;
+            for (int32_t k = 0; k < pieSeries->sliceCount(); ++k) {
+                if (pieSeries->isSliceVisible(k) && pieSeries->sliceValue(k) > 0.0) {
+                    totalValue += pieSeries->sliceValue(k);
+                }
+            }
+            if (totalValue <= 0.0) return;
+
+            double currentAngle = pieSeries->startAngle();
+            for (int32_t k = 0; k < pieSeries->sliceCount(); ++k) {
+                if (!pieSeries->isSliceVisible(k) || pieSeries->sliceValue(k) <= 0.0) continue;
+
+                double sweep = (pieSeries->sliceValue(k) * 360.0) / totalValue;
+                if (sweep <= 0.0) continue;
+
+                if (k == m_impl->hoverSliceIndex) {
+                    double midAngle = currentAngle + (sweep * 0.5);
+                    double midRad = midAngle * 3.14159265358979323846 / 180.0;
+                    int32_t drawCenterX = centerX;
+                    int32_t drawCenterY = centerY;
+                    if (pieSeries->explodedIndex() == k && pieSeries->explodeDistance() > 0) {
+                        drawCenterX += static_cast<int32_t>(std::cos(midRad) * pieSeries->explodeDistance() + 0.5);
+                        drawCenterY += static_cast<int32_t>(std::sin(midRad) * pieSeries->explodeDistance() + 0.5);
+                    }
+
+                    int32_t outerRadius = radius + (int32_t)(6 * scale);
+                    TpHollowMask mask;
+                    if (pieSeries->donutVisible()) {
+                        int32_t innerRadius = static_cast<int32_t>(radius * pieSeries->donutRatio());
+                        if (innerRadius > 0) {
+                            mask.addCircleHollow(drawCenterX, drawCenterY, innerRadius);
+                        }
+                    }
+
+                    int32_t color = pieSeries->sliceColor(k);
+                    if (color == 0) color = s->color();
+                    if (color == 0) color = _RGB(80, 80, 80);
+
+                    painter->setPen(TpPen(dimColor(color, 255), 2));
+                    painter->setBrush(TpBrush(dimColor(color, 85)));
+                    painter->drawPie(TpPoint(drawCenterX, drawCenterY), outerRadius, (int32_t)currentAngle, (int32_t)(currentAngle + sweep), mask);
+                    return;
+                }
+
+                currentAngle += sweep;
+            }
+
+            break;
+        }
+        return;
+    }
+
+    if (s->type() == TpSeries::TypeBar && m_impl->hoverPointIndex >= 0) {
+        TpBarSeries* barSeries = static_cast<TpBarSeries*>(s);
+        const TpVector<TpDataPoint>& data = barSeries->data();
+        if (m_impl->hoverPointIndex >= data.size()) return;
+
+        int32_t barSeriesCount = 0;
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            TpSeries* cur = m_impl->seriesList[i];
+            if (cur && cur->isVisible() && cur->type() == TpSeries::TypeBar) {
+                barSeriesCount++;
+            }
+        }
+
+        int32_t barIndex = 0;
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            TpSeries* cur = m_impl->seriesList[i];
+            if (!cur || !cur->isVisible()) continue;
+            if (cur->type() == TpSeries::TypeBar) {
+                if (i == m_impl->hoverSeriesIndex) break;
+                barIndex++;
+            }
+        }
+
+        TpDataPoint pt = data[m_impl->hoverPointIndex];
+        int32_t rectW = chartRect.width();
+        int32_t rectH = chartRect.height();
+        int32_t rectX = chartRect.x();
+        int32_t rectY = chartRect.y();
+        int32_t yZero = m_impl->axisY->ZeroPixel(rectH, rectY, true);
+        int32_t x0 = m_impl->axisX->mapToPixel(m_impl->axisX->min(), rectW, rectX, false);
+        int32_t x1 = m_impl->axisX->mapToPixel(m_impl->axisX->min() + 1.0, rectW, rectX, false);
+        int32_t unitPixelWidth = std::abs(x1 - x0);
+        if (unitPixelWidth <= 0) unitPixelWidth = 50;
+        int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.62);
+        int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
+        if (barWidth < 1) barWidth = 1;
+
+        int32_t xCenter = m_impl->axisX->mapToPixel(pt.x, rectW, rectX, false);
+        int32_t barLeft = xCenter - (groupWidth / 2) + barIndex * barWidth;
+        int32_t yVal = m_impl->axisY->mapToPixel(pt.y, rectH, rectY, true);
+        int32_t top = (pt.y >= 0) ? yVal : yZero;
+        int32_t height = std::abs(yVal - yZero);
+        if (height == 0) height = 1;
+
+        TpRect outerRect(barLeft - 2, top - 2, barWidth + 4, height + 4);
+        int32_t color = s->color() == 0 ? _RGB(80, 80, 80) : s->color();
+        painter->setPen(TpPen(dimColor(color, 255), 2));
+        painter->setBrush(TpBrush(dimColor(color, 70)));
+        painter->drawRect(outerRect, 0);
+        return;
+    }
+
+    if (m_impl->hoverPointIndex < 0) {
+        return;
+    }
+
+    const TpVector<TpDataPoint>& data = s->data();
+    if (m_impl->hoverPointIndex >= data.size()) return;
+
+    const TpDataPoint& pt = data[m_impl->hoverPointIndex];
+    int32_t px = m_impl->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
+    int32_t py = m_impl->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
+    int32_t radius = s->type() == TpSeries::TypeScatter ? 7 : 6;
+    radius = (int32_t)(radius * scale);
+    if (radius < 5) radius = 5;
+
+    int32_t color = s->color() == 0 ? _RGB(80, 80, 80) : s->color();
+    TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 5, dimColor(color, 150), dimColor(color, 35));
+    TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 1, dimColor(color, 255), _RGB(255, 255, 255));
+}
+
+/// @brief 绘制选中效果
 void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
 {
     if (!painter || !m_impl || m_impl->selectedSeriesIndex < 0 || m_impl->selectedSeriesIndex >= m_impl->seriesList.size()) {
@@ -1523,7 +1733,7 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
                         drawCenterY += static_cast<int32_t>(std::sin(midRad) * pieSeries->explodeDistance() + 0.5);
                     }
 
-                    int32_t outerRadius = radius + (int32_t)(4 * scale);
+                    int32_t outerRadius = radius + (int32_t)(7 * scale);
                     TpHollowMask mask;
                     if (pieSeries->donutVisible()) {
                         int32_t innerRadius = static_cast<int32_t>(radius * pieSeries->donutRatio());
@@ -1536,8 +1746,8 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
                     if (color == 0) color = s->color();
                     if (color == 0) color = _RGB(80, 80, 80);
 
-                    painter->setPen(TpPen(dimColor(color, 255), 2));
-                    painter->setBrush(TpBrush(dimColor(color, 110)));
+                    painter->setPen(TpPen(dimColor(color, 255), 3));
+                    painter->setBrush(TpBrush(dimColor(color, 95)));
                     painter->drawPie(TpPoint(drawCenterX, drawCenterY), outerRadius, (int32_t)currentAngle, (int32_t)(currentAngle + sweep), mask);
                     return;
                 }
@@ -1582,7 +1792,7 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
         int32_t x1 = m_impl->axisX->mapToPixel(m_impl->axisX->min() + 1.0, rectW, rectX, false);
         int32_t unitPixelWidth = std::abs(x1 - x0);
         if (unitPixelWidth <= 0) unitPixelWidth = 50;
-        int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.6);
+        int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.64);
         int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
         if (barWidth < 1) barWidth = 1;
 
@@ -1593,10 +1803,11 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
         int32_t height = std::abs(yVal - yZero);
         if (height == 0) height = 1;
 
-        TpRect barRect(barLeft, top, barWidth, height);
-        TpPen pen(dimColor(s->color(), 255), 2);
+        TpRect barRect(barLeft - 2, top - 2, barWidth + 4, height + 4);
+        int32_t color = s->color() == 0 ? _RGB(80, 80, 80) : s->color();
+        TpPen pen(dimColor(color, 255), 3);
         painter->setPen(pen);
-        painter->setBrush(TpBrush(dimColor(s->color(), 60)));
+        painter->setBrush(TpBrush(dimColor(color, 80)));
         painter->drawRect(barRect, 0);
         return;
     }
@@ -1606,24 +1817,24 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
         const TpDataPoint& pt = data[m_impl->selectedPointIndex];
         int32_t px = m_impl->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
         int32_t py = m_impl->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
-        int32_t radius = s->type() == TpSeries::TypeScatter ? 6 : 5;
+        int32_t radius = s->type() == TpSeries::TypeScatter ? 7 : 6;
         radius = (int32_t)(radius * scale);
-        if (radius < 4) radius = 4;
+        if (radius < 5) radius = 5;
 
-        if (s->type() == TpSeries::TypeScatter) {
-            TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 2, dimColor(s->color(), 255), _RGB(255, 255, 255));
-        } else {
-            TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 2, dimColor(s->color(), 255), _RGB(255, 255, 255));
-        }
+        int32_t color = s->color() == 0 ? _RGB(80, 80, 80) : s->color();
+        TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 6, dimColor(color, 180), dimColor(color, 35));
+        TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 2, dimColor(color, 255), _RGB(255, 255, 255));
     }
 }
 
-/// @brief 榧犳爣绉诲姩浜嬩欢
+/// @brief 鼠标绉诲姩浜嬩欢
 bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
 {
     if (!event) return false;
 
     TpPoint pos = event->pos();
+    m_impl->pointerPos = pos;
+    m_impl->hasPointerPos = true;
     TpRect totalRect(0, 0, this->width(), this->height());
     TpRect chartRect;
     bool showTitleAndLegend = false;
@@ -1695,7 +1906,7 @@ bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
     return true;
 }
 
-/// @brief 榧犳爣鎸変笅浜嬩欢
+/// @brief 鼠标鎸変笅浜嬩欢
 bool TpChart::onMousePressEvent(TpMouseEvent* event)
 {
     if (!event) return false;
@@ -1735,7 +1946,7 @@ bool TpChart::onMousePressEvent(TpMouseEvent* event)
     return true;
 }
 
-/// @brief 榧犳爣閲婃斁浜嬩欢
+/// @brief 鼠标閲婃斁浜嬩欢
 bool TpChart::onMouseRleaseEvent(TpMouseEvent* event)
 {
     if (!event) return false;
@@ -1779,7 +1990,7 @@ bool TpChart::onMouseRleaseEvent(TpMouseEvent* event)
     return true;
 }
 
-/// @brief 婊氳疆浜嬩欢
+/// @brief 滚轮浜嬩欢
 bool TpChart::onWheelEvent(TpWheelEvent* event)
 {
     if (!event || !m_impl->wheelZoomEnabled) {
@@ -1795,25 +2006,29 @@ bool TpChart::onWheelEvent(TpWheelEvent* event)
     double scale = 1.0;
     prepareLayoutState(totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
 
-    TpPoint mousePos = m_impl->hasHover ? m_impl->hoverPos : TpPoint(chartRect.x() + chartRect.width() / 2, chartRect.y() + chartRect.height() / 2);
-    if (!chartRect.contains(mousePos)) {
+    TpPoint mousePos = m_impl->hasHover ? m_impl->hoverPos : (m_impl->hasPointerPos ? m_impl->pointerPos : TpPoint(chartRect.x() + chartRect.width() / 2, chartRect.y() + chartRect.height() / 2));
+    if (!pointInRect(chartRect, mousePos)) {
         mousePos = TpPoint(chartRect.x() + chartRect.width() / 2, chartRect.y() + chartRect.height() / 2);
     }
 
-    if (pieChartMode || !chartRect.contains(mousePos)) {
+    if (pieChartMode || !pointInRect(chartRect, mousePos)) {
         return false;
     }
 
-    double factor = event->angleDelta() > 0 ? 0.9 : 1.1;
+    double step = static_cast<double>(event->angleDelta()) / 120.0;
+    if (step > 4.0) step = 4.0;
+    if (step < -4.0) step = -4.0;
+    double factor = std::pow(0.94, step);
     zoomAxisAt(mousePos, chartRect, factor);
     this->update();
     return true;
 }
 
-/// @brief 绂诲紑浜嬩欢
+/// @brief 离开浜嬩欢
 bool TpChart::onLeaveEvent(TpLeaveEvent* event)
 {
     clearHoverState();
+    m_impl->hasPointerPos = false;
     m_impl->mousePressed = false;
     m_impl->isDragging = false;
     TpWidget::onLeaveEvent(event);
