@@ -1,0 +1,30 @@
+/**
+ * TpChart style sheet example
+ */
+
+TpChart {
+    background-color: rgb(255, 255, 255);
+    border-radius: 10;
+    border-color: rgb(200, 200, 200);
+    border-width: 1;
+    padding: 10;
+}
+
+TpScatterSeries {
+    color: rgb(0, 120, 212);
+    border-width: 5;
+}
+
+TpScatterSeries[name="Cluster A"] {
+    color: rgb(0, 184, 148);
+    border-width: 6;
+}
+
+TpScatterSeries[name="Cluster B"] {
+    color: rgb(255, 140, 0);
+    border-width: 5;
+}
+
+TpPieSeries {
+    color: rgb(120, 120, 120);
+}

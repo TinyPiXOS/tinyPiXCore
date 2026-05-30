@@ -1,0 +1,45 @@
+CROSS_COMPILE ?=
+G++ = $(CROSS_COMPILE)g++
+
+LIB_PATH ?= -L/usr/lib -L/usr/lib/TinyPiX
+RPATH ?= -Wl,-rpath,/usr/lib/TinyPiX
+
+INC_PATH ?= -I. \
+      -I/usr/include \
+      -I/usr/include/SDL2 \
+      -I/usr/include/glib-2.0 \
+      -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
+      -I/usr/include/TinyPiX \
+      -I/usr/include/TinyPiX/TpCore \
+      -I/usr/include/TinyPiX/TpUtils \
+      -I/usr/include/TinyPiX/TpGUI \
+      -I/usr/include/TinyPiX/TpGUI/GUI \
+      -I/usr/include/TinyPiX/TpGUI/Core \
+      -I/usr/include/TinyPiX/TpGUI/Screen \
+      -I/usr/include/TinyPiX/TpGUI/Widgets \
+      -I/usr/include/TinyPiX/TpGUI/app \
+      -I/usr/include/TinyPiX/TpWM
+
+LIB = \
+      -lTpGUI -lTpUtils -lTpCore \
+      -lwebp \
+      -lturbojpeg \
+      -lpng \
+      -fopenmp -lgomp \
+      -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog \
+      -lSDL2 -lgobject-2.0 -lglib-2.0 \
+      -lgbm -lGLESv2 -lEGL \
+      -ldl -lpthread
+
+CFLAGS = #-Wall -O2 -g
+
+.PHONY:all clean
+all: TpChartAdvanced
+
+TpChartAdvanced:
+	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -c MainWindowService.cpp $(INC_PATH)
+	$(G++) $(CFLAGS) -o TpChartAdvanced main.o MainWindowService.o $(LIB) $(LIB_PATH) $(RPATH)
+
+clean:
+	rm -f *.o TpChartAdvanced

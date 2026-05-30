@@ -391,12 +391,23 @@ void TpRenderUtils::drawLegendOutside(TpPainter* painter, const TpRect& totalRec
         int32_t colorStart = (i < colors.size()) ? colors[i] : 0;
         int32_t colorEnd = (i < endColors.size()) ? endColors[i] : colorStart;
 
-        // 绘制前面的小图标 (柱状或折线)
+        // 绘制前面的小图标
         if (type == TypeBar) { 
             TpRect iconRect(currentX, iconTopY, iconW, iconH);
             TpRenderUtils::fillGradientRect(painter, iconRect, colorStart, colorEnd);
-        } 
-        else {
+        } else if (type == TypeScatter) {
+            int32_t pointR = (int32_t)(3 * scale);
+            if (pointR < 1) pointR = 1;
+            TpPoint center(currentX + (iconW / 2), textCenterY);
+            TpRenderUtils::drawAnchorPoint(painter, center, pointR, colorStart, colorStart);
+        } else if (type == TypePie) {
+            TpPoint center(currentX + (iconW / 2), textCenterY);
+            int32_t pieR = iconH / 2;
+            if (pieR < 2) pieR = 2;
+            painter->setPen(TpPen(colorStart, 1));
+            painter->setBrush(TpBrush(colorStart));
+            painter->drawPie(center, pieR, 270, 330);
+        } else {
             int32_t lineY = textCenterY; 
             TpPen linePen(colorStart, 2);
             painter->setPen(linePen);

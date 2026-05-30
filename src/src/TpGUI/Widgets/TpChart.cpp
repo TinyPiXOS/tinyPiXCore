@@ -194,6 +194,8 @@ void TpChart::refreshBaseCss() {
 void TpChart::updateAxisRange() {
     bool autoRangeX = m_impl->axisX->isAutoRange();
     bool autoRangeY = m_impl->axisY->isAutoRange();
+    bool hasVisibleSeries = false;
+    bool allPieSeries = true;
 
     if (!autoRangeX && !autoRangeY) {
         return;
@@ -218,6 +220,15 @@ void TpChart::updateAxisRange() {
         TpSeries* s = m_impl->seriesList[i];
         if (!s || !s->isVisible()) continue;
 
+        hasVisibleSeries = true;
+        if (s->type() != TpSeries::TypePie) {
+            allPieSeries = false;
+        }
+
+        if (s->type() == TpSeries::TypePie) {
+            continue;
+        }
+
         if (autoRangeX && s->type() == TpSeries::TypeBar) {
             hasBarSeries = true;
         }
@@ -236,6 +247,10 @@ void TpChart::updateAxisRange() {
             }
             hasData = true;
         }
+    }
+
+    if (!hasVisibleSeries || allPieSeries) {
+        return;
     }
 
     if (!hasData) {
@@ -319,8 +334,14 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
     bool showTitleAndLegend = (w >= 300 && h >= 250); // 正常模式：空间充足，全量显示
     bool showAxisLabels     = (w >= 250 && h >= 200); // 紧凑模式：隐藏标题图例，显示XY标签
     bool showAxisTicks      = (w >= 120 && h >= 80);  // 极小模式：隐藏标签，仅保留刻度与折线
+    bool pieChartMode = isPieChartMode();
 
-    if (!showAxisTicks) {
+    if (pieChartMode) {
+        m_impl->marginTop = m_impl->title.empty() || !showTitleAndLegend ? (int32_t)(35 * scale) : (int32_t)(70 * scale);
+        m_impl->marginBottom = (int32_t)(25 * scale);
+        m_impl->marginLeft = (int32_t)(20 * scale);
+        m_impl->marginRight = (int32_t)(20 * scale);
+    } else if (!showAxisTicks) {
         // 极限微小模式 (如 100x50)：纯数据展示 (Sparkline)，移除所有文本预留空间
         m_impl->marginTop = 5;
         m_impl->marginBottom = 5; 
@@ -342,21 +363,25 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
 
     TpRect chartRect = calculateLayout(totalRect);
 
-    // 更新范围与刻度计算 
-    updateAxisRange();
-    
-    // 根据缩放后的尺寸动态计算应该展示几个刻度
-    int32_t tickDensityX = showAxisTicks ? (int32_t)(80 * scale) : 120;
-    int32_t tickDensityY = showAxisTicks ? (int32_t)(50 * scale) : 80;
-    int32_t targetTicksX = chartRect.width() / (tickDensityX > 0 ? tickDensityX : 1);
-    int32_t targetTicksY = chartRect.height() / (tickDensityY > 0 ? tickDensityY : 1);
+    if (!pieChartMode) {
+        // 更新范围与刻度计算
+        updateAxisRange();
 
-    m_impl->axisX->updateNiceTicks(targetTicksX > 2 ? targetTicksX : 2);
-    m_impl->axisY->updateNiceTicks(targetTicksY > 2 ? targetTicksY : 2);
+        // 根据缩放后的尺寸动态计算应该展示几个刻度
+        int32_t tickDensityX = showAxisTicks ? (int32_t)(80 * scale) : 120;
+        int32_t tickDensityY = showAxisTicks ? (int32_t)(50 * scale) : 80;
+        int32_t targetTicksX = chartRect.width() / (tickDensityX > 0 ? tickDensityX : 1);
+        int32_t targetTicksY = chartRect.height() / (tickDensityY > 0 ? tickDensityY : 1);
+
+        m_impl->axisX->updateNiceTicks(targetTicksX > 2 ? targetTicksX : 2);
+        m_impl->axisY->updateNiceTicks(targetTicksY > 2 ? targetTicksY : 2);
+    }
 
     // 绘制背景与网格
     drawBackground(painter, totalRect, chartRect);
-    drawGrid(painter, chartRect);
+    if (!pieChartMode) {
+        drawGrid(painter, chartRect);
+    }
 
     // 获取当前状态的CSS数据（用于系列绘制）
     tpShared<TpCssData> seriesCssData = currentStatusCss();
@@ -370,38 +395,46 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
                     s->applyCssData("TpLineSeries", TpCssParser::Enabled);
                 } else if (s->type() == TpSeries::TypeBar) {
                     s->applyCssData("TpBarSeries", TpCssParser::Enabled);
+                } else if (s->type() == TpSeries::TypeScatter) {
+                    s->applyCssData("TpScatterSeries", TpCssParser::Enabled);
+                } else if (s->type() == TpSeries::TypePie) {
+                    s->applyCssData("TpPieSeries", TpCssParser::Enabled);
                 }
             }
         }
         m_impl->cssAppliedToSeries = true;
     }
 
-    // 绘制数据 Series (柱状图/折线图)
-    int32_t barSeriesCount = 0;
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        if (m_impl->seriesList[i]->type() == TpSeries::TypeBar) barSeriesCount++;
-    }
+    if (pieChartMode) {
+        drawPieChart(painter, chartRect);
+    } else {
+        // 绘制数据 Series (柱状图/折线图)
+        int32_t barSeriesCount = 0;
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            if (m_impl->seriesList[i]->type() == TpSeries::TypeBar) barSeriesCount++;
+        }
 
-    int32_t barIndex = 0;
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
-        if (s && s->isVisible()) {
-            if (s->type() == TpSeries::TypeBar) {
-                static_cast<TpBarSeries*>(s)->setLayoutInfo(barIndex++, barSeriesCount);
+        int32_t barIndex = 0;
+        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+            TpSeries* s = m_impl->seriesList[i];
+            if (s && s->isVisible()) {
+                if (s->type() == TpSeries::TypeBar) {
+                    static_cast<TpBarSeries*>(s)->setLayoutInfo(barIndex++, barSeriesCount);
+                }
+                s->draw(painter, *m_impl->axisX, *m_impl->axisY, chartRect);
             }
-            s->draw(painter, *m_impl->axisX, *m_impl->axisY, chartRect);
+        }
+
+        // 绘制坐标轴线条与刻度数字
+        if (showAxisTicks) {
+            uint32_t black = _RGB(0, 0, 0);
+            TpRenderUtils::drawAxisX(painter, chartRect, *m_impl->axisX, *m_impl->axisY, black, false, 0);
+            TpRenderUtils::drawAxisY(painter, chartRect, *m_impl->axisY, *m_impl->axisX, black, false, 0);
         }
     }
 
-    // 绘制坐标轴线条与刻度数字
-    if (showAxisTicks) {
-        uint32_t black = _RGB(0, 0, 0);
-        TpRenderUtils::drawAxisX(painter, chartRect, *m_impl->axisX, *m_impl->axisY, black, false, 0);
-        TpRenderUtils::drawAxisY(painter, chartRect, *m_impl->axisY, *m_impl->axisX, black, false, 0);
-    }
-
     // 绘制坐标系描述标签
-    if (showAxisLabels) {
+    if (showAxisLabels && !pieChartMode) {
         // 计算动态字体大小 (基准 20px)
         int32_t labelFontSize = (int32_t)(20 * scale);
         if (labelFontSize < 9) labelFontSize = 9; // 保底字号防止看不清
@@ -578,9 +611,26 @@ void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRe
     TpVector<int32_t> colors;
     TpVector<int32_t> endColors;
     TpVector<int32_t> types;
+    bool pieMode = isPieChartMode();
 
     for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
         TpSeries* s = m_impl->seriesList[i];
+        if (!s || !s->isVisible()) continue;
+
+        if (s->type() == TpSeries::TypePie) {
+            if (!pieMode) continue;
+            TpPieSeries* pieSeries = static_cast<TpPieSeries*>(s);
+            for (int32_t k = 0; k < pieSeries->sliceCount(); ++k) {
+                const TpString& sliceName = pieSeries->sliceName(k);
+                if (sliceName.empty()) continue;
+                names.push_back(sliceName.c_str());
+                colors.push_back(pieSeries->sliceColor(k));
+                endColors.push_back(pieSeries->sliceColor(k));
+                types.push_back(TpRenderUtils::TypePie);
+            }
+            continue;
+        }
+
         if (s->name().empty()) continue;
 
         names.push_back(s->name().c_str());
@@ -590,6 +640,9 @@ void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRe
             // 安全强转
             endColors.push_back(static_cast<TpBarSeries*>(s)->colorEnd());
             types.push_back(TpRenderUtils::TypeBar);
+        } else if (s->type() == TpSeries::TypeScatter) {
+            endColors.push_back(s->color());
+            types.push_back(TpRenderUtils::TypeScatter);
         } else {
             endColors.push_back(s->color());
             types.push_back(TpRenderUtils::TypeLine);
@@ -597,8 +650,53 @@ void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRe
     }
 
     if (names.size() > 0) {
-        // 注意：TpRenderUtils 里面的绘制图例如果文字也显得太大，
-        // 你可能需要进去修改 TpRenderUtils::drawLegendOutside 的实现逻辑，也给它加上缩放计算。
         TpRenderUtils::drawLegendOutside(painter, totalRect, chartRect, names, colors, endColors, types);
+    }
+}
+
+bool TpChart::isPieChartMode() const {
+    bool hasVisibleSeries = false;
+
+    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+        TpSeries* s = m_impl->seriesList[i];
+        if (!s || !s->isVisible()) continue;
+        hasVisibleSeries = true;
+        if (s->type() != TpSeries::TypePie) {
+            return false;
+        }
+    }
+
+    return hasVisibleSeries;
+}
+
+void TpChart::drawPieChart(TpPainter* painter, const TpRect& chartRect) {
+    if (!painter || !m_impl) return;
+
+    int32_t pieCount = 0;
+    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+        TpSeries* s = m_impl->seriesList[i];
+        if (s && s->isVisible() && s->type() == TpSeries::TypePie) {
+            pieCount++;
+        }
+    }
+
+    if (pieCount == 0) return;
+
+    int32_t slotTop = chartRect.y();
+    int32_t slotHeight = chartRect.height() / pieCount;
+    if (slotHeight <= 0) slotHeight = chartRect.height();
+
+    int32_t pieIndex = 0;
+    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
+        TpSeries* s = m_impl->seriesList[i];
+        if (!s || !s->isVisible() || s->type() != TpSeries::TypePie) continue;
+
+        int32_t currentTop = chartRect.y() + pieIndex * slotHeight;
+        int32_t currentHeight = (pieIndex == pieCount - 1) ? (chartRect.bottom() - currentTop + 1) : slotHeight;
+        if (currentHeight < 20) currentHeight = 20;
+
+        TpRect pieRect(chartRect.x(), currentTop, chartRect.width(), currentHeight);
+        static_cast<TpPieSeries*>(s)->draw(painter, *m_impl->axisX, *m_impl->axisY, pieRect);
+        pieIndex++;
     }
 }

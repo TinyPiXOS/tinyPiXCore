@@ -119,6 +119,15 @@ private:
     /// @param chartRect 绘图区矩形
     void drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect);
 
+    /// @brief 判断是否进入饼图模式
+    /// @return 是否为纯饼图模式
+    bool isPieChartMode() const;
+
+    /// @brief 绘制饼图模式
+    /// @param painter 绘制器指针
+    /// @param chartRect 绘图区域矩形
+    void drawPieChart(TpPainter* painter, const TpRect& chartRect);
+
     /// @brief 获取当前状态的CSS数据
     tpShared<TpCssData> currentStatusCss();
 

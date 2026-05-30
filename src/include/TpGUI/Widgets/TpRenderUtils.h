@@ -31,8 +31,10 @@ public:
     /// @brief 图例类型枚举
     enum LegendType
     {
-        TypeLine = 0,   ///< @brief 折线图例
-        TypeBar = 1     ///< @brief 柱状图例
+        TypeLine = 0,     ///< @brief 折线图例
+        TypeBar = 1,      ///< @brief 柱状图例
+        TypeScatter = 2,  ///< @brief 散点图例
+        TypePie = 3       ///< @brief 饼图图例
     };
 
     /// @brief 填充渐变矩形

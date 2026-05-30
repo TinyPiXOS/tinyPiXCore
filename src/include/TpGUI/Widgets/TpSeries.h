@@ -38,6 +38,28 @@ struct TpDataPoint
         , y(_y) {}
 };
 
+/// @brief 饼图切片数据结构
+struct TpPieSlice
+{
+    TpString name;   ///< @brief 切片名称
+    double value;    ///< @brief 切片数值
+    int32_t color;   ///< @brief 切片颜色
+
+    /// @brief 默认构造函数
+    TpPieSlice()
+        : value(0)
+        , color(0) {}
+
+    /// @brief 带参数的构造函数
+    /// @param _name 切片名称
+    /// @param _value 切片数值
+    /// @param _color 切片颜色
+    TpPieSlice(const TpString& _name, double _value, int32_t _color)
+        : name(_name)
+        , value(_value)
+        , color(_color) {}
+};
+
 /// @brief 前向声明
 class TpSeriesPrivate;
 
@@ -49,7 +71,9 @@ public:
     enum SeriesType
     {
         TypeLine,   ///< @brief 折线图
-        TypeBar     ///< @brief 柱状图
+        TypeBar,    ///< @brief 柱状图
+        TypeScatter,///< @brief 散点图
+        TypePie     ///< @brief 饼图
     };
 
 public:
@@ -199,6 +223,140 @@ public:
     void setLabelSize(int32_t size);
 
     /// @brief 绘制柱状图
+    /// @param painter 绘制器对象
+    /// @param axisX X 轴对象
+    /// @param axisY Y 轴对象
+    /// @param rect 绘制区域矩形
+    virtual void draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect) override;
+};
+
+/// @brief 散点图系列类
+class TpScatterSeries : public TpSeries
+{
+public:
+    /// @brief 构造函数
+    TpScatterSeries();
+
+    /// @brief 析构函数
+    virtual ~TpScatterSeries();
+
+    /// @brief 设置点大小
+    /// @param size 点半径像素值
+    void setPointSize(int32_t size);
+
+    /// @brief 获取点大小
+    /// @return 点半径像素值
+    int32_t pointSize() const;
+
+    /// @brief 设置边框颜色
+    /// @param color 边框颜色值
+    void setBorderColor(int32_t color);
+
+    /// @brief 获取边框颜色
+    /// @return 边框颜色值
+    int32_t borderColor() const;
+
+    /// @brief 设置是否显示标签
+    /// @param visible 标签可见状态
+    void setLabelsVisible(bool visible);
+
+    /// @brief 设置标签颜色
+    /// @param color 标签颜色值
+    void setLabelColor(int32_t color);
+
+    /// @brief 设置标签大小
+    /// @param size 字体大小
+    void setLabelSize(int32_t size);
+
+    /// @brief 绘制散点图
+    /// @param painter 绘制器对象
+    /// @param axisX X 轴对象
+    /// @param axisY Y 轴对象
+    /// @param rect 绘制区域矩形
+    virtual void draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect) override;
+};
+
+/// @brief 饼图系列类
+class TpPieSeries : public TpSeries
+{
+public:
+    /// @brief 构造函数
+    TpPieSeries();
+
+    /// @brief 析构函数
+    virtual ~TpPieSeries();
+
+    /// @brief 添加切片
+    /// @param name 切片名称
+    /// @param value 切片数值
+    /// @param color 切片颜色
+    void addSlice(const TpString& name, double value, int32_t color);
+
+    /// @brief 添加切片
+    /// @param name 切片名称
+    /// @param value 切片数值
+    /// @param color 切片颜色
+    void addSlice(const char* name, double value, int32_t color);
+
+    /// @brief 清除所有切片
+    void clearSlices();
+
+    /// @brief 获取切片数量
+    /// @return 切片数量
+    int32_t sliceCount() const;
+
+    /// @brief 获取切片名称
+    /// @param index 切片索引
+    /// @return 切片名称
+    const TpString& sliceName(int32_t index) const;
+
+    /// @brief 获取切片数值
+    /// @param index 切片索引
+    /// @return 切片数值
+    double sliceValue(int32_t index) const;
+
+    /// @brief 获取切片颜色
+    /// @param index 切片索引
+    /// @return 切片颜色值
+    int32_t sliceColor(int32_t index) const;
+
+    /// @brief 设置是否显示标签
+    /// @param visible 标签可见状态
+    void setLabelsVisible(bool visible);
+
+    /// @brief 设置是否显示百分比
+    /// @param visible 百分比可见状态
+    void setPercentVisible(bool visible);
+
+    /// @brief 设置是否显示环形图
+    /// @param visible 环形图可见状态
+    void setDonutVisible(bool visible);
+
+    /// @brief 设置环形图内半径比例
+    /// @param ratio 内外半径比例
+    void setDonutRatio(double ratio);
+
+    /// @brief 设置起始角度
+    /// @param angle 起始角度
+    void setStartAngle(int32_t angle);
+
+    /// @brief 设置突出切片索引
+    /// @param index 切片索引
+    void setExplodedIndex(int32_t index);
+
+    /// @brief 设置突出距离
+    /// @param distance 突出距离像素值
+    void setExplodeDistance(int32_t distance);
+
+    /// @brief 设置标签颜色
+    /// @param color 标签颜色值
+    void setLabelColor(int32_t color);
+
+    /// @brief 设置标签大小
+    /// @param size 字体大小
+    void setLabelSize(int32_t size);
+
+    /// @brief 绘制饼图
     /// @param painter 绘制器对象
     /// @param axisX X 轴对象
     /// @param axisY Y 轴对象
