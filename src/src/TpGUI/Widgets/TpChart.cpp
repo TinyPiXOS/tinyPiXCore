@@ -100,13 +100,13 @@ struct TpChart::Impl {
     TpString title;                  // 图表标题
     int32_t backgroundColor;         // 背景颜色
 
-    TpAxis* axisX;                   // X 杞?
-    TpAxis* axisY;                   // Y 杞?
+    TpAxis* axisX;                   // X 轴
+    TpAxis* axisY;                   // Y 轴
 
-    TpString labelX;                 // X 杞存爣绛?
-    TpString labelY;                 // Y 杞存爣绛?
+    TpString labelX;                 // X 轴标签
+    TpString labelY;                 // Y 轴标签
 
-    TpVector<TpSeries*> seriesList;  // 数据绯诲垪鍒楄〃
+    TpVector<TpSeries*> seriesList;  // 数据系列列表
 
     int32_t marginTop;               // 上边距
     int32_t marginBottom;            // 下边距
@@ -151,7 +151,7 @@ struct TpChart::Impl {
 };
 
 
-// 鏋勯€犱笌鏋愭瀯
+// 构造与析构
 TpChart::TpChart()
 {
     m_impl = new Impl();
@@ -159,15 +159,15 @@ TpChart::TpChart()
     m_impl->marginTop = 60;    // 留给标题
     m_impl->marginBottom = 60; // 留给 X 轴刻度
     m_impl->marginLeft = 60;   // 留给 Y 轴刻度
-    m_impl->marginRight = 20;  // 闃叉婧㈠嚭
+    m_impl->marginRight = 20;  // 防止内容溢出
     m_impl->gridXVisible = true;
     m_impl->gridYVisible = true;
     m_impl->gridColor = _RGB(230, 230, 230); // 默认浅灰色网格线
 
-    // 鏄惧紡设置背景颜色
+    // 显式设置背景颜色
     this->setBackGroundColor(0xFFFFFFFF, true);
 
-    // 鍒濆鍖朇SS数据
+    // 初始化 CSS 数据
     enabledCssData = nullptr;
     disabledCssData = nullptr;
     hoverCssData = nullptr;
@@ -177,7 +177,7 @@ TpChart::TpChart()
     // 刷新基础 CSS 样式
     refreshBaseCss();
 
-    // 鑷姩创建榛樿坐标轴
+    // 自动创建默认坐标轴
     m_impl->axisX = new TpAxis();
     m_impl->axisX->setMode(TpAxis::AxisMode::Value);
 
@@ -196,19 +196,19 @@ TpChart::~TpChart() {
 }
 
 
-// 鍏叡鎺ュ彛
+// 公共接口
 /// @brief 设置图表标题
 void TpChart::setTitle(const char* title) {
     m_impl->title = title;
     this->update(); 
 }
 
-/// 获取 X 杞村紩鐢?
+/// 获取 X 轴引用
 TpAxis* TpChart::axisX() {
     return m_impl->axisX;
 }
 
-/// 获取 Y 杞村紩鐢?
+/// 获取 Y 轴引用
 TpAxis* TpChart::axisY() {
     return m_impl->axisY;
 }
@@ -219,7 +219,7 @@ void TpChart::setBackgroundColor(int32_t color) {
     this->update();
 }
 
-/// 设置鍧愭爣杞存爣绛?
+/// @brief 设置坐标轴标签
 void TpChart::setAxisLabels(const char* xLabel, const char* yLabel) {
     m_impl->labelX = xLabel;
     m_impl->labelY = yLabel;
@@ -287,7 +287,7 @@ void TpChart::setLegendClickable(bool enabled) {
     this->update();
 }
 
-/// 恢复榛樿视图
+/// 恢复默认视图
 void TpChart::resetView() {
     m_impl->axisX->setAutoRange(true);
     m_impl->axisY->setAutoRange(true);
@@ -301,22 +301,22 @@ void TpChart::resetView() {
     this->update();
 }
 
-/// 获取褰撳墠选中系列索引
+/// 获取当前选中系列索引
 int32_t TpChart::selectedSeriesIndex() const {
     return m_impl ? m_impl->selectedSeriesIndex : -1;
 }
 
-/// 获取褰撳墠选中数据鐐圭储寮?
+/// 获取当前选中的数据点索引
 int32_t TpChart::selectedPointIndex() const {
     return m_impl ? m_impl->selectedPointIndex : -1;
 }
 
-/// 获取褰撳墠选中切片绱㈠紩
+/// 获取当前选中切片索引
 int32_t TpChart::selectedSliceIndex() const {
     return m_impl ? m_impl->selectedSliceIndex : -1;
 }
 
-/// 添加数据绯诲垪
+/// 添加数据系列
 void TpChart::addSeries(TpSeries* series) {
     if (series) {
         m_impl->seriesList.push_back(series);
@@ -325,7 +325,7 @@ void TpChart::addSeries(TpSeries* series) {
     }
 }
 
-/// 移除鎵€鏈夋暟鎹郴鍒?
+/// 移除所有数据系列
 void TpChart::removeAllSeries() {
     for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
         delete m_impl->seriesList[i];
@@ -402,7 +402,7 @@ void TpChart::updateAxisRange() {
     // 标记是否有柱状图
     bool hasBarSeries = false; 
 
-    // 閬嶅巻鎵€鏈?Series 鎵惧嚭鏈€澶ф渶灏忓€?
+    // 遍历所有 Series，找出最大最小值
     for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
         TpSeries* s = m_impl->seriesList[i];
         if (!s || !s->isVisible()) continue;
@@ -485,14 +485,14 @@ void TpChart::updateAxisRange() {
             newMax = 0 + topPad;
             // 最小值仍为 minY - bottomPad（自然生效）
         }
-        // 璺ㄩ浂鐐圭殑鎯呭喌锛氱暀鐧藉凡缁忓湪 newMin/newMax 涓綋鐜帮紝鏃犻渶棰濆处理
+        // 跨零点的情况：留白已经在 newMin/newMax 中体现，无需额外处理
         
         m_impl->axisY->setRange(newMin, newMax);
     }
 }
 
 // 核心绘制逻辑
-/// 鏈€涓婚绘制浜嬩欢
+/// @brief 主绘制事件
 bool TpChart::onPaintEvent(TpPaintEvent* event) {
     if (!event) {
         return false;
@@ -637,8 +637,8 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
     return true;
 }
 
-// 鍐呴儴绉佹湁瀹炵幇
-/// 计算甯冨眬鐭╁舰
+// 内部私有实现
+/// 计算布局矩形
 TpRect TpChart::calculateLayout(const TpRect& totalRect) {
     int32_t top = m_impl->marginTop;
     if (m_impl->title.empty()) top -= 20;
@@ -679,16 +679,16 @@ void TpChart::drawBackground(TpPainter* painter, const TpRect& totalRect, const 
     }
 }
 
-/// 绘制缃戞牸
+/// 绘制网格
 void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
-    // 1. 基础瀹夊叏妫€鏌?
+    // 1. 基础安全检查
     if (!painter || !m_impl || !m_impl->axisX || !m_impl->axisY) {
         return; 
     }
 
     TpPen gridPen(m_impl->gridColor, 1);
 
-    // 2. 绘制鍨傜洿网格线
+    // 2. 绘制垂直网格线
     if (m_impl->gridXVisible) {
         const TpVector<double>& xTicks = m_impl->axisX->getTickValues();
         painter->setPen(gridPen);
@@ -700,7 +700,7 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
         }
     }
 
-    // 3. 绘制姘村钩网格线
+    // 3. 绘制水平网格线
     if (m_impl->gridYVisible) {
         const TpVector<double>& yTicks = m_impl->axisY->getTickValues();
         painter->setPen(gridPen);
@@ -712,8 +712,8 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
         }
     }
 
-    // 4. 闆跺埢搴︾嚎锛圶杞翠富绾匡級寮哄寲绘制
-    // 澧炲姞閫昏緫淇濇姢锛岄槻姝?min/max 寮傚父瀵艰嚧鐨勯棶棰?
+    // 4. 零刻度线（X 轴主线）强化绘制
+    // 增加逻辑保护，防止 min/max 异常导致的问题
     double yMin = m_impl->axisY->min();
     double yMax = m_impl->axisY->max();
     if (yMin < 0 && yMax > 0) {
@@ -730,7 +730,7 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
 void TpChart::drawTitle(TpPainter* painter, const TpRect& totalRect) {
     if (m_impl->title.empty()) return;
     
-    // 鍦ㄨ繖閲岄噸鏂拌绠椾竴娆?scale锛屼繚鎸佹帴鍙ｄ笉琚薄鏌?
+    // 在这里重新计算一次 scale，保持接口不被污染
     double scaleX = totalRect.width() / 800.0;
     double scaleY = totalRect.height() / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY; 
@@ -803,7 +803,7 @@ void TpChart::drawPieChart(TpPainter* painter, const TpRect& chartRect) {
     }
 }
 
-/// @brief 计算褰撳墠甯冨眬鐘舵€?
+/// @brief 计算当前布局状态
 void TpChart::prepareLayoutState(const TpRect& totalRect, TpRect& chartRect, bool& showTitleAndLegend, bool& showAxisLabels,
                                  bool& showAxisTicks, bool& pieChartMode, double& scale)
 {
@@ -1043,7 +1043,7 @@ void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRe
     }
 }
 
-/// @brief 娓呯悊鎮仠鐘舵€?
+/// @brief 清理悬停状态
 void TpChart::clearHoverState()
 {
     m_impl->hasHover = false;
@@ -1053,7 +1053,6 @@ void TpChart::clearHoverState()
     m_impl->tooltipText.clear();
 }
 
-/// @brief 命中测试
 /// @brief 命中测试
 bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMode, int32_t& seriesIndex, int32_t& pointIndex,
                         int32_t& sliceIndex, TpString& text, TpPoint& hitPos)
@@ -1906,7 +1905,7 @@ bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
     return true;
 }
 
-/// @brief 鼠标鎸変笅浜嬩欢
+/// @brief 鼠标按下浜嬩欢
 bool TpChart::onMousePressEvent(TpMouseEvent* event)
 {
     if (!event) return false;

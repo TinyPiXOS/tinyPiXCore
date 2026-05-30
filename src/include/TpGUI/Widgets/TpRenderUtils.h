@@ -1,7 +1,7 @@
 /*
  * 版权声明 (Copyright Declaration)
  * 作者 (Author)：刘可扬
- * 邮箱 (Email)：2226544626@qq.com
+ * 邮箱 (Email)：226544626@qq.com
  * 版权所有 (Copyright)：© 2026 刘可扬。All rights reserved.
  * 描述 (Description)：图表渲染工具类 API 定义，提供核心绘图功能的静态工具类
  */
@@ -127,4 +127,3 @@ public:
 };
 
 #endif // TPRENDERUTILS_H
-

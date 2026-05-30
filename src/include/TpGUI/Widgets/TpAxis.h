@@ -1,7 +1,7 @@
 /*
  * 版权声明 (Copyright Declaration)
  * 作者 (Author)：张金圣
- * 邮箱 (Email)：3270141465@qq.com
+ * 邮箱 (Email)：270141465@qq.com
  * 版权所有 (Copyright)：© 2026 张金圣。All rights reserved.
  * 描述 (Description)：坐标轴类 API 定义，实现逻辑数据与物理像素的映射及坐标轴布局计算
  */
@@ -228,4 +228,3 @@ private:
 };
 
 #endif // TP_AXIS_H
-

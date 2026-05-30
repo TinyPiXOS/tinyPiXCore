@@ -147,7 +147,7 @@ public:
     virtual void draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect) = 0;
 
 protected:
-    TpSeriesPrivate* d_ptr;   ///< @brief Pimpl 妯″紡绉佹湁数据鎸囬拡
+    TpSeriesPrivate* d_ptr;   ///< @brief Pimpl 模式绉佹湁数据指针
 };
 
 /// @brief 折线图系列类
@@ -165,7 +165,7 @@ public:
     void setLineWidth(int32_t width);
 
     /// @brief 设置是否启用平滑曲线
-    /// @param smooth 骞虫粦鐘舵€侊紝true=平滑曲线锛宖alse=鎶樼嚎
+    /// @param smooth 平滑状态，true=平滑曲线，false=折线
     void setSmooth(bool smooth);
 
     /// @brief 设置曲线张力（平滑度）
@@ -198,12 +198,12 @@ public:
     /// @brief 析构函数
     virtual ~TpBarSeries();
 
-    /// @brief 设置渐变缁撴潫颜色
-    /// @param endColor 缁撴潫颜色鍊?
+    /// @brief 设置渐变结束颜色
+    /// @param endColor 结束颜色值
     void setGradientColor(int32_t endColor);
 
-    /// @brief 获取渐变缁撴潫颜色
-    /// @return 缁撴潫颜色鍊?
+    /// @brief 获取渐变结束颜色
+    /// @return 结束颜色值
     int32_t colorEnd() const;
 
     /// @brief 设置布局信息（用于多系列分组）
@@ -212,7 +212,7 @@ public:
     void setLayoutInfo(int32_t seriesIndex, int32_t seriesCount);
 
     /// @brief 设置是否显示数据标签
-    /// @param visible 标签可见鐘舵€侊紝true=鏄剧ず锛宖alse=闅愯棌
+    /// @param visible 标签可见状态，true=显示，false=隐藏
     void setLabelsVisible(bool visible);
 
     /// @brief 设置数据标签颜色
@@ -253,12 +253,12 @@ public:
     /// @param color 边框颜色值
     void setBorderColor(int32_t color);
 
-    /// @brief 获取杈规颜色
+    /// @brief 获取边框颜色
     /// @return 边框颜色值
     int32_t borderColor() const;
 
     /// @brief 设置是否显示标签
-    /// @param visible 标签可见鐘舵€?
+    /// @param visible 标签可见状态
     void setLabelsVisible(bool visible);
 
     /// @brief 设置标签颜色
@@ -307,32 +307,32 @@ public:
     int32_t sliceCount() const;
 
     /// @brief 获取切片名称
-    /// @param index 切片绱㈠紩
+    /// @param index 切片索引
     /// @return 切片名称
     const TpString& sliceName(int32_t index) const;
 
     /// @brief 获取切片数值
-    /// @param index 切片绱㈠紩
+    /// @param index 切片索引
     /// @return 切片数值
     double sliceValue(int32_t index) const;
 
     /// @brief 获取切片颜色
-    /// @param index 切片绱㈠紩
-    /// @return 切片颜色鍊?
+    /// @param index 切片索引
+    /// @return 切片颜色值
     int32_t sliceColor(int32_t index) const;
 
     /// @brief 设置切片是否可见
-    /// @param index 切片绱㈠紩
+    /// @param index 切片索引
     /// @param visible 可见状态
     void setSliceVisible(int32_t index, bool visible);
 
     /// @brief 获取切片是否可见
-    /// @param index 切片绱㈠紩
+    /// @param index 切片索引
     /// @return 切片可见状态
     bool isSliceVisible(int32_t index) const;
 
     /// @brief 设置是否显示标签
-    /// @param visible 标签可见鐘舵€?
+    /// @param visible 标签可见状态
     void setLabelsVisible(bool visible);
 
     /// @brief 设置是否显示百分比
@@ -364,11 +364,11 @@ public:
     int32_t startAngle() const;
 
     /// @brief 设置突出切片索引
-    /// @param index 切片绱㈠紩
+    /// @param index 切片索引
     void setExplodedIndex(int32_t index);
 
     /// @brief 获取突出切片索引
-    /// @return 切片绱㈠紩
+    /// @return 切片索引
     int32_t explodedIndex() const;
 
     /// @brief 设置突出距离

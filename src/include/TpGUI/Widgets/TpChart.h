@@ -66,11 +66,11 @@ public:
     virtual bool onMouseRleaseEvent(TpMouseEvent* event) override;
 
     /// @brief 滚轮事件
-    /// @param event 滚轮浜嬩欢鎸囬拡
+    /// @param event 滚轮浜嬩欢指针
     virtual bool onWheelEvent(TpWheelEvent* event) override;
 
     /// @brief 离开事件
-    /// @param event 离开浜嬩欢鎸囬拡
+    /// @param event 离开浜嬩欢指针
     virtual bool onLeaveEvent(TpLeaveEvent* event) override;
 
     /// @brief 获取插件类型
@@ -143,7 +143,7 @@ public:
 
 private:
     /// @brief 计算布局矩形
-    /// @param totalRect 鎬讳綋鐭╁舰
+    /// @param totalRect 总区域矩形
     /// @return 绘图区域矩形
     TpRect calculateLayout(const TpRect& totalRect);
 
@@ -151,29 +151,29 @@ private:
     void updateAxisRange();
 
     /// @brief 绘制背景
-    /// @param painter 鐢荤瑪鎸囬拡
-    /// @param totalRect 鎬讳綋鐭╁舰
-    /// @param chartRect 缁樺浘鍖虹煩褰?
+    /// @param painter 绘制器指针
+    /// @param totalRect 总区域矩形
+    /// @param chartRect 绘图区域矩形
     void drawBackground(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect);
 
     /// @brief 绘制网格
-    /// @param painter 鐢荤瑪鎸囬拡
-    /// @param chartRect 缁樺浘鍖虹煩褰?
+    /// @param painter 绘制器指针
+    /// @param chartRect 绘图区域矩形
     void drawGrid(TpPainter* painter, const TpRect& chartRect);
 
     /// @brief 绘制坐标轴
-    /// @param painter 鐢荤瑪鎸囬拡
-    /// @param chartRect 缁樺浘鍖虹煩褰?
+    /// @param painter 绘制器指针
+    /// @param chartRect 绘图区域矩形
     void drawAxes(TpPainter* painter, const TpRect& chartRect);
 
     /// @brief 绘制标题
-    /// @param painter 鐢荤瑪鎸囬拡
-    /// @param totalRect 鎬讳綋鐭╁舰
+    /// @param painter 绘制器指针
+    /// @param totalRect 总区域矩形
     void drawTitle(TpPainter* painter, const TpRect& totalRect);
 
     /// @brief 绘制图例
-    /// @param painter 鐢荤瑪鎸囬拡
-    /// @param totalRect 鎬讳綋鐭╁舰
+    /// @param painter 绘制器指针
+    /// @param totalRect 总区域矩形
     void drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect);
 
     /// @brief 判断是否进入饼图模式

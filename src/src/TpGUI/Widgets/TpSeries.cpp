@@ -419,7 +419,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         }
     }
 
-    // ========== 鍚庣画绘制閫昏緫 ==========
+    // ========== 后续绘制逻辑 ==========
     // 使用动态线宽绘制折线或平滑曲线
     if (d->m_smooth)
     {
@@ -574,7 +574,7 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
     }
 }
 
-// TpScatterSeries 鐎圭偟骞?
+// TpScatterSeries 实现
 TpScatterSeries::TpScatterSeries()
     : TpSeries(TypeScatter)
 {
@@ -733,7 +733,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     }
 }
 
-// TpPieSeries 鐎圭偟骞?
+// TpPieSeries 实现
 TpPieSeries::TpPieSeries()
     : TpSeries(TypePie)
 {
@@ -1096,4 +1096,3 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
         currentAngle += sweep;
     }
 }
-
