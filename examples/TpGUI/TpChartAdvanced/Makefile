@@ -37,6 +37,11 @@ LIB = \
       -lgbm -lGLESv2 -lEGL \
       -ldl -lpthread
 
+LOCAL_SOURCE = \
+      ../../../src/src/TpGUI/Widgets/TpChart.cpp \
+      ../../../src/src/TpGUI/Widgets/TpSeries.cpp \
+      ../../../src/src/TpGUI/Widgets/TpRenderUtils.cpp
+
 CFLAGS = #-Wall -O2 -g
 
 .PHONY:all clean
@@ -45,7 +50,8 @@ all: TpChartAdvanced
 TpChartAdvanced:
 	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
 	$(G++) $(CFLAGS) -c MainWindowService.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o TpChartAdvanced main.o MainWindowService.o $(LIB) $(LIB_PATH) $(RPATH)
+	$(G++) $(CFLAGS) -c $(LOCAL_SOURCE) $(INC_PATH)
+	$(G++) $(CFLAGS) -o TpChartAdvanced main.o MainWindowService.o TpChart.o TpSeries.o TpRenderUtils.o $(LIB) $(LIB_PATH) $(RPATH)
 
 clean:
 	rm -f *.o TpChartAdvanced

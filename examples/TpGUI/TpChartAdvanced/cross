@@ -1,7 +1,7 @@
 #!/bin/bash
 # TpChart Advanced example build script
 
-g++ main.cpp MainWindowService.cpp -o TpChartAdvanced \
+g++ -c main.cpp -o main.o \
     -I. \
     -I../../../src/include \
     -I../../../src/include/TpCore \
@@ -22,7 +22,101 @@ g++ main.cpp MainWindowService.cpp -o TpChartAdvanced \
     -I/usr/include/TinyPiX/TpGUI/Screen \
     -I/usr/include/TinyPiX/TpGUI/Widgets \
     -I/usr/include/TinyPiX/TpGUI/app \
-    -I/usr/include/TinyPiX/TpWM \
+    -I/usr/include/TinyPiX/TpWM
+
+g++ -c MainWindowService.cpp -o MainWindowService.o \
+    -I. \
+    -I../../../src/include \
+    -I../../../src/include/TpCore \
+    -I../../../src/include/TpUtils \
+    -I../../../src/include/TpGUI \
+    -I../../../src/include/TpGUI/GUI \
+    -I../../../src/include/TpGUI/Widgets \
+    -I/usr/include \
+    -I/usr/include/SDL2 \
+    -I/usr/include/glib-2.0 \
+    -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
+    -I/usr/include/TinyPiX \
+    -I/usr/include/TinyPiX/TpCore \
+    -I/usr/include/TinyPiX/TpUtils \
+    -I/usr/include/TinyPiX/TpGUI \
+    -I/usr/include/TinyPiX/TpGUI/GUI \
+    -I/usr/include/TinyPiX/TpGUI/Core \
+    -I/usr/include/TinyPiX/TpGUI/Screen \
+    -I/usr/include/TinyPiX/TpGUI/Widgets \
+    -I/usr/include/TinyPiX/TpGUI/app \
+    -I/usr/include/TinyPiX/TpWM
+
+g++ -c ../../../src/src/TpGUI/Widgets/TpChart.cpp -o TpChart.o \
+    -I. \
+    -I../../../src/include \
+    -I../../../src/include/TpCore \
+    -I../../../src/include/TpUtils \
+    -I../../../src/include/TpGUI \
+    -I../../../src/include/TpGUI/GUI \
+    -I../../../src/include/TpGUI/Widgets \
+    -I/usr/include \
+    -I/usr/include/SDL2 \
+    -I/usr/include/glib-2.0 \
+    -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
+    -I/usr/include/TinyPiX \
+    -I/usr/include/TinyPiX/TpCore \
+    -I/usr/include/TinyPiX/TpUtils \
+    -I/usr/include/TinyPiX/TpGUI \
+    -I/usr/include/TinyPiX/TpGUI/GUI \
+    -I/usr/include/TinyPiX/TpGUI/Core \
+    -I/usr/include/TinyPiX/TpGUI/Screen \
+    -I/usr/include/TinyPiX/TpGUI/Widgets \
+    -I/usr/include/TinyPiX/TpGUI/app \
+    -I/usr/include/TinyPiX/TpWM
+
+g++ -c ../../../src/src/TpGUI/Widgets/TpSeries.cpp -o TpSeries.o \
+    -I. \
+    -I../../../src/include \
+    -I../../../src/include/TpCore \
+    -I../../../src/include/TpUtils \
+    -I../../../src/include/TpGUI \
+    -I../../../src/include/TpGUI/GUI \
+    -I../../../src/include/TpGUI/Widgets \
+    -I/usr/include \
+    -I/usr/include/SDL2 \
+    -I/usr/include/glib-2.0 \
+    -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
+    -I/usr/include/TinyPiX \
+    -I/usr/include/TinyPiX/TpCore \
+    -I/usr/include/TinyPiX/TpUtils \
+    -I/usr/include/TinyPiX/TpGUI \
+    -I/usr/include/TinyPiX/TpGUI/GUI \
+    -I/usr/include/TinyPiX/TpGUI/Core \
+    -I/usr/include/TinyPiX/TpGUI/Screen \
+    -I/usr/include/TinyPiX/TpGUI/Widgets \
+    -I/usr/include/TinyPiX/TpGUI/app \
+    -I/usr/include/TinyPiX/TpWM
+
+g++ -c ../../../src/src/TpGUI/Widgets/TpRenderUtils.cpp -o TpRenderUtils.o \
+    -I. \
+    -I../../../src/include \
+    -I../../../src/include/TpCore \
+    -I../../../src/include/TpUtils \
+    -I../../../src/include/TpGUI \
+    -I../../../src/include/TpGUI/GUI \
+    -I../../../src/include/TpGUI/Widgets \
+    -I/usr/include \
+    -I/usr/include/SDL2 \
+    -I/usr/include/glib-2.0 \
+    -I/usr/include/lib/x86_64-linux-gnu/glib-2.0/include \
+    -I/usr/include/TinyPiX \
+    -I/usr/include/TinyPiX/TpCore \
+    -I/usr/include/TinyPiX/TpUtils \
+    -I/usr/include/TinyPiX/TpGUI \
+    -I/usr/include/TinyPiX/TpGUI/GUI \
+    -I/usr/include/TinyPiX/TpGUI/Core \
+    -I/usr/include/TinyPiX/TpGUI/Screen \
+    -I/usr/include/TinyPiX/TpGUI/Widgets \
+    -I/usr/include/TinyPiX/TpGUI/app \
+    -I/usr/include/TinyPiX/TpWM
+
+g++ main.o MainWindowService.o TpChart.o TpSeries.o TpRenderUtils.o -o TpChartAdvanced \
     -L/usr/lib \
     -L/usr/lib/TinyPiX \
     -Wl,-rpath,/usr/lib/TinyPiX \
