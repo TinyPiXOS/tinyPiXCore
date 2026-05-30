@@ -44,9 +44,12 @@ LOCAL_SOURCE = \
 
 CFLAGS = #-Wall -O2 -g
 
+.DEFAULT_GOAL := all
 .PHONY: all clean TpChart TpChartAdvanced
 
-all: TpChart TpChartAdvanced
+all:
+	$(MAKE) TpChart
+	$(MAKE) TpChartAdvanced
 
 TpChart:
 	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
