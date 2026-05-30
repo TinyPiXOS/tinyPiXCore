@@ -108,7 +108,7 @@ static int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
 
 static int32_t defaultPieColor(int32_t index)
 {
-    static const int32_t colorList[] = {
+    static const uint32_t colorList[] = {
         0xFF4F81BD,
         0xFFC0504D,
         0xFF9BBB59,
@@ -122,7 +122,7 @@ static int32_t defaultPieColor(int32_t index)
     int32_t count = static_cast<int32_t>(sizeof(colorList) / sizeof(colorList[0]));
     if (count <= 0) return 0xFF4F81BD;
     if (index < 0) index = 0;
-    return colorList[index % count];
+    return static_cast<int32_t>(colorList[index % count]);
 }
 
 }
