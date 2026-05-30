@@ -5,6 +5,12 @@ LIB_PATH ?= -L/usr/lib -L/usr/lib/TinyPiX
 RPATH ?= -Wl,-rpath,/usr/lib/TinyPiX
 
 INC_PATH ?= -I. \
+      -I../../../src/include \
+      -I../../../src/include/TpCore \
+      -I../../../src/include/TpUtils \
+      -I../../../src/include/TpGUI \
+      -I../../../src/include/TpGUI/GUI \
+      -I../../../src/include/TpGUI/Widgets \
       -I/usr/include \
       -I/usr/include/SDL2 \
       -I/usr/include/glib-2.0 \

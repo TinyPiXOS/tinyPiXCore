@@ -1,5 +1,6 @@
 #include "MainWindowService.h"
 #include "TpChart.h"
+#include "TpSeries.h"
 #include <TpEvent.h>
 #include <TpFile.h>
 #include <cmath>
