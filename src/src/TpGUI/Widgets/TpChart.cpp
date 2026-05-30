@@ -71,6 +71,11 @@ static double distanceSq(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
     return dx * dx + dy * dy;
 }
 
+static bool pointInRect(const TpRect& rect, const TpPoint& pos)
+{
+    return pos.x() >= rect.x() && pos.x() <= rect.right() && pos.y() >= rect.y() && pos.y() <= rect.bottom();
+}
+
 static TpRect pieSeriesRect(const TpRect& chartRect, int32_t pieCount, int32_t pieIndex)
 {
     if (pieCount <= 0) {
@@ -742,59 +747,6 @@ void TpChart::drawTitle(TpPainter* painter, const TpRect& totalRect) {
     painter->drawText(font, x, y);
 }
 
-/// 缁樺埗鍥句緥
-void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect) {
-    TpVector<const char*> names;
-    TpVector<int32_t> colors;
-    TpVector<int32_t> endColors;
-    TpVector<int32_t> types;
-    bool pieMode = isPieChartMode();
-
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
-        if (!s || !s->isVisible()) continue;
-
-        if (s->type() == TpSeries::TypePie) {
-            if (!pieMode) continue;
-            TpPieSeries* pieSeries = static_cast<TpPieSeries*>(s);
-            for (int32_t k = 0; k < pieSeries->sliceCount(); ++k) {
-                const TpString& sliceName = pieSeries->sliceName(k);
-                if (sliceName.empty()) continue;
-                names.push_back(sliceName.c_str());
-                colors.push_back(pieSeries->sliceColor(k));
-                endColors.push_back(pieSeries->sliceColor(k));
-                types.push_back(TpRenderUtils::TypePie);
-            }
-            continue;
-        }
-
-        if (s->type() == TpSeries::TypePie) {
-            continue;
-        }
-
-        if (s->name().empty()) continue;
-
-        names.push_back(s->name().c_str());
-        colors.push_back(s->color());
-        
-        if (s->type() == TpSeries::TypeBar) {
-            // 瀹夊叏寮鸿浆
-            endColors.push_back(static_cast<TpBarSeries*>(s)->colorEnd());
-            types.push_back(TpRenderUtils::TypeBar);
-        } else if (s->type() == TpSeries::TypeScatter) {
-            endColors.push_back(s->color());
-            types.push_back(TpRenderUtils::TypeScatter);
-        } else {
-            endColors.push_back(s->color());
-            types.push_back(TpRenderUtils::TypeLine);
-        }
-    }
-
-    if (names.size() > 0) {
-        TpRenderUtils::drawLegendOutside(painter, totalRect, chartRect, names, colors, endColors, types);
-    }
-}
-
 bool TpChart::isPieChartMode() const {
     bool hasVisibleSeries = false;
 
@@ -1103,7 +1055,7 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
     text.clear();
     hitPos = pos;
 
-    if (!chartRect.contains(pos)) {
+    if (!pointInRect(chartRect, pos)) {
         return false;
     }
 
@@ -1280,7 +1232,7 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
                 if (height == 0) height = 1;
                 TpRect barRect(barLeft, top, barWidth, height);
 
-                if (barRect.contains(pos)) {
+                if (pointInRect(barRect, pos)) {
                     seriesIndex = i;
                     pointIndex = k;
                     hitPos = TpPoint(barRect.x() + barRect.width() / 2, barRect.y() + barRect.height() / 2);
@@ -1397,7 +1349,7 @@ bool TpChart::toggleLegendAt(const TpPoint& pos, const TpRect& totalRect, const 
 
     for (int32_t i = 0; i < m_impl->legendItems.size(); ++i) {
         const LegendItem& item = m_impl->legendItems[i];
-        if (!item.rect.contains(pos)) {
+        if (!pointInRect(item.rect, pos)) {
             continue;
         }
 
@@ -1482,7 +1434,7 @@ void TpChart::drawTooltip(TpPainter* painter, const TpRect& chartRect)
 /// @brief 缁樺埗鍗佸瓧绾?
 void TpChart::drawCrosshair(TpPainter* painter, const TpRect& chartRect)
 {
-    if (!painter || !m_impl || !m_impl->crosshairVisible || !m_impl->hasHover || !chartRect.contains(m_impl->hoverPos)) {
+    if (!painter || !m_impl || !m_impl->crosshairVisible || !m_impl->hasHover || !pointInRect(chartRect, m_impl->hoverPos)) {
         return;
     }
 
@@ -1702,7 +1654,7 @@ bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
         }
     }
 
-    if (!chartRect.contains(pos)) {
+    if (!pointInRect(chartRect, pos)) {
         clearHoverState();
         this->update();
         return true;
@@ -1766,7 +1718,7 @@ bool TpChart::onMousePressEvent(TpMouseEvent* event)
         return true;
     }
 
-    if (!chartRect.contains(pos)) {
+    if (!pointInRect(chartRect, pos)) {
         return TpWidget::onMousePressEvent(event);
     }
 
@@ -1805,7 +1757,7 @@ bool TpChart::onMouseRleaseEvent(TpMouseEvent* event)
     m_impl->mousePressed = false;
     m_impl->isDragging = false;
 
-    if (!wasDragging && m_impl->selectionEnabled && chartRect.contains(pos)) {
+    if (!wasDragging && m_impl->selectionEnabled && pointInRect(chartRect, pos)) {
         int32_t seriesIndex = -1;
         int32_t pointIndex = -1;
         int32_t sliceIndex = -1;
