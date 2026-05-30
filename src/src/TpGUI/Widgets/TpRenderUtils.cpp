@@ -9,6 +9,7 @@
 
 
 #include "TpRenderUtils.h"
+#include "TpLinearGradient.h"
 #include "TpPainterPath.h"
 #include <TpString.h>
 #include <algorithm>
@@ -291,7 +292,25 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
 void TpRenderUtils::drawGradientBar(TpPainter *painter, const TpRect &barRect, uint32_t colorStart, uint32_t colorEnd) {
     if (!painter) return;
 
-    fillGradientRect(painter, barRect, colorStart, colorEnd);
+    if (colorStart == colorEnd) {
+        TpPen pen(colorEnd);
+        TpBrush brush(colorStart);
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRect(barRect.x(), barRect.y(), barRect.width(), barRect.height());
+    } else {
+        TpLinearGradient gradient;
+        gradient.setStart(static_cast<float>(barRect.x()), static_cast<float>(barRect.y()));
+        gradient.setFinalStop(static_cast<float>(barRect.x()), static_cast<float>(barRect.bottom()));
+        gradient.setColorAt(0.0f, static_cast<int32_t>(colorStart));
+        gradient.setColorAt(1.0f, static_cast<int32_t>(colorEnd));
+
+        TpPen pen(colorEnd);
+        TpBrush brush(&gradient);
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRect(barRect.x(), barRect.y(), barRect.width(), barRect.height());
+    }
 
     TpPen borderPen(colorEnd); 
     painter->setPen(borderPen);

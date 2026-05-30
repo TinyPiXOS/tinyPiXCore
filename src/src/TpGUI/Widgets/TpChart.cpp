@@ -192,10 +192,17 @@ void TpChart::refreshBaseCss() {
 // 内部逻辑：自动计算范围
 /// 根据所有 Series 数据自动调整坐标轴范围
 void TpChart::updateAxisRange() {
+    bool autoRangeX = m_impl->axisX->isAutoRange();
+    bool autoRangeY = m_impl->axisY->isAutoRange();
+
+    if (!autoRangeX && !autoRangeY) {
+        return;
+    }
+
     if (m_impl->seriesList.empty()) {
         // 如果没有数据，且是自动范围，才设置默认值
-        if (m_impl->axisX->isAutoRange()) m_impl->axisX->setRange(0, 10);
-        if (m_impl->axisY->isAutoRange()) m_impl->axisY->setRange(0, 10);
+        if (autoRangeX) m_impl->axisX->setRange(0, 10);
+        if (autoRangeY) m_impl->axisY->setRange(0, 10);
         return;
     }
 
@@ -211,30 +218,34 @@ void TpChart::updateAxisRange() {
         TpSeries* s = m_impl->seriesList[i];
         if (!s || !s->isVisible()) continue;
 
-        if (s->type() == TpSeries::TypeBar) {
+        if (autoRangeX && s->type() == TpSeries::TypeBar) {
             hasBarSeries = true;
         }
 
         const TpVector<TpDataPoint>& data = s->data();
         for (int32_t k = 0; k < data.size(); ++k) {
-            double x = data[k].x;
-            double y = data[k].y;
-            if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
-            if (y < minY) minY = y;
-            if (y > maxY) maxY = y;
+            if (autoRangeX) {
+                double x = data[k].x;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+            }
+            if (autoRangeY) {
+                double y = data[k].y;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
             hasData = true;
         }
     }
 
     if (!hasData) {
-        if (m_impl->axisX->isAutoRange()) m_impl->axisX->setRange(0, 10);
-        if (m_impl->axisY->isAutoRange()) m_impl->axisY->setRange(0, 10);
+        if (autoRangeX) m_impl->axisX->setRange(0, 10);
+        if (autoRangeY) m_impl->axisY->setRange(0, 10);
         return;
     }
 
     // 判断 X 轴是否开启自动范围
-    if (m_impl->axisX->isAutoRange()) {
+    if (autoRangeX) {
         if (hasBarSeries) {
            double spanX = maxX - minX;
             if (spanX <= 0) spanX = 1.0;
@@ -252,7 +263,7 @@ void TpChart::updateAxisRange() {
     }
 
     // 判断 Y 轴是否开启自动范围
-    if (m_impl->axisY->isAutoRange()) {
+    if (autoRangeY) {
         double spanY = maxY - minY;
         if (spanY <= 0) spanY = 1.0;
         
