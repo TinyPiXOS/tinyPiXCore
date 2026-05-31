@@ -1,8 +1,8 @@
 /*
  * 版权声明 (Copyright Declaration)
- * 作者: 刘杨
- * 邮箱: 825143438@qq.com
- * 版权所有: 2026 刘杨. All rights reserved.
+ * 作者: 张家庆
+ * 邮箱: 1494197384@qq.com
+ * 版权所有: 2026 张家庆. All rights reserved.
  * 描述: TpSeries 数据系列类 API 定义
  */
 

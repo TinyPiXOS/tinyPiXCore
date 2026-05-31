@@ -1,7 +1,7 @@
 /*
  * 版权声明 (Copyright Declaration)
  * 作者: 刘杨
- * 邮箱: 825143438@qq.com
+ * 邮箱: 2825143438@qq.com
  * 版权所有: 2026 刘杨. All rights reserved.
  * 描述: TpChart 图表控件类 API 定义
  */

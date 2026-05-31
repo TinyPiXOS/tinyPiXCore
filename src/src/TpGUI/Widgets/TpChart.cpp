@@ -1,7 +1,7 @@
 /*
  * 版权声明 (Copyright Declaration)
  * 作者: 刘杨
- * 邮箱: 825143438@qq.com
+ * 邮箱: 2825143438@qq.com
  * 版权所有: 2026 刘杨. All rights reserved.
  * 描述: 图表类实现 (TpChart) - 响应式缩放与极限尺寸修复版
  */
