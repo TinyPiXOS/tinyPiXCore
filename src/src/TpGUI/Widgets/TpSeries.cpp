@@ -1,12 +1,13 @@
 /*
  * 版权声明 (Copyright Declaration)
- * 作者 (Author)：张家庆
- * 邮箱 (Email)：1494197384@qq.com
- * 版权所有 (Copyright)：© 2026 张家庆。All rights reserved.
- * 描述 (Description)：图表系列基类及其派生类的实现 (Pimpl 模式)
+ * 作者: 张家庆
+ * 邮箱: 1494197384@qq.com
+ * 版权所有: 2026 张家庆. All rights reserved.
+ * 描述: 图表数据系列类实现 (TpSeries)
  */
 
 #include "TpSeries.h"
+#include <algorithm>
 #include <cmath>
 #include "TpRenderUtils.h"
 #include "TpPainter.h"
@@ -59,6 +60,72 @@ public:
         : TpSeriesPrivate(TpSeries::TypeBar), m_colorEnd(0), m_seriesIndex(0), m_seriesCount(1),
           m_showLabels(false), m_labelColor(0xFF000000), m_labelSize(10) {}
 };
+
+/// @brief 散点图私有数据类
+class TpScatterSeriesPrivate : public TpSeriesPrivate
+{
+public:
+    int32_t m_pointSize;
+    int32_t m_borderColor;
+    bool m_showLabels;
+    int32_t m_labelColor;
+    int32_t m_labelSize;
+
+    TpScatterSeriesPrivate()
+        : TpSeriesPrivate(TpSeries::TypeScatter), m_pointSize(4), m_borderColor(0), m_showLabels(false),
+          m_labelColor(0xFF000000), m_labelSize(10) {}
+};
+
+/// @brief 饼图私有数据类
+class TpPieSeriesPrivate : public TpSeriesPrivate
+{
+public:
+    TpVector<TpPieSlice> m_slices;
+    bool m_showLabels;
+    bool m_showPercent;
+    bool m_donutVisible;
+    double m_donutRatio;
+    int32_t m_explodedIndex;
+    int32_t m_explodeDistance;
+    int32_t m_startAngle;
+    int32_t m_labelColor;
+    int32_t m_labelSize;
+
+    TpPieSeriesPrivate()
+        : TpSeriesPrivate(TpSeries::TypePie), m_showLabels(true), m_showPercent(true), m_donutVisible(false),
+          m_donutRatio(0.55), m_explodedIndex(-1), m_explodeDistance(12), m_startAngle(270),
+          m_labelColor(0xFF000000), m_labelSize(10) {}
+};
+
+namespace {
+
+static int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
+{
+    if (value < minValue) return minValue;
+    if (value > maxValue) return maxValue;
+    return value;
+}
+
+static int32_t defaultPieColor(int32_t index)
+{
+    static const uint32_t colorList[] = {
+        0xFF4F81BD,
+        0xFFC0504D,
+        0xFF9BBB59,
+        0xFF8064A2,
+        0xFF4BACC6,
+        0xFFF79646,
+        0xFF1F497D,
+        0xFF632523
+    };
+
+    int32_t count = static_cast<int32_t>(sizeof(colorList) / sizeof(colorList[0]));
+    if (count <= 0) return 0xFF4F81BD;
+    if (index < 0) index = 0;
+    return static_cast<int32_t>(colorList[index % count]);
+}
+
+}
 
 // TpSeries 实现
 
@@ -132,7 +199,7 @@ void TpSeries::addPoint(double x, double y)
     d_ptr->m_data.push_back(TpDataPoint(x, y));
 
     // 超出最大容量则移除最旧的数据
-    if (d_ptr->m_maxCount > 0 && d_ptr->m_data.size() > d_ptr->m_maxCount)
+    if (d_ptr->m_maxCount > 0 && d_ptr->m_data.size() > d_ptr->m_maxCount + 2)
     {
         d_ptr->m_data.remove(0);
     }
@@ -143,6 +210,10 @@ void TpSeries::clear()
     if (d_ptr)
     {
         d_ptr->m_data.clear();
+        if (d_ptr->m_type == TypePie)
+        {
+            static_cast<TpPieSeriesPrivate*>(d_ptr)->m_slices.clear();
+        }
     }
 }
 
@@ -164,15 +235,15 @@ void TpSeries::setMaxPointCount(int32_t count)
     }
 }
 
-/// @brief 从CSS获取颜色值
-/// @param className 类名（如 "TpLineSeries" 或 "TpBarSeries"）
-/// @param status 状态（ Enabled, Hover, Pressed等）
+/// @brief 从 CSS 获取颜色值
+/// @param className 类名（例如 "TpLineSeries" 或 "TpBarSeries"）
+/// @param status 状态（Enabled, Hover, Pressed 等）
 void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus status)
 {
-    // 1. 首先读取通用类样式（如 TpLineSeries）
+    // 1. 首先读取通用类样式（例如 TpLineSeries）
     tpShared<TpCssData> cssData = TpApp::Inst()->cssParser()->readCss(className, "", status);
 
-    // 2. 尝试读取带名称的样式（如 TpLineSeries[name="CPU Usage"]）
+    // 2. 尝试读取带名称的样式（例如 TpLineSeries[name="CPU Usage"]）
     TpString typeName = name();
     if (!typeName.empty())
     {
@@ -186,7 +257,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
 
     if (cssData)
     {
-        // 设置颜色（如果CSS中定义了）
+        // 设置颜色（如果 CSS 中定义了）
         if (color() == 0xFF000000 || cssData->color() != 0)
         {
             d_ptr->m_color = cssData->color();
@@ -205,10 +276,22 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
                 }
             }
         }
+        else if (type() == TypeScatter)
+        {
+            auto* scatterData = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+            if (scatterData)
+            {
+                int32_t cssPointSize = cssData->borderWidth();
+                if (cssPointSize > 0)
+                {
+                    scatterData->m_pointSize = cssPointSize;
+                }
+            }
+        }
     }
 }
 
-// TpLineSeries 实现
+// TpLineSeries 瀹炵幇
 
 TpLineSeries::TpLineSeries()
     : TpSeries(TypeLine)
@@ -274,7 +357,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
-    // 计算缩放因子 (基准分辨率按 800x600 算)
+    // 计算缩放因子（基准分辨率按 800x600 计算）
     double scaleX = rectW / 800.0;
     double scaleY = rectH / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY;
@@ -294,6 +377,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
 
     TpVector<TpPoint> pixelPoints;
 
+    // ========== 降采样分支 ==========
     if (d->m_useDownsample && d->m_data.size() > rectW * 2)
     {
         // 降采样模式：使用 Min-Max 算法
@@ -307,7 +391,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         // 调用 downsample 进行降采样
         TpVector<TpAxis::SamplePoint> samples = TpAxis::downsample(yData, 0, yData.size(), rectW);
 
-        // 将降采样结果转换为像素点（每个 bucket 取 min 和 max 两个点，形成垂直线效果）
+        // 将降采样结果转换为像素点（每个 bucket 取 min 和 max 两个点，形成竖线效果）
         for (int32_t i = 0; i < samples.size(); ++i)
         {
             const TpAxis::SamplePoint& sp = samples[i];
@@ -322,17 +406,20 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
             pixelPoints.push_back(TpPoint(px, pyMax));
         }
     }
+    // ========== 全量绘制分支（单线程高效映射，每个点都完整绘制） ==========
     else
     {
-        // 全量绘制模式：绘制每一个点
-        for (int32_t i = 0; i < d->m_data.size(); ++i)
-        {
+        const int32_t totalPoints = d->m_data.size();
+        pixelPoints.resize(totalPoints);
+
+        for (int32_t i = 0; i < totalPoints; ++i) {
             int32_t px = axisX.mapToPixel(d->m_data[i].x, rectW, rectX, false);
             int32_t py = axisY.mapToPixel(d->m_data[i].y, rectH, rectY, true);
-            pixelPoints.push_back(TpPoint(px, py)); 
+            pixelPoints[i] = TpPoint(px, py);
         }
     }
 
+    // ========== 后续绘制逻辑 ==========
     // 使用动态线宽绘制折线或平滑曲线
     if (d->m_smooth)
     {
@@ -343,7 +430,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         TpRenderUtils::drawPolyline(painter, pixelPoints, rect, d->m_color, dynamicLineWidth);
     }
 
-    // 使用动态半径绘制数据锚点（点数较少时才绘制）
+    // 使用动态半径绘制数据点（点数较少时才绘制）
     if (pixelPoints.size() < 50)
     {
         for (int32_t i = 0; i < pixelPoints.size(); ++i)
@@ -353,7 +440,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     }
 }
 
-// TpBarSeries 实现
+// TpBarSeries 瀹炵幇
 
 TpBarSeries::TpBarSeries()
     : TpSeries(TypeBar)
@@ -484,5 +571,528 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
 
             painter->drawText(labelFont, textX, textY);
         }
+    }
+}
+
+// TpScatterSeries 实现
+TpScatterSeries::TpScatterSeries()
+    : TpSeries(TypeScatter)
+{
+    delete d_ptr;
+    d_ptr = new TpScatterSeriesPrivate();
+}
+
+TpScatterSeries::~TpScatterSeries()
+{
+}
+
+void TpScatterSeries::setPointSize(int32_t size)
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_pointSize = size > 0 ? size : 1;
+    }
+}
+
+int32_t TpScatterSeries::pointSize() const
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    return d ? d->m_pointSize : 0;
+}
+
+void TpScatterSeries::setBorderColor(int32_t color)
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_borderColor = color;
+    }
+}
+
+int32_t TpScatterSeries::borderColor() const
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    return d ? d->m_borderColor : 0;
+}
+
+void TpScatterSeries::setLabelsVisible(bool visible)
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_showLabels = visible;
+    }
+}
+
+void TpScatterSeries::setLabelColor(int32_t color)
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_labelColor = color;
+    }
+}
+
+void TpScatterSeries::setLabelSize(int32_t size)
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_labelSize = size > 0 ? size : 1;
+    }
+}
+
+void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
+{
+    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    if (!d || !d->m_visible || d->m_data.size() == 0 || !painter)
+        return;
+
+    int32_t rectX = rect.x();
+    int32_t rectY = rect.y();
+    int32_t rectW = rect.width();
+    int32_t rectH = rect.height();
+
+    double scaleX = rectW / 800.0;
+    double scaleY = rectH / 600.0;
+    double scale = scaleX < scaleY ? scaleX : scaleY;
+    if (scale < 0.5)
+        scale = 0.5;
+    if (scale > 2.5)
+        scale = 2.5;
+
+    int32_t pointRadius = static_cast<int32_t>(d->m_pointSize * scale);
+    if (pointRadius < 2)
+        pointRadius = 2;
+
+    int32_t borderColor = d->m_borderColor;
+    if (borderColor == 0)
+        borderColor = d->m_color;
+    if (borderColor == 0)
+        borderColor = 0xFF000000;
+
+    int32_t fillColor = d->m_color;
+    if (fillColor == 0)
+        fillColor = borderColor;
+
+    TpFont labelFont;
+    int32_t labelSize = static_cast<int32_t>(d->m_labelSize * scale);
+    if (labelSize < 8)
+        labelSize = 8;
+    labelFont.setFontSize(labelSize);
+    labelFont.setFontColor(d->m_labelColor == 0 ? 0xFF000000 : d->m_labelColor);
+
+    for (int32_t i = 0; i < d->m_data.size(); ++i)
+    {
+        const TpDataPoint& pt = d->m_data[i];
+
+        int32_t px = axisX.mapToPixel(pt.x, rectW, rectX, false);
+        int32_t py = axisY.mapToPixel(pt.y, rectH, rectY, true);
+
+        if (px < rectX - pointRadius || px > rect.right() + pointRadius)
+            continue;
+        if (py < rectY - pointRadius || py > rect.bottom() + pointRadius)
+            continue;
+
+        painter->setPen(TpPen(borderColor, 1));
+        painter->setBrush(TpBrush(fillColor));
+        painter->drawEllipse(TpPoint(px, py), pointRadius, pointRadius);
+
+        if (d->m_showLabels)
+        {
+            TpString text = "(";
+            text += TpString::number(pt.x, 2);
+            text += ", ";
+            text += TpString::number(pt.y, 2);
+            text += ")";
+
+            labelFont.setText(text);
+            int32_t textW = labelFont.pixelWidth();
+            int32_t textH = labelFont.pixelHeight();
+            if (textW <= 0) textW = static_cast<int32_t>(text.length()) * (labelSize / 2 + 1);
+            if (textH <= 0) textH = labelSize;
+
+            int32_t textX = px + pointRadius + 4;
+            int32_t textY = py - pointRadius - textH;
+            if (textX + textW > rect.right())
+            {
+                textX = px - pointRadius - 4 - textW;
+            }
+            if (textX < rectX)
+            {
+                textX = rectX;
+            }
+            if (textY < rectY)
+            {
+                textY = py + pointRadius + 2;
+            }
+
+            painter->drawText(labelFont, textX, textY);
+        }
+    }
+}
+
+// TpPieSeries 实现
+TpPieSeries::TpPieSeries()
+    : TpSeries(TypePie)
+{
+    delete d_ptr;
+    d_ptr = new TpPieSeriesPrivate();
+}
+
+TpPieSeries::~TpPieSeries()
+{
+}
+
+void TpPieSeries::addSlice(const TpString& name, double value, int32_t color)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_slices.push_back(TpPieSlice(name, value, color));
+    }
+}
+
+void TpPieSeries::addSlice(const char* name, double value, int32_t color)
+{
+    addSlice(TpString(name), value, color);
+}
+
+void TpPieSeries::clearSlices()
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_slices.clear();
+    }
+}
+
+int32_t TpPieSeries::sliceCount() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_slices.size() : 0;
+}
+
+const TpString& TpPieSeries::sliceName(int32_t index) const
+{
+    static TpString emptyText;
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return emptyText;
+    return d->m_slices[index].name;
+}
+
+double TpPieSeries::sliceValue(int32_t index) const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return 0.0;
+    return d->m_slices[index].value;
+}
+
+int32_t TpPieSeries::sliceColor(int32_t index) const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return 0;
+    return d->m_slices[index].color;
+}
+
+void TpPieSeries::setSliceVisible(int32_t index, bool visible)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return;
+
+    d->m_slices[index].visible = visible;
+}
+
+bool TpPieSeries::isSliceVisible(int32_t index) const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || index < 0 || index >= d->m_slices.size())
+        return false;
+
+    return d->m_slices[index].visible;
+}
+
+void TpPieSeries::setLabelsVisible(bool visible)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_showLabels = visible;
+    }
+}
+
+void TpPieSeries::setPercentVisible(bool visible)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_showPercent = visible;
+    }
+}
+
+void TpPieSeries::setDonutVisible(bool visible)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_donutVisible = visible;
+    }
+}
+
+bool TpPieSeries::donutVisible() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_donutVisible : false;
+}
+
+void TpPieSeries::setDonutRatio(double ratio)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        if (ratio < 0.05)
+            ratio = 0.05;
+        if (ratio > 0.95)
+            ratio = 0.95;
+        d->m_donutRatio = ratio;
+    }
+}
+
+double TpPieSeries::donutRatio() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_donutRatio : 0.0;
+}
+
+void TpPieSeries::setStartAngle(int32_t angle)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_startAngle = angle;
+    }
+}
+
+int32_t TpPieSeries::startAngle() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_startAngle : 0;
+}
+
+void TpPieSeries::setExplodedIndex(int32_t index)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_explodedIndex = index;
+    }
+}
+
+int32_t TpPieSeries::explodedIndex() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_explodedIndex : -1;
+}
+
+void TpPieSeries::setExplodeDistance(int32_t distance)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_explodeDistance = distance > 0 ? distance : 0;
+    }
+}
+
+int32_t TpPieSeries::explodeDistance() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_explodeDistance : 0;
+}
+
+void TpPieSeries::setLabelColor(int32_t color)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_labelColor = color;
+    }
+}
+
+int32_t TpPieSeries::labelColor() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_labelColor : 0;
+}
+
+void TpPieSeries::setLabelSize(int32_t size)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (d)
+    {
+        d->m_labelSize = size > 0 ? size : 1;
+    }
+}
+
+int32_t TpPieSeries::labelSize() const
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    return d ? d->m_labelSize : 0;
+}
+
+void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const TpRect& rect)
+{
+    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    if (!d || !d->m_visible || !painter || d->m_slices.size() == 0)
+        return;
+
+    double totalValue = 0.0;
+    for (int32_t i = 0; i < d->m_slices.size(); ++i)
+    {
+        const TpPieSlice& slice = d->m_slices[i];
+        if (!slice.visible)
+            continue;
+
+        double value = slice.value;
+        if (value > 0.0)
+        {
+            totalValue += value;
+        }
+    }
+
+    if (totalValue <= 0.0)
+        return;
+
+    int32_t rectX = rect.x();
+    int32_t rectY = rect.y();
+    int32_t rectW = rect.width();
+    int32_t rectH = rect.height();
+
+    int32_t padding = 12;
+    if (rectW < 160 || rectH < 160)
+        padding = 6;
+
+    int32_t minSide = rectW < rectH ? rectW : rectH;
+    int32_t diameter = minSide - padding * 2;
+    if (diameter < 20)
+        diameter = minSide;
+
+    int32_t radius = diameter / 2;
+    if (radius < 1)
+        return;
+
+    int32_t centerX = rectX + rectW / 2;
+    int32_t centerY = rectY + rectH / 2;
+
+    double currentAngle = d->m_startAngle;
+    int32_t labelColor = d->m_labelColor == 0 ? 0xFF000000 : d->m_labelColor;
+    int32_t labelSize = d->m_labelSize;
+    if (labelSize < 8)
+        labelSize = 8;
+
+    TpFont labelFont;
+    labelFont.setFontSize(labelSize);
+    labelFont.setFontColor(labelColor);
+
+    for (int32_t i = 0; i < d->m_slices.size(); ++i)
+    {
+        const TpPieSlice& slice = d->m_slices[i];
+        if (!slice.visible || slice.value <= 0.0)
+            continue;
+
+        double sweep = (slice.value * 360.0) / totalValue;
+        if (sweep <= 0.0)
+            continue;
+
+        int32_t sliceColor = slice.color;
+        if (sliceColor == 0)
+            sliceColor = d->m_color;
+        if (sliceColor == 0)
+            sliceColor = defaultPieColor(i);
+
+        double midAngle = currentAngle + (sweep * 0.5);
+        double midRad = midAngle * 3.14159265358979323846 / 180.0;
+
+        int32_t drawCenterX = centerX;
+        int32_t drawCenterY = centerY;
+        if (d->m_explodedIndex == i && d->m_explodeDistance > 0)
+        {
+            drawCenterX += static_cast<int32_t>(std::cos(midRad) * d->m_explodeDistance + 0.5);
+            drawCenterY += static_cast<int32_t>(std::sin(midRad) * d->m_explodeDistance + 0.5);
+        }
+
+        TpHollowMask hollowMask;
+        int32_t innerRadius = 0;
+        if (d->m_donutVisible)
+        {
+            innerRadius = static_cast<int32_t>(radius * d->m_donutRatio);
+            if (innerRadius > 0 && innerRadius < radius)
+            {
+                hollowMask.addCircleHollow(drawCenterX, drawCenterY, innerRadius);
+            }
+            else
+            {
+                innerRadius = 0;
+            }
+        }
+
+        painter->setPen(TpPen(sliceColor, 1));
+        painter->setBrush(TpBrush(sliceColor));
+        painter->drawPie(TpPoint(drawCenterX, drawCenterY), radius, static_cast<int32_t>(currentAngle), static_cast<int32_t>(currentAngle + sweep), hollowMask);
+
+        if (d->m_showLabels || d->m_showPercent)
+        {
+            TpString text;
+            if (d->m_showLabels && !slice.name.empty())
+            {
+                text += slice.name;
+            }
+
+            if (d->m_showPercent)
+            {
+                double percent = (slice.value * 100.0) / totalValue;
+                if (!text.empty())
+                {
+                    text += " ";
+                }
+                text += TpString::number(percent, 1);
+                text += "%";
+            }
+
+            if (!text.empty())
+            {
+                labelFont.setText(text);
+                int32_t textW = labelFont.pixelWidth();
+                int32_t textH = labelFont.pixelHeight();
+                if (textW <= 0) textW = static_cast<int32_t>(text.length()) * (labelSize / 2 + 1);
+                if (textH <= 0) textH = labelSize;
+
+                double labelRadius = d->m_donutVisible ? (innerRadius + (radius - innerRadius) * 0.5) : (radius * 0.65);
+                if (sweep < 18.0)
+                {
+                    labelRadius = radius + 16.0;
+                }
+
+                int32_t labelX = drawCenterX + static_cast<int32_t>(std::cos(midRad) * labelRadius + 0.5) - (textW / 2);
+                int32_t labelY = drawCenterY + static_cast<int32_t>(std::sin(midRad) * labelRadius + 0.5) - (textH / 2);
+
+                if (labelX < rectX)
+                    labelX = rectX;
+                if (labelY < rectY)
+                    labelY = rectY;
+                if (labelX + textW > rect.right())
+                    labelX = rect.right() - textW;
+                if (labelY + textH > rect.bottom())
+                    labelY = rect.bottom() - textH;
+
+                painter->drawText(labelFont, labelX, labelY);
+            }
+        }
+
+        currentAngle += sweep;
     }
 }

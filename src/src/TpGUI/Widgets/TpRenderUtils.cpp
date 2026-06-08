@@ -9,6 +9,8 @@
 
 
 #include "TpRenderUtils.h"
+#include "TpLinearGradient.h"
+#include "TpPainterPath.h"
 #include <TpString.h>
 #include <algorithm>
 #include <cmath>
@@ -108,13 +110,17 @@ void TpRenderUtils::fillGradientRect(TpPainter *painter, const TpRect &rect, uin
         return;
     }
 
-    for (int32_t y = 0; y < h; ++y) {
+    const int32_t STEP = 4;
+    for (int32_t y = 0; y < h; y += STEP) {
+        int32_t bandH = (y + STEP <= h) ? STEP : (h - y);
         int32_t ratio = (y * 256) / h;
-        uint32_t curColor = blendColor(colorStart, colorEnd, ratio); 
-        
-        TpPen tempPen(curColor);
-        painter->setPen(tempPen);
-        painter->drawLine(rect.x(), rect.y() + y, rect.right(), rect.y() + y);
+        uint32_t curColor = blendColor(colorStart, colorEnd, ratio);
+
+        TpPen pen(curColor);
+        TpBrush brush(curColor);
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRect(rect.x(), rect.y() + y, rect.width(), bandH);
     }
 }
 
@@ -205,11 +211,35 @@ void TpRenderUtils::drawPolyline(TpPainter* painter, const TpVector<TpPoint>& po
     TpPen pen(color, lineWidth);
     painter->setPen(pen);
 
-    for (size_t i = 0; i < points.size() - 1; ++i) {
-        const TpPoint& p1 = points[i];
-        const TpPoint& p2 = points[i+1];
-        
-        drawClippedLine(painter, p1.x(), p1.y(), p2.x(), p2.y(), clipRect);
+    // 缓存边界值
+    int32_t left = clipRect.x(), right = clipRect.right();
+    int32_t top = clipRect.y(), bottom = clipRect.bottom();
+
+    // 检查是否所有点都在裁剪区内
+    bool allInside = true;
+    for (size_t i = 0; i < points.size(); ++i) {
+        const TpPoint& p = points[i];
+        if (p.x() < left || p.x() > right || p.y() < top || p.y() > bottom) {
+            allInside = false;
+            break;
+        }
+    }
+
+    if (allInside) {
+        // 批量路径绘制（高性能）
+        TpPainterPath path;
+        path.moveTo(points[0]);
+        for (size_t i = 1; i < points.size(); ++i) {
+            path.lineTo(points[i]);
+        }
+        painter->drawPath(path);
+    } else {
+        // 逐段裁剪绘制（保证正确性，仅在有点超出时使用）
+        for (size_t i = 0; i < points.size() - 1; ++i) {
+            const TpPoint& p1 = points[i];
+            const TpPoint& p2 = points[i+1];
+            drawClippedLine(painter, p1.x(), p1.y(), p2.x(), p2.y(), clipRect);
+        }
     }
 }
 
@@ -244,6 +274,7 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
         float cp2x = p2.x() - (p3.x() - p1.x()) * scale;
         float cp2y = p2.y() - (p3.y() - p1.y()) * scale;
 
+        // ⭐ 直接使用 ThorVG cubic
         painter->drawCubic(
             p1.x(), p1.y(),
             (int32_t)(cp1x + 0.5f),
@@ -261,7 +292,25 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
 void TpRenderUtils::drawGradientBar(TpPainter *painter, const TpRect &barRect, uint32_t colorStart, uint32_t colorEnd) {
     if (!painter) return;
 
-    fillGradientRect(painter, barRect, colorStart, colorEnd);
+    if (colorStart == colorEnd) {
+        TpPen pen(colorEnd);
+        TpBrush brush(colorStart);
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRect(barRect.x(), barRect.y(), barRect.width(), barRect.height());
+    } else {
+        TpLinearGradient gradient;
+        gradient.setStart(static_cast<float>(barRect.x()), static_cast<float>(barRect.y()));
+        gradient.setFinalStop(static_cast<float>(barRect.x()), static_cast<float>(barRect.bottom()));
+        gradient.setColorAt(0.0f, static_cast<int32_t>(colorStart));
+        gradient.setColorAt(1.0f, static_cast<int32_t>(colorEnd));
+
+        TpPen pen(colorEnd);
+        TpBrush brush(&gradient);
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRect(barRect.x(), barRect.y(), barRect.width(), barRect.height());
+    }
 
     TpPen borderPen(colorEnd); 
     painter->setPen(borderPen);
@@ -342,12 +391,23 @@ void TpRenderUtils::drawLegendOutside(TpPainter* painter, const TpRect& totalRec
         int32_t colorStart = (i < colors.size()) ? colors[i] : 0;
         int32_t colorEnd = (i < endColors.size()) ? endColors[i] : colorStart;
 
-        // 绘制前面的小图标 (柱状或折线)
+        // 绘制前面的小图标
         if (type == TypeBar) { 
             TpRect iconRect(currentX, iconTopY, iconW, iconH);
             TpRenderUtils::fillGradientRect(painter, iconRect, colorStart, colorEnd);
-        } 
-        else {
+        } else if (type == TypeScatter) {
+            int32_t pointR = (int32_t)(3 * scale);
+            if (pointR < 1) pointR = 1;
+            TpPoint center(currentX + (iconW / 2), textCenterY);
+            TpRenderUtils::drawAnchorPoint(painter, center, pointR, colorStart, colorStart);
+        } else if (type == TypePie) {
+            TpPoint center(currentX + (iconW / 2), textCenterY);
+            int32_t pieR = iconH / 2;
+            if (pieR < 2) pieR = 2;
+            painter->setPen(TpPen(colorStart, 1));
+            painter->setBrush(TpBrush(colorStart));
+            painter->drawPie(center, pieR, 270, 330);
+        } else {
             int32_t lineY = textCenterY; 
             TpPen linePen(colorStart, 2);
             painter->setPen(linePen);

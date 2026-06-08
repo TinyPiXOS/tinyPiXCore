@@ -1,20 +1,10 @@
 /**
- * TpChart CSS 样式文件示例
+ * TpChart 样式文件
  *
- * 支持的样式属性：
- * - background-color: 设置图表背景色（支持渐变）
- * - color: 设置系列颜色（折线图/柱状图）
- * - border-color: 设置边框颜色
- * - border-radius: 设置圆角
- * - border-width: 边框宽度
- * - padding: 内边距
- *
- * 选择器语法：
- * - TpLineSeries - 所有折线图系列
- * - TpLineSeries[name="CPU Usage"] - 指定名称的系列
+ * 这里把两套测试共用的图表样式放在同一个文件里。
+ * 基础图表、散点图、饼图都可以直接读取这份样式。
  */
 
-/* TpChart 基本样式 */
 TpChart {
     background-color: rgb(255, 255, 255);
     border-radius: 10;
@@ -23,32 +13,60 @@ TpChart {
     padding: 10;
 }
 
-/* 所有折线图系列的默认样式 */
+/* 折线图系列 */
 TpLineSeries {
     color: rgb(107, 80, 246);
     border-width: 2;
 }
 
-/* 指定名称的系列样式 - CPU Usage */
 TpLineSeries[name="CPU Usage"] {
     color: rgb(255, 140, 0);
     border-width: 3;
 }
 
-/* 指定名称的系列样式 - Memory Usage */
 TpLineSeries[name="Memory Usage"] {
     color: rgb(0, 120, 212);
     border-width: 2;
 }
 
-/* 所有柱状图系列的默认样式 */
+TpLineSeries[name="Static Line"] {
+    color: rgb(220, 60, 60);
+    border-width: 2;
+}
+
+/* 柱状图系列 */
 TpBarSeries {
     color: linear-gradient(90deg, rgb(238, 164, 206), rgb(193, 80, 246));
     border-width: 1;
 }
 
-/* 指定名称的柱状图样式 */
 TpBarSeries[name="System Value"] {
     color: linear-gradient(90deg, rgb(0, 184, 148), rgb(0, 120, 212));
     border-width: 1;
+}
+
+TpBarSeries[name="Static Bar"] {
+    color: linear-gradient(90deg, rgb(255, 180, 80), rgb(255, 100, 50));
+    border-width: 1;
+}
+
+/* 散点图系列 */
+TpScatterSeries {
+    color: rgb(0, 120, 212);
+    border-width: 5;
+}
+
+TpScatterSeries[name="Cluster A"] {
+    color: rgb(0, 184, 148);
+    border-width: 6;
+}
+
+TpScatterSeries[name="Cluster B"] {
+    color: rgb(255, 140, 0);
+    border-width: 5;
+}
+
+/* 饼图系列 */
+TpPieSeries {
+    color: rgb(120, 120, 120);
 }

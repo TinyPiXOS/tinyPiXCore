@@ -38,12 +38,15 @@ LIB = \
 CFLAGS = #-Wall -O2 -g
 
 #伪目标：需要依赖的目标
-.PHONY:TpChart
-all:TpChart clean
+.PHONY: all clean TpChart TpChartAdvanced
+
+all: TpChart TpChartAdvanced
 
 TpChart:
-	$(G++) $(CFLAGS) -c main.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -c MainWindowService.cpp $(INC_PATH)
-	$(G++) $(CFLAGS) -o TpChart main.o MainWindowService.o $(LIB) $(LIB_PATH) $(RPATH)
+	$(G++) $(CFLAGS) -o TpChart main.cpp MainWindowService.cpp $(INC_PATH) $(LIB) $(LIB_PATH) $(RPATH)
+
+TpChartAdvanced:
+	$(G++) $(CFLAGS) -o TpChartAdvanced main_advanced.cpp MainWindowServiceAdvanced.cpp $(INC_PATH) $(LIB) $(LIB_PATH) $(RPATH)
+
 clean:
-	rm -f *.o TpChart
+	rm -f TpChart TpChartAdvanced
