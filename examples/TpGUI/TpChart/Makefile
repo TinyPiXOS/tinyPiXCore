@@ -16,7 +16,7 @@ INC_PATH ?= -I. \
       -I/usr/include/TinyPiX/TpCore \
       -I/usr/include/TinyPiX/TpUtils \
       -I/usr/include/TinyPiX/TpGUI \
-	-I/usr/include/TinyPiX/TpGUI/GUI \
+	  -I/usr/include/TinyPiX/TpGUI/GUI \
       -I/usr/include/TinyPiX/TpGUI/Core \
       -I/usr/include/TinyPiX/TpGUI/Screen \
       -I/usr/include/TinyPiX/TpGUI/Widgets \
@@ -27,10 +27,9 @@ INC_PATH ?= -I. \
 LIB = \
       -lTpGUI -lTpUtils -lTpCore \
       -lwebp \
-      -lturbojpeg \
       -lpng \
       -fopenmp -lgomp \
-      -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb -lglog \
+      -lrime -lyaml-cpp -lmarisa -lopencc -lleveldb \
       -lSDL2 -lgobject-2.0 -lglib-2.0 \
       -lgbm -lGLESv2 -lEGL \
       -ldl -lpthread
