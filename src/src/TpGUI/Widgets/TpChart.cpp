@@ -385,12 +385,14 @@ static void updateAxisRange(TpChart::Impl* data_) {
     if (autoRangeX) {
         double spanX = maxX - minX;
         if (data_->axisX->isRollingMode()) {
-            double rollingSpan = data_->axisX->max() - data_->axisX->min();
-            if (std::isfinite(rollingSpan) && rollingSpan > 0.0) {
-                spanX = rollingSpan;
-            }
-            if (!std::isfinite(spanX) || spanX <= 0.0) {
-                spanX = maxX - minX;
+            double dataSpan = maxX - minX;
+            if (std::isfinite(dataSpan) && dataSpan > 0.0) {
+                spanX = dataSpan;
+            } else {
+                double rollingSpan = data_->axisX->max() - data_->axisX->min();
+                if (std::isfinite(rollingSpan) && rollingSpan > 0.0) {
+                    spanX = rollingSpan;
+                }
             }
             if (!std::isfinite(spanX) || spanX <= 0.0) {
                 spanX = 1.0;

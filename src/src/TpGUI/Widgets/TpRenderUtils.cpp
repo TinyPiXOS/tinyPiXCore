@@ -270,9 +270,6 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
         return;
     }
 
-    float scale = tension * 0.5f;
-    const int32_t segmentsPerCurve = 12;
-
     for (int32_t i = 0; i < count - 1; ++i)
     {
         PointF p0 = (i == 0) ? PointF(points[i].x(), points[i].y()) : PointF(points[i - 1].x(), points[i - 1].y());
@@ -280,7 +277,15 @@ void TpRenderUtils::drawSmoothCurve(TpPainter* painter, const TpVector<TpPoint>&
         PointF p2 = PointF(points[i + 1].x(), points[i + 1].y());
         PointF p3 = (i + 2 < count) ? PointF(points[i + 2].x(), points[i + 2].y()) : p2;
 
+        float dx = std::abs(p2.x - p1.x);
+        float dy = std::abs(p2.y - p1.y);
+        float approxLen = dx > dy ? dx : dy;
+        int32_t segmentsPerCurve = static_cast<int32_t>(approxLen * 1.5f);
+        if (segmentsPerCurve < 12) segmentsPerCurve = 12;
+        if (segmentsPerCurve > 32) segmentsPerCurve = 32;
+
         PointF cp1;
+        float scale = tension * 0.5f;
         cp1.x = p1.x + (p2.x - p0.x) * scale;
         cp1.y = p1.y + (p2.y - p0.y) * scale;
 
