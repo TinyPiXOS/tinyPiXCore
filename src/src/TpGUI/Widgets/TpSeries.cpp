@@ -1,9 +1,9 @@
 /*
  * 版权声明 (Copyright Declaration)
- * 作者: 张家庆
- * 邮箱: 1494197384@qq.com
- * 版权所有: 2026 张家庆. All rights reserved.
- * 描述: 图表数据系列类实现 (TpSeries)
+ * 作者 (Author)：张家庆
+ * 邮箱 (Email)：1494197384@qq.com
+ * 版权所有 (Copyright)：© 2026 张家庆。All rights reserved.
+ * 描述 (Description)：数据系列类 API 定义，用于管理图表中的数据点集合
  */
 
 #include "TpSeries.h"
@@ -15,7 +15,7 @@
 #include "TpApp.h"
 #include "TpCssData.h"
 
-/// @brief 系列私有数据类
+/// @brief 数据系列私有实现类，包含所有系列类型的公共属性和数据
 class TpSeriesPrivate
 {
 public:
@@ -32,7 +32,7 @@ public:
     virtual ~TpSeriesPrivate() {}
 };
 
-/// @brief 折线图私有数据类
+/// @brief 折线系列私有实现类
 class TpLineSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -45,7 +45,7 @@ public:
         : TpSeriesPrivate(TpSeries::TypeLine), m_lineWidth(2), m_smooth(false), m_tension(0.5f), m_useDownsample(false) {}
 };
 
-/// @brief 柱状图私有数据类
+/// @brief 柱状系列私有实现类
 class TpBarSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -61,7 +61,7 @@ public:
           m_showLabels(false), m_labelColor(0xFF000000), m_labelSize(10) {}
 };
 
-/// @brief 散点图私有数据类
+/// @brief 散点系列私有实现类
 class TpScatterSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -76,7 +76,7 @@ public:
           m_labelColor(0xFF000000), m_labelSize(10) {}
 };
 
-/// @brief 饼图私有数据类
+/// @brief 饼图系列私有实现类
 class TpPieSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -99,6 +99,7 @@ public:
 
 namespace {
 
+/// @brief 将整数值限制在 [minValue, maxValue] 范围内
 static int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
 {
     if (value < minValue) return minValue;
@@ -106,6 +107,7 @@ static int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
     return value;
 }
 
+/// @brief 根据索引返回饼图扇区的默认颜色（8 色循环）
 static int32_t defaultPieColor(int32_t index)
 {
     static const uint32_t colorList[] = {
@@ -127,128 +129,124 @@ static int32_t defaultPieColor(int32_t index)
 
 }
 
-// TpSeries 实现
+// ============ TpSeries 基类方法 ============
 
 TpSeries::TpSeries(SeriesType type)
-    : d_ptr(new TpSeriesPrivate(type))
+    : data_(new TpSeriesPrivate(type))
 {
 }
 
 TpSeries::~TpSeries()
 {
-    if (d_ptr)
+    if (data_)
     {
-        delete d_ptr;
-        d_ptr = nullptr;
+        delete data_;
+        data_ = nullptr;
     }
 }
 
 void TpSeries::setName(const TpString& name)
 {
-    if (d_ptr)
+    if (data_)
     {
-        d_ptr->m_name = name;
+        data_->m_name = name;
     }
 }
 
 void TpSeries::setName(const char* name)
 {
-    if (d_ptr)
+    if (data_)
     {
-        d_ptr->m_name = name;
+        data_->m_name = name;
     }
 }
 
 const TpString& TpSeries::name() const
 {
-    return d_ptr->m_name;
+    return data_->m_name;
 }
 
 void TpSeries::setVisible(bool visible)
 {
-    if (d_ptr)
+    if (data_)
     {
-        d_ptr->m_visible = visible;
+        data_->m_visible = visible;
     }
 }
 
 bool TpSeries::isVisible() const
 {
-    return d_ptr ? d_ptr->m_visible : false;
+    return data_ ? data_->m_visible : false;
 }
 
 void TpSeries::setColor(int32_t color)
 {
-    if (d_ptr)
+    if (data_)
     {
-        d_ptr->m_color = color;
+        data_->m_color = color;
     }
 }
 
 int32_t TpSeries::color() const
 {
-    return d_ptr ? d_ptr->m_color : 0;
+    return data_ ? data_->m_color : 0;
 }
 
+/// @brief 添加数据点；若超出最大点数限制则移除最早的数据点
 void TpSeries::addPoint(double x, double y)
 {
-    if (!d_ptr)
+    if (!data_)
         return;
 
-    // 添加新数据
-    d_ptr->m_data.push_back(TpDataPoint(x, y));
+    data_->m_data.push_back(TpDataPoint(x, y));
 
-    // 超出最大容量则移除最旧的数据
-    if (d_ptr->m_maxCount > 0 && d_ptr->m_data.size() > d_ptr->m_maxCount + 2)
+    if (data_->m_maxCount > 0 && data_->m_data.size() > data_->m_maxCount + 2)
     {
-        d_ptr->m_data.remove(0);
+        data_->m_data.remove(0);
     }
 }
 
 void TpSeries::clear()
 {
-    if (d_ptr)
+    if (data_)
     {
-        d_ptr->m_data.clear();
-        if (d_ptr->m_type == TypePie)
+        data_->m_data.clear();
+        if (data_->m_type == TypePie)
         {
-            static_cast<TpPieSeriesPrivate*>(d_ptr)->m_slices.clear();
+            static_cast<TpPieSeriesPrivate*>(data_)->m_slices.clear();
         }
     }
 }
 
 const TpVector<TpDataPoint>& TpSeries::data() const
 {
-    return d_ptr->m_data;
+    return data_->m_data;
 }
 
 TpSeries::SeriesType TpSeries::type() const
 {
-    return d_ptr->m_type;
+    return data_->m_type;
 }
 
 void TpSeries::setMaxPointCount(int32_t count)
 {
-    if (d_ptr)
+    if (data_)
     {
-        d_ptr->m_maxCount = count < 0 ? 0 : count;
+        data_->m_maxCount = count < 0 ? 0 : count;
     }
 }
 
-/// @brief 从 CSS 获取颜色值
-/// @param className 类名（例如 "TpLineSeries" 或 "TpBarSeries"）
-/// @param status 状态（Enabled, Hover, Pressed 等）
+/// @brief 按 CSS 状态应用系列样式
+/// @param className CSS 类名，例如 "TpLineSeries"
+/// @param status CSS 状态，例如 Hover、Pressed 等
 void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus status)
 {
-    // 1. 首先读取通用类样式（例如 TpLineSeries）
     tpShared<TpCssData> cssData = TpApp::Inst()->cssParser()->readCss(className, "", status);
 
-    // 2. 尝试读取带名称的样式（例如 TpLineSeries[name="CPU Usage"]）
     TpString typeName = name();
     if (!typeName.empty())
     {
         tpShared<TpCssData> namedCssData = TpApp::Inst()->cssParser()->readCss(className, typeName, status);
-        // 如果有名称匹配的样式，优先使用
         if (namedCssData && namedCssData->color() != 0)
         {
             cssData = namedCssData;
@@ -257,16 +255,14 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
 
     if (cssData)
     {
-        // 设置颜色（如果 CSS 中定义了）
         if (color() == 0xFF000000 || cssData->color() != 0)
         {
-            d_ptr->m_color = cssData->color();
+            data_->m_color = cssData->color();
         }
 
-        // 设置线宽（针对折线图）
         if (type() == TypeLine)
         {
-            auto* lineData = static_cast<TpLineSeriesPrivate*>(d_ptr);
+            auto* lineData = static_cast<TpLineSeriesPrivate*>(data_);
             if (lineData)
             {
                 int32_t cssLineWidth = cssData->borderWidth();
@@ -278,7 +274,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
         }
         else if (type() == TypeScatter)
         {
-            auto* scatterData = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+            auto* scatterData = static_cast<TpScatterSeriesPrivate*>(data_);
             if (scatterData)
             {
                 int32_t cssPointSize = cssData->borderWidth();
@@ -291,13 +287,14 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
     }
 }
 
-// TpLineSeries 瀹炵幇
+// ============ TpLineSeries 折线系列 ============
 
+/// @brief 构造折线系列，替换基类默认私有数据为 TpLineSeriesPrivate
 TpLineSeries::TpLineSeries()
     : TpSeries(TypeLine)
 {
-    delete d_ptr;
-    d_ptr = new TpLineSeriesPrivate();
+    delete data_;
+    data_ = new TpLineSeriesPrivate();
 }
 
 TpLineSeries::~TpLineSeries()
@@ -306,7 +303,7 @@ TpLineSeries::~TpLineSeries()
 
 void TpLineSeries::setLineWidth(int32_t width)
 {
-    auto* d = static_cast<TpLineSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpLineSeriesPrivate*>(data_);
     if (d)
     {
         d->m_lineWidth = width;
@@ -315,7 +312,7 @@ void TpLineSeries::setLineWidth(int32_t width)
 
 void TpLineSeries::setSmooth(bool smooth)
 {
-    auto* d = static_cast<TpLineSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpLineSeriesPrivate*>(data_);
     if (d)
     {
         d->m_smooth = smooth;
@@ -324,7 +321,7 @@ void TpLineSeries::setSmooth(bool smooth)
 
 void TpLineSeries::setTension(float tension)
 {
-    auto* d = static_cast<TpLineSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpLineSeriesPrivate*>(data_);
     if (d)
     {
         d->m_tension = tension;
@@ -333,7 +330,7 @@ void TpLineSeries::setTension(float tension)
 
 void TpLineSeries::setUseDownsample(bool enabled)
 {
-    auto* d = static_cast<TpLineSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpLineSeriesPrivate*>(data_);
     if (d)
     {
         d->m_useDownsample = enabled;
@@ -342,13 +339,18 @@ void TpLineSeries::setUseDownsample(bool enabled)
 
 bool TpLineSeries::useDownsample() const
 {
-    auto* d = static_cast<TpLineSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpLineSeriesPrivate*>(data_);
     return d ? d->m_useDownsample : false;
 }
 
+/// @brief 绘制折线图：将数据点映射为像素坐标后绘制折线/平滑曲线及锚点
+/// @param painter 画笔对象
+/// @param axisX   X 轴（用于将数据 X 值映射为像素 X 坐标）
+/// @param axisY   Y 轴（用于将数据 Y 值映射为像素 Y 坐标）
+/// @param rect    绘制区域矩形
 void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
 {
-    auto* d = static_cast<TpLineSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpLineSeriesPrivate*>(data_);
     if (!d || !d->m_visible || d->m_data.size() < 2 || !painter)
         return;
 
@@ -357,7 +359,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
-    // 计算缩放因子（基准分辨率按 800x600 计算）
+    // 根据绘制区域计算动态缩放因子，确保线宽和锚点在不同分辨率下保持合理尺寸
     double scaleX = rectW / 800.0;
     double scaleY = rectH / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY;
@@ -366,7 +368,6 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     if (scale > 2.5)
         scale = 2.5;
 
-    // 动态计算线宽和数据点半径
     int32_t dynamicLineWidth = static_cast<int32_t>(d->m_lineWidth * scale);
     if (dynamicLineWidth < 1)
         dynamicLineWidth = 1;
@@ -377,10 +378,10 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
 
     TpVector<TpPoint> pixelPoints;
 
-    // ========== 降采样分支 ==========
+    // 数据量超过绘制宽度 2 倍且开启降采样时，使用 Min-Max 算法降采样
     if (d->m_useDownsample && d->m_data.size() > rectW * 2)
     {
-        // 降采样模式：使用 Min-Max 算法
+        // 提取所有 Y 值用于降采样
         TpVector<double> yData;
         yData.reserve(d->m_data.size());
         for (int32_t i = 0; i < d->m_data.size(); ++i)
@@ -388,10 +389,8 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
             yData.append(d->m_data[i].y);
         }
 
-        // 调用 downsample 进行降采样
         TpVector<TpAxis::SamplePoint> samples = TpAxis::downsample(yData, 0, yData.size(), rectW);
 
-        // 将降采样结果转换为像素点（每个 bucket 取 min 和 max 两个点，形成竖线效果）
         for (int32_t i = 0; i < samples.size(); ++i)
         {
             const TpAxis::SamplePoint& sp = samples[i];
@@ -406,7 +405,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
             pixelPoints.push_back(TpPoint(px, pyMax));
         }
     }
-    // ========== 全量绘制分支（单线程高效映射，每个点都完整绘制） ==========
+    // 全量绘制：将每个数据点映射为像素坐标
     else
     {
         const int32_t totalPoints = d->m_data.size();
@@ -419,8 +418,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         }
     }
 
-    // ========== 后续绘制逻辑 ==========
-    // 使用动态线宽绘制折线或平滑曲线
+    // 根据是否平滑绘制折线或平滑曲线
     if (d->m_smooth)
     {
         TpRenderUtils::drawSmoothCurve(painter, pixelPoints, rect, d->m_color, dynamicLineWidth, d->m_tension);
@@ -430,7 +428,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         TpRenderUtils::drawPolyline(painter, pixelPoints, rect, d->m_color, dynamicLineWidth);
     }
 
-    // 使用动态半径绘制数据点（点数较少时才绘制）
+    // 点数较少时绘制数据锚点
     if (pixelPoints.size() < 50)
     {
         for (int32_t i = 0; i < pixelPoints.size(); ++i)
@@ -440,13 +438,14 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     }
 }
 
-// TpBarSeries 瀹炵幇
+// ============ TpBarSeries 柱状系列 ============
 
+/// @brief 构造柱状系列，替换基类默认私有数据为 TpBarSeriesPrivate
 TpBarSeries::TpBarSeries()
     : TpSeries(TypeBar)
 {
-    delete d_ptr;
-    d_ptr = new TpBarSeriesPrivate();
+    delete data_;
+    data_ = new TpBarSeriesPrivate();
 }
 
 TpBarSeries::~TpBarSeries()
@@ -455,7 +454,7 @@ TpBarSeries::~TpBarSeries()
 
 void TpBarSeries::setGradientColor(int32_t endColor)
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     if (d)
     {
         d->m_colorEnd = endColor;
@@ -464,13 +463,13 @@ void TpBarSeries::setGradientColor(int32_t endColor)
 
 int32_t TpBarSeries::colorEnd() const
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     return d ? d->m_colorEnd : 0;
 }
 
 void TpBarSeries::setLayoutInfo(int32_t seriesIndex, int32_t seriesCount)
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     if (d)
     {
         d->m_seriesIndex = seriesIndex;
@@ -480,7 +479,7 @@ void TpBarSeries::setLayoutInfo(int32_t seriesIndex, int32_t seriesCount)
 
 void TpBarSeries::setLabelsVisible(bool visible)
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     if (d)
     {
         d->m_showLabels = visible;
@@ -489,7 +488,7 @@ void TpBarSeries::setLabelsVisible(bool visible)
 
 void TpBarSeries::setLabelColor(int32_t color)
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     if (d)
     {
         d->m_labelColor = color;
@@ -498,16 +497,17 @@ void TpBarSeries::setLabelColor(int32_t color)
 
 void TpBarSeries::setLabelSize(int32_t size)
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     if (d)
     {
         d->m_labelSize = size;
     }
 }
 
+/// @brief 绘制柱状图：根据 X/Y 轴映射计算柱子位置和高度，支持渐变色和数值标签
 void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
 {
-    auto* d = static_cast<TpBarSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpBarSeriesPrivate*>(data_);
     if (!d || !d->m_visible || d->m_data.size() == 0 || !painter)
         return;
 
@@ -516,14 +516,17 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
+    // 获取 Y 轴零点像素位置，用于确定柱子的起止位置
     int32_t yZero = axisY.ZeroPixel(rectH, rectY, true);
 
+    // 计算每个数据单位对应的像素宽度，用于确定柱子宽度
     int32_t x0 = axisX.mapToPixel(axisX.min(), rectW, rectX, false);
     int32_t x1 = axisX.mapToPixel(axisX.min() + 1.0, rectW, rectX, false);
     int32_t unitPixelWidth = std::abs(x1 - x0);
     if (unitPixelWidth <= 0)
         unitPixelWidth = 50;
 
+    // 柱宽 = 分组宽度 / 同位置系列总数，实现多系列并排显示
     int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.6);
     int32_t barWidth = groupWidth / d->m_seriesCount;
     if (barWidth < 1)
@@ -574,12 +577,14 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
     }
 }
 
-// TpScatterSeries 实现
+// ============ TpScatterSeries 散点系列 ============
+
+/// @brief 构造散点系列，替换基类默认私有数据为 TpScatterSeriesPrivate
 TpScatterSeries::TpScatterSeries()
     : TpSeries(TypeScatter)
 {
-    delete d_ptr;
-    d_ptr = new TpScatterSeriesPrivate();
+    delete data_;
+    data_ = new TpScatterSeriesPrivate();
 }
 
 TpScatterSeries::~TpScatterSeries()
@@ -588,7 +593,7 @@ TpScatterSeries::~TpScatterSeries()
 
 void TpScatterSeries::setPointSize(int32_t size)
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     if (d)
     {
         d->m_pointSize = size > 0 ? size : 1;
@@ -597,13 +602,13 @@ void TpScatterSeries::setPointSize(int32_t size)
 
 int32_t TpScatterSeries::pointSize() const
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     return d ? d->m_pointSize : 0;
 }
 
 void TpScatterSeries::setBorderColor(int32_t color)
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     if (d)
     {
         d->m_borderColor = color;
@@ -612,13 +617,13 @@ void TpScatterSeries::setBorderColor(int32_t color)
 
 int32_t TpScatterSeries::borderColor() const
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     return d ? d->m_borderColor : 0;
 }
 
 void TpScatterSeries::setLabelsVisible(bool visible)
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     if (d)
     {
         d->m_showLabels = visible;
@@ -627,7 +632,7 @@ void TpScatterSeries::setLabelsVisible(bool visible)
 
 void TpScatterSeries::setLabelColor(int32_t color)
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     if (d)
     {
         d->m_labelColor = color;
@@ -636,16 +641,17 @@ void TpScatterSeries::setLabelColor(int32_t color)
 
 void TpScatterSeries::setLabelSize(int32_t size)
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     if (d)
     {
         d->m_labelSize = size > 0 ? size : 1;
     }
 }
 
+/// @brief 绘制散点图：将每个数据点映射为椭圆，支持边框色、填充色和坐标标签
 void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
 {
-    auto* d = static_cast<TpScatterSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
     if (!d || !d->m_visible || d->m_data.size() == 0 || !painter)
         return;
 
@@ -654,6 +660,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
+    // 动态缩放点半径，使其在不同绘制区域下保持合理大小
     double scaleX = rectW / 800.0;
     double scaleY = rectH / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY;
@@ -666,6 +673,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     if (pointRadius < 2)
         pointRadius = 2;
 
+    // 边框色和填充色回退逻辑：borderColor → m_color → 默认黑色
     int32_t borderColor = d->m_borderColor;
     if (borderColor == 0)
         borderColor = d->m_color;
@@ -690,6 +698,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
         int32_t px = axisX.mapToPixel(pt.x, rectW, rectX, false);
         int32_t py = axisY.mapToPixel(pt.y, rectH, rectY, true);
 
+        // 裁剪：跳过完全在绘制区域外的点
         if (px < rectX - pointRadius || px > rect.right() + pointRadius)
             continue;
         if (py < rectY - pointRadius || py > rect.bottom() + pointRadius)
@@ -713,6 +722,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
             if (textW <= 0) textW = static_cast<int32_t>(text.length()) * (labelSize / 2 + 1);
             if (textH <= 0) textH = labelSize;
 
+            // 标签默认放在点的右上方，空间不足时自动调整到左侧或下方
             int32_t textX = px + pointRadius + 4;
             int32_t textY = py - pointRadius - textH;
             if (textX + textW > rect.right())
@@ -733,12 +743,14 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     }
 }
 
-// TpPieSeries 实现
+// ============ TpPieSeries 饼图系列 ============
+
+/// @brief 构造饼图系列，替换基类默认私有数据为 TpPieSeriesPrivate
 TpPieSeries::TpPieSeries()
     : TpSeries(TypePie)
 {
-    delete d_ptr;
-    d_ptr = new TpPieSeriesPrivate();
+    delete data_;
+    data_ = new TpPieSeriesPrivate();
 }
 
 TpPieSeries::~TpPieSeries()
@@ -747,7 +759,7 @@ TpPieSeries::~TpPieSeries()
 
 void TpPieSeries::addSlice(const TpString& name, double value, int32_t color)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_slices.push_back(TpPieSlice(name, value, color));
@@ -761,7 +773,7 @@ void TpPieSeries::addSlice(const char* name, double value, int32_t color)
 
 void TpPieSeries::clearSlices()
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_slices.clear();
@@ -770,14 +782,14 @@ void TpPieSeries::clearSlices()
 
 int32_t TpPieSeries::sliceCount() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_slices.size() : 0;
 }
 
 const TpString& TpPieSeries::sliceName(int32_t index) const
 {
     static TpString emptyText;
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || index < 0 || index >= d->m_slices.size())
         return emptyText;
     return d->m_slices[index].name;
@@ -785,7 +797,7 @@ const TpString& TpPieSeries::sliceName(int32_t index) const
 
 double TpPieSeries::sliceValue(int32_t index) const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || index < 0 || index >= d->m_slices.size())
         return 0.0;
     return d->m_slices[index].value;
@@ -793,7 +805,7 @@ double TpPieSeries::sliceValue(int32_t index) const
 
 int32_t TpPieSeries::sliceColor(int32_t index) const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || index < 0 || index >= d->m_slices.size())
         return 0;
     return d->m_slices[index].color;
@@ -801,7 +813,7 @@ int32_t TpPieSeries::sliceColor(int32_t index) const
 
 void TpPieSeries::setSliceVisible(int32_t index, bool visible)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || index < 0 || index >= d->m_slices.size())
         return;
 
@@ -810,7 +822,7 @@ void TpPieSeries::setSliceVisible(int32_t index, bool visible)
 
 bool TpPieSeries::isSliceVisible(int32_t index) const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || index < 0 || index >= d->m_slices.size())
         return false;
 
@@ -819,7 +831,7 @@ bool TpPieSeries::isSliceVisible(int32_t index) const
 
 void TpPieSeries::setLabelsVisible(bool visible)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_showLabels = visible;
@@ -828,7 +840,7 @@ void TpPieSeries::setLabelsVisible(bool visible)
 
 void TpPieSeries::setPercentVisible(bool visible)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_showPercent = visible;
@@ -837,7 +849,7 @@ void TpPieSeries::setPercentVisible(bool visible)
 
 void TpPieSeries::setDonutVisible(bool visible)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_donutVisible = visible;
@@ -846,13 +858,13 @@ void TpPieSeries::setDonutVisible(bool visible)
 
 bool TpPieSeries::donutVisible() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_donutVisible : false;
 }
 
 void TpPieSeries::setDonutRatio(double ratio)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         if (ratio < 0.05)
@@ -865,13 +877,13 @@ void TpPieSeries::setDonutRatio(double ratio)
 
 double TpPieSeries::donutRatio() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_donutRatio : 0.0;
 }
 
 void TpPieSeries::setStartAngle(int32_t angle)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_startAngle = angle;
@@ -880,13 +892,13 @@ void TpPieSeries::setStartAngle(int32_t angle)
 
 int32_t TpPieSeries::startAngle() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_startAngle : 0;
 }
 
 void TpPieSeries::setExplodedIndex(int32_t index)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_explodedIndex = index;
@@ -895,13 +907,13 @@ void TpPieSeries::setExplodedIndex(int32_t index)
 
 int32_t TpPieSeries::explodedIndex() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_explodedIndex : -1;
 }
 
 void TpPieSeries::setExplodeDistance(int32_t distance)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_explodeDistance = distance > 0 ? distance : 0;
@@ -910,13 +922,13 @@ void TpPieSeries::setExplodeDistance(int32_t distance)
 
 int32_t TpPieSeries::explodeDistance() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_explodeDistance : 0;
 }
 
 void TpPieSeries::setLabelColor(int32_t color)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_labelColor = color;
@@ -925,13 +937,13 @@ void TpPieSeries::setLabelColor(int32_t color)
 
 int32_t TpPieSeries::labelColor() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_labelColor : 0;
 }
 
 void TpPieSeries::setLabelSize(int32_t size)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (d)
     {
         d->m_labelSize = size > 0 ? size : 1;
@@ -940,16 +952,18 @@ void TpPieSeries::setLabelSize(int32_t size)
 
 int32_t TpPieSeries::labelSize() const
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     return d ? d->m_labelSize : 0;
 }
 
+/// @brief 绘制饼图：按各扇区占比依次绘制圆弧，支持环形、爆炸式和标签/百分比显示
 void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const TpRect& rect)
 {
-    auto* d = static_cast<TpPieSeriesPrivate*>(d_ptr);
+    auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || !d->m_visible || !painter || d->m_slices.size() == 0)
         return;
 
+    // 计算所有可见扇区的总值，用于后续百分比计算
     double totalValue = 0.0;
     for (int32_t i = 0; i < d->m_slices.size(); ++i)
     {
@@ -972,6 +986,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
+    // 根据绘制区域计算饼图半径和圆心，小尺寸时缩小边距
     int32_t padding = 12;
     if (rectW < 160 || rectH < 160)
         padding = 6;
@@ -1017,6 +1032,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
         double midAngle = currentAngle + (sweep * 0.5);
         double midRad = midAngle * 3.14159265358979323846 / 180.0;
 
+        // 若当前扇区为爆炸式扇区，则将绘制中心沿中角方向偏移
         int32_t drawCenterX = centerX;
         int32_t drawCenterY = centerY;
         if (d->m_explodedIndex == i && d->m_explodeDistance > 0)
@@ -1025,6 +1041,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
             drawCenterY += static_cast<int32_t>(std::sin(midRad) * d->m_explodeDistance + 0.5);
         }
 
+        // 环形图：在扇区中心添加圆形镂空遮罩
         TpHollowMask hollowMask;
         int32_t innerRadius = 0;
         if (d->m_donutVisible)
@@ -1071,6 +1088,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
                 if (textW <= 0) textW = static_cast<int32_t>(text.length()) * (labelSize / 2 + 1);
                 if (textH <= 0) textH = labelSize;
 
+                // 标签位置：环形时放在内外半径中间，否则放在扇区中部；小扇区标签放到外侧
                 double labelRadius = d->m_donutVisible ? (innerRadius + (radius - innerRadius) * 0.5) : (radius * 0.65);
                 if (sweep < 18.0)
                 {

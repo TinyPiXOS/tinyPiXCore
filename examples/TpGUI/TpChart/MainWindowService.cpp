@@ -3,14 +3,12 @@
 #include "TpTimer.h"
 #include <TpEvent.h>
 #include <cmath>
-#include <TpFile.h>
 
 #ifndef _RGB
 #define _RGB(r, g, b) ((0xFF << 24) | ((r) << 16) | ((g) << 8) | (b))
 #endif
 
 namespace {
-
 /// @brief 启用图表交互
 /// @param chart 图表指针
 /// @param pieMode 是否为饼图
@@ -19,7 +17,6 @@ static void enableChartInteraction(TpChart* chart, bool pieMode)
     if (!chart) {
         return;
     }
-
     chart->setTooltipVisible(true);
     chart->setSelectionEnabled(true);
     chart->setLegendClickable(true);
@@ -27,15 +24,12 @@ static void enableChartInteraction(TpChart* chart, bool pieMode)
     chart->setPanEnabled(!pieMode);
     chart->setWheelZoomEnabled(!pieMode);
 }
-
 }
-
 MainWindowService::MainWindowService()
     : TpMainWindow(), m_chartLine_1(NULL), m_chartBar_1(NULL), m_lineSeries1(NULL), m_lineSeries2(NULL), m_barSeries_1(NULL), m_currentX(-40.0), m_timer(NULL), m_lineSeries3(NULL), m_barSeries_2(NULL)
 {
     initCharts();
 }
-
 MainWindowService::~MainWindowService() {
     if (m_timer) {
         m_timer->stop();
@@ -71,7 +65,6 @@ MainWindowService::~MainWindowService() {
     if (m_lineSeries3) delete m_lineSeries3;
     if (m_barSeries_2) delete m_barSeries_2;
 }
-
 void MainWindowService::initCharts() {
     // 折线图1 - 动态（上方左侧）
     m_chartLine_1 = new TpChart();
@@ -80,7 +73,6 @@ void MainWindowService::initCharts() {
     m_chartLine_1->setAxisLabels("Time (seconds)", "Usage (%)");
     m_chartLine_1->setTitle("System Monitor - Line Chart (Dynamic)");
     m_chartLine_1->setBackgroundColor(_RGB(255, 255, 255));
-
     // 折线图2 - 静态（上方右侧）
     m_chartLine_2 = new TpChart();
     m_chartLine_2->setParent(this);
@@ -88,7 +80,6 @@ void MainWindowService::initCharts() {
     m_chartLine_2->setAxisLabels("X", "Amplitude");
     m_chartLine_2->setTitle("Static Line Chart (Sine / Cosine)");
     m_chartLine_2->setBackgroundColor(_RGB(255, 255, 255));
-
     // 柱状图1 - 动态（下方左侧）
     m_chartBar_1 = new TpChart();
     m_chartBar_1->setParent(this);
@@ -96,7 +87,6 @@ void MainWindowService::initCharts() {
     m_chartBar_1->setAxisLabels("Category", "Value");
     m_chartBar_1->setTitle("System Monitor - Bar Chart (Dynamic)");
     m_chartBar_1->setBackgroundColor(_RGB(255, 255, 255));
-
     // 柱状图2 - 静态（下方右侧）
     m_chartBar_2 = new TpChart();
     m_chartBar_2->setParent(this);
@@ -104,20 +94,7 @@ void MainWindowService::initCharts() {
     m_chartBar_2->setAxisLabels("Category", "Value");
     m_chartBar_2->setTitle("Static Bar Chart");
     m_chartBar_2->setBackgroundColor(_RGB(255, 255, 255));
-
-    // 加载 CSS 样式（所有图表共享同一份样式表）
-    TpString cssPath = "./chart_style.css";
-    TpFile cssFile(cssPath);
-    TpString cssContent;
-    if (cssFile.exists()) {
-        cssFile.open(TpFile::ReadOnly);
-        if (cssFile.isOpen()) {
-            cssContent = cssFile.readAll();
-        }
-    }
-
     // ==================== 折线图1（动态）配置 ====================
-    m_chartLine_1->setStyleSheet(cssContent);
     m_chartLine_1->axisX()->setAutoRange(true);
     m_chartLine_1->axisX()->setAutoRangeNice(false);
     m_chartLine_1->axisX()->setTickCount(9);
@@ -128,21 +105,18 @@ void MainWindowService::initCharts() {
     m_chartLine_1->axisY()->setTickCount(7);
     m_chartLine_1->axisY()->setYPadding(0.3, 0.5);
     enableChartInteraction(m_chartLine_1, false);
-
     m_lineSeries1 = new TpLineSeries();
     m_lineSeries1->setName("CPU Usage");
     m_lineSeries1->setColor(_RGB(0, 200, 0));
     m_lineSeries1->setLineWidth(3);
     m_lineSeries1->setSmooth(true);
     m_lineSeries1->setMaxPointCount(200);
-
     m_lineSeries2 = new TpLineSeries();
     m_lineSeries2->setName("Memory Usage");
     m_lineSeries2->setColor(_RGB(255, 128, 0));
     m_lineSeries2->setLineWidth(2);
     m_lineSeries2->setSmooth(true);
     m_lineSeries2->setMaxPointCount(200);
-
     // 为动态折线图添加初始数据
     for (int i = 0; i < 200; ++i) {
         float dynamicAmp1 = 100 + 50 * std::sin(m_currentX * 0.1);
@@ -156,9 +130,7 @@ void MainWindowService::initCharts() {
     m_chartLine_1->addSeries(m_lineSeries1);
     m_chartLine_1->addSeries(m_lineSeries2);
     m_chartLine_1->show();
-
     // ==================== 折线图2（静态）配置 ====================
-    m_chartLine_2->setStyleSheet(cssContent);
     m_chartLine_2->axisX()->setAutoRange(false);
     m_chartLine_2->axisX()->setRange(0, 20);
     m_chartLine_2->axisX()->setTickCount(5);
@@ -170,14 +142,12 @@ void MainWindowService::initCharts() {
     m_chartLine_2->setGridXVisible(true);
     m_chartLine_2->setGridYVisible(true);
     enableChartInteraction(m_chartLine_2, false);
-
     // 只有一个折线系列，名称为 "Static Line"，关闭平滑（折线效果）
     m_lineSeries3 = new TpLineSeries();
     m_lineSeries3->setName("Static Line");
     m_lineSeries3->setSmooth(false);   // 关键：不平滑
     m_lineSeries3->setLineWidth(2);
     m_lineSeries3->setMaxPointCount(0);
-
     // 手动添加少量离散点，形成明显折线（不是曲线）
     m_lineSeries3->addPoint(0, 0);
     m_lineSeries3->addPoint(4, 1.2);
@@ -185,12 +155,9 @@ void MainWindowService::initCharts() {
     m_lineSeries3->addPoint(12, 0.5);
     m_lineSeries3->addPoint(16, -1.0);
     m_lineSeries3->addPoint(20, 0.2);
-
     m_chartLine_2->addSeries(m_lineSeries3);
     m_chartLine_2->show();
-
     // ==================== 柱状图1（动态）配置 ====================
-    m_chartBar_1->setStyleSheet(cssContent);
     m_chartBar_1->axisX()->setMode(TpAxis::AxisMode::Category);
     m_chartBar_1->axisX()->setCategoryCount(10);
     m_chartBar_1->axisX()->setAutoRange(false);
@@ -198,7 +165,6 @@ void MainWindowService::initCharts() {
     m_chartBar_1->axisY()->setYPadding(0.1, 0);
     m_chartBar_1->setGridXVisible(false);
     enableChartInteraction(m_chartBar_1, false);
-
     m_barSeries_1 = new TpBarSeries();
     m_barSeries_1->setName("System Value");
     m_barSeries_1->setColor(_RGB(0, 120, 212));
@@ -210,9 +176,7 @@ void MainWindowService::initCharts() {
     }
     m_chartBar_1->addSeries(m_barSeries_1);
     m_chartBar_1->show();
-
     // ==================== 柱状图2（静态）配置 ====================
-    m_chartBar_2->setStyleSheet(cssContent);
     m_chartBar_2->axisX()->setMode(TpAxis::AxisMode::Category);
     m_chartBar_2->axisX()->setCategoryCount(8);
     m_chartBar_2->axisX()->setAutoRange(false);
@@ -222,7 +186,6 @@ void MainWindowService::initCharts() {
     m_chartBar_2->setGridXVisible(false);
     m_chartBar_2->setGridYVisible(true);
     enableChartInteraction(m_chartBar_2, false);
-
     m_barSeries_2 = new TpBarSeries();
     m_barSeries_2->setName("Static Bar");
     m_barSeries_2->setLabelsVisible(true);
@@ -233,17 +196,14 @@ void MainWindowService::initCharts() {
     }
     m_chartBar_2->addSeries(m_barSeries_2);
     m_chartBar_2->show();
-
     // ==================== 定时器（仅用于动态图表更新） ====================
     m_barTimer = new TpTimer(200);
     connect(m_barTimer, timeout, this, &MainWindowService::onBarTimeout);
     m_barTimer->start();
-
     m_timer = new TpTimer(50);
     connect(m_timer, timeout, this, &MainWindowService::onTimeout);
     m_timer->start();
 }
-
 void MainWindowService::onTimeout() {
     if (m_lineSeries1 && m_lineSeries2 && m_chartLine_1) {
         m_currentX += 0.1;
@@ -256,7 +216,6 @@ void MainWindowService::onTimeout() {
         m_chartLine_1->update();
     }
 }
-
 void MainWindowService::onBarTimeout() {
     if (m_barSeries_1 && m_chartBar_1) {
         m_barSeries_1->clear();
@@ -267,15 +226,12 @@ void MainWindowService::onBarTimeout() {
         m_chartBar_1->update();
     }
 }
-
 bool MainWindowService::onPaintEvent(TpPaintEvent *event) {
     return TpMainWindow::onPaintEvent(event);
 }
-
 bool MainWindowService::onActiveEvent(TpActiveEvent *event) {
     return TpMainWindow::onActiveEvent(event);
 }
-
 bool MainWindowService::appChange(int32_t, int32_t, int32_t, int32_t, int32_t, uint8_t, int32_t) {
     return true;
 }

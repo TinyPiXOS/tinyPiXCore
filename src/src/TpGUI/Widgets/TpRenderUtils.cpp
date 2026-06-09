@@ -6,8 +6,6 @@
  * 描述 (Description)：图表渲染工具类 (TpRenderUtils) - 提供核心绘图功能的静态工具类
  */
 
-
-
 #include "TpRenderUtils.h"
 #include "TpLinearGradient.h"
 #include "TpPainterPath.h"

@@ -1,12 +1,13 @@
 /*
  * 版权声明 (Copyright Declaration)
- * 作者: 刘杨
- * 邮箱: 2825143438@qq.com
- * 版权所有: 2026 刘杨. All rights reserved.
- * 描述: 图表类实现 (TpChart) - 响应式缩放与极限尺寸修复版
+ * 作者 (Author)：刘杨
+ * 邮箱 (Email)：2825143438@qq.com
+ * 版权所有 (Copyright)：© 2026 刘杨. All rights reserved.
+ * 描述 (Description)：图表控件，支持折线图、柱状图、饼图等多种图表类型，提供数据系列管理、坐标轴配置及交互功能
  */
 
 #include "TpChart.h"
+#include "TpChart_p.h"
 #include "TpRenderUtils.h"
 #include "TpSeries.h"
 #include "TpApp.h"
@@ -15,40 +16,10 @@
 #include "TpWidget.h"
 #include <cfloat>
 #include <cmath>
-#include <cstdint> // 引入定宽整数类型
+#include <cstdint>
 
-// 宏定义防止颜色报错
-#ifndef _RGB
-#define _RGB(r, g, b) ((0xFF << 24) | ((r) << 16) | ((g) << 8) | (b))
-#endif
-
-// 私有实现结构体定义
 namespace {
 
-/// @brief 图例项
-struct LegendItem
-{
-    TpString text;
-    int32_t colorStart;
-    int32_t colorEnd;
-    int32_t type;
-    bool visible;
-    int32_t seriesIndex;
-    int32_t pointIndex;
-    int32_t sliceIndex;
-    TpRect rect;
-
-    LegendItem()
-        : colorStart(0)
-        , colorEnd(0)
-        , type(0)
-        , visible(true)
-        , seriesIndex(-1)
-        , pointIndex(-1)
-        , sliceIndex(-1)
-    {
-    }
-};
 
 static int32_t dimColor(int32_t color, int32_t alpha)
 {
@@ -96,291 +67,255 @@ static TpRect pieSeriesRect(const TpRect& chartRect, int32_t pieCount, int32_t p
 
 }
 
-struct TpChart::Impl {
-    TpString title;                  // 图表标题
-    int32_t backgroundColor;         // 背景颜色
+static void updateAxisRange(TpChart::Impl* data_);
+static TpRect calculateLayout(TpChart::Impl* data_, const TpRect& totalRect);
+static void drawBackground(TpChart* chart, TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect);
+static void drawGrid(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect);
+static void drawTitle(TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect);
+static bool isPieChartMode(TpChart::Impl* data_);
+static void drawPieChart(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect);
+static void prepareLayoutState(TpChart::Impl* data_, const TpRect& totalRect, TpRect& chartRect, bool& showTitleAndLegend, bool& showAxisLabels,
+                               bool& showAxisTicks, bool& pieChartMode, double& scale);
+static void buildLegendData(TpChart::Impl* data_, const TpRect& totalRect, const TpRect& chartRect, TpVector<const char*>& names,
+                            TpVector<int32_t>& colors, TpVector<int32_t>& endColors, TpVector<int32_t>& types);
+static void drawLegend(TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect);
+static void clearHoverState(TpChart::Impl* data_);
+static bool hitTestAt(TpChart::Impl* data_, const TpRect& chartRect, const TpPoint& pos, bool pieMode, int32_t& seriesIndex, int32_t& pointIndex,
+                      int32_t& sliceIndex, TpString& text, TpPoint& hitPos);
+static void zoomAxisAt(TpChart::Impl* data_, const TpPoint& pos, const TpRect& chartRect, double factor);
+static void panAxisTo(TpChart::Impl* data_, const TpPoint& pos, const TpRect& chartRect);
+static bool toggleLegendAt(TpChart::Impl* data_, const TpPoint& pos, const TpRect& totalRect, const TpRect& chartRect);
+static void drawTooltip(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect);
+static void drawCrosshair(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect);
+static void drawHoverHighlight(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect);
+static void drawSelection(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect);
+static tpShared<TpCssData> currentStatusCss(TpChart* chart, TpChart::Impl* data_);
+static void refreshChartBaseCss(TpChart* chart, TpChart::Impl* data_) {
+    if (!chart || !data_) {
+        return;
+    }
 
-    TpAxis* axisX;                   // X 轴
-    TpAxis* axisY;                   // Y 轴
-
-    TpString labelX;                 // X 轴标签
-    TpString labelY;                 // Y 轴标签
-
-    TpVector<TpSeries*> seriesList;  // 数据系列列表
-
-    int32_t marginTop;               // 上边距
-    int32_t marginBottom;            // 下边距
-    int32_t marginLeft;              // 左边距
-    int32_t marginRight;             // 右边距
-
-    bool gridXVisible;               // X 轴网格线可见性
-    bool gridYVisible;               // Y 轴网格线可见性
-    int32_t gridColor;               // 网格线基础颜色
-    bool cssAppliedToSeries = false; // CSS 样式是否已应用到 series
-    bool tooltipVisible = false;
-    bool crosshairVisible = false;
-    bool selectionEnabled = false;
-    bool panEnabled = false;
-    bool wheelZoomEnabled = false;
-    bool legendClickable = false;
-
-    bool mousePressed = false;
-    bool isDragging = false;
-    TpPoint pressPos;
-    TpPoint dragStartPos;
-    double dragStartXMin = 0.0;
-    double dragStartXMax = 0.0;
-    double dragStartYMin = 0.0;
-    double dragStartYMax = 0.0;
-
-    bool hasHover = false;
-    TpPoint hoverPos;
-    int32_t hoverSeriesIndex = -1;
-    int32_t hoverPointIndex = -1;
-    int32_t hoverSliceIndex = -1;
-    TpString tooltipText;
-
-    bool hasPointerPos = false;
-    TpPoint pointerPos;
-
-    int32_t selectedSeriesIndex = -1;
-    int32_t selectedPointIndex = -1;
-    int32_t selectedSliceIndex = -1;
-
-    TpVector<LegendItem> legendItems;
-};
-
+    const TpString className = chart->pluginType();
+    data_->enabledCssData = chart->readCss(className, TpCssParser::Enabled);
+    data_->disabledCssData = chart->readCss(className, TpCssParser::Disabled);
+    data_->hoverCssData = chart->readCss(className, TpCssParser::Hover);
+    data_->pressCssData = chart->readCss(className, TpCssParser::Pressed);
+    data_->checkedCssData = chart->readCss(className, TpCssParser::Checked);
+}
 
 // 构造与析构
 TpChart::TpChart()
 {
-    m_impl = new Impl();
-    m_impl->backgroundColor = _RGB(255, 255, 255);
-    m_impl->marginTop = 60;    // 留给标题
-    m_impl->marginBottom = 60; // 留给 X 轴刻度
-    m_impl->marginLeft = 60;   // 留给 Y 轴刻度
-    m_impl->marginRight = 20;  // 防止内容溢出
-    m_impl->gridXVisible = true;
-    m_impl->gridYVisible = true;
-    m_impl->gridColor = _RGB(230, 230, 230); // 默认浅灰色网格线
+    data_ = new Impl();
+    data_->backgroundColor = _RGB(255, 255, 255);
+    data_->marginTop = 60;    // 留给标题
+    data_->marginBottom = 60; // 留给 X 轴刻度
+    data_->marginLeft = 60;   // 留给 Y 轴刻度
+    data_->marginRight = 20;  // 防止内容溢出
+    data_->gridXVisible = true;
+    data_->gridYVisible = true;
+    data_->gridColor = _RGB(230, 230, 230); // 默认浅灰色网格线
 
     // 显式设置背景颜色
     this->setBackGroundColor(0xFFFFFFFF, true);
 
     // 初始化 CSS 数据
-    enabledCssData = nullptr;
-    disabledCssData = nullptr;
-    hoverCssData = nullptr;
-    pressCssData = nullptr;
-    checkedCssData = nullptr;
+    data_->enabledCssData = nullptr;
+    data_->disabledCssData = nullptr;
+    data_->hoverCssData = nullptr;
+    data_->pressCssData = nullptr;
+    data_->checkedCssData = nullptr;
 
     // 刷新基础 CSS 样式
-    refreshBaseCss();
+    refreshChartBaseCss(this, data_);
 
     // 自动创建默认坐标轴
-    m_impl->axisX = new TpAxis();
-    m_impl->axisX->setMode(TpAxis::AxisMode::Value);
+    data_->axisX = new TpAxis();
+    data_->axisX->setMode(TpAxis::AxisMode::Value);
 
-    m_impl->axisY = new TpAxis();
-    m_impl->axisY->setMode(TpAxis::AxisMode::Value);
+    data_->axisY = new TpAxis();
+    data_->axisY->setMode(TpAxis::AxisMode::Value);
 }
 
 TpChart::~TpChart() {
-    if (m_impl) {
-        if (m_impl->axisX) delete m_impl->axisX;
-        if (m_impl->axisY) delete m_impl->axisY;
+    if (data_) {
         removeAllSeries();
-        delete m_impl;
-        m_impl = nullptr;
+        if (data_->axisX) delete data_->axisX;
+        if (data_->axisY) delete data_->axisY;
+        delete data_;
+        data_ = nullptr;
     }
 }
 
-
-// 公共接口
 /// @brief 设置图表标题
+/// @param title 标题文本
 void TpChart::setTitle(const char* title) {
-    m_impl->title = title;
-    this->update(); 
+    data_->title = title;
+    this->update();
 }
 
-/// 获取 X 轴引用
+/// @brief 获取 X 轴对象
 TpAxis* TpChart::axisX() {
-    return m_impl->axisX;
+    return data_->axisX;
 }
 
-/// 获取 Y 轴引用
+/// @brief 获取 Y 轴对象
 TpAxis* TpChart::axisY() {
-    return m_impl->axisY;
+    return data_->axisY;
 }
 
-/// @brief 设置图表背景颜色
+/// @brief 设置图表背景色
 void TpChart::setBackgroundColor(int32_t color) {
-    m_impl->backgroundColor = color;
+    data_->backgroundColor = color;
     this->update();
 }
 
 /// @brief 设置坐标轴标签
 void TpChart::setAxisLabels(const char* xLabel, const char* yLabel) {
-    m_impl->labelX = xLabel;
-    m_impl->labelY = yLabel;
+    data_->labelX = xLabel;
+    data_->labelY = yLabel;
     this->update();
 }
 
-/// @brief 设置 X 轴网格线可见性
+/// @brief 设置 X 轴网格线是否显示
 void TpChart::setGridXVisible(bool visible) {
-    m_impl->gridXVisible = visible;
+    data_->gridXVisible = visible;
     this->update();
 }
 
-/// @brief 设置 Y 轴网格线可见性
+/// @brief 设置 Y 轴网格线是否显示
 void TpChart::setGridYVisible(bool visible) {
-    m_impl->gridYVisible = visible;
+    data_->gridYVisible = visible;
     this->update();
 }
 
-/// 设置网格线颜色
+/// @brief 设置网格线颜色
 void TpChart::setGridColor(int32_t color) {
-    m_impl->gridColor = color;
+    data_->gridColor = color;
     this->update();
 }
 
-/// @brief 设置是否显示提示框
+/// @brief 设置是否显示提示信息
 void TpChart::setTooltipVisible(bool visible) {
-    m_impl->tooltipVisible = visible;
+    data_->tooltipVisible = visible;
     if (!visible) {
-        m_impl->hasHover = false;
-        m_impl->tooltipText.clear();
+        data_->hasHover = false;
+        data_->tooltipText.clear();
     }
     this->update();
 }
 
 /// @brief 设置是否显示十字线
 void TpChart::setCrosshairVisible(bool visible) {
-    m_impl->crosshairVisible = visible;
+    data_->crosshairVisible = visible;
     this->update();
 }
 
-/// @brief 设置是否启用选中
+/// @brief 设置是否允许点选系列或数据点
 void TpChart::setSelectionEnabled(bool enabled) {
-    m_impl->selectionEnabled = enabled;
+    data_->selectionEnabled = enabled;
     if (!enabled) {
-        m_impl->selectedSeriesIndex = -1;
-        m_impl->selectedPointIndex = -1;
-        m_impl->selectedSliceIndex = -1;
+        data_->selectedSeriesIndex = -1;
+        data_->selectedPointIndex = -1;
+        data_->selectedSliceIndex = -1;
     }
     this->update();
 }
 
-/// @brief 设置是否允许拖拽平移
+/// @brief 设置是否允许拖拽平移图表
 void TpChart::setPanEnabled(bool enabled) {
-    m_impl->panEnabled = enabled;
+    data_->panEnabled = enabled;
 }
 
-/// @brief 设置是否允许滚轮缩放
+/// @brief 设置是否允许滚轮缩放图表
 void TpChart::setWheelZoomEnabled(bool enabled) {
-    m_impl->wheelZoomEnabled = enabled;
+    data_->wheelZoomEnabled = enabled;
 }
 
 /// @brief 设置图例是否可点击
 void TpChart::setLegendClickable(bool enabled) {
-    m_impl->legendClickable = enabled;
+    data_->legendClickable = enabled;
     this->update();
 }
 
-/// 恢复默认视图
+/// @brief 恢复默认视图范围
 void TpChart::resetView() {
-    m_impl->axisX->setAutoRange(true);
-    m_impl->axisY->setAutoRange(true);
-    clearHoverState();
-    m_impl->hasPointerPos = false;
-    m_impl->mousePressed = false;
-    m_impl->isDragging = false;
-    m_impl->selectedSeriesIndex = -1;
-    m_impl->selectedPointIndex = -1;
-    m_impl->selectedSliceIndex = -1;
+    data_->axisX->setAutoRange(true);
+    data_->axisY->setAutoRange(true);
+    clearHoverState(data_);
+    data_->hasPointerPos = false;
+    data_->mousePressed = false;
+    data_->isDragging = false;
+    data_->selectedSeriesIndex = -1;
+    data_->selectedPointIndex = -1;
+    data_->selectedSliceIndex = -1;
     this->update();
 }
 
-/// 获取当前选中系列索引
+/// @brief 获取当前选中的系列索引
 int32_t TpChart::selectedSeriesIndex() const {
-    return m_impl ? m_impl->selectedSeriesIndex : -1;
+    return data_ ? data_->selectedSeriesIndex : -1;
 }
 
-/// 获取当前选中的数据点索引
+/// @brief 获取当前选中的数据点索引（仅折线图和柱状图适用）
 int32_t TpChart::selectedPointIndex() const {
-    return m_impl ? m_impl->selectedPointIndex : -1;
+    return data_ ? data_->selectedPointIndex : -1;
 }
 
-/// 获取当前选中切片索引
+/// @brief 获取当前选中的扇区索引（仅饼图适用）
 int32_t TpChart::selectedSliceIndex() const {
-    return m_impl ? m_impl->selectedSliceIndex : -1;
+    return data_ ? data_->selectedSliceIndex : -1;
 }
 
-/// 添加数据系列
+/// @brief 添加一个数据系列，图表会接管该系列的生命周期
 void TpChart::addSeries(TpSeries* series) {
     if (series) {
-        m_impl->seriesList.push_back(series);
-        m_impl->cssAppliedToSeries = false;
+        data_->seriesList.push_back(series);
+        data_->cssAppliedToSeries = false;
         this->update();
     }
 }
 
-/// 移除所有数据系列
+/// @brief 移除所有数据系列
 void TpChart::removeAllSeries() {
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        delete m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        delete data_->seriesList[i];
     }
-    m_impl->seriesList.clear();
-    m_impl->legendItems.clear();
-    clearHoverState();
-    m_impl->hasPointerPos = false;
-    m_impl->mousePressed = false;
-    m_impl->isDragging = false;
-    m_impl->selectedSeriesIndex = -1;
-    m_impl->selectedPointIndex = -1;
-    m_impl->selectedSliceIndex = -1;
+    data_->seriesList.clear();
+    data_->legendItems.clear();
+    clearHoverState(data_);
+    data_->hasPointerPos = false;
+    data_->mousePressed = false;
+    data_->isDragging = false;
+    data_->selectedSeriesIndex = -1;
+    data_->selectedPointIndex = -1;
+    data_->selectedSliceIndex = -1;
     this->update();
 }
 
-/// @brief 设置样式表（CSS）
+/// @brief 设置样式表，内部会同步刷新图表自身的 CSS 状态
 void TpChart::setStyleSheet(const TpString& styleSheet) {
-    TpApp::Inst()->cssParser()->parseCss(styleSheet);
-    refreshBaseCss();
-    m_impl->cssAppliedToSeries = false;
+    TpWidget::setStyleSheet(styleSheet);
+    refreshChartBaseCss(this, data_);
+    data_->cssAppliedToSeries = false;
 }
 
-/// 获取当前样式表（CSS）
-TpString TpChart::styleSheet() {
-    return TpApp::Inst()->cssParser()->cssStr();
-}
-
-/// 获取当前状态的 CSS 数据
-tpShared<TpCssData> TpChart::currentStatusCss() {
-    // TpChart 主要使用启用状态的 CSS
-    // 如果需要悬停/按下效果，可以在外部通过 setChecked() 等方式控制
-    tpShared<TpCssData> curCssData = enabledCssData;
-    if (!enabled()) {
-        curCssData = disabledCssData;
-    } else if (checkable() && checked()) {
-        curCssData = checkedCssData;
+/// @brief 获取当前图表状态对应的 CSS 数据
+static tpShared<TpCssData> currentStatusCss(TpChart* chart, TpChart::Impl* data_) {
+    // 优先级：禁用 > 选中 > 启用
+    tpShared<TpCssData> curCssData = data_->enabledCssData;
+    if (!chart || !chart->enabled()) {
+        curCssData = data_->disabledCssData;
+    } else if (chart->checkable() && chart->checked()) {
+        curCssData = data_->checkedCssData;
     }
     return curCssData;
 }
 
-/// 刷新基础 CSS 样式
-void TpChart::refreshBaseCss() {
-    enabledCssData = readCss(pluginType(), TpCssParser::Enabled);
-    disabledCssData = readCss(pluginType(), TpCssParser::Disabled);
-    hoverCssData = readCss(pluginType(), TpCssParser::Hover);
-    pressCssData = readCss(pluginType(), TpCssParser::Pressed);
-    checkedCssData = readCss(pluginType(), TpCssParser::Checked);
-}
-
-// 内部逻辑：自动计算范围
-/// @brief 根据所有 Series 数据自动调整坐标轴范围
-void TpChart::updateAxisRange() {
-    bool autoRangeX = m_impl->axisX->isAutoRange();
-    bool autoRangeY = m_impl->axisY->isAutoRange();
+/// @brief 根据数据系列自动计算坐标轴范围，适用于数值轴
+static void updateAxisRange(TpChart::Impl* data_) {
+    bool autoRangeX = data_->axisX->isAutoRange();
+    bool autoRangeY = data_->axisY->isAutoRange();
     bool hasVisibleSeries = false;
     bool allPieSeries = true;
 
@@ -388,23 +323,21 @@ void TpChart::updateAxisRange() {
         return;
     }
 
-    if (m_impl->seriesList.empty()) {
-        // 如果没有数据，并且是自动范围，则设置默认值
-        if (autoRangeX) m_impl->axisX->setRange(0, 10);
-        if (autoRangeY) m_impl->axisY->setRange(0, 10);
+    if (data_->seriesList.empty()) {
+        if (autoRangeX) data_->axisX->setRange(0, 10);
+        if (autoRangeY) data_->axisY->setRange(0, 10);
         return;
     }
 
     double minX = DBL_MAX, maxX = -DBL_MAX;
     double minY = DBL_MAX, maxY = -DBL_MAX;
     bool hasData = false;
-    
-    // 标记是否有柱状图
-    bool hasBarSeries = false; 
 
-    // 遍历所有 Series，找出最大最小值
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    // 遍历所有系列，找出可见的非饼图系列，并计算数据范围
+    bool hasBarSeries = false;
+
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (!s || !s->isVisible()) continue;
 
         hasVisibleSeries = true;
@@ -422,12 +355,12 @@ void TpChart::updateAxisRange() {
 
         const TpVector<TpDataPoint>& data = s->data();
         for (int32_t k = 0; k < data.size(); ++k) {
-            if (autoRangeX) {
+    if (autoRangeX) {
                 double x = data[k].x;
                 if (x < minX) minX = x;
                 if (x > maxX) maxX = x;
             }
-            if (autoRangeY) {
+    if (autoRangeY) {
                 double y = data[k].y;
                 if (y < minY) minY = y;
                 if (y > maxY) maxY = y;
@@ -441,58 +374,52 @@ void TpChart::updateAxisRange() {
     }
 
     if (!hasData) {
-        if (autoRangeX) m_impl->axisX->setRange(0, 10);
-        if (autoRangeY) m_impl->axisY->setRange(0, 10);
+        if (autoRangeX) data_->axisX->setRange(0, 10);
+        if (autoRangeY) data_->axisY->setRange(0, 10);
         return;
     }
 
-    // 判断 X 轴是否开启自动范围
     if (autoRangeX) {
         if (hasBarSeries) {
-           double spanX = maxX - minX;
-            if (spanX <= 0) spanX = 1.0;
-            double leftPad = m_impl->axisX->xLeftPaddingRatio() * spanX;
-            double rightPad = m_impl->axisX->xRightPaddingRatio() * spanX;
-            m_impl->axisX->setRange(minX - leftPad, maxX + rightPad);
-        } else {
-            // 折线图：使用左右留白比例（默认均匀），则贴边
             double spanX = maxX - minX;
             if (spanX <= 0) spanX = 1.0;
-            double leftPad = m_impl->axisX->xLeftPaddingRatio() * spanX;
-            double rightPad = m_impl->axisX->xRightPaddingRatio() * spanX;
-            m_impl->axisX->setRange(minX - leftPad, maxX + rightPad);
+            double leftPad = data_->axisX->xLeftPaddingRatio() * spanX;
+            double rightPad = data_->axisX->xRightPaddingRatio() * spanX;
+            data_->axisX->setRange(minX - leftPad, maxX + rightPad);
+        } else {
+            double spanX = maxX - minX;
+            if (spanX <= 0) spanX = 1.0;
+            double leftPad = data_->axisX->xLeftPaddingRatio() * spanX;
+            double rightPad = data_->axisX->xRightPaddingRatio() * spanX;
+            data_->axisX->setRange(minX - leftPad, maxX + rightPad);
         }
     }
 
-    // 判断 Y 轴是否开启自动范围
     if (autoRangeY) {
         double spanY = maxY - minY;
         if (spanY <= 0) spanY = 1.0;
-        
-        double topPad = m_impl->axisY->yTopPaddingRatio() * spanY;
-        double bottomPad = m_impl->axisY->yBottomPaddingRatio() * spanY;
-        
+
+        double topPad = data_->axisY->yTopPaddingRatio() * spanY;
+        double bottomPad = data_->axisY->yBottomPaddingRatio() * spanY;
+
         double newMin = minY - bottomPad;
         double newMax = maxY + topPad;
-        
-        // 强制包含零点，但保留留白扩展
+
+        // 如果数据全为正数且 minY>0，则强制 newMin=0-bottomPad，使得柱状图底部有足够空间显示
         if (minY > 0) {
-            // 数据全为正：最小值设为 0，并向下扩展底部留白
             newMin = 0 - bottomPad;
-            // 最大值仍为 maxY + topPad（但 maxY>0，因此顶部留白自然生效）
+            // 如果数据全为负数且 maxY<0，则强制 newMax=0+topPad，使得柱状图顶部有足够空间显示
         } else if (maxY < 0) {
-            // 数据全为负：最大值设为 0，并向上扩展顶部留白
             newMax = 0 + topPad;
-            // 最小值仍为 minY - bottomPad（自然生效）
+            // 如果数据跨越正负且包含0，则强制 newMin<=0<=newMax，使得柱状图能够正确显示
         }
-        // 跨零点的情况：留白已经在 newMin/newMax 中体现，无需额外处理
-        
-        m_impl->axisY->setRange(newMin, newMax);
+        // 如果数据跨越正负但不包含0，则保持原计算的 newMin 和 newMax，以确保数据点都在坐标轴范围内
+
+        data_->axisY->setRange(newMin, newMax);
     }
 }
 
-// 核心绘制逻辑
-/// @brief 主绘制事件
+// 绘制事件处理函数
 bool TpChart::onPaintEvent(TpPaintEvent* event) {
     if (!event) {
         return false;
@@ -513,28 +440,28 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
     bool pieChartMode = false;
     double scale = 1.0;
 
-    prepareLayoutState(totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
+    prepareLayoutState(data_, totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
 
     if (!pieChartMode) {
-        updateAxisRange();
+        updateAxisRange(data_);
 
         int32_t tickDensityX = showAxisTicks ? (int32_t)(80 * scale) : 120;
         int32_t tickDensityY = showAxisTicks ? (int32_t)(50 * scale) : 80;
         int32_t targetTicksX = chartRect.width() / (tickDensityX > 0 ? tickDensityX : 1);
         int32_t targetTicksY = chartRect.height() / (tickDensityY > 0 ? tickDensityY : 1);
 
-        m_impl->axisX->updateNiceTicks(targetTicksX > 2 ? targetTicksX : 2);
-        m_impl->axisY->updateNiceTicks(targetTicksY > 2 ? targetTicksY : 2);
+        data_->axisX->updateNiceTicks(targetTicksX > 2 ? targetTicksX : 2);
+        data_->axisY->updateNiceTicks(targetTicksY > 2 ? targetTicksY : 2);
     }
 
-    drawBackground(painter, totalRect, chartRect);
+    drawBackground(this, data_, painter, totalRect, chartRect);
     if (!pieChartMode) {
-        drawGrid(painter, chartRect);
+        drawGrid(data_, painter, chartRect);
     }
 
-    if (!m_impl->cssAppliedToSeries) {
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* s = m_impl->seriesList[i];
+    if (!data_->cssAppliedToSeries) {
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* s = data_->seriesList[i];
             if (s && s->isVisible()) {
                 if (s->type() == TpSeries::TypeLine) {
                     s->applyCssData("TpLineSeries", TpCssParser::Enabled);
@@ -547,23 +474,23 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
                 }
             }
         }
-        m_impl->cssAppliedToSeries = true;
+        data_->cssAppliedToSeries = true;
     }
 
     if (pieChartMode) {
-        drawPieChart(painter, chartRect);
+        drawPieChart(data_, painter, chartRect);
     } else {
         int32_t barSeriesCount = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* s = data_->seriesList[i];
             if (s && s->isVisible() && s->type() == TpSeries::TypeBar) {
                 barSeriesCount++;
             }
         }
 
         int32_t barIndex = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* s = data_->seriesList[i];
             if (s && s->isVisible()) {
                 if (s->type() == TpSeries::TypePie) {
                     continue;
@@ -571,14 +498,14 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
                 if (s->type() == TpSeries::TypeBar) {
                     static_cast<TpBarSeries*>(s)->setLayoutInfo(barIndex++, barSeriesCount);
                 }
-                s->draw(painter, *m_impl->axisX, *m_impl->axisY, chartRect);
+                s->draw(painter, *data_->axisX, *data_->axisY, chartRect);
             }
         }
 
         if (showAxisTicks) {
             uint32_t black = _RGB(0, 0, 0);
-            TpRenderUtils::drawAxisX(painter, chartRect, *m_impl->axisX, *m_impl->axisY, black, false, 0);
-            TpRenderUtils::drawAxisY(painter, chartRect, *m_impl->axisY, *m_impl->axisX, black, false, 0);
+            TpRenderUtils::drawAxisX(painter, chartRect, *data_->axisX, *data_->axisY, black, false, 0);
+            TpRenderUtils::drawAxisY(painter, chartRect, *data_->axisY, *data_->axisX, black, false, 0);
         }
     }
 
@@ -590,22 +517,22 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
         labelFont.setFontSize(labelFontSize);
         labelFont.setFontColor(_RGB(30, 30, 30));
 
-        if (m_impl->labelX.length() > 0) {
-            labelFont.setText(m_impl->labelX);
-            int32_t textW = labelFont.pixelWidth() > 0 ? labelFont.pixelWidth() : m_impl->labelX.length() * (int32_t)(8 * scale);
+        if (data_->labelX.length() > 0) {
+            labelFont.setText(data_->labelX);
+            int32_t textW = labelFont.pixelWidth() > 0 ? labelFont.pixelWidth() : data_->labelX.length() * (int32_t)(8 * scale);
             int32_t lx = chartRect.x() + (chartRect.width() / 2) - (textW / 2);
             int32_t ly = chartRect.bottom() + (int32_t)(40 * scale);
             painter->drawText(labelFont, lx, ly);
         }
 
-        if (m_impl->labelY.length() > 0) {
+        if (data_->labelY.length() > 0) {
             TpFont yLabelFont;
             yLabelFont.setFontSize(labelFontSize);
             yLabelFont.setFontColor(_RGB(30, 30, 30));
             yLabelFont.setVerticalText(true);
-            yLabelFont.setText(m_impl->labelY);
+            yLabelFont.setText(data_->labelY);
 
-            int32_t textHeight = (int32_t)(m_impl->labelY.length() * labelFontSize);
+            int32_t textHeight = (int32_t)(data_->labelY.length() * labelFontSize);
             int32_t lx = totalRect.x() + (int32_t)(5 * scale);
             int32_t ly = chartRect.y() + (chartRect.height() / 2) - (textHeight / 2);
 
@@ -614,110 +541,102 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
     }
 
     if (showTitleAndLegend) {
-        drawTitle(painter, totalRect);
-        drawLegend(painter, totalRect, chartRect);
+        drawTitle(data_, painter, totalRect);
+        drawLegend(data_, painter, totalRect, chartRect);
     }
 
-    if (m_impl->hasHover) {
-        drawHoverHighlight(painter, chartRect);
+    if (data_->hasHover) {
+        drawHoverHighlight(data_, painter, chartRect);
     }
 
-    if (m_impl->selectionEnabled) {
-        drawSelection(painter, chartRect);
+    if (data_->selectionEnabled) {
+        drawSelection(data_, painter, chartRect);
     }
 
-    if (m_impl->crosshairVisible && m_impl->hasHover && !pieChartMode) {
-        drawCrosshair(painter, chartRect);
+    if (data_->crosshairVisible && data_->hasHover && !pieChartMode) {
+        drawCrosshair(data_, painter, chartRect);
     }
 
-    if (m_impl->tooltipVisible && m_impl->hasHover) {
-        drawTooltip(painter, chartRect);
+    if (data_->tooltipVisible && data_->hasHover) {
+        drawTooltip(data_, painter, chartRect);
     }
 
     return true;
 }
 
-// 内部私有实现
-/// 计算布局矩形
-TpRect TpChart::calculateLayout(const TpRect& totalRect) {
-    int32_t top = m_impl->marginTop;
-    if (m_impl->title.empty()) top -= 20;
+// 辅助函数实现
+/// @brief 根据当前数据和总绘制区域计算实际的图表绘制区域，考虑标题、坐标轴标签和刻度等占用的空间
+static TpRect calculateLayout(TpChart::Impl* data_, const TpRect& totalRect) {
+    int32_t top = data_->marginTop;
+    if (data_->title.empty()) top -= 20;
 
-    int32_t chartW = totalRect.width() - m_impl->marginLeft - m_impl->marginRight;
-    int32_t chartH = totalRect.height() - top - m_impl->marginBottom;
+    int32_t chartW = totalRect.width() - data_->marginLeft - data_->marginRight;
+    int32_t chartH = totalRect.height() - top - data_->marginBottom;
 
     if (chartW < 10) chartW = 10;
     if (chartH < 10) chartH = 10;
 
     return TpRect(
-        totalRect.x() + m_impl->marginLeft,
+        totalRect.x() + data_->marginLeft,
         totalRect.y() + top,
         chartW,
         chartH
     );
 }
 
-/// 绘制鑳屾櫙
-void TpChart::drawBackground(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect) {
-    // 使用 CSS 背景颜色（如果设置了）
-    tpShared<TpCssData> curCssData = currentStatusCss();
+static void drawBackground(TpChart* chart, TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect) {
+    tpShared<TpCssData> curCssData = currentStatusCss(chart, data_);
     int32_t bgColor = curCssData->backgroundColor();
 
     TpRenderUtils::fillGradientRect(painter, totalRect, _RGB(248, 248, 248), _RGB(248, 248, 248));
 
-    // 使用 CSS 背景颜色或默认背景颜色
     if (curCssData->backgroundColorIsGradient()) {
         TpBrush brush(curCssData->backgroundColorGradiant());
         painter->setBrush(brush);
         painter->drawRect(chartRect.x(), chartRect.y(), chartRect.width(), chartRect.height(), 0);
     } else {
-        // 使用 drawRect 填充矩形（设置颜色和实心画刷）
-        painter->setPen(bgColor);
+            painter->setPen(bgColor);
         painter->setBrush(TpBrush(bgColor));
         painter->drawRect(chartRect.x(), chartRect.y(), chartRect.width(), chartRect.height(), 0);
         painter->setBrush(TpBrush(Tp::NoBrush));
     }
 }
 
-/// 绘制网格
-void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
-    // 1. 基础安全检查
-    if (!painter || !m_impl || !m_impl->axisX || !m_impl->axisY) {
-        return; 
+/// @brief 绘制网格线，基于坐标轴的刻度位置进行绘制，支持 X 轴和 Y 轴独立控制显示与否
+static void drawGrid(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect) {
+    if (!painter || !data_ || !data_->axisX || !data_->axisY) {
+        return;
     }
 
-    TpPen gridPen(m_impl->gridColor, 1);
+    TpPen gridPen(data_->gridColor, 1);
 
-    // 2. 绘制垂直网格线
-    if (m_impl->gridXVisible) {
-        const TpVector<double>& xTicks = m_impl->axisX->getTickValues();
+    if (data_->gridXVisible) {
+        const TpVector<double>& xTicks = data_->axisX->getTickValues();
         painter->setPen(gridPen);
         for (int32_t i = 0; i < xTicks.size(); ++i) {
-            int32_t x = m_impl->axisX->mapToPixel(xTicks[i], chartRect.width(), chartRect.x(), false);
+            int32_t x = data_->axisX->mapToPixel(xTicks[i], chartRect.width(), chartRect.x(), false);
             if (x >= chartRect.x() && x <= chartRect.right()) {
                 painter->drawLine(x, chartRect.y(), x, chartRect.bottom());
             }
         }
     }
 
-    // 3. 绘制水平网格线
-    if (m_impl->gridYVisible) {
-        const TpVector<double>& yTicks = m_impl->axisY->getTickValues();
+    if (data_->gridYVisible) {
+        const TpVector<double>& yTicks = data_->axisY->getTickValues();
         painter->setPen(gridPen);
         for (int32_t i = 0; i < yTicks.size(); ++i) {
-            int32_t y = m_impl->axisY->mapToPixel(yTicks[i], chartRect.height(), chartRect.y(), true);
+            int32_t y = data_->axisY->mapToPixel(yTicks[i], chartRect.height(), chartRect.y(), true);
             if (y >= chartRect.y() && y <= chartRect.bottom()) {
                 painter->drawLine(chartRect.x(), y, chartRect.right(), y);
             }
         }
     }
 
-    // 4. 零刻度线（X 轴主线）强化绘制
-    // 增加逻辑保护，防止 min/max 异常导致的问题
-    double yMin = m_impl->axisY->min();
-    double yMax = m_impl->axisY->max();
+    // 4. 如果坐标轴范围跨越0点，则绘制0轴线以增强视觉效果
+    double yMin = data_->axisY->min();
+    double yMax = data_->axisY->max();
     if (yMin < 0 && yMax > 0) {
-        int32_t yZero = m_impl->axisY->mapToPixel(0.0, chartRect.height(), chartRect.y(), true);
+        int32_t yZero = data_->axisY->mapToPixel(0.0, chartRect.height(), chartRect.y(), true);
         if (yZero >= chartRect.y() && yZero <= chartRect.bottom()) {
             TpPen zeroPen(_RGB(150, 150, 150), 1);
             painter->setPen(zeroPen);
@@ -726,18 +645,16 @@ void TpChart::drawGrid(TpPainter* painter, const TpRect& chartRect) {
     }
 }
 
-/// 绘制标题
-void TpChart::drawTitle(TpPainter* painter, const TpRect& totalRect) {
-    if (m_impl->title.empty()) return;
-    
-    // 在这里重新计算一次 scale，保持接口不被污染
+/// @brief 绘制图表标题，自动根据总绘制区域大小调整字体大小和位置，确保标题清晰可见且不与其他元素重叠
+static void drawTitle(TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect) {
+    if (data_->title.empty()) return;
+
     double scaleX = totalRect.width() / 800.0;
     double scaleY = totalRect.height() / 600.0;
-    double scale = scaleX < scaleY ? scaleX : scaleY; 
+    double scale = scaleX < scaleY ? scaleX : scaleY;
     if (scale < 0.5) scale = 0.5;
     if (scale > 2.5) scale = 2.5;
 
-    // 动态计算标题字体大小（基准 18px）
     int32_t titleFontSize = (int32_t)(18 * scale);
     if (titleFontSize < 10) titleFontSize = 10;
 
@@ -745,22 +662,22 @@ void TpChart::drawTitle(TpPainter* painter, const TpRect& totalRect) {
     font.setFontSize(titleFontSize);
     font.setFontColor(_RGB(0, 0, 0));
     font.setBold(true);
-    font.setText(m_impl->title);
-    
+    font.setText(data_->title);
+
     int32_t textW = font.pixelWidth();
-    if (textW <= 0) textW = m_impl->title.length() * (int32_t)(12 * scale); 
+    if (textW <= 0) textW = data_->title.length() * (int32_t)(12 * scale);
 
     int32_t x = totalRect.x() + (totalRect.width() - textW) / 2;
-    int32_t y = totalRect.y() + (int32_t)(15 * scale); 
-    
+    int32_t y = totalRect.y() + (int32_t)(15 * scale);
+
     painter->drawText(font, x, y);
 }
 
-bool TpChart::isPieChartMode() const {
+static bool isPieChartMode(TpChart::Impl* data_) {
     bool hasVisibleSeries = false;
 
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (!s || !s->isVisible()) continue;
         hasVisibleSeries = true;
         if (s->type() != TpSeries::TypePie) {
@@ -771,12 +688,12 @@ bool TpChart::isPieChartMode() const {
     return hasVisibleSeries;
 }
 
-void TpChart::drawPieChart(TpPainter* painter, const TpRect& chartRect) {
-    if (!painter || !m_impl) return;
+static void drawPieChart(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect) {
+    if (!painter || !data_) return;
 
     int32_t pieCount = 0;
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (s && s->isVisible() && s->type() == TpSeries::TypePie) {
             pieCount++;
         }
@@ -789,8 +706,8 @@ void TpChart::drawPieChart(TpPainter* painter, const TpRect& chartRect) {
     if (slotHeight <= 0) slotHeight = chartRect.height();
 
     int32_t pieIndex = 0;
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (!s || !s->isVisible() || s->type() != TpSeries::TypePie) continue;
 
         int32_t currentTop = chartRect.y() + pieIndex * slotHeight;
@@ -798,14 +715,14 @@ void TpChart::drawPieChart(TpPainter* painter, const TpRect& chartRect) {
         if (currentHeight < 20) currentHeight = 20;
 
         TpRect pieRect(chartRect.x(), currentTop, chartRect.width(), currentHeight);
-        static_cast<TpPieSeries*>(s)->draw(painter, *m_impl->axisX, *m_impl->axisY, pieRect);
+        static_cast<TpPieSeries*>(s)->draw(painter, *data_->axisX, *data_->axisY, pieRect);
         pieIndex++;
     }
 }
 
-/// @brief 计算当前布局状态
-void TpChart::prepareLayoutState(const TpRect& totalRect, TpRect& chartRect, bool& showTitleAndLegend, bool& showAxisLabels,
-                                 bool& showAxisTicks, bool& pieChartMode, double& scale)
+/// @brief 根据总绘制区域大小和当前数据状态计算图表布局相关的状态变量，包括实际的图表绘制区域、是否显示标题和图例、是否显示坐标轴标签和刻度、是否进入饼图模式以及整体缩放比例等，以便后续绘制函数能够根据这些状态进行适配性的绘制
+static void prepareLayoutState(TpChart::Impl* data_, const TpRect& totalRect, TpRect& chartRect, bool& showTitleAndLegend,
+                               bool& showAxisLabels, bool& showAxisTicks, bool& pieChartMode, double& scale)
 {
     int32_t w = totalRect.width();
     int32_t h = totalRect.height();
@@ -819,38 +736,38 @@ void TpChart::prepareLayoutState(const TpRect& totalRect, TpRect& chartRect, boo
     showTitleAndLegend = (w >= 300 && h >= 250);
     showAxisLabels = (w >= 250 && h >= 200);
     showAxisTicks = (w >= 120 && h >= 80);
-    pieChartMode = isPieChartMode();
+    pieChartMode = isPieChartMode(data_);
 
     if (pieChartMode) {
-        m_impl->marginTop = m_impl->title.empty() || !showTitleAndLegend ? (int32_t)(35 * scale) : (int32_t)(70 * scale);
-        m_impl->marginBottom = (int32_t)(25 * scale);
-        m_impl->marginLeft = (int32_t)(20 * scale);
-        m_impl->marginRight = (int32_t)(20 * scale);
+        data_->marginTop = data_->title.empty() || !showTitleAndLegend ? (int32_t)(35 * scale) : (int32_t)(70 * scale);
+        data_->marginBottom = (int32_t)(25 * scale);
+        data_->marginLeft = (int32_t)(20 * scale);
+        data_->marginRight = (int32_t)(20 * scale);
     } else if (!showAxisTicks) {
-        m_impl->marginTop = 5;
-        m_impl->marginBottom = 5;
-        m_impl->marginLeft = 5;
-        m_impl->marginRight = 5;
+        data_->marginTop = 5;
+        data_->marginBottom = 5;
+        data_->marginLeft = 5;
+        data_->marginRight = 5;
     } else if (!showAxisLabels) {
-        m_impl->marginTop = (int32_t)(20 * scale);
-        m_impl->marginBottom = (int32_t)(25 * scale);
-        m_impl->marginLeft = (int32_t)(35 * scale);
-        m_impl->marginRight = (int32_t)(15 * scale);
+        data_->marginTop = (int32_t)(20 * scale);
+        data_->marginBottom = (int32_t)(25 * scale);
+        data_->marginLeft = (int32_t)(35 * scale);
+        data_->marginRight = (int32_t)(15 * scale);
     } else {
-        m_impl->marginTop = (m_impl->title.empty() || !showTitleAndLegend) ? (int32_t)(40 * scale) : (int32_t)(80 * scale);
-        m_impl->marginBottom = m_impl->labelX.empty() ? (int32_t)(40 * scale) : (int32_t)(60 * scale);
-        m_impl->marginLeft = m_impl->labelY.empty() ? (int32_t)(50 * scale) : (int32_t)(80 * scale);
-        m_impl->marginRight = (int32_t)(30 * scale);
+        data_->marginTop = (data_->title.empty() || !showTitleAndLegend) ? (int32_t)(40 * scale) : (int32_t)(80 * scale);
+        data_->marginBottom = data_->labelX.empty() ? (int32_t)(40 * scale) : (int32_t)(60 * scale);
+        data_->marginLeft = data_->labelY.empty() ? (int32_t)(50 * scale) : (int32_t)(80 * scale);
+        data_->marginRight = (int32_t)(30 * scale);
     }
 
-    chartRect = calculateLayout(totalRect);
+    chartRect = calculateLayout(data_, totalRect);
 }
 
-/// @brief 构建图例数据
-void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, TpVector<const char*>& names,
-                              TpVector<int32_t>& colors, TpVector<int32_t>& endColors, TpVector<int32_t>& types)
+/// @brief 根据当前数据系列构造图例项的数据，包括图例文本、颜色、类型和位置等信息，以便后续绘制图例时能够正确显示每个系列对应的图例项，并且在饼图模式下能够显示每个扇区对应的图例项
+static void buildLegendData(TpChart::Impl* data_, const TpRect& totalRect, const TpRect& chartRect, TpVector<const char*>& names,
+                            TpVector<int32_t>& colors, TpVector<int32_t>& endColors, TpVector<int32_t>& types)
 {
-    m_impl->legendItems.clear();
+    data_->legendItems.clear();
     names.clear();
     colors.clear();
     endColors.clear();
@@ -875,12 +792,12 @@ void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, 
     font.setFontSize(legendSize);
     font.setFontColor(_RGB(0, 0, 0));
 
-    bool pieMode = isPieChartMode();
+    bool pieMode = isPieChartMode(data_);
     TpVector<int32_t> itemWidths;
     TpVector<int32_t> itemHeights;
 
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (!s) continue;
 
         if (s->type() == TpSeries::TypePie && pieMode && s->isVisible()) {
@@ -897,7 +814,7 @@ void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, 
                 item.visible = pieSeries->isSliceVisible(k);
                 item.seriesIndex = i;
                 item.sliceIndex = k;
-                m_impl->legendItems.push_back(item);
+                data_->legendItems.push_back(item);
 
                 font.setText(item.text);
                 int32_t textW = font.pixelWidth();
@@ -929,7 +846,7 @@ void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, 
         item.visible = s->isVisible();
         item.seriesIndex = i;
         item.sliceIndex = -1;
-        m_impl->legendItems.push_back(item);
+        data_->legendItems.push_back(item);
 
         font.setText(item.text);
         int32_t textW = font.pixelWidth();
@@ -949,33 +866,33 @@ void TpChart::buildLegendData(const TpRect& totalRect, const TpRect& chartRect, 
     }
 
     int32_t currentX = totalRect.x() + (totalRect.width() - totalContentWidth) / 2;
-    for (int32_t i = 0; i < m_impl->legendItems.size(); ++i) {
+    for (int32_t i = 0; i < data_->legendItems.size(); ++i) {
         int32_t itemWidth = (i < itemWidths.size()) ? itemWidths[i] : totalItemBaseW;
         int32_t itemHeight = (i < itemHeights.size()) ? itemHeights[i] : legendSize;
-        m_impl->legendItems[i].rect = TpRect(currentX, startY, itemWidth, itemHeight + 4);
+        data_->legendItems[i].rect = TpRect(currentX, startY, itemWidth, itemHeight + 4);
         currentX += itemWidth + itemSpacing;
     }
 
-    for (int32_t i = 0; i < m_impl->legendItems.size(); ++i) {
-        names.push_back(m_impl->legendItems[i].text.c_str());
-        colors.push_back(m_impl->legendItems[i].colorStart);
-        endColors.push_back(m_impl->legendItems[i].colorEnd);
-        types.push_back(m_impl->legendItems[i].type);
+    for (int32_t i = 0; i < data_->legendItems.size(); ++i) {
+        names.push_back(data_->legendItems[i].text.c_str());
+        colors.push_back(data_->legendItems[i].colorStart);
+        endColors.push_back(data_->legendItems[i].colorEnd);
+        types.push_back(data_->legendItems[i].type);
     }
 }
 
-/// @brief 绘制图例
-void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect)
+/// @brief 绘制图例，基于之前构建的图例数据进行绘制，支持不同类型的图例项（线条、柱状、散点和饼图），并且根据当前系列的可见状态调整图例项的颜色显示，同时自动适配不同总绘制区域大小下的图例布局和字体大小，确保图例清晰可见且不与其他元素重叠
+static void drawLegend(TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect)
 {
-    if (!painter || !m_impl) return;
+    if (!painter || !data_) return;
 
     TpVector<const char*> names;
     TpVector<int32_t> colors;
     TpVector<int32_t> endColors;
     TpVector<int32_t> types;
-    buildLegendData(totalRect, chartRect, names, colors, endColors, types);
+    buildLegendData(data_, totalRect, chartRect, names, colors, endColors, types);
 
-    if (m_impl->legendItems.size() == 0) {
+    if (data_->legendItems.size() == 0) {
         return;
     }
 
@@ -994,8 +911,8 @@ void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRe
     TpFont font;
     font.setFontSize(legendSize);
 
-    for (int32_t i = 0; i < m_impl->legendItems.size(); ++i) {
-        const LegendItem& item = m_impl->legendItems[i];
+    for (int32_t i = 0; i < data_->legendItems.size(); ++i) {
+        const LegendItem& item = data_->legendItems[i];
         int32_t currentX = item.rect.x();
         int32_t y = item.rect.y();
         int32_t textColor = item.visible ? _RGB(0, 0, 0) : dimColor(_RGB(0, 0, 0), 110);
@@ -1043,19 +960,19 @@ void TpChart::drawLegend(TpPainter* painter, const TpRect& totalRect, const TpRe
     }
 }
 
-/// @brief 清理悬停状态
-void TpChart::clearHoverState()
+/// @brief 清除当前的悬浮状态，包括悬浮的系列索引、数据点索引、扇区索引和提示文本等，以便在鼠标移动到其他位置或者没有命中任何数据点时能够正确更新悬浮状态并隐藏相关的高亮和提示信息
+static void clearHoverState(TpChart::Impl* data_)
 {
-    m_impl->hasHover = false;
-    m_impl->hoverSeriesIndex = -1;
-    m_impl->hoverPointIndex = -1;
-    m_impl->hoverSliceIndex = -1;
-    m_impl->tooltipText.clear();
+    data_->hasHover = false;
+    data_->hoverSeriesIndex = -1;
+    data_->hoverPointIndex = -1;
+    data_->hoverSliceIndex = -1;
+    data_->tooltipText.clear();
 }
 
-/// @brief 命中测试
-bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMode, int32_t& seriesIndex, int32_t& pointIndex,
-                        int32_t& sliceIndex, TpString& text, TpPoint& hitPos)
+/// @brief 根据鼠标点击位置进行命中测试，判断是否命中某个数据点或者饼图扇区，并且返回对应的系列索引、数据点索引、扇区索引和提示文本等信息，以便在鼠标悬浮或者点击时能够正确显示相关的高亮和提示信息
+static bool hitTestAt(TpChart::Impl* data_, const TpRect& chartRect, const TpPoint& pos, bool pieMode, int32_t& seriesIndex,
+                      int32_t& pointIndex, int32_t& sliceIndex, TpString& text, TpPoint& hitPos)
 {
     seriesIndex = -1;
     pointIndex = -1;
@@ -1075,16 +992,16 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
 
     if (pieMode) {
         int32_t pieCount = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* s = data_->seriesList[i];
             if (s && s->isVisible() && s->type() == TpSeries::TypePie) {
                 pieCount++;
             }
         }
 
         int32_t pieIndex = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* s = data_->seriesList[i];
             if (!s || !s->isVisible() || s->type() != TpSeries::TypePie) {
                 continue;
             }
@@ -1195,8 +1112,8 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
     }
 
     int32_t barSeriesCount = 0;
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (s && s->isVisible() && s->type() == TpSeries::TypeBar) {
             barSeriesCount++;
         }
@@ -1206,8 +1123,8 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
     double bestDistance = DBL_MAX;
     bool hit = false;
 
-    for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-        TpSeries* s = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+        TpSeries* s = data_->seriesList[i];
         if (!s || !s->isVisible()) {
             continue;
         }
@@ -1220,10 +1137,10 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
             int32_t rectH = chartRect.height();
             int32_t rectX = chartRect.x();
             int32_t rectY = chartRect.y();
-            int32_t yZero = m_impl->axisY->ZeroPixel(rectH, rectY, true);
+            int32_t yZero = data_->axisY->ZeroPixel(rectH, rectY, true);
 
-            int32_t x0 = m_impl->axisX->mapToPixel(m_impl->axisX->min(), rectW, rectX, false);
-            int32_t x1 = m_impl->axisX->mapToPixel(m_impl->axisX->min() + 1.0, rectW, rectX, false);
+            int32_t x0 = data_->axisX->mapToPixel(data_->axisX->min(), rectW, rectX, false);
+            int32_t x1 = data_->axisX->mapToPixel(data_->axisX->min() + 1.0, rectW, rectX, false);
             int32_t unitPixelWidth = std::abs(x1 - x0);
             if (unitPixelWidth <= 0) unitPixelWidth = 50;
             int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.6);
@@ -1232,9 +1149,9 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
 
             for (int32_t k = 0; k < data.size(); ++k) {
                 TpDataPoint pt = data[k];
-                int32_t xCenter = m_impl->axisX->mapToPixel(pt.x, rectW, rectX, false);
+                int32_t xCenter = data_->axisX->mapToPixel(pt.x, rectW, rectX, false);
                 int32_t barLeft = xCenter - (groupWidth / 2) + layoutIndex * barWidth;
-                int32_t yVal = m_impl->axisY->mapToPixel(pt.y, rectH, rectY, true);
+                int32_t yVal = data_->axisY->mapToPixel(pt.y, rectH, rectY, true);
                 int32_t top = (pt.y >= 0) ? yVal : yZero;
                 int32_t height = std::abs(yVal - yZero);
                 if (height == 0) height = 1;
@@ -1262,8 +1179,8 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
 
         for (int32_t k = 0; k < data.size(); ++k) {
             const TpDataPoint& pt = data[k];
-            int32_t px = m_impl->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
-            int32_t py = m_impl->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
+            int32_t px = data_->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
+            int32_t py = data_->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
             double d2 = distanceSq(pos.x(), pos.y(), px, py);
             if (d2 <= static_cast<double>(pointRadius * pointRadius) && d2 < bestDistance) {
                 bestDistance = d2;
@@ -1287,25 +1204,26 @@ bool TpChart::hitTestAt(const TpRect& chartRect, const TpPoint& pos, bool pieMod
 
     return hit;
 }
-/// @brief 按当前位置缩放坐标轴
-void TpChart::zoomAxisAt(const TpPoint& pos, const TpRect& chartRect, double factor)
+
+/// @brief 根据鼠标点击位置进行缩放，计算新的坐标轴范围以实现以鼠标位置为中心的缩放效果，并且确保新的坐标轴范围不会过小或者过大，以保持图表的可读性和适当的缩放级别，同时在缩放过程中自动禁用坐标轴的自动范围功能，以便用户能够手动调整坐标轴范围
+static void zoomAxisAt(TpChart::Impl* data_, const TpPoint& pos, const TpRect& chartRect, double factor)
 {
-    if (!m_impl || factor <= 0.0) return;
+    if (!data_ || factor <= 0.0) return;
 
-    if (m_impl->axisX->isAutoRange()) {
-        m_impl->axisX->setAutoRange(false);
+    if (data_->axisX->isAutoRange()) {
+        data_->axisX->setAutoRange(false);
     }
-    if (m_impl->axisY->isAutoRange()) {
-        m_impl->axisY->setAutoRange(false);
+    if (data_->axisY->isAutoRange()) {
+        data_->axisY->setAutoRange(false);
     }
 
-    double xAnchor = m_impl->axisX->mapToValue(pos.x(), chartRect.width(), chartRect.x(), false);
-    double yAnchor = m_impl->axisY->mapToValue(pos.y(), chartRect.height(), chartRect.y(), true);
+    double xAnchor = data_->axisX->mapToValue(pos.x(), chartRect.width(), chartRect.x(), false);
+    double yAnchor = data_->axisY->mapToValue(pos.y(), chartRect.height(), chartRect.y(), true);
 
-    double xMin = m_impl->axisX->min();
-    double xMax = m_impl->axisX->max();
-    double yMin = m_impl->axisY->min();
-    double yMax = m_impl->axisY->max();
+    double xMin = data_->axisX->min();
+    double xMax = data_->axisX->max();
+    double yMin = data_->axisY->min();
+    double yMax = data_->axisY->max();
 
     double xSpan = xMax - xMin;
     double ySpan = yMax - yMin;
@@ -1342,84 +1260,83 @@ void TpChart::zoomAxisAt(const TpPoint& pos, const TpRect& chartRect, double fac
         newYMax += 1.0;
     }
 
-    m_impl->axisX->setRange(newXMin, newXMax);
-    m_impl->axisY->setRange(newYMin, newYMax);
+    data_->axisX->setRange(newXMin, newXMax);
+    data_->axisY->setRange(newYMin, newYMax);
 }
 
-/// @brief 按当前位置平移坐标轴
-void TpChart::panAxisTo(const TpPoint& pos, const TpRect& chartRect)
+/// @brief 根据鼠标拖动位置进行平移，计算新的坐标轴范围以实现图表的平移效果，并且确保新的坐标轴范围不会过小或者过大，以保持图表的可读性和适当的缩放级别，同时在平移过程中自动禁用坐标轴的自动范围功能，以便用户能够手动调整坐标轴范围
+static void panAxisTo(TpChart::Impl* data_, const TpPoint& pos, const TpRect& chartRect)
 {
-    if (!m_impl) return;
+    if (!data_) return;
 
     double width = chartRect.width() > 0 ? chartRect.width() : 1;
     double height = chartRect.height() > 0 ? chartRect.height() : 1;
 
-    double startXSpan = m_impl->dragStartXMax - m_impl->dragStartXMin;
-    double startYSpan = m_impl->dragStartYMax - m_impl->dragStartYMin;
+    double startXSpan = data_->dragStartXMax - data_->dragStartXMin;
+    double startYSpan = data_->dragStartYMax - data_->dragStartYMin;
     double valuePerPixelX = startXSpan / width;
     double valuePerPixelY = startYSpan / height;
 
-    double deltaX = (pos.x() - m_impl->dragStartPos.x()) * valuePerPixelX;
-    double deltaY = (pos.y() - m_impl->dragStartPos.y()) * valuePerPixelY;
+    double deltaX = (pos.x() - data_->dragStartPos.x()) * valuePerPixelX;
+    double deltaY = (pos.y() - data_->dragStartPos.y()) * valuePerPixelY;
 
-    m_impl->axisX->setAutoRange(false);
-    m_impl->axisY->setAutoRange(false);
-    m_impl->axisX->setRange(m_impl->dragStartXMin - deltaX, m_impl->dragStartXMax - deltaX);
-    m_impl->axisY->setRange(m_impl->dragStartYMin - deltaY, m_impl->dragStartYMax - deltaY);
+    data_->axisX->setAutoRange(false);
+    data_->axisY->setAutoRange(false);
+    data_->axisX->setRange(data_->dragStartXMin - deltaX, data_->dragStartXMax - deltaX);
+    data_->axisY->setRange(data_->dragStartYMin - deltaY, data_->dragStartYMax - deltaY);
 }
 
-/// @brief 处理图例点击
-bool TpChart::toggleLegendAt(const TpPoint& pos, const TpRect& totalRect, const TpRect& chartRect)
+/// @brief 根据鼠标点击位置进行图例项的切换，判断是否点击在某个图例项上，并且根据对应的系列索引和扇区索引来切换该系列或者扇区的可见状态，同时在切换后清除当前的悬浮状态以更新相关的高亮和提示信息，并且确保在切换过程中能够正确处理饼图模式下的扇区切换以及其他类型系列的整体切换
+static bool toggleLegendAt(TpChart::Impl* data_, const TpPoint& pos, const TpRect& totalRect, const TpRect& chartRect)
 {
-    if (!m_impl || !m_impl->legendClickable) return false;
+    if (!data_ || !data_->legendClickable) return false;
 
     TpVector<const char*> names;
     TpVector<int32_t> colors;
     TpVector<int32_t> endColors;
     TpVector<int32_t> types;
-    buildLegendData(totalRect, chartRect, names, colors, endColors, types);
+    buildLegendData(data_, totalRect, chartRect, names, colors, endColors, types);
 
-    for (int32_t i = 0; i < m_impl->legendItems.size(); ++i) {
-        const LegendItem& item = m_impl->legendItems[i];
+    for (int32_t i = 0; i < data_->legendItems.size(); ++i) {
+        const LegendItem& item = data_->legendItems[i];
         if (!pointInRect(item.rect, pos)) {
             continue;
         }
 
-        TpSeries* s = (item.seriesIndex >= 0 && item.seriesIndex < m_impl->seriesList.size()) ? m_impl->seriesList[item.seriesIndex] : nullptr;
+        TpSeries* s = (item.seriesIndex >= 0 && item.seriesIndex < data_->seriesList.size()) ? data_->seriesList[item.seriesIndex] : nullptr;
         if (!s) return false;
 
         if (item.sliceIndex >= 0 && s->type() == TpSeries::TypePie) {
             TpPieSeries* pie = static_cast<TpPieSeries*>(s);
             bool visible = pie->isSliceVisible(item.sliceIndex);
             pie->setSliceVisible(item.sliceIndex, !visible);
-            if (m_impl->selectedSeriesIndex == item.seriesIndex && m_impl->selectedSliceIndex == item.sliceIndex && visible) {
-                m_impl->selectedSeriesIndex = -1;
-                m_impl->selectedPointIndex = -1;
-                m_impl->selectedSliceIndex = -1;
+            if (data_->selectedSeriesIndex == item.seriesIndex && data_->selectedSliceIndex == item.sliceIndex && visible) {
+                data_->selectedSeriesIndex = -1;
+                data_->selectedPointIndex = -1;
+                data_->selectedSliceIndex = -1;
             }
         } else {
             bool visible = s->isVisible();
             s->setVisible(!visible);
-            if (m_impl->selectedSeriesIndex == item.seriesIndex) {
-                m_impl->selectedSeriesIndex = -1;
-                m_impl->selectedPointIndex = -1;
-                m_impl->selectedSliceIndex = -1;
+            if (data_->selectedSeriesIndex == item.seriesIndex) {
+                data_->selectedSeriesIndex = -1;
+                data_->selectedPointIndex = -1;
+                data_->selectedSliceIndex = -1;
             }
         }
 
-        m_impl->cssAppliedToSeries = false;
-        clearHoverState();
-        this->update();
+        data_->cssAppliedToSeries = false;
+        clearHoverState(data_);
         return true;
     }
 
     return false;
 }
 
-/// @brief 绘制提示框
-void TpChart::drawTooltip(TpPainter* painter, const TpRect& chartRect)
+/// @brief 绘制提示框，根据当前的悬浮状态和提示文本来绘制一个包含提示信息的矩形框，并且根据当前总绘制区域的大小自动调整提示框的字体大小和布局，以确保提示信息清晰可见且不与其他元素重叠，同时在绘制过程中考虑到提示框的位置和边界，以避免提示框被裁剪或者超出可见范围
+static void drawTooltip(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect)
 {
-    if (!painter || !m_impl || !m_impl->tooltipVisible || !m_impl->hasHover || m_impl->tooltipText.empty()) {
+    if (!painter || !data_ || !data_->tooltipVisible || !data_->hasHover || data_->tooltipText.empty()) {
         return;
     }
 
@@ -1435,23 +1352,23 @@ void TpChart::drawTooltip(TpPainter* painter, const TpRect& chartRect)
     TpFont font;
     font.setFontSize(fontSize);
     font.setFontColor(_RGB(255, 255, 255));
-    font.setText(m_impl->tooltipText);
+    font.setText(data_->tooltipText);
 
     int32_t textW = font.pixelWidth();
     int32_t textH = font.pixelHeight();
-    if (textW <= 0) textW = m_impl->tooltipText.length() * (int32_t)(fontSize / 2 + 1);
+    if (textW <= 0) textW = data_->tooltipText.length() * (int32_t)(fontSize / 2 + 1);
     if (textH <= 0) textH = fontSize;
 
     int32_t boxW = textW + (int32_t)(12 * scale);
     int32_t boxH = textH + (int32_t)(8 * scale);
-    int32_t x = m_impl->hoverPos.x() + (int32_t)(12 * scale);
-    int32_t y = m_impl->hoverPos.y() + (int32_t)(12 * scale);
+    int32_t x = data_->hoverPos.x() + (int32_t)(12 * scale);
+    int32_t y = data_->hoverPos.y() + (int32_t)(12 * scale);
 
     if (x + boxW > chartRect.right()) {
-        x = m_impl->hoverPos.x() - boxW - (int32_t)(12 * scale);
+        x = data_->hoverPos.x() - boxW - (int32_t)(12 * scale);
     }
     if (y + boxH > chartRect.bottom()) {
-        y = m_impl->hoverPos.y() - boxH - (int32_t)(12 * scale);
+        y = data_->hoverPos.y() - boxH - (int32_t)(12 * scale);
     }
     if (x < chartRect.x()) x = chartRect.x();
     if (y < chartRect.y()) y = chartRect.y();
@@ -1463,27 +1380,27 @@ void TpChart::drawTooltip(TpPainter* painter, const TpRect& chartRect)
     painter->drawText(font, x + (int32_t)(6 * scale), y + (int32_t)(4 * scale));
 }
 
-/// @brief 绘制十字线
-void TpChart::drawCrosshair(TpPainter* painter, const TpRect& chartRect)
+/// @brief 绘制十字准线，根据当前的悬浮位置来绘制水平和垂直的辅助线，以帮助用户更准确地对齐和读取数据点的位置，同时在绘制过程中考虑到十字准线的颜色和透明度，以确保十字准线清晰可见但不会过于突兀或者干扰其他元素的显示
+static void drawCrosshair(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect)
 {
-    if (!painter || !m_impl || !m_impl->crosshairVisible || !m_impl->hasHover || !pointInRect(chartRect, m_impl->hoverPos)) {
+    if (!painter || !data_ || !data_->crosshairVisible || !data_->hasHover || !pointInRect(chartRect, data_->hoverPos)) {
         return;
     }
 
     TpPen pen(dimColor(_RGB(100, 100, 100), 160), 1);
     painter->setPen(pen);
-    painter->drawLine(m_impl->hoverPos.x(), chartRect.y(), m_impl->hoverPos.x(), chartRect.bottom());
-    painter->drawLine(chartRect.x(), m_impl->hoverPos.y(), chartRect.right(), m_impl->hoverPos.y());
+    painter->drawLine(data_->hoverPos.x(), chartRect.y(), data_->hoverPos.x(), chartRect.bottom());
+    painter->drawLine(chartRect.x(), data_->hoverPos.y(), chartRect.right(), data_->hoverPos.y());
 }
 
-/// @brief 绘制悬停高亮
-void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
+/// @brief 绘制悬浮高亮，根据当前的悬浮系列索引和数据点索引来绘制一个高亮的效果，以突出显示当前悬浮的数据点或者饼图扇区，同时在绘制过程中考虑到高亮的颜色和透明度，以确保高亮效果清晰可见但不会过于突兀或者干扰其他元素的显示，并且根据当前总绘制区域的大小自动调整高亮的尺寸和布局，以适应不同大小的图表
+static void drawHoverHighlight(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect)
 {
-    if (!painter || !m_impl || !m_impl->hasHover || m_impl->hoverSeriesIndex < 0 || m_impl->hoverSeriesIndex >= m_impl->seriesList.size()) {
+    if (!painter || !data_ || !data_->hasHover || data_->hoverSeriesIndex < 0 || data_->hoverSeriesIndex >= data_->seriesList.size()) {
         return;
     }
 
-    TpSeries* s = m_impl->seriesList[m_impl->hoverSeriesIndex];
+    TpSeries* s = data_->seriesList[data_->hoverSeriesIndex];
     if (!s || !s->isVisible()) {
         return;
     }
@@ -1494,23 +1411,23 @@ void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
     if (scale < 0.5) scale = 0.5;
     if (scale > 2.5) scale = 2.5;
 
-    if (s->type() == TpSeries::TypePie && m_impl->hoverSliceIndex >= 0) {
+    if (s->type() == TpSeries::TypePie && data_->hoverSliceIndex >= 0) {
         TpPieSeries* pieSeries = static_cast<TpPieSeries*>(s);
         int32_t pieCount = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (cur && cur->isVisible() && cur->type() == TpSeries::TypePie) {
                 pieCount++;
             }
         }
 
         int32_t pieIndex = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (!cur || !cur->isVisible() || cur->type() != TpSeries::TypePie) {
                 continue;
             }
-            if (i != m_impl->hoverSeriesIndex) {
+            if (i != data_->hoverSeriesIndex) {
                 pieIndex++;
                 continue;
             }
@@ -1545,7 +1462,7 @@ void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
                 double sweep = (pieSeries->sliceValue(k) * 360.0) / totalValue;
                 if (sweep <= 0.0) continue;
 
-                if (k == m_impl->hoverSliceIndex) {
+                if (k == data_->hoverSliceIndex) {
                     double midAngle = currentAngle + (sweep * 0.5);
                     double midRad = midAngle * 3.14159265358979323846 / 180.0;
                     int32_t drawCenterX = centerX;
@@ -1582,46 +1499,46 @@ void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
         return;
     }
 
-    if (s->type() == TpSeries::TypeBar && m_impl->hoverPointIndex >= 0) {
+    if (s->type() == TpSeries::TypeBar && data_->hoverPointIndex >= 0) {
         TpBarSeries* barSeries = static_cast<TpBarSeries*>(s);
         const TpVector<TpDataPoint>& data = barSeries->data();
-        if (m_impl->hoverPointIndex >= data.size()) return;
+        if (data_->hoverPointIndex >= data.size()) return;
 
         int32_t barSeriesCount = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (cur && cur->isVisible() && cur->type() == TpSeries::TypeBar) {
                 barSeriesCount++;
             }
         }
 
         int32_t barIndex = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (!cur || !cur->isVisible()) continue;
             if (cur->type() == TpSeries::TypeBar) {
-                if (i == m_impl->hoverSeriesIndex) break;
+                if (i == data_->hoverSeriesIndex) break;
                 barIndex++;
             }
         }
 
-        TpDataPoint pt = data[m_impl->hoverPointIndex];
+        TpDataPoint pt = data[data_->hoverPointIndex];
         int32_t rectW = chartRect.width();
         int32_t rectH = chartRect.height();
         int32_t rectX = chartRect.x();
         int32_t rectY = chartRect.y();
-        int32_t yZero = m_impl->axisY->ZeroPixel(rectH, rectY, true);
-        int32_t x0 = m_impl->axisX->mapToPixel(m_impl->axisX->min(), rectW, rectX, false);
-        int32_t x1 = m_impl->axisX->mapToPixel(m_impl->axisX->min() + 1.0, rectW, rectX, false);
+        int32_t yZero = data_->axisY->ZeroPixel(rectH, rectY, true);
+        int32_t x0 = data_->axisX->mapToPixel(data_->axisX->min(), rectW, rectX, false);
+        int32_t x1 = data_->axisX->mapToPixel(data_->axisX->min() + 1.0, rectW, rectX, false);
         int32_t unitPixelWidth = std::abs(x1 - x0);
         if (unitPixelWidth <= 0) unitPixelWidth = 50;
         int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.62);
         int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
         if (barWidth < 1) barWidth = 1;
 
-        int32_t xCenter = m_impl->axisX->mapToPixel(pt.x, rectW, rectX, false);
+        int32_t xCenter = data_->axisX->mapToPixel(pt.x, rectW, rectX, false);
         int32_t barLeft = xCenter - (groupWidth / 2) + barIndex * barWidth;
-        int32_t yVal = m_impl->axisY->mapToPixel(pt.y, rectH, rectY, true);
+        int32_t yVal = data_->axisY->mapToPixel(pt.y, rectH, rectY, true);
         int32_t top = (pt.y >= 0) ? yVal : yZero;
         int32_t height = std::abs(yVal - yZero);
         if (height == 0) height = 1;
@@ -1634,16 +1551,16 @@ void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
         return;
     }
 
-    if (m_impl->hoverPointIndex < 0) {
+    if (data_->hoverPointIndex < 0) {
         return;
     }
 
     const TpVector<TpDataPoint>& data = s->data();
-    if (m_impl->hoverPointIndex >= data.size()) return;
+    if (data_->hoverPointIndex >= data.size()) return;
 
-    const TpDataPoint& pt = data[m_impl->hoverPointIndex];
-    int32_t px = m_impl->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
-    int32_t py = m_impl->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
+    const TpDataPoint& pt = data[data_->hoverPointIndex];
+    int32_t px = data_->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
+    int32_t py = data_->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
     int32_t radius = s->type() == TpSeries::TypeScatter ? 7 : 6;
     radius = (int32_t)(radius * scale);
     if (radius < 5) radius = 5;
@@ -1653,14 +1570,14 @@ void TpChart::drawHoverHighlight(TpPainter* painter, const TpRect& chartRect)
     TpRenderUtils::drawAnchorPoint(painter, TpPoint(px, py), radius + 1, dimColor(color, 255), _RGB(255, 255, 255));
 }
 
-/// @brief 绘制选中效果
-void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
+/// @brief 绘制选中高亮，根据当前的选中系列索引和数据点索引来绘制一个更明显的高亮效果，以突出显示当前选中的数据点或者饼图扇区，同时在绘制过程中考虑到高亮的颜色和透明度，以确保选中高亮效果清晰可见但不会过于突兀或者干扰其他元素的显示，并且根据当前总绘制区域的大小自动调整高亮的尺寸和布局，以适应不同大小的图表
+static void drawSelection(TpChart::Impl* data_, TpPainter* painter, const TpRect& chartRect)
 {
-    if (!painter || !m_impl || m_impl->selectedSeriesIndex < 0 || m_impl->selectedSeriesIndex >= m_impl->seriesList.size()) {
+    if (!painter || !data_ || data_->selectedSeriesIndex < 0 || data_->selectedSeriesIndex >= data_->seriesList.size()) {
         return;
     }
 
-    TpSeries* s = m_impl->seriesList[m_impl->selectedSeriesIndex];
+    TpSeries* s = data_->seriesList[data_->selectedSeriesIndex];
     if (!s || !s->isVisible()) {
         return;
     }
@@ -1671,23 +1588,23 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
     if (scale < 0.5) scale = 0.5;
     if (scale > 2.5) scale = 2.5;
 
-    if (s->type() == TpSeries::TypePie && m_impl->selectedSliceIndex >= 0) {
+    if (s->type() == TpSeries::TypePie && data_->selectedSliceIndex >= 0) {
         TpPieSeries* pieSeries = static_cast<TpPieSeries*>(s);
         int32_t pieCount = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (cur && cur->isVisible() && cur->type() == TpSeries::TypePie) {
                 pieCount++;
             }
         }
 
         int32_t pieIndex = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (!cur || !cur->isVisible() || cur->type() != TpSeries::TypePie) {
                 continue;
             }
-            if (i != m_impl->selectedSeriesIndex) {
+            if (i != data_->selectedSeriesIndex) {
                 pieIndex++;
                 continue;
             }
@@ -1722,7 +1639,7 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
                 double sweep = (pieSeries->sliceValue(k) * 360.0) / totalValue;
                 if (sweep <= 0.0) continue;
 
-                if (k == m_impl->selectedSliceIndex) {
+                if (k == data_->selectedSliceIndex) {
                     double midAngle = currentAngle + (sweep * 0.5);
                     double midRad = midAngle * 3.14159265358979323846 / 180.0;
                     int32_t drawCenterX = centerX;
@@ -1758,46 +1675,46 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
         }
     }
 
-    if (s->type() == TpSeries::TypeBar && m_impl->selectedPointIndex >= 0) {
+    if (s->type() == TpSeries::TypeBar && data_->selectedPointIndex >= 0) {
         TpBarSeries* barSeries = static_cast<TpBarSeries*>(s);
         const TpVector<TpDataPoint>& data = barSeries->data();
-        if (m_impl->selectedPointIndex >= data.size()) return;
+        if (data_->selectedPointIndex >= data.size()) return;
 
         int32_t barSeriesCount = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (cur && cur->isVisible() && cur->type() == TpSeries::TypeBar) {
                 barSeriesCount++;
             }
         }
 
         int32_t barIndex = 0;
-        for (int32_t i = 0; i < m_impl->seriesList.size(); ++i) {
-            TpSeries* cur = m_impl->seriesList[i];
+    for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
+            TpSeries* cur = data_->seriesList[i];
             if (!cur || !cur->isVisible()) continue;
             if (cur->type() == TpSeries::TypeBar) {
-                if (i == m_impl->selectedSeriesIndex) break;
+                if (i == data_->selectedSeriesIndex) break;
                 barIndex++;
             }
         }
 
-        TpDataPoint pt = data[m_impl->selectedPointIndex];
+        TpDataPoint pt = data[data_->selectedPointIndex];
         int32_t rectW = chartRect.width();
         int32_t rectH = chartRect.height();
         int32_t rectX = chartRect.x();
         int32_t rectY = chartRect.y();
-        int32_t yZero = m_impl->axisY->ZeroPixel(rectH, rectY, true);
-        int32_t x0 = m_impl->axisX->mapToPixel(m_impl->axisX->min(), rectW, rectX, false);
-        int32_t x1 = m_impl->axisX->mapToPixel(m_impl->axisX->min() + 1.0, rectW, rectX, false);
+        int32_t yZero = data_->axisY->ZeroPixel(rectH, rectY, true);
+        int32_t x0 = data_->axisX->mapToPixel(data_->axisX->min(), rectW, rectX, false);
+        int32_t x1 = data_->axisX->mapToPixel(data_->axisX->min() + 1.0, rectW, rectX, false);
         int32_t unitPixelWidth = std::abs(x1 - x0);
         if (unitPixelWidth <= 0) unitPixelWidth = 50;
         int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.64);
         int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
         if (barWidth < 1) barWidth = 1;
 
-        int32_t xCenter = m_impl->axisX->mapToPixel(pt.x, rectW, rectX, false);
+        int32_t xCenter = data_->axisX->mapToPixel(pt.x, rectW, rectX, false);
         int32_t barLeft = xCenter - (groupWidth / 2) + barIndex * barWidth;
-        int32_t yVal = m_impl->axisY->mapToPixel(pt.y, rectH, rectY, true);
+        int32_t yVal = data_->axisY->mapToPixel(pt.y, rectH, rectY, true);
         int32_t top = (pt.y >= 0) ? yVal : yZero;
         int32_t height = std::abs(yVal - yZero);
         if (height == 0) height = 1;
@@ -1812,10 +1729,10 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
     }
 
     const TpVector<TpDataPoint>& data = s->data();
-    if (m_impl->selectedPointIndex >= 0 && m_impl->selectedPointIndex < data.size()) {
-        const TpDataPoint& pt = data[m_impl->selectedPointIndex];
-        int32_t px = m_impl->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
-        int32_t py = m_impl->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
+    if (data_->selectedPointIndex >= 0 && data_->selectedPointIndex < data.size()) {
+        const TpDataPoint& pt = data[data_->selectedPointIndex];
+        int32_t px = data_->axisX->mapToPixel(pt.x, chartRect.width(), chartRect.x(), false);
+        int32_t py = data_->axisY->mapToPixel(pt.y, chartRect.height(), chartRect.y(), true);
         int32_t radius = s->type() == TpSeries::TypeScatter ? 7 : 6;
         radius = (int32_t)(radius * scale);
         if (radius < 5) radius = 5;
@@ -1826,14 +1743,14 @@ void TpChart::drawSelection(TpPainter* painter, const TpRect& chartRect)
     }
 }
 
-/// @brief 鼠标绉诲姩浜嬩欢
+/// @brief 处理鼠标移动事件，根据当前鼠标位置来更新悬浮状态和提示信息，并且在鼠标拖动时进行图表的平移操作，同时在鼠标移动过程中自动切换图例项的可见状态以实现交互式的图例功能，并且确保在鼠标移动过程中能够正确处理不同类型系列的悬浮和提示信息的显示，以提供更丰富和直观的用户体验
 bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
 {
     if (!event) return false;
 
     TpPoint pos = event->pos();
-    m_impl->pointerPos = pos;
-    m_impl->hasPointerPos = true;
+    data_->pointerPos = pos;
+    data_->hasPointerPos = true;
     TpRect totalRect(0, 0, this->width(), this->height());
     TpRect chartRect;
     bool showTitleAndLegend = false;
@@ -1841,31 +1758,31 @@ bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
     bool showAxisTicks = false;
     bool pieChartMode = false;
     double scale = 1.0;
-    prepareLayoutState(totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
+    prepareLayoutState(data_, totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
 
-    if (m_impl->mousePressed && m_impl->panEnabled && !pieChartMode) {
-        int32_t dx = std::abs(pos.x() - m_impl->dragStartPos.x());
-        int32_t dy = std::abs(pos.y() - m_impl->dragStartPos.y());
-        if (!m_impl->isDragging && (dx > 3 || dy > 3)) {
-            m_impl->isDragging = true;
-            m_impl->axisX->setAutoRange(false);
-            m_impl->axisY->setAutoRange(false);
-            m_impl->dragStartXMin = m_impl->axisX->min();
-            m_impl->dragStartXMax = m_impl->axisX->max();
-            m_impl->dragStartYMin = m_impl->axisY->min();
-            m_impl->dragStartYMax = m_impl->axisY->max();
+    if (data_->mousePressed && data_->panEnabled && !pieChartMode) {
+        int32_t dx = std::abs(pos.x() - data_->dragStartPos.x());
+        int32_t dy = std::abs(pos.y() - data_->dragStartPos.y());
+        if (!data_->isDragging && (dx > 3 || dy > 3)) {
+            data_->isDragging = true;
+            data_->axisX->setAutoRange(false);
+            data_->axisY->setAutoRange(false);
+            data_->dragStartXMin = data_->axisX->min();
+            data_->dragStartXMax = data_->axisX->max();
+            data_->dragStartYMin = data_->axisY->min();
+            data_->dragStartYMax = data_->axisY->max();
         }
 
-        if (m_impl->isDragging) {
-            panAxisTo(pos, chartRect);
-            clearHoverState();
+        if (data_->isDragging) {
+            panAxisTo(data_, pos, chartRect);
+            clearHoverState(data_);
             this->update();
             return true;
         }
     }
 
     if (!pointInRect(chartRect, pos)) {
-        clearHoverState();
+        clearHoverState(data_);
         this->update();
         return true;
     }
@@ -1876,36 +1793,36 @@ bool TpChart::onMouseMoveEvent(TpMouseEvent* event)
     TpString text;
     TpPoint hitPos;
 
-    if (hitTestAt(chartRect, pos, pieChartMode, seriesIndex, pointIndex, sliceIndex, text, hitPos)) {
-        m_impl->hasHover = true;
-        m_impl->hoverPos = hitPos;
-        m_impl->hoverSeriesIndex = seriesIndex;
-        m_impl->hoverPointIndex = pointIndex;
-        m_impl->hoverSliceIndex = sliceIndex;
-        m_impl->tooltipText = text;
-    } else if (!pieChartMode && (m_impl->tooltipVisible || m_impl->crosshairVisible)) {
-        m_impl->hasHover = true;
-        m_impl->hoverPos = pos;
-        m_impl->hoverSeriesIndex = -1;
-        m_impl->hoverPointIndex = -1;
-        m_impl->hoverSliceIndex = -1;
-        if (m_impl->tooltipVisible) {
-            m_impl->tooltipText = "X:";
-            m_impl->tooltipText += TpString::number(m_impl->axisX->mapToValue(pos.x(), chartRect.width(), chartRect.x(), false), 2);
-            m_impl->tooltipText += " Y:";
-            m_impl->tooltipText += TpString::number(m_impl->axisY->mapToValue(pos.y(), chartRect.height(), chartRect.y(), true), 2);
+    if (hitTestAt(data_, chartRect, pos, pieChartMode, seriesIndex, pointIndex, sliceIndex, text, hitPos)) {
+        data_->hasHover = true;
+        data_->hoverPos = hitPos;
+        data_->hoverSeriesIndex = seriesIndex;
+        data_->hoverPointIndex = pointIndex;
+        data_->hoverSliceIndex = sliceIndex;
+        data_->tooltipText = text;
+    } else if (!pieChartMode && (data_->tooltipVisible || data_->crosshairVisible)) {
+        data_->hasHover = true;
+        data_->hoverPos = pos;
+        data_->hoverSeriesIndex = -1;
+        data_->hoverPointIndex = -1;
+        data_->hoverSliceIndex = -1;
+        if (data_->tooltipVisible) {
+            data_->tooltipText = "X:";
+            data_->tooltipText += TpString::number(data_->axisX->mapToValue(pos.x(), chartRect.width(), chartRect.x(), false), 2);
+            data_->tooltipText += " Y:";
+            data_->tooltipText += TpString::number(data_->axisY->mapToValue(pos.y(), chartRect.height(), chartRect.y(), true), 2);
         } else {
-            m_impl->tooltipText.clear();
+            data_->tooltipText.clear();
         }
     } else {
-        clearHoverState();
+        clearHoverState(data_);
     }
 
     this->update();
     return true;
 }
 
-/// @brief 鼠标按下浜嬩欢
+/// @brief 处理鼠标按下事件，根据当前鼠标位置来更新按下状态和拖动状态，并且在鼠标按下时进行图表的平移准备工作，同时确保在鼠标按下过程中能够正确处理不同类型系列的悬浮和提示信息的显示，以提供更丰富和直观的用户体验
 bool TpChart::onMousePressEvent(TpMouseEvent* event)
 {
     if (!event) return false;
@@ -1921,9 +1838,9 @@ bool TpChart::onMousePressEvent(TpMouseEvent* event)
     bool showAxisTicks = false;
     bool pieChartMode = false;
     double scale = 1.0;
-    prepareLayoutState(totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
+    prepareLayoutState(data_, totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
 
-    if (m_impl->legendClickable && showTitleAndLegend && toggleLegendAt(pos, totalRect, chartRect)) {
+    if (data_->legendClickable && showTitleAndLegend && toggleLegendAt(data_, pos, totalRect, chartRect)) {
         TpWidget::onMousePressEvent(event);
         return true;
     }
@@ -1932,20 +1849,20 @@ bool TpChart::onMousePressEvent(TpMouseEvent* event)
         return TpWidget::onMousePressEvent(event);
     }
 
-    m_impl->mousePressed = true;
-    m_impl->isDragging = false;
-    m_impl->pressPos = pos;
-    m_impl->dragStartPos = pos;
-    m_impl->dragStartXMin = m_impl->axisX->min();
-    m_impl->dragStartXMax = m_impl->axisX->max();
-    m_impl->dragStartYMin = m_impl->axisY->min();
-    m_impl->dragStartYMax = m_impl->axisY->max();
+    data_->mousePressed = true;
+    data_->isDragging = false;
+    data_->pressPos = pos;
+    data_->dragStartPos = pos;
+    data_->dragStartXMin = data_->axisX->min();
+    data_->dragStartXMax = data_->axisX->max();
+    data_->dragStartYMin = data_->axisY->min();
+    data_->dragStartYMax = data_->axisY->max();
 
     TpWidget::onMousePressEvent(event);
     return true;
 }
 
-/// @brief 鼠标閲婃斁浜嬩欢
+/// @brief 处理鼠标释放事件，根据当前鼠标位置和拖动状态来更新按下状态和选中状态，并且在鼠标释放时进行图表的平移结束工作，同时确保在鼠标释放过程中能够正确处理不同类型系列的悬浮和提示信息的显示，以提供更丰富和直观的用户体验
 bool TpChart::onMouseRleaseEvent(TpMouseEvent* event)
 {
     if (!event) return false;
@@ -1961,26 +1878,26 @@ bool TpChart::onMouseRleaseEvent(TpMouseEvent* event)
     bool showAxisTicks = false;
     bool pieChartMode = false;
     double scale = 1.0;
-    prepareLayoutState(totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
+    prepareLayoutState(data_, totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
 
-    bool wasDragging = m_impl->isDragging;
-    m_impl->mousePressed = false;
-    m_impl->isDragging = false;
+    bool wasDragging = data_->isDragging;
+    data_->mousePressed = false;
+    data_->isDragging = false;
 
-    if (!wasDragging && m_impl->selectionEnabled && pointInRect(chartRect, pos)) {
+    if (!wasDragging && data_->selectionEnabled && pointInRect(chartRect, pos)) {
         int32_t seriesIndex = -1;
         int32_t pointIndex = -1;
         int32_t sliceIndex = -1;
         TpString text;
         TpPoint hitPos;
-        if (hitTestAt(chartRect, pos, pieChartMode, seriesIndex, pointIndex, sliceIndex, text, hitPos)) {
-            m_impl->selectedSeriesIndex = seriesIndex;
-            m_impl->selectedPointIndex = pointIndex;
-            m_impl->selectedSliceIndex = sliceIndex;
+        if (hitTestAt(data_, chartRect, pos, pieChartMode, seriesIndex, pointIndex, sliceIndex, text, hitPos)) {
+            data_->selectedSeriesIndex = seriesIndex;
+            data_->selectedPointIndex = pointIndex;
+            data_->selectedSliceIndex = sliceIndex;
         } else {
-            m_impl->selectedSeriesIndex = -1;
-            m_impl->selectedPointIndex = -1;
-            m_impl->selectedSliceIndex = -1;
+            data_->selectedSeriesIndex = -1;
+            data_->selectedPointIndex = -1;
+            data_->selectedSliceIndex = -1;
         }
     }
 
@@ -1989,10 +1906,10 @@ bool TpChart::onMouseRleaseEvent(TpMouseEvent* event)
     return true;
 }
 
-/// @brief 滚轮浜嬩欢
+/// @brief 处理鼠标滚轮事件，根据当前鼠标位置和滚轮方向来更新图表的缩放状态，并且在鼠标滚轮时进行图表的缩放操作，同时确保在鼠标滚轮过程中能够正确处理不同类型系列的悬浮和提示信息的显示，以提供更丰富和直观的用户体验
 bool TpChart::onWheelEvent(TpWheelEvent* event)
 {
-    if (!event || !m_impl->wheelZoomEnabled) {
+    if (!event || !data_->wheelZoomEnabled) {
         return false;
     }
 
@@ -2003,9 +1920,9 @@ bool TpChart::onWheelEvent(TpWheelEvent* event)
     bool showAxisTicks = false;
     bool pieChartMode = false;
     double scale = 1.0;
-    prepareLayoutState(totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
+    prepareLayoutState(data_, totalRect, chartRect, showTitleAndLegend, showAxisLabels, showAxisTicks, pieChartMode, scale);
 
-    TpPoint mousePos = m_impl->hasHover ? m_impl->hoverPos : (m_impl->hasPointerPos ? m_impl->pointerPos : TpPoint(chartRect.x() + chartRect.width() / 2, chartRect.y() + chartRect.height() / 2));
+    TpPoint mousePos = data_->hasHover ? data_->hoverPos : (data_->hasPointerPos ? data_->pointerPos : TpPoint(chartRect.x() + chartRect.width() / 2, chartRect.y() + chartRect.height() / 2));
     if (!pointInRect(chartRect, mousePos)) {
         mousePos = TpPoint(chartRect.x() + chartRect.width() / 2, chartRect.y() + chartRect.height() / 2);
     }
@@ -2018,18 +1935,18 @@ bool TpChart::onWheelEvent(TpWheelEvent* event)
     if (step > 4.0) step = 4.0;
     if (step < -4.0) step = -4.0;
     double factor = std::pow(0.94, step);
-    zoomAxisAt(mousePos, chartRect, factor);
+    zoomAxisAt(data_, mousePos, chartRect, factor);
     this->update();
     return true;
 }
 
-/// @brief 离开浜嬩欢
+/// @brief 处理鼠标离开事件，当鼠标离开图表区域时，清除悬浮状态和提示信息，并且重置相关的状态变量以确保图表能够正确地响应后续的鼠标事件，同时在鼠标离开过程中确保图表的显示状态能够正确更新，以提供更丰富和直观的用户体验
 bool TpChart::onLeaveEvent(TpLeaveEvent* event)
 {
-    clearHoverState();
-    m_impl->hasPointerPos = false;
-    m_impl->mousePressed = false;
-    m_impl->isDragging = false;
+    clearHoverState(data_);
+    data_->hasPointerPos = false;
+    data_->mousePressed = false;
+    data_->isDragging = false;
     TpWidget::onLeaveEvent(event);
     this->update();
     return true;
