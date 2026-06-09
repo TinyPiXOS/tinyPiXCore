@@ -271,7 +271,6 @@ int32_t TpChart::selectedSliceIndex() const {
 void TpChart::addSeries(TpSeries* series) {
     if (series) {
         data_->seriesList.push_back(series);
-        data_->cssAppliedToSeries = false;
         this->update();
     }
 }
@@ -297,14 +296,17 @@ void TpChart::removeAllSeries() {
 void TpChart::setStyleSheet(const TpString& styleSheet) {
     TpWidget::setStyleSheet(styleSheet);
     refreshChartBaseCss(this, data_);
-    data_->cssAppliedToSeries = false;
 }
 
 /// @brief 获取当前图表状态对应的 CSS 数据
 static tpShared<TpCssData> currentStatusCss(TpChart* chart, TpChart::Impl* data_) {
+    if (!chart || !data_) {
+        return nullptr;
+    }
+
     // 优先级：禁用 > 选中 > 启用
     tpShared<TpCssData> curCssData = data_->enabledCssData;
-    if (!chart || !chart->enabled()) {
+    if (!chart->enabled()) {
         curCssData = data_->disabledCssData;
     } else if (chart->checkable() && chart->checked()) {
         curCssData = data_->checkedCssData;
@@ -459,23 +461,21 @@ bool TpChart::onPaintEvent(TpPaintEvent* event) {
         drawGrid(data_, painter, chartRect);
     }
 
-    if (!data_->cssAppliedToSeries) {
+    TpCssParser::MouseStatus seriesStatus = this->enabled() ? TpCssParser::Enabled : TpCssParser::Disabled;
     for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
             TpSeries* s = data_->seriesList[i];
             if (s && s->isVisible()) {
                 if (s->type() == TpSeries::TypeLine) {
-                    s->applyCssData("TpLineSeries", TpCssParser::Enabled);
+                    s->applyCssData("TpLineSeries", seriesStatus);
                 } else if (s->type() == TpSeries::TypeBar) {
-                    s->applyCssData("TpBarSeries", TpCssParser::Enabled);
+                    s->applyCssData("TpBarSeries", seriesStatus);
                 } else if (s->type() == TpSeries::TypeScatter) {
-                    s->applyCssData("TpScatterSeries", TpCssParser::Enabled);
+                    s->applyCssData("TpScatterSeries", seriesStatus);
                 } else if (s->type() == TpSeries::TypePie) {
-                    s->applyCssData("TpPieSeries", TpCssParser::Enabled);
+                    s->applyCssData("TpPieSeries", seriesStatus);
                 }
             }
         }
-        data_->cssAppliedToSeries = true;
-    }
 
     if (pieChartMode) {
         drawPieChart(data_, painter, chartRect);
@@ -586,11 +586,17 @@ static TpRect calculateLayout(TpChart::Impl* data_, const TpRect& totalRect) {
 
 static void drawBackground(TpChart* chart, TpChart::Impl* data_, TpPainter* painter, const TpRect& totalRect, const TpRect& chartRect) {
     tpShared<TpCssData> curCssData = currentStatusCss(chart, data_);
-    int32_t bgColor = curCssData->backgroundColor();
+    int32_t bgColor = data_ ? data_->backgroundColor : _RGB(255, 255, 255);
+    bool useGradient = false;
+
+    if (curCssData) {
+        bgColor = curCssData->backgroundColor();
+        useGradient = curCssData->backgroundColorIsGradient();
+    }
 
     TpRenderUtils::fillGradientRect(painter, totalRect, _RGB(248, 248, 248), _RGB(248, 248, 248));
 
-    if (curCssData->backgroundColorIsGradient()) {
+    if (useGradient && curCssData) {
         TpBrush brush(curCssData->backgroundColorGradiant());
         painter->setBrush(brush);
         painter->drawRect(chartRect.x(), chartRect.y(), chartRect.width(), chartRect.height(), 0);
@@ -1325,7 +1331,6 @@ static bool toggleLegendAt(TpChart::Impl* data_, const TpPoint& pos, const TpRec
             }
         }
 
-        data_->cssAppliedToSeries = false;
         clearHoverState(data_);
         return true;
     }
