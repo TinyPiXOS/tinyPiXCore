@@ -23,6 +23,9 @@ public:
     /// @brief 销毁图表控件
     virtual ~TpChart();
 
+    TpChart(const TpChart&) = delete;
+    TpChart& operator=(const TpChart&) = delete;
+
 public:
     struct Impl;
 

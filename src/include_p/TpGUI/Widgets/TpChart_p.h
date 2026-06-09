@@ -68,6 +68,8 @@ struct TpChart::Impl
 
     TpString tooltipText;
 
+    bool destroying = false;
+
     tpShared<TpCssData> enabledCssData;
     tpShared<TpCssData> disabledCssData;
     tpShared<TpCssData> hoverCssData;

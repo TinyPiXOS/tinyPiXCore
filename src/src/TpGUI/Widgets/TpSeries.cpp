@@ -1,21 +1,22 @@
 /*
- * 版权声明 (Copyright Declaration)
- * 作者 (Author)：张家庆
- * 邮箱 (Email)：1494197384@qq.com
- * 版权所有 (Copyright)：© 2026 张家庆。All rights reserved.
- * 描述 (Description)：数据系列类 API 定义，用于管理图表中的数据点集合
+ * 鐗堟潈澹版槑 (Copyright Declaration)
+ * 浣滆€?(Author)锛氬紶瀹跺簡
+ * 閭 (Email)锛?494197384@qq.com
+ * 鐗堟潈鎵€鏈?(Copyright)锛毬?2026 寮犲搴嗐€侫ll rights reserved.
+ * 鎻忚堪 (Description)锛氭暟鎹郴鍒楃被 API 瀹氫箟锛岀敤浜庣鐞嗗浘琛ㄤ腑鐨勬暟鎹偣闆嗗悎
  */
 
 #include "TpSeries.h"
 #include <algorithm>
 #include <cmath>
 #include "TpRenderUtils.h"
+#include "TpBarGeometryHelper_p.h"
 #include "TpPainter.h"
 #include "TpRect.h"
 #include "TpApp.h"
 #include "TpCssData.h"
 
-/// @brief 数据系列私有实现类，包含所有系列类型的公共属性和数据
+/// @brief 鏁版嵁绯诲垪绉佹湁瀹炵幇绫伙紝鍖呭惈鎵€鏈夌郴鍒楃被鍨嬬殑鍏叡灞炴€у拰鏁版嵁
 class TpSeriesPrivate
 {
 public:
@@ -32,7 +33,7 @@ public:
     virtual ~TpSeriesPrivate() {}
 };
 
-/// @brief 折线系列私有实现类
+/// @brief 鎶樼嚎绯诲垪绉佹湁瀹炵幇绫?
 class TpLineSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -45,7 +46,7 @@ public:
         : TpSeriesPrivate(TpSeries::TypeLine), m_lineWidth(2), m_smooth(false), m_tension(0.5f), m_useDownsample(false) {}
 };
 
-/// @brief 柱状系列私有实现类
+/// @brief 鏌辩姸绯诲垪绉佹湁瀹炵幇绫?
 class TpBarSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -61,7 +62,7 @@ public:
           m_showLabels(false), m_labelColor(0xFF000000), m_labelSize(10) {}
 };
 
-/// @brief 散点系列私有实现类
+/// @brief 鏁ｇ偣绯诲垪绉佹湁瀹炵幇绫?
 class TpScatterSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -76,7 +77,7 @@ public:
           m_labelColor(0xFF000000), m_labelSize(10) {}
 };
 
-/// @brief 饼图系列私有实现类
+/// @brief 楗煎浘绯诲垪绉佹湁瀹炵幇绫?
 class TpPieSeriesPrivate : public TpSeriesPrivate
 {
 public:
@@ -99,7 +100,7 @@ public:
 
 namespace {
 
-/// @brief 将整数值限制在 [minValue, maxValue] 范围内
+/// @brief 灏嗘暣鏁板€奸檺鍒跺湪 [minValue, maxValue] 鑼冨洿鍐?
 static int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
 {
     if (value < minValue) return minValue;
@@ -107,7 +108,7 @@ static int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
     return value;
 }
 
-/// @brief 根据索引返回饼图扇区的默认颜色（8 色循环）
+/// @brief 鏍规嵁绱㈠紩杩斿洖楗煎浘鎵囧尯鐨勯粯璁ら鑹诧紙8 鑹插惊鐜級
 static int32_t defaultPieColor(int32_t index)
 {
     static const uint32_t colorList[] = {
@@ -129,7 +130,7 @@ static int32_t defaultPieColor(int32_t index)
 
 }
 
-// ============ TpSeries 基类方法 ============
+// ============ TpSeries 鍩虹被鏂规硶 ============
 
 TpSeries::TpSeries(SeriesType type)
     : data_(new TpSeriesPrivate(type))
@@ -192,7 +193,7 @@ int32_t TpSeries::color() const
     return data_ ? data_->m_color : 0;
 }
 
-/// @brief 添加数据点；若超出最大点数限制则移除最早的数据点
+/// @brief 娣诲姞鏁版嵁鐐癸紱鑻ヨ秴鍑烘渶澶х偣鏁伴檺鍒跺垯绉婚櫎鏈€鏃╃殑鏁版嵁鐐?
 void TpSeries::addPoint(double x, double y)
 {
     if (!data_)
@@ -200,9 +201,12 @@ void TpSeries::addPoint(double x, double y)
 
     data_->m_data.push_back(TpDataPoint(x, y));
 
-    if (data_->m_maxCount > 0 && data_->m_data.size() > data_->m_maxCount + 2)
+    if (data_->m_maxCount > 0)
     {
-        data_->m_data.remove(0);
+        while (data_->m_data.size() > data_->m_maxCount)
+        {
+            data_->m_data.remove(0);
+        }
     }
 }
 
@@ -233,12 +237,19 @@ void TpSeries::setMaxPointCount(int32_t count)
     if (data_)
     {
         data_->m_maxCount = count < 0 ? 0 : count;
+        if (data_->m_maxCount > 0)
+        {
+            while (data_->m_data.size() > data_->m_maxCount)
+            {
+                data_->m_data.remove(0);
+            }
+        }
     }
 }
 
-/// @brief 按 CSS 状态应用系列样式
-/// @param className CSS 类名，例如 "TpLineSeries"
-/// @param status CSS 状态，例如 Hover、Pressed 等
+/// @brief 鎸?CSS 鐘舵€佸簲鐢ㄧ郴鍒楁牱寮?
+/// @param className CSS 绫诲悕锛屼緥濡?"TpLineSeries"
+/// @param status CSS 鐘舵€侊紝渚嬪 Hover銆丳ressed 绛?
 void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus status)
 {
     tpShared<TpCssData> cssData = TpApp::Inst()->cssParser()->readCss(className, "", status);
@@ -247,7 +258,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
     if (!typeName.empty())
     {
         tpShared<TpCssData> namedCssData = TpApp::Inst()->cssParser()->readCss(className, typeName, status);
-        if (namedCssData && namedCssData->color() != 0)
+        if (namedCssData && (namedCssData->colorIsGradient() || namedCssData->color() != 0))
         {
             cssData = namedCssData;
         }
@@ -255,9 +266,24 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
 
     if (cssData)
     {
-        if (color() == 0xFF000000 || cssData->color() != 0)
+        int32_t resolvedColor = cssData->color();
+        bool hasColor = cssData->colorIsGradient() || resolvedColor != 0;
+        if (cssData->colorIsGradient())
         {
-            data_->m_color = cssData->color();
+            TpGradient* gradient = cssData->colorGradiant();
+            if (gradient)
+            {
+                TpList<std::pair<float, int32_t>> colorAtList = gradient->getColors();
+                if (!colorAtList.empty())
+                {
+                    resolvedColor = colorAtList.front().second;
+                }
+            }
+        }
+
+        if (hasColor && (color() == 0xFF000000 || resolvedColor != 0))
+        {
+            data_->m_color = resolvedColor;
         }
 
         if (type() == TypeLine)
@@ -284,12 +310,35 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
                 }
             }
         }
+        else if (type() == TypeBar)
+        {
+            auto* barData = static_cast<TpBarSeriesPrivate*>(data_);
+            if (barData && hasColor)
+            {
+                barData->m_color = resolvedColor;
+                barData->m_colorEnd = resolvedColor;
+
+                if (cssData->colorIsGradient())
+                {
+                    TpGradient* gradient = cssData->colorGradiant();
+                    if (gradient)
+                    {
+                        TpList<std::pair<float, int32_t>> colorAtList = gradient->getColors();
+                        if (!colorAtList.empty())
+                        {
+                            barData->m_color = colorAtList.front().second;
+                            barData->m_colorEnd = colorAtList.back().second;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
-// ============ TpLineSeries 折线系列 ============
+// ============ TpLineSeries 鎶樼嚎绯诲垪 ============
 
-/// @brief 构造折线系列，替换基类默认私有数据为 TpLineSeriesPrivate
+/// @brief 鏋勯€犳姌绾跨郴鍒楋紝鏇挎崲鍩虹被榛樿绉佹湁鏁版嵁涓?TpLineSeriesPrivate
 TpLineSeries::TpLineSeries()
     : TpSeries(TypeLine)
 {
@@ -343,11 +392,11 @@ bool TpLineSeries::useDownsample() const
     return d ? d->m_useDownsample : false;
 }
 
-/// @brief 绘制折线图：将数据点映射为像素坐标后绘制折线/平滑曲线及锚点
-/// @param painter 画笔对象
-/// @param axisX   X 轴（用于将数据 X 值映射为像素 X 坐标）
-/// @param axisY   Y 轴（用于将数据 Y 值映射为像素 Y 坐标）
-/// @param rect    绘制区域矩形
+/// @brief 缁樺埗鎶樼嚎鍥撅細灏嗘暟鎹偣鏄犲皠涓哄儚绱犲潗鏍囧悗缁樺埗鎶樼嚎/骞虫粦鏇茬嚎鍙婇敋鐐?
+/// @param painter 鐢荤瑪瀵硅薄
+/// @param axisX   X 杞达紙鐢ㄤ簬灏嗘暟鎹?X 鍊兼槧灏勪负鍍忕礌 X 鍧愭爣锛?
+/// @param axisY   Y 杞达紙鐢ㄤ簬灏嗘暟鎹?Y 鍊兼槧灏勪负鍍忕礌 Y 鍧愭爣锛?
+/// @param rect    缁樺埗鍖哄煙鐭╁舰
 void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
 {
     auto* d = static_cast<TpLineSeriesPrivate*>(data_);
@@ -359,7 +408,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
-    // 根据绘制区域计算动态缩放因子，确保线宽和锚点在不同分辨率下保持合理尺寸
+    // 鏍规嵁缁樺埗鍖哄煙璁＄畻鍔ㄦ€佺缉鏀惧洜瀛愶紝纭繚绾垮鍜岄敋鐐瑰湪涓嶅悓鍒嗚鲸鐜囦笅淇濇寔鍚堢悊灏哄
     double scaleX = rectW / 800.0;
     double scaleY = rectH / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY;
@@ -378,34 +427,103 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
 
     TpVector<TpPoint> pixelPoints;
 
-    // 数据量超过绘制宽度 2 倍且开启降采样时，使用 Min-Max 算法降采样
-    if (d->m_useDownsample && d->m_data.size() > rectW * 2)
+    // Downsample only when the point count is far beyond the drawable width
+    if (d->m_useDownsample && rectW > 0 && d->m_data.size() > rectW * 2)
     {
-        // 提取所有 Y 值用于降采样
-        TpVector<double> yData;
-        yData.reserve(d->m_data.size());
-        for (int32_t i = 0; i < d->m_data.size(); ++i)
+        struct SampledPoint
         {
-            yData.append(d->m_data[i].y);
+            TpPoint pixelPoint;
+        };
+
+        TpVector<SampledPoint> sampledPoints;
+        sampledPoints.reserve(rectW * 2);
+
+        const int32_t totalPoints = d->m_data.size();
+        for (int32_t bucket = 0; bucket < rectW; ++bucket)
+        {
+            int32_t startIndex = (bucket * totalPoints) / rectW;
+            int32_t endIndex = ((bucket + 1) * totalPoints) / rectW;
+            if (startIndex >= totalPoints)
+            {
+                break;
+            }
+            if (endIndex <= startIndex)
+            {
+                endIndex = startIndex + 1;
+            }
+            if (endIndex > totalPoints)
+            {
+                endIndex = totalPoints;
+            }
+
+            int32_t minIndex = startIndex;
+            int32_t maxIndex = startIndex;
+            double minValue = d->m_data[startIndex].y;
+            double maxValue = minValue;
+
+            for (int32_t i = startIndex + 1; i < endIndex; ++i)
+            {
+                double value = d->m_data[i].y;
+                if (value < minValue)
+                {
+                    minValue = value;
+                    minIndex = i;
+                }
+                if (value > maxValue)
+                {
+                    maxValue = value;
+                    maxIndex = i;
+                }
+            }
+
+            if (minIndex == maxIndex)
+            {
+                const TpDataPoint& point = d->m_data[minIndex];
+                SampledPoint sampled;
+                sampled.pixelPoint = TpPoint(axisX.mapToPixel(point.x, rectW, rectX, false),
+                                             axisY.mapToPixel(point.y, rectH, rectY, true));
+                sampledPoints.push_back(sampled);
+            }
+            else
+            {
+                if (minIndex < maxIndex)
+                {
+                    const TpDataPoint& minPoint = d->m_data[minIndex];
+                    SampledPoint sampledMin;
+                    sampledMin.pixelPoint = TpPoint(axisX.mapToPixel(minPoint.x, rectW, rectX, false),
+                                                    axisY.mapToPixel(minPoint.y, rectH, rectY, true));
+                    sampledPoints.push_back(sampledMin);
+
+                    const TpDataPoint& maxPoint = d->m_data[maxIndex];
+                    SampledPoint sampledMax;
+                    sampledMax.pixelPoint = TpPoint(axisX.mapToPixel(maxPoint.x, rectW, rectX, false),
+                                                    axisY.mapToPixel(maxPoint.y, rectH, rectY, true));
+                    sampledPoints.push_back(sampledMax);
+                }
+                else
+                {
+                    const TpDataPoint& maxPoint = d->m_data[maxIndex];
+                    SampledPoint sampledMax;
+                    sampledMax.pixelPoint = TpPoint(axisX.mapToPixel(maxPoint.x, rectW, rectX, false),
+                                                    axisY.mapToPixel(maxPoint.y, rectH, rectY, true));
+                    sampledPoints.push_back(sampledMax);
+
+                    const TpDataPoint& minPoint = d->m_data[minIndex];
+                    SampledPoint sampledMin;
+                    sampledMin.pixelPoint = TpPoint(axisX.mapToPixel(minPoint.x, rectW, rectX, false),
+                                                    axisY.mapToPixel(minPoint.y, rectH, rectY, true));
+                    sampledPoints.push_back(sampledMin);
+                }
+            }
         }
 
-        TpVector<TpAxis::SamplePoint> samples = TpAxis::downsample(yData, 0, yData.size(), rectW);
-
-        for (int32_t i = 0; i < samples.size(); ++i)
+        pixelPoints.reserve(sampledPoints.size());
+        for (int32_t i = 0; i < sampledPoints.size(); ++i)
         {
-            const TpAxis::SamplePoint& sp = samples[i];
-            int32_t px = rectX + i;
-
-            // 添加最小值点
-            int32_t pyMin = axisY.mapToPixel(sp.minVal, rectH, rectY, true);
-            pixelPoints.push_back(TpPoint(px, pyMin));
-
-            // 添加最大值点
-            int32_t pyMax = axisY.mapToPixel(sp.maxVal, rectH, rectY, true);
-            pixelPoints.push_back(TpPoint(px, pyMax));
+            pixelPoints.push_back(sampledPoints[i].pixelPoint);
         }
     }
-    // 全量绘制：将每个数据点映射为像素坐标
+    // 鍏ㄩ噺缁樺埗锛氬皢姣忎釜鏁版嵁鐐规槧灏勪负鍍忕礌鍧愭爣
     else
     {
         const int32_t totalPoints = d->m_data.size();
@@ -418,7 +536,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         }
     }
 
-    // 根据是否平滑绘制折线或平滑曲线
+    // 鏍规嵁鏄惁骞虫粦缁樺埗鎶樼嚎鎴栧钩婊戞洸绾?
     if (d->m_smooth)
     {
         TpRenderUtils::drawSmoothCurve(painter, pixelPoints, rect, d->m_color, dynamicLineWidth, d->m_tension);
@@ -428,7 +546,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
         TpRenderUtils::drawPolyline(painter, pixelPoints, rect, d->m_color, dynamicLineWidth);
     }
 
-    // 点数较少时绘制数据锚点
+    // 鐐规暟杈冨皯鏃剁粯鍒舵暟鎹敋鐐?
     if (pixelPoints.size() < 50)
     {
         for (int32_t i = 0; i < pixelPoints.size(); ++i)
@@ -438,9 +556,9 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
     }
 }
 
-// ============ TpBarSeries 柱状系列 ============
+// ============ TpBarSeries 鏌辩姸绯诲垪 ============
 
-/// @brief 构造柱状系列，替换基类默认私有数据为 TpBarSeriesPrivate
+/// @brief 鏋勯€犳煴鐘剁郴鍒楋紝鏇挎崲鍩虹被榛樿绉佹湁鏁版嵁涓?TpBarSeriesPrivate
 TpBarSeries::TpBarSeries()
     : TpSeries(TypeBar)
 {
@@ -504,7 +622,7 @@ void TpBarSeries::setLabelSize(int32_t size)
     }
 }
 
-/// @brief 绘制柱状图：根据 X/Y 轴映射计算柱子位置和高度，支持渐变色和数值标签
+/// @brief 缁樺埗鏌辩姸鍥撅細鏍规嵁 X/Y 杞存槧灏勮绠楁煴瀛愪綅缃拰楂樺害锛屾敮鎸佹笎鍙樿壊鍜屾暟鍊兼爣绛?
 void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
 {
     auto* d = static_cast<TpBarSeriesPrivate*>(data_);
@@ -512,25 +630,6 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
         return;
 
     int32_t rectX = rect.x();
-    int32_t rectY = rect.y();
-    int32_t rectW = rect.width();
-    int32_t rectH = rect.height();
-
-    // 获取 Y 轴零点像素位置，用于确定柱子的起止位置
-    int32_t yZero = axisY.ZeroPixel(rectH, rectY, true);
-
-    // 计算每个数据单位对应的像素宽度，用于确定柱子宽度
-    int32_t x0 = axisX.mapToPixel(axisX.min(), rectW, rectX, false);
-    int32_t x1 = axisX.mapToPixel(axisX.min() + 1.0, rectW, rectX, false);
-    int32_t unitPixelWidth = std::abs(x1 - x0);
-    if (unitPixelWidth <= 0)
-        unitPixelWidth = 50;
-
-    // 柱宽 = 分组宽度 / 同位置系列总数，实现多系列并排显示
-    int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.6);
-    int32_t barWidth = groupWidth / d->m_seriesCount;
-    if (barWidth < 1)
-        barWidth = 1;
 
     uint32_t cStart = static_cast<uint32_t>(d->m_color);
     uint32_t cEnd = (d->m_colorEnd == 0) ? cStart : static_cast<uint32_t>(d->m_colorEnd);
@@ -545,17 +644,7 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
     for (int32_t i = 0; i < d->m_data.size(); ++i)
     {
         TpDataPoint pt = d->m_data[i];
-
-        int32_t xCenter = axisX.mapToPixel(pt.x, rectW, rectX, false);
-        int32_t barLeft = xCenter - (groupWidth / 2) + (d->m_seriesIndex * barWidth);
-        int32_t yVal = axisY.mapToPixel(pt.y, rectH, rectY, true);
-
-        int32_t top = (pt.y >= 0) ? yVal : yZero;
-        int32_t height = std::abs(yVal - yZero);
-        if (height == 0)
-            height = 1;
-
-        TpRect barRect(barLeft, top, barWidth, height);
+        TpRect barRect = tpBuildBarRect(axisX, axisY, rect, pt.x, pt.y, d->m_seriesIndex, d->m_seriesCount);
 
         if (barRect.right() < rectX || barRect.x() > rect.right())
         {
@@ -569,17 +658,17 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
             TpString sVal = TpString::number(static_cast<int32_t>(pt.y));
             labelFont.setText(sVal);
 
-            int32_t textX = barLeft + (barWidth - labelFont.pixelWidth()) / 2;
-            int32_t textY = (pt.y >= 0) ? (top - labelFont.pixelHeight() - 2) : (top + height + 2);
+            int32_t textX = barRect.x() + (barRect.width() - labelFont.pixelWidth()) / 2;
+            int32_t textY = (pt.y >= 0) ? (barRect.y() - labelFont.pixelHeight() - 2) : (barRect.y() + barRect.height() + 2);
 
             painter->drawText(labelFont, textX, textY);
         }
     }
 }
 
-// ============ TpScatterSeries 散点系列 ============
+// ============ TpScatterSeries 鏁ｇ偣绯诲垪 ============
 
-/// @brief 构造散点系列，替换基类默认私有数据为 TpScatterSeriesPrivate
+/// @brief 鏋勯€犳暎鐐圭郴鍒楋紝鏇挎崲鍩虹被榛樿绉佹湁鏁版嵁涓?TpScatterSeriesPrivate
 TpScatterSeries::TpScatterSeries()
     : TpSeries(TypeScatter)
 {
@@ -648,7 +737,7 @@ void TpScatterSeries::setLabelSize(int32_t size)
     }
 }
 
-/// @brief 绘制散点图：将每个数据点映射为椭圆，支持边框色、填充色和坐标标签
+/// @brief 缁樺埗鏁ｇ偣鍥撅細灏嗘瘡涓暟鎹偣鏄犲皠涓烘き鍦嗭紝鏀寔杈规鑹层€佸～鍏呰壊鍜屽潗鏍囨爣绛?
 void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect)
 {
     auto* d = static_cast<TpScatterSeriesPrivate*>(data_);
@@ -660,7 +749,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
-    // 动态缩放点半径，使其在不同绘制区域下保持合理大小
+    // 鍔ㄦ€佺缉鏀剧偣鍗婂緞锛屼娇鍏跺湪涓嶅悓缁樺埗鍖哄煙涓嬩繚鎸佸悎鐞嗗ぇ灏?
     double scaleX = rectW / 800.0;
     double scaleY = rectH / 600.0;
     double scale = scaleX < scaleY ? scaleX : scaleY;
@@ -673,7 +762,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     if (pointRadius < 2)
         pointRadius = 2;
 
-    // 边框色和填充色回退逻辑：borderColor → m_color → 默认黑色
+    // 杈规鑹插拰濉厖鑹插洖閫€閫昏緫锛歜orderColor 鈫?m_color 鈫?榛樿榛戣壊
     int32_t borderColor = d->m_borderColor;
     if (borderColor == 0)
         borderColor = d->m_color;
@@ -698,7 +787,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
         int32_t px = axisX.mapToPixel(pt.x, rectW, rectX, false);
         int32_t py = axisY.mapToPixel(pt.y, rectH, rectY, true);
 
-        // 裁剪：跳过完全在绘制区域外的点
+        // 瑁佸壀锛氳烦杩囧畬鍏ㄥ湪缁樺埗鍖哄煙澶栫殑鐐?
         if (px < rectX - pointRadius || px > rect.right() + pointRadius)
             continue;
         if (py < rectY - pointRadius || py > rect.bottom() + pointRadius)
@@ -722,7 +811,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
             if (textW <= 0) textW = static_cast<int32_t>(text.length()) * (labelSize / 2 + 1);
             if (textH <= 0) textH = labelSize;
 
-            // 标签默认放在点的右上方，空间不足时自动调整到左侧或下方
+            // 鏍囩榛樿鏀惧湪鐐圭殑鍙充笂鏂癸紝绌洪棿涓嶈冻鏃惰嚜鍔ㄨ皟鏁村埌宸︿晶鎴栦笅鏂?
             int32_t textX = px + pointRadius + 4;
             int32_t textY = py - pointRadius - textH;
             if (textX + textW > rect.right())
@@ -743,9 +832,9 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
     }
 }
 
-// ============ TpPieSeries 饼图系列 ============
+// ============ TpPieSeries 楗煎浘绯诲垪 ============
 
-/// @brief 构造饼图系列，替换基类默认私有数据为 TpPieSeriesPrivate
+/// @brief 鏋勯€犻ゼ鍥剧郴鍒楋紝鏇挎崲鍩虹被榛樿绉佹湁鏁版嵁涓?TpPieSeriesPrivate
 TpPieSeries::TpPieSeries()
     : TpSeries(TypePie)
 {
@@ -956,14 +1045,14 @@ int32_t TpPieSeries::labelSize() const
     return d ? d->m_labelSize : 0;
 }
 
-/// @brief 绘制饼图：按各扇区占比依次绘制圆弧，支持环形、爆炸式和标签/百分比显示
+/// @brief 缁樺埗楗煎浘锛氭寜鍚勬墖鍖哄崰姣斾緷娆＄粯鍒跺渾寮э紝鏀寔鐜舰銆佺垎鐐稿紡鍜屾爣绛?鐧惧垎姣旀樉绀?
 void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const TpRect& rect)
 {
     auto* d = static_cast<TpPieSeriesPrivate*>(data_);
     if (!d || !d->m_visible || !painter || d->m_slices.size() == 0)
         return;
 
-    // 计算所有可见扇区的总值，用于后续百分比计算
+    // 璁＄畻鎵€鏈夊彲瑙佹墖鍖虹殑鎬诲€硷紝鐢ㄤ簬鍚庣画鐧惧垎姣旇绠?
     double totalValue = 0.0;
     for (int32_t i = 0; i < d->m_slices.size(); ++i)
     {
@@ -986,7 +1075,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
     int32_t rectW = rect.width();
     int32_t rectH = rect.height();
 
-    // 根据绘制区域计算饼图半径和圆心，小尺寸时缩小边距
+    // 鏍规嵁缁樺埗鍖哄煙璁＄畻楗煎浘鍗婂緞鍜屽渾蹇冿紝灏忓昂瀵告椂缂╁皬杈硅窛
     int32_t padding = 12;
     if (rectW < 160 || rectH < 160)
         padding = 6;
@@ -1032,7 +1121,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
         double midAngle = currentAngle + (sweep * 0.5);
         double midRad = midAngle * 3.14159265358979323846 / 180.0;
 
-        // 若当前扇区为爆炸式扇区，则将绘制中心沿中角方向偏移
+        // 鑻ュ綋鍓嶆墖鍖轰负鐖嗙偢寮忔墖鍖猴紝鍒欏皢缁樺埗涓績娌夸腑瑙掓柟鍚戝亸绉?
         int32_t drawCenterX = centerX;
         int32_t drawCenterY = centerY;
         if (d->m_explodedIndex == i && d->m_explodeDistance > 0)
@@ -1041,7 +1130,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
             drawCenterY += static_cast<int32_t>(std::sin(midRad) * d->m_explodeDistance + 0.5);
         }
 
-        // 环形图：在扇区中心添加圆形镂空遮罩
+        // 鐜舰鍥撅細鍦ㄦ墖鍖轰腑蹇冩坊鍔犲渾褰㈤晜绌洪伄缃?
         TpHollowMask hollowMask;
         int32_t innerRadius = 0;
         if (d->m_donutVisible)
@@ -1088,7 +1177,7 @@ void TpPieSeries::draw(TpPainter* painter, const TpAxis&, const TpAxis&, const T
                 if (textW <= 0) textW = static_cast<int32_t>(text.length()) * (labelSize / 2 + 1);
                 if (textH <= 0) textH = labelSize;
 
-                // 标签位置：环形时放在内外半径中间，否则放在扇区中部；小扇区标签放到外侧
+                // 鏍囩浣嶇疆锛氱幆褰㈡椂鏀惧湪鍐呭鍗婂緞涓棿锛屽惁鍒欐斁鍦ㄦ墖鍖轰腑閮紱灏忔墖鍖烘爣绛炬斁鍒板渚?
                 double labelRadius = d->m_donutVisible ? (innerRadius + (radius - innerRadius) * 0.5) : (radius * 0.65);
                 if (sweep < 18.0)
                 {

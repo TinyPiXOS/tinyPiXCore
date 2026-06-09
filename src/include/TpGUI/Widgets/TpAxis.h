@@ -68,6 +68,9 @@ public:
     /// @brief 销毁坐标轴对象
     virtual ~TpAxis();
 
+    TpAxis(const TpAxis&) = delete;
+    TpAxis& operator=(const TpAxis&) = delete;
+
 public:
     /// @brief 设置轴范围
     /// @param min 最小值

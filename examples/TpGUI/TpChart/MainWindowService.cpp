@@ -9,9 +9,9 @@
 #endif
 
 namespace {
-/// @brief 启用图表交互
-/// @param chart 图表指针
-/// @param pieMode 是否为饼图
+/// @brief 鍚敤鍥捐〃浜や簰
+/// @param chart 鍥捐〃鎸囬拡
+/// @param pieMode 鏄惁涓洪ゼ鍥?
 static void enableChartInteraction(TpChart* chart, bool pieMode)
 {
     if (!chart) {
@@ -41,7 +41,7 @@ MainWindowService::~MainWindowService() {
         delete m_barTimer;
         m_barTimer = NULL;
     }
-    // 删除图表（图表不负责删除系列，系列需手动释放）
+    // Charts own the series after addSeries(); the pointers stay here for timer updates.
     if (m_chartLine_1) {
         delete m_chartLine_1;
         m_chartLine_1 = NULL;
@@ -58,43 +58,38 @@ MainWindowService::~MainWindowService() {
         delete m_chartBar_2;
         m_chartBar_2 = NULL;
     }
-    // 删除系列
-    if (m_lineSeries1) delete m_lineSeries1;
-    if (m_lineSeries2) delete m_lineSeries2;
-    if (m_barSeries_1) delete m_barSeries_1;
-    if (m_lineSeries3) delete m_lineSeries3;
-    if (m_barSeries_2) delete m_barSeries_2;
+    // No manual series deletion here; chart teardown owns that lifecycle.
 }
 void MainWindowService::initCharts() {
-    // 折线图1 - 动态（上方左侧）
+    // 鎶樼嚎鍥? - 鍔ㄦ€侊紙涓婃柟宸︿晶锛?
     m_chartLine_1 = new TpChart();
     m_chartLine_1->setParent(this);
     m_chartLine_1->setRect(10, 10, 550, 350);
     m_chartLine_1->setAxisLabels("Time (seconds)", "Usage (%)");
     m_chartLine_1->setTitle("System Monitor - Line Chart (Dynamic)");
     m_chartLine_1->setBackgroundColor(_RGB(255, 255, 255));
-    // 折线图2 - 静态（上方右侧）
+    // 鎶樼嚎鍥? - 闈欐€侊紙涓婃柟鍙充晶锛?
     m_chartLine_2 = new TpChart();
     m_chartLine_2->setParent(this);
     m_chartLine_2->setRect(570, 10, 470, 350);
     m_chartLine_2->setAxisLabels("X", "Amplitude");
     m_chartLine_2->setTitle("Static Line Chart (Sine / Cosine)");
     m_chartLine_2->setBackgroundColor(_RGB(255, 255, 255));
-    // 柱状图1 - 动态（下方左侧）
+    // 鏌辩姸鍥? - 鍔ㄦ€侊紙涓嬫柟宸︿晶锛?
     m_chartBar_1 = new TpChart();
     m_chartBar_1->setParent(this);
     m_chartBar_1->setRect(10, 400, 550, 300);
     m_chartBar_1->setAxisLabels("Category", "Value");
     m_chartBar_1->setTitle("System Monitor - Bar Chart (Dynamic)");
     m_chartBar_1->setBackgroundColor(_RGB(255, 255, 255));
-    // 柱状图2 - 静态（下方右侧）
+    // 鏌辩姸鍥? - 闈欐€侊紙涓嬫柟鍙充晶锛?
     m_chartBar_2 = new TpChart();
     m_chartBar_2->setParent(this);
     m_chartBar_2->setRect(570, 400, 470, 300);
     m_chartBar_2->setAxisLabels("Category", "Value");
     m_chartBar_2->setTitle("Static Bar Chart");
     m_chartBar_2->setBackgroundColor(_RGB(255, 255, 255));
-    // ==================== 折线图1（动态）配置 ====================
+    // ==================== 鎶樼嚎鍥?锛堝姩鎬侊級閰嶇疆 ====================
     m_chartLine_1->axisX()->setAutoRange(true);
     m_chartLine_1->axisX()->setAutoRangeNice(false);
     m_chartLine_1->axisX()->setTickCount(9);
@@ -117,7 +112,7 @@ void MainWindowService::initCharts() {
     m_lineSeries2->setLineWidth(2);
     m_lineSeries2->setSmooth(true);
     m_lineSeries2->setMaxPointCount(200);
-    // 为动态折线图添加初始数据
+    // 涓哄姩鎬佹姌绾垮浘娣诲姞鍒濆鏁版嵁
     for (int i = 0; i < 200; ++i) {
         float dynamicAmp1 = 100 + 50 * std::sin(m_currentX * 0.1);
         float yValue1 = dynamicAmp1 * std::sin(m_currentX * 0.8);
@@ -130,25 +125,25 @@ void MainWindowService::initCharts() {
     m_chartLine_1->addSeries(m_lineSeries1);
     m_chartLine_1->addSeries(m_lineSeries2);
     m_chartLine_1->show();
-    // ==================== 折线图2（静态）配置 ====================
+    // ==================== 鎶樼嚎鍥?锛堥潤鎬侊級閰嶇疆 ====================
     m_chartLine_2->axisX()->setAutoRange(false);
     m_chartLine_2->axisX()->setRange(0, 20);
     m_chartLine_2->axisX()->setTickCount(5);
     m_chartLine_2->axisX()->setRollingMode(false);
     m_chartLine_2->axisY()->setAutoRange(false);
-    m_chartLine_2->axisY()->setRange(-1.5, 1.5);   // 范围足够
+    m_chartLine_2->axisY()->setRange(-1.5, 1.5);   // 鑼冨洿瓒冲
     m_chartLine_2->axisY()->setTickCount(7);
     m_chartLine_2->axisY()->setSymmetric(true);
     m_chartLine_2->setGridXVisible(true);
     m_chartLine_2->setGridYVisible(true);
     enableChartInteraction(m_chartLine_2, false);
-    // 只有一个折线系列，名称为 "Static Line"，关闭平滑（折线效果）
+    // 鍙湁涓€涓姌绾跨郴鍒楋紝鍚嶇О涓?"Static Line"锛屽叧闂钩婊戯紙鎶樼嚎鏁堟灉锛?
     m_lineSeries3 = new TpLineSeries();
     m_lineSeries3->setName("Static Line");
-    m_lineSeries3->setSmooth(false);   // 关键：不平滑
+    m_lineSeries3->setSmooth(false);   // 鍏抽敭锛氫笉骞虫粦
     m_lineSeries3->setLineWidth(2);
     m_lineSeries3->setMaxPointCount(0);
-    // 手动添加少量离散点，形成明显折线（不是曲线）
+    // 鎵嬪姩娣诲姞灏戦噺绂绘暎鐐癸紝褰㈡垚鏄庢樉鎶樼嚎锛堜笉鏄洸绾匡級
     m_lineSeries3->addPoint(0, 0);
     m_lineSeries3->addPoint(4, 1.2);
     m_lineSeries3->addPoint(8, -0.8);
@@ -157,7 +152,7 @@ void MainWindowService::initCharts() {
     m_lineSeries3->addPoint(20, 0.2);
     m_chartLine_2->addSeries(m_lineSeries3);
     m_chartLine_2->show();
-    // ==================== 柱状图1（动态）配置 ====================
+    // ==================== 鏌辩姸鍥?锛堝姩鎬侊級閰嶇疆 ====================
     m_chartBar_1->axisX()->setMode(TpAxis::AxisMode::Category);
     m_chartBar_1->axisX()->setCategoryCount(10);
     m_chartBar_1->axisX()->setAutoRange(false);
@@ -176,7 +171,7 @@ void MainWindowService::initCharts() {
     }
     m_chartBar_1->addSeries(m_barSeries_1);
     m_chartBar_1->show();
-    // ==================== 柱状图2（静态）配置 ====================
+    // ==================== 鏌辩姸鍥?锛堥潤鎬侊級閰嶇疆 ====================
     m_chartBar_2->axisX()->setMode(TpAxis::AxisMode::Category);
     m_chartBar_2->axisX()->setCategoryCount(8);
     m_chartBar_2->axisX()->setAutoRange(false);
@@ -189,14 +184,14 @@ void MainWindowService::initCharts() {
     m_barSeries_2 = new TpBarSeries();
     m_barSeries_2->setName("Static Bar");
     m_barSeries_2->setLabelsVisible(true);
-    // 静态数据：8个柱子的值
+    // 闈欐€佹暟鎹細8涓煴瀛愮殑鍊?
     double staticBarData[] = {45, 78, 32, 88, 56, 72, 91, 40};
     for (int i = 0; i < 8; ++i) {
         m_barSeries_2->addPoint(i, staticBarData[i]);
     }
     m_chartBar_2->addSeries(m_barSeries_2);
     m_chartBar_2->show();
-    // ==================== 定时器（仅用于动态图表更新） ====================
+    // ==================== 瀹氭椂鍣紙浠呯敤浜庡姩鎬佸浘琛ㄦ洿鏂帮級 ====================
     m_barTimer = new TpTimer(200);
     connect(m_barTimer, timeout, this, &MainWindowService::onBarTimeout);
     m_barTimer->start();

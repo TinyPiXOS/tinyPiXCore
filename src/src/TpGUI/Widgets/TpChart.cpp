@@ -8,6 +8,7 @@
 
 #include "TpChart.h"
 #include "TpChart_p.h"
+#include "TpBarGeometryHelper_p.h"
 #include "TpRenderUtils.h"
 #include "TpSeries.h"
 #include "TpApp.h"
@@ -139,6 +140,7 @@ TpChart::TpChart()
 
 TpChart::~TpChart() {
     if (data_) {
+        data_->destroying = true;
         removeAllSeries();
         if (data_->axisX) delete data_->axisX;
         if (data_->axisY) delete data_->axisY;
@@ -289,7 +291,9 @@ void TpChart::removeAllSeries() {
     data_->selectedSeriesIndex = -1;
     data_->selectedPointIndex = -1;
     data_->selectedSliceIndex = -1;
-    this->update();
+    if (!data_->destroying) {
+        this->update();
+    }
 }
 
 /// @brief 设置样式表，内部会同步刷新图表自身的 CSS 状态
@@ -316,6 +320,10 @@ static tpShared<TpCssData> currentStatusCss(TpChart* chart, TpChart::Impl* data_
 
 /// @brief 根据数据系列自动计算坐标轴范围，适用于数值轴
 static void updateAxisRange(TpChart::Impl* data_) {
+    if (!data_ || !data_->axisX || !data_->axisY) {
+        return;
+    }
+
     bool autoRangeX = data_->axisX->isAutoRange();
     bool autoRangeY = data_->axisY->isAutoRange();
     bool hasVisibleSeries = false;
@@ -335,9 +343,6 @@ static void updateAxisRange(TpChart::Impl* data_) {
     double minY = DBL_MAX, maxY = -DBL_MAX;
     bool hasData = false;
 
-    // 遍历所有系列，找出可见的非饼图系列，并计算数据范围
-    bool hasBarSeries = false;
-
     for (int32_t i = 0; i < data_->seriesList.size(); ++i) {
         TpSeries* s = data_->seriesList[i];
         if (!s || !s->isVisible()) continue;
@@ -351,18 +356,14 @@ static void updateAxisRange(TpChart::Impl* data_) {
             continue;
         }
 
-        if (autoRangeX && s->type() == TpSeries::TypeBar) {
-            hasBarSeries = true;
-        }
-
         const TpVector<TpDataPoint>& data = s->data();
         for (int32_t k = 0; k < data.size(); ++k) {
-    if (autoRangeX) {
+            if (autoRangeX) {
                 double x = data[k].x;
                 if (x < minX) minX = x;
                 if (x > maxX) maxX = x;
             }
-    if (autoRangeY) {
+            if (autoRangeY) {
                 double y = data[k].y;
                 if (y < minY) minY = y;
                 if (y > maxY) maxY = y;
@@ -382,15 +383,21 @@ static void updateAxisRange(TpChart::Impl* data_) {
     }
 
     if (autoRangeX) {
-        if (hasBarSeries) {
-            double spanX = maxX - minX;
-            if (spanX <= 0) spanX = 1.0;
-            double leftPad = data_->axisX->xLeftPaddingRatio() * spanX;
-            double rightPad = data_->axisX->xRightPaddingRatio() * spanX;
-            data_->axisX->setRange(minX - leftPad, maxX + rightPad);
+        double spanX = maxX - minX;
+        if (data_->axisX->isRollingMode()) {
+            double rollingSpan = data_->axisX->max() - data_->axisX->min();
+            if (std::isfinite(rollingSpan) && rollingSpan > 0.0) {
+                spanX = rollingSpan;
+            }
+            if (!std::isfinite(spanX) || spanX <= 0.0) {
+                spanX = maxX - minX;
+            }
+            if (!std::isfinite(spanX) || spanX <= 0.0) {
+                spanX = 1.0;
+            }
+            data_->axisX->setRange(maxX - spanX, maxX);
         } else {
-            double spanX = maxX - minX;
-            if (spanX <= 0) spanX = 1.0;
+            if (!std::isfinite(spanX) || spanX <= 0.0) spanX = 1.0;
             double leftPad = data_->axisX->xLeftPaddingRatio() * spanX;
             double rightPad = data_->axisX->xRightPaddingRatio() * spanX;
             data_->axisX->setRange(minX - leftPad, maxX + rightPad);
@@ -1139,29 +1146,9 @@ static bool hitTestAt(TpChart::Impl* data_, const TpRect& chartRect, const TpPoi
             TpBarSeries* barSeries = static_cast<TpBarSeries*>(s);
             int32_t layoutIndex = barLayoutIndex++;
             const TpVector<TpDataPoint>& data = barSeries->data();
-            int32_t rectW = chartRect.width();
-            int32_t rectH = chartRect.height();
-            int32_t rectX = chartRect.x();
-            int32_t rectY = chartRect.y();
-            int32_t yZero = data_->axisY->ZeroPixel(rectH, rectY, true);
-
-            int32_t x0 = data_->axisX->mapToPixel(data_->axisX->min(), rectW, rectX, false);
-            int32_t x1 = data_->axisX->mapToPixel(data_->axisX->min() + 1.0, rectW, rectX, false);
-            int32_t unitPixelWidth = std::abs(x1 - x0);
-            if (unitPixelWidth <= 0) unitPixelWidth = 50;
-            int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.6);
-            int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
-            if (barWidth < 1) barWidth = 1;
-
             for (int32_t k = 0; k < data.size(); ++k) {
                 TpDataPoint pt = data[k];
-                int32_t xCenter = data_->axisX->mapToPixel(pt.x, rectW, rectX, false);
-                int32_t barLeft = xCenter - (groupWidth / 2) + layoutIndex * barWidth;
-                int32_t yVal = data_->axisY->mapToPixel(pt.y, rectH, rectY, true);
-                int32_t top = (pt.y >= 0) ? yVal : yZero;
-                int32_t height = std::abs(yVal - yZero);
-                if (height == 0) height = 1;
-                TpRect barRect(barLeft, top, barWidth, height);
+                TpRect barRect = tpBuildBarRect(*data_->axisX, *data_->axisY, chartRect, pt.x, pt.y, layoutIndex, barSeriesCount);
 
                 if (pointInRect(barRect, pos)) {
                     seriesIndex = i;
@@ -1528,27 +1515,8 @@ static void drawHoverHighlight(TpChart::Impl* data_, TpPainter* painter, const T
         }
 
         TpDataPoint pt = data[data_->hoverPointIndex];
-        int32_t rectW = chartRect.width();
-        int32_t rectH = chartRect.height();
-        int32_t rectX = chartRect.x();
-        int32_t rectY = chartRect.y();
-        int32_t yZero = data_->axisY->ZeroPixel(rectH, rectY, true);
-        int32_t x0 = data_->axisX->mapToPixel(data_->axisX->min(), rectW, rectX, false);
-        int32_t x1 = data_->axisX->mapToPixel(data_->axisX->min() + 1.0, rectW, rectX, false);
-        int32_t unitPixelWidth = std::abs(x1 - x0);
-        if (unitPixelWidth <= 0) unitPixelWidth = 50;
-        int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.62);
-        int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
-        if (barWidth < 1) barWidth = 1;
-
-        int32_t xCenter = data_->axisX->mapToPixel(pt.x, rectW, rectX, false);
-        int32_t barLeft = xCenter - (groupWidth / 2) + barIndex * barWidth;
-        int32_t yVal = data_->axisY->mapToPixel(pt.y, rectH, rectY, true);
-        int32_t top = (pt.y >= 0) ? yVal : yZero;
-        int32_t height = std::abs(yVal - yZero);
-        if (height == 0) height = 1;
-
-        TpRect outerRect(barLeft - 2, top - 2, barWidth + 4, height + 4);
+        TpRect barRect = tpBuildBarRect(*data_->axisX, *data_->axisY, chartRect, pt.x, pt.y, barIndex, barSeriesCount);
+        TpRect outerRect(barRect.x() - 2, barRect.y() - 2, barRect.width() + 4, barRect.height() + 4);
         int32_t color = s->color() == 0 ? _RGB(80, 80, 80) : s->color();
         painter->setPen(TpPen(dimColor(color, 255), 2));
         painter->setBrush(TpBrush(dimColor(color, 70)));
@@ -1704,32 +1672,13 @@ static void drawSelection(TpChart::Impl* data_, TpPainter* painter, const TpRect
         }
 
         TpDataPoint pt = data[data_->selectedPointIndex];
-        int32_t rectW = chartRect.width();
-        int32_t rectH = chartRect.height();
-        int32_t rectX = chartRect.x();
-        int32_t rectY = chartRect.y();
-        int32_t yZero = data_->axisY->ZeroPixel(rectH, rectY, true);
-        int32_t x0 = data_->axisX->mapToPixel(data_->axisX->min(), rectW, rectX, false);
-        int32_t x1 = data_->axisX->mapToPixel(data_->axisX->min() + 1.0, rectW, rectX, false);
-        int32_t unitPixelWidth = std::abs(x1 - x0);
-        if (unitPixelWidth <= 0) unitPixelWidth = 50;
-        int32_t groupWidth = static_cast<int32_t>(unitPixelWidth * 0.64);
-        int32_t barWidth = groupWidth / (barSeriesCount > 0 ? barSeriesCount : 1);
-        if (barWidth < 1) barWidth = 1;
-
-        int32_t xCenter = data_->axisX->mapToPixel(pt.x, rectW, rectX, false);
-        int32_t barLeft = xCenter - (groupWidth / 2) + barIndex * barWidth;
-        int32_t yVal = data_->axisY->mapToPixel(pt.y, rectH, rectY, true);
-        int32_t top = (pt.y >= 0) ? yVal : yZero;
-        int32_t height = std::abs(yVal - yZero);
-        if (height == 0) height = 1;
-
-        TpRect barRect(barLeft - 2, top - 2, barWidth + 4, height + 4);
+        TpRect barRect = tpBuildBarRect(*data_->axisX, *data_->axisY, chartRect, pt.x, pt.y, barIndex, barSeriesCount);
+        TpRect outerRect(barRect.x() - 2, barRect.y() - 2, barRect.width() + 4, barRect.height() + 4);
         int32_t color = s->color() == 0 ? _RGB(80, 80, 80) : s->color();
         TpPen pen(dimColor(color, 255), 3);
         painter->setPen(pen);
         painter->setBrush(TpBrush(dimColor(color, 80)));
-        painter->drawRect(barRect, 0);
+        painter->drawRect(outerRect, 0);
         return;
     }
 

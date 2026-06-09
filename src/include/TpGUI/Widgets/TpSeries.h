@@ -91,6 +91,9 @@ public:
     /// @brief 销毁数据系列
     virtual ~TpSeries();
 
+    TpSeries(const TpSeries&) = delete;
+    TpSeries& operator=(const TpSeries&) = delete;
+
 public:
     /// @brief 设置系列名称
     void setName(const TpString& name);
