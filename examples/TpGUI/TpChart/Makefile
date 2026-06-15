@@ -16,7 +16,7 @@ INC_PATH ?= -I. \
       -I/usr/include/TinyPiX/TpCore \
       -I/usr/include/TinyPiX/TpUtils \
       -I/usr/include/TinyPiX/TpGUI \
-	  -I/usr/include/TinyPiX/TpGUI/GUI \
+	-I/usr/include/TinyPiX/TpGUI/GUI \
       -I/usr/include/TinyPiX/TpGUI/Core \
       -I/usr/include/TinyPiX/TpGUI/Screen \
       -I/usr/include/TinyPiX/TpGUI/Widgets \

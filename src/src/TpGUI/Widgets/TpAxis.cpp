@@ -158,9 +158,10 @@ double TpAxis::mapToValue(int32_t pixel, int32_t length, int32_t offset, bool in
     }
 }
 
-double TpAxis::calculateNiceStep(double range, int32_t targetCount) {
+static double calculateNiceStep(double range, int32_t targetCount)
+{
     if (targetCount <= 1) return 1.0;
-    if (range <= 1e-12) return 1.0; 
+    if (range <= 1e-12) return 1.0;
 
     double rawStep = range / (targetCount - 1);
     double exponent = std::floor(std::log10(rawStep));

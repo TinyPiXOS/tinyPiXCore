@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 
     TpApp app(argc, argv);
     g_app = &app;
+    TpApp::Inst()->cssParser()->parseCss("./chart_style.css");
 
     MainWindowServiceAdvanced mainWindow;
     mainWindow.show();

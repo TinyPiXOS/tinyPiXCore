@@ -2,7 +2,6 @@
 #include "TpChart.h"
 #include "TpSeries.h"
 #include <TpEvent.h>
-#include <TpFile.h>
 #include <cmath>
 
 #ifndef _RGB
@@ -11,8 +10,6 @@
 
 namespace {
 
-/// @brief 启用图表交互
-/// @param chart 图表指针
 static void enableChartInteraction(TpChart* chart, bool pieMode)
 {
     if (!chart) {
@@ -124,19 +121,6 @@ void MainWindowServiceAdvanced::initCharts() {
 
     m_pieChart->addSeries(m_pieSeries);
     m_pieChart->show();
-
-    TpString cssPath = "./chart_style.css";
-    TpFile cssFile(cssPath);
-    TpString cssContent;
-    if (cssFile.exists()) {
-        cssFile.open(TpFile::ReadOnly);
-        if (cssFile.isOpen()) {
-            cssContent = cssFile.readAll();
-        }
-    }
-
-    m_scatterChart->setStyleSheet(cssContent);
-    m_pieChart->setStyleSheet(cssContent);
 }
 
 bool MainWindowServiceAdvanced::onPaintEvent(TpPaintEvent *event) {
