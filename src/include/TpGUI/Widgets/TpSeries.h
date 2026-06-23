@@ -70,7 +70,7 @@ struct TpPieSlice
     }
 };
 
-class TpSeriesPrivate;
+TP_DEF_VOID_TYPE_VAR(ITpSeriesData);
 
 /// @brief 数据系列基类，负责统一管理点、样式和可见性
 class TpSeries
@@ -129,8 +129,13 @@ public:
     /// @brief 绘制系列
     virtual void draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& axisY, const TpRect& rect) = 0;
 
-protected:
-    TpSeriesPrivate* data_;
+private:
+    friend class TpLineSeries;
+    friend class TpBarSeries;
+    friend class TpScatterSeries;
+    friend class TpPieSeries;
+
+    ITpSeriesData *data_;
 };
 
 /// @brief 折线系列

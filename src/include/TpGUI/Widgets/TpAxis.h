@@ -168,7 +168,7 @@ public:
     double yBottomPaddingRatio() const;
 
 private:
-    ITpAxisData* data_;
+    ITpAxisData *data_;
 };
 
 #endif // TP_AXIS_H

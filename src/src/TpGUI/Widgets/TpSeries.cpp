@@ -130,6 +130,11 @@ static int32_t defaultPieColor(int32_t index)
 
 }
 
+static TpSeriesPrivate* seriesData(ITpSeriesData* data)
+{
+    return static_cast<TpSeriesPrivate*>(data);
+}
+
 // ============ TpSeries 鍩虹被鏂规硶 ============
 
 TpSeries::TpSeries(SeriesType type)
@@ -141,7 +146,7 @@ TpSeries::~TpSeries()
 {
     if (data_)
     {
-        delete data_;
+        delete seriesData(data_);
         data_ = nullptr;
     }
 }
@@ -150,7 +155,7 @@ void TpSeries::setName(const TpString& name)
 {
     if (data_)
     {
-        data_->m_name = name;
+        seriesData(data_)->m_name = name;
     }
 }
 
@@ -158,39 +163,39 @@ void TpSeries::setName(const char* name)
 {
     if (data_)
     {
-        data_->m_name = name;
+        seriesData(data_)->m_name = name;
     }
 }
 
 const TpString& TpSeries::name() const
 {
-    return data_->m_name;
+    return seriesData(data_)->m_name;
 }
 
 void TpSeries::setVisible(bool visible)
 {
     if (data_)
     {
-        data_->m_visible = visible;
+        seriesData(data_)->m_visible = visible;
     }
 }
 
 bool TpSeries::isVisible() const
 {
-    return data_ ? data_->m_visible : false;
+    return data_ ? seriesData(data_)->m_visible : false;
 }
 
 void TpSeries::setColor(int32_t color)
 {
     if (data_)
     {
-        data_->m_color = color;
+        seriesData(data_)->m_color = color;
     }
 }
 
 int32_t TpSeries::color() const
 {
-    return data_ ? data_->m_color : 0;
+    return data_ ? seriesData(data_)->m_color : 0;
 }
 
 /// @brief 娣诲姞鏁版嵁鐐癸紱鑻ヨ秴鍑烘渶澶х偣鏁伴檺鍒跺垯绉婚櫎鏈€鏃╃殑鏁版嵁鐐?
@@ -199,13 +204,13 @@ void TpSeries::addPoint(double x, double y)
     if (!data_)
         return;
 
-    data_->m_data.push_back(TpDataPoint(x, y));
+    seriesData(data_)->m_data.push_back(TpDataPoint(x, y));
 
-    if (data_->m_maxCount > 0)
+    if (seriesData(data_)->m_maxCount > 0)
     {
-        while (data_->m_data.size() > data_->m_maxCount)
+        while (seriesData(data_)->m_data.size() > seriesData(data_)->m_maxCount)
         {
-            data_->m_data.remove(0);
+            seriesData(data_)->m_data.remove(0);
         }
     }
 }
@@ -214,8 +219,8 @@ void TpSeries::clear()
 {
     if (data_)
     {
-        data_->m_data.clear();
-        if (data_->m_type == TypePie)
+        seriesData(data_)->m_data.clear();
+        if (seriesData(data_)->m_type == TypePie)
         {
             static_cast<TpPieSeriesPrivate*>(data_)->m_slices.clear();
         }
@@ -224,24 +229,24 @@ void TpSeries::clear()
 
 const TpVector<TpDataPoint>& TpSeries::data() const
 {
-    return data_->m_data;
+    return seriesData(data_)->m_data;
 }
 
 TpSeries::SeriesType TpSeries::type() const
 {
-    return data_->m_type;
+    return seriesData(data_)->m_type;
 }
 
 void TpSeries::setMaxPointCount(int32_t count)
 {
     if (data_)
     {
-        data_->m_maxCount = count < 0 ? 0 : count;
-        if (data_->m_maxCount > 0)
+        seriesData(data_)->m_maxCount = count < 0 ? 0 : count;
+        if (seriesData(data_)->m_maxCount > 0)
         {
-            while (data_->m_data.size() > data_->m_maxCount)
+            while (seriesData(data_)->m_data.size() > seriesData(data_)->m_maxCount)
             {
-                data_->m_data.remove(0);
+                seriesData(data_)->m_data.remove(0);
             }
         }
     }
@@ -283,7 +288,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
 
         if (hasColor && (color() == 0xFF000000 || resolvedColor != 0))
         {
-            data_->m_color = resolvedColor;
+            seriesData(data_)->m_color = resolvedColor;
         }
 
         if (type() == TypeLine)
@@ -342,7 +347,7 @@ void TpSeries::applyCssData(const TpString& className, TpCssParser::MouseStatus 
 TpLineSeries::TpLineSeries()
     : TpSeries(TypeLine)
 {
-    delete data_;
+    delete seriesData(data_);
     data_ = new TpLineSeriesPrivate();
 }
 
@@ -562,7 +567,7 @@ void TpLineSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& a
 TpBarSeries::TpBarSeries()
     : TpSeries(TypeBar)
 {
-    delete data_;
+    delete seriesData(data_);
     data_ = new TpBarSeriesPrivate();
 }
 
@@ -672,7 +677,7 @@ void TpBarSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis& ax
 TpScatterSeries::TpScatterSeries()
     : TpSeries(TypeScatter)
 {
-    delete data_;
+    delete seriesData(data_);
     data_ = new TpScatterSeriesPrivate();
 }
 
@@ -838,7 +843,7 @@ void TpScatterSeries::draw(TpPainter* painter, const TpAxis& axisX, const TpAxis
 TpPieSeries::TpPieSeries()
     : TpSeries(TypePie)
 {
-    delete data_;
+    delete seriesData(data_);
     data_ = new TpPieSeriesPrivate();
 }
 
