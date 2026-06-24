@@ -26,11 +26,11 @@ private:
     void initCharts();
 
 private:
-    TpChart* m_scatterChart;
-    TpChart* m_pieChart;
-    TpScatterSeries* m_scatterSeriesA;
-    TpScatterSeries* m_scatterSeriesB;
-    TpPieSeries* m_pieSeries;
+    TpChart* scatterChart_;
+    TpChart* pieChart_;
+    TpScatterSeries* scatterSeriesA_;
+    TpScatterSeries* scatterSeriesB_;
+    TpPieSeries* pieSeries_;
 };
 
 #endif // MAINWINDOWSERVICEADVANCED_H

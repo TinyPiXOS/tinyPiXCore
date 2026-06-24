@@ -16,7 +16,7 @@ struct LegendItem
     TpRect rect;
 };
 
-struct TpChart::Impl
+struct TpChartData
 {
     TpString title;
     TpString labelX;
@@ -70,11 +70,6 @@ struct TpChart::Impl
 
     bool destroying = false;
 
-    tpShared<TpCssData> enabledCssData;
-    tpShared<TpCssData> disabledCssData;
-    tpShared<TpCssData> hoverCssData;
-    tpShared<TpCssData> pressCssData;
-    tpShared<TpCssData> checkedCssData;
 };
 
 #endif

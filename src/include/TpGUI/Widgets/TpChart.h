@@ -15,6 +15,8 @@
 #include "TpAxis.h"
 #include "TpSeries.h"
 
+TP_DEF_VOID_TYPE_VAR(ITpChartData);
+
 class TpChart : public TpWidget
 {
 public:
@@ -25,9 +27,6 @@ public:
 
     TpChart(const TpChart&) = delete;
     TpChart& operator=(const TpChart&) = delete;
-
-public:
-    struct Impl;
 
 public:
     /// @brief 设置图表标题
@@ -98,8 +97,6 @@ public:
     int32_t selectedSliceIndex() const;
 
 protected:
-    /// @brief 设置样式表，内部会同步刷新图表自身的 CSS 状态
-    virtual void setStyleSheet(const TpString& styleSheet) override;
     virtual bool onPaintEvent(TpPaintEvent* event) override;
     virtual bool onMouseMoveEvent(TpMouseEvent* event) override;
     virtual bool onMousePressEvent(TpMouseEvent* event) override;
@@ -108,7 +105,7 @@ protected:
     virtual bool onLeaveEvent(TpLeaveEvent* event) override;
 
 private:
-    Impl* data_;
+    ITpChartData *data_;
 };
 
 #endif // TPCHART_H
